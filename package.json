@@ -17,15 +17,12 @@
     "delegua": "./bin/delegua"
   },
   "keywords": [
-    "egua", "delegua"
+    "egua",
+    "delegua"
   ],
   "author": "Leonel Sanches da Silva",
   "contributors": [
-    {
-      "name": "Leonel Sanches da Silva",
-      "email": "leonel@designliquido.com.br",
-      "url": "https://www.linkedin.com/in/leonelsanchesdasilva/"
-    }
+    "Leonel Sanches da Silva <leonel@designliquido.com.br> (https://www.linkedin.com/in/leonelsanchesdasilva/)"
   ],
   "license": "MIT",
   "bugs": {
@@ -35,5 +32,6 @@
   "devDependencies": {
     "@babel/preset-env": "^7.12.1",
     "jest": "^26.6.1"
-  }
+  },
+  "dependencies": {}
 }
