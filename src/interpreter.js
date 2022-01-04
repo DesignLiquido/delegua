@@ -6,12 +6,12 @@ const tokenTypes = require("./tokenTypes.js"),
     fs = require("fs"),
     checkStdLib = require("./lib/importStdlib.js");
 
-const Callable = require("./structures/callable.js"),
-    StandardFn = require("./structures/standardFn.js"),
-    EguaClass = require("./structures/class.js"),
-    EguaFunction = require("./structures/function.js"),
-    EguaInstance = require("./structures/instance.js"),
-    EguaModule = require("./structures/module.js");
+const Callable = require("./estruturas/callable.js"),
+    FuncaoPadrao = require("./estruturas/funcaoPadrao.js"),
+    DeleguaClasse = require("./estruturas/classe.js"),
+    DeleguaFuncao = require("./estruturas/funcao.js"),
+    DeleguaInstancia = require("./estruturas/instancia.js"),
+    DeleguaModulo = require("./estruturas/modulo.js");
 
 const {
     RuntimeError,
@@ -197,9 +197,9 @@ module.exports = class Interpreter {
         }
 
         let parametros;
-        if (callee instanceof EguaFunction) {
+        if (callee instanceof DeleguaFuncao) {
             parametros = callee.declaration.params;
-        } else if (callee instanceof EguaClass) {
+        } else if (callee instanceof DeleguaClasse) {
             parametros = callee.methods.init
                 ? callee.methods.init.declaration.params
                 : [];
@@ -225,7 +225,7 @@ module.exports = class Interpreter {
             }
         }
 
-        if (callee instanceof StandardFn) {
+        if (callee instanceof FuncaoPadrao) {
             return callee.call(this, argumentos, expr.callee.name);
         }
 
@@ -449,8 +449,8 @@ module.exports = class Interpreter {
         const pastaTotal = path.dirname(caminhoTotal);
         const nomeArquivo = path.basename(caminhoTotal);
 
-        let data = checkStdLib(caminhoRelativo);
-        if (data !== null) return data;
+        let dados = checkStdLib(caminhoRelativo);
+        if (dados !== null) return dados;
 
         try {
             if (!fs.existsSync(caminhoTotal)) {
@@ -463,19 +463,19 @@ module.exports = class Interpreter {
             throw new RuntimeError(stmt.closeBracket, "Não foi possível ler o arquivo.");
         }
 
-        data = fs.readFileSync(caminhoTotal).toString();
+        dados = fs.readFileSync(caminhoTotal).toString();
 
         const egua = new Egua.Egua(nomeArquivo);
         const interpretador = new Interpreter(egua, pastaTotal);
 
-        egua.run(data, interpretador);
+        egua.run(dados, interpretador);
 
         let exportar = interpretador.globals.values.exports;
 
         const eDicionario = objeto => objeto.constructor === Object;
 
         if (eDicionario(exportar)) {
-            let novoModulo = new EguaModule();
+            let novoModulo = new DeleguaModulo();
 
             let chaves = Object.keys(exportar);
             for (let i = 0; i < chaves.length; i++) {
@@ -538,7 +538,7 @@ module.exports = class Interpreter {
     }
 
     visitFunctionExpr(expr) {
-        return new EguaFunction(null, expr, this.environment, false);
+        return new DeleguaFuncao(null, expr, this.environment, false);
     }
 
     visitAssignsubscriptExpr(expr) {
@@ -560,10 +560,10 @@ module.exports = class Interpreter {
             objeto[indice] = value;
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof EguaInstance ||
-            objeto instanceof EguaFunction ||
-            objeto instanceof EguaClass ||
-            objeto instanceof EguaModule
+            objeto instanceof DeleguaInstancia ||
+            objeto instanceof DeleguaFuncao ||
+            objeto instanceof DeleguaClasse ||
+            objeto instanceof DeleguaModulo
         ) {
             objeto[indice] = value;
         }
@@ -602,10 +602,10 @@ module.exports = class Interpreter {
 
         else if (
             objeto.constructor === Object ||
-            objeto instanceof EguaInstance ||
-            objeto instanceof EguaFunction ||
-            objeto instanceof EguaClass ||
-            objeto instanceof EguaModule
+            objeto instanceof DeleguaInstancia ||
+            objeto instanceof DeleguaFuncao ||
+            objeto instanceof DeleguaClasse ||
+            objeto instanceof DeleguaModulo
         ) {
             return objeto[indice] || null;
         }
@@ -641,7 +641,7 @@ module.exports = class Interpreter {
     visitSetExpr(expr) {
         const objeto = this.avaliar(expr.object);
 
-        if (!(objeto instanceof EguaInstance) && objeto.constructor !== Object) {
+        if (!(objeto instanceof DeleguaInstancia) && objeto.constructor !== Object) {
             throw new RuntimeError(
                 expr.object.name,
                 "Somente instâncias e dicionários podem possuir campos."
@@ -649,7 +649,7 @@ module.exports = class Interpreter {
         }
 
         const valor = this.avaliar(expr.value);
-        if (objeto instanceof EguaInstance) {
+        if (objeto instanceof DeleguaInstancia) {
             objeto.set(expr.name, valor);
             return valor;
         } else if (objeto.constructor === Object) {
@@ -658,7 +658,7 @@ module.exports = class Interpreter {
     }
 
     visitFunctionStmt(stmt) {
-        const funcao = new EguaFunction(
+        const funcao = new DeleguaFuncao(
             stmt.name.lexeme,
             stmt.func,
             this.environment,
@@ -671,7 +671,7 @@ module.exports = class Interpreter {
         let superClasse = null;
         if (stmt.superclass !== null) {
             superclass = this.avaliar(stmt.superclass);
-            if (!(superclass instanceof EguaClass)) {
+            if (!(superclass instanceof DeleguaClasse)) {
                 throw new RuntimeError(
                     stmt.superclass.name,
                     "Superclasse precisa ser uma classe."
@@ -691,7 +691,7 @@ module.exports = class Interpreter {
         for (let i = 0; i < stmt.methods.length; i++) {
             let metodoAtual = definirMetodos[i];
             let eInicializado = metodoAtual.name.lexeme === "construtor";
-            const funcao = new EguaFunction(
+            const funcao = new DeleguaFuncao(
                 metodoAtual.name.lexeme,
                 metodoAtual.func,
                 this.environment,
@@ -700,7 +700,7 @@ module.exports = class Interpreter {
             metodos[metodoAtual.name.lexeme] = funcao;
         }
 
-        const criado = new EguaClass(stmt.name.lexeme, superClasse, metodos);
+        const criado = new DeleguaClasse(stmt.name.lexeme, superClasse, metodos);
 
         if (superClasse !== null) {
             this.environment = this.environment.enclosing;
@@ -711,13 +711,13 @@ module.exports = class Interpreter {
     }
 
     visitGetExpr(expr) {
-        let object = this.avaliar(expr.object);
-        if (object instanceof EguaInstance) {
-            return object.get(expr.name) || null;
-        } else if (object.constructor === Object) {
-            return object[expr.name.lexeme] || null;
-        } else if (object instanceof EguaModule) {
-            return object[expr.name.lexeme] || null;
+        let objeto = this.avaliar(expr.object);
+        if (objeto instanceof DeleguaInstancia) {
+            return objeto.get(expr.name) || null;
+        } else if (objeto.constructor === Object) {
+            return objeto[expr.name.lexeme] || null;
+        } else if (objeto instanceof DeleguaModulo) {
+            return objeto[expr.name.lexeme] || null;
         }
 
         throw new RuntimeError(

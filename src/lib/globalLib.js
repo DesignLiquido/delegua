@@ -1,15 +1,15 @@
 const RuntimeError = require("../errors.js").RuntimeError,
-    EguaFunction = require("../structures/function.js"),
-    EguaInstance = require("../structures/instance.js"),
-    StandardFn = require("../structures/standardFn.js"),
-    EguaClass = require("../structures/class.js");
+    DeleguaFuncao = require("../estruturas/funcao.js"),
+    DeleguaInstancia = require("../estruturas/instancia.js"),
+    FuncaoPadrao = require("../estruturas/funcaoPadrao.js"),
+    DeleguaClasse = require("../estruturas/classe.js");
 
 
 module.exports = function (interpreter, globals) {
     // Retorna um número aleatório entre 0 e 1.
     globals.definirVariavel(
         "aleatorio",
-        new StandardFn(1, function () {
+        new FuncaoPadrao(1, function () {
             return Math.random();
         })
     );
@@ -18,7 +18,7 @@ module.exports = function (interpreter, globals) {
     // MIN(inclusivo) - MAX(exclusivo)
     globals.definirVariavel(
         "aleatorioEntre",
-        new StandardFn(1, function (min, max) {
+        new FuncaoPadrao(1, function (min, max) {
             if (typeof min !== 'number' || typeof max !== 'number') {
                 throw new RuntimeError(
                     this.token,
@@ -32,7 +32,7 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "inteiro",
-        new StandardFn(1, function (value) {
+        new FuncaoPadrao(1, function (value) {
             if (value === undefined || value === null) {
                 throw new RuntimeError(
                     this.token,
@@ -53,7 +53,7 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "mapear",
-        new StandardFn(1, function (array, callback) {
+        new FuncaoPadrao(1, function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new RuntimeError(
                     this.token,
@@ -61,7 +61,7 @@ module.exports = function (interpreter, globals) {
                 );
             }
 
-            if (callback.constructor.name !== 'EguaFunction') {
+            if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new RuntimeError(
                     this.token,
                     "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
@@ -83,7 +83,7 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "ordenar",
-        new StandardFn(1, function (obj) {
+        new FuncaoPadrao(1, function (obj) {
             if (Array.isArray(obj) == false) {
                 throw new RuntimeError(
                     this.token,
@@ -108,7 +108,7 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "real",
-        new StandardFn(1, function (value) {
+        new FuncaoPadrao(1, function (value) {
             if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value))
                 throw new RuntimeError(
                     this.token,
@@ -120,7 +120,7 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "tamanho",
-        new StandardFn(1, function (obj) {
+        new FuncaoPadrao(1, function (obj) {
             if (!isNaN(obj)) {
                 throw new RuntimeError(
                     this.token,
@@ -128,18 +128,18 @@ module.exports = function (interpreter, globals) {
                 );
             }
 
-            if (obj instanceof EguaInstance) {
+            if (obj instanceof DeleguaInstancia) {
                 throw new RuntimeError(
                     this.token,
                     "Você não pode encontrar o tamanho de uma declaração."
                 );
             }
 
-            if (obj instanceof EguaFunction) {
+            if (obj instanceof DeleguaFuncao) {
                 return obj.declaration.params.length;
             }
 
-            if (obj instanceof StandardFn) {
+            if (obj instanceof FuncaoPadrao) {
                 return obj.arityValue;
             }
 
@@ -160,7 +160,7 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "texto",
-        new StandardFn(1, function (value) {
+        new FuncaoPadrao(1, function (value) {
             return `${value}`;
         })
     );
