@@ -94,10 +94,10 @@ module.exports = class Resolver {
     resolver(statements) {
         if (Array.isArray(statements)) {
             for (let i = 0; i < statements.length; i++) {
-                statements[i].adicionar(this);
+                statements[i].aceitar(this);
             }
         } else {
-            statements.adicionar(this);
+            statements.aceitar(this);
         }
     }
 
