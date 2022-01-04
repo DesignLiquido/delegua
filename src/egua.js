@@ -8,95 +8,95 @@ const path = require("path");
 const readline = require("readline");
 
 module.exports.Egua = class Egua {
-    constructor(filename) {
-        this.filename = filename;
+    constructor(nomeArquivo) {
+        this.nomeArquivo = nomeArquivo;
 
-        this.hadError = false;
-        this.hadRuntimeError = false;
+        this.teveErro = false;
+        this.teveErroEmTempoDeExecucao = false;
     }
 
     runPrompt() {
         const interpreter = new Interpreter(this, process.cwd(), undefined);
-        console.log("Console da Linguagem Egua v1.1.15");
-        const rl = readline.createInterface({
+        console.log("Console da Linguagem Delégua v1.1.15");
+        const leiaLinha = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
             prompt: "\negua> "
         });
 
-        rl.prompt();
+        leiaLinha.prompt();
 
-        rl.on("line", line => {
-            this.hadError = false;
-            this.hadRuntimeError = false;
+        leiaLinha.on("line", linha => {
+            this.teveErro = false;
+            this.teveErroEmTempoDeExecucao = false;
 
-            this.run(line, interpreter);
-            rl.prompt();
+            this.run(linha, interpreter);
+            leiaLinha.prompt();
         });
     }
 
-    runfile(filename) {
-        this.filename = path.basename(filename);
-        const interpreter = new Interpreter(this, process.cwd());
+    runfile(nomeArquivo) {
+        this.nomeArquivo = path.basename(nomeArquivo);
+        const interpretador = new Interpreter(this, process.cwd());
 
-        const fileData = fs.readFileSync(filename).toString();
-        this.run(fileData, interpreter);
+        const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
+        this.run(dadosDoArquivo, interpretador);
 
-        if (this.hadError) process.exit(65);
-        if (this.hadRuntimeError) process.exit(70);
+        if (this.teveErro) process.exit(65);
+        if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    run(code, interpreter) {
+    run(code, interpretador) {
         const lexer = new Lexer(code, this);
-        const tokens = lexer.scan();
+        const simbolos = lexer.scan();
 
-        if (this.hadError === true) return;
+        if (this.teveErro === true) return;
 
-        const parser = new Parser(tokens, this);
-        const statements = parser.parse();
+        const analisar = new Parser(simbolos, this);
+        const declaracoes = analisar.analisar();
 
-        if (this.hadError === true) return;
+        if (this.teveErro === true) return;
 
-        const resolver = new Resolver(interpreter, this);
-        resolver.resolve(statements);
+        const resolver = new Resolver(interpretador, this);
+        resolver.resolver(declaracoes);
 
-        if (this.hadError === true) return;
+        if (this.teveErro === true) return;
 
-        interpreter.interpret(statements);
+        interpretador.interpretar(declaracoes);
     }
 
-    report(line, where, message) {
-        if (this.filename)
+    reportar(linha, onde, mensagem) {
+        if (this.nomeArquivo)
             console.error(
-                `[Arquivo: ${this.filename}] [Linha: ${line}] Erro${where}: ${message}`
+                `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`
             );
-        else console.error(`[Linha: ${line}] Erro${where}: ${message}`);
-        this.hadError = true;
+        else console.error(`[Linha: ${linha}] Erro${onde}: ${mensagem}`);
+        this.teveErro = true;
     }
 
-    error(token, errorMessage) {
-        if (token.type === tokenTypes.EOF) {
-            this.report(token.line, " no final", errorMessage);
+    error(simbolo, mensagemDeErro) {
+        if (simbolo.type === tokenTypes.EOF) {
+            this.reportar(simbolo.line, " no final", mensagemDeErro);
         } else {
-            this.report(token.line, ` no '${token.lexeme}'`, errorMessage);
+            this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);
         }
     }
 
-    lexerError(line, char, msg) {
-        this.report(line, ` no '${char}'`, msg);
+    lexerError(linha, caractere, mensagem) {
+        this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
-    runtimeError(error) {
-        let line = error.token.line;
-        if (error.token && line) {
-            if (this.fileName)
+    runtimeError(erro) {
+        const linha = erro.token.line;
+        if (erro.token && linha) {
+            if (this.nomeArquivo)
                 console.error(
-                    `Erro: [Arquivo: ${this.fileName}] [Linha: ${error.token.line}] ${error.message}`
+                    `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.token.line}] ${erro.message}`
                 );
-            else console.error(`Erro: [Linha: ${error.token.line}] ${error.message}`);
+            else console.error(`Erro: [Linha: ${erro.token.line}] ${erro.message}`);
         } else {
-            console.error(`Erro: ${error.message}`);
+            console.error(`Erro: ${erro.message}`);
         }
-        this.hadRuntimeError = true;
+        this.teveErroEmTempoDeExecucao = true;
     }
 };
