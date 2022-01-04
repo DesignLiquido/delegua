@@ -25,9 +25,9 @@ const {
  * e de fato executa a lógica de programação descrita no código.
  */
 module.exports = class Interpreter {
-    constructor(Egua, baseDir) {
+    constructor(Egua, diretorioBase) {
         this.Egua = Egua;
-        this.baseDir = baseDir;
+        this.diretorioBase = diretorioBase;
 
         this.globals = new Environment();
         this.environment = this.globals;
@@ -44,19 +44,19 @@ module.exports = class Interpreter {
         return expr.value;
     }
 
-    evaluate(expr) {
+    avaliar(expr) {
         return expr.aceitar(this);
     }
 
     visitGroupingExpr(expr) {
-        return this.evaluate(expr.expression);
+        return this.avaliar(expr.expression);
     }
 
-    isTruthy(object) {
-        if (object === null)
+    eVerdadeiro(objeto) {
+        if (objeto === null)
             return false;
-        if (typeof object === "boolean")
-            return Boolean(object);
+        if (typeof objeto === "boolean")
+            return Boolean(objeto);
 
         return true;
     }
@@ -67,14 +67,14 @@ module.exports = class Interpreter {
     }
 
     visitUnaryExpr(expr) {
-        let right = this.evaluate(expr.right);
+        let right = this.avaliar(expr.right);
 
         switch (expr.operator.type) {
             case tokenTypes.MINUS:
                 this.checkNumberOperand(expr.operator, right);
                 return -right;
             case tokenTypes.BANG:
-                return !this.isTruthy(right);
+                return !this.eVerdadeiro(right);
             case tokenTypes.BIT_NOT:
                 return ~right;
         }
@@ -82,56 +82,56 @@ module.exports = class Interpreter {
         return null;
     }
 
-    isEqual(left, right) {
-        if (left === null && right === null)
+    eIgual(esquerda, direita) {
+        if (esquerda === null && direita === null)
             return true;
-        if (left === null)
+        if (esquerda === null)
             return false;
 
-        return left === right;
+        return esquerda === direita;
     }
 
-    checkNumberOperands(operator, left, right) {
-        if (typeof left === "number" && typeof right === "number") return;
-        throw new RuntimeError(operator, "Operadores precisam ser números.");
+    checkNumberOperands(operador, direita, esquerda) {
+        if (typeof direita === "number" && typeof esquerda === "number") return;
+        throw new RuntimeError(operador, "Operadores precisam ser números.");
     }
 
     visitBinaryExpr(expr) {
-        let left = this.evaluate(expr.left);
-        let right = this.evaluate(expr.right);
+        let esquerda = this.avaliar(expr.left);
+        let direita = this.avaliar(expr.right);
 
         switch (expr.operator.type) {
             case tokenTypes.STAR_STAR:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Math.pow(left, right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Math.pow(esquerda, direita);
 
             case tokenTypes.GREATER:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) > Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) > Number(direita);
 
             case tokenTypes.GREATER_EQUAL:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) >= Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) >= Number(direita);
 
             case tokenTypes.LESS:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) < Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) < Number(direita);
 
             case tokenTypes.LESS_EQUAL:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) <= Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) <= Number(direita);
 
             case tokenTypes.MINUS:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) - Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) - Number(direita);
 
             case tokenTypes.PLUS:
-                if (typeof left === "number" && typeof right === "number") {
-                    return Number(left) + Number(right);
+                if (typeof esquerda === "number" && typeof direita === "number") {
+                    return Number(esquerda) + Number(direita);
                 }
 
-                if (typeof left === "string" && typeof right === "string") {
-                    return String(left) + String(right);
+                if (typeof esquerda === "string" && typeof direita === "string") {
+                    return String(esquerda) + String(direita);
                 }
 
                 throw new RuntimeError(
@@ -140,53 +140,53 @@ module.exports = class Interpreter {
                 );
 
             case tokenTypes.SLASH:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) / Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) / Number(direita);
 
             case tokenTypes.STAR:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) * Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) * Number(direita);
 
             case tokenTypes.MODULUS:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) % Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) % Number(direita);
 
             case tokenTypes.BIT_AND:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) & Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) & Number(direita);
 
             case tokenTypes.BIT_XOR:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) ^ Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) ^ Number(direita);
 
             case tokenTypes.BIT_OR:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) | Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) | Number(direita);
 
             case tokenTypes.LESSER_LESSER:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) << Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) << Number(direita);
 
             case tokenTypes.GREATER_GREATER:
-                this.checkNumberOperands(expr.operator, left, right);
-                return Number(left) >> Number(right);
+                this.checkNumberOperands(expr.operator, esquerda, direita);
+                return Number(esquerda) >> Number(direita);
 
             case tokenTypes.BANG_EQUAL:
-                return !this.isEqual(left, right);
+                return !this.eIgual(esquerda, direita);
 
             case tokenTypes.EQUAL_EQUAL:
-                return this.isEqual(left, right);
+                return this.eIgual(esquerda, direita);
         }
 
         return null;
     }
 
     visitCallExpr(expr) {
-        let callee = this.evaluate(expr.callee);
+        let callee = this.avaliar(expr.callee);
 
-        let args = [];
+        let argumentos = [];
         for (let i = 0; i < expr.args.length; i++) {
-            args.push(this.evaluate(expr.args[i]));
+            argumentos.push(this.avaliar(expr.args[i]));
         }
 
         if (!(callee instanceof Callable)) {
@@ -196,44 +196,44 @@ module.exports = class Interpreter {
             );
         }
 
-        let params;
+        let parametros;
         if (callee instanceof EguaFunction) {
-            params = callee.declaration.params;
+            parametros = callee.declaration.params;
         } else if (callee instanceof EguaClass) {
-            params = callee.methods.init
+            parametros = callee.methods.init
                 ? callee.methods.init.declaration.params
                 : [];
         } else {
-            params = [];
+            parametros = [];
         }
 
-        if (args.length < callee.arity()) {
-            let diff = callee.arity() - args.length;
-            for (let i = 0; i < diff; i++) {
-                args.push(null);
+        if (argumentos.length < callee.arity()) {
+            let diferenca = callee.arity() - argumentos.length;
+            for (let i = 0; i < diferenca; i++) {
+                argumentos.push(null);
             }
         }
 
-        else if (args.length >= callee.arity()) {
+        else if (argumentos.length >= callee.arity()) {
             if (
-                params.length > 0 &&
-                params[params.length - 1]["type"] === "wildcard"
+                parametros.length > 0 &&
+                parametros[parametros.length - 1]["type"] === "wildcard"
             ) {
-                let newArgs = args.slice(0, params.length - 1);
-                newArgs.push(args.slice(params.length - 1, args.length));
-                args = newArgs;
+                let novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                argumentos = novosArgumentos;
             }
         }
 
         if (callee instanceof StandardFn) {
-            return callee.call(this, args, expr.callee.name);
+            return callee.call(this, argumentos, expr.callee.name);
         }
 
-        return callee.call(this, args);
+        return callee.call(this, argumentos);
     }
 
     visitAssignExpr(expr) {
-        const valor = this.evaluate(expr.value);
+        const valor = this.avaliar(expr.value);
 
         const distancia = this.locals.get(expr);
         if (distancia !== undefined) {
@@ -259,20 +259,20 @@ module.exports = class Interpreter {
     }
 
     visitExpressionStmt(stmt) {
-        this.evaluate(stmt.expression);
+        this.avaliar(stmt.expression);
         return null;
     }
 
     visitLogicalExpr(expr) {
-        let left = this.evaluate(expr.left);
+        let esquerda = this.avaliar(expr.left);
 
         if (expr.operator.type === tokenTypes.EM) {
-            let right = this.evaluate(expr.right);
+            let direita = this.avaliar(expr.right);
 
-            if (Array.isArray(right) || typeof right === "string") {
-                return right.includes(left);
-            } else if (right.constructor === Object) {
-                return left in right;
+            if (Array.isArray(direita) || typeof direita === "string") {
+                return direita.includes(esquerda);
+            } else if (direita.constructor === Object) {
+                return esquerda in direita;
             } else {
                 throw new RuntimeError("Tipo de chamada inválida com 'em'.");
             }
@@ -280,28 +280,28 @@ module.exports = class Interpreter {
 
         // se um estado for verdadeiro, retorna verdadeiro
         if (expr.operator.type === tokenTypes.OU) {
-            if (this.isTruthy(left)) return left;
+            if (this.eVerdadeiro(esquerda)) return esquerda;
         }
 
         // se um estado for falso, retorna falso
         if (expr.operator.type === tokenTypes.E) {
-            if (!this.isTruthy(left)) return left;
+            if (!this.eVerdadeiro(esquerda)) return esquerda;
         }
 
-        return this.evaluate(expr.right);
+        return this.avaliar(expr.right);
     }
 
     visitIfStmt(stmt) {
-        if (this.isTruthy(this.evaluate(stmt.condition))) {
+        if (this.eVerdadeiro(this.avaliar(stmt.condition))) {
             this.executar(stmt.thenBranch);
             return null;
         }
 
         for (let i = 0; i < stmt.elifBranches.length; i++) {
-            let current = stmt.elifBranches[i];
+            const atual = stmt.elifBranches[i];
 
-            if (this.isTruthy(this.evaluate(current.condition))) {
-                this.executar(current.branch);
+            if (this.eVerdadeiro(this.avaliar(atual.condition))) {
+                this.executar(atual.branch);
                 return null;
             }
         }
@@ -315,28 +315,28 @@ module.exports = class Interpreter {
 
     visitForStmt(stmt) {
         if (stmt.initializer !== null) {
-            this.evaluate(stmt.initializer);
+            this.avaliar(stmt.initializer);
         }
         while (true) {
             if (stmt.condition !== null) {
-                if (!this.isTruthy(this.evaluate(stmt.condition))) {
+                if (!this.eVerdadeiro(this.avaliar(stmt.condition))) {
                     break;
                 }
             }
 
             try {
                 this.executar(stmt.body);
-            } catch (error) {
-                if (error instanceof BreakException) {
+            } catch (erro) {
+                if (erro instanceof BreakException) {
                     break;
-                } else if (error instanceof ContinueException) {
+                } else if (erro instanceof ContinueException) {
                 } else {
-                    throw error;
+                    throw erro;
                 }
             }
 
             if (stmt.increment !== null) {
-                this.evaluate(stmt.increment);
+                this.avaliar(stmt.increment);
             }
         }
         return null;
@@ -346,19 +346,19 @@ module.exports = class Interpreter {
         do {
             try {
                 this.executar(stmt.doBranch);
-            } catch (error) {
-                if (error instanceof BreakException) {
+            } catch (erro) {
+                if (erro instanceof BreakException) {
                     break;
-                } else if (error instanceof ContinueException) {
+                } else if (erro instanceof ContinueException) {
                 } else {
-                    throw error;
+                    throw erro;
                 }
             }
-        } while (this.isTruthy(this.evaluate(stmt.whileCondition)));
+        } while (this.eVerdadeiro(this.avaliar(stmt.whileCondition)));
     }
 
     visitSwitchStmt(stmt) {
-        let switchCondition = this.evaluate(stmt.condition);
+        let switchCondition = this.avaliar(stmt.condition);
         let branches = stmt.branches;
         let defaultBranch = stmt.defaultBranch;
 
@@ -368,17 +368,17 @@ module.exports = class Interpreter {
                 let branch = branches[i];
 
                 for (let j = 0; j < branch.conditions.length; j++) {
-                    if (this.evaluate(branch.conditions[j]) === switchCondition) {
+                    if (this.avaliar(branch.conditions[j]) === switchCondition) {
                         matched = true;
 
                         try {
                             for (let k = 0; k < branch.stmts.length; k++) {
                                 this.executar(branch.stmts[k]);
                             }
-                        } catch (error) {
-                            if (error instanceof ContinueException) {
+                        } catch (erro) {
+                            if (erro instanceof ContinueException) {
                             } else {
-                                throw error;
+                                throw erro;
                             }
                         }
                     }
@@ -390,21 +390,21 @@ module.exports = class Interpreter {
                     this.executar(defaultBranch["stmts"][i]);
                 }
             }
-        } catch (error) {
-            if (error instanceof BreakException) {
+        } catch (erro) {
+            if (erro instanceof BreakException) {
             } else {
-                throw error;
+                throw erro;
             }
         }
     }
 
     visitTryStmt(stmt) {
         try {
-            let successful = true;
+            let sucesso = true;
             try {
                 this.executeBlock(stmt.tryBranch, new Environment(this.environment));
-            } catch (error) {
-                successful = false;
+            } catch (erro) {
+                sucesso = false;
 
                 if (stmt.catchBranch !== null) {
                     this.executeBlock(
@@ -414,7 +414,7 @@ module.exports = class Interpreter {
                 }
             }
 
-            if (successful && stmt.elseBranch !== null) {
+            if (sucesso && stmt.elseBranch !== null) {
                 this.executeBlock(stmt.elseBranch, new Environment(this.environment));
             }
         } finally {
@@ -427,15 +427,15 @@ module.exports = class Interpreter {
     }
 
     visitWhileStmt(stmt) {
-        while (this.isTruthy(this.evaluate(stmt.condition))) {
+        while (this.eVerdadeiro(this.avaliar(stmt.condition))) {
             try {
                 this.executar(stmt.body);
-            } catch (error) {
-                if (error instanceof BreakException) {
+            } catch (erro) {
+                if (erro instanceof BreakException) {
                     break;
-                } else if (error instanceof ContinueException) {
+                } else if (erro instanceof ContinueException) {
                 } else {
-                    throw error;
+                    throw erro;
                 }
             }
         }
@@ -444,58 +444,58 @@ module.exports = class Interpreter {
     }
 
     visitImportStmt(stmt) {
-        let relativePath = this.evaluate(stmt.path);
-        let totalPath = path.join(this.baseDir, relativePath);
-        let totalFolder = path.dirname(totalPath);
-        let filename = path.basename(totalPath);
+        const caminhoRelativo = this.avaliar(stmt.path);
+        const caminhoTotal = path.join(this.diretorioBase, caminhoRelativo);
+        const pastaTotal = path.dirname(caminhoTotal);
+        const nomeArquivo = path.basename(caminhoTotal);
 
-        let data = checkStdLib(relativePath);
+        let data = checkStdLib(caminhoRelativo);
         if (data !== null) return data;
 
         try {
-            if (!fs.existsSync(totalPath)) {
+            if (!fs.existsSync(caminhoTotal)) {
                 throw new RuntimeError(
                     stmt.closeBracket,
                     "Não foi possível encontrar arquivo importado."
                 );
             }
-        } catch (error) {
+        } catch (erro) {
             throw new RuntimeError(stmt.closeBracket, "Não foi possível ler o arquivo.");
         }
 
-        data = fs.readFileSync(totalPath).toString();
+        data = fs.readFileSync(caminhoTotal).toString();
 
-        const egua = new Egua.Egua(filename);
-        const interpreter = new Interpreter(egua, totalFolder);
+        const egua = new Egua.Egua(nomeArquivo);
+        const interpretador = new Interpreter(egua, pastaTotal);
 
-        egua.run(data, interpreter);
+        egua.run(data, interpretador);
 
-        let exported = interpreter.globals.values.exports;
+        let exportar = interpretador.globals.values.exports;
 
-        const isDict = obj => obj.constructor === Object;
+        const eDicionario = objeto => objeto.constructor === Object;
 
-        if (isDict(exported)) {
-            let newModule = new EguaModule();
+        if (eDicionario(exportar)) {
+            let novoModulo = new EguaModule();
 
-            let keys = Object.keys(exported);
-            for (let i = 0; i < keys.length; i++) {
-                newModule[keys[i]] = exported[keys[i]];
+            let chaves = Object.keys(exportar);
+            for (let i = 0; i < chaves.length; i++) {
+                novoModulo[chaves[i]] = exportar[chaves[i]];
             }
 
-            return newModule;
+            return novoModulo;
         }
 
-        return exported;
+        return exportar;
     }
 
     visitPrintStmt(stmt) {
-        let value = this.evaluate(stmt.expression);
-        console.log(this.stringify(value));
+        const valor = this.avaliar(stmt.expression);
+        console.log(this.stringify(valor));
         return null;
     }
 
     executeBlock(statements, environment) {
-        let previous = this.environment;
+        let anterior = this.environment;
         try {
             this.environment = environment;
 
@@ -503,7 +503,7 @@ module.exports = class Interpreter {
                 this.executar(statements[i]);
             }
         } finally {
-            this.environment = previous;
+            this.environment = anterior;
         }
     }
 
@@ -513,12 +513,12 @@ module.exports = class Interpreter {
     }
 
     visitVarStmt(stmt) {
-        let value = null;
+        let valor = null;
         if (stmt.initializer !== null) {
-            value = this.evaluate(stmt.initializer);
+            valor = this.avaliar(stmt.initializer);
         }
 
-        this.environment.definirVariavel(stmt.name.lexeme, value);
+        this.environment.definirVariavel(stmt.name.lexeme, valor);
         return null;
     }
 
@@ -531,10 +531,10 @@ module.exports = class Interpreter {
     }
 
     visitReturnStmt(stmt) {
-        let value = null;
-        if (stmt.value != null) value = this.evaluate(stmt.value);
+        let valor = null;
+        if (stmt.value != null) valor = this.avaliar(stmt.value);
 
-        throw new ReturnException(value);
+        throw new ReturnException(valor);
     }
 
     visitFunctionExpr(expr) {
@@ -542,30 +542,30 @@ module.exports = class Interpreter {
     }
 
     visitAssignsubscriptExpr(expr) {
-        let obj = this.evaluate(expr.obj);
-        let index = this.evaluate(expr.index);
-        let value = this.evaluate(expr.value);
+        let objeto = this.avaliar(expr.obj);
+        let indice = this.avaliar(expr.index);
+        let value = this.avaliar(expr.value);
 
-        if (Array.isArray(obj)) {
-            if (index < 0 && obj.length !== 0) {
-                while (index < 0) {
-                    index += obj.length;
+        if (Array.isArray(objeto)) {
+            if (indice < 0 && objeto.length !== 0) {
+                while (indice < 0) {
+                    indice += objeto.length;
                 }
             }
 
-            while (obj.length < index) {
-                obj.push(null);
+            while (objeto.length < indice) {
+                objeto.push(null);
             }
 
-            obj[index] = value;
+            objeto[indice] = value;
         } else if (
-            obj.constructor === Object ||
-            obj instanceof EguaInstance ||
-            obj instanceof EguaFunction ||
-            obj instanceof EguaClass ||
-            obj instanceof EguaModule
+            objeto.constructor === Object ||
+            objeto instanceof EguaInstance ||
+            objeto instanceof EguaFunction ||
+            objeto instanceof EguaClass ||
+            objeto instanceof EguaModule
         ) {
-            obj[index] = value;
+            objeto[indice] = value;
         }
 
         else {
@@ -577,9 +577,9 @@ module.exports = class Interpreter {
     }
 
     visitSubscriptExpr(expressao) {
-        const objeto = this.evaluate(expressao.callee);
+        const objeto = this.avaliar(expressao.callee);
 
-        let indice = this.evaluate(expressao.index);
+        let indice = this.avaliar(expressao.index);
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(indice)) {
                 throw new RuntimeError(
@@ -639,38 +639,38 @@ module.exports = class Interpreter {
     }
 
     visitSetExpr(expr) {
-        let obj = this.evaluate(expr.object);
+        const objeto = this.avaliar(expr.object);
 
-        if (!(obj instanceof EguaInstance) && obj.constructor !== Object) {
+        if (!(objeto instanceof EguaInstance) && objeto.constructor !== Object) {
             throw new RuntimeError(
                 expr.object.name,
                 "Somente instâncias e dicionários podem possuir campos."
             );
         }
 
-        let value = this.evaluate(expr.value);
-        if (obj instanceof EguaInstance) {
-            obj.set(expr.name, value);
-            return value;
-        } else if (obj.constructor === Object) {
-            obj[expr.name.lexeme] = value;
+        const valor = this.avaliar(expr.value);
+        if (objeto instanceof EguaInstance) {
+            objeto.set(expr.name, valor);
+            return valor;
+        } else if (objeto.constructor === Object) {
+            objeto[expr.name.lexeme] = valor;
         }
     }
 
     visitFunctionStmt(stmt) {
-        let func = new EguaFunction(
+        const funcao = new EguaFunction(
             stmt.name.lexeme,
             stmt.func,
             this.environment,
             false
         );
-        this.environment.definirVariavel(stmt.name.lexeme, func);
+        this.environment.definirVariavel(stmt.name.lexeme, funcao);
     }
 
     visitClassStmt(stmt) {
-        let superclass = null;
+        let superClasse = null;
         if (stmt.superclass !== null) {
-            superclass = this.evaluate(stmt.superclass);
+            superclass = this.avaliar(stmt.superclass);
             if (!(superclass instanceof EguaClass)) {
                 throw new RuntimeError(
                     stmt.superclass.name,
@@ -683,35 +683,35 @@ module.exports = class Interpreter {
 
         if (stmt.superclass !== null) {
             this.environment = new Environment(this.environment);
-            this.environment.definirVariavel("super", superclass);
+            this.environment.definirVariavel("super", superClasse);
         }
 
-        let methods = {};
-        let definedMethods = stmt.methods;
+        let metodos = {};
+        let definirMetodos = stmt.methods;
         for (let i = 0; i < stmt.methods.length; i++) {
-            let currentMethod = definedMethods[i];
-            let isInitializer = currentMethod.name.lexeme === "construtor";
-            let func = new EguaFunction(
-                currentMethod.name.lexeme,
-                currentMethod.func,
+            let metodoAtual = definirMetodos[i];
+            let eInicializado = metodoAtual.name.lexeme === "construtor";
+            const funcao = new EguaFunction(
+                metodoAtual.name.lexeme,
+                metodoAtual.func,
                 this.environment,
-                isInitializer
+                eInicializado
             );
-            methods[currentMethod.name.lexeme] = func;
+            metodos[metodoAtual.name.lexeme] = funcao;
         }
 
-        let created = new EguaClass(stmt.name.lexeme, superclass, methods);
+        const criado = new EguaClass(stmt.name.lexeme, superClasse, metodos);
 
-        if (superclass !== null) {
+        if (superClasse !== null) {
             this.environment = this.environment.enclosing;
         }
 
-        this.environment.atribuirVariavel(stmt.name, created);
+        this.environment.atribuirVariavel(stmt.name, criado);
         return null;
     }
 
     visitGetExpr(expr) {
-        let object = this.evaluate(expr.object);
+        let object = this.avaliar(expr.object);
         if (object instanceof EguaInstance) {
             return object.get(expr.name) || null;
         } else if (object.constructor === Object) {
@@ -733,7 +733,7 @@ module.exports = class Interpreter {
     visitDictionaryExpr(expr) {
         let dict = {};
         for (let i = 0; i < expr.keys.length; i++) {
-            dict[this.evaluate(expr.keys[i])] = this.evaluate(expr.values[i]);
+            dict[this.avaliar(expr.keys[i])] = this.avaliar(expr.values[i]);
         }
         return dict;
     }
@@ -741,27 +741,27 @@ module.exports = class Interpreter {
     visitArrayExpr(expr) {
         let values = [];
         for (let i = 0; i < expr.values.length; i++) {
-            values.push(this.evaluate(expr.values[i]));
+            values.push(this.avaliar(expr.values[i]));
         }
         return values;
     }
 
     visitSuperExpr(expr) {
-        let distance = this.locals.get(expr);
-        let superclass = this.environment.obterVariavelEm(distance, "super");
+        const distancia = this.locals.get(expr);
+        const superClasse = this.environment.obterVariavelEm(distancia, "super");
 
-        let object = this.environment.obterVariavelEm(distance - 1, "isto");
+        const objeto = this.environment.obterVariavelEm(distancia - 1, "isto");
 
-        let method = superclass.findMethod(expr.method.lexeme);
+        let metodo = superClasse.findMethod(expr.method.lexeme);
 
-        if (method === undefined) {
+        if (metodo === undefined) {
             throw new RuntimeError(
                 expr.method,
                 "Método chamado indefinido."
             );
         }
 
-        return method.bind(object);
+        return metodo.bind(objeto);
     }
 
     stringify(objeto) {
@@ -786,13 +786,13 @@ module.exports = class Interpreter {
         stmt.aceitar(this);
     }
 
-    interpretar(statements) {
+    interpretar(declaracoes) {
         try {
-            for (let i = 0; i < statements.length; i++) {
-                this.executar(statements[i]);
+            for (let i = 0; i < declaracoes.length; i++) {
+                this.executar(declaracoes[i]);
             }
-        } catch (error) {
-            this.Egua.runtimeError(error);
+        } catch (erro) {
+            this.Egua.runtimeError(erro);
         }
     }
 };
