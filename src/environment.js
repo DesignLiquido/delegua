@@ -3,51 +3,51 @@ const RuntimeError = require("./errors.js").RuntimeError;
 module.exports = class Environment {
     constructor(enclosing) {
         this.enclosing = enclosing || null;
-        this.values = {};
+        this.valores = {};
     }
 
-    defineVar(varName, value) {
-        this.values[varName] = value;
+    definirVariavel(nomeVariavel, valor) {
+        this.valores[nomeVariavel] = valor;
     }
 
-    assignVarAt(distance, name, value) {
-        this.ancestor(distance).values[name.lexeme] = value;
+    atribuirVariavelEm(distancia, name, valor) {
+        this.ancestor(distancia).values[name.lexeme] = valor;
     }
 
-    assignVar(name, value) {
-        if (this.values[name.lexeme] !== undefined) {
-            this.values[name.lexeme] = value;
+    atribuirVariavel(nome, valor) {
+        if (this.valores[nome.lexeme] !== undefined) {
+            this.valores[nome.lexeme] = valor;
             return;
         }
 
         if (this.enclosing != null) {
-            this.enclosing.assignVar(name, value);
+            this.enclosing.atribuirVariavel(nome, valor);
             return;
         }
 
-        throw new RuntimeError(name, "Variável não definida '" + name.lexeme + "'.");
+        throw new RuntimeError(nome, "Variável não definida '" + nome.lexeme + "'.");
     }
 
-    ancestor(distance) {
-        let environment = this;
-        for (let i = 0; i < distance; i++) {
-            environment = environment.enclosing;
+    ancestor(distancia) {
+        let ambiente = this;
+        for (let i = 0; i < distancia; i++) {
+            ambiente = environment.enclosing;
         }
 
-        return environment;
+        return ambiente;
     }
 
-    getVarAt(distance, name) {
-        return this.ancestor(distance).values[name];
+    obterVariavelEm(distancia, nome) {
+        return this.ancestor(distancia).values[nome];
     }
 
-    getVar(token) {
-        if (this.values[token.lexeme] !== undefined) {
-            return this.values[token.lexeme];
+    obterVariavel(simbolo) {
+        if (this.valores[simbolo.lexeme] !== undefined) {
+            return this.valores[simbolo.lexeme];
         }
 
-        if (this.enclosing !== null) return this.enclosing.getVar(token);
+        if (this.enclosing !== null) return this.enclosing.obterVariavel(simbolo);
 
-        throw new RuntimeError(token, "Variável não definida '" + token.lexeme + "'.");
+        throw new RuntimeError(simbolo, "Variável não definida '" + simbolo.lexeme + "'.");
     }
 };

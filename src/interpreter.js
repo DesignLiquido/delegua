@@ -233,29 +233,29 @@ module.exports = class Interpreter {
     }
 
     visitAssignExpr(expr) {
-        let value = this.evaluate(expr.value);
+        const valor = this.evaluate(expr.value);
 
-        let distance = this.locals.get(expr);
-        if (distance !== undefined) {
-            this.environment.assignVarAt(distance, expr.name, value);
+        const distancia = this.locals.get(expr);
+        if (distancia !== undefined) {
+            this.environment.atribuirVariavelEm(distancia, expr.name, valor);
         } else {
-            this.environment.assignVar(expr.name, value);
+            this.environment.atribuirVariavel(expr.name, valor);
         }
 
-        return value;
+        return valor;
     }
 
-    lookupVar(name, expr) {
-        let distance = this.locals.get(expr);
-        if (distance !== undefined) {
-            return this.environment.getVarAt(distance, name.lexeme);
+    procurarVariavel(nome, expr) {
+        const distancia = this.locals.get(expr);
+        if (distancia !== undefined) {
+            return this.environment.obterVariavelEm(distancia, name.lexeme);
         } else {
-            return this.globals.getVar(name);
+            return this.globals.obterVariavel(nome);
         }
     }
 
     visitVariableExpr(expr) {
-        return this.lookupVar(expr.name, expr);
+        return this.procurarVariavel(expr.name, expr);
     }
 
     visitExpressionStmt(stmt) {
@@ -518,7 +518,7 @@ module.exports = class Interpreter {
             value = this.evaluate(stmt.initializer);
         }
 
-        this.environment.defineVar(stmt.name.lexeme, value);
+        this.environment.definirVariavel(stmt.name.lexeme, value);
         return null;
     }
 
@@ -664,7 +664,7 @@ module.exports = class Interpreter {
             this.environment,
             false
         );
-        this.environment.defineVar(stmt.name.lexeme, func);
+        this.environment.definirVariavel(stmt.name.lexeme, func);
     }
 
     visitClassStmt(stmt) {
@@ -679,11 +679,11 @@ module.exports = class Interpreter {
             }
         }
 
-        this.environment.defineVar(stmt.name.lexeme, null);
+        this.environment.definirVariavel(stmt.name.lexeme, null);
 
         if (stmt.superclass !== null) {
             this.environment = new Environment(this.environment);
-            this.environment.defineVar("super", superclass);
+            this.environment.definirVariavel("super", superclass);
         }
 
         let methods = {};
@@ -706,7 +706,7 @@ module.exports = class Interpreter {
             this.environment = this.environment.enclosing;
         }
 
-        this.environment.assignVar(stmt.name, created);
+        this.environment.atribuirVariavel(stmt.name, created);
         return null;
     }
 
@@ -727,7 +727,7 @@ module.exports = class Interpreter {
     }
 
     visitThisExpr(expr) {
-        return this.lookupVar(expr.keyword, expr);
+        return this.procurarVariavel(expr.keyword, expr);
     }
 
     visitDictionaryExpr(expr) {
@@ -748,9 +748,9 @@ module.exports = class Interpreter {
 
     visitSuperExpr(expr) {
         let distance = this.locals.get(expr);
-        let superclass = this.environment.getVarAt(distance, "super");
+        let superclass = this.environment.obterVariavelEm(distance, "super");
 
-        let object = this.environment.getVarAt(distance - 1, "isto");
+        let object = this.environment.obterVariavelEm(distance - 1, "isto");
 
         let method = superclass.findMethod(expr.method.lexeme);
 
