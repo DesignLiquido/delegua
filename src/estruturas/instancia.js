@@ -1,6 +1,6 @@
 const RuntimeError = require("../errors.js").RuntimeError;
 
-module.exports = class EguaInstance {
+module.exports = class DeleguaInstancia {
     constructor(creatorClass) {
         this.creatorClass = creatorClass;
         this.fields = {};

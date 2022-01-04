@@ -1,41 +1,32 @@
 const RuntimeError = require("../errors.js").RuntimeError,
-    StandardFn = require("../structures/standardFn.js"),
-    EguaModule = require("../structures/module.js");
+    StandardFn = require("../estruturas/funcaoPadrao.js"),
+    DeleguaModulo = require("../estruturas/modulo.js");
 
-const loadModule = function (moduleName, modulePath) {
-    let moduleData;
+const carregarModulo = function (nomeDoModulo, caminhoDoModulo) {
+    let dadosDoModulo;
     try {
-        moduleData = require(modulePath);
+        dadosDoModulo = require(caminhoDoModulo);
     } catch (erro) {
-        throw new RuntimeError(moduleName, `Biblioteca ${moduleName} não encontrada para importação.`);
+        throw new RuntimeError(nomeDoModulo, `Biblioteca ${nomeDoModulo} não encontrada para importação.`);
     }
      
-    let newModule = new EguaModule(moduleName);
+    let novoModulo = new DeleguaModulo(nomeDoModulo);
 
-    let keys = Object.keys(moduleData);
-    for (let i = 0; i < keys.length; i++) {
-        let currentItem = moduleData[keys[i]];
+    let chaves = Object.keys(dadosDoModulo);
+    for (let i = 0; i < chaves.length; i++) {
+        const moduloAtual = dadosDoModulo[chaves[i]];
 
-        if (typeof currentItem === "function") {
-            newModule[keys[i]] = new StandardFn(currentItem.length, currentItem);
+        if (typeof moduloAtual === "function") {
+            novoModulo[chaves[i]] = new StandardFn(moduloAtual.length, moduloAtual);
         } else {
-            newModule[keys[i]] = currentItem;
+            novoModulo[chaves[i]] = moduloAtual;
         }
     }
 
-    return newModule;
+    return novoModulo;
 };
 
-require("./tempo.js");
-require("./eguamat.js");
-
-module.exports = function (name) {
-    switch (name) {
-        case "tempo":
-            return loadModule("tempo", "./tempo.js");
-        case "eguamat":
-            return loadModule("eguamat", "./eguamat.js");
-        default:
-            return loadModule(name, name);
-    }
+module.exports = function (nome) {
+    //TODO:Samuel: Testar melhor isso depois.
+    return carregarModulo(nome, nome);
 };

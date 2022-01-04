@@ -2,7 +2,7 @@ const Callable = require("./callable.js");
 const Environment = require("../environment.js");
 const ReturnExpection = require("../errors.js").ReturnException;
 
-module.exports = class EguaFunction extends Callable {
+module.exports = class DeleguaFuncao extends Callable {
     constructor(name, declaration, closure, isInitializer = false) {
         super();
         this.name = name;
@@ -52,7 +52,7 @@ module.exports = class EguaFunction extends Callable {
     bind(instance) {
         let environment = new Environment(this.closure);
         environment.definirVariavel("isto", instance);
-        return new EguaFunction(
+        return new DeleguaFuncao(
             this.name,
             this.declaration,
             environment,
