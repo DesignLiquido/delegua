@@ -1,27 +1,25 @@
 {
-  "name": "egua",
-  "version": "1.2.0",
+  "name": "@designliquido/delegua",
+  "version": "0.0.1",
   "description": "Linguagem de programação simples e moderna usando português",
   "main": "index.js",
   "scripts": {
-    "build-web": "browserify src/web.js --s Egua > web/dist.js",
     "npm-publish": "npm publish",
-    "testes": "./bin/egua tests/tests.egua",
+    "testes": "./bin/delegua testes/testes.egua",
     "testes-unitarios": "jest",
-    "production": "npm run build-web && npm run npm-publish",
-    "build:azure": "ls /github/workspace"
+    "production": "npm run npm-publish"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eguatech/egua.git"
+    "url": "git+https://github.com/DesignLiquido/delegua.git"
   },
   "bin": {
-    "egua": "./bin/egua"
+    "delegua": "./bin/delegua"
   },
   "keywords": [
-    "egua"
+    "egua", "delegua"
   ],
-  "author": "lucaspompeun",
+  "author": "Leonel Sanches da Silva",
   "contributors": [
     {
       "name": "Leonel Sanches da Silva",
@@ -31,9 +29,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/eguatech/egua/issues"
+    "url": "https://github.com/DesignLiquido/delegua/issues"
   },
-  "homepage": "https://github.com/eguatech/egua#readme",
+  "homepage": "https://github.com/DesignLiquido/delegua#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.12.1",
     "jest": "^26.6.1"
