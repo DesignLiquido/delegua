@@ -31,27 +31,27 @@ module.exports = class EguaFunction extends Callable {
             if (args[i] === null) {
                 value = param["default"] ? param["default"].value : null;
             }
-            environment.defineVar(name, value);
+            environment.definirVariavel(name, value);
         }
 
         try {
             interpreter.executeBlock(this.declaration.body, environment);
         } catch (error) {
             if (error instanceof ReturnExpection) {
-                if (this.isInitializer) return this.closure.getVarAt(0, "isto");
+                if (this.isInitializer) return this.closure.obterVariavelEm(0, "isto");
                 return error.value;
             } else {
                 throw error;
             }
         }
 
-        if (this.isInitializer) return this.closure.getVarAt(0, "isto");
+        if (this.isInitializer) return this.closure.obterVariavelEm(0, "isto");
         return null;
     }
 
     bind(instance) {
         let environment = new Environment(this.closure);
-        environment.defineVar("isto", instance);
+        environment.definirVariavel("isto", instance);
         return new EguaFunction(
             this.name,
             this.declaration,

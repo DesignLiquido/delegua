@@ -7,7 +7,7 @@ const RuntimeError = require("../errors.js").RuntimeError,
 
 module.exports = function (interpreter, globals) {
     // Retorna um número aleatório entre 0 e 1.
-    globals.defineVar(
+    globals.definirVariavel(
         "aleatorio",
         new StandardFn(1, function () {
             return Math.random();
@@ -16,7 +16,7 @@ module.exports = function (interpreter, globals) {
 
     // Retorna um número aleatório de acordo com o parâmetro passado.
     // MIN(inclusivo) - MAX(exclusivo)
-    globals.defineVar(
+    globals.definirVariavel(
         "aleatorioEntre",
         new StandardFn(1, function (min, max) {
             if (typeof min !== 'number' || typeof max !== 'number') {
@@ -30,7 +30,7 @@ module.exports = function (interpreter, globals) {
         })
     );    
 
-    globals.defineVar(
+    globals.definirVariavel(
         "inteiro",
         new StandardFn(1, function (value) {
             if (value === undefined || value === null) {
@@ -51,7 +51,7 @@ module.exports = function (interpreter, globals) {
         })
     );
 
-    globals.defineVar(
+    globals.definirVariavel(
         "mapear",
         new StandardFn(1, function (array, callback) {
             if (!Array.isArray(array)) {
@@ -81,7 +81,7 @@ module.exports = function (interpreter, globals) {
         })
     );
 
-    globals.defineVar(
+    globals.definirVariavel(
         "ordenar",
         new StandardFn(1, function (obj) {
             if (Array.isArray(obj) == false) {
@@ -106,7 +106,7 @@ module.exports = function (interpreter, globals) {
         })
     );
 
-    globals.defineVar(
+    globals.definirVariavel(
         "real",
         new StandardFn(1, function (value) {
             if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value))
@@ -118,7 +118,7 @@ module.exports = function (interpreter, globals) {
         })
     );
 
-    globals.defineVar(
+    globals.definirVariavel(
         "tamanho",
         new StandardFn(1, function (obj) {
             if (!isNaN(obj)) {
@@ -158,14 +158,14 @@ module.exports = function (interpreter, globals) {
         })
     );
 
-    globals.defineVar(
+    globals.definirVariavel(
         "texto",
         new StandardFn(1, function (value) {
             return `${value}`;
         })
     );
 
-    globals.defineVar("exports", {});
+    globals.definirVariavel("exports", {});
 
     return globals;
 };

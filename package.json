@@ -22,8 +22,8 @@
   ],
   "author": "Leonel Sanches da Silva",
   "contributors": [
-    {"name":"Leonel Sanches da Silva", "url":"https://www.linkedin.com/in/leonelsanchesdasilva/" },
-    {"name": "Samuel Renan Gonçalves Vaz", "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/" }
+    {"name":"Leonel Sanches da Silva", "url":"https://www.linkedin.com/in/leonelsanchesdasilva/", "email": "leonel@designliquido.com.br"},
+    {"name": "Samuel Renan Gonçalves Vaz", "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/", "email": "samuel.rvg@gmail.com" }
   ],
   "license": "MIT",
   "bugs": {
