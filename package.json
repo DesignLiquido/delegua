@@ -7,7 +7,8 @@
     "npm-publish": "npm publish --access public",
     "testes": "./bin/delegua testes/testes.egua",
     "testes-unitarios": "jest",
-    "production": "npm run npm-publish"
+    "production": "npm run npm-publish",
+    "release": "release-it"
   },
   "repository": {
     "type": "git",
@@ -22,8 +23,14 @@
   ],
   "author": "Leonel Sanches da Silva",
   "contributors": [
-    {"name":"Leonel Sanches da Silva", "url":"https://www.linkedin.com/in/leonelsanchesdasilva/", "email": "leonel@designliquido.com.br"},
-    {"name": "Samuel Renan Gonçalves Vaz", "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/", "email": "samuel.rvg@gmail.com" }
+    {
+      "name": "Leonel Sanches da Silva",
+      "url": "https://www.linkedin.com/in/leonelsanchesdasilva/"
+    },
+    {
+      "name": "Samuel Renan Gonçalves Vaz",
+      "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/"
+    }
   ],
   "license": "MIT",
   "bugs": {
@@ -32,7 +39,8 @@
   "homepage": "https://github.com/DesignLiquido/delegua#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.12.1",
-    "jest": "^26.6.1"
+    "jest": "^26.6.1",
+    "release-it": "^14.11.8"
   },
   "dependencies": {}
 }
