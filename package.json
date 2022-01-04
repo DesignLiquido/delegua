@@ -22,7 +22,8 @@
   ],
   "author": "Leonel Sanches da Silva",
   "contributors": [
-    "Leonel Sanches da Silva <leonel@designliquido.com.br> (https://www.linkedin.com/in/leonelsanchesdasilva/)"
+    {"name":"Leonel Sanches da Silva", "url":"https://www.linkedin.com/in/leonelsanchesdasilva/" },
+    {"name": "Samuel Renan Gonçalves Vaz", "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/" }
   ],
   "license": "MIT",
   "bugs": {
