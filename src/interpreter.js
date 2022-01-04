@@ -100,7 +100,7 @@ module.exports = class Interpreter {
         let left = this.evaluate(expr.left);
         let right = this.evaluate(expr.right);
 
-        switch (expr.operator.type) {
+        switch (expr.operator.tipo) {
             case tokenTypes.STAR_STAR:
                 this.checkNumberOperands(expr.operator, left, right);
                 return Math.pow(left, right);
