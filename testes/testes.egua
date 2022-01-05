@@ -143,371 +143,370 @@ escreva("Teste terminado com " + texto(erros) + " erro(s)!");
 escreva("----------------------------");
 
 
-escreva("--------------------------------");
-escreva("Testes Internos - Biblioteca EguaMat");
-escreva("--------------------------------");
-escreva("|");
+// escreva("--------------------------------");
+// escreva("Testes Internos - Biblioteca EguaMat");
+// escreva("--------------------------------");
+// escreva("|");
 
 var errosM = 0;
 
 
-var m = importar("eguamat");
-var nula = m.nula();
+// var m = importar("eguamat");
+var nula = 0; //m.nula();
 
 var o = [1,1,2,3,15];
 var p = [2,6,7,10,20];
 
+// funcao teste_gerarPontosAbscissa() {
+//   var gerarPontosAbscissa = m.gerarPontosAbscissa(2,3);
 
-funcao teste_gerarPontosAbscissa() {
-  var gerarPontosAbscissa = m.gerarPontosAbscissa(2,3);
+//   se (gerarPontosAbscissa != nula)
+//     escreva (gerarPontosAbscissa);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-  se (gerarPontosAbscissa != nula)
-    escreva (gerarPontosAbscissa);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
-
-funcao tfun1R(){
-  var fun1R = m.fun1R(2,3);
+// funcao tfun1R(){
+//   var fun1R = m.fun1R(2,3);
   
-  se (fun1R != nula)
-        escreva (fun1R);
-      senao {
-        errosM = errosM+1;
-        escreva(errosM);
-      }
-}
+//   se (fun1R != nula)
+//         escreva (fun1R);
+//       senao {
+//         errosM = errosM+1;
+//         escreva(errosM);
+//       }
+// }
 
-funcao tfun2R(){
-  var fun2R = m.fun2R(2,-4,3);
+// funcao tfun2R(){
+//   var fun2R = m.fun2R(2,-4,3);
   
-  se (fun2R != nula)
-    escreva (fun2R);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (fun2R != nula)
+//     escreva (fun2R);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao taprox(){
-  var aprox = m.aprox(1,10);
+// funcao taprox(){
+//   var aprox = m.aprox(1,10);
   
-  se (aprox != nula)
-        escreva (aprox);
-  senao {
-        errosM = errosM+1;
-        escreva(errosM);
+//   se (aprox != nula)
+//         escreva (aprox);
+//   senao {
+//         errosM = errosM+1;
+//         escreva(errosM);
 
-    }
-}
+//     }
+// }
 
 
-funcao tsen(){
-  var sen = m.sen(60);
+// funcao tsen(){
+//   var sen = m.sen(60);
   
-  se (sen != nula)
-        escreva (sen);
-      senao {
-        errosM = errosM+1;
-        escreva(errosM);
-      }
-}
+//   se (sen != nula)
+//         escreva (sen);
+//       senao {
+//         errosM = errosM+1;
+//         escreva(errosM);
+//       }
+// }
 
-funcao tcos(){
-  var cos = m.cos(60);
+// funcao tcos(){
+//   var cos = m.cos(60);
   
-  se (cos != nula)
-        escreva (cos);
-      senao {
-        errosM = errosM+1;
-        escreva(errosM);
-      }
-}
+//   se (cos != nula)
+//         escreva (cos);
+//       senao {
+//         errosM = errosM+1;
+//         escreva(errosM);
+//       }
+// }
 
-funcao ttan(){
-  var tan = m.tan(60);
+// funcao ttan(){
+//   var tan = m.tan(60);
 
-  se (tan != nula)
-    escreva (tan);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (tan != nula)
+//     escreva (tan);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tarsen(){
-  var arsen = m.arsen(60);
+// funcao tarsen(){
+//   var arsen = m.arsen(60);
 
-  se (arsen != nula)
-    escreva (arsen);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (arsen != nula)
+//     escreva (arsen);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tarcos(){
-  var arcos = m.arcos(60);
+// funcao tarcos(){
+//   var arcos = m.arcos(60);
 
-  se (arcos != nula)
-    escreva (arcos);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (arcos != nula)
+//     escreva (arcos);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tartan(){
-  var artan = m.artan(60);
+// funcao tartan(){
+//   var artan = m.artan(60);
 
-  se (artan != nula)
-    escreva (artan);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (artan != nula)
+//     escreva (artan);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao texp(){
-  var exp = m.exp(10);
+// funcao texp(){
+//   var exp = m.exp(10);
 
-  se (exp != nula)
-    escreva (exp);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (exp != nula)
+//     escreva (exp);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tlog(){
-  var log = m.log(10);
+// funcao tlog(){
+//   var log = m.log(10);
   
-  se (log != nula)
-    escreva(log);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (log != nula)
+//     escreva(log);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tpotencia(){
-  var pot = m.potencia(2,3);
+// funcao tpotencia(){
+//   var pot = m.potencia(2,3);
   
-  se (pot != nula)
-    escreva(pot);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (pot != nula)
+//     escreva(pot);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao traizq(){
-  var raizq = m.raizq(49);
+// funcao traizq(){
+//   var raizq = m.raizq(49);
 
-  se (raizq != nula)
-    escreva(raizq);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (raizq != nula)
+//     escreva(raizq);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tvmed(){
-  var vmed = m.velocidadeMedia(30,10);
+// funcao tvmed(){
+//   var vmed = m.velocidadeMedia(30,10);
 
-  se (vmed != nula)
-    escreva(vmed);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (vmed != nula)
+//     escreva(vmed);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tdeltas(){
-  var deltas = m.deltaS(10,30);
+// funcao tdeltas(){
+//   var deltas = m.deltaS(10,30);
 
-  se (deltas != nula)
-    escreva(deltas);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (deltas != nula)
+//     escreva(deltas);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tdeltat(){
-  var deltat = m.deltaT(10,30);
+// funcao tdeltat(){
+//   var deltat = m.deltaT(10,30);
 
-  se (deltat != nula)
-    escreva(deltat);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (deltat != nula)
+//     escreva(deltat);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tacel(){
-  var acel= m.aceleracao(30,0,60,0);
+// funcao tacel(){
+//   var acel= m.aceleracao(30,0,60,0);
   
-  se (acel != nula)
-    escreva(acel);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (acel != nula)
+//     escreva(acel);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tmrufh(){
-  var mrufh = m.mrufh(0,30,15);
+// funcao tmrufh(){
+//   var mrufh = m.mrufh(0,30,15);
 
-  se (mrufh != nula)
-    escreva(mrufh);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (mrufh != nula)
+//     escreva(mrufh);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tmruvvel(){
-  var mruvvel = m.mruv(0,30,15,2);
+// funcao tmruvvel(){
+//   var mruvvel = m.mruv(0,30,15,2);
 
-  se (mruvvel != nula)
-    escreva(mruvvel);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (mruvvel != nula)
+//     escreva(mruvvel);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-funcao tmoda(){
-  var i = [1,2,2,3,4];
-  var modaUm = m.moda(i);
-  var j = [1,2,2,3,3];
-  var modaDois = m.moda(j);
-  var k = [1,2,3,4,5];
-  var modaTres = m.moda(k);
+// funcao tmoda(){
+//   var i = [1,2,2,3,4];
+//   var modaUm = m.moda(i);
+//   var j = [1,2,2,3,3];
+//   var modaDois = m.moda(j);
+//   var k = [1,2,3,4,5];
+//   var modaTres = m.moda(k);
   
-  se (modaUm[0] == 2)
-    escreva(modaUm);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-  se (modaDois[0] == 2 e modaDois[1] == 3)
-    escreva(modaDois);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
+//   se (modaUm[0] == 2)
+//     escreva(modaUm);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+//   se (modaDois[0] == 2 e modaDois[1] == 3)
+//     escreva(modaDois);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
 
-  se (modaTres)
-    escreva(modaTres);
-  senao {
-    errosM = errosM+1;
-    escreva(errosM);
-  }
-}
+//   se (modaTres)
+//     escreva(modaTres);
+//   senao {
+//     errosM = errosM+1;
+//     escreva(errosM);
+//   }
+// }
 
-escreva("--------------------------------");
-escreva("Função gerarPontosAbscissa:");
-teste_gerarPontosAbscissa();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função fun1R:");
-tfun1R();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função fun2R:");
-tfun2R();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função aprox:");
-taprox();
+// escreva("--------------------------------");
+// escreva("Função gerarPontosAbscissa:");
+// teste_gerarPontosAbscissa();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função fun1R:");
+// tfun1R();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função fun2R:");
+// tfun2R();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função aprox:");
+// taprox();
 
-escreva("|");
-escreva("--------------------------------");
-escreva("Função numeroOcorrencias():");
-escreva(m.numeroOcorrencias([1, 2, 3, 4, 5], 3));
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função numeroOcorrencias():");
+// escreva(m.numeroOcorrencias([1, 2, 3, 4, 5], 3));
 
-escreva("|");
-escreva("--------------------------------");
-escreva("Função max():");
-escreva(m.max([1, 2, 3, 4, 5]));
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função max():");
+// escreva(m.max([1, 2, 3, 4, 5]));
 
-escreva("|");
-escreva("--------------------------------");
-escreva("Função min():");
-escreva(m.min([1, 2, 3, 4, 5]));
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função min():");
+// escreva(m.min([1, 2, 3, 4, 5]));
 
-escreva("|");
-escreva("--------------------------------");
-escreva("Função sen:");
-tsen();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função cos:");
-tcos();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função tan:");
-ttan();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função arsen:");
-tarsen();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função arcos:");
-tarcos();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função artan:");
-tartan();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função exp:");
-texp();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função log:");
-tlog();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função potencia:");
-tpotencia();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função raizq:");
-traizq();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função vmed:");
-tvmed();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função deltas:");
-tdeltas();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função deltat:");
-tdeltat();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função acel:");
-tacel();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função mruhfh:");
-tmrufh();
-escreva("|");
-escreva("--------------------------------");
-escreva("Função mruvvel:");
-tmruvvel();
-escreva("--------------------------------");
-escreva("Função moda:");
-tmoda();
-escreva("|");
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função sen:");
+// tsen();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função cos:");
+// tcos();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função tan:");
+// ttan();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função arsen:");
+// tarsen();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função arcos:");
+// tarcos();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função artan:");
+// tartan();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função exp:");
+// texp();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função log:");
+// tlog();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função potencia:");
+// tpotencia();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função raizq:");
+// traizq();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função vmed:");
+// tvmed();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função deltas:");
+// tdeltas();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função deltat:");
+// tdeltat();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função acel:");
+// tacel();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função mruhfh:");
+// tmrufh();
+// escreva("|");
+// escreva("--------------------------------");
+// escreva("Função mruvvel:");
+// tmruvvel();
+// escreva("--------------------------------");
+// escreva("Função moda:");
+// tmoda();
+// escreva("|");
 
 escreva("--------------------------------");
 escreva("Testes Funções Internas - Linguagem Egua");

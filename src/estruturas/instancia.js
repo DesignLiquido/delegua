@@ -1,27 +1,27 @@
-const RuntimeError = require("../errors.js").RuntimeError;
+const ErroEmTempoDeExecucao = require("../erro.js").ErroEmTempoDeExecucao;
 
 module.exports = class DeleguaInstancia {
-    constructor(creatorClass) {
-        this.creatorClass = creatorClass;
-        this.fields = {};
+    constructor(criarClasse) {
+        this.criarClasse = criarClasse;
+        this.campos = {};
     }
 
-    get(name) {
-        if (this.fields.hasOwnProperty(name.lexeme)) {
-            return this.fields[name.lexeme];
+    get(nome) {
+        if (this.campos.hasOwnProperty(nome.lexeme)) {
+            return this.campos[nome.lexeme];
         }
 
-        let method = this.creatorClass.findMethod(name.lexeme);
-        if (method) return method.bind(this);
+        let metodo = this.criarClasse.encontrarMetodo(nome.lexeme);
+        if (metodo) return metodo.bind(this);
 
-        throw new RuntimeError(name, "Método indefinido não recuperado.");
+        throw new ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
     }
 
-    set(name, value) {
-        this.fields[name.lexeme] = value;
+    set(nome, valor) {
+        this.campos[nome.lexeme] = valor;
     }
 
     toString() {
-        return "<Objeto " + this.creatorClass.name + ">";
+        return "<Objeto " + this.criarClasse.nome + ">";
     }
 };

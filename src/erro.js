@@ -1,7 +1,7 @@
-module.exports.RuntimeError = class RuntimeError extends Error {
-  constructor(token, message) {
-    super(message);
-    this.token = token;
+module.exports.ErroEmTempoDeExecucao = class ErroEmTempoDeExecucao extends Error {
+  constructor(simbolo, mensagem) {
+    super(mensagem);
+    this.simbolo = simbolo;
   }
 };
 
@@ -10,8 +10,8 @@ module.exports.ContinueException = class ContinueException extends Error { };
 module.exports.BreakException = class BreakException extends Error { };
 
 module.exports.ReturnException = class ReturnException extends Error {
-  constructor(value) {
-    super(value);
-    this.value = value;
+  constructor(valor) {
+    super(valor);
+    this.valor = valor;
   }
 };

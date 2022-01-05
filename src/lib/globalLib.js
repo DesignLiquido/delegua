@@ -1,4 +1,4 @@
-const RuntimeError = require("../errors.js").RuntimeError,
+const ErroEmTempoDeExecucao = require("../erro.js").ErroEmTempoDeExecucao,
     DeleguaFuncao = require("../estruturas/funcao.js"),
     DeleguaInstancia = require("../estruturas/instancia.js"),
     FuncaoPadrao = require("../estruturas/funcaoPadrao.js"),
@@ -20,8 +20,8 @@ module.exports = function (interpreter, globals) {
         "aleatorioEntre",
         new FuncaoPadrao(1, function (min, max) {
             if (typeof min !== 'number' || typeof max !== 'number') {
-                throw new RuntimeError(
-                    this.token,
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Os dois parâmetros devem ser do tipo número."
                 );
             }
@@ -32,22 +32,22 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "inteiro",
-        new FuncaoPadrao(1, function (value) {
-            if (value === undefined || value === null) {
-                throw new RuntimeError(
-                    this.token,
+        new FuncaoPadrao(1, function (valor) {
+            if (valor === undefined || valor === null) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Somente números podem passar para inteiro."
                 );
             }
 
-            if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value)) {
-                throw new RuntimeError(
-                    this.token,
+            if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Somente números podem passar para inteiro."
                 );
             }
 
-            return parseInt(value);
+            return parseInt(valor);
         })
     );
 
@@ -55,24 +55,24 @@ module.exports = function (interpreter, globals) {
         "mapear",
         new FuncaoPadrao(1, function (array, callback) {
             if (!Array.isArray(array)) {
-                throw new RuntimeError(
-                    this.token,
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
-                throw new RuntimeError(
-                    this.token,
+            if (callback.constructor.nome !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
                 );
             }
 
             let provisorio = [];
-            for (let index = 0; index < array.length; ++index) {
+            for (let indice = 0; indice < array.length; ++indice) {
                 provisorio.push(
                     callback.call(
-                        interpreter, [array[index]]
+                        interpreter, [array[indice]]
                     )
                 );
             }
@@ -85,8 +85,8 @@ module.exports = function (interpreter, globals) {
         "ordenar",
         new FuncaoPadrao(1, function (obj) {
             if (Array.isArray(obj) == false) {
-                throw new RuntimeError(
-                    this.token,
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Valor Inválido. Objeto inserido não é um vetor."
                 );
             }
@@ -108,60 +108,60 @@ module.exports = function (interpreter, globals) {
 
     globals.definirVariavel(
         "real",
-        new FuncaoPadrao(1, function (value) {
-            if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value))
-                throw new RuntimeError(
-                    this.token,
+        new FuncaoPadrao(1, function (valor) {
+            if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor))
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Somente números podem passar para real."
                 );
-            return parseFloat(value);
+            return parseFloat(valor);
         })
     );
 
     globals.definirVariavel(
         "tamanho",
-        new FuncaoPadrao(1, function (obj) {
-            if (!isNaN(obj)) {
-                throw new RuntimeError(
-                    this.token,
+        new FuncaoPadrao(1, function (objeto) {
+            if (!isNaN(objeto)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Não é possível encontrar o tamanho de um número."
                 );
             }
 
-            if (obj instanceof DeleguaInstancia) {
-                throw new RuntimeError(
-                    this.token,
+            if (objeto instanceof DeleguaInstancia) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
                     "Você não pode encontrar o tamanho de uma declaração."
                 );
             }
 
-            if (obj instanceof DeleguaFuncao) {
-                return obj.declaration.params.length;
+            if (objeto instanceof DeleguaFuncao) {
+                return objeto.declaracao.parametros.length;
             }
 
-            if (obj instanceof FuncaoPadrao) {
-                return obj.arityValue;
+            if (objeto instanceof FuncaoPadrao) {
+                return objeto.arityValue;
             }
 
-            if (obj instanceof EguaClass) {
-                let methods = obj.methods;
-                let length = 0;
+            if (objeto instanceof DeleguaClasse) {
+                let metodos = objeto.metodos;
+                let tamanho = 0;
 
-                if (methods.init && methods.init.isInitializer) {
-                    length = methods.init.declaration.params.length;
+                if (metodos.init && metodos.init.eInicializador) {
+                    tamanho = metodos.init.declaracao.parametros.length;
                 }
 
-                return length;
+                return tamanho;
             }
 
-            return obj.length;
+            return objeto.length;
         })
     );
 
     globals.definirVariavel(
         "texto",
-        new FuncaoPadrao(1, function (value) {
-            return `${value}`;
+        new FuncaoPadrao(1, function (valor) {
+            return `${valor}`;
         })
     );
 

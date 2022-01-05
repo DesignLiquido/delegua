@@ -4,10 +4,10 @@ const Resolver = require("./resolver.js");
 const Interpreter = require("./interpreter.js");
 const tokenTypes = require("./tokenTypes.js");
 const fs = require("fs");
-const path = require("path");
+const caminho = require("path");
 const readline = require("readline");
 
-module.exports.Egua = class Egua {
+module.exports.Delegua = class Delegua {
     constructor(nomeArquivo) {
         this.nomeArquivo = nomeArquivo;
 
@@ -16,12 +16,12 @@ module.exports.Egua = class Egua {
     }
 
     runPrompt() {
-        const interpreter = new Interpreter(this, process.cwd(), undefined);
-        console.log("Console da Linguagem Delégua v1.1.15");
+        const interpretador = new Interpreter(this, process.cwd(), undefined);
+        console.log("Console da Linguagem Delégua v0.0.1");
         const leiaLinha = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
-            prompt: "\negua> "
+            prompt: "\ndelegua> "
         });
 
         leiaLinha.prompt();
@@ -30,13 +30,13 @@ module.exports.Egua = class Egua {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.run(linha, interpreter);
+            this.run(linha, interpretador);
             leiaLinha.prompt();
         });
     }
 
     runfile(nomeArquivo) {
-        this.nomeArquivo = path.basename(nomeArquivo);
+        this.nomeArquivo = caminho.basename(nomeArquivo);
         const interpretador = new Interpreter(this, process.cwd());
 
         const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
@@ -46,8 +46,8 @@ module.exports.Egua = class Egua {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    run(code, interpretador) {
-        const lexer = new Lexer(code, this);
+    run(codigo, interpretador) {
+        const lexer = new Lexer(codigo, this);
         const simbolos = lexer.scan();
 
         if (this.teveErro === true) return;
@@ -75,7 +75,7 @@ module.exports.Egua = class Egua {
     }
 
     error(simbolo, mensagemDeErro) {
-        if (simbolo.type === tokenTypes.EOF) {
+        if (simbolo.tipo === tokenTypes.EOF) {
             this.reportar(simbolo.line, " no final", mensagemDeErro);
         } else {
             this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);
@@ -87,15 +87,15 @@ module.exports.Egua = class Egua {
     }
 
     runtimeError(erro) {
-        const linha = erro.token.line;
-        if (erro.token && linha) {
+        const linha = erro.simbolo.linha;
+        if (erro.simbolo && linha) {
             if (this.nomeArquivo)
                 console.error(
-                    `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.token.line}] ${erro.message}`
+                    `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
                 );
-            else console.error(`Erro: [Linha: ${erro.token.line}] ${erro.message}`);
+            else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
         } else {
-            console.error(`Erro: ${erro.message}`);
+            console.error(`Erro: ${erro.mensagem}`);
         }
         this.teveErroEmTempoDeExecucao = true;
     }

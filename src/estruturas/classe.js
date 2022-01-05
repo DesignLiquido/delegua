@@ -4,18 +4,18 @@ const DeleguaInstancia = require("./instancia.js");
 module.exports = class DeleguaClasse extends Callable {
     constructor(nome, superClasse, metodos) {
         super();
-        this.name = nome;
-        this.superclass = superClasse;
-        this.methods = metodos;
+        this.nome = nome;
+        this.superClasse = superClasse;
+        this.metodos = metodos;
     }
 
-    findMethod(nome) {
-        if (this.methods.hasOwnProperty(nome)) {
-            return this.methods[nome];
+    encontrarMetodo(nome) {
+        if (this.metodos.hasOwnProperty(nome)) {
+            return this.metodos[nome];
         }
 
-        if (this.superclass !== null) {
-            return this.superclass.findMethod(nome);
+        if (this.superClasse !== null) {
+            return this.superClasse.encontrarMetodo(nome);
         }
 
         return undefined;
@@ -26,16 +26,16 @@ module.exports = class DeleguaClasse extends Callable {
     }
 
     arity() {
-        let inicializar = this.findMethod("construtor");
-        return inicializar ? inicializar.arity() : 0;
+        let inicializador = this.encontrarMetodo("construtor");
+        return inicializador ? inicializador.arity() : 0;
     }
 
     call(interpretador, argumentos) {
         let instancia = new DeleguaInstancia(this);
 
-        let inicializar = this.findMethod("construtor");
-        if (inicializar) {
-            inicializar.bind(instancia).call(interpretador, argumentos);
+        let inicializador = this.encontrarMetodo("construtor");
+        if (inicializador) {
+            inicializador.bind(instancia).call(interpretador, argumentos);
         }
 
         return instancia;

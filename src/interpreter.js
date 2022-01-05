@@ -1,8 +1,8 @@
 const tokenTypes = require("./tokenTypes.js"),
     Environment = require("./environment.js"),
-    Egua = require("./egua.js"),
+    Delegua = require("./delegua.js"),
     loadGlobalLib = require("./lib/globalLib.js"),
-    path = require("path"),
+    caminho = require("path"),
     fs = require("fs"),
     checkStdLib = require("./lib/importStdlib.js");
 
@@ -14,34 +14,34 @@ const Callable = require("./estruturas/callable.js"),
     DeleguaModulo = require("./estruturas/modulo.js");
 
 const {
-    RuntimeError,
+    ErroEmTempoDeExecucao,
     ContinueException,
     BreakException,
     ReturnException
-} = require("./errors.js");
+} = require("./erro.js");
 
 /**
  * O Interpretador (Interpreter) visita todos os elementos complexos gerados pelo analisador sintático (Parser)
  * e de fato executa a lógica de programação descrita no código.
  */
 module.exports = class Interpreter {
-    constructor(Egua, diretorioBase) {
-        this.Egua = Egua;
+    constructor(Delegua, diretorioBase) {
+        this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
 
         this.globals = new Environment();
-        this.environment = this.globals;
-        this.locals = new Map();
+        this.ambiente = this.globals;
+        this.locais = new Map();
 
         this.globals = loadGlobalLib(this, this.globals);
     }
 
-    resolve(expr, depth) {
-        this.locals.set(expr, depth);
+    resolver(expr, depth) {
+        this.locais.set(expr, depth);
     }
 
     visitLiteralExpr(expr) {
-        return expr.value;
+        return expr.valor;
     }
 
     avaliar(expr) {
@@ -61,22 +61,22 @@ module.exports = class Interpreter {
         return true;
     }
 
-    checkNumberOperand(operator, operand) {
+    checkNumberOperand(operador, operand) {
         if (typeof operand === "number") return;
-        throw new RuntimeError(operator, "Operador precisa ser um número.");
+        throw new ErroEmTempoDeExecucao(operador, "Operador precisa ser um número.");
     }
 
     visitUnaryExpr(expr) {
-        let right = this.avaliar(expr.right);
+        let direita = this.avaliar(expr.direita);
 
-        switch (expr.operator.type) {
+        switch (expr.operador.tipo) {
             case tokenTypes.MINUS:
-                this.checkNumberOperand(expr.operator, right);
-                return -right;
+                this.checkNumberOperand(expr.operador, direita);
+                return -direita;
             case tokenTypes.BANG:
-                return !this.eVerdadeiro(right);
+                return !this.eVerdadeiro(direita);
             case tokenTypes.BIT_NOT:
-                return ~right;
+                return ~direita;
         }
 
         return null;
@@ -93,36 +93,36 @@ module.exports = class Interpreter {
 
     checkNumberOperands(operador, direita, esquerda) {
         if (typeof direita === "number" && typeof esquerda === "number") return;
-        throw new RuntimeError(operador, "Operadores precisam ser números.");
+        throw new ErroEmTempoDeExecucao(operador, "Operadores precisam ser números.");
     }
 
     visitBinaryExpr(expr) {
-        let esquerda = this.avaliar(expr.left);
-        let direita = this.avaliar(expr.right);
+        let esquerda = this.avaliar(expr.esquerda);
+        let direita = this.avaliar(expr.direita);
 
-        switch (expr.operator.tipo) {
+        switch (expr.operador.tipo) {
             case tokenTypes.STAR_STAR:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Math.pow(esquerda, direita);
 
             case tokenTypes.GREATER:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) > Number(direita);
 
             case tokenTypes.GREATER_EQUAL:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) >= Number(direita);
 
             case tokenTypes.LESS:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) < Number(direita);
 
             case tokenTypes.LESS_EQUAL:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) <= Number(direita);
 
             case tokenTypes.MINUS:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) - Number(direita);
 
             case tokenTypes.PLUS:
@@ -134,41 +134,41 @@ module.exports = class Interpreter {
                     return String(esquerda) + String(direita);
                 }
 
-                throw new RuntimeError(
-                    expr.operator,
+                throw new ErroEmTempoDeExecucao(
+                    expr.operador,
                     "Operadores precisam ser dois números ou duas strings."
                 );
 
             case tokenTypes.SLASH:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) / Number(direita);
 
             case tokenTypes.STAR:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) * Number(direita);
 
             case tokenTypes.MODULUS:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) % Number(direita);
 
             case tokenTypes.BIT_AND:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) & Number(direita);
 
             case tokenTypes.BIT_XOR:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) ^ Number(direita);
 
             case tokenTypes.BIT_OR:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) | Number(direita);
 
             case tokenTypes.LESSER_LESSER:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) << Number(direita);
 
             case tokenTypes.GREATER_GREATER:
-                this.checkNumberOperands(expr.operator, esquerda, direita);
+                this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) >> Number(direita);
 
             case tokenTypes.BANG_EQUAL:
@@ -190,7 +190,7 @@ module.exports = class Interpreter {
         }
 
         if (!(callee instanceof Callable)) {
-            throw new RuntimeError(
+            throw new ErroEmTempoDeExecucao(
                 expr.paren,
                 "Só pode chamar função ou classe."
             );
@@ -198,10 +198,10 @@ module.exports = class Interpreter {
 
         let parametros;
         if (callee instanceof DeleguaFuncao) {
-            parametros = callee.declaration.params;
+            parametros = callee.declaracao.parametros;
         } else if (callee instanceof DeleguaClasse) {
-            parametros = callee.methods.init
-                ? callee.methods.init.declaration.params
+            parametros = callee.metodos.init
+                ? callee.metodos.init.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -217,7 +217,7 @@ module.exports = class Interpreter {
         else if (argumentos.length >= callee.arity()) {
             if (
                 parametros.length > 0 &&
-                parametros[parametros.length - 1]["type"] === "wildcard"
+                parametros[parametros.length - 1]["tipo"] === "wildcard"
             ) {
                 let novosArgumentos = argumentos.slice(0, parametros.length - 1);
                 novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
@@ -226,36 +226,36 @@ module.exports = class Interpreter {
         }
 
         if (callee instanceof FuncaoPadrao) {
-            return callee.call(this, argumentos, expr.callee.name);
+            return callee.chamar(this, argumentos, expr.callee.nome);
         }
 
         return callee.call(this, argumentos);
     }
 
     visitAssignExpr(expr) {
-        const valor = this.avaliar(expr.value);
+        const valor = this.avaliar(expr.valor);
 
-        const distancia = this.locals.get(expr);
+        const distancia = this.locais.get(expr);
         if (distancia !== undefined) {
-            this.environment.atribuirVariavelEm(distancia, expr.name, valor);
+            this.ambiente.atribuirVariavelEm(distancia, expr.nome, valor);
         } else {
-            this.environment.atribuirVariavel(expr.name, valor);
+            this.ambiente.atribuirVariavel(expr.nome, valor);
         }
 
         return valor;
     }
 
     procurarVariavel(nome, expr) {
-        const distancia = this.locals.get(expr);
+        const distancia = this.locais.get(expr);
         if (distancia !== undefined) {
-            return this.environment.obterVariavelEm(distancia, name.lexeme);
+            return this.ambiente.obterVariavelEm(distancia, nome.lexeme);
         } else {
             return this.globals.obterVariavel(nome);
         }
     }
 
     visitVariableExpr(expr) {
-        return this.procurarVariavel(expr.name, expr);
+        return this.procurarVariavel(expr.nome, expr);
     }
 
     visitExpressionStmt(stmt) {
@@ -264,35 +264,35 @@ module.exports = class Interpreter {
     }
 
     visitLogicalExpr(expr) {
-        let esquerda = this.avaliar(expr.left);
+        let esquerda = this.avaliar(expr.esquerda);
 
-        if (expr.operator.type === tokenTypes.EM) {
-            let direita = this.avaliar(expr.right);
+        if (expr.operador.tipo === tokenTypes.EM) {
+            let direita = this.avaliar(expr.direita);
 
             if (Array.isArray(direita) || typeof direita === "string") {
                 return direita.includes(esquerda);
             } else if (direita.constructor === Object) {
                 return esquerda in direita;
             } else {
-                throw new RuntimeError("Tipo de chamada inválida com 'em'.");
+                throw new ErroEmTempoDeExecucao("Tipo de chamada inválida com 'em'.");
             }
         }
 
         // se um estado for verdadeiro, retorna verdadeiro
-        if (expr.operator.type === tokenTypes.OU) {
+        if (expr.operador.tipo === tokenTypes.OU) {
             if (this.eVerdadeiro(esquerda)) return esquerda;
         }
 
         // se um estado for falso, retorna falso
-        if (expr.operator.type === tokenTypes.E) {
+        if (expr.operador.tipo === tokenTypes.E) {
             if (!this.eVerdadeiro(esquerda)) return esquerda;
         }
 
-        return this.avaliar(expr.right);
+        return this.avaliar(expr.direita);
     }
 
     visitIfStmt(stmt) {
-        if (this.eVerdadeiro(this.avaliar(stmt.condition))) {
+        if (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
             this.executar(stmt.thenBranch);
             return null;
         }
@@ -300,7 +300,7 @@ module.exports = class Interpreter {
         for (let i = 0; i < stmt.elifBranches.length; i++) {
             const atual = stmt.elifBranches[i];
 
-            if (this.eVerdadeiro(this.avaliar(atual.condition))) {
+            if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
                 this.executar(atual.branch);
                 return null;
             }
@@ -314,18 +314,18 @@ module.exports = class Interpreter {
     }
 
     visitForStmt(stmt) {
-        if (stmt.initializer !== null) {
-            this.avaliar(stmt.initializer);
+        if (stmt.inicializador !== null) {
+            this.avaliar(stmt.inicializador);
         }
         while (true) {
-            if (stmt.condition !== null) {
-                if (!this.eVerdadeiro(this.avaliar(stmt.condition))) {
+            if (stmt.condicao !== null) {
+                if (!this.eVerdadeiro(this.avaliar(stmt.condicao))) {
                     break;
                 }
             }
 
             try {
-                this.executar(stmt.body);
+                this.executar(stmt.corpo);
             } catch (erro) {
                 if (erro instanceof BreakException) {
                     break;
@@ -335,8 +335,8 @@ module.exports = class Interpreter {
                 }
             }
 
-            if (stmt.increment !== null) {
-                this.avaliar(stmt.increment);
+            if (stmt.incrementar !== null) {
+                this.avaliar(stmt.incrementar);
             }
         }
         return null;
@@ -358,7 +358,7 @@ module.exports = class Interpreter {
     }
 
     visitSwitchStmt(stmt) {
-        let switchCondition = this.avaliar(stmt.condition);
+        let switchCondition = this.avaliar(stmt.condicao);
         let branches = stmt.branches;
         let defaultBranch = stmt.defaultBranch;
 
@@ -402,34 +402,34 @@ module.exports = class Interpreter {
         try {
             let sucesso = true;
             try {
-                this.executeBlock(stmt.tryBranch, new Environment(this.environment));
+                this.executeBlock(stmt.tryBranch, new Environment(this.ambiente));
             } catch (erro) {
                 sucesso = false;
 
                 if (stmt.catchBranch !== null) {
                     this.executeBlock(
                         stmt.catchBranch,
-                        new Environment(this.environment)
+                        new Environment(this.ambiente)
                     );
                 }
             }
 
             if (sucesso && stmt.elseBranch !== null) {
-                this.executeBlock(stmt.elseBranch, new Environment(this.environment));
+                this.executeBlock(stmt.elseBranch, new Environment(this.ambiente));
             }
         } finally {
             if (stmt.finallyBranch !== null)
                 this.executeBlock(
                     stmt.finallyBranch,
-                    new Environment(this.environment)
+                    new Environment(this.ambiente)
                 );
         }
     }
 
     visitWhileStmt(stmt) {
-        while (this.eVerdadeiro(this.avaliar(stmt.condition))) {
+        while (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
             try {
-                this.executar(stmt.body);
+                this.executar(stmt.corpo);
             } catch (erro) {
                 if (erro instanceof BreakException) {
                     break;
@@ -444,33 +444,33 @@ module.exports = class Interpreter {
     }
 
     visitImportStmt(stmt) {
-        const caminhoRelativo = this.avaliar(stmt.path);
-        const caminhoTotal = path.join(this.diretorioBase, caminhoRelativo);
-        const pastaTotal = path.dirname(caminhoTotal);
-        const nomeArquivo = path.basename(caminhoTotal);
+        const caminhoRelativo = this.avaliar(stmt.caminho);
+        const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
+        const pastaTotal = caminho.dirname(caminhoTotal);
+        const nomeArquivo = caminho.basename(caminhoTotal);
 
         let dados = checkStdLib(caminhoRelativo);
         if (dados !== null) return dados;
 
         try {
             if (!fs.existsSync(caminhoTotal)) {
-                throw new RuntimeError(
+                throw new ErroEmTempoDeExecucao(
                     stmt.closeBracket,
                     "Não foi possível encontrar arquivo importado."
                 );
             }
         } catch (erro) {
-            throw new RuntimeError(stmt.closeBracket, "Não foi possível ler o arquivo.");
+            throw new ErroEmTempoDeExecucao(stmt.closeBracket, "Não foi possível ler o arquivo.");
         }
 
         dados = fs.readFileSync(caminhoTotal).toString();
 
-        const egua = new Egua.Egua(nomeArquivo);
-        const interpretador = new Interpreter(egua, pastaTotal);
+        const delegua = new Delegua.Delegua(nomeArquivo);
+        const interpretador = new Interpreter(delegua, pastaTotal);
 
-        egua.run(dados, interpretador);
+        delegua.run(dados, interpretador);
 
-        let exportar = interpretador.globals.values.exports;
+        let exportar = interpretador.globals.valores.exports;
 
         const eDicionario = objeto => objeto.constructor === Object;
 
@@ -494,31 +494,31 @@ module.exports = class Interpreter {
         return null;
     }
 
-    executeBlock(statements, environment) {
-        let anterior = this.environment;
+    executeBlock(declaracoes, environment) {
+        let anterior = this.ambiente;
         try {
-            this.environment = environment;
+            this.ambiente = environment;
 
-            for (let i = 0; i < statements.length; i++) {
-                this.executar(statements[i]);
+            for (let i = 0; i < declaracoes.length; i++) {
+                this.executar(declaracoes[i]);
             }
         } finally {
-            this.environment = anterior;
+            this.ambiente = anterior;
         }
     }
 
     visitBlockStmt(stmt) {
-        this.executeBlock(stmt.statements, new Environment(this.environment));
+        this.executeBlock(stmt.declaracoes, new Environment(this.ambiente));
         return null;
     }
 
     visitVarStmt(stmt) {
         let valor = null;
-        if (stmt.initializer !== null) {
-            valor = this.avaliar(stmt.initializer);
+        if (stmt.inicializador !== null) {
+            valor = this.avaliar(stmt.inicializador);
         }
 
-        this.environment.definirVariavel(stmt.name.lexeme, valor);
+        this.ambiente.definirVariavel(stmt.nome.lexeme, valor);
         return null;
     }
 
@@ -532,19 +532,19 @@ module.exports = class Interpreter {
 
     visitReturnStmt(stmt) {
         let valor = null;
-        if (stmt.value != null) valor = this.avaliar(stmt.value);
+        if (stmt.valor != null) valor = this.avaliar(stmt.valor);
 
         throw new ReturnException(valor);
     }
 
     visitFunctionExpr(expr) {
-        return new DeleguaFuncao(null, expr, this.environment, false);
+        return new DeleguaFuncao(null, expr, this.ambiente, false);
     }
 
     visitAssignsubscriptExpr(expr) {
-        let objeto = this.avaliar(expr.obj);
-        let indice = this.avaliar(expr.index);
-        let value = this.avaliar(expr.value);
+        let objeto = this.avaliar(expr.objeto);
+        let indice = this.avaliar(expr.indice);
+        let valor = this.avaliar(expr.valor);
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -557,7 +557,7 @@ module.exports = class Interpreter {
                 objeto.push(null);
             }
 
-            objeto[indice] = value;
+            objeto[indice] = valor;
         } else if (
             objeto.constructor === Object ||
             objeto instanceof DeleguaInstancia ||
@@ -565,12 +565,12 @@ module.exports = class Interpreter {
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
         ) {
-            objeto[indice] = value;
+            objeto[indice] = valor;
         }
 
         else {
-            throw new RuntimeError(
-                expr.obj.name,
+            throw new ErroEmTempoDeExecucao(
+                expr.objeto.nome,
                 "Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita."
             );
         }
@@ -579,10 +579,10 @@ module.exports = class Interpreter {
     visitSubscriptExpr(expressao) {
         const objeto = this.avaliar(expressao.callee);
 
-        let indice = this.avaliar(expressao.index);
+        let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(indice)) {
-                throw new RuntimeError(
+                throw new ErroEmTempoDeExecucao(
                     expressao.closeBracket,
                     "Somente inteiros podem ser usados para indexar um vetor."
                 );
@@ -595,7 +595,7 @@ module.exports = class Interpreter {
             }
 
             if (indice >= objeto.length) {
-                throw new RuntimeError(expressao.closeBracket, "Índice do vetor fora do intervalo.");
+                throw new ErroEmTempoDeExecucao(expressao.closeBracket, "Índice do vetor fora do intervalo.");
             }
             return objeto[indice];
         }
@@ -612,7 +612,7 @@ module.exports = class Interpreter {
 
         else if (typeof objeto === "string") {
             if (!Number.isInteger(indice)) {
-                throw new RuntimeError(
+                throw new ErroEmTempoDeExecucao(
                     expressao.closeBracket,
                     "Somente inteiros podem ser usados para indexar um vetor."
                 );
@@ -625,138 +625,138 @@ module.exports = class Interpreter {
             }
 
             if (indice >= objeto.length) {
-                throw new RuntimeError(expressao.closeBracket, "Índice fora do tamanho.");
+                throw new ErroEmTempoDeExecucao(expressao.closeBracket, "Índice fora do tamanho.");
             }
             return objeto.charAt(indice);
         }
 
         else {
-            throw new RuntimeError(
-                expressao.callee.name,
+            throw new ErroEmTempoDeExecucao(
+                expressao.callee.nome,
                 "Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita."
             );
         }
     }
 
     visitSetExpr(expr) {
-        const objeto = this.avaliar(expr.object);
+        const objeto = this.avaliar(expr.objeto);
 
         if (!(objeto instanceof DeleguaInstancia) && objeto.constructor !== Object) {
-            throw new RuntimeError(
-                expr.object.name,
+            throw new ErroEmTempoDeExecucao(
+                expr.objeto.nome,
                 "Somente instâncias e dicionários podem possuir campos."
             );
         }
 
-        const valor = this.avaliar(expr.value);
+        const valor = this.avaliar(expr.valor);
         if (objeto instanceof DeleguaInstancia) {
-            objeto.set(expr.name, valor);
+            objeto.set(expr.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
-            objeto[expr.name.lexeme] = valor;
+            objeto[expr.nome.lexeme] = valor;
         }
     }
 
     visitFunctionStmt(stmt) {
         const funcao = new DeleguaFuncao(
-            stmt.name.lexeme,
-            stmt.func,
-            this.environment,
+            stmt.nome.lexeme,
+            stmt.funcao,
+            this.ambiente,
             false
         );
-        this.environment.definirVariavel(stmt.name.lexeme, funcao);
+        this.ambiente.definirVariavel(stmt.nome.lexeme, funcao);
     }
 
     visitClassStmt(stmt) {
         let superClasse = null;
-        if (stmt.superclass !== null) {
-            superclass = this.avaliar(stmt.superclass);
-            if (!(superclass instanceof DeleguaClasse)) {
-                throw new RuntimeError(
-                    stmt.superclass.name,
-                    "Superclasse precisa ser uma classe."
+        if (stmt.superClasse !== null) {
+            superClasse = this.avaliar(stmt.superClasse);
+            if (!(superClasse instanceof DeleguaClasse)) {
+                throw new ErroEmTempoDeExecucao(
+                    stmt.superClasse.nome,
+                    "SuperClasse precisa ser uma classe."
                 );
             }
         }
 
-        this.environment.definirVariavel(stmt.name.lexeme, null);
+        this.ambiente.definirVariavel(stmt.nome.lexeme, null);
 
-        if (stmt.superclass !== null) {
-            this.environment = new Environment(this.environment);
-            this.environment.definirVariavel("super", superClasse);
+        if (stmt.superClasse !== null) {
+            this.ambiente = new Environment(this.ambiente);
+            this.ambiente.definirVariavel("super", superClasse);
         }
 
         let metodos = {};
-        let definirMetodos = stmt.methods;
-        for (let i = 0; i < stmt.methods.length; i++) {
+        let definirMetodos = stmt.metodos;
+        for (let i = 0; i < stmt.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
-            let eInicializado = metodoAtual.name.lexeme === "construtor";
+            let eInicializado = metodoAtual.nome.lexeme === "construtor";
             const funcao = new DeleguaFuncao(
-                metodoAtual.name.lexeme,
-                metodoAtual.func,
-                this.environment,
+                metodoAtual.nome.lexeme,
+                metodoAtual.funcao,
+                this.ambiente,
                 eInicializado
             );
-            metodos[metodoAtual.name.lexeme] = funcao;
+            metodos[metodoAtual.nome.lexeme] = funcao;
         }
 
-        const criado = new DeleguaClasse(stmt.name.lexeme, superClasse, metodos);
+        const criado = new DeleguaClasse(stmt.nome.lexeme, superClasse, metodos);
 
         if (superClasse !== null) {
-            this.environment = this.environment.enclosing;
+            this.ambiente = this.ambiente.enclosing;
         }
 
-        this.environment.atribuirVariavel(stmt.name, criado);
+        this.ambiente.atribuirVariavel(stmt.nome, criado);
         return null;
     }
 
     visitGetExpr(expr) {
-        let objeto = this.avaliar(expr.object);
+        let objeto = this.avaliar(expr.objeto);
         if (objeto instanceof DeleguaInstancia) {
-            return objeto.get(expr.name) || null;
+            return objeto.get(expr.nome) || null;
         } else if (objeto.constructor === Object) {
-            return objeto[expr.name.lexeme] || null;
+            return objeto[expr.nome.lexeme] || null;
         } else if (objeto instanceof DeleguaModulo) {
-            return objeto[expr.name.lexeme] || null;
+            return objeto[expr.nome.lexeme] || null;
         }
 
-        throw new RuntimeError(
-            expr.name,
+        throw new ErroEmTempoDeExecucao(
+            expr.nome,
             "Você só pode acessar métodos do objeto e dicionários."
         );
     }
 
     visitThisExpr(expr) {
-        return this.procurarVariavel(expr.keyword, expr);
+        return this.procurarVariavel(expr.palavraChave, expr);
     }
 
     visitDictionaryExpr(expr) {
-        let dict = {};
+        let dicionario = {};
         for (let i = 0; i < expr.keys.length; i++) {
-            dict[this.avaliar(expr.keys[i])] = this.avaliar(expr.values[i]);
+            dicionario[this.avaliar(expr.keys[i])] = this.avaliar(expr.valores[i]);
         }
-        return dict;
+        return dicionario;
     }
 
     visitArrayExpr(expr) {
-        let values = [];
-        for (let i = 0; i < expr.values.length; i++) {
-            values.push(this.avaliar(expr.values[i]));
+        let valores = [];
+        for (let i = 0; i < expr.valores.length; i++) {
+            valores.push(this.avaliar(expr.valores[i]));
         }
-        return values;
+        return valores;
     }
 
     visitSuperExpr(expr) {
-        const distancia = this.locals.get(expr);
-        const superClasse = this.environment.obterVariavelEm(distancia, "super");
+        const distancia = this.locais.get(expr);
+        const superClasse = this.ambiente.obterVariavelEm(distancia, "super");
 
-        const objeto = this.environment.obterVariavelEm(distancia - 1, "isto");
+        const objeto = this.ambiente.obterVariavelEm(distancia - 1, "isto");
 
-        let metodo = superClasse.findMethod(expr.method.lexeme);
+        let metodo = superClasse.encontrarMetodo(expr.metodo.lexeme);
 
         if (metodo === undefined) {
-            throw new RuntimeError(
-                expr.method,
+            throw new ErroEmTempoDeExecucao(
+                expr.metodo,
                 "Método chamado indefinido."
             );
         }
@@ -792,7 +792,7 @@ module.exports = class Interpreter {
                 this.executar(declaracoes[i]);
             }
         } catch (erro) {
-            this.Egua.runtimeError(erro);
+            this.Delegua.ErroEmTempoDeExecucao(erro);
         }
     }
 };

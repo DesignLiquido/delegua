@@ -21,7 +21,7 @@ module.exports = class Parser {
         this.avancar();
 
         while (!this.isAtEnd()) {
-            if (this.voltar().type === tokenTypes.SEMICOLON) return;
+            if (this.voltar().tipo === tokenTypes.SEMICOLON) return;
 
             switch (this.peek().tipo) {
                 case tokenTypes.CLASSE:
@@ -98,7 +98,7 @@ module.exports = class Parser {
             this.consumir(tokenTypes.DOT, "Esperado '.' após 'super'.");
             const metodo = this.consumir(
                 tokenTypes.IDENTIFIER,
-                "Esperado nome do método da superclasse."
+                "Esperado nome do método da SuperClasse."
             );
             return new Expr.Super(palavraChave, metodo);
         }
@@ -192,18 +192,18 @@ module.exports = class Parser {
             if (this.match(tokenTypes.LEFT_PAREN)) {
                 expr = this.finalizarChamada(expr);
             } else if (this.match(tokenTypes.DOT)) {
-                let name = this.consumir(
+                let nome = this.consumir(
                     tokenTypes.IDENTIFIER,
                     "Esperado nome do método após '.'."
                 );
-                expr = new Expr.Get(expr, name);
+                expr = new Expr.Get(expr, nome);
             } else if (this.match(tokenTypes.LEFT_SQUARE_BRACKET)) {
-                let index = this.expression();
+                const indice = this.expression();
                 let closeBracket = this.consumir(
                     tokenTypes.RIGHT_SQUARE_BRACKET,
-                    "Esperado ']' após escrita de index."
+                    "Esperado ']' após escrita do indice."
                 );
-                expr = new Expr.Subscript(expr, index, closeBracket);
+                expr = new Expr.Subscript(expr, indice, closeBracket);
             } else {
                 break;
             }
@@ -369,13 +369,13 @@ module.exports = class Parser {
             const valor = this.atribuir();
 
             if (expr instanceof Expr.Variable) {
-                const nome = expr.name;
+                const nome = expr.nome;
                 return new Expr.Assign(nome, valor);
             } else if (expr instanceof Expr.Get) {
                 const get = expr;
-                return new Expr.Set(get.object, get.name, valor);
+                return new Expr.Set(get.objeto, get.nome, valor);
             } else if (expr instanceof Expr.Subscript) {
-                return new Expr.Assignsubscript(expr.callee, expr.index, valor);
+                return new Expr.Assignsubscript(expr.callee, expr.indice, valor);
             }
             this.error(igual, "Tarefa de atribuição inválida");
         }
@@ -474,18 +474,18 @@ module.exports = class Parser {
 
             this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'para'.");
 
-            let initializer;
+            let inicializador;
             if (this.match(tokenTypes.SEMICOLON)) {
-                initializer = null;
+                inicializador = null;
             } else if (this.match(tokenTypes.VAR)) {
-                initializer = this.declaracaoDeVariavel();
+                inicializador = this.declaracaoDeVariavel();
             } else {
-                initializer = this.expressionStatement();
+                inicializador = this.expressionStatement();
             }
 
-            let condition = null;
+            let condicao = null;
             if (!this.verificar(tokenTypes.SEMICOLON)) {
-                condition = this.expression();
+                condicao = this.expression();
             }
 
             this.consumir(
@@ -502,7 +502,7 @@ module.exports = class Parser {
 
             const corpo = this.statement();
 
-            return new Stmt.Para(initializer, condition, incrementar, corpo);
+            return new Stmt.Para(inicializador, condicao, incrementar, corpo);
         } finally {
             this.ciclos -= 1;
         }
@@ -546,7 +546,7 @@ module.exports = class Parser {
                 tokenTypes.LEFT_PAREN,
                 "Esperado '{' após 'escolha'."
             );
-            let condition = this.expression();
+            const condicao = this.expression();
             this.consumir(
                 tokenTypes.RIGHT_PAREN,
                 "Esperado '}' após a condição de 'escolha'."
@@ -614,7 +614,7 @@ module.exports = class Parser {
                 }
             }
 
-            return new Stmt.Escolha(condition, branches, defaultBranch);
+            return new Stmt.Escolha(condicao, branches, defaultBranch);
         } finally {
             this.ciclos -= 1;
         }
@@ -716,17 +716,17 @@ module.exports = class Parser {
     }
 
     declaracaoDeVariavel() {
-        let name = this.consumir(tokenTypes.IDENTIFIER, "Esperado nome de variável.");
-        let initializer = null;
+        let nome = this.consumir(tokenTypes.IDENTIFIER, "Esperado nome de variável.");
+        let inicializador = null;
         if (this.match(tokenTypes.EQUAL) || this.match(tokenTypes.MAIS_IGUAL)) {
-            initializer = this.expression();
+            inicializador = this.expression();
         }
 
         this.consumir(
             tokenTypes.SEMICOLON,
             "Esperado ';' após a declaração da variável."
         );
-        return new Stmt.Var(name, initializer);
+        return new Stmt.Var(nome, inicializador);
     }
 
     funcao(kind) {
@@ -748,12 +748,12 @@ module.exports = class Parser {
 
                 if (this.peek().tipo === tokenTypes.STAR) {
                     this.consumir(tokenTypes.STAR, null);
-                    paramObj["type"] = "wildcard";
+                    paramObj["tipo"] = "wildcard";
                 } else {
-                    paramObj["type"] = "standard";
+                    paramObj["tipo"] = "standard";
                 }
 
-                paramObj['name'] = this.consumir(
+                paramObj['nome'] = this.consumir(
                     tokenTypes.IDENTIFIER,
                     "Esperado nome do parâmetro."
                 );
@@ -764,7 +764,7 @@ module.exports = class Parser {
 
                 parametros.push(paramObj);
 
-                if (paramObj["type"] === "wildcard") break;
+                if (paramObj["tipo"] === "wildcard") break;
             } while (this.match(tokenTypes.COMMA));
         }
 
@@ -781,7 +781,7 @@ module.exports = class Parser {
 
         let superClasse = null;
         if (this.match(tokenTypes.HERDA)) {
-            this.consumir(tokenTypes.IDENTIFIER, "Esperado nome da superclasse.");
+            this.consumir(tokenTypes.IDENTIFIER, "Esperado nome da SuperClasse.");
             superClasse = new Expr.Variable(this.voltar());
         }
 

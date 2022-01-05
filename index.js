@@ -1,13 +1,13 @@
-const Egua = require("./src/egua.js").Egua;
+const Delegua = require("./src/delegua.js").Delegua;
 
 const main = function() {
     const argumentos = process.argv;
 
-    const egua = new Egua();
+    const delegua = new Delegua();
     if (argumentos.length === 2) {
-        egua.runPrompt();
+        delegua.runPrompt();
     } else {
-        egua.runfile(argumentos[2]);
+        delegua.runfile(argumentos[2]);
     }
 };
 

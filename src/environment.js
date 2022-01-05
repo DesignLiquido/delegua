@@ -1,4 +1,4 @@
-const RuntimeError = require("./errors.js").RuntimeError;
+const ErroEmTempoDeExecucao = require("./erro.js").ErroEmTempoDeExecucao;
 
 module.exports = class Environment {
     constructor(enclosing) {
@@ -10,8 +10,8 @@ module.exports = class Environment {
         this.valores[nomeVariavel] = valor;
     }
 
-    atribuirVariavelEm(distancia, name, valor) {
-        this.ancestor(distancia).values[name.lexeme] = valor;
+    atribuirVariavelEm(distancia, nome, valor) {
+        this.ancestor(distancia).valores[nome.lexeme] = valor;
     }
 
     atribuirVariavel(nome, valor) {
@@ -25,20 +25,20 @@ module.exports = class Environment {
             return;
         }
 
-        throw new RuntimeError(nome, "Variável não definida '" + nome.lexeme + "'.");
+        throw new ErroEmTempoDeExecucao(nome, "Variável não definida '" + nome.lexeme + "'.");
     }
 
     ancestor(distancia) {
         let ambiente = this;
         for (let i = 0; i < distancia; i++) {
-            ambiente = environment.enclosing;
+            ambiente = ambiente.enclosing;
         }
 
         return ambiente;
     }
 
     obterVariavelEm(distancia, nome) {
-        return this.ancestor(distancia).values[nome];
+        return this.ancestor(distancia).valores[nome];
     }
 
     obterVariavel(simbolo) {
@@ -48,6 +48,6 @@ module.exports = class Environment {
 
         if (this.enclosing !== null) return this.enclosing.obterVariavel(simbolo);
 
-        throw new RuntimeError(simbolo, "Variável não definida '" + simbolo.lexeme + "'.");
+        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexeme + "'.");
     }
 };

@@ -1,15 +1,15 @@
 const Callable = require("./callable.js");
 
 module.exports = class FuncaoPadrao extends Callable {
-    constructor(arityValue, func) {
+    constructor(arityValue, funcao) {
         super();
         this.arityValue = arityValue;
-        this.func = func;
+        this.funcao = funcao;
     }
 
-    call(interpreter, args, token) {
-        this.token = token;
-        return this.func.apply(this, args);
+    chamar(interpretador, argumentos, simbolo) {
+        this.simbolo = simbolo;
+        return this.funcao.apply(this, argumentos);
     }
 
     toString() {
