@@ -21,7 +21,7 @@ const {
 } = require("./erro.js");
 
 /**
- * O Interpretador (Interpretador) visita todos os elementos complexos gerados pelo analisador sintático (Parser)
+ * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
  * e de fato executa a lógica de programação descrita no código.
  */
 module.exports = class Interpretador {
