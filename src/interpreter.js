@@ -49,7 +49,7 @@ module.exports = class Interpreter {
     }
 
     visitGroupingExpr(expr) {
-        return this.avaliar(expr.expression);
+        return this.avaliar(expr.expressao);
     }
 
     eVerdadeiro(objeto) {
@@ -259,7 +259,7 @@ module.exports = class Interpreter {
     }
 
     visitExpressionStmt(stmt) {
-        this.avaliar(stmt.expression);
+        this.avaliar(stmt.expressao);
         return null;
     }
 
@@ -489,7 +489,7 @@ module.exports = class Interpreter {
     }
 
     visitPrintStmt(stmt) {
-        const valor = this.avaliar(stmt.expression);
+        const valor = this.avaliar(stmt.expressao);
         console.log(this.stringify(valor));
         return null;
     }

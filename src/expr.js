@@ -65,9 +65,9 @@ class Get extends Expr {
 }
 
 class Grouping extends Expr {
-    constructor(expression) {
+    constructor(expressao) {
         super();
-        this.expression = expression;
+        this.expressao = expressao;
     }
 
     aceitar(visitor) {

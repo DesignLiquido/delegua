@@ -2,10 +2,10 @@ class Stmt {
     aceitar(visitor) { }
 }
 
-class Expression extends Stmt {
-    constructor(expression) {
+class Expressao extends Stmt {
+    constructor(expressao) {
         super();
-        this.expression = expression;
+        this.expressao = expressao;
     }
 
     aceitar(visitor) {
@@ -62,9 +62,9 @@ class Block extends Stmt {
 }
 
 class Escreva extends Stmt {
-    constructor(expression) {
+    constructor(expressao) {
         super();
-        this.expression = expression;
+        this.expressao = expressao;
     }
 
     aceitar(visitor) {
@@ -196,7 +196,7 @@ class Var extends Stmt {
 }
 
 module.exports = {
-    Expression,
+    Expressao,
     Funcao,
     Retorna,
     Classe,
