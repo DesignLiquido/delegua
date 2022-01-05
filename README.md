@@ -17,7 +17,7 @@
 
 Delégua é uma variação da linguagem Égua, usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
 
-Delégua tem retrocompatibilidade com a linguagem Égua e usa a mesma extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki/P%C3%A1gina-Inicial).
+Delégua tem retrocompatibilidade com a linguagem Égua e usa a mesma extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
 
 ## Características
 
