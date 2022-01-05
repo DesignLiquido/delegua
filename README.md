@@ -50,7 +50,8 @@ Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ct
 
 ## Documentação
 
-- Para acessar nossa documentação, visite o [site de documentação](https://egua.tech/docs).
+- Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
+- [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki). 
 
 ## Contribuições
 
