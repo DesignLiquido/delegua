@@ -21,10 +21,10 @@ const {
 } = require("./erro.js");
 
 /**
- * O Interpretador (Interpreter) visita todos os elementos complexos gerados pelo analisador sintático (Parser)
+ * O Interpretador (Interpretador) visita todos os elementos complexos gerados pelo analisador sintático (Parser)
  * e de fato executa a lógica de programação descrita no código.
  */
-module.exports = class Interpreter {
+module.exports = class Interpretador {
     constructor(Delegua, diretorioBase) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
@@ -466,7 +466,7 @@ module.exports = class Interpreter {
         dados = fs.readFileSync(caminhoTotal).toString();
 
         const delegua = new Delegua.Delegua(nomeArquivo);
-        const interpretador = new Interpreter(delegua, pastaTotal);
+        const interpretador = new Interpretador(delegua, pastaTotal);
 
         delegua.run(dados, interpretador);
 
