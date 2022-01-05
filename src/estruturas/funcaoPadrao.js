@@ -1,9 +1,9 @@
 const Callable = require("./callable.js");
 
 module.exports = class FuncaoPadrao extends Callable {
-    constructor(arityValue, funcao) {
+    constructor(valorAridade, funcao) {
         super();
-        this.arityValue = arityValue;
+        this.valorAridade = valorAridade;
         this.funcao = funcao;
     }
 

@@ -123,7 +123,7 @@ module.exports = class Parser {
             const chaves = [];
             const valores = [];
             if (this.match(tokenTypes.RIGHT_BRACE)) {
-                return new Expr.Dictionary([], []);
+                return new Expr.Dicionario([], []);
             }
             while (!this.match(tokenTypes.RIGHT_BRACE)) {
                 let chave = this.atribuir();
@@ -143,7 +143,7 @@ module.exports = class Parser {
                     );
                 }
             }
-            return new Expr.Dictionary(chaves, valores);
+            return new Expr.Dicionario(chaves, valores);
         }
         if (this.match(tokenTypes.FUNCAO)) return this.corpoDaFuncao("funcao");
         if (this.match(tokenTypes.FALSO)) return new Expr.Literal(false);
@@ -154,7 +154,7 @@ module.exports = class Parser {
             return new Expr.Literal(this.voltar().literal);
         }
         if (this.match(tokenTypes.IDENTIFIER)) {
-            return new Expr.Variable(this.voltar());
+            return new Expr.Variavel(this.voltar());
         }
         if (this.match(tokenTypes.LEFT_PAREN)) {
             let expr = this.expression();
@@ -368,7 +368,7 @@ module.exports = class Parser {
             const igual = this.voltar();
             const valor = this.atribuir();
 
-            if (expr instanceof Expr.Variable) {
+            if (expr instanceof Expr.Variavel) {
                 const nome = expr.nome;
                 return new Expr.Assign(nome, valor);
             } else if (expr instanceof Expr.Get) {
@@ -782,7 +782,7 @@ module.exports = class Parser {
         let superClasse = null;
         if (this.match(tokenTypes.HERDA)) {
             this.consumir(tokenTypes.IDENTIFIER, "Esperado nome da SuperClasse.");
-            superClasse = new Expr.Variable(this.voltar());
+            superClasse = new Expr.Variavel(this.voltar());
         }
 
         this.consumir(tokenTypes.LEFT_BRACE, "Esperado '{' antes do escopo da classe.");

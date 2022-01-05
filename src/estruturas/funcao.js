@@ -11,7 +11,7 @@ module.exports = class DeleguaFuncao extends Callable {
         this.eInicializador = eInicializador;
     }
 
-    arity() {
+    aridade() {
         return this.declaracao.parametros.length;
     }
 

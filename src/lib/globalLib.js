@@ -140,7 +140,7 @@ module.exports = function (interpreter, globals) {
             }
 
             if (objeto instanceof FuncaoPadrao) {
-                return objeto.arityValue;
+                return objeto.valorAridade;
             }
 
             if (objeto instanceof DeleguaClasse) {

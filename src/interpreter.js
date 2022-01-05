@@ -207,14 +207,14 @@ module.exports = class Interpreter {
             parametros = [];
         }
 
-        if (argumentos.length < callee.arity()) {
-            let diferenca = callee.arity() - argumentos.length;
+        if (argumentos.length < callee.aridade()) {
+            let diferenca = callee.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
                 argumentos.push(null);
             }
         }
 
-        else if (argumentos.length >= callee.arity()) {
+        else if (argumentos.length >= callee.aridade()) {
             if (
                 parametros.length > 0 &&
                 parametros[parametros.length - 1]["tipo"] === "wildcard"
