@@ -14,10 +14,10 @@ class Expression extends Stmt {
 }
 
 class Funcao extends Stmt {
-    constructor(name, func) {
+    constructor(nome, funcao) {
         super();
-        this.name = name;
-        this.func = func;
+        this.nome = nome;
+        this.funcao = funcao;
     }
 
     aceitar(visitor) {
@@ -26,10 +26,10 @@ class Funcao extends Stmt {
 }
 
 class Retorna extends Stmt {
-    constructor(keyword, value) {
+    constructor(palavraChave, valor) {
         super();
-        this.keyword = keyword;
-        this.value = value;
+        this.palavraChave = palavraChave;
+        this.valor = valor;
     }
 
     aceitar(visitor) {
@@ -40,9 +40,9 @@ class Retorna extends Stmt {
 class Classe extends Stmt {
     constructor(nome, superClasse, metodos) {
         super();
-        this.name = nome;
-        this.superclass = superClasse;
-        this.methods = metodos;
+        this.nome = nome;
+        this.superClasse = superClasse;
+        this.metodos = metodos;
     }
 
     aceitar(visitor) {
@@ -51,9 +51,9 @@ class Classe extends Stmt {
 }
 
 class Block extends Stmt {
-    constructor(statements) {
+    constructor(declaracoes) {
         super();
-        this.statements = statements;
+        this.declaracoes = declaracoes;
     }
 
     aceitar(visitor) {
@@ -73,9 +73,9 @@ class Escreva extends Stmt {
 }
 
 class Importar extends Stmt {
-    constructor(path, closeBracket) {
+    constructor(caminho, closeBracket) {
         super();
-        this.path = path;
+        this.caminho = caminho;
         this.closeBracket = closeBracket;
     }
 
@@ -97,10 +97,10 @@ class Fazer extends Stmt {
   }
 
 class Enquanto extends Stmt {
-    constructor(condition, body) {
+    constructor(condicao, corpo) {
         super();
-        this.condition = condition;
-        this.body = body;
+        this.condicao = condicao;
+        this.corpo = corpo;
     }
 
     aceitar(visitor) {
@@ -109,12 +109,12 @@ class Enquanto extends Stmt {
 }
 
 class Para extends Stmt {
-    constructor(initializer, condition, increment, body) {
+    constructor(inicializador, condicao, incrementar, corpo) {
         super();
-        this.initializer = initializer;
-        this.condition = condition;
-        this.increment = increment;
-        this.body = body;
+        this.inicializador = inicializador;
+        this.condicao = condicao;
+        this.incrementar = incrementar;
+        this.corpo = corpo;
     }
 
     aceitar(visitor) {
@@ -137,9 +137,9 @@ class Tente extends Stmt {
 }
 
 class Se extends Stmt {
-    constructor(condition, thenBranch, elifBranches, elseBranch) {
+    constructor(condicao, thenBranch, elifBranches, elseBranch) {
         super();
-        this.condition = condition;
+        this.condicao = condicao;
         this.thenBranch = thenBranch;
         this.elifBranches = elifBranches;
         this.elseBranch = elseBranch;
@@ -151,9 +151,9 @@ class Se extends Stmt {
 }
 
 class Escolha extends Stmt {
-    constructor(condition, branches, defaultBranch) {
+    constructor(condicao, branches, defaultBranch) {
         super();
-        this.condition = condition;
+        this.condicao = condicao;
         this.branches = branches;
         this.defaultBranch = defaultBranch;
     }
@@ -184,10 +184,10 @@ class Continua extends Stmt {
 }
 
 class Var extends Stmt {
-    constructor(name, initializer) {
+    constructor(nome, inicializador) {
         super();
-        this.name = name;
-        this.initializer = initializer;
+        this.nome = nome;
+        this.inicializador = inicializador;
     }
 
     aceitar(visitor) {

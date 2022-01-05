@@ -1,62 +1,62 @@
 const Callable = require("./callable.js");
-const Environment = require("../environment.js");
-const ReturnExpection = require("../errors.js").ReturnException;
+const Ambiente = require("../ambiente.js");
+const ReturnExpection = require("../erro.js").ReturnException;
 
 module.exports = class DeleguaFuncao extends Callable {
-    constructor(name, declaration, closure, isInitializer = false) {
+    constructor(nome, declaracao, closure, eInicializador = false) {
         super();
-        this.name = name;
-        this.declaration = declaration;
+        this.nome = nome;
+        this.declaracao = declaracao;
         this.closure = closure;
-        this.isInitializer = isInitializer;
+        this.eInicializador = eInicializador;
     }
 
     arity() {
-        return this.declaration.params.length;
+        return this.declaracao.parametros.length;
     }
 
     toString() {
-        if (this.name === null) return "<função>";
-        return `<função ${this.name}>`;
+        if (this.nome === null) return "<função>";
+        return `<função ${this.nome}>`;
     }
 
-    call(interpreter, args) {
-        let environment = new Environment(this.closure);
-        let params = this.declaration.params;
-        for (let i = 0; i < params.length; i++) {
-            let param = params[i];
+    call(interpreter, argumentos) {
+        let ambiente = new Ambiente(this.closure);
+        let parametros = this.declaracao.parametros;
+        for (let i = 0; i < parametros.length; i++) {
+            const param = parametros[i];
 
-            let name = param["name"].lexeme;
-            let value = args[i];
-            if (args[i] === null) {
-                value = param["default"] ? param["default"].value : null;
+            const nome = param["nome"].lexeme;
+            let valor = argumentos[i];
+            if (argumentos[i] === null) {
+                valor = param["padrao"] ? param["padrao"].valor : null;
             }
-            environment.definirVariavel(name, value);
+            ambiente.definirVariavel(nome, valor);
         }
 
         try {
-            interpreter.executeBlock(this.declaration.body, environment);
-        } catch (error) {
-            if (error instanceof ReturnExpection) {
-                if (this.isInitializer) return this.closure.obterVariavelEm(0, "isto");
-                return error.value;
+            interpreter.executeBlock(this.declaracao.corpo, ambiente);
+        } catch (erro) {
+            if (erro instanceof ReturnExpection) {
+                if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");
+                return erro.valor;
             } else {
-                throw error;
+                throw erro;
             }
         }
 
-        if (this.isInitializer) return this.closure.obterVariavelEm(0, "isto");
+        if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");
         return null;
     }
 
-    bind(instance) {
-        let environment = new Environment(this.closure);
-        environment.definirVariavel("isto", instance);
+    bind(instancia) {
+        let ambiente = new Ambiente(this.closure);
+        ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(
-            this.name,
-            this.declaration,
-            environment,
-            this.isInitializer
+            this.nome,
+            this.declaracao,
+            ambiente,
+            this.eInicializador
         );
     }
 };

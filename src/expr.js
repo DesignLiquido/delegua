@@ -3,10 +3,10 @@ class Expr {
 }
 
 class Assign extends Expr {
-    constructor(name, value) {
+    constructor(nome, valor) {
         super();
-        this.name = name;
-        this.value = value;
+        this.nome = nome;
+        this.valor = valor;
     }
 
     aceitar(visitor) {
@@ -15,11 +15,11 @@ class Assign extends Expr {
 }
 
 class Binary extends Expr {
-    constructor(left, operator, right) {
+    constructor(esquerda, operador, direita) {
         super();
-        this.left = left;
-        this.operator = operator;
-        this.right = right;
+        this.esquerda = esquerda;
+        this.operador = operador;
+        this.direita = direita;
     }
 
     aceitar(visitor) {
@@ -28,10 +28,10 @@ class Binary extends Expr {
 }
 
 class Funcao extends Expr {
-    constructor(params, body) {
+    constructor(parametros, corpo) {
         super();
-        this.params = params;
-        this.body = body;
+        this.parametros = parametros;
+        this.corpo = corpo;
     }
 
     aceitar(visitor) {
@@ -40,11 +40,11 @@ class Funcao extends Expr {
 }
 
 class Call extends Expr {
-    constructor(callee, paren, args) {
+    constructor(callee, paren, argumentos) {
         super();
         this.callee = callee;
         this.paren = paren;
-        this.args = args;
+        this.argumentos = argumentos;
     }
 
     aceitar(visitor) {
@@ -53,10 +53,10 @@ class Call extends Expr {
 }
 
 class Get extends Expr {
-    constructor(object, name) {
+    constructor(objeto, nome) {
         super();
-        this.object = object;
-        this.name = name;
+        this.objeto = objeto;
+        this.nome = nome;
     }
 
     aceitar(visitor) {
@@ -76,9 +76,9 @@ class Grouping extends Expr {
 }
 
 class Literal extends Expr {
-    constructor(value) {
+    constructor(valor) {
         super();
-        this.value = value;
+        this.valor = valor;
     }
 
     aceitar(visitor) {
@@ -87,9 +87,9 @@ class Literal extends Expr {
 }
 
 class Array extends Expr {
-    constructor(values) {
+    constructor(valores) {
         super();
-        this.values = values;
+        this.valores = valores;
     }
 
     aceitar(visitor) {
@@ -98,10 +98,10 @@ class Array extends Expr {
 }
 
 class Dictionary extends Expr {
-    constructor(keys, values) {
+    constructor(chaves, valores) {
         super();
-        this.keys = keys;
-        this.values = values;
+        this.chaves = chaves;
+        this.valores = valores;
     }
 
     aceitar(visitor) {
@@ -110,10 +110,10 @@ class Dictionary extends Expr {
 }
 
 class Subscript extends Expr {
-    constructor(callee, index, closeBracket) {
+    constructor(callee, indice, closeBracket) {
         super();
         this.callee = callee;
-        this.index = index;
+        this.indice = indice;
         this.closeBracket = closeBracket;
     }
 
@@ -123,11 +123,11 @@ class Subscript extends Expr {
 }
 
 class Assignsubscript extends Expr {
-    constructor(obj, index, value) {
+    constructor(objeto, indice, valor) {
         super();
-        this.obj = obj;
-        this.index = index;
-        this.value = value;
+        this.objeto = objeto;
+        this.indice = indice;
+        this.valor = valor;
     }
 
     aceitar(visitor) {
@@ -136,11 +136,11 @@ class Assignsubscript extends Expr {
 }
 
 class Logical extends Expr {
-    constructor(left, operator, right) {
+    constructor(esquerda, operador, direita) {
         super();
-        this.left = left;
-        this.operator = operator;
-        this.right = right;
+        this.esquerda = esquerda;
+        this.operador = operador;
+        this.direita = direita;
     }
 
     aceitar(visitor) {
@@ -149,11 +149,11 @@ class Logical extends Expr {
 }
 
 class Set extends Expr {
-    constructor(object, name, value) {
+    constructor(objeto, nome, valor) {
         super();
-        this.object = object;
-        this.name = name;
-        this.value = value;
+        this.objeto = objeto;
+        this.nome = nome;
+        this.valor = valor;
     }
 
     aceitar(visitor) {
@@ -162,10 +162,10 @@ class Set extends Expr {
 }
 
 class Super extends Expr {
-    constructor(keyword, method) {
+    constructor(palavraChave, metodo) {
         super();
-        this.keyword = keyword;
-        this.method = method;
+        this.palavraChave = palavraChave;
+        this.metodo = metodo;
     }
 
     aceitar(visitor) {
@@ -174,9 +174,9 @@ class Super extends Expr {
 }
 
 class Isto extends Expr {
-    constructor(keyword) {
+    constructor(palavraChave) {
         super();
-        this.keyword = keyword;
+        this.palavraChave = palavraChave;
     }
 
     aceitar(visitor) {
@@ -185,10 +185,10 @@ class Isto extends Expr {
 }
 
 class Unary extends Expr {
-    constructor(operator, right) {
+    constructor(operador, direita) {
         super();
-        this.operator = operator;
-        this.right = right;
+        this.operador = operador;
+        this.direita = direita;
     }
 
     aceitar(visitor) {
@@ -197,9 +197,9 @@ class Unary extends Expr {
 }
 
 class Variable extends Expr {
-    constructor(name) {
+    constructor(nome) {
         super();
-        this.name = name;
+        this.nome = nome;
     }
 
     aceitar(visitor) {
