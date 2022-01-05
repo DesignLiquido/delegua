@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "console": "integratedTerminal",
-            "program": "${workspaceFolder}\\index.js"
+            "program": "${workspaceFolder}\\indice.js"
         },
         {
             "type": "node",
@@ -23,7 +23,7 @@
             ],
             "args": ["${workspaceFolder}\\tests\\tests.egua"],
             "console": "integratedTerminal",
-            "program": "${workspaceFolder}\\index.js"
+            "program": "${workspaceFolder}\\indice.js"
         }
     ]
 }
