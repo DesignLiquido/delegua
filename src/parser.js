@@ -123,7 +123,7 @@ module.exports = class Parser {
             const chaves = [];
             const valores = [];
             if (this.match(tokenTypes.RIGHT_BRACE)) {
-                return new Expr.Dictionary([], []);
+                return new Expr.Dicionario([], []);
             }
             while (!this.match(tokenTypes.RIGHT_BRACE)) {
                 let chave = this.atribuir();
@@ -143,7 +143,7 @@ module.exports = class Parser {
                     );
                 }
             }
-            return new Expr.Dictionary(chaves, valores);
+            return new Expr.Dicionario(chaves, valores);
         }
         if (this.match(tokenTypes.FUNCAO)) return this.corpoDaFuncao("funcao");
         if (this.match(tokenTypes.FALSO)) return new Expr.Literal(false);
@@ -154,10 +154,10 @@ module.exports = class Parser {
             return new Expr.Literal(this.voltar().literal);
         }
         if (this.match(tokenTypes.IDENTIFIER)) {
-            return new Expr.Variable(this.voltar());
+            return new Expr.Variavel(this.voltar());
         }
         if (this.match(tokenTypes.LEFT_PAREN)) {
-            let expr = this.expression();
+            let expr = this.expressao();
             this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após a expressão.");
             return new Expr.Grouping(expr);
         }
@@ -173,7 +173,7 @@ module.exports = class Parser {
                 if (argumentos.length >= 255) {
                     error(this.peek(), "Não pode haver mais de 255 argumentos.");
                 }
-                argumentos.push(this.expression());
+                argumentos.push(this.expressao());
             } while (this.match(tokenTypes.COMMA));
         }
 
@@ -198,7 +198,7 @@ module.exports = class Parser {
                 );
                 expr = new Expr.Get(expr, nome);
             } else if (this.match(tokenTypes.LEFT_SQUARE_BRACKET)) {
-                const indice = this.expression();
+                const indice = this.expressao();
                 let closeBracket = this.consumir(
                     tokenTypes.RIGHT_SQUARE_BRACKET,
                     "Esperado ']' após escrita do indice."
@@ -368,7 +368,7 @@ module.exports = class Parser {
             const igual = this.voltar();
             const valor = this.atribuir();
 
-            if (expr instanceof Expr.Variable) {
+            if (expr instanceof Expr.Variavel) {
                 const nome = expr.nome;
                 return new Expr.Assign(nome, valor);
             } else if (expr instanceof Expr.Get) {
@@ -383,7 +383,7 @@ module.exports = class Parser {
         return expr;
     }
 
-    expression() {
+    expressao() {
         return this.atribuir();
     }
 
@@ -393,7 +393,7 @@ module.exports = class Parser {
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const valor = this.expression();
+        const valor = this.expressao();
 
         this.consumir(
             tokenTypes.RIGHT_PAREN,
@@ -405,9 +405,9 @@ module.exports = class Parser {
     }
 
     expressionStatement() {
-        const expr = this.expression();
+        const expr = this.expressao();
         this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após expressão.");
-        return new Stmt.Expression(expr);
+        return new Stmt.Expressao(expr);
     }
 
     block() {
@@ -423,7 +423,7 @@ module.exports = class Parser {
 
     declaracaoSe() {
         this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'se'.");
-        const condicao = this.expression();
+        const condicao = this.expressao();
         this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após condição do se.");
 
         const thenBranch = this.statement();
@@ -431,7 +431,7 @@ module.exports = class Parser {
         const elifBranches = [];
         while (this.match(tokenTypes.SENAOSE)) {
             this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'senaose'.");
-            let elifCondition = this.expression();
+            let elifCondition = this.expressao();
             this.consumir(
                 tokenTypes.RIGHT_PAREN,
                 "Esperado ')' apóes codição do 'senaose."
@@ -458,7 +458,7 @@ module.exports = class Parser {
             this.ciclos += 1;
 
             this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'enquanto'.");
-            const condicao = this.expression();
+            const condicao = this.expressao();
             this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após condicional.");
             const corpo = this.statement();
 
@@ -485,7 +485,7 @@ module.exports = class Parser {
 
             let condicao = null;
             if (!this.verificar(tokenTypes.SEMICOLON)) {
-                condicao = this.expression();
+                condicao = this.expressao();
             }
 
             this.consumir(
@@ -495,7 +495,7 @@ module.exports = class Parser {
 
             let incrementar = null;
             if (!this.verificar(tokenTypes.RIGHT_PAREN)) {
-                incrementar = this.expression();
+                incrementar = this.expressao();
             }
 
             this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após cláusulas");
@@ -531,7 +531,7 @@ module.exports = class Parser {
         let valor = null;
 
         if (!this.verificar(tokenTypes.SEMICOLON)) {
-            valor = this.expression();
+            valor = this.expressao();
         }
 
         this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após o retorno.");
@@ -546,7 +546,7 @@ module.exports = class Parser {
                 tokenTypes.LEFT_PAREN,
                 "Esperado '{' após 'escolha'."
             );
-            const condicao = this.expression();
+            const condicao = this.expressao();
             this.consumir(
                 tokenTypes.RIGHT_PAREN,
                 "Esperado '}' após a condição de 'escolha'."
@@ -560,7 +560,7 @@ module.exports = class Parser {
             let defaultBranch = null;
             while (!this.match(tokenTypes.RIGHT_BRACE) && !this.isAtEnd()) {
                 if (this.match(tokenTypes.CASO)) {
-                    let branchConditions = [this.expression()];
+                    let branchConditions = [this.expressao()];
                     this.consumir(
                         tokenTypes.COLON,
                         "Esperado ':' após o 'caso'."
@@ -568,7 +568,7 @@ module.exports = class Parser {
 
                     while (this.verificar(tokenTypes.CASO)) {
                         this.consumir(tokenTypes.CASO, null);
-                        branchConditions.push(this.expression());
+                        branchConditions.push(this.expressao());
                         this.consumir(
                             tokenTypes.COLON,
                             "Esperado ':' após declaração do 'caso'."
@@ -623,7 +623,7 @@ module.exports = class Parser {
     importStatement() {
         this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após declaração.");
 
-        const caminho = this.expression();
+        const caminho = this.expressao();
 
         let closeBracket = this.consumir(
             tokenTypes.RIGHT_PAREN,
@@ -686,7 +686,7 @@ module.exports = class Parser {
                 "Esperado '(' após declaração 'enquanto'."
             );
 
-            const whileCondition = this.expression();
+            const whileCondition = this.expressao();
 
             this.consumir(
                 tokenTypes.RIGHT_PAREN,
@@ -719,7 +719,7 @@ module.exports = class Parser {
         let nome = this.consumir(tokenTypes.IDENTIFIER, "Esperado nome de variável.");
         let inicializador = null;
         if (this.match(tokenTypes.EQUAL) || this.match(tokenTypes.MAIS_IGUAL)) {
-            inicializador = this.expression();
+            inicializador = this.expressao();
         }
 
         this.consumir(
@@ -782,7 +782,7 @@ module.exports = class Parser {
         let superClasse = null;
         if (this.match(tokenTypes.HERDA)) {
             this.consumir(tokenTypes.IDENTIFIER, "Esperado nome da SuperClasse.");
-            superClasse = new Expr.Variable(this.voltar());
+            superClasse = new Expr.Variavel(this.voltar());
         }
 
         this.consumir(tokenTypes.LEFT_BRACE, "Esperado '{' antes do escopo da classe.");

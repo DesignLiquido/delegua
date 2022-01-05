@@ -25,9 +25,9 @@ module.exports = class DeleguaClasse extends Callable {
         return `<classe ${this.nome}>`;
     }
 
-    arity() {
+    aridade() {
         let inicializador = this.encontrarMetodo("construtor");
-        return inicializador ? inicializador.arity() : 0;
+        return inicializador ? inicializador.aridade() : 0;
     }
 
     call(interpretador, argumentos) {

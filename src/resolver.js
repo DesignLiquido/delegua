@@ -247,7 +247,7 @@ module.exports = class Resolver {
     }
 
     visitExpressionStmt(stmt) {
-        this.resolver(stmt.expression);
+        this.resolver(stmt.expressao);
         return null;
     }
 
@@ -269,7 +269,7 @@ module.exports = class Resolver {
     }
 
     visitPrintStmt(stmt) {
-        this.resolver(stmt.expression);
+        this.resolver(stmt.expressao);
     }
 
     visitReturnStmt(stmt) {
@@ -357,7 +357,7 @@ module.exports = class Resolver {
     }
 
     visitGroupingExpr(expr) {
-        this.resolver(expr.expression);
+        this.resolver(expr.expressao);
         return null;
     }
 

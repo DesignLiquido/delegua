@@ -21,10 +21,10 @@ const {
 } = require("./erro.js");
 
 /**
- * O Interpretador (Interpreter) visita todos os elementos complexos gerados pelo analisador sintático (Parser)
+ * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
  * e de fato executa a lógica de programação descrita no código.
  */
-module.exports = class Interpreter {
+module.exports = class Interpretador {
     constructor(Delegua, diretorioBase) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
@@ -49,7 +49,7 @@ module.exports = class Interpreter {
     }
 
     visitGroupingExpr(expr) {
-        return this.avaliar(expr.expression);
+        return this.avaliar(expr.expressao);
     }
 
     eVerdadeiro(objeto) {
@@ -207,14 +207,14 @@ module.exports = class Interpreter {
             parametros = [];
         }
 
-        if (argumentos.length < callee.arity()) {
-            let diferenca = callee.arity() - argumentos.length;
+        if (argumentos.length < callee.aridade()) {
+            let diferenca = callee.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
                 argumentos.push(null);
             }
         }
 
-        else if (argumentos.length >= callee.arity()) {
+        else if (argumentos.length >= callee.aridade()) {
             if (
                 parametros.length > 0 &&
                 parametros[parametros.length - 1]["tipo"] === "wildcard"
@@ -259,7 +259,7 @@ module.exports = class Interpreter {
     }
 
     visitExpressionStmt(stmt) {
-        this.avaliar(stmt.expression);
+        this.avaliar(stmt.expressao);
         return null;
     }
 
@@ -466,7 +466,7 @@ module.exports = class Interpreter {
         dados = fs.readFileSync(caminhoTotal).toString();
 
         const delegua = new Delegua.Delegua(nomeArquivo);
-        const interpretador = new Interpreter(delegua, pastaTotal);
+        const interpretador = new Interpretador(delegua, pastaTotal);
 
         delegua.run(dados, interpretador);
 
@@ -489,7 +489,7 @@ module.exports = class Interpreter {
     }
 
     visitPrintStmt(stmt) {
-        const valor = this.avaliar(stmt.expression);
+        const valor = this.avaliar(stmt.expressao);
         console.log(this.stringify(valor));
         return null;
     }

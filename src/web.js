@@ -1,7 +1,7 @@
 const Lexer = require("./lexer.js");
 const Parser = require("./parser.js");
 const Resolver = require("./resolver.js");
-const Interpreter = require("./interpreter.js");
+const Interpretador = require("./interpretador.js");
 const tokenTypes = require("./tokenTypes.js");
 
 module.exports.Delegua = class Delegua {
@@ -13,7 +13,7 @@ module.exports.Delegua = class Delegua {
   }
 
   runBlock(codigo) {
-    const interpretador = new Interpreter(this, process.cwd());
+    const interpretador = new Interpretador(this, process.cwd());
 
     const lexer = new Lexer(codigo, this);
     const simbolos = lexer.scan();

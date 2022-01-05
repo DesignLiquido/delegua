@@ -11,7 +11,7 @@ module.exports = class DeleguaFuncao extends Callable {
         this.eInicializador = eInicializador;
     }
 
-    arity() {
+    aridade() {
         return this.declaracao.parametros.length;
     }
 
@@ -20,7 +20,7 @@ module.exports = class DeleguaFuncao extends Callable {
         return `<função ${this.nome}>`;
     }
 
-    call(interpreter, argumentos) {
+    call(interpretador, argumentos) {
         let ambiente = new Ambiente(this.closure);
         let parametros = this.declaracao.parametros;
         for (let i = 0; i < parametros.length; i++) {
@@ -35,7 +35,7 @@ module.exports = class DeleguaFuncao extends Callable {
         }
 
         try {
-            interpreter.executeBlock(this.declaracao.corpo, ambiente);
+            interpretador.executeBlock(this.declaracao.corpo, ambiente);
         } catch (erro) {
             if (erro instanceof ReturnExpection) {
                 if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");

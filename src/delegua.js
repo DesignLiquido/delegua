@@ -1,7 +1,7 @@
 const Lexer = require("./lexer.js");
 const Parser = require("./parser.js");
 const Resolver = require("./resolver.js");
-const Interpreter = require("./interpreter.js");
+const Interpretador = require("./interpretador.js");
 const tokenTypes = require("./tokenTypes.js");
 const fs = require("fs");
 const caminho = require("path");
@@ -16,7 +16,7 @@ module.exports.Delegua = class Delegua {
     }
 
     runPrompt() {
-        const interpretador = new Interpreter(this, process.cwd(), undefined);
+        const interpretador = new Interpretador(this, process.cwd(), undefined);
         console.log("Console da Linguagem Delégua v0.0.1");
         const leiaLinha = readline.createInterface({
             input: process.stdin,
@@ -37,7 +37,7 @@ module.exports.Delegua = class Delegua {
 
     runfile(nomeArquivo) {
         this.nomeArquivo = caminho.basename(nomeArquivo);
-        const interpretador = new Interpreter(this, process.cwd());
+        const interpretador = new Interpretador(this, process.cwd());
 
         const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
         this.run(dadosDoArquivo, interpretador);

@@ -65,9 +65,9 @@ class Get extends Expr {
 }
 
 class Grouping extends Expr {
-    constructor(expression) {
+    constructor(expressao) {
         super();
-        this.expression = expression;
+        this.expressao = expressao;
     }
 
     aceitar(visitor) {
@@ -97,7 +97,7 @@ class Array extends Expr {
     }
 }
 
-class Dictionary extends Expr {
+class Dicionario extends Expr {
     constructor(chaves, valores) {
         super();
         this.chaves = chaves;
@@ -196,7 +196,7 @@ class Unary extends Expr {
     }
 }
 
-class Variable extends Expr {
+class Variavel extends Expr {
     constructor(nome) {
         super();
         this.nome = nome;
@@ -216,7 +216,7 @@ module.exports = {
     Grouping,
     Literal,
     Array,
-    Dictionary,
+    Dicionario,
     Subscript,
     Assignsubscript,
     Logical,
@@ -224,5 +224,5 @@ module.exports = {
     Super,
     Isto,
     Unary,
-    Variable
+    Variavel
 };

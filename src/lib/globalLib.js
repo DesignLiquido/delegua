@@ -5,7 +5,7 @@ const ErroEmTempoDeExecucao = require("../erro.js").ErroEmTempoDeExecucao,
     DeleguaClasse = require("../estruturas/classe.js");
 
 
-module.exports = function (interpreter, globals) {
+module.exports = function (interpretador, globals) {
     // Retorna um número aleatório entre 0 e 1.
     globals.definirVariavel(
         "aleatorio",
@@ -72,7 +72,7 @@ module.exports = function (interpreter, globals) {
             for (let indice = 0; indice < array.length; ++indice) {
                 provisorio.push(
                     callback.call(
-                        interpreter, [array[indice]]
+                        interpretador, [array[indice]]
                     )
                 );
             }
@@ -140,7 +140,7 @@ module.exports = function (interpreter, globals) {
             }
 
             if (objeto instanceof FuncaoPadrao) {
-                return objeto.arityValue;
+                return objeto.valorAridade;
             }
 
             if (objeto instanceof DeleguaClasse) {
