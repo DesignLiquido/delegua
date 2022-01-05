@@ -348,9 +348,9 @@ module.exports = class Resolver {
     visitCallExpr(expr) {
         this.resolver(expr.callee);
 
-        let args = expr.args;
-        for (let i = 0; i < args.length; i++) {
-            this.resolver(args[i]);
+        let argumentos = expr.argumentos;
+        for (let i = 0; i < argumentos.length; i++) {
+            this.resolver(argumentos[i]);
         }
 
         return null;
@@ -362,8 +362,8 @@ module.exports = class Resolver {
     }
 
     visitDictionaryExpr(expr) {
-        for (let i = 0; i < expr.keys.length; i++) {
-            this.resolver(expr.keys[i]);
+        for (let i = 0; i < expr.chaves.length; i++) {
+            this.resolver(expr.chaves[i]);
             this.resolver(expr.valores[i]);
         }
         return null;

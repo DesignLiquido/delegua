@@ -80,9 +80,9 @@ module.exports = class Parser {
         return this.voltar();
     }
 
-    match(...args) {
-        for (let i = 0; i < args.length; i++) {
-            const tipoAtual = args[i];
+    match(...argumentos) {
+        for (let i = 0; i < argumentos.length; i++) {
+            const tipoAtual = argumentos[i];
             if (this.verificar(tipoAtual)) {
                 this.avancar();
                 return true;

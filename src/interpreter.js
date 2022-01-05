@@ -185,8 +185,8 @@ module.exports = class Interpreter {
         let callee = this.avaliar(expr.callee);
 
         let argumentos = [];
-        for (let i = 0; i < expr.args.length; i++) {
-            argumentos.push(this.avaliar(expr.args[i]));
+        for (let i = 0; i < expr.argumentos.length; i++) {
+            argumentos.push(this.avaliar(expr.argumentos[i]));
         }
 
         if (!(callee instanceof Callable)) {
@@ -732,8 +732,8 @@ module.exports = class Interpreter {
 
     visitDictionaryExpr(expr) {
         let dicionario = {};
-        for (let i = 0; i < expr.keys.length; i++) {
-            dicionario[this.avaliar(expr.keys[i])] = this.avaliar(expr.valores[i]);
+        for (let i = 0; i < expr.chaves.length; i++) {
+            dicionario[this.avaliar(expr.chaves[i])] = this.avaliar(expr.valores[i]);
         }
         return dicionario;
     }

@@ -40,11 +40,11 @@ class Funcao extends Expr {
 }
 
 class Call extends Expr {
-    constructor(callee, paren, args) {
+    constructor(callee, paren, argumentos) {
         super();
         this.callee = callee;
         this.paren = paren;
-        this.args = args;
+        this.argumentos = argumentos;
     }
 
     aceitar(visitor) {
@@ -98,9 +98,9 @@ class Array extends Expr {
 }
 
 class Dictionary extends Expr {
-    constructor(keys, valores) {
+    constructor(chaves, valores) {
         super();
-        this.keys = keys;
+        this.chaves = chaves;
         this.valores = valores;
     }
 
