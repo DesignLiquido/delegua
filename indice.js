@@ -1,6 +1,6 @@
 const Delegua = require("./src/delegua.js").Delegua;
 
-const main = function() {
+const principal = function() {
     const argumentos = process.argv;
 
     const delegua = new Delegua();
@@ -11,4 +11,4 @@ const main = function() {
     }
 };
 
-main();
+principal();
