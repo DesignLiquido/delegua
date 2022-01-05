@@ -1,6 +1,6 @@
 const ErroEmTempoDeExecucao = require("./erro.js").ErroEmTempoDeExecucao;
 
-module.exports = class Environment {
+module.exports = class Ambiente {
     constructor(enclosing) {
         this.enclosing = enclosing || null;
         this.valores = {};

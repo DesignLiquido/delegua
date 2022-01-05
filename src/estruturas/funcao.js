@@ -1,5 +1,5 @@
 const Callable = require("./callable.js");
-const Environment = require("../environment.js");
+const Ambiente = require("../ambiente.js");
 const ReturnExpection = require("../erro.js").ReturnException;
 
 module.exports = class DeleguaFuncao extends Callable {
@@ -21,7 +21,7 @@ module.exports = class DeleguaFuncao extends Callable {
     }
 
     call(interpreter, argumentos) {
-        let ambiente = new Environment(this.closure);
+        let ambiente = new Ambiente(this.closure);
         let parametros = this.declaracao.parametros;
         for (let i = 0; i < parametros.length; i++) {
             const param = parametros[i];
@@ -50,7 +50,7 @@ module.exports = class DeleguaFuncao extends Callable {
     }
 
     bind(instancia) {
-        let ambiente = new Environment(this.closure);
+        let ambiente = new Ambiente(this.closure);
         ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(
             this.nome,

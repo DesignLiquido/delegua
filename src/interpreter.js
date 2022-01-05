@@ -1,5 +1,5 @@
 const tokenTypes = require("./tokenTypes.js"),
-    Environment = require("./environment.js"),
+    Ambiente = require("./ambiente.js"),
     Delegua = require("./delegua.js"),
     loadGlobalLib = require("./lib/globalLib.js"),
     caminho = require("path"),
@@ -29,7 +29,7 @@ module.exports = class Interpreter {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
 
-        this.globals = new Environment();
+        this.globals = new Ambiente();
         this.ambiente = this.globals;
         this.locais = new Map();
 
@@ -402,26 +402,26 @@ module.exports = class Interpreter {
         try {
             let sucesso = true;
             try {
-                this.executeBlock(stmt.tryBranch, new Environment(this.ambiente));
+                this.executeBlock(stmt.tryBranch, new Ambiente(this.ambiente));
             } catch (erro) {
                 sucesso = false;
 
                 if (stmt.catchBranch !== null) {
                     this.executeBlock(
                         stmt.catchBranch,
-                        new Environment(this.ambiente)
+                        new Ambiente(this.ambiente)
                     );
                 }
             }
 
             if (sucesso && stmt.elseBranch !== null) {
-                this.executeBlock(stmt.elseBranch, new Environment(this.ambiente));
+                this.executeBlock(stmt.elseBranch, new Ambiente(this.ambiente));
             }
         } finally {
             if (stmt.finallyBranch !== null)
                 this.executeBlock(
                     stmt.finallyBranch,
-                    new Environment(this.ambiente)
+                    new Ambiente(this.ambiente)
                 );
         }
     }
@@ -494,10 +494,10 @@ module.exports = class Interpreter {
         return null;
     }
 
-    executeBlock(declaracoes, environment) {
+    executeBlock(declaracoes, ambiente) {
         let anterior = this.ambiente;
         try {
-            this.ambiente = environment;
+            this.ambiente = ambiente;
 
             for (let i = 0; i < declaracoes.length; i++) {
                 this.executar(declaracoes[i]);
@@ -508,7 +508,7 @@ module.exports = class Interpreter {
     }
 
     visitBlockStmt(stmt) {
-        this.executeBlock(stmt.declaracoes, new Environment(this.ambiente));
+        this.executeBlock(stmt.declaracoes, new Ambiente(this.ambiente));
         return null;
     }
 
@@ -682,7 +682,7 @@ module.exports = class Interpreter {
         this.ambiente.definirVariavel(stmt.nome.lexeme, null);
 
         if (stmt.superClasse !== null) {
-            this.ambiente = new Environment(this.ambiente);
+            this.ambiente = new Ambiente(this.ambiente);
             this.ambiente.definirVariavel("super", superClasse);
         }
 
