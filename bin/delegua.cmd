@@ -1,1 +1,1 @@
-ts-node indice.js %*
+node indice.js %*
