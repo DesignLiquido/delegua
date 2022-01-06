@@ -128,16 +128,11 @@ module.exports = class Interpretador {
             case tiposDeSimbolos.ADICAO:
                 if (typeof esquerda === "number" && typeof direita === "number") {
                     return Number(esquerda) + Number(direita);
-                }
-
-                if (typeof esquerda === "string" && typeof direita === "string") {
+                } else if (typeof esquerda === "string" && typeof direita === "string") {
+                    return String(esquerda) + String(direita);
+                } else{
                     return String(esquerda) + String(direita);
                 }
-
-                throw new ErroEmTempoDeExecucao(
-                    expr.operador,
-                    "Operadores precisam ser dois números ou duas strings."
-                );
 
             case tiposDeSimbolos.SLASH:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
@@ -259,7 +254,7 @@ module.exports = class Interpretador {
     }
 
     visitExpressionStmt(stmt) {
-        return this.avaliar(stmt.expressao);;
+        return this.avaliar(stmt.expressao);
     }
 
     visitLogicalExpr(expr) {

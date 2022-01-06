@@ -399,6 +399,7 @@ module.exports = class Parser {
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em escreva."
         );
+
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o valor.");
 
         return new Stmt.Escreva(valor);
@@ -488,10 +489,7 @@ module.exports = class Parser {
                 condicao = this.expressao();
             }
 
-            this.consumir(
-                tiposDeSimbolos.SEMICOLON,
-                "Esperado ';' após valores da condicional"
-            );
+            this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após valores da condicional");
 
             let incrementar = null;
             if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -716,16 +714,14 @@ module.exports = class Parser {
     }
 
     declaracaoDeVariavel() {
-        let nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome de variável.");
+        const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome de variável.");
         let inicializador = null;
         if (this.match(tiposDeSimbolos.IGUAL) || this.match(tiposDeSimbolos.MAIS_IGUAL)) {
             inicializador = this.expressao();
         }
 
-        this.consumir(
-            tiposDeSimbolos.SEMICOLON,
-            "Esperado ';' após a declaração da variável."
-        );
+        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após a declaração da variável.");
+
         return new Stmt.Var(nome, inicializador);
     }
 
