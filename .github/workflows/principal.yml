@@ -16,4 +16,5 @@ jobs:
 
     - name: Testes da Linguagem
       run: | 
+        chmod +x ./bin/delegua
         npm run testes
