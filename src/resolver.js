@@ -57,9 +57,9 @@ const LoopType = {
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
 module.exports = class Resolver {
-    constructor(interpretador, egua) {
+    constructor(interpretador, Delegua) {
         this.interpretador = interpretador;
-        this.egua = egua;
+        this.Delegua = Delegua;
         this.escopos = new Stack();
 
         this.FuncaoAtual = FunctionType.NONE;
@@ -76,7 +76,7 @@ module.exports = class Resolver {
         if (this.escopos.isEmpty()) return;
         let escopo = this.escopos.peek();
         if (escopo.hasOwnProperty(nome.lexeme))
-            this.egua.error(
+            this.Delegua.error(
                 nome,
                 "Variável com esse nome já declarada neste escopo."
             );
@@ -192,7 +192,7 @@ module.exports = class Resolver {
             stmt.superClasse !== null &&
             stmt.nome.lexeme === stmt.superClasse.nome.lexeme
         ) {
-            this.egua.error("Uma classe não pode herdar de si mesma.");
+            this.Delegua.error("Uma classe não pode herdar de si mesma.");
         }
 
         if (stmt.superClasse !== null) {
@@ -229,9 +229,9 @@ module.exports = class Resolver {
 
     visitSuperExpr(expr) {
         if (this.ClasseAtual === ClassType.NONE) {
-            this.egua.error(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
+            this.Delegua.error(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
         } else if (this.ClasseAtual !== ClassType.SUBCLASS) {
-            this.egua.error(
+            this.Delegua.error(
                 expr.palavraChave,
                 "Não se usa 'super' numa classe sem SuperClasse."
             );
@@ -274,11 +274,11 @@ module.exports = class Resolver {
 
     visitReturnStmt(stmt) {
         if (this.FuncaoAtual === FunctionType.NONE) {
-            this.egua.error(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
+            this.Delegua.error(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
         if (stmt.valor !== null) {
             if (this.FuncaoAtual === FunctionType.CONSTRUTOR) {
-                this.egua.error(
+                this.Delegua.error(
                     stmt.palavraChave,
                     "Não pode retornar o valor do construtor."
                 );
@@ -417,7 +417,7 @@ module.exports = class Resolver {
 
     visitThisExpr(expr) {
         if (this.ClasseAtual == ClassType.NONE) {
-            this.egua.error(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
+            this.Delegua.error(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
         }
         this.resolverLocal(expr, expr.palavraChave);
         return null;

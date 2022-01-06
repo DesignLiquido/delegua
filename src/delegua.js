@@ -2,7 +2,7 @@ const Lexer = require("./lexer.js");
 const Parser = require("./parser.js");
 const Resolver = require("./resolver.js");
 const Interpretador = require("./interpretador.js");
-const tokenTypes = require("./tokenTypes.js");
+const tiposDeSimbolos = require("./tiposDeSimbolos.js");
 const fs = require("fs");
 const caminho = require("path");
 const readline = require("readline");
@@ -75,7 +75,7 @@ module.exports.Delegua = class Delegua {
     }
 
     error(simbolo, mensagemDeErro) {
-        if (simbolo.tipo === tokenTypes.EOF) {
+        if (simbolo.tipo === tiposDeSimbolos.EOF) {
             this.reportar(simbolo.line, " no final", mensagemDeErro);
         } else {
             this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);

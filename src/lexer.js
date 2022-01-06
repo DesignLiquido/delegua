@@ -1,38 +1,38 @@
-const tokenTypes = require("./tokenTypes.js");
+const tiposDeSimbolos = require("./tiposDeSimbolos.js");
 
 const palavrasReservadas = {
-    e: tokenTypes.E,
-    em: tokenTypes.EM,
-    classe: tokenTypes.CLASSE,
-    senao: tokenTypes.SENAO,
-    falso: tokenTypes.FALSO,
-    para: tokenTypes.PARA,
-    funcao: tokenTypes.FUNCAO,
-    se: tokenTypes.SE,
-    senaose: tokenTypes.SENAOSE,
-    nulo: tokenTypes.NULO,
-    ou: tokenTypes.OU,
-    escreva: tokenTypes.ESCREVA,
-    retorna: tokenTypes.RETORNA,
-    super: tokenTypes.SUPER,
-    isto: tokenTypes.ISTO,
-    verdadeiro: tokenTypes.VERDADEIRO,
-    var: tokenTypes.VAR,
-    fazer: tokenTypes.FAZER,
-    enquanto: tokenTypes.ENQUANTO,
-    pausa: tokenTypes.PAUSA,
-    continua: tokenTypes.CONTINUA,
-    escolha: tokenTypes.ESCOLHA,
-    caso: tokenTypes.CASO,
-    padrao: tokenTypes.PADRAO,
-    importar: tokenTypes.IMPORTAR,
-    tente: tokenTypes.TENTE,
-    pegue: tokenTypes.PEGUE,
-    finalmente: tokenTypes.FINALMENTE,
-    herda: tokenTypes.HERDA
+    e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
+    classe: tiposDeSimbolos.CLASSE,
+    senao: tiposDeSimbolos.SENAO,
+    falso: tiposDeSimbolos.FALSO,
+    para: tiposDeSimbolos.PARA,
+    funcao: tiposDeSimbolos.FUNCAO,
+    se: tiposDeSimbolos.SE,
+    senaose: tiposDeSimbolos.SENAOSE,
+    nulo: tiposDeSimbolos.NULO,
+    ou: tiposDeSimbolos.OU,
+    escreva: tiposDeSimbolos.ESCREVA,
+    retorna: tiposDeSimbolos.RETORNA,
+    super: tiposDeSimbolos.SUPER,
+    isto: tiposDeSimbolos.ISTO,
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+    var: tiposDeSimbolos.VAR,
+    fazer: tiposDeSimbolos.FAZER,
+    enquanto: tiposDeSimbolos.ENQUANTO,
+    pausa: tiposDeSimbolos.PAUSA,
+    continua: tiposDeSimbolos.CONTINUA,
+    escolha: tiposDeSimbolos.ESCOLHA,
+    caso: tiposDeSimbolos.CASO,
+    padrao: tiposDeSimbolos.PADRAO,
+    importar: tiposDeSimbolos.IMPORTAR,
+    tente: tiposDeSimbolos.TENTE,
+    pegue: tiposDeSimbolos.PEGUE,
+    finalmente: tiposDeSimbolos.FINALMENTE,
+    herda: tiposDeSimbolos.HERDA
 };
 
-class Token {
+class Simbolo {
     constructor(tipo, lexeme, literal, linha) {
         this.tipo = tipo;
         this.lexeme = lexeme;
@@ -52,8 +52,8 @@ class Token {
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
 module.exports = class Lexer {
-    constructor(codigo, Egua) {
-        this.Egua = Egua;
+    constructor(codigo, Delegua) {
+        this.Delegua = Delegua;
         this.codigo = codigo;
 
         this.simbolos = [];
@@ -75,7 +75,7 @@ module.exports = class Lexer {
         return this.eDigito(c) || this.eAlfabeto(c);
     }
 
-    endOfCode() {
+    eFinalDoCodigo() {
         return this.atual >= this.codigo.length;
     }
 
@@ -86,11 +86,11 @@ module.exports = class Lexer {
 
     adicionarSimbolo(tipo, literal = null) {
         const texto = this.codigo.substring(this.inicio, this.atual);
-        this.simbolos.push(new Token(tipo, texto, literal, this.linha));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
     }
 
     match(esperado) {
-        if (this.endOfCode()) {
+        if (this.eFinalDoCodigo()) {
             return false;
         }
 
@@ -103,7 +103,7 @@ module.exports = class Lexer {
     }
 
     peek() {
-        if (this.endOfCode()) return "\0";
+        if (this.eFinalDoCodigo()) return "\0";
         return this.codigo.charAt(this.atual);
     }
 
@@ -116,14 +116,14 @@ module.exports = class Lexer {
         return this.codigo.charAt(this.atual - 1);
     }
 
-    analisarTexto(stringChar = '"') {
-        while (this.peek() !== stringChar && !this.endOfCode()) {
+    analisarTexto(texto = '"') {
+        while (this.peek() !== texto && !this.eFinalDoCodigo()) {
             if (this.peek() === "\n") this.linha = +1;
             this.avancar();
         }
 
-        if (this.endOfCode()) {
-            this.Egua.lexerError(
+        if (this.eFinalDoCodigo()) {
+            this.Delegua.lexerError(
                 this.linha,
                 this.voltar(),
                 "Texto não finalizado."
@@ -134,7 +134,7 @@ module.exports = class Lexer {
         this.avancar();
 
         const valor = this.codigo.substring(this.inicio + 1, this.atual - 1);
-        this.adicionarSimbolo(tokenTypes.STRING, valor);
+        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
 
     analisarNumero() {
@@ -151,7 +151,7 @@ module.exports = class Lexer {
         }
 
         const numeroCompleto = this.codigo.substring(this.inicio, this.atual);
-        this.adicionarSimbolo(tokenTypes.NUMBER, parseFloat(numeroCompleto));
+        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave() {
@@ -159,8 +159,8 @@ module.exports = class Lexer {
             this.avancar();
         }
 
-        const c = this.codigo.substring(this.inicio, this.atual);
-        const tipo = c in palavrasReservadas ? palavrasReservadas[c] : tokenTypes.IDENTIFIER;
+        const codigo = this.codigo.substring(this.inicio, this.atual);
+        const tipo = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
@@ -170,110 +170,110 @@ module.exports = class Lexer {
 
         switch (char) {
             case "[":
-                this.adicionarSimbolo(tokenTypes.LEFT_SQUARE_BRACKET);
+                this.adicionarSimbolo(tiposDeSimbolos.LEFT_SQUARE_BRACKET);
                 break;
             case "]":
-                this.adicionarSimbolo(tokenTypes.RIGHT_SQUARE_BRACKET);
+                this.adicionarSimbolo(tiposDeSimbolos.RIGHT_SQUARE_BRACKET);
                 break;
             case "(":
-                this.adicionarSimbolo(tokenTypes.LEFT_PAREN);
+                this.adicionarSimbolo(tiposDeSimbolos.LEFT_PAREN);
                 break;
             case ")":
-                this.adicionarSimbolo(tokenTypes.RIGHT_PAREN);
+                this.adicionarSimbolo(tiposDeSimbolos.RIGHT_PAREN);
                 break;
             case "{":
-                this.adicionarSimbolo(tokenTypes.LEFT_BRACE);
+                this.adicionarSimbolo(tiposDeSimbolos.LEFT_BRACE);
                 break;
             case "}":
-                this.adicionarSimbolo(tokenTypes.RIGHT_BRACE);
+                this.adicionarSimbolo(tiposDeSimbolos.RIGHT_BRACE);
                 break;
             case ",":
-                this.adicionarSimbolo(tokenTypes.COMMA);
+                this.adicionarSimbolo(tiposDeSimbolos.COMMA);
                 break;
             case ".":
-                this.adicionarSimbolo(tokenTypes.DOT);
+                this.adicionarSimbolo(tiposDeSimbolos.DOT);
                 break;
             case "-":
                 if (this.match("=")) {
-                    this.adicionarSimbolo(tokenTypes.MENOR_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
                 }
-                this.adicionarSimbolo(tokenTypes.MINUS);
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 break;
             case "+":
                 if (this.match("=")) {
-                    this.adicionarSimbolo(tokenTypes.MAIS_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
                 }
-                this.adicionarSimbolo(tokenTypes.PLUS);
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 break;
             case ":":
-                this.adicionarSimbolo(tokenTypes.COLON);
+                this.adicionarSimbolo(tiposDeSimbolos.COLON);
                 break;
             case ";":
-                this.adicionarSimbolo(tokenTypes.SEMICOLON);
+                this.adicionarSimbolo(tiposDeSimbolos.SEMICOLON);
                 break;
             case "%":
-                this.adicionarSimbolo(tokenTypes.MODULUS);
+                this.adicionarSimbolo(tiposDeSimbolos.MODULUS);
                 break;
             case "*":
                 if (this.peek() === "*") {
                     this.avancar();
-                    this.adicionarSimbolo(tokenTypes.STAR_STAR);
+                    this.adicionarSimbolo(tiposDeSimbolos.STAR_STAR);
                     break;
                 }
-                this.adicionarSimbolo(tokenTypes.STAR);
+                this.adicionarSimbolo(tiposDeSimbolos.STAR);
                 break;
             case "!":
                 this.adicionarSimbolo(
-                    this.match("=") ? tokenTypes.BANG_EQUAL : tokenTypes.BANG
+                    this.match("=") ? tiposDeSimbolos.BANG_EQUAL : tiposDeSimbolos.BANG
                 );
                 break;
             case "=":
                 this.adicionarSimbolo(
-                    this.match("=") ? tokenTypes.EQUAL_EQUAL : tokenTypes.EQUAL
+                    this.match("=") ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
                 );
                 break;
 
             case "&":
-                this.adicionarSimbolo(tokenTypes.BIT_AND);
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
                 break;
 
             case "~":
-                this.adicionarSimbolo(tokenTypes.BIT_NOT);
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
                 break;
 
             case "|":
-                this.adicionarSimbolo(tokenTypes.BIT_OR);
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
                 break;
 
             case "^":
-                this.adicionarSimbolo(tokenTypes.BIT_XOR);
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
                 break;
 
             case "<":
                 if (this.match("=")) {
-                    this.adicionarSimbolo(tokenTypes.LESS_EQUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
                 } else if (this.match("<")) {
-                    this.adicionarSimbolo(tokenTypes.LESSER_LESSER);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
                 } else {
-                    this.adicionarSimbolo(tokenTypes.LESS);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                 }
                 break;
 
             case ">":
                 if (this.match("=")) {
-                    this.adicionarSimbolo(tokenTypes.GREATER_EQUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
                 } else if (this.match(">")) {
-                    this.adicionarSimbolo(tokenTypes.GREATER_GREATER);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
                 } else {
-                    this.adicionarSimbolo(tokenTypes.GREATER);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
                 break;
 
             case "/":
                 if (this.match("/")) {
-                    while (this.peek() != "\n" && !this.endOfCode()) this.avancar();
+                    while (this.peek() != "\n" && !this.eFinalDoCodigo()) this.avancar();
                 } else {
-                    this.adicionarSimbolo(tokenTypes.SLASH);
+                    this.adicionarSimbolo(tiposDeSimbolos.SLASH);
                 }
                 break;
 
@@ -299,17 +299,17 @@ module.exports = class Lexer {
             default:
                 if (this.eDigito(char)) this.analisarNumero();
                 else if (this.eAlfabeto(char)) this.identificarPalavraChave();
-                else this.Egua.lexerError(this.linha, char, "Caractere inesperado.");
+                else this.Delegua.lexerError(this.linha, char, "Caractere inesperado.");
         }
     }
 
     scan() {
-        while (!this.endOfCode()) {
+        while (!this.eFinalDoCodigo()) {
             this.inicio = this.atual;
             this.scanToken();
         }
 
-        this.simbolos.push(new Token(tokenTypes.EOF, "", null, this.linha));
+        this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, "", null, this.linha));
         return this.simbolos;
     }
 };
