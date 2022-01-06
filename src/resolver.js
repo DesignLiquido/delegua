@@ -5,45 +5,45 @@ class ResolverError extends Error {
     }
 }
 
-class Stack {
+class Pilha {
     constructor() {
-        this.stack = [];
+        this.pilha = [];
     }
 
-    push(item) {
-        this.stack.push(item);
+    empurrar(item) {
+        this.pilha.push(item);
     }
 
-    isEmpty() {
-        return this.stack.length === 0;
+    eVazio() {
+        return this.pilha.length === 0;
     }
 
     peek() {
-        if (this.isEmpty()) throw new Error("Pilha vazia.");
-        return this.stack[this.stack.length - 1];
+        if (this.eVazio()) throw new Error("Pilha vazia.");
+        return this.pilha[this.pilha.length - 1];
     }
 
-    pop() {
-        if (this.isEmpty()) throw new Error("Pilha vazia.");
-        return this.stack.pop();
+    removerUltimo() {
+        if (this.eVazio()) throw new Error("Pilha vazia.");
+        return this.pilha.pop();
     }
 }
 
-const FunctionType = {
-    NONE: "NONE",
+const TipoFuncao = {
+    NENHUM: "NENHUM",
     FUNCAO: "FUNCAO",
     CONSTRUTOR: "CONSTRUTOR",
-    METHOD: "METHOD"
+    METODO: "METODO"
 };
 
-const ClassType = {
-    NONE: "NONE",
+const TipoClasse = {
+    NENHUM: "NENHUM",
     CLASSE: "CLASSE",
-    SUBCLASS: "SUBCLASS"
+    SUBCLASSE: "SUBCLASSE"
 };
 
 const LoopType = {
-    NONE: "NONE",
+    NENHUM: "NENHUM",
     ENQUANTO: "ENQUANTO",
     ESCOLHA: "ESCOLHA",
     PARA: "PARA",
@@ -60,20 +60,20 @@ module.exports = class Resolver {
     constructor(interpretador, Delegua) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
-        this.escopos = new Stack();
+        this.escopos = new Pilha();
 
-        this.FuncaoAtual = FunctionType.NONE;
-        this.ClasseAtual = ClassType.NONE;
-        this.cicloAtual = ClassType.NONE;
+        this.FuncaoAtual = TipoFuncao.NUNHUM;
+        this.ClasseAtual = TipoClasse.NENHUM;
+        this.cicloAtual = TipoClasse.NENHUM;
     }
 
     definir(nome) {
-        if (this.escopos.isEmpty()) return;
+        if (this.escopos.eVazio()) return;
         this.escopos.peek()[nome.lexeme] = true;
     }
 
     declarar(nome) {
-        if (this.escopos.isEmpty()) return;
+        if (this.escopos.eVazio()) return;
         let escopo = this.escopos.peek();
         if (escopo.hasOwnProperty(nome.lexeme))
             this.Delegua.erro(
@@ -84,11 +84,11 @@ module.exports = class Resolver {
     }
 
     inicioDoEscopo() {
-        this.escopos.push({});
+        this.escopos.empurrar({});
     }
 
     finalDoEscopo() {
-        this.escopos.pop();
+        this.escopos.removerUltimo();
     }
 
     resolver(declaracoes) {
@@ -102,9 +102,9 @@ module.exports = class Resolver {
     }
 
     resolverLocal(expr, nome) {
-        for (let i = this.escopos.stack.length - 1; i >= 0; i--) {
-            if (this.escopos.stack[i].hasOwnProperty(nome.lexeme)) {                
-                this.interpretador.resolver(expr, this.escopos.stack.length - 1 - i);
+        for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
+            if (this.escopos.pilha[i].hasOwnProperty(nome.lexeme)) {                
+                this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
             }
         }
     }
@@ -118,7 +118,7 @@ module.exports = class Resolver {
 
     visitVariableExpr(expr) {
         if (
-            !this.escopos.isEmpty() &&
+            !this.escopos.eVazio() &&
             this.escopos.peek()[expr.nome.lexeme] === false
         ) {
             throw new ResolverError(
@@ -164,12 +164,12 @@ module.exports = class Resolver {
         this.declarar(stmt.nome);
         this.definir(stmt.nome);
 
-        this.resolverFuncao(stmt.funcao, FunctionType.FUNCAO);
+        this.resolverFuncao(stmt.funcao, TipoFuncao.FUNCAO);
         return null;
     }
 
     visitFunctionExpr(stmt) {
-        this.resolverFuncao(stmt, FunctionType.FUNCAO);
+        this.resolverFuncao(stmt, TipoFuncao.FUNCAO);
         return null;
     }
 
@@ -183,7 +183,7 @@ module.exports = class Resolver {
 
     visitClassStmt(stmt) {
         let enclosingClass = this.ClasseAtual;
-        this.ClasseAtual = ClassType.CLASSE;
+        this.ClasseAtual = TipoClasse.CLASSE;
 
         this.declarar(stmt.nome);
         this.definir(stmt.nome);
@@ -196,7 +196,7 @@ module.exports = class Resolver {
         }
 
         if (stmt.superClasse !== null) {
-            this.ClasseAtual = ClassType.SUBCLASS;
+            this.ClasseAtual = TipoClasse.SUBCLASSE;
             this.resolver(stmt.superClasse);
         }
 
@@ -210,10 +210,10 @@ module.exports = class Resolver {
 
         let metodos = stmt.metodos;
         for (let i = 0; i < metodos.length; i++) {
-            let declaracao = FunctionType.METHOD;
+            let declaracao = TipoFuncao.METODO;
 
             if (metodos[i].nome.lexeme === "isto") {
-                declaracao = FunctionType.CONSTRUTOR;
+                declaracao = TipoFuncao.CONSTRUTOR;
             }
 
             this.resolverFuncao(metodos[i].funcao, declaracao);
@@ -228,9 +228,9 @@ module.exports = class Resolver {
     }
 
     visitSuperExpr(expr) {
-        if (this.ClasseAtual === ClassType.NONE) {
+        if (this.ClasseAtual === TipoClasse.NENHUM) {
             this.Delegua.error(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
-        } else if (this.ClasseAtual !== ClassType.SUBCLASS) {
+        } else if (this.ClasseAtual !== TipoClasse.SUBCLASSE) {
             this.Delegua.error(
                 expr.palavraChave,
                 "Não se usa 'super' numa classe sem SuperClasse."
@@ -273,11 +273,11 @@ module.exports = class Resolver {
     }
 
     visitReturnStmt(stmt) {
-        if (this.FuncaoAtual === FunctionType.NONE) {
+        if (this.FuncaoAtual === TipoFuncao.NUNHUM) {
             this.Delegua.error(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
         if (stmt.valor !== null) {
-            if (this.FuncaoAtual === FunctionType.CONSTRUTOR) {
+            if (this.FuncaoAtual === TipoFuncao.CONSTRUTOR) {
                 this.Delegua.error(
                     stmt.palavraChave,
                     "Não pode retornar o valor do construtor."
@@ -416,7 +416,7 @@ module.exports = class Resolver {
     }
 
     visitThisExpr(expr) {
-        if (this.ClasseAtual == ClassType.NONE) {
+        if (this.ClasseAtual == TipoClasse.NENHUM) {
             this.Delegua.error(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
         }
         this.resolverLocal(expr, expr.palavraChave);

@@ -2,7 +2,7 @@ class Expr {
     aceitar(visitor) {}
 }
 
-class Assign extends Expr {
+class Atribuir extends Expr {
     constructor(nome, valor) {
         super();
         this.nome = nome;
@@ -14,7 +14,7 @@ class Assign extends Expr {
     }
 }
 
-class Binary extends Expr {
+class Binario extends Expr {
     constructor(esquerda, operador, direita) {
         super();
         this.esquerda = esquerda;
@@ -40,10 +40,10 @@ class Funcao extends Expr {
 }
 
 class Call extends Expr {
-    constructor(callee, paren, argumentos) {
+    constructor(callee, parentese, argumentos) {
         super();
         this.callee = callee;
-        this.paren = paren;
+        this.parentese = parentese;
         this.argumentos = argumentos;
     }
 
@@ -184,7 +184,7 @@ class Isto extends Expr {
     }
 }
 
-class Unary extends Expr {
+class Unario extends Expr {
     constructor(operador, direita) {
         super();
         this.operador = operador;
@@ -208,8 +208,8 @@ class Variavel extends Expr {
 }
 
 module.exports = {
-    Assign,
-    Binary,
+    Atribuir,
+    Binario,
     Funcao,
     Call,
     Get,
@@ -223,6 +223,6 @@ module.exports = {
     Set,
     Super,
     Isto,
-    Unary,
+    Unario,
     Variavel
 };
