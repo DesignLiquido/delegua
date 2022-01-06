@@ -1,4 +1,4 @@
-const tokenTypes = require("./tokenTypes.js");
+const tiposDeSimbolos = require("./tiposDeSimbolos.js");
 const Expr = require("./expr.js");
 const Stmt = require("./stmt.js");
 
@@ -9,9 +9,9 @@ class ParserError extends Error { }
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
 module.exports = class Parser {
-    constructor(simbolos, Egua) {
+    constructor(simbolos, Delegua) {
         this.simbolos = simbolos;
-        this.Egua = Egua;
+        this.Delegua = Delegua;
 
         this.atual = 0;
         this.ciclos = 0;
@@ -20,18 +20,18 @@ module.exports = class Parser {
     sincronizar() {
         this.avancar();
 
-        while (!this.isAtEnd()) {
-            if (this.voltar().tipo === tokenTypes.SEMICOLON) return;
+        while (!this.estaNoFinal()) {
+            if (this.voltar().tipo === tiposDeSimbolos.SEMICOLON) return;
 
             switch (this.peek().tipo) {
-                case tokenTypes.CLASSE:
-                case tokenTypes.FUNCAO:
-                case tokenTypes.VAR:
-                case tokenTypes.PARA:
-                case tokenTypes.SE:
-                case tokenTypes.ENQUANTO:
-                case tokenTypes.ESCREVA:
-                case tokenTypes.RETORNA:
+                case tiposDeSimbolos.CLASSE:
+                case tiposDeSimbolos.FUNCAO:
+                case tiposDeSimbolos.VAR:
+                case tiposDeSimbolos.PARA:
+                case tiposDeSimbolos.SE:
+                case tiposDeSimbolos.ENQUANTO:
+                case tiposDeSimbolos.ESCREVA:
+                case tiposDeSimbolos.RETORNA:
                     return;
             }
 
@@ -39,23 +39,23 @@ module.exports = class Parser {
         }
     }
 
-    error(token, errorMessage) {
-        this.Egua.error(token, errorMessage);
+    erro(token, mensagemDeErro) {
+        this.Delegua.erro(token, mensagemDeErro);
         return new ParserError();
     }
 
-    consumir(tipo, errorMessage) {
+    consumir(tipo, mensagemDeErro) {
         if (this.verificar(tipo)) return this.avancar();
-        else throw this.error(this.peek(), errorMessage);
+        else throw this.erro(this.peek(), mensagemDeErro);
     }
 
     verificar(tipo) {
-        if (this.isAtEnd()) return false;
+        if (this.estaNoFinal()) return false;
         return this.peek().tipo === tipo;
     }
 
     verificarProximo(tipo) {
-        if (this.isAtEnd()) return false;
+        if (this.estaNoFinal()) return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
@@ -71,12 +71,12 @@ module.exports = class Parser {
         return this.simbolos[this.atual + posicao];
     }
 
-    isAtEnd() {
-        return this.peek().tipo === tokenTypes.EOF;
+    estaNoFinal() {
+        return this.peek().tipo === tiposDeSimbolos.EOF;
     }
 
     avancar() {
-        if (!this.isAtEnd()) this.atual += 1;
+        if (!this.estaNoFinal()) this.atual += 1;
         return this.voltar();
     }
 
@@ -93,42 +93,42 @@ module.exports = class Parser {
     }
 
     primario() {
-        if (this.match(tokenTypes.SUPER)) {
+        if (this.match(tiposDeSimbolos.SUPER)) {
             const palavraChave = this.voltar();
-            this.consumir(tokenTypes.DOT, "Esperado '.' após 'super'.");
+            this.consumir(tiposDeSimbolos.DOT, "Esperado '.' após 'super'.");
             const metodo = this.consumir(
-                tokenTypes.IDENTIFIER,
+                tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado nome do método da SuperClasse."
             );
             return new Expr.Super(palavraChave, metodo);
         }
-        if (this.match(tokenTypes.LEFT_SQUARE_BRACKET)) {
+        if (this.match(tiposDeSimbolos.LEFT_SQUARE_BRACKET)) {
             const valores = [];
-            if (this.match(tokenTypes.RIGHT_SQUARE_BRACKET)) {
+            if (this.match(tiposDeSimbolos.RIGHT_SQUARE_BRACKET)) {
                 return new Expr.Array([]);
             }
-            while (!this.match(tokenTypes.RIGHT_SQUARE_BRACKET)) {
+            while (!this.match(tiposDeSimbolos.RIGHT_SQUARE_BRACKET)) {
                 const valor = this.atribuir();
                 valores.push(valor);
-                if (this.peek().tipo !== tokenTypes.RIGHT_SQUARE_BRACKET) {
+                if (this.peek().tipo !== tiposDeSimbolos.RIGHT_SQUARE_BRACKET) {
                     this.consumir(
-                        tokenTypes.COMMA,
+                        tiposDeSimbolos.COMMA,
                         "Esperado vírgula antes da próxima expressão."
                     );
                 }
             }
             return new Expr.Array(valores);
         }
-        if (this.match(tokenTypes.LEFT_BRACE)) {
+        if (this.match(tiposDeSimbolos.LEFT_BRACE)) {
             const chaves = [];
             const valores = [];
-            if (this.match(tokenTypes.RIGHT_BRACE)) {
+            if (this.match(tiposDeSimbolos.RIGHT_BRACE)) {
                 return new Expr.Dicionario([], []);
             }
-            while (!this.match(tokenTypes.RIGHT_BRACE)) {
+            while (!this.match(tiposDeSimbolos.RIGHT_BRACE)) {
                 let chave = this.atribuir();
                 this.consumir(
-                    tokenTypes.COLON,
+                    tiposDeSimbolos.COLON,
                     "Esperado ':' entre chave e valor."
                 );
                 let valor = this.atribuir();
@@ -136,49 +136,49 @@ module.exports = class Parser {
                 chaves.push(chave);
                 valores.push(valor);
 
-                if (this.peek().tipo !== tokenTypes.RIGHT_BRACE) {
+                if (this.peek().tipo !== tiposDeSimbolos.RIGHT_BRACE) {
                     this.consumir(
-                        tokenTypes.COMMA,
+                        tiposDeSimbolos.COMMA,
                         "Esperado vírgula antes da próxima expressão."
                     );
                 }
             }
             return new Expr.Dicionario(chaves, valores);
         }
-        if (this.match(tokenTypes.FUNCAO)) return this.corpoDaFuncao("funcao");
-        if (this.match(tokenTypes.FALSO)) return new Expr.Literal(false);
-        if (this.match(tokenTypes.VERDADEIRO)) return new Expr.Literal(true);
-        if (this.match(tokenTypes.NULO)) return new Expr.Literal(null);
-        if (this.match(tokenTypes.ISTO)) return new Expr.Isto(this.voltar());
-        if (this.match(tokenTypes.NUMBER, tokenTypes.STRING)) {
+        if (this.match(tiposDeSimbolos.FUNCAO)) return this.corpoDaFuncao("funcao");
+        if (this.match(tiposDeSimbolos.FALSO)) return new Expr.Literal(false);
+        if (this.match(tiposDeSimbolos.VERDADEIRO)) return new Expr.Literal(true);
+        if (this.match(tiposDeSimbolos.NULO)) return new Expr.Literal(null);
+        if (this.match(tiposDeSimbolos.ISTO)) return new Expr.Isto(this.voltar());
+        if (this.match(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
             return new Expr.Literal(this.voltar().literal);
         }
-        if (this.match(tokenTypes.IDENTIFIER)) {
+        if (this.match(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Expr.Variavel(this.voltar());
         }
-        if (this.match(tokenTypes.LEFT_PAREN)) {
+        if (this.match(tiposDeSimbolos.LEFT_PAREN)) {
             let expr = this.expressao();
-            this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após a expressão.");
+            this.consumir(tiposDeSimbolos.RIGHT_PAREN, "Esperado ')' após a expressão.");
             return new Expr.Grouping(expr);
         }
-        if (this.match(tokenTypes.IMPORTAR)) return this.importStatement();
+        if (this.match(tiposDeSimbolos.IMPORTAR)) return this.importStatement();
 
-        throw this.error(this.peek(), "Esperado expressão.");
+        throw this.erro(this.peek(), "Esperado expressão.");
     }
 
     finalizarChamada(callee) {
         const argumentos = [];
-        if (!this.verificar(tokenTypes.RIGHT_PAREN)) {
+        if (!this.verificar(tiposDeSimbolos.RIGHT_PAREN)) {
             do {
                 if (argumentos.length >= 255) {
                     error(this.peek(), "Não pode haver mais de 255 argumentos.");
                 }
                 argumentos.push(this.expressao());
-            } while (this.match(tokenTypes.COMMA));
+            } while (this.match(tiposDeSimbolos.COMMA));
         }
 
         const parenteseDireito = this.consumir(
-            tokenTypes.RIGHT_PAREN,
+            tiposDeSimbolos.RIGHT_PAREN,
             "Esperado ')' após os argumentos."
         );
 
@@ -189,18 +189,18 @@ module.exports = class Parser {
         let expr = this.primario();
 
         while (true) {
-            if (this.match(tokenTypes.LEFT_PAREN)) {
+            if (this.match(tiposDeSimbolos.LEFT_PAREN)) {
                 expr = this.finalizarChamada(expr);
-            } else if (this.match(tokenTypes.DOT)) {
+            } else if (this.match(tiposDeSimbolos.DOT)) {
                 let nome = this.consumir(
-                    tokenTypes.IDENTIFIER,
+                    tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
                 expr = new Expr.Get(expr, nome);
-            } else if (this.match(tokenTypes.LEFT_SQUARE_BRACKET)) {
+            } else if (this.match(tiposDeSimbolos.LEFT_SQUARE_BRACKET)) {
                 const indice = this.expressao();
                 let closeBracket = this.consumir(
-                    tokenTypes.RIGHT_SQUARE_BRACKET,
+                    tiposDeSimbolos.RIGHT_SQUARE_BRACKET,
                     "Esperado ']' após escrita do indice."
                 );
                 expr = new Expr.Subscript(expr, indice, closeBracket);
@@ -213,7 +213,7 @@ module.exports = class Parser {
     }
 
     unario() {
-        if (this.match(tokenTypes.BANG, tokenTypes.MINUS, tokenTypes.BIT_NOT)) {
+        if (this.match(tiposDeSimbolos.BANG, tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.BIT_NOT)) {
             const operador = this.voltar();
             const direito = this.unario();
             return new Expr.Unary(operador, direito);
@@ -225,7 +225,7 @@ module.exports = class Parser {
     exponent() {
         let expr = this.unario();
 
-        while (this.match(tokenTypes.STAR_STAR)) {
+        while (this.match(tiposDeSimbolos.STAR_STAR)) {
             const operador = this.voltar();
             const direito = this.unario();
             expr = new Expr.Binary(expr, operador, direito);
@@ -237,7 +237,7 @@ module.exports = class Parser {
     multiplicar() {
         let expr = this.exponent();
 
-        while (this.match(tokenTypes.SLASH, tokenTypes.STAR, tokenTypes.MODULUS)) {
+        while (this.match(tiposDeSimbolos.SLASH, tiposDeSimbolos.STAR, tiposDeSimbolos.MODULUS)) {
             const operador = this.voltar();
             const direito = this.exponent();
             expr = new Expr.Binary(expr, operador, direito);
@@ -249,7 +249,7 @@ module.exports = class Parser {
     adicionar() {
         let expr = this.multiplicar();
 
-        while (this.match(tokenTypes.MINUS, tokenTypes.PLUS)) {
+        while (this.match(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.voltar();
             const direito = this.multiplicar();
             expr = new Expr.Binary(expr, operador, direito);
@@ -261,7 +261,7 @@ module.exports = class Parser {
     bitFill() {
         let expr = this.adicionar();
 
-        while (this.match(tokenTypes.LESSER_LESSER, tokenTypes.GREATER_GREATER)) {
+        while (this.match(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
             const operador = this.voltar();
             const direito = this.adicionar();
             expr = new Expr.Binary(expr, operador, direito);
@@ -273,7 +273,7 @@ module.exports = class Parser {
     bitE() {
         let expr = this.bitFill();
 
-        while (this.match(tokenTypes.BIT_AND)) {
+        while (this.match(tiposDeSimbolos.BIT_AND)) {
             const operador = this.voltar();
             const direito = this.bitFill();
             expr = new Expr.Binary(expr, operador, direito);
@@ -285,7 +285,7 @@ module.exports = class Parser {
     bitOu() {
         let expr = this.bitE();
 
-        while (this.match(tokenTypes.BIT_OR, tokenTypes.BIT_XOR)) {
+        while (this.match(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
             const operador = this.voltar();
             const direito = this.bitE();
             expr = new Expr.Binary(expr, operador, direito);
@@ -299,10 +299,10 @@ module.exports = class Parser {
 
         while (
             this.match(
-                tokenTypes.GREATER,
-                tokenTypes.GREATER_EQUAL,
-                tokenTypes.LESS,
-                tokenTypes.LESS_EQUAL
+                tiposDeSimbolos.MAIOR,
+                tiposDeSimbolos.MAIOR_IGUAL,
+                tiposDeSimbolos.MENOR,
+                tiposDeSimbolos.MENOR_IGUAL
             )
         ) {
             const operador = this.voltar();
@@ -316,7 +316,7 @@ module.exports = class Parser {
     equality() {
         let expr = this.comparar();
 
-        while (this.match(tokenTypes.BANG_EQUAL, tokenTypes.EQUAL_EQUAL)) {
+        while (this.match(tiposDeSimbolos.BANG_EQUAL, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.voltar();
             const direito = this.comparar();
             expr = new Expr.Binary(expr, operador, direito);
@@ -328,7 +328,7 @@ module.exports = class Parser {
     em() {
         let expr = this.equality();
 
-        while (this.match(tokenTypes.EM)) {
+        while (this.match(tiposDeSimbolos.EM)) {
             const operador = this.voltar();
             const direito = this.equality();
             expr = new Expr.Logical(expr, operador, direito);
@@ -340,7 +340,7 @@ module.exports = class Parser {
     e() {
         let expr = this.em();
 
-        while (this.match(tokenTypes.E)) {
+        while (this.match(tiposDeSimbolos.E)) {
             const operador = this.voltar();
             const direito = this.em();
             expr = new Expr.Logical(expr, operador, direito);
@@ -352,7 +352,7 @@ module.exports = class Parser {
     ou() {
         let expr = this.e();
 
-        while (this.match(tokenTypes.OU)) {
+        while (this.match(tiposDeSimbolos.OU)) {
             const operador = this.voltar();
             const direito = this.e();
             expr = new Expr.Logical(expr, operador, direito);
@@ -364,7 +364,7 @@ module.exports = class Parser {
     atribuir() {
         const expr = this.ou();
 
-        if (this.match(tokenTypes.EQUAL) || this.match(tokenTypes.MAIS_IGUAL)) {
+        if (this.match(tiposDeSimbolos.IGUAL) || this.match(tiposDeSimbolos.MAIS_IGUAL)) {
             const igual = this.voltar();
             const valor = this.atribuir();
 
@@ -377,7 +377,7 @@ module.exports = class Parser {
             } else if (expr instanceof Expr.Subscript) {
                 return new Expr.Assignsubscript(expr.callee, expr.indice, valor);
             }
-            this.error(igual, "Tarefa de atribuição inválida");
+            this.erro(igual, "Tarefa de atribuição inválida");
         }
 
         return expr;
@@ -389,51 +389,51 @@ module.exports = class Parser {
 
     declaracaoMostrar() {
         this.consumir(
-            tokenTypes.LEFT_PAREN,
+            tiposDeSimbolos.LEFT_PAREN,
             "Esperado '(' antes dos valores em escreva."
         );
 
         const valor = this.expressao();
 
         this.consumir(
-            tokenTypes.RIGHT_PAREN,
+            tiposDeSimbolos.RIGHT_PAREN,
             "Esperado ')' após os valores em escreva."
         );
-        this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após o valor.");
+        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o valor.");
 
         return new Stmt.Escreva(valor);
     }
 
     expressionStatement() {
         const expr = this.expressao();
-        this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após expressão.");
+        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após expressão.");
         return new Stmt.Expressao(expr);
     }
 
     block() {
         const declaracoes = [];
 
-        while (!this.verificar(tokenTypes.RIGHT_BRACE) && !this.isAtEnd()) {
+        while (!this.verificar(tiposDeSimbolos.RIGHT_BRACE) && !this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
 
-        this.consumir(tokenTypes.RIGHT_BRACE, "Esperado '}' após o bloco.");
+        this.consumir(tiposDeSimbolos.RIGHT_BRACE, "Esperado '}' após o bloco.");
         return declaracoes;
     }
 
     declaracaoSe() {
-        this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'se'.");
+        this.consumir(tiposDeSimbolos.LEFT_PAREN, "Esperado '(' após 'se'.");
         const condicao = this.expressao();
-        this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após condição do se.");
+        this.consumir(tiposDeSimbolos.RIGHT_PAREN, "Esperado ')' após condição do se.");
 
         const thenBranch = this.statement();
 
         const elifBranches = [];
-        while (this.match(tokenTypes.SENAOSE)) {
-            this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'senaose'.");
+        while (this.match(tiposDeSimbolos.SENAOSE)) {
+            this.consumir(tiposDeSimbolos.LEFT_PAREN, "Esperado '(' após 'senaose'.");
             let elifCondition = this.expressao();
             this.consumir(
-                tokenTypes.RIGHT_PAREN,
+                tiposDeSimbolos.RIGHT_PAREN,
                 "Esperado ')' apóes codição do 'senaose."
             );
 
@@ -446,7 +446,7 @@ module.exports = class Parser {
         }
 
         let elseBranch = null;
-        if (this.match(tokenTypes.SENAO)) {
+        if (this.match(tiposDeSimbolos.SENAO)) {
             elseBranch = this.statement();
         }
 
@@ -457,9 +457,9 @@ module.exports = class Parser {
         try {
             this.ciclos += 1;
 
-            this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'enquanto'.");
+            this.consumir(tiposDeSimbolos.LEFT_PAREN, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
-            this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após condicional.");
+            this.consumir(tiposDeSimbolos.RIGHT_PAREN, "Esperado ')' após condicional.");
             const corpo = this.statement();
 
             return new Stmt.Enquanto(condicao, corpo);
@@ -472,33 +472,33 @@ module.exports = class Parser {
         try {
             this.ciclos += 1;
 
-            this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após 'para'.");
+            this.consumir(tiposDeSimbolos.LEFT_PAREN, "Esperado '(' após 'para'.");
 
             let inicializador;
-            if (this.match(tokenTypes.SEMICOLON)) {
+            if (this.match(tiposDeSimbolos.SEMICOLON)) {
                 inicializador = null;
-            } else if (this.match(tokenTypes.VAR)) {
+            } else if (this.match(tiposDeSimbolos.VAR)) {
                 inicializador = this.declaracaoDeVariavel();
             } else {
                 inicializador = this.expressionStatement();
             }
 
             let condicao = null;
-            if (!this.verificar(tokenTypes.SEMICOLON)) {
+            if (!this.verificar(tiposDeSimbolos.SEMICOLON)) {
                 condicao = this.expressao();
             }
 
             this.consumir(
-                tokenTypes.SEMICOLON,
+                tiposDeSimbolos.SEMICOLON,
                 "Esperado ';' após valores da condicional"
             );
 
             let incrementar = null;
-            if (!this.verificar(tokenTypes.RIGHT_PAREN)) {
+            if (!this.verificar(tiposDeSimbolos.RIGHT_PAREN)) {
                 incrementar = this.expressao();
             }
 
-            this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após cláusulas");
+            this.consumir(tiposDeSimbolos.RIGHT_PAREN, "Esperado ')' após cláusulas");
 
             const corpo = this.statement();
 
@@ -510,19 +510,19 @@ module.exports = class Parser {
 
     breakStatement() {
         if (this.ciclos < 1) {
-            this.error(this.voltar(), "'pausa' deve estar dentro de um loop.");
+            this.erro(this.voltar(), "'pausa' deve estar dentro de um loop.");
         }
 
-        this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após 'pausa'.");
+        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'pausa'.");
         return new Stmt.Pausa();
     }
 
     declaracaoContinue() {
         if (this.ciclos < 1) {
-            this.error(this.voltar(), "'continua' precisa estar em um laço de repetição.");
+            this.erro(this.voltar(), "'continua' precisa estar em um laço de repetição.");
         }
 
-        this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após 'continua'.");
+        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'continua'.");
         return new Stmt.Continua();
     }
 
@@ -530,11 +530,11 @@ module.exports = class Parser {
         const palavraChave = this.voltar();
         let valor = null;
 
-        if (!this.verificar(tokenTypes.SEMICOLON)) {
+        if (!this.verificar(tiposDeSimbolos.SEMICOLON)) {
             valor = this.expressao();
         }
 
-        this.consumir(tokenTypes.SEMICOLON, "Esperado ';' após o retorno.");
+        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o retorno.");
         return new Stmt.Retorna(palavraChave, valor);
     }
 
@@ -543,34 +543,34 @@ module.exports = class Parser {
             this.ciclos += 1;
 
             this.consumir(
-                tokenTypes.LEFT_PAREN,
+                tiposDeSimbolos.LEFT_PAREN,
                 "Esperado '{' após 'escolha'."
             );
             const condicao = this.expressao();
             this.consumir(
-                tokenTypes.RIGHT_PAREN,
+                tiposDeSimbolos.RIGHT_PAREN,
                 "Esperado '}' após a condição de 'escolha'."
             );
             this.consumir(
-                tokenTypes.LEFT_BRACE,
+                tiposDeSimbolos.LEFT_BRACE,
                 "Esperado '{' antes do escopo do 'escolha'."
             );
 
             const branches = [];
             let defaultBranch = null;
-            while (!this.match(tokenTypes.RIGHT_BRACE) && !this.isAtEnd()) {
-                if (this.match(tokenTypes.CASO)) {
+            while (!this.match(tiposDeSimbolos.RIGHT_BRACE) && !this.estaNoFinal()) {
+                if (this.match(tiposDeSimbolos.CASO)) {
                     let branchConditions = [this.expressao()];
                     this.consumir(
-                        tokenTypes.COLON,
+                        tiposDeSimbolos.COLON,
                         "Esperado ':' após o 'caso'."
                     );
 
-                    while (this.verificar(tokenTypes.CASO)) {
-                        this.consumir(tokenTypes.CASO, null);
+                    while (this.verificar(tiposDeSimbolos.CASO)) {
+                        this.consumir(tiposDeSimbolos.CASO, null);
                         branchConditions.push(this.expressao());
                         this.consumir(
-                            tokenTypes.COLON,
+                            tiposDeSimbolos.COLON,
                             "Esperado ':' após declaração do 'caso'."
                         );
                     }
@@ -579,23 +579,23 @@ module.exports = class Parser {
                     do {
                         stmts.push(this.statement());
                     } while (
-                        !this.verificar(tokenTypes.CASO) &&
-                        !this.verificar(tokenTypes.PADRAO) &&
-                        !this.verificar(tokenTypes.RIGHT_BRACE)
+                        !this.verificar(tiposDeSimbolos.CASO) &&
+                        !this.verificar(tiposDeSimbolos.PADRAO) &&
+                        !this.verificar(tiposDeSimbolos.RIGHT_BRACE)
                     );
 
                     branches.push({
                         conditions: branchConditions,
                         stmts
                     });
-                } else if (this.match(tokenTypes.PADRAO)) {
+                } else if (this.match(tiposDeSimbolos.PADRAO)) {
                     if (defaultBranch !== null)
                         throw new ParserError(
                             "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
                         );
 
                     this.consumir(
-                        tokenTypes.COLON,
+                        tiposDeSimbolos.COLON,
                         "Esperado ':' após declaração do 'padrao'."
                     );
 
@@ -603,9 +603,9 @@ module.exports = class Parser {
                     do {
                         stmts.push(this.statement());
                     } while (
-                        !this.verificar(tokenTypes.CASO) &&
-                        !this.verificar(tokenTypes.PADRAO) &&
-                        !this.verificar(tokenTypes.RIGHT_BRACE)
+                        !this.verificar(tiposDeSimbolos.CASO) &&
+                        !this.verificar(tiposDeSimbolos.PADRAO) &&
+                        !this.verificar(tiposDeSimbolos.RIGHT_BRACE)
                     );
 
                     defaultBranch = {
@@ -621,12 +621,12 @@ module.exports = class Parser {
     }
 
     importStatement() {
-        this.consumir(tokenTypes.LEFT_PAREN, "Esperado '(' após declaração.");
+        this.consumir(tiposDeSimbolos.LEFT_PAREN, "Esperado '(' após declaração.");
 
         const caminho = this.expressao();
 
         let closeBracket = this.consumir(
-            tokenTypes.RIGHT_PAREN,
+            tiposDeSimbolos.RIGHT_PAREN,
             "Esperado ')' após declaração."
         );
 
@@ -634,14 +634,14 @@ module.exports = class Parser {
     }
 
     tryStatement() {
-        this.consumir(tokenTypes.LEFT_BRACE, "Esperado '{' após a declaração 'tente'.");
+        this.consumir(tiposDeSimbolos.LEFT_BRACE, "Esperado '{' após a declaração 'tente'.");
 
         let tryBlock = this.block();
 
         let catchBlock = null;
-        if (this.match(tokenTypes.PEGUE)) {
+        if (this.match(tiposDeSimbolos.PEGUE)) {
             this.consumir(
-                tokenTypes.LEFT_BRACE,
+                tiposDeSimbolos.LEFT_BRACE,
                 "Esperado '{' após a declaração 'pegue'."
             );
 
@@ -649,9 +649,9 @@ module.exports = class Parser {
         }
 
         let elseBlock = null;
-        if (this.match(tokenTypes.SENAO)) {
+        if (this.match(tiposDeSimbolos.SENAO)) {
             this.consumir(
-                tokenTypes.LEFT_BRACE,
+                tiposDeSimbolos.LEFT_BRACE,
                 "Esperado '{' após a declaração 'pegue'."
             );
 
@@ -659,9 +659,9 @@ module.exports = class Parser {
         }
 
         let finallyBlock = null;
-        if (this.match(tokenTypes.FINALMENTE)) {
+        if (this.match(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(
-                tokenTypes.LEFT_BRACE,
+                tiposDeSimbolos.LEFT_BRACE,
                 "Esperado '{' após a declaração 'pegue'."
             );
 
@@ -678,18 +678,18 @@ module.exports = class Parser {
             const doBranch = this.statement();
 
             this.consumir(
-                tokenTypes.ENQUANTO,
+                tiposDeSimbolos.ENQUANTO,
                 "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
             );
             this.consumir(
-                tokenTypes.LEFT_PAREN,
+                tiposDeSimbolos.LEFT_PAREN,
                 "Esperado '(' após declaração 'enquanto'."
             );
 
             const whileCondition = this.expressao();
 
             this.consumir(
-                tokenTypes.RIGHT_PAREN,
+                tiposDeSimbolos.RIGHT_PAREN,
                 "Esperado ')' após declaração do 'enquanto'."
             );
 
@@ -700,76 +700,76 @@ module.exports = class Parser {
     }
 
     statement() {
-        if (this.match(tokenTypes.FAZER)) return this.doStatement();
-        if (this.match(tokenTypes.TENTE)) return this.tryStatement();
-        if (this.match(tokenTypes.ESCOLHA)) return this.declaracaoEscolha();
-        if (this.match(tokenTypes.RETORNA)) return this.declaracaoRetorna();
-        if (this.match(tokenTypes.CONTINUA)) return this.declaracaoContinue();
-        if (this.match(tokenTypes.PAUSA)) return this.breakStatement();
-        if (this.match(tokenTypes.PARA)) return this.forStatement();
-        if (this.match(tokenTypes.ENQUANTO)) return this.whileStatement();
-        if (this.match(tokenTypes.SE)) return this.declaracaoSe();
-        if (this.match(tokenTypes.ESCREVA)) return this.declaracaoMostrar();
-        if (this.match(tokenTypes.LEFT_BRACE)) return new Stmt.Block(this.block());
+        if (this.match(tiposDeSimbolos.FAZER)) return this.doStatement();
+        if (this.match(tiposDeSimbolos.TENTE)) return this.tryStatement();
+        if (this.match(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
+        if (this.match(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
+        if (this.match(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinue();
+        if (this.match(tiposDeSimbolos.PAUSA)) return this.breakStatement();
+        if (this.match(tiposDeSimbolos.PARA)) return this.forStatement();
+        if (this.match(tiposDeSimbolos.ENQUANTO)) return this.whileStatement();
+        if (this.match(tiposDeSimbolos.SE)) return this.declaracaoSe();
+        if (this.match(tiposDeSimbolos.ESCREVA)) return this.declaracaoMostrar();
+        if (this.match(tiposDeSimbolos.LEFT_BRACE)) return new Stmt.Block(this.block());
 
         return this.expressionStatement();
     }
 
     declaracaoDeVariavel() {
-        let nome = this.consumir(tokenTypes.IDENTIFIER, "Esperado nome de variável.");
+        let nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome de variável.");
         let inicializador = null;
-        if (this.match(tokenTypes.EQUAL) || this.match(tokenTypes.MAIS_IGUAL)) {
+        if (this.match(tiposDeSimbolos.IGUAL) || this.match(tiposDeSimbolos.MAIS_IGUAL)) {
             inicializador = this.expressao();
         }
 
         this.consumir(
-            tokenTypes.SEMICOLON,
+            tiposDeSimbolos.SEMICOLON,
             "Esperado ';' após a declaração da variável."
         );
         return new Stmt.Var(nome, inicializador);
     }
 
     funcao(kind) {
-        const nome = this.consumir(tokenTypes.IDENTIFIER, `Esperado nome ${kind}.`);
+        const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${kind}.`);
         return new Stmt.Funcao(nome, this.corpoDaFuncao(kind));
     }
 
     corpoDaFuncao(kind) {
-        this.consumir(tokenTypes.LEFT_PAREN, `Esperado '(' após o nome ${kind}.`);
+        this.consumir(tiposDeSimbolos.LEFT_PAREN, `Esperado '(' após o nome ${kind}.`);
 
         let parametros = [];
-        if (!this.verificar(tokenTypes.RIGHT_PAREN)) {
+        if (!this.verificar(tiposDeSimbolos.RIGHT_PAREN)) {
             do {
                 if (parametros.length >= 255) {
-                    this.error(this.peek(), "Não pode haver mais de 255 parâmetros");
+                    this.erro(this.peek(), "Não pode haver mais de 255 parâmetros");
                 }
 
                 let paramObj = {};
 
-                if (this.peek().tipo === tokenTypes.STAR) {
-                    this.consumir(tokenTypes.STAR, null);
+                if (this.peek().tipo === tiposDeSimbolos.STAR) {
+                    this.consumir(tiposDeSimbolos.STAR, null);
                     paramObj["tipo"] = "wildcard";
                 } else {
                     paramObj["tipo"] = "standard";
                 }
 
                 paramObj['nome'] = this.consumir(
-                    tokenTypes.IDENTIFIER,
+                    tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do parâmetro."
                 );
 
-                if (this.match(tokenTypes.EQUAL)) {
+                if (this.match(tiposDeSimbolos.IGUAL)) {
                     paramObj["default"] = this.primario();
                 }
 
                 parametros.push(paramObj);
 
                 if (paramObj["tipo"] === "wildcard") break;
-            } while (this.match(tokenTypes.COMMA));
+            } while (this.match(tiposDeSimbolos.COMMA));
         }
 
-        this.consumir(tokenTypes.RIGHT_PAREN, "Esperado ')' após parâmetros.");
-        this.consumir(tokenTypes.LEFT_BRACE, `Esperado '{' antes do escopo do ${kind}.`);
+        this.consumir(tiposDeSimbolos.RIGHT_PAREN, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.LEFT_BRACE, `Esperado '{' antes do escopo do ${kind}.`);
 
         const corpo = this.block();
 
@@ -777,36 +777,36 @@ module.exports = class Parser {
     }
 
     declaracaoDeClasse() {
-        const nome = this.consumir(tokenTypes.IDENTIFIER, "Esperado nome da classe.");
+        const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome da classe.");
 
         let superClasse = null;
-        if (this.match(tokenTypes.HERDA)) {
-            this.consumir(tokenTypes.IDENTIFIER, "Esperado nome da SuperClasse.");
+        if (this.match(tiposDeSimbolos.HERDA)) {
+            this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome da SuperClasse.");
             superClasse = new Expr.Variavel(this.voltar());
         }
 
-        this.consumir(tokenTypes.LEFT_BRACE, "Esperado '{' antes do escopo da classe.");
+        this.consumir(tiposDeSimbolos.LEFT_BRACE, "Esperado '{' antes do escopo da classe.");
 
         const metodos = [];
-        while (!this.verificar(tokenTypes.RIGHT_BRACE) && !this.isAtEnd()) {
+        while (!this.verificar(tiposDeSimbolos.RIGHT_BRACE) && !this.estaNoFinal()) {
             metodos.push(this.funcao("método"));
         }
 
-        this.consumir(tokenTypes.RIGHT_BRACE, "Esperado '}' após o escopo da classe.");
+        this.consumir(tiposDeSimbolos.RIGHT_BRACE, "Esperado '}' após o escopo da classe.");
         return new Stmt.Classe(nome, superClasse, metodos);
     }
 
     declaracao() {
         try {
             if (
-                this.verificar(tokenTypes.FUNCAO) &&
-                this.verificarProximo(tokenTypes.IDENTIFIER)
+                this.verificar(tiposDeSimbolos.FUNCAO) &&
+                this.verificarProximo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
-                this.consumir(tokenTypes.FUNCAO, null);
+                this.consumir(tiposDeSimbolos.FUNCAO, null);
                 return this.funcao("funcao");
             }
-            if (this.match(tokenTypes.VAR)) return this.declaracaoDeVariavel();
-            if (this.match(tokenTypes.CLASSE)) return this.declaracaoDeClasse();
+            if (this.match(tiposDeSimbolos.VAR)) return this.declaracaoDeVariavel();
+            if (this.match(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.statement();
         } catch (error) {
@@ -817,7 +817,7 @@ module.exports = class Parser {
 
     analisar() {
         const declaracoes = [];
-        while (!this.isAtEnd()) {
+        while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
 

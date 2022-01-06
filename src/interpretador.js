@@ -1,4 +1,4 @@
-const tokenTypes = require("./tokenTypes.js"),
+const tiposDeSimbolos = require("./tiposDeSimbolos.js"),
     Ambiente = require("./ambiente.js"),
     Delegua = require("./delegua.js"),
     loadGlobalLib = require("./lib/globalLib.js"),
@@ -70,12 +70,12 @@ module.exports = class Interpretador {
         let direita = this.avaliar(expr.direita);
 
         switch (expr.operador.tipo) {
-            case tokenTypes.MINUS:
+            case tiposDeSimbolos.SUBTRACAO:
                 this.checkNumberOperand(expr.operador, direita);
                 return -direita;
-            case tokenTypes.BANG:
+            case tiposDeSimbolos.BANG:
                 return !this.eVerdadeiro(direita);
-            case tokenTypes.BIT_NOT:
+            case tiposDeSimbolos.BIT_NOT:
                 return ~direita;
         }
 
@@ -101,31 +101,31 @@ module.exports = class Interpretador {
         let direita = this.avaliar(expr.direita);
 
         switch (expr.operador.tipo) {
-            case tokenTypes.STAR_STAR:
+            case tiposDeSimbolos.STAR_STAR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Math.pow(esquerda, direita);
 
-            case tokenTypes.GREATER:
+            case tiposDeSimbolos.MAIOR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) > Number(direita);
 
-            case tokenTypes.GREATER_EQUAL:
+            case tiposDeSimbolos.MAIOR_IGUAL:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) >= Number(direita);
 
-            case tokenTypes.LESS:
+            case tiposDeSimbolos.MENOR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) < Number(direita);
 
-            case tokenTypes.LESS_EQUAL:
+            case tiposDeSimbolos.MENOR_IGUAL:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) <= Number(direita);
 
-            case tokenTypes.MINUS:
+            case tiposDeSimbolos.SUBTRACAO:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) - Number(direita);
 
-            case tokenTypes.PLUS:
+            case tiposDeSimbolos.ADICAO:
                 if (typeof esquerda === "number" && typeof direita === "number") {
                     return Number(esquerda) + Number(direita);
                 }
@@ -139,42 +139,42 @@ module.exports = class Interpretador {
                     "Operadores precisam ser dois números ou duas strings."
                 );
 
-            case tokenTypes.SLASH:
+            case tiposDeSimbolos.SLASH:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) / Number(direita);
 
-            case tokenTypes.STAR:
+            case tiposDeSimbolos.STAR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) * Number(direita);
 
-            case tokenTypes.MODULUS:
+            case tiposDeSimbolos.MODULUS:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) % Number(direita);
 
-            case tokenTypes.BIT_AND:
+            case tiposDeSimbolos.BIT_AND:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) & Number(direita);
 
-            case tokenTypes.BIT_XOR:
+            case tiposDeSimbolos.BIT_XOR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) ^ Number(direita);
 
-            case tokenTypes.BIT_OR:
+            case tiposDeSimbolos.BIT_OR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) | Number(direita);
 
-            case tokenTypes.LESSER_LESSER:
+            case tiposDeSimbolos.MENOR_MENOR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) << Number(direita);
 
-            case tokenTypes.GREATER_GREATER:
+            case tiposDeSimbolos.MAIOR_MAIOR:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) >> Number(direita);
 
-            case tokenTypes.BANG_EQUAL:
+            case tiposDeSimbolos.BANG_EQUAL:
                 return !this.eIgual(esquerda, direita);
 
-            case tokenTypes.EQUAL_EQUAL:
+            case tiposDeSimbolos.IGUAL_IGUAL:
                 return this.eIgual(esquerda, direita);
         }
 
@@ -266,7 +266,7 @@ module.exports = class Interpretador {
     visitLogicalExpr(expr) {
         let esquerda = this.avaliar(expr.esquerda);
 
-        if (expr.operador.tipo === tokenTypes.EM) {
+        if (expr.operador.tipo === tiposDeSimbolos.EM) {
             let direita = this.avaliar(expr.direita);
 
             if (Array.isArray(direita) || typeof direita === "string") {
@@ -279,12 +279,12 @@ module.exports = class Interpretador {
         }
 
         // se um estado for verdadeiro, retorna verdadeiro
-        if (expr.operador.tipo === tokenTypes.OU) {
+        if (expr.operador.tipo === tiposDeSimbolos.OU) {
             if (this.eVerdadeiro(esquerda)) return esquerda;
         }
 
         // se um estado for falso, retorna falso
-        if (expr.operador.tipo === tokenTypes.E) {
+        if (expr.operador.tipo === tiposDeSimbolos.E) {
             if (!this.eVerdadeiro(esquerda)) return esquerda;
         }
 
