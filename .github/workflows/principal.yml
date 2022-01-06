@@ -13,9 +13,10 @@ jobs:
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '16'
-    - name: NPM - Dependências
-      run: | 
-        sudo npm install
+    # Removendo por enquanto.
+    # - name: NPM - Dependências
+    #  run: | 
+    #    sudo npm install
     - name: Testes da Linguagem
       run: | 
         sudo chmod +x ./bin/delegua
