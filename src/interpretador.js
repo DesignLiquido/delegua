@@ -73,7 +73,7 @@ module.exports = class Interpretador {
             case tiposDeSimbolos.SUBTRACAO:
                 this.checkNumberOperand(expr.operador, direita);
                 return -direita;
-            case tiposDeSimbolos.BANG:
+            case tiposDeSimbolos.NEGACAO:
                 return !this.eVerdadeiro(direita);
             case tiposDeSimbolos.BIT_NOT:
                 return ~direita;
@@ -171,7 +171,7 @@ module.exports = class Interpretador {
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) >> Number(direita);
 
-            case tiposDeSimbolos.BANG_EQUAL:
+            case tiposDeSimbolos.DIFERENTE:
                 return !this.eIgual(esquerda, direita);
 
             case tiposDeSimbolos.IGUAL_IGUAL:

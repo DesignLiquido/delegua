@@ -176,16 +176,16 @@ module.exports = class Lexer {
                 this.adicionarSimbolo(tiposDeSimbolos.RIGHT_SQUARE_BRACKET);
                 break;
             case "(":
-                this.adicionarSimbolo(tiposDeSimbolos.LEFT_PAREN);
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
                 break;
             case ")":
-                this.adicionarSimbolo(tiposDeSimbolos.RIGHT_PAREN);
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 break;
             case "{":
-                this.adicionarSimbolo(tiposDeSimbolos.LEFT_BRACE);
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
                 break;
             case "}":
-                this.adicionarSimbolo(tiposDeSimbolos.RIGHT_BRACE);
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
                 break;
             case ",":
                 this.adicionarSimbolo(tiposDeSimbolos.COMMA);
@@ -224,7 +224,7 @@ module.exports = class Lexer {
                 break;
             case "!":
                 this.adicionarSimbolo(
-                    this.match("=") ? tiposDeSimbolos.BANG_EQUAL : tiposDeSimbolos.BANG
+                    this.match("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
                 );
                 break;
             case "=":
