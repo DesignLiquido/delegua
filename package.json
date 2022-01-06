@@ -4,10 +4,10 @@
   "description": "Linguagem de programação simples e moderna usando português",
   "main": "indice.js",
   "scripts": {
+    "empacotar": "tsc && copyfiles -V ./bin/* ./dist/bin/",
     "npm-publish": "npm publish --access public",
     "testes": "./bin/delegua testes/testes.egua",
     "testes-unitarios": "jest",
-    "production": "npm run npm-publish",
     "release": "release-it"
   },
   "repository": {
@@ -39,8 +39,11 @@
   "homepage": "https://github.com/DesignLiquido/delegua#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.12.1",
+    "copyfiles": "^2.4.1",
     "jest": "^26.6.1",
-    "release-it": "^14.11.8"
+    "release-it": "^14.11.8",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
   },
   "dependencies": {}
 }

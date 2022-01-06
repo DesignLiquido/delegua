@@ -4,5 +4,6 @@
   },
   "github": {
     "release": true
-  }
+  },
+  "npm.publishPath": "dist"
 }

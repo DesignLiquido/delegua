@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "module": "commonjs",
+        "target": "ES5",
+        "rootDir": ".",
+        "allowJs": true
+    },
+    "exclude": ["babel.config.js", "dist/**/*"]
+}
