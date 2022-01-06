@@ -5,7 +5,7 @@ const Stmt = require("./stmt.js");
 class ParserError extends Error { }
 
 /**
- * O avaliador sintático (Parser) é responsável por transformar tokens do Lexador em estruturas de alto nível.
+ * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
 module.exports = class Parser {
@@ -39,8 +39,8 @@ module.exports = class Parser {
         }
     }
 
-    erro(token, mensagemDeErro) {
-        this.Delegua.erro(token, mensagemDeErro);
+    erro(simbolo, mensagemDeErro) {
+        this.Delegua.erro(simbolo, mensagemDeErro);
         return new ParserError();
     }
 
@@ -102,15 +102,15 @@ module.exports = class Parser {
             );
             return new Expr.Super(palavraChave, metodo);
         }
-        if (this.match(tiposDeSimbolos.LEFT_SQUARE_BRACKET)) {
+        if (this.match(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
-            if (this.match(tiposDeSimbolos.RIGHT_SQUARE_BRACKET)) {
+            if (this.match(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 return new Expr.Array([]);
             }
-            while (!this.match(tiposDeSimbolos.RIGHT_SQUARE_BRACKET)) {
+            while (!this.match(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 const valor = this.atribuir();
                 valores.push(valor);
-                if (this.peek().tipo !== tiposDeSimbolos.RIGHT_SQUARE_BRACKET) {
+                if (this.peek().tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                     this.consumir(
                         tiposDeSimbolos.COMMA,
                         "Esperado vírgula antes da próxima expressão."
@@ -171,7 +171,7 @@ module.exports = class Parser {
         if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
-                    error(this.peek(), "Não pode haver mais de 255 argumentos.");
+                    throw this.erro(this.peek(), "Não pode haver mais de 255 argumentos.");
                 }
                 argumentos.push(this.expressao());
             } while (this.match(tiposDeSimbolos.COMMA));
@@ -197,10 +197,10 @@ module.exports = class Parser {
                     "Esperado nome do método após '.'."
                 );
                 expr = new Expr.Get(expr, nome);
-            } else if (this.match(tiposDeSimbolos.LEFT_SQUARE_BRACKET)) {
+            } else if (this.match(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 let closeBracket = this.consumir(
-                    tiposDeSimbolos.RIGHT_SQUARE_BRACKET,
+                    tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
                 expr = new Expr.Subscript(expr, indice, closeBracket);
@@ -809,7 +809,7 @@ module.exports = class Parser {
             if (this.match(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.statement();
-        } catch (error) {
+        } catch (erro) {
             this.sincronizar();
             return null;
         }

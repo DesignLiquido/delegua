@@ -76,7 +76,7 @@ module.exports = class Resolver {
         if (this.escopos.isEmpty()) return;
         let escopo = this.escopos.peek();
         if (escopo.hasOwnProperty(nome.lexeme))
-            this.Delegua.error(
+            this.Delegua.erro(
                 nome,
                 "Variável com esse nome já declarada neste escopo."
             );

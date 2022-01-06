@@ -67,7 +67,7 @@ module.exports = class Interpretador {
     }
 
     visitUnaryExpr(expr) {
-        let direita = this.avaliar(expr.direita);
+        const direita = this.avaliar(expr.direita);
 
         switch (expr.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
@@ -259,8 +259,7 @@ module.exports = class Interpretador {
     }
 
     visitExpressionStmt(stmt) {
-        this.avaliar(stmt.expressao);
-        return null;
+        return this.avaliar(stmt.expressao);;
     }
 
     visitLogicalExpr(expr) {
@@ -782,17 +781,27 @@ module.exports = class Interpretador {
         return objeto.toString();
     }
 
-    executar(stmt) {
-        stmt.aceitar(this);
+    executar(stmt, imprimirResultado = false) {
+        const resultado = stmt.aceitar(this);
+        if(imprimirResultado){
+            console.log(this.stringify(resultado));
+        }
     }
 
     interpretar(declaracoes) {
         try {
+            if(declaracoes.length === 1){
+                const eObjetoExpressao = declaracoes[0].constructor.name === 'Expressao'
+                if(eObjetoExpressao){
+                    this.executar(declaracoes[0], eObjetoExpressao);
+                    return;
+                }
+            }
             for (let i = 0; i < declaracoes.length; i++) {
                 this.executar(declaracoes[i]);
             }
         } catch (erro) {
-            this.Delegua.ErroEmTempoDeExecucao(erro);
+            this.Delegua.erroEmTempoDeExecucao(erro);
         }
     }
 };

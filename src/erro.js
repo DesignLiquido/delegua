@@ -2,6 +2,7 @@ module.exports.ErroEmTempoDeExecucao = class ErroEmTempoDeExecucao extends Error
   constructor(simbolo, mensagem) {
     super(mensagem);
     this.simbolo = simbolo;
+    this.mensagem = mensagem;
   }
 };
 

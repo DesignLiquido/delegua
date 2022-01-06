@@ -63,16 +63,16 @@ module.exports = class Lexer {
         this.linha = 1;
     }
 
-    eDigito(c) {
-        return c >= "0" && c <= "9";
+    eDigito(caractere) {
+        return caractere >= "0" && caractere <= "9";
     }
 
-    eAlfabeto(c) {
-        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_";
+    eAlfabeto(caractere) {
+        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || caractere == "_";
     }
 
-    eAlfabetoOuDigito(c) {
-        return this.eDigito(c) || this.eAlfabeto(c);
+    eAlfabetoOuDigito(caractere) {
+        return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
     eFinalDoCodigo() {
@@ -166,14 +166,14 @@ module.exports = class Lexer {
     }
 
     scanToken() {
-        const char = this.avancar();
+        const caractere = this.avancar();
 
-        switch (char) {
+        switch (caractere) {
             case "[":
-                this.adicionarSimbolo(tiposDeSimbolos.LEFT_SQUARE_BRACKET);
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
                 break;
             case "]":
-                this.adicionarSimbolo(tiposDeSimbolos.RIGHT_SQUARE_BRACKET);
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
                 break;
             case "(":
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
@@ -297,9 +297,9 @@ module.exports = class Lexer {
                 break;
 
             default:
-                if (this.eDigito(char)) this.analisarNumero();
-                else if (this.eAlfabeto(char)) this.identificarPalavraChave();
-                else this.Delegua.lexerError(this.linha, char, "Caractere inesperado.");
+                if (this.eDigito(caractere)) this.analisarNumero();
+                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
+                else this.Delegua.lexerError(this.linha, caractere, "Caractere inesperado.");
         }
     }
 
