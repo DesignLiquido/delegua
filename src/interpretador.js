@@ -186,7 +186,7 @@ module.exports = class Interpretador {
 
         if (!(callee instanceof Callable)) {
             throw new ErroEmTempoDeExecucao(
-                expr.paren,
+                expr.parentese,
                 "Só pode chamar função ou classe."
             );
         }

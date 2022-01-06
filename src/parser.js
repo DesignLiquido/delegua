@@ -216,7 +216,7 @@ module.exports = class Parser {
         if (this.match(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.BIT_NOT)) {
             const operador = this.voltar();
             const direito = this.unario();
-            return new Expr.Unary(operador, direito);
+            return new Expr.Unario(operador, direito);
         }
 
         return this.chamar();
@@ -228,7 +228,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.STAR_STAR)) {
             const operador = this.voltar();
             const direito = this.unario();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -240,7 +240,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.SLASH, tiposDeSimbolos.STAR, tiposDeSimbolos.MODULUS)) {
             const operador = this.voltar();
             const direito = this.exponent();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -252,7 +252,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.voltar();
             const direito = this.multiplicar();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -264,7 +264,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
             const operador = this.voltar();
             const direito = this.adicionar();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -276,7 +276,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.BIT_AND)) {
             const operador = this.voltar();
             const direito = this.bitFill();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -288,7 +288,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
             const operador = this.voltar();
             const direito = this.bitE();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -307,7 +307,7 @@ module.exports = class Parser {
         ) {
             const operador = this.voltar();
             const direito = this.bitOu();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -319,7 +319,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.voltar();
             const direito = this.comparar();
-            expr = new Expr.Binary(expr, operador, direito);
+            expr = new Expr.Binario(expr, operador, direito);
         }
 
         return expr;
@@ -370,7 +370,7 @@ module.exports = class Parser {
 
             if (expr instanceof Expr.Variavel) {
                 const nome = expr.nome;
-                return new Expr.Assign(nome, valor);
+                return new Expr.Atribuir(nome, valor);
             } else if (expr instanceof Expr.Get) {
                 const get = expr;
                 return new Expr.Set(get.objeto, get.nome, valor);
