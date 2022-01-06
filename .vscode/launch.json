@@ -7,6 +7,20 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "REPL (TypeScript)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\indice.ts"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "REPL",
             "skipFiles": [
                 "<node_internals>/**"
