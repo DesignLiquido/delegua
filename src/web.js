@@ -42,7 +42,7 @@ module.exports.Delegua = class Delegua {
     this.teveErro = true;
   }
 
-  error(simbolo, mensagemDeErro) {
+  erro(simbolo, mensagemDeErro) {
     if (simbolo.tipo === tokenTypes.EOF) {
         this.reportar(simbolo.line, " no final", mensagemDeErro);
     } else {

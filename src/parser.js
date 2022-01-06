@@ -5,7 +5,7 @@ const Stmt = require("./stmt.js");
 class ParserError extends Error { }
 
 /**
- * O avaliador sintático (Parser) é responsável por transformar tokens do Lexador em estruturas de alto nível.
+ * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
 module.exports = class Parser {
@@ -39,8 +39,8 @@ module.exports = class Parser {
         }
     }
 
-    erro(token, mensagemDeErro) {
-        this.Delegua.erro(token, mensagemDeErro);
+    erro(simbolo, mensagemDeErro) {
+        this.Delegua.erro(simbolo, mensagemDeErro);
         return new ParserError();
     }
 
@@ -171,7 +171,7 @@ module.exports = class Parser {
         if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
-                    error(this.peek(), "Não pode haver mais de 255 argumentos.");
+                    throw this.erro(this.peek(), "Não pode haver mais de 255 argumentos.");
                 }
                 argumentos.push(this.expressao());
             } while (this.match(tiposDeSimbolos.COMMA));
@@ -809,7 +809,7 @@ module.exports = class Parser {
             if (this.match(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.statement();
-        } catch (error) {
+        } catch (erro) {
             this.sincronizar();
             return null;
         }
