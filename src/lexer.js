@@ -308,6 +308,8 @@ module.exports = class Lexer {
             this.inicio = this.atual;
             this.scanToken();
         }
+
+        this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, "", null, this.linha));
         
         return this.simbolos;
     }
