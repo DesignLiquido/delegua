@@ -1,0 +1,19 @@
+name: Commit e PR - Principal
+
+on:
+  pull_request:
+    branches: [ principal ]
+
+jobs:
+  teste_desenvolvimento:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '16'
+
+    - name: Testes da Linguagem
+      run: | 
+        npm run testes
