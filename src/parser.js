@@ -72,7 +72,11 @@ module.exports = class Parser {
     }
 
     estaNoFinal() {
-        return this.peek().tipo === tiposDeSimbolos.EOF;
+        if(this.peek() && (this.peek().tipo === tiposDeSimbolos.SEMICOLON)){
+            return true;
+        }
+        
+        return Number(this.atual) === Number(this.simbolos.length);
     }
 
     avancar() {
@@ -163,7 +167,7 @@ module.exports = class Parser {
         }
         if (this.match(tiposDeSimbolos.IMPORTAR)) return this.importStatement();
 
-        throw this.erro(this.peek(), "Esperado expressão.");
+        // throw this.erro(this.peek(), "Esperado expressão.");
     }
 
     finalizarChamada(callee) {
@@ -399,14 +403,15 @@ module.exports = class Parser {
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em escreva."
         );
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o valor.");
+
+        // this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o valor.");
 
         return new Stmt.Escreva(valor);
     }
 
     expressionStatement() {
         const expr = this.expressao();
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após expressão.");
+        // this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após expressão.");
         return new Stmt.Expressao(expr);
     }
 
@@ -488,10 +493,7 @@ module.exports = class Parser {
                 condicao = this.expressao();
             }
 
-            this.consumir(
-                tiposDeSimbolos.SEMICOLON,
-                "Esperado ';' após valores da condicional"
-            );
+            // this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após valores da condicional");
 
             let incrementar = null;
             if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -513,7 +515,7 @@ module.exports = class Parser {
             this.erro(this.voltar(), "'pausa' deve estar dentro de um loop.");
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'pausa'.");
+        // this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'pausa'.");
         return new Stmt.Pausa();
     }
 
@@ -522,7 +524,7 @@ module.exports = class Parser {
             this.erro(this.voltar(), "'continua' precisa estar em um laço de repetição.");
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'continua'.");
+        // this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'continua'.");
         return new Stmt.Continua();
     }
 
@@ -534,7 +536,7 @@ module.exports = class Parser {
             valor = this.expressao();
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o retorno.");
+        // this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o retorno.");
         return new Stmt.Retorna(palavraChave, valor);
     }
 
@@ -722,10 +724,10 @@ module.exports = class Parser {
             inicializador = this.expressao();
         }
 
-        this.consumir(
-            tiposDeSimbolos.SEMICOLON,
-            "Esperado ';' após a declaração da variável."
-        );
+        // this.consumir(
+        //     tiposDeSimbolos.SEMICOLON,
+        //     "Esperado ';' após a declaração da variável."
+        // );
         return new Stmt.Var(nome, inicializador);
     }
 
