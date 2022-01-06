@@ -91,11 +91,11 @@ module.exports.Delegua = class Delegua {
         if (erro.simbolo && linha) {
             if (this.nomeArquivo)
                 console.error(
-                    `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.message}`
+                    `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
                 );
-            else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.message}`);
+            else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
         } else {
-            console.error(`Erro: ${erro.message}`);
+            console.error(`Erro: ${erro.mensagem}`);
         }
         this.teveErroEmTempoDeExecucao = true;
     }
