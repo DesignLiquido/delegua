@@ -86,7 +86,7 @@ module.exports.Delegua = class Delegua {
         this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
-    runtimeError(erro) {
+    erroEmTempoDeExecucao(erro) {
         const linha = erro.simbolo.linha;
         if (erro.simbolo && linha) {
             if (this.nomeArquivo)

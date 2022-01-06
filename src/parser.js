@@ -102,15 +102,15 @@ module.exports = class Parser {
             );
             return new Expr.Super(palavraChave, metodo);
         }
-        if (this.match(tiposDeSimbolos.LEFT_SQUARE_BRACKET)) {
+        if (this.match(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
-            if (this.match(tiposDeSimbolos.RIGHT_SQUARE_BRACKET)) {
+            if (this.match(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 return new Expr.Array([]);
             }
-            while (!this.match(tiposDeSimbolos.RIGHT_SQUARE_BRACKET)) {
+            while (!this.match(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 const valor = this.atribuir();
                 valores.push(valor);
-                if (this.peek().tipo !== tiposDeSimbolos.RIGHT_SQUARE_BRACKET) {
+                if (this.peek().tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                     this.consumir(
                         tiposDeSimbolos.COMMA,
                         "Esperado vírgula antes da próxima expressão."
@@ -197,10 +197,10 @@ module.exports = class Parser {
                     "Esperado nome do método após '.'."
                 );
                 expr = new Expr.Get(expr, nome);
-            } else if (this.match(tiposDeSimbolos.LEFT_SQUARE_BRACKET)) {
+            } else if (this.match(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 let closeBracket = this.consumir(
-                    tiposDeSimbolos.RIGHT_SQUARE_BRACKET,
+                    tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
                 expr = new Expr.Subscript(expr, indice, closeBracket);

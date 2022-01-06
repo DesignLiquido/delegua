@@ -67,7 +67,7 @@ module.exports = class Interpretador {
     }
 
     visitUnaryExpr(expr) {
-        let direita = this.avaliar(expr.direita);
+        const direita = this.avaliar(expr.direita);
 
         switch (expr.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
@@ -801,7 +801,7 @@ module.exports = class Interpretador {
                 this.executar(declaracoes[i]);
             }
         } catch (erro) {
-            this.Delegua.ErroEmTempoDeExecucao(erro);
+            this.Delegua.erroEmTempoDeExecucao(erro);
         }
     }
 };
