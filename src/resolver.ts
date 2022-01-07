@@ -105,9 +105,11 @@ export class Resolver {
     resolver(declaracoes) {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
-                declaracoes[i].aceitar(this);
+                if (declaracoes[i] && declaracoes[i].aceitar) {
+                    declaracoes[i].aceitar(this);
+                }
             }
-        } else {
+        } else if (declaracoes) {
             declaracoes.aceitar(this);
         }
     }
@@ -161,10 +163,14 @@ export class Resolver {
 
         this.inicioDoEscopo();
         let parametros = funcao.parametros;
-        for (let i = 0; i < parametros.length; i++) {
-            this.declarar(parametros[i]["nome"]);
-            this.definir(parametros[i]["nome"]);
+
+        if (parametros && parametros.length > 0) {
+            for (let i = 0; i < parametros.length; i++) {
+                this.declarar(parametros[i]["nome"]);
+                this.definir(parametros[i]["nome"]);
+            }
         }
+
         this.resolver(funcao.corpo);
         this.finalDoEscopo();
 

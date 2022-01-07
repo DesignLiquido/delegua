@@ -8,4 +8,4 @@ export class DeleguaModulo {
     toString() {
         return this.nome ? `<modulo ${this.nome}>` : "<modulo>";
     }
-};
+}

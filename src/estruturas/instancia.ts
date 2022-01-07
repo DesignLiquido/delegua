@@ -27,4 +27,4 @@ export class DeleguaInstancia {
     toString() {
         return "<Objeto " + this.criarClasse.nome + ">";
     }
-};
+}

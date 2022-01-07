@@ -19,4 +19,4 @@ export class FuncaoPadrao extends Callable {
     toString() {
         return "<função>";
     }
-};
+}

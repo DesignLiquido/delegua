@@ -64,4 +64,4 @@ export class DeleguaFuncao extends Callable {
             this.eInicializador
         );
     }
-};
+}

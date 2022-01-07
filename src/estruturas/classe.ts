@@ -1,8 +1,8 @@
-const Callable = require("./callable");
-const DeleguaInstancia = require("./instancia");
+import { Callable } from "./callable";
+import { DeleguaInstancia} from "./instancia";
 
 export class DeleguaClasse extends Callable {
-    nome: any | null;
+    nome: any;
     superClasse: any;
     metodos: any;
 
@@ -44,4 +44,4 @@ export class DeleguaClasse extends Callable {
 
         return instancia;
     }
-};
+}
