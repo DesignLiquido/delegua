@@ -4,7 +4,7 @@ import { Delegua } from "./delegua";
 import carregarBibliotecaGlobal from "./bibliotecas/bibliotecaGlobal";
 import * as caminho from "path";
 import * as fs from "fs";
-import checkStdLib from "./bibliotecas/importarBiblioteca";
+import carregarModulo from "./bibliotecas/importarBiblioteca";
 
 import { Callable } from "./estruturas/callable";
 import { FuncaoPadrao } from "./estruturas/funcaoPadrao";
@@ -451,8 +451,8 @@ export class Interpretador {
         const pastaTotal = caminho.dirname(caminhoTotal);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
-        let dados: any = checkStdLib(caminhoRelativo);
-        if (dados !== null) return dados;
+        let dados: any = carregarModulo(caminhoRelativo);
+        if (dados) return dados;
 
         try {
             if (!fs.existsSync(caminhoTotal)) {
