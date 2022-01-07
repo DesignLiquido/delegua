@@ -1,7 +1,7 @@
 import tiposDeSimbolos from "./tiposDeSimbolos";
 import { Ambiente } from "./ambiente";
 import { Delegua } from "./delegua";
-import loadGlobalLib from "./bibliotecas/bibliotecaGlobal";
+import carregarBibliotecaGlobal from "./bibliotecas/bibliotecaGlobal";
 import * as caminho from "path";
 import * as fs from "fs";
 import checkStdLib from "./bibliotecas/importarBiblioteca";
@@ -39,7 +39,7 @@ export class Interpretador {
         this.ambiente = this.global;
         this.locais = new Map();
 
-        this.global = loadGlobalLib(this, this.global);
+        this.global = carregarBibliotecaGlobal(this, this.global);
     }
 
     resolver(expr, depth) {
