@@ -7,16 +7,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "REPL",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "console": "integratedTerminal",
-            "program": "${workspaceFolder}\\indice.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "REPL (TypeScript)",
             "skipFiles": [
                 "<node_internals>/**",
@@ -31,17 +21,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Testes",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "args": ["${workspaceFolder}\\testes\\testes.egua"],
-            "console": "integratedTerminal",
-            "program": "${workspaceFolder}\\indice.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Testes (TypeScript)",
             "skipFiles": [
                 "<node_internals>/**",
@@ -49,7 +28,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}\\indice.js", "./testes/testes.egua"],
+            "args": ["${workspaceFolder}\\indice.ts", "./testes/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
         },

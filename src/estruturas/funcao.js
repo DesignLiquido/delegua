@@ -1,6 +1,6 @@
-const Callable = require("./callable.js");
-const Ambiente = require("../ambiente.js");
-const ReturnExpection = require("../erro.js").ReturnException;
+const Callable = require("./callable");
+const Ambiente = require("../ambiente");
+const ReturnExpection = require("../erro").ReturnException;
 
 module.exports = class DeleguaFuncao extends Callable {
     constructor(nome, declaracao, closure, eInicializador = false) {

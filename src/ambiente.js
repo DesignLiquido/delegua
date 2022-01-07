@@ -1,4 +1,4 @@
-const ErroEmTempoDeExecucao = require("./erro.js").ErroEmTempoDeExecucao;
+const ErroEmTempoDeExecucao = require("./erro").ErroEmTempoDeExecucao;
 
 module.exports = class Ambiente {
     constructor(enclosing) {

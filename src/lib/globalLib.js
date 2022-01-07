@@ -1,8 +1,8 @@
-const ErroEmTempoDeExecucao = require("../erro.js").ErroEmTempoDeExecucao,
-    DeleguaFuncao = require("../estruturas/funcao.js"),
-    DeleguaInstancia = require("../estruturas/instancia.js"),
-    FuncaoPadrao = require("../estruturas/funcaoPadrao.js"),
-    DeleguaClasse = require("../estruturas/classe.js");
+const ErroEmTempoDeExecucao = require("../erro").ErroEmTempoDeExecucao,
+    DeleguaFuncao = require("../estruturas/funcao"),
+    DeleguaInstancia = require("../estruturas/instancia"),
+    FuncaoPadrao = require("../estruturas/funcaoPadrao"),
+    DeleguaClasse = require("../estruturas/classe");
 
 
 module.exports = function (interpretador, globals) {

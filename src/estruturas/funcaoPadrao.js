@@ -1,4 +1,4 @@
-const Callable = require("./callable.js");
+const Callable = require("./callable");
 
 module.exports = class FuncaoPadrao extends Callable {
     constructor(valorAridade, funcao) {
