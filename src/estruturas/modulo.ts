@@ -1,7 +1,7 @@
 export class DeleguaModulo {
     nome: string;
 
-    constructor(nome?: any) {
+    constructor(nome?: string) {
         if (nome) this.nome = nome;
     }
 
