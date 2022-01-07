@@ -109,7 +109,7 @@ export class Interpretador {
         let direita = this.avaliar(expr.direita);
 
         switch (expr.operador.tipo) {
-            case tiposDeSimbolos.STAR_STAR:
+            case tiposDeSimbolos.EXPONENCIACAO:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Math.pow(esquerda, direita);
 
@@ -142,15 +142,15 @@ export class Interpretador {
                     return String(esquerda) + String(direita);
                 }
 
-            case tiposDeSimbolos.SLASH:
+            case tiposDeSimbolos.DIVISAO:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) / Number(direita);
 
-            case tiposDeSimbolos.STAR:
+            case tiposDeSimbolos.MULTIPLICACAO:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) * Number(direita);
 
-            case tiposDeSimbolos.MODULUS:
+            case tiposDeSimbolos.MODULO:
                 this.checkNumberOperands(expr.operador, esquerda, direita);
                 return Number(esquerda) % Number(direita);
 

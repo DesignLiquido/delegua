@@ -16,7 +16,7 @@ export class Expressao extends Stmt {
 }
 
 export class Funcao extends Stmt {
-    nome: any;
+    nome: string;
     funcao: any;
 
     constructor(nome, funcao) {
@@ -31,7 +31,7 @@ export class Funcao extends Stmt {
 }
 
 export class Retorna extends Stmt {
-    palavraChave: any;
+    palavraChave: string;
     valor: any;
 
     constructor(palavraChave, valor) {
@@ -46,7 +46,7 @@ export class Retorna extends Stmt {
 }
 
 export class Classe extends Stmt {
-    nome: any;
+    nome: string;
     superClasse: any;
     metodos: any;
 
@@ -89,7 +89,7 @@ export class Escreva extends Stmt {
 }
 
 export class Importar extends Stmt {
-    caminho: any;
+    caminho: string;
     closeBracket: any;
 
     constructor(caminho, closeBracket) {
