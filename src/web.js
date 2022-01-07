@@ -1,8 +1,8 @@
-const Lexer = require("./lexer.js");
-const Parser = require("./parser.js");
-const Resolver = require("./resolver.js");
-const Interpretador = require("./interpretador.js");
-const tokenTypes = require("./tokenTypes.js");
+const Lexer = require("./lexer");
+const Parser = require("./parser");
+const Resolver = require("./resolver");
+const Interpretador = require("./interpretador");
+const tokenTypes = require("./tokenTypes");
 
 module.exports.Delegua = class Delegua {
   constructor(nomeArquivo) {

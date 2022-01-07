@@ -1,4 +1,4 @@
-const tiposDeSimbolos = require("./tiposDeSimbolos.js");
+const tiposDeSimbolos = require("./tiposDeSimbolos");
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,

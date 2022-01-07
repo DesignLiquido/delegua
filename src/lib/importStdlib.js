@@ -1,6 +1,6 @@
-const ErroEmTempoDeExecucao = require("../erro.js").ErroEmTempoDeExecucao,
-    FuncaoPadrao = require("../estruturas/funcaoPadrao.js"),
-    DeleguaModulo = require("../estruturas/modulo.js");
+const ErroEmTempoDeExecucao = require("../erro").ErroEmTempoDeExecucao,
+    FuncaoPadrao = require("../estruturas/funcaoPadrao"),
+    DeleguaModulo = require("../estruturas/modulo");
 
 const carregarModulo = function (nomeDoModulo, caminhoDoModulo) {
     let dadosDoModulo;

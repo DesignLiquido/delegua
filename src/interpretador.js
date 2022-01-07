@@ -1,24 +1,24 @@
-const tiposDeSimbolos = require("./tiposDeSimbolos.js"),
-    Ambiente = require("./ambiente.js"),
-    Delegua = require("./delegua.js"),
-    loadGlobalLib = require("./lib/globalLib.js"),
+const tiposDeSimbolos = require("./tiposDeSimbolos"),
+    Ambiente = require("./ambiente"),
+    Delegua = require("./delegua"),
+    loadGlobalLib = require("./lib/globalLib"),
     caminho = require("path"),
     fs = require("fs"),
-    checkStdLib = require("./lib/importStdlib.js");
+    checkStdLib = require("./lib/importStdlib");
 
-const Callable = require("./estruturas/callable.js"),
-    FuncaoPadrao = require("./estruturas/funcaoPadrao.js"),
-    DeleguaClasse = require("./estruturas/classe.js"),
-    DeleguaFuncao = require("./estruturas/funcao.js"),
-    DeleguaInstancia = require("./estruturas/instancia.js"),
-    DeleguaModulo = require("./estruturas/modulo.js");
+const Callable = require("./estruturas/callable"),
+    FuncaoPadrao = require("./estruturas/funcaoPadrao"),
+    DeleguaClasse = require("./estruturas/classe"),
+    DeleguaFuncao = require("./estruturas/funcao"),
+    DeleguaInstancia = require("./estruturas/instancia"),
+    DeleguaModulo = require("./estruturas/modulo");
 
 const {
     ErroEmTempoDeExecucao,
     ContinueException,
     BreakException,
     ReturnException
-} = require("./erro.js");
+} = require("./erro");
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)

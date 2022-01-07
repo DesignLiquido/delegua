@@ -1,5 +1,5 @@
-const Callable = require("./callable.js");
-const DeleguaInstancia = require("./instancia.js");
+const Callable = require("./callable");
+const DeleguaInstancia = require("./instancia");
 
 module.exports = class DeleguaClasse extends Callable {
     constructor(nome, superClasse, metodos) {

@@ -1,6 +1,6 @@
-const tiposDeSimbolos = require("./tiposDeSimbolos.js");
-const Expr = require("./expr.js");
-const Stmt = require("./stmt.js");
+const tiposDeSimbolos = require("./tiposDeSimbolos");
+const Expr = require("./expr");
+const Stmt = require("./stmt");
 
 class ParserError extends Error { }
 
