@@ -1,3 +1,4 @@
+import { InterfaceSimbolo } from "./interfaces/simbolo";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
 const palavrasReservadas = {
@@ -32,11 +33,11 @@ const palavrasReservadas = {
     herda: tiposDeSimbolos.HERDA
 };
 
-class Simbolo {
-    tipo: any;
-    lexeme: any;
-    literal: any;
-    linha: any;
+class Simbolo implements InterfaceSimbolo {
+    lexeme: string;
+    tipo: string;
+    literal: string;
+    linha: string;
 
     constructor(tipo, lexeme, literal, linha) {
         this.tipo = tipo;
@@ -218,21 +219,21 @@ export class Lexer {
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 break;
             case ":":
-                this.adicionarSimbolo(tiposDeSimbolos.COLON);
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 break;
             case ";":
-                this.adicionarSimbolo(tiposDeSimbolos.SEMICOLON);
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 break;
             case "%":
-                this.adicionarSimbolo(tiposDeSimbolos.MODULUS);
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case "*":
                 if (this.peek() === "*") {
                     this.avancar();
-                    this.adicionarSimbolo(tiposDeSimbolos.STAR_STAR);
+                    this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     break;
                 }
-                this.adicionarSimbolo(tiposDeSimbolos.STAR);
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 break;
             case "!":
                 this.adicionarSimbolo(
@@ -285,7 +286,7 @@ export class Lexer {
                 if (this.match("/")) {
                     while (this.peek() != "\n" && !this.eFinalDoCodigo()) this.avancar();
                 } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.SLASH);
+                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }
                 break;
 

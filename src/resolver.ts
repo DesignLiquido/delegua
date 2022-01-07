@@ -1,5 +1,7 @@
+import { InterfacePilha } from "./interfaces/pilha";
+
 class ResolverError extends Error {
-    mensagem: any;
+    mensagem: String;
 
     constructor(mensagem) {
         super(mensagem);
@@ -7,8 +9,8 @@ class ResolverError extends Error {
     }
 }
 
-class Pilha {
-    pilha: any;
+class Pilha implements InterfacePilha{
+    pilha: any[];
 
     constructor() {
         this.pilha = [];

@@ -1,4 +1,5 @@
 import tiposDeSimbolos from "./tiposDeSimbolos";
+import { InterfaceSimbolo } from "./interfaces/simbolo";
 import { Assignsubscript, Atribuir, Binario, Call, Dicionario, Set as Conjunto, Get, Grouping, Literal, Logical, Subscript, Super, Unario, Variavel, Isto } from "./expr";
 import { Block, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "./stmt";
 
@@ -9,13 +10,13 @@ class ParserError extends Error { }
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
 export class Parser {
-    simbolos: any;
+    simbolos: InterfaceSimbolo[];
     Delegua: any;
 
-    atual: any;
-    ciclos: any;
+    atual: number;
+    ciclos: number;
 
-    constructor(simbolos, Delegua) {
+    constructor(simbolos: InterfaceSimbolo[], Delegua) {
         this.simbolos = simbolos;
         this.Delegua = Delegua;
 
@@ -27,7 +28,7 @@ export class Parser {
         this.avancar();
 
         while (!this.estaNoFinal()) {
-            if (this.voltar().tipo === tiposDeSimbolos.SEMICOLON) return;
+            if (this.voltar().tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
             switch (this.peek().tipo) {
                 case tiposDeSimbolos.CLASSE:
@@ -134,7 +135,7 @@ export class Parser {
             while (!this.match(tiposDeSimbolos.CHAVE_DIREITA)) {
                 let chave = this.atribuir();
                 this.consumir(
-                    tiposDeSimbolos.COLON,
+                    tiposDeSimbolos.DOIS_PONTOS,
                     "Esperado ':' entre chave e valor."
                 );
                 let valor = this.atribuir();
@@ -231,7 +232,7 @@ export class Parser {
     exponent() {
         let expr = this.unario();
 
-        while (this.match(tiposDeSimbolos.STAR_STAR)) {
+        while (this.match(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.voltar();
             const direito = this.unario();
             expr = new Binario(expr, operador, direito);
@@ -243,7 +244,7 @@ export class Parser {
     multiplicar() {
         let expr = this.exponent();
 
-        while (this.match(tiposDeSimbolos.SLASH, tiposDeSimbolos.STAR, tiposDeSimbolos.MODULUS)) {
+        while (this.match(tiposDeSimbolos.DIVISAO, tiposDeSimbolos.MULTIPLICACAO, tiposDeSimbolos.MODULO)) {
             const operador = this.voltar();
             const direito = this.exponent();
             expr = new Binario(expr, operador, direito);
@@ -406,14 +407,14 @@ export class Parser {
             "Esperado ')' após os valores em escreva."
         );
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o valor.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após o valor.");
 
         return new Escreva(valor);
     }
 
     expressionStatement() {
         const expr = this.expressao();
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após expressão.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após expressão.");
         return new Expressao(expr);
     }
 
@@ -482,7 +483,7 @@ export class Parser {
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'para'.");
 
             let inicializador;
-            if (this.match(tiposDeSimbolos.SEMICOLON)) {
+            if (this.match(tiposDeSimbolos.PONTO_E_VIRGULA)) {
                 inicializador = null;
             } else if (this.match(tiposDeSimbolos.VAR)) {
                 inicializador = this.declaracaoDeVariavel();
@@ -491,11 +492,11 @@ export class Parser {
             }
 
             let condicao = null;
-            if (!this.verificar(tiposDeSimbolos.SEMICOLON)) {
+            if (!this.verificar(tiposDeSimbolos.PONTO_E_VIRGULA)) {
                 condicao = this.expressao();
             }
 
-            this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após valores da condicional");
+            this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após valores da condicional");
 
             let incrementar = null;
             if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -517,7 +518,7 @@ export class Parser {
             this.erro(this.voltar(), "'pausa' deve estar dentro de um loop.");
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'pausa'.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'pausa'.");
         return new Pausa();
     }
 
@@ -526,7 +527,7 @@ export class Parser {
             this.erro(this.voltar(), "'continua' precisa estar em um laço de repetição.");
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'continua'.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'continua'.");
         return new Continua();
     }
 
@@ -534,11 +535,11 @@ export class Parser {
         const palavraChave = this.voltar();
         let valor = null;
 
-        if (!this.verificar(tiposDeSimbolos.SEMICOLON)) {
+        if (!this.verificar(tiposDeSimbolos.PONTO_E_VIRGULA)) {
             valor = this.expressao();
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o retorno.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após o retorno.");
         return new Retorna(palavraChave, valor);
     }
 
@@ -566,7 +567,7 @@ export class Parser {
                 if (this.match(tiposDeSimbolos.CASO)) {
                     let branchConditions = [this.expressao()];
                     this.consumir(
-                        tiposDeSimbolos.COLON,
+                        tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
                     );
 
@@ -574,7 +575,7 @@ export class Parser {
                         this.consumir(tiposDeSimbolos.CASO, null);
                         branchConditions.push(this.expressao());
                         this.consumir(
-                            tiposDeSimbolos.COLON,
+                            tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
                         );
                     }
@@ -599,7 +600,7 @@ export class Parser {
                         );
 
                     this.consumir(
-                        tiposDeSimbolos.COLON,
+                        tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após declaração do 'padrao'."
                     );
 
@@ -726,7 +727,7 @@ export class Parser {
             inicializador = this.expressao();
         }
 
-        this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após a declaração da variável.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após a declaração da variável.");
 
         return new Var(nome, inicializador);
     }
@@ -748,8 +749,8 @@ export class Parser {
 
                 let paramObj = {};
 
-                if (this.peek().tipo === tiposDeSimbolos.STAR) {
-                    this.consumir(tiposDeSimbolos.STAR, null);
+                if (this.peek().tipo === tiposDeSimbolos.MULTIPLICACAO) {
+                    this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
                     paramObj["tipo"] = "wildcard";
                 } else {
                     paramObj["tipo"] = "standard";
