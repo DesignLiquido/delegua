@@ -50,8 +50,10 @@ export class Interpretador {
         return expr.valor;
     }
 
-    avaliar(expr) {
-        return expr.aceitar(this);
+    avaliar(expr: any) {
+        if (expr.aceitar) {
+            return expr.aceitar(this);
+        }
     }
 
     visitGroupingExpr(expr) {
@@ -216,7 +218,7 @@ export class Interpretador {
         }
 
         else if (argumentos.length >= callee.aridade()) {
-            if (
+            if (parametros &&
                 parametros.length > 0 &&
                 parametros[parametros.length - 1]["tipo"] === "wildcard"
             ) {

@@ -17,7 +17,7 @@ export class DeleguaFuncao extends Callable {
     }
 
     aridade() {
-        return this.declaracao.parametros.length;
+        return this.declaracao?.parametros?.length || 0;
     }
 
     toString() {
