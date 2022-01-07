@@ -1,15 +1,19 @@
-const Callable = require("./callable");
-const DeleguaInstancia = require("./instancia");
+import { Callable } from "./callable";
+import { DeleguaInstancia} from "./instancia";
 
-module.exports = class DeleguaClasse extends Callable {
-    constructor(nome, superClasse, metodos) {
+export class DeleguaClasse extends Callable {
+    nome: any;
+    superClasse: any;
+    metodos: any;
+
+    constructor(nome?: any, superClasse?: any, metodos?: any) {
         super();
         this.nome = nome;
         this.superClasse = superClasse;
         this.metodos = metodos;
     }
 
-    encontrarMetodo(nome) {
+    encontrarMetodo(nome: any) {
         if (this.metodos.hasOwnProperty(nome)) {
             return this.metodos[nome];
         }
@@ -30,7 +34,7 @@ module.exports = class DeleguaClasse extends Callable {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    call(interpretador, argumentos) {
+    call(interpretador: any, argumentos: any) {
         let instancia = new DeleguaInstancia(this);
 
         let inicializador = this.encontrarMetodo("construtor");
@@ -40,4 +44,4 @@ module.exports = class DeleguaClasse extends Callable {
 
         return instancia;
     }
-};
+}

@@ -1,4 +1,4 @@
-const tiposDeSimbolos = require("./tiposDeSimbolos");
+import tiposDeSimbolos from "./tiposDeSimbolos";
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,
@@ -33,6 +33,11 @@ const palavrasReservadas = {
 };
 
 class Simbolo {
+    tipo: any;
+    lexeme: any;
+    literal: any;
+    linha: any;
+
     constructor(tipo, lexeme, literal, linha) {
         this.tipo = tipo;
         this.lexeme = lexeme;
@@ -51,7 +56,14 @@ class Simbolo {
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-module.exports = class Lexer {
+export class Lexer {
+    Delegua: any;
+    codigo: any;
+    simbolos: any;
+    inicio: any;
+    atual: any;
+    linha: any;
+
     constructor(codigo, Delegua) {
         this.Delegua = Delegua;
         this.codigo = codigo;

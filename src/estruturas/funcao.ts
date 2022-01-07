@@ -1,9 +1,14 @@
-const Callable = require("./callable");
-const Ambiente = require("../ambiente");
-const ReturnExpection = require("../erro").ReturnException;
+import { Callable } from "./callable";
+import { Ambiente } from "../ambiente";
+import { ReturnException } from "../erro";
 
-module.exports = class DeleguaFuncao extends Callable {
-    constructor(nome, declaracao, closure, eInicializador = false) {
+export class DeleguaFuncao extends Callable {
+    nome: any;
+    declaracao: any;
+    closure: any;
+    eInicializador: any;
+
+    constructor(nome: any, declaracao: any, closure: any, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
@@ -12,7 +17,7 @@ module.exports = class DeleguaFuncao extends Callable {
     }
 
     aridade() {
-        return this.declaracao.parametros.length;
+        return this.declaracao?.parametros?.length || 0;
     }
 
     toString() {
@@ -37,7 +42,7 @@ module.exports = class DeleguaFuncao extends Callable {
         try {
             interpretador.executeBlock(this.declaracao.corpo, ambiente);
         } catch (erro) {
-            if (erro instanceof ReturnExpection) {
+            if (erro instanceof ReturnException) {
                 if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");
                 return erro.valor;
             } else {
@@ -59,4 +64,4 @@ module.exports = class DeleguaFuncao extends Callable {
             this.eInicializador
         );
     }
-};
+}

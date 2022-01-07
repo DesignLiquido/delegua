@@ -1,6 +1,6 @@
-const tiposDeSimbolos = require("./tiposDeSimbolos");
-const Expr = require("./expr");
-const Stmt = require("./stmt");
+import tiposDeSimbolos from "./tiposDeSimbolos";
+import { Assignsubscript, Atribuir, Binario, Call, Dicionario, Set as Conjunto, Get, Grouping, Literal, Logical, Subscript, Super, Unario, Variavel, Isto } from "./expr";
+import { Block, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "./stmt";
 
 class ParserError extends Error { }
 
@@ -8,7 +8,13 @@ class ParserError extends Error { }
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
-module.exports = class Parser {
+export class Parser {
+    simbolos: any;
+    Delegua: any;
+
+    atual: any;
+    ciclos: any;
+
     constructor(simbolos, Delegua) {
         this.simbolos = simbolos;
         this.Delegua = Delegua;
@@ -100,12 +106,12 @@ module.exports = class Parser {
                 tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado nome do método da SuperClasse."
             );
-            return new Expr.Super(palavraChave, metodo);
+            return new Super(palavraChave, metodo);
         }
         if (this.match(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
             if (this.match(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                return new Expr.Array([]);
+                return new Array([]);
             }
             while (!this.match(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 const valor = this.atribuir();
@@ -117,13 +123,13 @@ module.exports = class Parser {
                     );
                 }
             }
-            return new Expr.Array(valores);
+            return new Array(valores);
         }
         if (this.match(tiposDeSimbolos.CHAVE_ESQUERDA)) {
             const chaves = [];
             const valores = [];
             if (this.match(tiposDeSimbolos.CHAVE_DIREITA)) {
-                return new Expr.Dicionario([], []);
+                return new Dicionario([], []);
             }
             while (!this.match(tiposDeSimbolos.CHAVE_DIREITA)) {
                 let chave = this.atribuir();
@@ -143,23 +149,23 @@ module.exports = class Parser {
                     );
                 }
             }
-            return new Expr.Dicionario(chaves, valores);
+            return new Dicionario(chaves, valores);
         }
         if (this.match(tiposDeSimbolos.FUNCAO)) return this.corpoDaFuncao("funcao");
-        if (this.match(tiposDeSimbolos.FALSO)) return new Expr.Literal(false);
-        if (this.match(tiposDeSimbolos.VERDADEIRO)) return new Expr.Literal(true);
-        if (this.match(tiposDeSimbolos.NULO)) return new Expr.Literal(null);
-        if (this.match(tiposDeSimbolos.ISTO)) return new Expr.Isto(this.voltar());
+        if (this.match(tiposDeSimbolos.FALSO)) return new Literal(false);
+        if (this.match(tiposDeSimbolos.VERDADEIRO)) return new Literal(true);
+        if (this.match(tiposDeSimbolos.NULO)) return new Literal(null);
+        if (this.match(tiposDeSimbolos.ISTO)) return new Isto(this.voltar());
         if (this.match(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
-            return new Expr.Literal(this.voltar().literal);
+            return new Literal(this.voltar().literal);
         }
         if (this.match(tiposDeSimbolos.IDENTIFICADOR)) {
-            return new Expr.Variavel(this.voltar());
+            return new Variavel(this.voltar());
         }
         if (this.match(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             let expr = this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-            return new Expr.Grouping(expr);
+            return new Grouping(expr);
         }
         if (this.match(tiposDeSimbolos.IMPORTAR)) return this.importStatement();
 
@@ -182,7 +188,7 @@ module.exports = class Parser {
             "Esperado ')' após os argumentos."
         );
 
-        return new Expr.Call(callee, parenteseDireito, argumentos);
+        return new Call(callee, parenteseDireito, argumentos);
     }
 
     chamar() {
@@ -196,14 +202,14 @@ module.exports = class Parser {
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
-                expr = new Expr.Get(expr, nome);
+                expr = new Get(expr, nome);
             } else if (this.match(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 let closeBracket = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
-                expr = new Expr.Subscript(expr, indice, closeBracket);
+                expr = new Subscript(expr, indice, closeBracket);
             } else {
                 break;
             }
@@ -216,7 +222,7 @@ module.exports = class Parser {
         if (this.match(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.BIT_NOT)) {
             const operador = this.voltar();
             const direito = this.unario();
-            return new Expr.Unario(operador, direito);
+            return new Unario(operador, direito);
         }
 
         return this.chamar();
@@ -228,7 +234,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.STAR_STAR)) {
             const operador = this.voltar();
             const direito = this.unario();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -240,7 +246,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.SLASH, tiposDeSimbolos.STAR, tiposDeSimbolos.MODULUS)) {
             const operador = this.voltar();
             const direito = this.exponent();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -252,7 +258,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.voltar();
             const direito = this.multiplicar();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -264,7 +270,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
             const operador = this.voltar();
             const direito = this.adicionar();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -276,7 +282,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.BIT_AND)) {
             const operador = this.voltar();
             const direito = this.bitFill();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -288,7 +294,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
             const operador = this.voltar();
             const direito = this.bitE();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -307,7 +313,7 @@ module.exports = class Parser {
         ) {
             const operador = this.voltar();
             const direito = this.bitOu();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -319,7 +325,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.voltar();
             const direito = this.comparar();
-            expr = new Expr.Binario(expr, operador, direito);
+            expr = new Binario(expr, operador, direito);
         }
 
         return expr;
@@ -331,7 +337,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.EM)) {
             const operador = this.voltar();
             const direito = this.equality();
-            expr = new Expr.Logical(expr, operador, direito);
+            expr = new Logical(expr, operador, direito);
         }
 
         return expr;
@@ -343,7 +349,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.E)) {
             const operador = this.voltar();
             const direito = this.em();
-            expr = new Expr.Logical(expr, operador, direito);
+            expr = new Logical(expr, operador, direito);
         }
 
         return expr;
@@ -355,7 +361,7 @@ module.exports = class Parser {
         while (this.match(tiposDeSimbolos.OU)) {
             const operador = this.voltar();
             const direito = this.e();
-            expr = new Expr.Logical(expr, operador, direito);
+            expr = new Logical(expr, operador, direito);
         }
 
         return expr;
@@ -368,14 +374,14 @@ module.exports = class Parser {
             const igual = this.voltar();
             const valor = this.atribuir();
 
-            if (expr instanceof Expr.Variavel) {
+            if (expr instanceof Variavel) {
                 const nome = expr.nome;
-                return new Expr.Atribuir(nome, valor);
-            } else if (expr instanceof Expr.Get) {
+                return new Atribuir(nome, valor);
+            } else if (expr instanceof Get) {
                 const get = expr;
-                return new Expr.Set(get.objeto, get.nome, valor);
-            } else if (expr instanceof Expr.Subscript) {
-                return new Expr.Assignsubscript(expr.callee, expr.indice, valor);
+                return new Conjunto(get.objeto, get.nome, valor);
+            } else if (expr instanceof Subscript) {
+                return new Assignsubscript(expr.callee, expr.indice, valor);
             }
             this.erro(igual, "Tarefa de atribuição inválida");
         }
@@ -402,13 +408,13 @@ module.exports = class Parser {
 
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o valor.");
 
-        return new Stmt.Escreva(valor);
+        return new Escreva(valor);
     }
 
     expressionStatement() {
         const expr = this.expressao();
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após expressão.");
-        return new Stmt.Expressao(expr);
+        return new Expressao(expr);
     }
 
     block() {
@@ -451,7 +457,7 @@ module.exports = class Parser {
             elseBranch = this.statement();
         }
 
-        return new Stmt.Se(condicao, thenBranch, elifBranches, elseBranch);
+        return new Se(condicao, thenBranch, elifBranches, elseBranch);
     }
 
     whileStatement() {
@@ -463,7 +469,7 @@ module.exports = class Parser {
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condicional.");
             const corpo = this.statement();
 
-            return new Stmt.Enquanto(condicao, corpo);
+            return new Enquanto(condicao, corpo);
         } finally {
             this.ciclos -= 1;
         }
@@ -500,7 +506,7 @@ module.exports = class Parser {
 
             const corpo = this.statement();
 
-            return new Stmt.Para(inicializador, condicao, incrementar, corpo);
+            return new Para(inicializador, condicao, incrementar, corpo);
         } finally {
             this.ciclos -= 1;
         }
@@ -512,7 +518,7 @@ module.exports = class Parser {
         }
 
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'pausa'.");
-        return new Stmt.Pausa();
+        return new Pausa();
     }
 
     declaracaoContinue() {
@@ -521,7 +527,7 @@ module.exports = class Parser {
         }
 
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após 'continua'.");
-        return new Stmt.Continua();
+        return new Continua();
     }
 
     declaracaoRetorna() {
@@ -533,7 +539,7 @@ module.exports = class Parser {
         }
 
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após o retorno.");
-        return new Stmt.Retorna(palavraChave, valor);
+        return new Retorna(palavraChave, valor);
     }
 
     declaracaoEscolha() {
@@ -612,7 +618,7 @@ module.exports = class Parser {
                 }
             }
 
-            return new Stmt.Escolha(condicao, branches, defaultBranch);
+            return new Escolha(condicao, branches, defaultBranch);
         } finally {
             this.ciclos -= 1;
         }
@@ -628,7 +634,7 @@ module.exports = class Parser {
             "Esperado ')' após declaração."
         );
 
-        return new Stmt.Importar(caminho, closeBracket);
+        return new Importar(caminho, closeBracket);
     }
 
     tryStatement() {
@@ -666,7 +672,7 @@ module.exports = class Parser {
             finallyBlock = this.block();
         }
 
-        return new Stmt.Tente(tryBlock, catchBlock, elseBlock, finallyBlock);
+        return new Tente(tryBlock, catchBlock, elseBlock, finallyBlock);
     }
 
     doStatement() {
@@ -691,7 +697,7 @@ module.exports = class Parser {
                 "Esperado ')' após declaração do 'enquanto'."
             );
 
-            return new Stmt.Fazer(doBranch, whileCondition);
+            return new Fazer(doBranch, whileCondition);
         } finally {
             this.ciclos -= 1;
         }
@@ -708,7 +714,7 @@ module.exports = class Parser {
         if (this.match(tiposDeSimbolos.ENQUANTO)) return this.whileStatement();
         if (this.match(tiposDeSimbolos.SE)) return this.declaracaoSe();
         if (this.match(tiposDeSimbolos.ESCREVA)) return this.declaracaoMostrar();
-        if (this.match(tiposDeSimbolos.CHAVE_ESQUERDA)) return new Stmt.Block(this.block());
+        if (this.match(tiposDeSimbolos.CHAVE_ESQUERDA)) return new Block(this.block());
 
         return this.expressionStatement();
     }
@@ -722,12 +728,12 @@ module.exports = class Parser {
 
         this.consumir(tiposDeSimbolos.SEMICOLON, "Esperado ';' após a declaração da variável.");
 
-        return new Stmt.Var(nome, inicializador);
+        return new Var(nome, inicializador);
     }
 
     funcao(kind) {
         const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${kind}.`);
-        return new Stmt.Funcao(nome, this.corpoDaFuncao(kind));
+        return new Funcao(nome, this.corpoDaFuncao(kind));
     }
 
     corpoDaFuncao(kind) {
@@ -769,7 +775,7 @@ module.exports = class Parser {
 
         const corpo = this.block();
 
-        return new Expr.Funcao(parametros, corpo);
+        return new Funcao(parametros, corpo);
     }
 
     declaracaoDeClasse() {
@@ -778,7 +784,7 @@ module.exports = class Parser {
         let superClasse = null;
         if (this.match(tiposDeSimbolos.HERDA)) {
             this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome da SuperClasse.");
-            superClasse = new Expr.Variavel(this.voltar());
+            superClasse = new Variavel(this.voltar());
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
@@ -789,7 +795,7 @@ module.exports = class Parser {
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
-        return new Stmt.Classe(nome, superClasse, metodos);
+        return new Classe(nome, superClasse, metodos);
     }
 
     declaracao() {

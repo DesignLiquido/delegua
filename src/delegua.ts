@@ -1,13 +1,17 @@
-const Lexer = require("./lexer");
-const Parser = require("./parser");
-const Resolver = require("./resolver");
-const Interpretador = require("./interpretador");
-const tiposDeSimbolos = require("./tiposDeSimbolos");
-const fs = require("fs");
-const caminho = require("path");
-const readline = require("readline");
+import { Lexer } from "./lexer";
+import { Parser } from "./parser";
+import { Resolver } from "./resolver";
+import { Interpretador } from "./interpretador";
+import tiposDeSimbolos from "./tiposDeSimbolos";
+import * as fs from "fs";
+import * as caminho from "path";
+import * as readline from "readline";
 
-module.exports.Delegua = class Delegua {
+export class Delegua {
+    nomeArquivo: any;
+    teveErro: any;
+    teveErroEmTempoDeExecucao: any;
+
     constructor(nomeArquivo) {
         this.nomeArquivo = nomeArquivo;
 
@@ -16,7 +20,7 @@ module.exports.Delegua = class Delegua {
     }
 
     runPrompt() {
-        const interpretador = new Interpretador(this, process.cwd(), undefined);
+        const interpretador = new Interpretador(this, process.cwd());
         console.log("Console da Linguagem Delégua v0.0.1");
         const leiaLinha = readline.createInterface({
             input: process.stdin,

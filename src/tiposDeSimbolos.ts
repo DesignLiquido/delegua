@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     NEGACAO: "NEGACAO",
     DIFERENTE: "DIFERENTE",
     BIT_AND: "BIT_AND",
@@ -37,7 +37,6 @@ module.exports = {
     MENOR_IGUAL: "MENOR_IGUAL",
     MENOR_MENOR: "MENOR_MENOR",
     MAIS_IGUAL: "MAIS_IGUAL",
-    MENOR_IGUAL: "MENOR_IGUAL",
     SUBTRACAO: "SUBTRACAO",
     MODULUS: "MODULUS",
     NULO: "NULO",
