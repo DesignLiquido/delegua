@@ -16,7 +16,7 @@ class Pilha implements InterfacePilha {
         this.pilha = [];
     }
 
-    empurrar(item) {
+    empilhar(item) {
         this.pilha.push(item);
     }
 
@@ -74,6 +74,7 @@ export class Resolver {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
         this.escopos = new Pilha();
+        this.inicioDoEscopo();
 
         this.FuncaoAtual = TipoFuncao.NENHUM;
         this.ClasseAtual = TipoClasse.NENHUM;
@@ -82,22 +83,22 @@ export class Resolver {
 
     definir(nome) {
         if (this.escopos.eVazio()) return;
-        this.escopos.peek()[nome.lexeme] = true;
+        this.escopos.peek()[nome.lexema] = true;
     }
 
     declarar(nome) {
         if (this.escopos.eVazio()) return;
         let escopo = this.escopos.peek();
-        if (escopo.hasOwnProperty(nome.lexeme))
+        if (escopo.hasOwnProperty(nome.lexema))
             this.Delegua.erro(
                 nome,
                 "Variável com esse nome já declarada neste escopo."
             );
-        escopo[nome.lexeme] = false;
+        escopo[nome.lexema] = false;
     }
 
     inicioDoEscopo() {
-        this.escopos.empurrar({});
+        this.escopos.empilhar({});
     }
 
     finalDoEscopo() {
@@ -118,7 +119,7 @@ export class Resolver {
 
     resolverLocal(expr, nome) {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
-            if (this.escopos.pilha[i].hasOwnProperty(nome.lexeme)) {
+            if (this.escopos.pilha[i].hasOwnProperty(nome.lexema)) {
                 this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
             }
         }
@@ -134,7 +135,7 @@ export class Resolver {
     visitVariableExpr(expr) {
         if (
             !this.escopos.eVazio() &&
-            this.escopos.peek()[expr.nome.lexeme] === false
+            this.escopos.peek()[expr.nome.lexema] === false
         ) {
             throw new ResolverError(
                 "Não é possível ler a variável local em seu próprio inicializador."
@@ -209,7 +210,7 @@ export class Resolver {
 
         if (
             stmt.superClasse !== null &&
-            stmt.nome.lexeme === stmt.superClasse.nome.lexeme
+            stmt.nome.lexema === stmt.superClasse.nome.lexema
         ) {
             this.Delegua.error("Uma classe não pode herdar de si mesma.");
         }
@@ -231,7 +232,7 @@ export class Resolver {
         for (let i = 0; i < metodos.length; i++) {
             let declaracao = TipoFuncao.METODO;
 
-            if (metodos[i].nome.lexeme === "isto") {
+            if (metodos[i].nome.lexema === "isto") {
                 declaracao = TipoFuncao.CONSTRUTOR;
             }
 

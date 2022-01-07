@@ -34,20 +34,20 @@ const palavrasReservadas = {
 };
 
 class Simbolo implements InterfaceSimbolo {
-    lexeme: string;
+    lexema: string;
     tipo: string;
     literal: string;
     linha: string;
 
-    constructor(tipo, lexeme, literal, linha) {
+    constructor(tipo, lexema, literal, linha) {
         this.tipo = tipo;
-        this.lexeme = lexeme;
+        this.lexema = lexema;
         this.literal = literal;
         this.linha = linha;
     }
 
     toString() {
-        return this.tipo + " " + this.lexeme + " " + this.literal;
+        return this.tipo + " " + this.lexema + " " + this.literal;
     }
 }
 

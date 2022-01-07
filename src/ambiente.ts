@@ -14,12 +14,12 @@ export class Ambiente {
     }
 
     atribuirVariavelEm(distancia: any, nome: any, valor: any) {
-        this.ancestor(distancia).valores[nome.lexeme] = valor;
+        this.ancestor(distancia).valores[nome.lexema] = valor;
     }
 
     atribuirVariavel(nome: any, valor: any) {
-        if (this.valores[nome.lexeme] !== undefined) {
-            this.valores[nome.lexeme] = valor;
+        if (this.valores[nome.lexema] !== undefined) {
+            this.valores[nome.lexema] = valor;
             return;
         }
 
@@ -28,7 +28,7 @@ export class Ambiente {
             return;
         }
 
-        throw new ErroEmTempoDeExecucao(nome, "Variável não definida '" + nome.lexeme + "'.");
+        throw new ErroEmTempoDeExecucao(nome, "Variável não definida '" + nome.lexema + "'.");
     }
 
     ancestor(distancia: any) {
@@ -45,12 +45,12 @@ export class Ambiente {
     }
 
     obterVariavel(simbolo: any) {
-        if (this.valores[simbolo.lexeme] !== undefined) {
-            return this.valores[simbolo.lexeme];
+        if (this.valores[simbolo.lexema] !== undefined) {
+            return this.valores[simbolo.lexema];
         }
 
         if (this.enclosing !== null) return this.enclosing.obterVariavel(simbolo);
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexeme + "'.");
+        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     }
 };

@@ -10,18 +10,18 @@ export class DeleguaInstancia {
     }
 
     get(nome: any) {
-        if (this.campos.hasOwnProperty(nome.lexeme)) {
-            return this.campos[nome.lexeme];
+        if (this.campos.hasOwnProperty(nome.lexema)) {
+            return this.campos[nome.lexema];
         }
 
-        let metodo = this.criarClasse.encontrarMetodo(nome.lexeme);
+        let metodo = this.criarClasse.encontrarMetodo(nome.lexema);
         if (metodo) return metodo.bind(this);
 
         throw new ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
     }
 
     set(nome: any, valor: any) {
-        this.campos[nome.lexeme] = valor;
+        this.campos[nome.lexema] = valor;
     }
 
     toString() {

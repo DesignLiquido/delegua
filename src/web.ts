@@ -51,7 +51,7 @@ export class Delegua {
     if (simbolo.tipo === tiposDeSimbolos.EOF) {
       this.reportar(simbolo.line, " no final", mensagemDeErro);
     } else {
-      this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);
+      this.reportar(simbolo.line, ` no '${simbolo.lexema}'`, mensagemDeErro);
     }
   }
 

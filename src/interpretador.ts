@@ -251,7 +251,7 @@ export class Interpretador {
     procurarVariavel(nome, expr) {
         const distancia = this.locais.get(expr);
         if (distancia !== undefined) {
-            return this.ambiente.obterVariavelEm(distancia, nome.lexeme);
+            return this.ambiente.obterVariavelEm(distancia, nome.lexema);
         } else {
             return this.global.obterVariavel(nome);
         }
@@ -510,6 +510,7 @@ export class Interpretador {
         }
         catch (erro) {
             // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
+            console.error(erro);
         } finally {
             this.ambiente = anterior;
         }
@@ -526,7 +527,7 @@ export class Interpretador {
             valor = this.avaliar(stmt.inicializador);
         }
 
-        this.ambiente.definirVariavel(stmt.nome.lexeme, valor);
+        this.ambiente.definirVariavel(stmt.nome.lexema, valor);
         return null;
     }
 
@@ -661,18 +662,18 @@ export class Interpretador {
             objeto.set(expr.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
-            objeto[expr.nome.lexeme] = valor;
+            objeto[expr.nome.lexema] = valor;
         }
     }
 
     visitFunctionStmt(stmt) {
         const funcao = new DeleguaFuncao(
-            stmt.nome.lexeme,
+            stmt.nome.lexema,
             stmt.funcao,
             this.ambiente,
             false
         );
-        this.ambiente.definirVariavel(stmt.nome.lexeme, funcao);
+        this.ambiente.definirVariavel(stmt.nome.lexema, funcao);
     }
 
     visitClassStmt(stmt) {
@@ -687,7 +688,7 @@ export class Interpretador {
             }
         }
 
-        this.ambiente.definirVariavel(stmt.nome.lexeme, null);
+        this.ambiente.definirVariavel(stmt.nome.lexema, null);
 
         if (stmt.superClasse !== null) {
             this.ambiente = new Ambiente(this.ambiente);
@@ -698,17 +699,17 @@ export class Interpretador {
         let definirMetodos = stmt.metodos;
         for (let i = 0; i < stmt.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
-            let eInicializado = metodoAtual.nome.lexeme === "construtor";
+            let eInicializado = metodoAtual.nome.lexema === "construtor";
             const funcao = new DeleguaFuncao(
-                metodoAtual.nome.lexeme,
+                metodoAtual.nome.lexema,
                 metodoAtual.funcao,
                 this.ambiente,
                 eInicializado
             );
-            metodos[metodoAtual.nome.lexeme] = funcao;
+            metodos[metodoAtual.nome.lexema] = funcao;
         }
 
-        const criado = new DeleguaClasse(stmt.nome.lexeme, superClasse, metodos);
+        const criado = new DeleguaClasse(stmt.nome.lexema, superClasse, metodos);
 
         if (superClasse !== null) {
             this.ambiente = this.ambiente.enclosing;
@@ -723,9 +724,9 @@ export class Interpretador {
         if (objeto instanceof DeleguaInstancia) {
             return objeto.get(expr.nome) || null;
         } else if (objeto.constructor === Object) {
-            return objeto[expr.nome.lexeme] || null;
+            return objeto[expr.nome.lexema] || null;
         } else if (objeto instanceof DeleguaModulo) {
-            return objeto[expr.nome.lexeme] || null;
+            return objeto[expr.nome.lexema] || null;
         }
 
         throw new ErroEmTempoDeExecucao(
@@ -760,7 +761,7 @@ export class Interpretador {
 
         const objeto = this.ambiente.obterVariavelEm(distancia - 1, "isto");
 
-        let metodo = superClasse.encontrarMetodo(expr.metodo.lexeme);
+        let metodo = superClasse.encontrarMetodo(expr.metodo.lexema);
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(

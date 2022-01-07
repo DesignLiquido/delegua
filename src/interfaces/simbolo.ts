@@ -1,5 +1,5 @@
 export interface InterfaceSimbolo {
-    lexeme: string,
+    lexema: string,
     tipo: string,
     literal: string,
     linha: string

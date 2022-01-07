@@ -33,7 +33,7 @@ export class DeleguaFuncao extends Callable {
             for (let i = 0; i < parametros.length; i++) {
                 const param = parametros[i];
 
-                const nome = param["nome"].lexeme;
+                const nome = param["nome"].lexema;
                 let valor = argumentos[i];
                 if (argumentos[i] === null) {
                     valor = param["padrao"] ? param["padrao"].valor : null;
@@ -43,7 +43,7 @@ export class DeleguaFuncao extends Callable {
         }
 
         try {
-            interpretador.executeBlock(this.declaracao.corpo, ambiente);
+            interpretador.executeBlock(this.declaracao.funcao, ambiente);
         } catch (erro) {
             if (erro instanceof ReturnException) {
                 if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");
