@@ -138,7 +138,7 @@ export class Interpretador {
                     return Number(esquerda) + Number(direita);
                 } else if (typeof esquerda === "string" && typeof direita === "string") {
                     return String(esquerda) + String(direita);
-                } else{
+                } else {
                     return String(esquerda) + String(direita);
                 }
 
@@ -496,14 +496,17 @@ export class Interpretador {
         return null;
     }
 
-    executeBlock(declaracoes, ambiente) {
+    executeBlock(declaracoes: any, ambiente: any) {
         let anterior = this.ambiente;
         try {
             this.ambiente = ambiente;
 
-            for (let i = 0; i < declaracoes.length; i++) {
-                this.executar(declaracoes[i]);
+            if (declaracoes && declaracoes.length) {
+                for (let i = 0; i < declaracoes.length; i++) {
+                    this.executar(declaracoes[i]);
+                }
             }
+
         }
         catch (erro) {
             // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
@@ -789,16 +792,16 @@ export class Interpretador {
 
     executar(stmt, imprimirResultado = false) {
         const resultado = stmt.aceitar(this);
-        if(imprimirResultado){
+        if (imprimirResultado) {
             console.log(this.stringify(resultado));
         }
     }
 
     interpretar(declaracoes) {
         try {
-            if(declaracoes.length === 1){
+            if (declaracoes.length === 1) {
                 const eObjetoExpressao = declaracoes[0].constructor.name === 'Expressao'
-                if(eObjetoExpressao){
+                if (eObjetoExpressao) {
                     this.executar(declaracoes[0], eObjetoExpressao);
                     return;
                 }

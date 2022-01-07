@@ -6,6 +6,6 @@ export class Callable {
     }
 
     chamar(interpretador?: any, argumentos?: any, simbolo?: any) {
-        
+
     }
 }

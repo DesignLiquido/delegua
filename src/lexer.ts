@@ -323,7 +323,7 @@ export class Lexer {
         }
 
         this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, "", null, this.linha));
-        
+
         return this.simbolos;
     }
 };

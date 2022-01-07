@@ -10,7 +10,7 @@ const carregarModulo = function (nomeDoModulo: any, caminhoDoModulo: any) {
     } catch (erro) {
         throw new ErroEmTempoDeExecucao(nomeDoModulo, `Biblioteca ${nomeDoModulo} não encontrada para importação.`);
     }
-     
+
     let novoModulo = new DeleguaModulo(nomeDoModulo);
 
     let chaves = Object.keys(dadosDoModulo);

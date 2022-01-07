@@ -9,7 +9,7 @@ class ResolverError extends Error {
     }
 }
 
-class Pilha implements InterfacePilha{
+class Pilha implements InterfacePilha {
     pilha: any[];
 
     constructor() {
@@ -93,7 +93,7 @@ export class Resolver {
                 nome,
                 "Variável com esse nome já declarada neste escopo."
             );
-            escopo[nome.lexeme] = false;
+        escopo[nome.lexeme] = false;
     }
 
     inicioDoEscopo() {
@@ -118,7 +118,7 @@ export class Resolver {
 
     resolverLocal(expr, nome) {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
-            if (this.escopos.pilha[i].hasOwnProperty(nome.lexeme)) {                
+            if (this.escopos.pilha[i].hasOwnProperty(nome.lexeme)) {
                 this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
             }
         }

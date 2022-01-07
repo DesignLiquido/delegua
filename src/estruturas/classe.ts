@@ -1,5 +1,5 @@
 import { Callable } from "./callable";
-import { DeleguaInstancia} from "./instancia";
+import { DeleguaInstancia } from "./instancia";
 
 export class DeleguaClasse extends Callable {
     nome: any;

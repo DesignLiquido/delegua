@@ -1,4 +1,4 @@
-import {Callable} from "./callable";
+import { Callable } from "./callable";
 
 export class FuncaoPadrao extends Callable {
     valorAridade: any;

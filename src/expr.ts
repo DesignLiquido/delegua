@@ -1,5 +1,5 @@
 export class Expr {
-    aceitar(visitor: any) {}
+    aceitar(visitor: any) { }
 }
 
 export class Atribuir extends Expr {
@@ -220,7 +220,7 @@ export class Super extends Expr {
 
 export class Isto extends Expr {
     palavraChave: any;
-    
+
     constructor(palavraChave?: any) {
         super();
         this.palavraChave = palavraChave;

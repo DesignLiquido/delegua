@@ -25,18 +25,21 @@ export class DeleguaFuncao extends Callable {
         return `<função ${this.nome}>`;
     }
 
-    call(interpretador, argumentos) {
+    chamar(interpretador: any, argumentos: any) {
         let ambiente = new Ambiente(this.closure);
         let parametros = this.declaracao.parametros;
-        for (let i = 0; i < parametros.length; i++) {
-            const param = parametros[i];
 
-            const nome = param["nome"].lexeme;
-            let valor = argumentos[i];
-            if (argumentos[i] === null) {
-                valor = param["padrao"] ? param["padrao"].valor : null;
+        if (parametros && parametros.length) {
+            for (let i = 0; i < parametros.length; i++) {
+                const param = parametros[i];
+
+                const nome = param["nome"].lexeme;
+                let valor = argumentos[i];
+                if (argumentos[i] === null) {
+                    valor = param["padrao"] ? param["padrao"].valor : null;
+                }
+                ambiente.definirVariavel(nome, valor);
             }
-            ambiente.definirVariavel(nome, valor);
         }
 
         try {

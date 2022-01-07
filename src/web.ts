@@ -40,18 +40,18 @@ export class Delegua {
 
   reportar(linha, onde, mensagem) {
     if (this.nomeArquivo)
-        console.error(
-            `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`
-        );
+      console.error(
+        `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`
+      );
     else console.error(`[Linha: ${linha}] Erro${onde}: ${mensagem}`);
     this.teveErro = true;
   }
 
   erro(simbolo, mensagemDeErro) {
     if (simbolo.tipo === tiposDeSimbolos.EOF) {
-        this.reportar(simbolo.line, " no final", mensagemDeErro);
+      this.reportar(simbolo.line, " no final", mensagemDeErro);
     } else {
-        this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);
+      this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);
     }
   }
 
@@ -62,13 +62,13 @@ export class Delegua {
   erroEmTempoDeExecucao(erro) {
     const linha = erro.simbolo.linha;
     if (erro.simbolo && linha) {
-        if (this.nomeArquivo)
-            console.error(
-                `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
-            );
-        else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
+      if (this.nomeArquivo)
+        console.error(
+          `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
+        );
+      else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
     } else {
-        console.error(`Erro: ${erro.mensagem}`);
+      console.error(`Erro: ${erro.mensagem}`);
     }
     this.teveErroEmTempoDeExecucao = true;
   }

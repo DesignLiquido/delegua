@@ -28,7 +28,7 @@ export default function (interpretador: any, global: any) {
 
             return Math.floor(Math.random() * (maximo - minimo)) + minimo;
         })
-    );    
+    );
 
     global.definirVariavel(
         "inteiro",

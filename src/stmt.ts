@@ -108,15 +108,15 @@ export class Fazer extends Stmt {
     whileCondition: any;
 
     constructor(doBranch, whileCondition) {
-      super();
-      this.doBranch = doBranch;
-      this.whileCondition = whileCondition;
+        super();
+        this.doBranch = doBranch;
+        this.whileCondition = whileCondition;
     }
-  
+
     aceitar(visitor) {
-      return visitor.visitDoStmt(this);
+        return visitor.visitDoStmt(this);
     }
-  }
+}
 
 export class Enquanto extends Stmt {
     condicao: any;

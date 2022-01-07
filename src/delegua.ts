@@ -19,8 +19,8 @@ export class Delegua {
         this.teveErroEmTempoDeExecucao = false;
     }
 
-    versao(){
-        return JSON.parse(fs.readFileSync('./package.json', { encoding:'utf8' })).version || ''
+    versao() {
+        return JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version || ''
     }
 
     runPrompt() {
