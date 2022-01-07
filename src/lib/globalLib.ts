@@ -15,25 +15,25 @@ export default function (interpretador: any, globals: any) {
     );
 
     // Retorna um número aleatório de acordo com o parâmetro passado.
-    // MIN(inclusivo) - MAX(exclusivo)
+    // Mínimo(inclusivo) - Máximo(exclusivo)
     globals.definirVariavel(
         "aleatorioEntre",
-        new FuncaoPadrao(1, function (min: any, max: any) {
-            if (typeof min !== 'number' || typeof max !== 'number') {
+        new FuncaoPadrao(1, function (minimo: number, maximo: number) {
+            if (typeof minimo !== 'number' || typeof maximo !== 'number') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Os dois parâmetros devem ser do tipo número."
                 );
             }
 
-            return Math.floor(Math.random() * (max - min)) + min;
+            return Math.floor(Math.random() * (maximo - minimo)) + minimo;
         })
     );    
 
     globals.definirVariavel(
         "inteiro",
         new FuncaoPadrao(1, function (valor: any) {
-            if (valor === undefined || valor === null) {
+            if (!valor) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Somente números podem passar para inteiro."
@@ -83,8 +83,8 @@ export default function (interpretador: any, globals: any) {
 
     globals.definirVariavel(
         "ordenar",
-        new FuncaoPadrao(1, function (obj: any) {
-            if (Array.isArray(obj) == false) {
+        new FuncaoPadrao(1, function (objeto: Array<any>) {
+            if (!Array.isArray(objeto)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Valor Inválido. Objeto inserido não é um vetor."
@@ -92,17 +92,17 @@ export default function (interpretador: any, globals: any) {
             }
 
             let trocado;
-            let length = obj.length;
+            let tamanho = objeto.length;
             do {
                 trocado = false;
-                for (var i = 0; i < length - 1; i++) {
-                    if (obj[i] > obj[i + 1]) {
-                        [obj[i], obj[i + 1]] = [obj[i + 1], obj[i]];
+                for (var i = 0; i < tamanho - 1; i++) {
+                    if (objeto[i] > objeto[i + 1]) {
+                        [objeto[i], objeto[i + 1]] = [objeto[i + 1], objeto[i]];
                         trocado = true;
                     }
                 }
             } while (trocado);
-            return obj;
+            return objeto;
         })
     );
 
