@@ -5,9 +5,9 @@ import { FuncaoPadrao } from "../estruturas/funcaoPadrao";
 import { DeleguaClasse } from "../estruturas/classe";
 
 
-export default function (interpretador: any, globals: any) {
+export default function (interpretador: any, global: any) {
     // Retorna um número aleatório entre 0 e 1.
-    globals.definirVariavel(
+    global.definirVariavel(
         "aleatorio",
         new FuncaoPadrao(1, function () {
             return Math.random();
@@ -16,7 +16,7 @@ export default function (interpretador: any, globals: any) {
 
     // Retorna um número aleatório de acordo com o parâmetro passado.
     // Mínimo(inclusivo) - Máximo(exclusivo)
-    globals.definirVariavel(
+    global.definirVariavel(
         "aleatorioEntre",
         new FuncaoPadrao(1, function (minimo: number, maximo: number) {
             if (typeof minimo !== 'number' || typeof maximo !== 'number') {
@@ -30,7 +30,7 @@ export default function (interpretador: any, globals: any) {
         })
     );    
 
-    globals.definirVariavel(
+    global.definirVariavel(
         "inteiro",
         new FuncaoPadrao(1, function (valor: any) {
             if (!valor) {
@@ -51,7 +51,7 @@ export default function (interpretador: any, globals: any) {
         })
     );
 
-    globals.definirVariavel(
+    global.definirVariavel(
         "mapear",
         new FuncaoPadrao(1, function (array: any, callback: any) {
             if (!Array.isArray(array)) {
@@ -81,7 +81,7 @@ export default function (interpretador: any, globals: any) {
         })
     );
 
-    globals.definirVariavel(
+    global.definirVariavel(
         "ordenar",
         new FuncaoPadrao(1, function (objeto: Array<any>) {
             if (!Array.isArray(objeto)) {
@@ -106,7 +106,7 @@ export default function (interpretador: any, globals: any) {
         })
     );
 
-    globals.definirVariavel(
+    global.definirVariavel(
         "real",
         new FuncaoPadrao(1, function (valor: any) {
             if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor))
@@ -118,7 +118,7 @@ export default function (interpretador: any, globals: any) {
         })
     );
 
-    globals.definirVariavel(
+    global.definirVariavel(
         "tamanho",
         new FuncaoPadrao(1, function (objeto: any) {
             if (!isNaN(objeto)) {
@@ -158,14 +158,14 @@ export default function (interpretador: any, globals: any) {
         })
     );
 
-    globals.definirVariavel(
+    global.definirVariavel(
         "texto",
         new FuncaoPadrao(1, function (valor: any) {
             return `${valor}`;
         })
     );
 
-    globals.definirVariavel("exports", {});
+    global.definirVariavel("exports", {});
 
-    return globals;
+    return global;
 };

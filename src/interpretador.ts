@@ -1,10 +1,10 @@
 import tiposDeSimbolos from "./tiposDeSimbolos";
 import { Ambiente } from "./ambiente";
 import { Delegua } from "./delegua";
-import loadGlobalLib from "./lib/globalLib";
+import carregarBibliotecaGlobal from "./bibliotecas/bibliotecaGlobal";
 import * as caminho from "path";
 import * as fs from "fs";
-import checkStdLib from "./lib/importStdlib";
+import carregarModulo from "./bibliotecas/importarBiblioteca";
 
 import { Callable } from "./estruturas/callable";
 import { FuncaoPadrao } from "./estruturas/funcaoPadrao";
@@ -27,7 +27,7 @@ import {
 export class Interpretador {
     Delegua: any;
     diretorioBase: any;
-    globals: any;
+    global: any;
     ambiente: any;
     locais: any;
 
@@ -35,11 +35,11 @@ export class Interpretador {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
 
-        this.globals = new Ambiente();
-        this.ambiente = this.globals;
+        this.global = new Ambiente();
+        this.ambiente = this.global;
         this.locais = new Map();
 
-        this.globals = loadGlobalLib(this, this.globals);
+        this.global = carregarBibliotecaGlobal(this, this.global);
     }
 
     resolver(expr, depth) {
@@ -253,7 +253,7 @@ export class Interpretador {
         if (distancia !== undefined) {
             return this.ambiente.obterVariavelEm(distancia, nome.lexeme);
         } else {
-            return this.globals.obterVariavel(nome);
+            return this.global.obterVariavel(nome);
         }
     }
 
@@ -451,8 +451,8 @@ export class Interpretador {
         const pastaTotal = caminho.dirname(caminhoTotal);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
-        let dados: any = checkStdLib(caminhoRelativo);
-        if (dados !== null) return dados;
+        let dados: any = carregarModulo(caminhoRelativo);
+        if (dados) return dados;
 
         try {
             if (!fs.existsSync(caminhoTotal)) {
@@ -472,7 +472,7 @@ export class Interpretador {
 
         delegua.run(dados, interpretador);
 
-        let exportar = interpretador.globals.valores.exports;
+        let exportar = interpretador.global.valores.exports;
 
         const eDicionario = objeto => objeto.constructor === Object;
 

@@ -28,6 +28,5 @@ const carregarModulo = function (nomeDoModulo: any, caminhoDoModulo: any) {
 };
 
 export default function (nome: any) {
-    //TODO:Samuel: Precisa testar ainda.
     return carregarModulo(nome, nome);
 };

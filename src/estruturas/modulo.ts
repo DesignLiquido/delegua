@@ -1,8 +1,8 @@
 export class DeleguaModulo {
-    nome: any;
+    nome: string;
 
-    constructor(nome?: any) {
-        if (nome !== undefined) this.nome = nome;
+    constructor(nome?: string) {
+        if (nome) this.nome = nome;
     }
 
     toString() {
