@@ -1,4 +1,4 @@
-import { InterfaceSimbolo } from "./interfaces/simbolo";
+import { InterfaceSimbolo } from "./interfaces/indice";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
 const palavrasReservadas = {

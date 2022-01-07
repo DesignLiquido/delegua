@@ -1,4 +1,4 @@
-import { InterfacePilha } from "./interfaces/pilha";
+import { InterfacePilha } from "./interfaces/indice";
 
 class ResolverError extends Error {
     mensagem: String;

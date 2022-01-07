@@ -1,5 +1,5 @@
 import tiposDeSimbolos from "./tiposDeSimbolos";
-import { InterfaceSimbolo } from "./interfaces/simbolo";
+import { InterfaceSimbolo } from "./interfaces/indice";
 import { Assignsubscript, Atribuir, Binario, Call, Dicionario, Set as Conjunto, Get, Grouping, Literal, Logical, Subscript, Super, Unario, Variavel, Isto } from "./expr";
 import { Block, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "./stmt";
 
