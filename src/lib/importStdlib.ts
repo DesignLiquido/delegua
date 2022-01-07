@@ -1,9 +1,10 @@
-const ErroEmTempoDeExecucao = require("../erro").ErroEmTempoDeExecucao,
-    FuncaoPadrao = require("../estruturas/funcaoPadrao"),
-    DeleguaModulo = require("../estruturas/modulo");
+import { ErroEmTempoDeExecucao } from "../erro";
+import { FuncaoPadrao } from "../estruturas/funcaoPadrao";
+import { DeleguaModulo } from "../estruturas/modulo";
 
-const carregarModulo = function (nomeDoModulo, caminhoDoModulo) {
-    let dadosDoModulo;
+const carregarModulo = function (nomeDoModulo: any, caminhoDoModulo: any) {
+    let dadosDoModulo: any;
+
     try {
         dadosDoModulo = require(caminhoDoModulo);
     } catch (erro) {
@@ -26,7 +27,7 @@ const carregarModulo = function (nomeDoModulo, caminhoDoModulo) {
     return novoModulo;
 };
 
-module.exports = function (nome) {
+export default function (nome: any) {
     //TODO:Samuel: Precisa testar ainda.
     return carregarModulo(nome, nome);
 };

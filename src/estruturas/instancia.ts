@@ -1,12 +1,15 @@
-const ErroEmTempoDeExecucao = require("../erro").ErroEmTempoDeExecucao;
+import { ErroEmTempoDeExecucao } from "../erro";
 
-module.exports = class DeleguaInstancia {
+export class DeleguaInstancia {
+    criarClasse: any;
+    campos: any;
+
     constructor(criarClasse) {
         this.criarClasse = criarClasse;
         this.campos = {};
     }
 
-    get(nome) {
+    get(nome: any) {
         if (this.campos.hasOwnProperty(nome.lexeme)) {
             return this.campos[nome.lexeme];
         }
@@ -17,7 +20,7 @@ module.exports = class DeleguaInstancia {
         throw new ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
     }
 
-    set(nome, valor) {
+    set(nome: any, valor: any) {
         this.campos[nome.lexeme] = valor;
     }
 

@@ -1,13 +1,17 @@
-const Callable = require("./callable");
+import {Callable} from "./callable";
 
-module.exports = class FuncaoPadrao extends Callable {
+export class FuncaoPadrao extends Callable {
+    valorAridade: any;
+    funcao: any;
+    simbolo: any;
+
     constructor(valorAridade, funcao) {
         super();
         this.valorAridade = valorAridade;
         this.funcao = funcao;
     }
 
-    chamar(interpretador, argumentos, simbolo) {
+    chamar(interpretador: any, argumentos: any, simbolo: any) {
         this.simbolo = simbolo;
         return this.funcao.apply(this, argumentos);
     }

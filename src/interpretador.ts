@@ -1,30 +1,36 @@
-const tiposDeSimbolos = require("./tiposDeSimbolos"),
-    Ambiente = require("./ambiente"),
-    Delegua = require("./delegua"),
-    loadGlobalLib = require("./lib/globalLib"),
-    caminho = require("path"),
-    fs = require("fs"),
-    checkStdLib = require("./lib/importStdlib");
+import tiposDeSimbolos from "./tiposDeSimbolos";
+import { Ambiente } from "./ambiente";
+import { Delegua } from "./delegua";
+import loadGlobalLib from "./lib/globalLib";
+import * as caminho from "path";
+import * as fs from "fs";
+import checkStdLib from "./lib/importStdlib";
 
-const Callable = require("./estruturas/callable"),
-    FuncaoPadrao = require("./estruturas/funcaoPadrao"),
-    DeleguaClasse = require("./estruturas/classe"),
-    DeleguaFuncao = require("./estruturas/funcao"),
-    DeleguaInstancia = require("./estruturas/instancia"),
-    DeleguaModulo = require("./estruturas/modulo");
+import { Callable } from "./estruturas/callable";
+import { FuncaoPadrao } from "./estruturas/funcaoPadrao";
+import { DeleguaClasse } from "./estruturas/classe";
+import { DeleguaFuncao } from "./estruturas/funcao";
+import { DeleguaInstancia } from "./estruturas/instancia";
+import { DeleguaModulo } from "./estruturas/modulo";
 
-const {
+import {
     ErroEmTempoDeExecucao,
     ContinueException,
     BreakException,
     ReturnException
-} = require("./erro");
+} from "./erro";
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
  * e de fato executa a lógica de programação descrita no código.
  */
-module.exports = class Interpretador {
+export class Interpretador {
+    Delegua: any;
+    diretorioBase: any;
+    globals: any;
+    ambiente: any;
+    locais: any;
+
     constructor(Delegua, diretorioBase) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
@@ -224,7 +230,7 @@ module.exports = class Interpretador {
             return callee.chamar(this, argumentos, expr.callee.nome);
         }
 
-        return callee.call(this, argumentos);
+        return callee.chamar(this, argumentos);
     }
 
     visitAssignExpr(expr) {
@@ -443,7 +449,7 @@ module.exports = class Interpretador {
         const pastaTotal = caminho.dirname(caminhoTotal);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
-        let dados = checkStdLib(caminhoRelativo);
+        let dados: any = checkStdLib(caminhoRelativo);
         if (dados !== null) return dados;
 
         try {
@@ -459,7 +465,7 @@ module.exports = class Interpretador {
 
         dados = fs.readFileSync(caminhoTotal).toString();
 
-        const delegua = new Delegua.Delegua(nomeArquivo);
+        const delegua = new Delegua(nomeArquivo);
         const interpretador = new Interpretador(delegua, pastaTotal);
 
         delegua.run(dados, interpretador);
@@ -617,7 +623,7 @@ module.exports = class Interpretador {
 
             if (indice < 0 && objeto.length !== 0) {
                 while (indice < 0) {
-                    indice += obj.length;
+                    indice += objeto.length;
                 }
             }
 

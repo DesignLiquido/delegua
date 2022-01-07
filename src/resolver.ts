@@ -1,4 +1,6 @@
 class ResolverError extends Error {
+    mensagem: any;
+
     constructor(mensagem) {
         super(mensagem);
         this.mensagem = mensagem;
@@ -6,6 +8,8 @@ class ResolverError extends Error {
 }
 
 class Pilha {
+    pilha: any;
+
     constructor() {
         this.pilha = [];
     }
@@ -56,13 +60,20 @@ const LoopType = {
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
-module.exports = class Resolver {
+export class Resolver {
+    interpretador: any;
+    Delegua: any;
+    escopos: any;
+    FuncaoAtual: any;
+    ClasseAtual: any;
+    cicloAtual: any;
+
     constructor(interpretador, Delegua) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
         this.escopos = new Pilha();
 
-        this.FuncaoAtual = TipoFuncao.NUNHUM;
+        this.FuncaoAtual = TipoFuncao.NENHUM;
         this.ClasseAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
     }
@@ -273,9 +284,10 @@ module.exports = class Resolver {
     }
 
     visitReturnStmt(stmt) {
-        if (this.FuncaoAtual === TipoFuncao.NUNHUM) {
+        if (this.FuncaoAtual === TipoFuncao.NENHUM) {
             this.Delegua.error(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
+
         if (stmt.valor !== null) {
             if (this.FuncaoAtual === TipoFuncao.CONSTRUTOR) {
                 this.Delegua.error(

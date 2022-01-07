@@ -1,11 +1,11 @@
-const ErroEmTempoDeExecucao = require("../erro").ErroEmTempoDeExecucao,
-    DeleguaFuncao = require("../estruturas/funcao"),
-    DeleguaInstancia = require("../estruturas/instancia"),
-    FuncaoPadrao = require("../estruturas/funcaoPadrao"),
-    DeleguaClasse = require("../estruturas/classe");
+import { ErroEmTempoDeExecucao } from "../erro";
+import { DeleguaFuncao } from "../estruturas/funcao";
+import { DeleguaInstancia } from "../estruturas/instancia";
+import { FuncaoPadrao } from "../estruturas/funcaoPadrao";
+import { DeleguaClasse } from "../estruturas/classe";
 
 
-module.exports = function (interpretador, globals) {
+export default function (interpretador: any, globals: any) {
     // Retorna um número aleatório entre 0 e 1.
     globals.definirVariavel(
         "aleatorio",
@@ -18,7 +18,7 @@ module.exports = function (interpretador, globals) {
     // MIN(inclusivo) - MAX(exclusivo)
     globals.definirVariavel(
         "aleatorioEntre",
-        new FuncaoPadrao(1, function (min, max) {
+        new FuncaoPadrao(1, function (min: any, max: any) {
             if (typeof min !== 'number' || typeof max !== 'number') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -32,7 +32,7 @@ module.exports = function (interpretador, globals) {
 
     globals.definirVariavel(
         "inteiro",
-        new FuncaoPadrao(1, function (valor) {
+        new FuncaoPadrao(1, function (valor: any) {
             if (valor === undefined || valor === null) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -53,7 +53,7 @@ module.exports = function (interpretador, globals) {
 
     globals.definirVariavel(
         "mapear",
-        new FuncaoPadrao(1, function (array, callback) {
+        new FuncaoPadrao(1, function (array: any, callback: any) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -83,7 +83,7 @@ module.exports = function (interpretador, globals) {
 
     globals.definirVariavel(
         "ordenar",
-        new FuncaoPadrao(1, function (obj) {
+        new FuncaoPadrao(1, function (obj: any) {
             if (Array.isArray(obj) == false) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -108,7 +108,7 @@ module.exports = function (interpretador, globals) {
 
     globals.definirVariavel(
         "real",
-        new FuncaoPadrao(1, function (valor) {
+        new FuncaoPadrao(1, function (valor: any) {
             if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor))
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -120,7 +120,7 @@ module.exports = function (interpretador, globals) {
 
     globals.definirVariavel(
         "tamanho",
-        new FuncaoPadrao(1, function (objeto) {
+        new FuncaoPadrao(1, function (objeto: any) {
             if (!isNaN(objeto)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -160,7 +160,7 @@ module.exports = function (interpretador, globals) {
 
     globals.definirVariavel(
         "texto",
-        new FuncaoPadrao(1, function (valor) {
+        new FuncaoPadrao(1, function (valor: any) {
             return `${valor}`;
         })
     );

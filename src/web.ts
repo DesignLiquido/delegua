@@ -1,10 +1,15 @@
-const Lexer = require("./lexer");
-const Parser = require("./parser");
-const Resolver = require("./resolver");
-const Interpretador = require("./interpretador");
-const tokenTypes = require("./tokenTypes");
+import { Lexer } from "./lexer";
+import { Parser } from "./parser";
+import { Resolver } from "./resolver";
+import { Interpretador } from "./interpretador";
+import tiposDeSimbolos from "./tiposDeSimbolos";
 
-module.exports.Delegua = class Delegua {
+export class Delegua {
+  nomeArquivo: any;
+
+  teveErro: any;
+  teveErroEmTempoDeExecucao: any;
+
   constructor(nomeArquivo) {
     this.nomeArquivo = nomeArquivo;
 
@@ -26,7 +31,7 @@ module.exports.Delegua = class Delegua {
     if (this.teveErro === true) return;
 
     const resolver = new Resolver(interpretador, this);
-    resolver.resolve(declaracoes);
+    resolver.resolver(declaracoes);
 
     if (this.teveErro === true) return;
 
@@ -43,7 +48,7 @@ module.exports.Delegua = class Delegua {
   }
 
   erro(simbolo, mensagemDeErro) {
-    if (simbolo.tipo === tokenTypes.EOF) {
+    if (simbolo.tipo === tiposDeSimbolos.EOF) {
         this.reportar(simbolo.line, " no final", mensagemDeErro);
     } else {
         this.reportar(simbolo.line, ` no '${simbolo.lexeme}'`, mensagemDeErro);

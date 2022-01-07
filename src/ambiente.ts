@@ -1,20 +1,23 @@
-const ErroEmTempoDeExecucao = require("./erro").ErroEmTempoDeExecucao;
+import { ErroEmTempoDeExecucao } from "./erro";
 
-module.exports = class Ambiente {
-    constructor(enclosing) {
+export class Ambiente {
+    enclosing: any;
+    valores: any;
+
+    constructor(enclosing?: any) {
         this.enclosing = enclosing || null;
         this.valores = {};
     }
 
-    definirVariavel(nomeVariavel, valor) {
+    definirVariavel(nomeVariavel: any, valor: any) {
         this.valores[nomeVariavel] = valor;
     }
 
-    atribuirVariavelEm(distancia, nome, valor) {
+    atribuirVariavelEm(distancia: any, nome: any, valor: any) {
         this.ancestor(distancia).valores[nome.lexeme] = valor;
     }
 
-    atribuirVariavel(nome, valor) {
+    atribuirVariavel(nome: any, valor: any) {
         if (this.valores[nome.lexeme] !== undefined) {
             this.valores[nome.lexeme] = valor;
             return;
@@ -28,7 +31,7 @@ module.exports = class Ambiente {
         throw new ErroEmTempoDeExecucao(nome, "Variável não definida '" + nome.lexeme + "'.");
     }
 
-    ancestor(distancia) {
+    ancestor(distancia: any) {
         let ambiente = this;
         for (let i = 0; i < distancia; i++) {
             ambiente = ambiente.enclosing;
@@ -37,11 +40,11 @@ module.exports = class Ambiente {
         return ambiente;
     }
 
-    obterVariavelEm(distancia, nome) {
+    obterVariavelEm(distancia: any, nome: any) {
         return this.ancestor(distancia).valores[nome];
     }
 
-    obterVariavel(simbolo) {
+    obterVariavel(simbolo: any) {
         if (this.valores[simbolo.lexeme] !== undefined) {
             return this.valores[simbolo.lexeme];
         }
