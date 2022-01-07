@@ -496,6 +496,9 @@ module.exports = class Interpretador {
             for (let i = 0; i < declaracoes.length; i++) {
                 this.executar(declaracoes[i]);
             }
+        }
+        catch (erro) {
+            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
         } finally {
             this.ambiente = anterior;
         }
