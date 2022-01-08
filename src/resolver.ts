@@ -173,7 +173,7 @@ export class Resolver {
             }
         }
 
-        this.resolver(funcao.corpo);
+        this.resolver(funcao.funcao);
         this.finalDoEscopo();
 
         this.FuncaoAtual = enclosingFunc;
