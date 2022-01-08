@@ -153,13 +153,13 @@ export class Resolver {
         return null;
     }
 
-    visitAssignExpr(expr) {
+    visitAssignExpr(expr: any) {
         this.resolver(expr.valor);
         this.resolverLocal(expr, expr.nome);
         return null;
     }
 
-    resolverFuncao(funcao, funcType) {
+    resolverFuncao(funcao: any, funcType: any) {
         let enclosingFunc = this.FuncaoAtual;
         this.FuncaoAtual = funcType;
 

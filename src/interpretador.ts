@@ -184,7 +184,7 @@ export class Interpretador {
         return null;
     }
 
-    visitCallExpr(expr) {
+    visitCallExpr(expr: any) {
         let callee = this.avaliar(expr.callee);
 
         let argumentos = [];
@@ -210,6 +210,7 @@ export class Interpretador {
             parametros = [];
         }
 
+        // Isso aqui completa os parâmetros não preenchidos com nulos.
         if (argumentos.length < callee.aridade()) {
             let diferenca = callee.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
@@ -217,7 +218,7 @@ export class Interpretador {
             }
         }
 
-        else if (argumentos.length >= callee.aridade()) {
+        else  {
             if (parametros &&
                 parametros.length > 0 &&
                 parametros[parametros.length - 1]["tipo"] === "wildcard"
@@ -248,7 +249,7 @@ export class Interpretador {
         return valor;
     }
 
-    procurarVariavel(nome, expr) {
+    procurarVariavel(nome: any, expr: any) {
         const distancia = this.locais.get(expr);
         if (distancia !== undefined) {
             return this.ambiente.obterVariavelEm(distancia, nome.lexema);
@@ -257,11 +258,11 @@ export class Interpretador {
         }
     }
 
-    visitVariableExpr(expr) {
+    visitVariableExpr(expr: any) {
         return this.procurarVariavel(expr.nome, expr);
     }
 
-    visitExpressionStmt(stmt) {
+    visitExpressionStmt(stmt: any) {
         return this.avaliar(stmt.expressao);
     }
 
@@ -521,7 +522,7 @@ export class Interpretador {
         return null;
     }
 
-    visitVarStmt(stmt) {
+    visitVarStmt(stmt: any) {
         let valor = null;
         if (stmt.inicializador !== null) {
             valor = this.avaliar(stmt.inicializador);
@@ -791,14 +792,14 @@ export class Interpretador {
         return objeto.toString();
     }
 
-    executar(stmt, imprimirResultado = false) {
+    executar(stmt: any, imprimirResultado: boolean = false) {
         const resultado = stmt.aceitar(this);
         if (imprimirResultado) {
             console.log(this.stringify(resultado));
         }
     }
 
-    interpretar(declaracoes) {
+    interpretar(declaracoes: any) {
         try {
             if (declaracoes.length === 1) {
                 const eObjetoExpressao = declaracoes[0].constructor.name === 'Expressao'

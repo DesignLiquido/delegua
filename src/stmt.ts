@@ -10,7 +10,7 @@ export class Expressao extends Stmt {
         this.expressao = expressao;
     }
 
-    aceitar(visitor) {
+    aceitar(visitor: any) {
         return visitor.visitExpressionStmt(this)
     }
 }
@@ -19,13 +19,13 @@ export class Funcao extends Stmt {
     nome: string;
     funcao: any;
 
-    constructor(nome, funcao) {
+    constructor(nome: any, funcao: any) {
         super();
         this.nome = nome;
         this.funcao = funcao;
     }
 
-    aceitar(visitor) {
+    aceitar(visitor: any) {
         return visitor.visitFunctionStmt(this);
     }
 }
@@ -231,13 +231,13 @@ export class Var extends Stmt {
     nome: any;
     inicializador: any;
 
-    constructor(nome, inicializador) {
+    constructor(nome: any, inicializador: any) {
         super();
         this.nome = nome;
         this.inicializador = inicializador;
     }
 
-    aceitar(visitor) {
+    aceitar(visitor: any) {
         return visitor.visitVarStmt(this);
     }
 }

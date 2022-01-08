@@ -4,7 +4,8 @@
         "module": "commonjs",
         "target": "ES5",
         "rootDir": ".",
-        "allowJs": true
+        "allowJs": true,
+        "sourceMap": true
     },
     "exclude": ["babel.config.js", "dist/**/*"]
 }

@@ -54,7 +54,7 @@ export class Delegua {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    run(codigo, interpretador) {
+    run(codigo: any, interpretador: any) {
         const lexer = new Lexer(codigo, this);
         const simbolos = lexer.scan();
 

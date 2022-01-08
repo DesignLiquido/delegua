@@ -107,7 +107,7 @@ export class Literal extends Expr {
     }
 }
 
-export class Array extends Expr {
+export class Vetor extends Expr {
     valores: any;
 
     constructor(valores: any) {
