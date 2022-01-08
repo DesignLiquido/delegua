@@ -158,7 +158,7 @@ export class Tente extends Stmt {
     elseBranch: any;
     finallyBranch: any;
 
-    constructor(tryBranch, catchBranch, elseBranch, finallyBranch) {
+    constructor(tryBranch: any, catchBranch: any, elseBranch: any, finallyBranch: any) {
         super();
         this.tryBranch = tryBranch;
         this.catchBranch = catchBranch;
@@ -166,7 +166,7 @@ export class Tente extends Stmt {
         this.finallyBranch = finallyBranch;
     }
 
-    aceitar(visitor) {
+    aceitar(visitor: any) {
         return visitor.visitTryStmt(this);
     }
 }

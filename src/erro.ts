@@ -6,6 +6,7 @@ export class ErroEmTempoDeExecucao extends Error {
     super(mensagem);
     this.simbolo = simbolo;
     this.mensagem = mensagem;
+    Object.setPrototypeOf(this, ErroEmTempoDeExecucao.prototype);
   }
 };
 
@@ -19,5 +20,6 @@ export class ReturnException extends Error {
   constructor(valor: any) {
     super(valor);
     this.valor = valor;
+    Object.setPrototypeOf(this, ReturnException.prototype);
   }
 };

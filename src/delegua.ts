@@ -1,11 +1,14 @@
+import * as fs from "fs";
+import * as caminho from "path";
+import * as readline from "readline";
+
 import { Lexer } from "./lexer";
 import { Parser } from "./parser";
 import { Resolver } from "./resolver";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
-import * as fs from "fs";
-import * as caminho from "path";
-import * as readline from "readline";
+
+import { ReturnException } from "./erro";
 
 export class Delegua {
     nomeArquivo: any;
@@ -82,7 +85,7 @@ export class Delegua {
         this.teveErro = true;
     }
 
-    erro(simbolo, mensagemDeErro) {
+    erro(simbolo: any, mensagemDeErro: any) {
         if (simbolo.tipo === tiposDeSimbolos.EOF) {
             this.reportar(simbolo.line, " no final", mensagemDeErro);
         } else {
@@ -90,21 +93,21 @@ export class Delegua {
         }
     }
 
-    lexerError(linha, caractere, mensagem) {
+    lexerError(linha: any, caractere: any, mensagem: any) {
         this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
-    erroEmTempoDeExecucao(erro) {
-        const linha = erro.simbolo.linha;
-        if (erro.simbolo && linha) {
+    erroEmTempoDeExecucao(erro: any) {
+        if (erro & erro.simbolo && erro.simbolo.linha) {
             if (this.nomeArquivo)
                 console.error(
                     `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
                 );
             else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
-        } else {
+        } else if (!(erro instanceof ReturnException)) { // TODO: Ao se livrar de ReturnException, remover isto.
             console.error(`Erro: ${erro.mensagem}`);
         }
+        
         this.teveErroEmTempoDeExecucao = true;
     }
 };

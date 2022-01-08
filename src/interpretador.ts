@@ -99,12 +99,12 @@ export class Interpretador {
         return esquerda === direita;
     }
 
-    checkNumberOperands(operador, direita, esquerda) {
+    checkNumberOperands(operador: any, direita: any, esquerda: any) {
         if (typeof direita === "number" && typeof esquerda === "number") return;
         throw new ErroEmTempoDeExecucao(operador, "Operadores precisam ser números.");
     }
 
-    visitBinaryExpr(expr) {
+    visitBinaryExpr(expr: any) {
         let esquerda = this.avaliar(expr.esquerda);
         let direita = this.avaliar(expr.direita);
 
@@ -401,7 +401,7 @@ export class Interpretador {
         }
     }
 
-    visitTryStmt(stmt) {
+    visitTryStmt(stmt: any) {
         try {
             let sucesso = true;
             try {
@@ -511,13 +511,14 @@ export class Interpretador {
         }
         catch (erro) {
             // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
-            console.error(erro);
+            // console.error(erro);
+            throw erro;
         } finally {
             this.ambiente = anterior;
         }
     }
 
-    visitBlockStmt(stmt) {
+    visitBlockStmt(stmt: any) {
         this.executeBlock(stmt.declaracoes, new Ambiente(this.ambiente));
         return null;
     }
