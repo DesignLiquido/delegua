@@ -74,7 +74,6 @@ export class Resolver {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
         this.escopos = new Pilha();
-        this.inicioDoEscopo();
 
         this.FuncaoAtual = TipoFuncao.NENHUM;
         this.ClasseAtual = TipoClasse.NENHUM;
