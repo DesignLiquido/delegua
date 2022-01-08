@@ -50,14 +50,14 @@ export class Classe extends Stmt {
     superClasse: any;
     metodos: any;
 
-    constructor(nome, superClasse, metodos) {
+    constructor(nome: any, superClasse: any, metodos: any) {
         super();
         this.nome = nome;
         this.superClasse = superClasse;
         this.metodos = metodos;
     }
 
-    aceitar(visitor) {
+    aceitar(visitor: any) {
         return visitor.visitClassStmt(this);
     }
 }

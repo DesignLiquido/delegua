@@ -236,7 +236,7 @@ export class Interpretador {
         return callee.chamar(this, argumentos);
     }
 
-    visitAssignExpr(expr) {
+    visitAssignExpr(expr: any) {
         const valor = this.avaliar(expr.valor);
 
         const distancia = this.locais.get(expr);
@@ -677,7 +677,7 @@ export class Interpretador {
         this.ambiente.definirVariavel(stmt.nome.lexema, funcao);
     }
 
-    visitClassStmt(stmt) {
+    visitClassStmt(stmt: any) {
         let superClasse = null;
         if (stmt.superClasse !== null) {
             superClasse = this.avaliar(stmt.superClasse);
@@ -720,7 +720,7 @@ export class Interpretador {
         return null;
     }
 
-    visitGetExpr(expr) {
+    visitGetExpr(expr: any) {
         let objeto = this.avaliar(expr.objeto);
         if (objeto instanceof DeleguaInstancia) {
             return objeto.get(expr.nome) || null;
@@ -736,11 +736,11 @@ export class Interpretador {
         );
     }
 
-    visitThisExpr(expr) {
+    visitThisExpr(expr: any) {
         return this.procurarVariavel(expr.palavraChave, expr);
     }
 
-    visitDictionaryExpr(expr) {
+    visitDictionaryExpr(expr: any) {
         let dicionario = {};
         for (let i = 0; i < expr.chaves.length; i++) {
             dicionario[this.avaliar(expr.chaves[i])] = this.avaliar(expr.valores[i]);

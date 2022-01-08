@@ -34,7 +34,7 @@ export class DeleguaClasse extends Callable {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    call(interpretador: any, argumentos: any) {
+    chamar(interpretador: any, argumentos: any) {
         let instancia = new DeleguaInstancia(this);
 
         let inicializador = this.encontrarMetodo("construtor");
