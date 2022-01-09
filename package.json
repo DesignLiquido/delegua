@@ -4,7 +4,7 @@
   "description": "Linguagem de programação simples e moderna usando português",
   "main": "indice.js",
   "scripts": {
-    "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin",
+    "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
     "npm-publish": "npm publish --access public",
     "testes": "./bin/delegua testes/testes.egua",
     "testes-unitarios": "jest",
