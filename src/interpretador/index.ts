@@ -1,25 +1,25 @@
-import tiposDeSimbolos from "./tiposDeSimbolos";
-import { Ambiente } from "./ambiente";
-import { Delegua } from "./delegua";
-import carregarBibliotecaGlobal from "./bibliotecas/bibliotecaGlobal";
+import tiposDeSimbolos from "../tiposDeSimbolos";
+import { Ambiente } from "../ambiente";
+import { Delegua } from "../delegua";
+import carregarBibliotecaGlobal from "../bibliotecas/bibliotecaGlobal";
 import * as caminho from "path";
 import * as fs from "fs";
-import carregarModulo from "./bibliotecas/importarBiblioteca";
+import carregarModulo from "../bibliotecas/importarBiblioteca";
 
-import { Callable } from "./estruturas/callable";
-import { FuncaoPadrao } from "./estruturas/funcao-padrao";
-import { DeleguaClasse } from "./estruturas/classe";
-import { DeleguaFuncao } from "./estruturas/funcao";
-import { DeleguaInstancia } from "./estruturas/instancia";
-import { DeleguaModulo } from "./estruturas/modulo";
+import { Callable } from "../estruturas/callable";
+import { FuncaoPadrao } from "../estruturas/funcao-padrao";
+import { DeleguaClasse } from "../estruturas/classe";
+import { DeleguaFuncao } from "../estruturas/funcao";
+import { DeleguaInstancia } from "../estruturas/instancia";
+import { DeleguaModulo } from "../estruturas/modulo";
 
 import {
   ReturnException,
   BreakException,
   ContinueException,
   ErroEmTempoDeExecucao,
-} from "./excecoes";
-import { InterpretadorInterface } from "./interfaces";
+} from "../excecoes";
+import { InterpretadorInterface } from "../interfaces";
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
