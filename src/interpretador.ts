@@ -24,7 +24,7 @@ import {
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
  * e de fato executa a lógica de programação descrita no código.
  */
-export class Interpretador {
+export class Interpretador implements InterpretadorInterface {
   Delegua: any;
   diretorioBase: any;
   global: any;
@@ -56,18 +56,18 @@ export class Interpretador {
     }
   }
 
-  visitGroupingExpr(expr) {
+  visitGroupingExpr(expr: any) {
     return this.avaliar(expr.expressao);
   }
 
-  eVerdadeiro(objeto) {
+  eVerdadeiro(objeto: any) {
     if (objeto === null) return false;
     if (typeof objeto === "boolean") return Boolean(objeto);
 
     return true;
   }
 
-  checkNumberOperand(operador, operand) {
+  checkNumberOperand(operador: any, operand: any) {
     if (typeof operand === "number") return;
     throw new ErroEmTempoDeExecucao(
       operador,
@@ -75,7 +75,7 @@ export class Interpretador {
     );
   }
 
-  visitUnaryExpr(expr) {
+  visitUnaryExpr(expr: any) {
     const direita = this.avaliar(expr.direita);
 
     switch (expr.operador.tipo) {
@@ -91,7 +91,7 @@ export class Interpretador {
     return null;
   }
 
-  eIgual(esquerda, direita) {
+  eIgual(esquerda: any, direita: any) {
     if (esquerda === null && direita === null) return true;
     if (esquerda === null) return false;
 
@@ -272,7 +272,7 @@ export class Interpretador {
     return this.avaliar(stmt.expressao);
   }
 
-  visitLogicalExpr(expr) {
+  visitLogicalExpr(expr: any) {
     let esquerda = this.avaliar(expr.esquerda);
 
     if (expr.operador.tipo === tiposDeSimbolos.EM) {
@@ -300,7 +300,7 @@ export class Interpretador {
     return this.avaliar(expr.direita);
   }
 
-  visitIfStmt(stmt) {
+  visitIfStmt(stmt: any) {
     if (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
       this.executar(stmt.thenBranch);
       return null;
@@ -322,7 +322,7 @@ export class Interpretador {
     return null;
   }
 
-  visitForStmt(stmt) {
+  visitForStmt(stmt: any) {
     if (stmt.inicializador !== null) {
       this.avaliar(stmt.inicializador);
     }
@@ -351,7 +351,7 @@ export class Interpretador {
     return null;
   }
 
-  visitDoStmt(stmt) {
+  visitDoStmt(stmt: any) {
     do {
       try {
         this.executar(stmt.doBranch);
@@ -366,7 +366,7 @@ export class Interpretador {
     } while (this.eVerdadeiro(this.avaliar(stmt.whileCondition)));
   }
 
-  visitSwitchStmt(stmt) {
+  visitSwitchStmt(stmt: any) {
     let switchCondition = this.avaliar(stmt.condicao);
     let branches = stmt.branches;
     let defaultBranch = stmt.defaultBranch;
@@ -429,7 +429,7 @@ export class Interpretador {
     }
   }
 
-  visitWhileStmt(stmt) {
+  visitWhileStmt(stmt: any) {
     while (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
       try {
         this.executar(stmt.corpo);
@@ -446,7 +446,7 @@ export class Interpretador {
     return null;
   }
 
-  visitImportStmt(stmt) {
+  visitImportStmt(stmt: any) {
     const caminhoRelativo = this.avaliar(stmt.caminho);
     const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
     const pastaTotal = caminho.dirname(caminhoTotal);
@@ -494,7 +494,7 @@ export class Interpretador {
     return exportar;
   }
 
-  visitPrintStmt(stmt) {
+  visitPrintStmt(stmt: any) {
     const valor = this.avaliar(stmt.expressao);
     console.log(this.stringify(valor));
     return null;
@@ -512,7 +512,6 @@ export class Interpretador {
       }
     } catch (erro) {
       // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
-      // console.error(erro);
       throw erro;
     } finally {
       this.ambiente = anterior;
@@ -534,26 +533,26 @@ export class Interpretador {
     return null;
   }
 
-  visitContinueStmt(stmt) {
+  visitContinueStmt(stmt?: any) {
     throw new ContinueException();
   }
 
-  visitBreakStmt(stmt) {
+  visitBreakStmt(stmt?: any) {
     throw new BreakException();
   }
 
-  visitReturnStmt(stmt) {
+  visitReturnStmt(stmt: any) {
     let valor = null;
     if (stmt.valor != null) valor = this.avaliar(stmt.valor);
 
     throw new ReturnException(valor);
   }
 
-  visitFunctionExpr(expr) {
+  visitFunctionExpr(expr: any) {
     return new DeleguaFuncao(null, expr, this.ambiente, false);
   }
 
-  visitAssignsubscriptExpr(expr) {
+  visitAssignSubscriptExpr(expr: any) {
     let objeto = this.avaliar(expr.objeto);
     let indice = this.avaliar(expr.indice);
     let valor = this.avaliar(expr.valor);
@@ -586,7 +585,7 @@ export class Interpretador {
     }
   }
 
-  visitSubscriptExpr(expressao) {
+  visitSubscriptExpr(expressao: any) {
     const objeto = this.avaliar(expressao.callee);
 
     let indice = this.avaliar(expressao.indice);
@@ -648,7 +647,7 @@ export class Interpretador {
     }
   }
 
-  visitSetExpr(expr) {
+  visitSetExpr(expr: any) {
     const objeto = this.avaliar(expr.objeto);
 
     if (
@@ -670,7 +669,7 @@ export class Interpretador {
     }
   }
 
-  visitFunctionStmt(stmt) {
+  visitFunctionStmt(stmt: any) {
     const funcao = new DeleguaFuncao(
       stmt.nome.lexema,
       stmt.funcao,
@@ -751,7 +750,7 @@ export class Interpretador {
     return dicionario;
   }
 
-  visitArrayExpr(expr) {
+  visitArrayExpr(expr: any) {
     let valores = [];
     for (let i = 0; i < expr.valores.length; i++) {
       valores.push(this.avaliar(expr.valores[i]));
@@ -759,7 +758,7 @@ export class Interpretador {
     return valores;
   }
 
-  visitSuperExpr(expr) {
+  visitSuperExpr(expr: any) {
     const distancia = this.locais.get(expr);
     const superClasse = this.ambiente.obterVariavelEm(distancia, "super");
 
@@ -777,7 +776,7 @@ export class Interpretador {
     return metodo.bind(objeto);
   }
 
-  stringify(objeto) {
+  stringify(objeto: any) {
     if (objeto === null) return "nulo";
     if (typeof objeto === "boolean") {
       return objeto ? "verdadeiro" : "falso";
