@@ -32,7 +32,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   ambiente: any;
   locais: any;
 
-  constructor(Delegua, diretorioBase) {
+  constructor(Delegua: any, diretorioBase: any) {
     this.Delegua = Delegua;
     this.diretorioBase = diretorioBase;
 

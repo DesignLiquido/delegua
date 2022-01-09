@@ -17,20 +17,20 @@ export class Delegua {
     this.teveErroEmTempoDeExecucao = false;
   }
 
-  runBlock(codigo) {
+  runBlock(codigo: any) {
     const interpretador = new Interpretador(this, process.cwd());
 
-    const lexer = new Lexer(codigo, this);
-    const simbolos = lexer.scan();
+    const lexer = new Lexer(this);
+    const simbolos = lexer.scan(codigo);
 
     if (this.teveErro === true) return;
 
-    const analisar = new Parser(simbolos, this);
-    const declaracoes = analisar.analisar();
+    const analisar = new Parser(this);
+    const declaracoes = analisar.analisar(simbolos);
 
     if (this.teveErro === true) return;
 
-    const resolver = new Resolver(interpretador, this);
+    const resolver = new Resolver(this, interpretador);
     resolver.resolver(declaracoes);
 
     if (this.teveErro === true) return;
@@ -38,7 +38,7 @@ export class Delegua {
     interpretador.interpretar(declaracoes);
   }
 
-  reportar(linha, onde, mensagem) {
+  reportar(linha: any, onde: any, mensagem: any) {
     if (this.nomeArquivo)
       console.error(
         `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`
@@ -47,7 +47,7 @@ export class Delegua {
     this.teveErro = true;
   }
 
-  erro(simbolo, mensagemDeErro) {
+  erro(simbolo: any, mensagemDeErro: any) {
     if (simbolo.tipo === tiposDeSimbolos.EOF) {
       this.reportar(simbolo.line, " no final", mensagemDeErro);
     } else {

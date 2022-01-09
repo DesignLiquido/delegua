@@ -65,7 +65,7 @@ export class Lexer implements LexadorInterface {
     atual: any;
     linha: any;
 
-    constructor(codigo, Delegua) {
+    constructor(Delegua: any, codigo?: any) {
         this.Delegua = Delegua;
         this.codigo = codigo;
 
@@ -316,7 +316,11 @@ export class Lexer implements LexadorInterface {
         }
     }
 
-    scan() {
+    scan(codigo?: any) {
+        if (codigo) {
+            this.codigo = codigo;
+        }
+
         while (!this.eFinalDoCodigo()) {
             this.inicio = this.atual;
             this.scanToken();

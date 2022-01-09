@@ -37,7 +37,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     ClasseAtual: any;
     cicloAtual: any;
 
-    constructor(interpretador, Delegua) {
+    constructor(Delegua: any, interpretador: any) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
         this.escopos = new Pilha();

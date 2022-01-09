@@ -9,6 +9,12 @@ import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
 import { ReturnException } from "./excecoes";
+import { AvaliadorSintaticoInterface, InterpretadorInterface, LexadorInterface } from "./interfaces";
+import { ResolvedorInterface } from "./interfaces/resolvedor-interface";
+import { InterpretadorEguaClassico } from "./interpretador/dialetos/egua-classico";
+import { ResolverEguaClassico } from "./resolvedor/dialetos/egua-classico";
+import { ParserEguaClassico } from "./avaliador-sintatico/dialetos/egua-classico";
+import { LexerEguaClassico } from "./lexador/dialetos/egua-classico";
 
 export class Delegua {
     nomeArquivo: any;
@@ -16,23 +22,51 @@ export class Delegua {
     teveErroEmTempoDeExecucao: any;
     dialeto: string;
 
-    constructor(nomeArquivo) {
+    interpretador: InterpretadorInterface;
+    lexador: LexadorInterface;
+    avaliadorSintatico: AvaliadorSintaticoInterface;
+    resolvedor: ResolvedorInterface;
+
+    constructor(dialeto: string = 'delegua', nomeArquivo?: string) {
         this.nomeArquivo = nomeArquivo;
 
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
+
+        switch (dialeto) {
+            case 'egua':
+                this.interpretador = new InterpretadorEguaClassico(this, process.cwd());
+                this.lexador = new LexerEguaClassico(this);
+                this.avaliadorSintatico = new ParserEguaClassico(this);
+                this.resolvedor = new ResolverEguaClassico(this, this.interpretador);
+                console.log('Usando dialeto: Égua');
+                break;
+            case 'eguac':
+                this.interpretador = new Interpretador(this, process.cwd());
+                this.lexador = new Lexer(this);
+                this.avaliadorSintatico = new Parser(this);
+                this.resolvedor = new Resolver(this, this.interpretador);
+                console.log('Usando dialeto: ÉguaC');
+                break;
+            case 'eguap':
+                this.interpretador = new Interpretador(this, process.cwd());
+                this.lexador = new Lexer(this);
+                this.avaliadorSintatico = new Parser(this);
+                this.resolvedor = new Resolver(this, this.interpretador);
+                console.log('Usando dialeto: ÉguaP');
+                break;
+            default:
+                this.interpretador = new Interpretador(this, process.cwd());
+                this.lexador = new Lexer(this);
+                this.avaliadorSintatico = new Parser(this);
+                this.resolvedor = new Resolver(this, this.interpretador);
+                console.log('Usando dialeto: padrão');
+                break;
+        }
     }
 
     versao() {
         return JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version || ''
-    }
-
-    definirDialeto(dialeto){
-        this.dialeto = dialeto || 'delegua';
-    }
-
-    dialetoEDelegua(){
-        return this.dialeto === 'delegua'
     }
 
     iniciarDelegua() {
@@ -67,17 +101,17 @@ export class Delegua {
     }
 
     run(codigo: any, interpretador: any) {
-        const lexer = new Lexer(codigo, this);
-        const simbolos = lexer.scan();
+        const lexer = new Lexer(this);
+        const simbolos = lexer.scan(codigo);
 
         if (this.teveErro === true) return;
 
-        const analisar = new Parser(simbolos, this);
-        const declaracoes = analisar.analisar();
+        const analisar = new Parser(this);
+        const declaracoes = analisar.analisar(simbolos);
 
         if (this.teveErro === true) return;
 
-        const resolver = new Resolver(interpretador, this);
+        const resolver = new Resolver(this, interpretador);
         resolver.resolver(declaracoes);
 
         if (this.teveErro === true) return;
@@ -85,7 +119,7 @@ export class Delegua {
         interpretador.interpretar(declaracoes);
     }
 
-    reportar(linha, onde, mensagem) {
+    reportar(linha: any, onde: any, mensagem: any) {
         if (this.nomeArquivo)
             console.error(
                 `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`

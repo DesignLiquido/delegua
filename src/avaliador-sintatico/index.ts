@@ -52,7 +52,7 @@ export class Parser implements AvaliadorSintaticoInterface {
   atual: number;
   ciclos: number;
 
-  constructor(simbolos: SimboloInterface[], Delegua) {
+  constructor(Delegua: any, simbolos?: SimboloInterface[]) {
     this.simbolos = simbolos;
     this.Delegua = Delegua;
 
@@ -968,7 +968,11 @@ export class Parser implements AvaliadorSintaticoInterface {
     }
   }
 
-  analisar() {
+  analisar(simbolos?: SimboloInterface[]) {
+    if (simbolos) {
+      this.simbolos = simbolos;
+    }
+    
     const declaracoes = [];
     while (!this.estaNoFinal()) {
       declaracoes.push(this.declaracao());
