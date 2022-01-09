@@ -7,7 +7,7 @@ import * as fs from "fs";
 import carregarModulo from "./bibliotecas/importarBiblioteca";
 
 import { Callable } from "./estruturas/callable";
-import { FuncaoPadrao } from "./estruturas/funcaoPadrao";
+import { FuncaoPadrao } from "./estruturas/funcao-padrao";
 import { DeleguaClasse } from "./estruturas/classe";
 import { DeleguaFuncao } from "./estruturas/funcao";
 import { DeleguaInstancia } from "./estruturas/instancia";
