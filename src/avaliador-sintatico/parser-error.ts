@@ -1,1 +1,1 @@
-class ParserError extends Error {}
+export class ErroAvaliador extends Error {}

@@ -37,6 +37,10 @@ import {
   Var,
 } from "../declaracoes";
 
+import {
+  ErroAvaliador
+} from './parser-error';
+
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -80,7 +84,7 @@ export class Parser implements AvaliadorSintaticoInterface {
 
   erro(simbolo: any, mensagemDeErro: any) {
     this.Delegua.erro(simbolo, mensagemDeErro);
-    return new ParserError();
+    return new ErroAvaliador();
   }
 
   consumir(tipo: any, mensagemDeErro: any) {
@@ -698,7 +702,7 @@ export class Parser implements AvaliadorSintaticoInterface {
           });
         } else if (this.match(tiposDeSimbolos.PADRAO)) {
           if (defaultBranch !== null)
-            throw new ParserError(
+            throw new ErroAvaliador(
               "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
             );
 
