@@ -1,4 +1,4 @@
-import { InterfaceSimbolo } from "./interfaces/indice";
+import { SimboloInterface } from "./interfaces";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
 const palavrasReservadas = {
@@ -33,7 +33,7 @@ const palavrasReservadas = {
     herda: tiposDeSimbolos.HERDA
 };
 
-class Simbolo implements InterfaceSimbolo {
+class Simbolo implements SimboloInterface {
     lexema: string;
     tipo: string;
     literal: string;
