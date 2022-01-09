@@ -1,5 +1,5 @@
-import tiposDeSimbolos from "./tiposDeSimbolos";
-import { SimboloInterface } from "./interfaces";
+import tiposDeSimbolos from "../tiposDeSimbolos";
+import { AvaliadorSintaticoInterface, SimboloInterface } from "../interfaces";
 import {
   AssignSubscript,
   Atribuir,
@@ -17,7 +17,7 @@ import {
   Variavel,
   Vetor,
   Isto,
-} from "./construtos";
+} from "../construtos";
 import {
   Block,
   Classe,
@@ -35,15 +35,13 @@ import {
   Se,
   Tente,
   Var,
-} from "./declaracoes";
-
-class ParserError extends Error {}
+} from "../declaracoes";
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
-export class Parser {
+export class Parser implements AvaliadorSintaticoInterface {
   simbolos: SimboloInterface[];
   Delegua: any;
 
@@ -80,22 +78,22 @@ export class Parser {
     }
   }
 
-  erro(simbolo, mensagemDeErro) {
+  erro(simbolo: any, mensagemDeErro: any) {
     this.Delegua.erro(simbolo, mensagemDeErro);
     return new ParserError();
   }
 
-  consumir(tipo, mensagemDeErro) {
+  consumir(tipo: any, mensagemDeErro: any) {
     if (this.verificar(tipo)) return this.avancar();
     else throw this.erro(this.peek(), mensagemDeErro);
   }
 
-  verificar(tipo) {
+  verificar(tipo: any) {
     if (this.estaNoFinal()) return false;
     return this.peek().tipo === tipo;
   }
 
-  verificarProximo(tipo) {
+  verificarProximo(tipo: any) {
     if (this.estaNoFinal()) return false;
     return this.simbolos[this.atual + 1].tipo === tipo;
   }
@@ -108,7 +106,7 @@ export class Parser {
     return this.simbolos[this.atual - 1];
   }
 
-  seek(posicao) {
+  seek(posicao: number) {
     return this.simbolos[this.atual + posicao];
   }
 
@@ -121,7 +119,7 @@ export class Parser {
     return this.voltar();
   }
 
-  match(...argumentos) {
+  match(...argumentos: any[]) {
     for (let i = 0; i < argumentos.length; i++) {
       const tipoAtual = argumentos[i];
       if (this.verificar(tipoAtual)) {
@@ -210,7 +208,7 @@ export class Parser {
     throw this.erro(this.peek(), "Esperado expressão.");
   }
 
-  finalizarChamada(callee) {
+  finalizarChamada(callee: any) {
     const argumentos = [];
     if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
       do {
@@ -853,7 +851,7 @@ export class Parser {
     return new Var(nome, inicializador);
   }
 
-  funcao(kind) {
+  funcao(kind: any) {
     const nome = this.consumir(
       tiposDeSimbolos.IDENTIFICADOR,
       `Esperado nome ${kind}.`
@@ -861,7 +859,7 @@ export class Parser {
     return new Funcao(nome, this.corpoDaFuncao(kind));
   }
 
-  corpoDaFuncao(kind) {
+  corpoDaFuncao(kind: any) {
     this.consumir(
       tiposDeSimbolos.PARENTESE_ESQUERDO,
       `Esperado '(' após o nome ${kind}.`

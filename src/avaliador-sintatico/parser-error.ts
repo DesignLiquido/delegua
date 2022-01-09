@@ -1,0 +1,1 @@
+class ParserError extends Error {}

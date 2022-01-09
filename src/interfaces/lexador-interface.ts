@@ -1,4 +1,4 @@
-interface LexadorInterface {
+export interface LexadorInterface {
     Delegua: any;
     codigo: any;
     simbolos: any;

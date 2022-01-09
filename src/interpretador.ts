@@ -19,6 +19,7 @@ import {
   ContinueException,
   ErroEmTempoDeExecucao,
 } from "./excecoes";
+import { InterpretadorInterface } from "./interfaces";
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)

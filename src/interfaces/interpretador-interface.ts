@@ -1,4 +1,4 @@
-interface InterpretadorInterface {
+export interface InterpretadorInterface {
     Delegua: any;
     diretorioBase: any;
     global: any;

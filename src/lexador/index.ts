@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../interfaces";
+import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
 
 const palavrasReservadas = {
