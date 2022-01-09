@@ -1,5 +1,5 @@
-import tiposDeSimbolos from "../tiposDeSimbolos";
-import { AvaliadorSintaticoInterface, SimboloInterface } from "../interfaces";
+import tiposDeSimbolos from "../../tiposDeSimbolos";
+import { AvaliadorSintaticoInterface, SimboloInterface } from "../../interfaces";
 import {
   AssignSubscript,
   Atribuir,
@@ -17,7 +17,7 @@ import {
   Variavel,
   Vetor,
   Isto,
-} from "../construtos";
+} from "../../construtos";
 import {
   Block,
   Classe,
@@ -35,17 +35,17 @@ import {
   Se,
   Tente,
   Var,
-} from "../declaracoes";
+} from "../../declaracoes";
 
 import {
   ErroAvaliador
-} from './parser-error';
+} from '../parser-error';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
-export class Parser implements AvaliadorSintaticoInterface {
+export class ParserEguaClassico implements AvaliadorSintaticoInterface {
   simbolos: SimboloInterface[];
   Delegua: any;
 

@@ -7,28 +7,56 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "REPL (TypeScript)",
+            "name": "REPL (Delégua)",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}\\indice.ts"],
+            "args": ["${workspaceFolder}\\index.ts"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Testes (TypeScript)",
+            "name": "REPL (Égua Clássico)",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}\\indice.ts", "./testes/testes.egua"],
+            "args": ["${workspaceFolder}\\index.ts", "--dialeto", "egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Testes (Delégua)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\index.ts", "./testes/testes.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Testes (Égua Clássico)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\index.ts", "--dialeto", "egua", "./testes/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
         },

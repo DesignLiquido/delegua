@@ -1,5 +1,5 @@
-import { LexadorInterface, SimboloInterface } from "../interfaces";
-import tiposDeSimbolos from "../tiposDeSimbolos";
+import { LexadorInterface, SimboloInterface } from "../../interfaces";
+import tiposDeSimbolos from "../../tiposDeSimbolos";
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,
@@ -57,7 +57,7 @@ class Simbolo implements SimboloInterface {
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-export class Lexer implements LexadorInterface {
+export class LexerEguaClassico implements LexadorInterface {
     Delegua: any;
     codigo: any;
     simbolos: any;

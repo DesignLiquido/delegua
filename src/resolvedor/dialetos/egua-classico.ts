@@ -1,6 +1,6 @@
-import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
-import { Pilha } from "./Pilha";
-import { ResolverError } from "./ResolverError";
+import { ResolvedorInterface } from "../../interfaces/resolvedor-interface";
+import { Pilha } from "../Pilha";
+import { ResolverError } from "../ResolverError";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -29,7 +29,7 @@ const LoopType = {
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
-export class Resolver implements ResolvedorInterface {
+export class ResolverEguaClassico implements ResolvedorInterface {
     interpretador: any;
     Delegua: any;
     escopos: any;
