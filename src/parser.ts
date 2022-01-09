@@ -1,5 +1,5 @@
 import tiposDeSimbolos from "./tiposDeSimbolos";
-import { InterfaceSimbolo } from "./interfaces";
+import { SimboloInterface } from "./interfaces";
 import {
   AssignSubscript,
   Atribuir,
@@ -44,13 +44,13 @@ class ParserError extends Error {}
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
 export class Parser {
-  simbolos: InterfaceSimbolo[];
+  simbolos: SimboloInterface[];
   Delegua: any;
 
   atual: number;
   ciclos: number;
 
-  constructor(simbolos: InterfaceSimbolo[], Delegua) {
+  constructor(simbolos: SimboloInterface[], Delegua) {
     this.simbolos = simbolos;
     this.Delegua = Delegua;
 

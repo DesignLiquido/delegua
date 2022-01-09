@@ -42,11 +42,11 @@ export class Interpretador {
     this.global = carregarBibliotecaGlobal(this, this.global);
   }
 
-  resolver(expr, depth) {
+  resolver(expr: any, depth: any) {
     this.locais.set(expr, depth);
   }
 
-  visitLiteralExpr(expr) {
+  visitLiteralExpr(expr: any) {
     return expr.valor;
   }
 
