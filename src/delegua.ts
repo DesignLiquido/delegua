@@ -153,4 +153,4 @@ export class Delegua {
         
         this.teveErroEmTempoDeExecucao = true;
     }
-};
+}

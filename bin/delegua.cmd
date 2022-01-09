@@ -1,1 +1,1 @@
-ts-node.cmd index.ts %*
+node ..\index.js %*
