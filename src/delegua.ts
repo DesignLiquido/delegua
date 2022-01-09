@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as caminho from "path";
 import * as readline from "readline";
 
-import { Lexer } from "./lexer";
+import { Lexer } from "./lexador";
 import { Parser } from "./parser";
 import { Resolver } from "./resolver";
 import { Interpretador } from "./interpretador";

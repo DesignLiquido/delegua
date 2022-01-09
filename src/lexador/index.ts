@@ -1,5 +1,5 @@
-import { SimboloInterface } from "./interfaces";
-import tiposDeSimbolos from "./tiposDeSimbolos";
+import { SimboloInterface } from "../interfaces";
+import tiposDeSimbolos from "../tiposDeSimbolos";
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,
@@ -57,7 +57,7 @@ class Simbolo implements SimboloInterface {
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-export class Lexer {
+export class Lexer implements LexadorInterface {
     Delegua: any;
     codigo: any;
     simbolos: any;
@@ -76,15 +76,15 @@ export class Lexer {
         this.linha = 1;
     }
 
-    eDigito(caractere) {
+    eDigito(caractere: any) {
         return caractere >= "0" && caractere <= "9";
     }
 
-    eAlfabeto(caractere) {
+    eAlfabeto(caractere: any) {
         return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || caractere == "_";
     }
 
-    eAlfabetoOuDigito(caractere) {
+    eAlfabetoOuDigito(caractere: any) {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
@@ -97,12 +97,12 @@ export class Lexer {
         return this.codigo[this.atual - 1];
     }
 
-    adicionarSimbolo(tipo, literal = null) {
+    adicionarSimbolo(tipo: any, literal: any = null) {
         const texto = this.codigo.substring(this.inicio, this.atual);
         this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
     }
 
-    match(esperado) {
+    match(esperado: any) {
         if (this.eFinalDoCodigo()) {
             return false;
         }
@@ -129,7 +129,7 @@ export class Lexer {
         return this.codigo.charAt(this.atual - 1);
     }
 
-    analisarTexto(texto = '"') {
+    analisarTexto(texto: string = '"') {
         while (this.peek() !== texto && !this.eFinalDoCodigo()) {
             if (this.peek() === "\n") this.linha = +1;
             this.avancar();

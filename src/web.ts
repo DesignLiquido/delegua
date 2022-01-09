@@ -1,4 +1,4 @@
-import { Lexer } from "./lexer";
+import { Lexer } from "./lexador";
 import { Parser } from "./parser";
 import { Resolver } from "./resolver";
 import { Interpretador } from "./interpretador";
