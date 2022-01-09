@@ -1,6 +1,6 @@
 {
   "name": "@designliquido/delegua",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Linguagem de programação simples e moderna usando português",
   "main": "indice.js",
   "scripts": {
