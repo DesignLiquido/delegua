@@ -1,4 +1,4 @@
-import { InterfacePilha } from "./interfaces/indice";
+import { PilhaInterface } from "./interfaces";
 
 class ResolverError extends Error {
     mensagem: String;
@@ -9,7 +9,7 @@ class ResolverError extends Error {
     }
 }
 
-class Pilha implements InterfacePilha {
+class Pilha implements PilhaInterface {
     pilha: any[];
 
     constructor() {
