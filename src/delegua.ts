@@ -14,6 +14,7 @@ export class Delegua {
     nomeArquivo: any;
     teveErro: any;
     teveErroEmTempoDeExecucao: any;
+    dialeto: string;
 
     constructor(nomeArquivo) {
         this.nomeArquivo = nomeArquivo;
@@ -26,7 +27,15 @@ export class Delegua {
         return JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version || ''
     }
 
-    runPrompt() {
+    definirDialeto(dialeto){
+        this.dialeto = dialeto || 'delegua';
+    }
+
+    dialetoEDelegua(){
+        return this.dialeto === 'delegua'
+    }
+
+    iniciarDelegua() {
         const interpretador = new Interpretador(this, process.cwd());
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         const leiaLinha = readline.createInterface({
@@ -46,7 +55,7 @@ export class Delegua {
         });
     }
 
-    runfile(nomeArquivo) {
+    carregarArquivo(nomeArquivo: any) {
         this.nomeArquivo = caminho.basename(nomeArquivo);
         const interpretador = new Interpretador(this, process.cwd());
 
