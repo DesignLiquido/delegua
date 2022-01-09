@@ -1,4 +1,4 @@
-import { ErroEmTempoDeExecucao } from "../erro";
+import { ErroEmTempoDeExecucao } from "../excecoes";
 import { DeleguaFuncao } from "../estruturas/funcao";
 import { DeleguaInstancia } from "../estruturas/instancia";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";

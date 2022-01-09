@@ -8,7 +8,7 @@ import { Resolver } from "./resolver";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
-import { ReturnException } from "./erro";
+import { ReturnException } from "./excecoes";
 
 export class Delegua {
     nomeArquivo: any;

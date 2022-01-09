@@ -1,6 +1,6 @@
 import { Callable } from "./callable";
 import { Ambiente } from "../ambiente";
-import { ReturnException } from "../erro";
+import { ReturnException } from "../excecoes";
 
 export class DeleguaFuncao extends Callable {
     nome: any;
