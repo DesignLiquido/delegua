@@ -1,12 +1,12 @@
 import tiposDeSimbolos from "./tiposDeSimbolos";
-import { InterfaceSimbolo } from "./interfaces/indice";
+import { InterfaceSimbolo } from "./interfaces";
 import {
-  Assignsubscript,
+  AssignSubscript,
   Atribuir,
   Binario,
   Call,
   Dicionario,
-  Set as Conjunto,
+  Conjunto,
   Get,
   Grouping,
   Literal,
@@ -17,7 +17,7 @@ import {
   Variavel,
   Vetor,
   Isto,
-} from "./expr";
+} from "./construtos";
 import {
   Block,
   Classe,
@@ -35,7 +35,7 @@ import {
   Se,
   Tente,
   Var,
-} from "./stmt";
+} from "./declaracoes";
 
 class ParserError extends Error {}
 
@@ -439,7 +439,7 @@ export class Parser {
         const get = expr;
         return new Conjunto(get.objeto, get.nome, valor);
       } else if (expr instanceof Subscript) {
-        return new Assignsubscript(expr.callee, expr.indice, valor);
+        return new AssignSubscript(expr.callee, expr.indice, valor);
       }
       this.erro(igual, "Tarefa de atribuição inválida");
     }
