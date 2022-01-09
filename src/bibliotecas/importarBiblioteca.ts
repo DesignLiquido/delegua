@@ -1,5 +1,5 @@
-import { ErroEmTempoDeExecucao } from "../erro";
-import { FuncaoPadrao } from "../estruturas/funcaoPadrao";
+import { ErroEmTempoDeExecucao } from "../excecoes";
+import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaModulo } from "../estruturas/modulo";
 
 const carregarModulo = function (nomeDoModulo: any, caminhoDoModulo: any) {

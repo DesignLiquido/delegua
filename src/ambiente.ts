@@ -1,4 +1,4 @@
-import { ErroEmTempoDeExecucao } from "./erro";
+import { ErroEmTempoDeExecucao } from "./excecoes";
 
 export class Ambiente {
     enclosing: any;

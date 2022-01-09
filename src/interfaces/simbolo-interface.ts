@@ -1,4 +1,4 @@
-export interface InterfaceSimbolo {
+export interface SimboloInterface {
     lexema: string,
     tipo: string,
     literal: string,

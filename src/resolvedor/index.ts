@@ -1,39 +1,6 @@
-import { InterfacePilha } from "./interfaces/indice";
-
-class ResolverError extends Error {
-    mensagem: String;
-
-    constructor(mensagem) {
-        super(mensagem);
-        this.mensagem = mensagem;
-    }
-}
-
-class Pilha implements InterfacePilha {
-    pilha: any[];
-
-    constructor() {
-        this.pilha = [];
-    }
-
-    empilhar(item) {
-        this.pilha.push(item);
-    }
-
-    eVazio() {
-        return this.pilha.length === 0;
-    }
-
-    peek() {
-        if (this.eVazio()) throw new Error("Pilha vazia.");
-        return this.pilha[this.pilha.length - 1];
-    }
-
-    removerUltimo() {
-        if (this.eVazio()) throw new Error("Pilha vazia.");
-        return this.pilha.pop();
-    }
-}
+import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
+import { Pilha } from "./Pilha";
+import { ResolverError } from "./ResolverError";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -62,7 +29,7 @@ const LoopType = {
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
-export class Resolver {
+export class Resolver implements ResolvedorInterface {
     interpretador: any;
     Delegua: any;
     escopos: any;
@@ -80,12 +47,12 @@ export class Resolver {
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
-    definir(nome) {
+    definir(nome: any): void {
         if (this.escopos.eVazio()) return;
         this.escopos.peek()[nome.lexema] = true;
     }
 
-    declarar(nome) {
+    declarar(nome: any): void {
         if (this.escopos.eVazio()) return;
         let escopo = this.escopos.peek();
         if (escopo.hasOwnProperty(nome.lexema))
@@ -96,15 +63,15 @@ export class Resolver {
         escopo[nome.lexema] = false;
     }
 
-    inicioDoEscopo() {
+    inicioDoEscopo(): void {
         this.escopos.empilhar({});
     }
 
-    finalDoEscopo() {
+    finalDoEscopo(): void {
         this.escopos.removerUltimo();
     }
 
-    resolver(declaracoes) {
+    resolver(declaracoes: any): void {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
@@ -116,7 +83,7 @@ export class Resolver {
         }
     }
 
-    resolverLocal(expr, nome) {
+    resolverLocal(expr: any, nome: any): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
             if (this.escopos.pilha[i].hasOwnProperty(nome.lexema)) {
                 this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
@@ -124,14 +91,14 @@ export class Resolver {
         }
     }
 
-    visitBlockStmt(stmt) {
+    visitBlockStmt(stmt: any) : any {
         this.inicioDoEscopo();
         this.resolver(stmt.declaracoes);
         this.finalDoEscopo();
         return null;
     }
 
-    visitVariableExpr(expr) {
+    visitVariableExpr(expr: any): any {
         if (
             !this.escopos.eVazio() &&
             this.escopos.peek()[expr.nome.lexema] === false
@@ -144,7 +111,7 @@ export class Resolver {
         return null;
     }
 
-    visitVarStmt(stmt) {
+    visitVarStmt(stmt: any): any {
         this.declarar(stmt.nome);
         if (stmt.inicializador !== null) {
             this.resolver(stmt.inicializador);
@@ -153,13 +120,13 @@ export class Resolver {
         return null;
     }
 
-    visitAssignExpr(expr: any) {
+    visitAssignExpr(expr: any): any {
         this.resolver(expr.valor);
         this.resolverLocal(expr, expr.nome);
         return null;
     }
 
-    resolverFuncao(funcao: any, funcType: any) {
+    resolverFuncao(funcao: any, funcType: any): void {
         let enclosingFunc = this.FuncaoAtual;
         this.FuncaoAtual = funcType;
 
@@ -179,7 +146,7 @@ export class Resolver {
         this.FuncaoAtual = enclosingFunc;
     }
 
-    visitFunctionStmt(stmt) {
+    visitFunctionStmt(stmt: any): any {
         this.declarar(stmt.nome);
         this.definir(stmt.nome);
 
@@ -187,12 +154,12 @@ export class Resolver {
         return null;
     }
 
-    visitFunctionExpr(stmt) {
+    visitFunctionExpr(stmt: any): any {
         this.resolverFuncao(stmt, TipoFuncao.FUNCAO);
         return null;
     }
 
-    visitTryStmt(stmt) {
+    visitTryStmt(stmt: any): any {
         this.resolver(stmt.tryBranch);
 
         if (stmt.catchBranch !== null) this.resolver(stmt.catchBranch);
@@ -200,7 +167,7 @@ export class Resolver {
         if (stmt.finallyBranch !== null) this.resolver(stmt.finallyBranch);
     }
 
-    visitClassStmt(stmt) {
+    visitClassStmt(stmt: any): any {
         let enclosingClass = this.ClasseAtual;
         this.ClasseAtual = TipoClasse.CLASSE;
 
@@ -246,7 +213,7 @@ export class Resolver {
         return null;
     }
 
-    visitSuperExpr(expr) {
+    visitSuperExpr(expr: any): any {
         if (this.ClasseAtual === TipoClasse.NENHUM) {
             this.Delegua.error(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
         } else if (this.ClasseAtual !== TipoClasse.SUBCLASSE) {
@@ -260,17 +227,17 @@ export class Resolver {
         return null;
     }
 
-    visitGetExpr(expr) {
+    visitGetExpr(expr: any): any {
         this.resolver(expr.objeto);
         return null;
     }
 
-    visitExpressionStmt(stmt) {
+    visitExpressionStmt(stmt: any): any {
         this.resolver(stmt.expressao);
         return null;
     }
 
-    visitIfStmt(stmt) {
+    visitIfStmt(stmt: any): any {
         this.resolver(stmt.condicao);
         this.resolver(stmt.thenBranch);
 
@@ -283,15 +250,15 @@ export class Resolver {
         return null;
     }
 
-    visitImportStmt(stmt) {
+    visitImportStmt(stmt: any): void {
         this.resolver(stmt.caminho);
     }
 
-    visitPrintStmt(stmt) {
+    visitPrintStmt(stmt: any): void {
         this.resolver(stmt.expressao);
     }
 
-    visitReturnStmt(stmt) {
+    visitReturnStmt(stmt: any): any {
         if (this.FuncaoAtual === TipoFuncao.NENHUM) {
             this.Delegua.error(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
@@ -308,7 +275,7 @@ export class Resolver {
         return null;
     }
 
-    visitSwitchStmt(stmt) {
+    visitSwitchStmt(stmt: any): void {
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
@@ -324,13 +291,13 @@ export class Resolver {
         this.cicloAtual = enclosingType;
     }
 
-    visitWhileStmt(stmt) {
+    visitWhileStmt(stmt: any): any {
         this.resolver(stmt.condicao);
         this.resolver(stmt.corpo);
         return null;
     }
 
-    visitForStmt(stmt) {
+    visitForStmt(stmt: any): any {
         if (stmt.inicializador !== null) {
             this.resolver(stmt.inicializador);
         }
@@ -349,7 +316,7 @@ export class Resolver {
         return null;
     }
 
-    visitDoStmt(stmt) {
+    visitDoStmt(stmt: any): any {
         this.resolver(stmt.whileCondition);
 
         let enclosingType = this.cicloAtual;
@@ -359,13 +326,13 @@ export class Resolver {
         return null;
     }
 
-    visitBinaryExpr(expr) {
+    visitBinaryExpr(expr: any): any {
         this.resolver(expr.esquerda);
         this.resolver(expr.direita);
         return null;
     }
 
-    visitCallExpr(expr) {
+    visitCallExpr(expr: any): any {
         this.resolver(expr.callee);
 
         let argumentos = expr.argumentos;
@@ -376,12 +343,12 @@ export class Resolver {
         return null;
     }
 
-    visitGroupingExpr(expr) {
+    visitGroupingExpr(expr: any): any {
         this.resolver(expr.expressao);
         return null;
     }
 
-    visitDictionaryExpr(expr) {
+    visitDictionaryExpr(expr: any): any {
         for (let i = 0; i < expr.chaves.length; i++) {
             this.resolver(expr.chaves[i]);
             this.resolver(expr.valores[i]);
@@ -389,53 +356,53 @@ export class Resolver {
         return null;
     }
 
-    visitArrayExpr(expr) {
+    visitArrayExpr(expr: any): any {
         for (let i = 0; i < expr.valores.length; i++) {
             this.resolver(expr.valores[i]);
         }
         return null;
     }
 
-    visitSubscriptExpr(expr) {
+    visitSubscriptExpr(expr: any): any {
         this.resolver(expr.callee);
         this.resolver(expr.indice);
         return null;
     }
 
-    visitContinueStmt(stmt) {
+    visitContinueStmt(stmt?: any): any {
         return null;
     }
 
-    visitBreakStmt(stmt) {
+    visitBreakStmt(stmt?: any): any {
         return null;
     }
 
-    visitAssignsubscriptExpr(expr) {
+    visitAssignsubscriptExpr(expr?: any): any {
         return null;
     }
 
-    visitLiteralExpr(expr) {
+    visitLiteralExpr(expr?: any): any {
         return null;
     }
 
-    visitLogicalExpr(expr) {
+    visitLogicalExpr(expr?: any): any {
         this.resolver(expr.esquerda);
         this.resolver(expr.direita);
         return null;
     }
 
-    visitUnaryExpr(expr) {
+    visitUnaryExpr(expr?: any): any {
         this.resolver(expr.direita);
         return null;
     }
 
-    visitSetExpr(expr) {
+    visitSetExpr(expr?: any): any {
         this.resolver(expr.valor);
         this.resolver(expr.objeto);
         return null;
     }
 
-    visitThisExpr(expr) {
+    visitThisExpr(expr?: any): any {
         if (this.ClasseAtual == TipoClasse.NENHUM) {
             this.Delegua.error(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
         }

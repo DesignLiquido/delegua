@@ -1,6 +1,6 @@
-import { Lexer } from "./lexer";
-import { Parser } from "./parser";
-import { Resolver } from "./resolver";
+import { Lexer } from "./lexador";
+import { Parser } from "./avaliador-sintatico";
+import { Resolver } from "./resolvedor";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 

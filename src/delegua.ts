@@ -2,13 +2,13 @@ import * as fs from "fs";
 import * as caminho from "path";
 import * as readline from "readline";
 
-import { Lexer } from "./lexer";
-import { Parser } from "./parser";
-import { Resolver } from "./resolver";
+import { Lexer } from "./lexador";
+import { Parser } from "./avaliador-sintatico";
+import { Resolver } from "./resolvedor";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
-import { ReturnException } from "./erro";
+import { ReturnException } from "./excecoes";
 
 export class Delegua {
     nomeArquivo: any;
