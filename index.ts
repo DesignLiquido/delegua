@@ -1,19 +1,6 @@
 import { Delegua } from "./src/delegua";
 import { Command } from "commander";
 
-const dialetos = function (dialeto: string) {
-  switch (dialeto) {
-    case "--egua":
-      return "egua";
-    case "--eguac":
-      return "eguac";
-    case "--eguap":
-      return "eguap";
-    default:
-      return "delegua";
-  }
-};
-
 const principal = function () {
   const analisadorArgumentos = new Command();
   let nomeArquivo;
