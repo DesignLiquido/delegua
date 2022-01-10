@@ -326,7 +326,7 @@ export class Lexer implements LexadorInterface {
             this.scanToken();
         }
 
-        this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, "", null, this.linha));
+        // this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, "", null, this.linha));
 
         return this.simbolos;
     }

@@ -115,7 +115,11 @@ export class Parser implements AvaliadorSintaticoInterface {
   }
 
   estaNoFinal(): boolean {
-    return this.peek().tipo === tiposDeSimbolos.EOF;
+    if(this.peek() && (this.peek().tipo === tiposDeSimbolos.PONTO_E_VIRGULA)){
+      return true;
+    }
+
+    return Number(this.atual) === Number(this.simbolos.length);
   }
 
   avancar(): any {
@@ -466,20 +470,20 @@ export class Parser implements AvaliadorSintaticoInterface {
       "Esperado ')' após os valores em escreva."
     );
 
-    this.consumir(
-      tiposDeSimbolos.PONTO_E_VIRGULA,
-      "Esperado ';' após o valor."
-    );
+    // this.consumir(
+    //   tiposDeSimbolos.PONTO_E_VIRGULA,
+    //   "Esperado ';' após o valor."
+    // );
 
     return new Escreva(valor);
   }
 
   expressionStatement(): any {
     const expr = this.expressao();
-    this.consumir(
-      tiposDeSimbolos.PONTO_E_VIRGULA,
-      "Esperado ';' após expressão."
-    );
+    // this.consumir(
+    //   tiposDeSimbolos.PONTO_E_VIRGULA,
+    //   "Esperado ';' após expressão."
+    // );
     return new Expressao(expr);
   }
 
@@ -582,10 +586,10 @@ export class Parser implements AvaliadorSintaticoInterface {
         condicao = this.expressao();
       }
 
-      this.consumir(
-        tiposDeSimbolos.PONTO_E_VIRGULA,
-        "Esperado ';' após valores da condicional"
-      );
+      // this.consumir(
+      //   tiposDeSimbolos.PONTO_E_VIRGULA,
+      //   "Esperado ';' após valores da condicional"
+      // );
 
       let incrementar = null;
       if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -610,10 +614,10 @@ export class Parser implements AvaliadorSintaticoInterface {
       this.erro(this.voltar(), "'pausa' deve estar dentro de um loop.");
     }
 
-    this.consumir(
-      tiposDeSimbolos.PONTO_E_VIRGULA,
-      "Esperado ';' após 'pausa'."
-    );
+    // this.consumir(
+    //   tiposDeSimbolos.PONTO_E_VIRGULA,
+    //   "Esperado ';' após 'pausa'."
+    // );
     return new Pausa();
   }
 
@@ -625,10 +629,10 @@ export class Parser implements AvaliadorSintaticoInterface {
       );
     }
 
-    this.consumir(
-      tiposDeSimbolos.PONTO_E_VIRGULA,
-      "Esperado ';' após 'continua'."
-    );
+    // this.consumir(
+    //   tiposDeSimbolos.PONTO_E_VIRGULA,
+    //   "Esperado ';' após 'continua'."
+    // );
     return new Continua();
   }
 
@@ -640,10 +644,10 @@ export class Parser implements AvaliadorSintaticoInterface {
       valor = this.expressao();
     }
 
-    this.consumir(
-      tiposDeSimbolos.PONTO_E_VIRGULA,
-      "Esperado ';' após o retorno."
-    );
+    // this.consumir(
+    //   tiposDeSimbolos.PONTO_E_VIRGULA,
+    //   "Esperado ';' após o retorno."
+    // );
     return new Retorna(palavraChave, valor);
   }
 
@@ -847,10 +851,10 @@ export class Parser implements AvaliadorSintaticoInterface {
       inicializador = this.expressao();
     }
 
-    this.consumir(
-      tiposDeSimbolos.PONTO_E_VIRGULA,
-      "Esperado ';' após a declaração da variável."
-    );
+    // this.consumir(
+    //   tiposDeSimbolos.PONTO_E_VIRGULA,
+    //   "Esperado ';' após a declaração da variável."
+    // );
 
     return new Var(nome, inicializador);
   }

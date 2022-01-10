@@ -801,11 +801,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     return objeto.toString();
   }
 
-  executar(stmt: any, imprimirResultado: boolean = false) {
+  executar(stmt: any) {
     const resultado = stmt.aceitar(this);
-    if (imprimirResultado) {
-      console.log(this.stringify(resultado));
-    }
   }
 
   interpretar(declaracoes: any) {
