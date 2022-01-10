@@ -2,7 +2,7 @@
   "name": "@designliquido/delegua",
   "version": "0.1.3",
   "description": "Linguagem de programação simples e moderna usando português",
-  "main": "indice.js",
+  "main": "index.ts",
   "scripts": {
     "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
     "npm-publish": "npm publish --access public",
