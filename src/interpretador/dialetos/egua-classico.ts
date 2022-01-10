@@ -801,7 +801,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     return objeto.toString();
   }
 
-  executar(stmt: any, mostrarResultado: boolean): void {
+  executar(stmt: any, mostrarResultado: boolean = false): void {
     stmt.aceitar(this);
   }
 
