@@ -801,14 +801,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     return objeto.toString();
   }
 
-  executar(stmt: any) {
-    const resultado = stmt.aceitar(this);
+  executar(stmt: any, mostrarResultado: boolean): void {
+    stmt.aceitar(this);
   }
 
   interpretar(declaracoes: any) {
     try {
       for (let i = 0; i < declaracoes.length; i++) {
-        this.executar(declaracoes[i]);
+        this.executar(declaracoes[i], false);
       }
     } catch (erro) {
       this.Delegua.erroEmTempoDeExecucao(erro);

@@ -139,12 +139,7 @@ export class Interpretador implements InterpretadorInterface {
       case tiposDeSimbolos.ADICAO:
         if (typeof esquerda === "number" && typeof direita === "number") {
           return Number(esquerda) + Number(direita);
-        } else if (
-          typeof esquerda === "string" &&
-          typeof direita === "string"
-        ) {
-          return String(esquerda) + String(direita);
-        } else {
+        } else{
           return String(esquerda) + String(direita);
         }
 
@@ -798,9 +793,9 @@ export class Interpretador implements InterpretadorInterface {
     return objeto.toString();
   }
 
-  executar(stmt: any, imprimirResultado: boolean = false) {
+  executar(stmt: any, mostrarResultado: boolean = false): void {
     const resultado = stmt.aceitar(this);
-    if (imprimirResultado) {
+    if (mostrarResultado) {
       console.log(this.stringify(resultado));
     }
   }
@@ -811,7 +806,7 @@ export class Interpretador implements InterpretadorInterface {
         const eObjetoExpressao =
           declaracoes[0].constructor.name === "Expressao";
         if (eObjetoExpressao) {
-          this.executar(declaracoes[0], eObjetoExpressao);
+          this.executar(declaracoes[0], true);
           return;
         }
       }
