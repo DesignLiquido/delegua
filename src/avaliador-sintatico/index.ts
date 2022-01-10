@@ -115,7 +115,8 @@ export class Parser implements AvaliadorSintaticoInterface {
   }
 
   estaNoFinal(): boolean {
-    if(this.peek() && (this.peek().tipo === tiposDeSimbolos.PONTO_E_VIRGULA)){
+    const simboloAtual = this.peek();
+    if(simboloAtual && (simboloAtual.tipo === tiposDeSimbolos.PONTO_E_VIRGULA)){
       return true;
     }
 
