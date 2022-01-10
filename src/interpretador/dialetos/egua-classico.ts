@@ -144,9 +144,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
           typeof direita === "string"
         ) {
           return String(esquerda) + String(direita);
-        } else {
-          return String(esquerda) + String(direita);
         }
+
+        throw new ErroEmTempoDeExecucao(
+          expr.operador,
+          "Operadores precisam ser dois números ou duas strings."
+        );
 
       case tiposDeSimbolos.DIVISAO:
         this.checkNumberOperands(expr.operador, esquerda, direita);
@@ -807,14 +810,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
   interpretar(declaracoes: any) {
     try {
-      if (declaracoes.length === 1) {
-        const eObjetoExpressao =
-          declaracoes[0].constructor.name === "Expressao";
-        if (eObjetoExpressao) {
-          this.executar(declaracoes[0], eObjetoExpressao);
-          return;
-        }
-      }
       for (let i = 0; i < declaracoes.length; i++) {
         this.executar(declaracoes[i]);
       }

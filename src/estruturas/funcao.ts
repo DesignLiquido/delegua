@@ -16,16 +16,16 @@ export class DeleguaFuncao extends Callable {
         this.eInicializador = eInicializador;
     }
 
-    aridade() {
+    aridade(): any {
         return this.declaracao?.parametros?.length || 0;
     }
 
-    toString() {
+    toString(): string {
         if (this.nome === null) return "<função>";
         return `<função ${this.nome}>`;
     }
 
-    chamar(interpretador: any, argumentos: any) {
+    chamar(interpretador: any, argumentos: any): any {
         let ambiente = new Ambiente(this.closure);
         let parametros = this.declaracao.parametros;
 
@@ -57,7 +57,7 @@ export class DeleguaFuncao extends Callable {
         return null;
     }
 
-    bind(instancia: any) {
+    bind(instancia: any): any {
         let ambiente = new Ambiente(this.closure);
         ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(

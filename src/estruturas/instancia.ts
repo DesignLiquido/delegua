@@ -9,7 +9,7 @@ export class DeleguaInstancia {
         this.campos = {};
     }
 
-    get(nome: any) {
+    get(nome: any): any {
         if (this.campos.hasOwnProperty(nome.lexema)) {
             return this.campos[nome.lexema];
         }
@@ -20,11 +20,11 @@ export class DeleguaInstancia {
         throw new ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
     }
 
-    set(nome: any, valor: any) {
+    set(nome: any, valor: any): void {
         this.campos[nome.lexema] = valor;
     }
 
-    toString() {
+    toString(): string {
         return "<Objeto " + this.criarClasse.nome + ">";
     }
 }

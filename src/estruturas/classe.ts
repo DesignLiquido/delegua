@@ -13,7 +13,7 @@ export class DeleguaClasse extends Callable {
         this.metodos = metodos;
     }
 
-    encontrarMetodo(nome: any) {
+    encontrarMetodo(nome: any): any {
         if (this.metodos.hasOwnProperty(nome)) {
             return this.metodos[nome];
         }
@@ -25,16 +25,16 @@ export class DeleguaClasse extends Callable {
         return undefined;
     }
 
-    toString() {
+    toString(): string {
         return `<classe ${this.nome}>`;
     }
 
-    aridade() {
+    aridade(): any {
         let inicializador = this.encontrarMetodo("construtor");
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    chamar(interpretador: any, argumentos: any) {
+    chamar(interpretador: any, argumentos: any): any {
         let instancia = new DeleguaInstancia(this);
 
         let inicializador = this.encontrarMetodo("construtor");
