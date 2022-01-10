@@ -54,5 +54,5 @@ export interface AvaliadorSintaticoInterface {
     corpoDaFuncao(kind: any): any;
     declaracaoDeClasse(): any;
     declaracao(): any;
-    analisar(): any;
+    analisar(simbolos?: SimboloInterface[]): any
 }

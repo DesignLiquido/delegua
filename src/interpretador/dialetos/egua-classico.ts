@@ -478,7 +478,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     const delegua = new Delegua(nomeArquivo);
     const interpretador = new InterpretadorEguaClassico(delegua, pastaTotal);
 
-    delegua.run(dados, interpretador);
+    delegua.run(dados);
 
     let exportar = interpretador.global.valores.exports;
 

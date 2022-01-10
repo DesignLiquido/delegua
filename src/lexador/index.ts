@@ -316,7 +316,7 @@ export class Lexer implements LexadorInterface {
         }
     }
 
-    scan(codigo?: any) {
+    scan(codigo?: any): any {
         if (codigo) {
             this.codigo = codigo;
         }
