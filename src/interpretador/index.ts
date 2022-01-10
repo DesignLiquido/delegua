@@ -32,7 +32,7 @@ export class Interpretador implements InterpretadorInterface {
   ambiente: any;
   locais: any;
 
-  constructor(Delegua, diretorioBase) {
+  constructor(Delegua: any, diretorioBase: any) {
     this.Delegua = Delegua;
     this.diretorioBase = diretorioBase;
 
@@ -472,14 +472,14 @@ export class Interpretador implements InterpretadorInterface {
 
     dados = fs.readFileSync(caminhoTotal).toString();
 
-    const delegua = new Delegua(nomeArquivo);
-    const interpretador = new Interpretador(delegua, pastaTotal);
+    const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
+    // const interpretador = new Interpretador(delegua, pastaTotal);
 
-    delegua.run(dados, interpretador);
+    delegua.run(dados);
 
-    let exportar = interpretador.global.valores.exports;
+    let exportar = delegua.interpretador.global.valores.exports;
 
-    const eDicionario = (objeto) => objeto.constructor === Object;
+    const eDicionario = (objeto: any) => objeto.constructor === Object;
 
     if (eDicionario(exportar)) {
       let novoModulo = new DeleguaModulo();

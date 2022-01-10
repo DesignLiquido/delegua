@@ -33,7 +33,8 @@ export class Delegua {
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
 
-        switch (dialeto) {
+        this.dialeto = dialeto;
+        switch (this.dialeto) {
             case 'egua':
                 this.interpretador = new InterpretadorEguaClassico(this, process.cwd());
                 this.lexador = new LexerEguaClassico(this);

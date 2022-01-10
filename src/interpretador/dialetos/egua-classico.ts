@@ -475,14 +475,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     dados = fs.readFileSync(caminhoTotal).toString();
 
-    const delegua = new Delegua(nomeArquivo);
-    const interpretador = new InterpretadorEguaClassico(delegua, pastaTotal);
+    const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
+    // const interpretador = new InterpretadorEguaClassico(delegua, pastaTotal);
 
-    delegua.run(dados, interpretador);
+    delegua.run(dados);
 
-    let exportar = interpretador.global.valores.exports;
+    let exportar = delegua.interpretador.global.valores.exports;
 
-    const eDicionario = (objeto) => objeto.constructor === Object;
+    const eDicionario = (objeto: any) => objeto.constructor === Object;
 
     if (eDicionario(exportar)) {
       let novoModulo = new DeleguaModulo();
