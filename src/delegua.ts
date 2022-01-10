@@ -84,39 +84,35 @@ export class Delegua {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.run(linha, interpretador);
+            this.run(linha);
             leiaLinha.prompt();
         });
     }
 
     carregarArquivo(nomeArquivo: any) {
         this.nomeArquivo = caminho.basename(nomeArquivo);
-        const interpretador = new Interpretador(this, process.cwd());
 
         const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
-        this.run(dadosDoArquivo, interpretador);
+        this.run(dadosDoArquivo);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    run(codigo: any, interpretador: any) {
-        const lexer = new Lexer(this);
-        const simbolos = lexer.scan(codigo);
+    run(codigo: any) {
+        const simbolos = this.lexador.scan(codigo);
 
         if (this.teveErro === true) return;
 
-        const analisar = new Parser(this);
-        const declaracoes = analisar.analisar(simbolos);
+        const declaracoes = this.avaliadorSintatico.analisar(simbolos);
 
         if (this.teveErro === true) return;
 
-        const resolver = new Resolver(this, interpretador);
-        resolver.resolver(declaracoes);
+        this.resolvedor.resolver(declaracoes);
 
         if (this.teveErro === true) return;
 
-        interpretador.interpretar(declaracoes);
+        this.interpretador.interpretar(declaracoes);
     }
 
     reportar(linha: any, onde: any, mensagem: any) {
