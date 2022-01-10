@@ -5,7 +5,7 @@ export class DeleguaModulo {
         if (nome) this.nome = nome;
     }
 
-    toString() {
+    toString(): string {
         return this.nome ? `<modulo ${this.nome}>` : "<modulo>";
     }
 }

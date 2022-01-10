@@ -20,5 +20,5 @@ export interface LexadorInterface {
     analisarNumero(): void;
     identificarPalavraChave(): void;
     scanToken(): void;
-    scan(): any;
+    scan(codigo?: any): any;
 }

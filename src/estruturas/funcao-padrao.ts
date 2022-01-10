@@ -11,12 +11,12 @@ export class FuncaoPadrao extends Callable {
         this.funcao = funcao;
     }
 
-    chamar(interpretador: any, argumentos: any, simbolo: any) {
+    chamar(interpretador: any, argumentos: any, simbolo: any): any {
         this.simbolo = simbolo;
         return this.funcao.apply(this, argumentos);
     }
 
-    toString() {
+    toString(): string {
         return "<função>";
     }
 }
