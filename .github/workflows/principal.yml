@@ -18,5 +18,5 @@ jobs:
         sudo npm install
     - name: Testes da Linguagem
       run: | 
-        sudo chmod +x ./bin/delegua
+        sudo chmod +x ./bin/delegua-ts
         sudo npm run testes
