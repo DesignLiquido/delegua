@@ -71,7 +71,6 @@ export class Delegua {
     }
 
     iniciarDelegua() {
-        const interpretador = new Interpretador(this, process.cwd());
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         const leiaLinha = readline.createInterface({
             input: process.stdin,
