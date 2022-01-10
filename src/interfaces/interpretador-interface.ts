@@ -47,6 +47,6 @@ export interface InterpretadorInterface {
     visitArrayExpr(expr: any): any;
     visitSuperExpr(expr: any): any;
     stringify(objeto: any): any;
-    executar(stmt: any, mostrarResultado: boolean): void
+    executar(stmt: any, mostrarResultado: boolean): void;
     interpretar(declaracoes: any): void;
 }
