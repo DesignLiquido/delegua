@@ -317,6 +317,11 @@ export class Lexer implements LexadorInterface {
     }
 
     scan(codigo?: any) {
+        this.simbolos = [];
+        this.inicio = 0;
+        this.atual = 0;
+        this.linha = 1;
+        
         if (codigo) {
             this.codigo = codigo;
         }
