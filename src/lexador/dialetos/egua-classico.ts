@@ -39,7 +39,7 @@ class Simbolo implements SimboloInterface {
     literal: string;
     linha: string;
 
-    constructor(tipo, lexema, literal, linha) {
+    constructor(tipo: any, lexema: any, literal: any, linha: any) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
@@ -317,6 +317,11 @@ export class LexerEguaClassico implements LexadorInterface {
     }
 
     scan(codigo?: any) {
+        this.simbolos = [];
+        this.inicio = 0;
+        this.atual = 0;
+        this.linha = 1;
+        
         if (codigo) {
             this.codigo = codigo;
         }
