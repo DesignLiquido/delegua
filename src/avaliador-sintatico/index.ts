@@ -969,6 +969,9 @@ export class Parser implements AvaliadorSintaticoInterface {
   }
 
   analisar(simbolos?: SimboloInterface[]): any {
+    this.atual = 0;
+    this.ciclos = 0;
+    
     if (simbolos) {
       this.simbolos = simbolos;
     }
