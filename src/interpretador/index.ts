@@ -139,12 +139,7 @@ export class Interpretador implements InterpretadorInterface {
       case tiposDeSimbolos.ADICAO:
         if (typeof esquerda === "number" && typeof direita === "number") {
           return Number(esquerda) + Number(direita);
-        } else if (
-          typeof esquerda === "string" &&
-          typeof direita === "string"
-        ) {
-          return String(esquerda) + String(direita);
-        } else {
+        }else {
           return String(esquerda) + String(direita);
         }
 
