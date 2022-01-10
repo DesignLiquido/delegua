@@ -450,11 +450,14 @@ export class Interpretador implements InterpretadorInterface {
   visitImportStmt(stmt: any) {
     const caminhoRelativo = this.avaliar(stmt.caminho);
     const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-    const pastaTotal = caminho.dirname(caminhoTotal);
+    // const pastaTotal = caminho.dirname(caminhoTotal);
     const nomeArquivo = caminho.basename(caminhoTotal);
 
-    let dados: any = carregarModulo(caminhoRelativo);
-    if (dados) return dados;
+    let dados: any;
+    if (!caminhoTotal.endsWith('.egua')) {
+      dados = carregarModulo(caminhoRelativo);
+      if (dados) return dados;
+    }
 
     try {
       if (!fs.existsSync(caminhoTotal)) {
