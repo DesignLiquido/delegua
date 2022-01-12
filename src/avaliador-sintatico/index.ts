@@ -120,7 +120,7 @@ export class Parser implements AvaliadorSintaticoInterface {
       return true;
     }
 
-    return Number(this.atual) === Number(this.simbolos.length);
+    return this.atual === this.simbolos.length;
   }
 
   avancar(): any {
