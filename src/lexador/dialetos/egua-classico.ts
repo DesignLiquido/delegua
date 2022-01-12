@@ -204,18 +204,12 @@ export class LexerEguaClassico implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.COMMA);
                 break;
             case ".":
-                this.adicionarSimbolo(tiposDeSimbolos.DOT);
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
                 break;
             case "-":
-                if (this.match("=")) {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                }
                 this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 break;
             case "+":
-                if (this.match("=")) {
-                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
-                }
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 break;
             case ":":

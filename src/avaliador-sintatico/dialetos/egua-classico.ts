@@ -138,7 +138,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
   primario(): any {
     if (this.match(tiposDeSimbolos.SUPER)) {
       const palavraChave = this.voltar();
-      this.consumir(tiposDeSimbolos.DOT, "Esperado '.' após 'super'.");
+      this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
       const metodo = this.consumir(
         tiposDeSimbolos.IDENTIFICADOR,
         "Esperado nome do método da SuperClasse."
@@ -240,7 +240,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     while (true) {
       if (this.match(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
         expr = this.finalizarChamada(expr);
-      } else if (this.match(tiposDeSimbolos.DOT)) {
+      } else if (this.match(tiposDeSimbolos.PONTO)) {
         let nome = this.consumir(
           tiposDeSimbolos.IDENTIFICADOR,
           "Esperado nome do método após '.'."
@@ -427,10 +427,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
   atribuir(): any {
     const expr = this.ou();
 
-    if (
-      this.match(tiposDeSimbolos.IGUAL) ||
-      this.match(tiposDeSimbolos.MAIS_IGUAL)
-    ) {
+    if (this.match(tiposDeSimbolos.IGUAL)) {
       const igual = this.voltar();
       const valor = this.atribuir();
 
