@@ -837,10 +837,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
       "Esperado nome de variável."
     );
     let inicializador = null;
-    if (
-      this.match(tiposDeSimbolos.IGUAL) ||
-      this.match(tiposDeSimbolos.MAIS_IGUAL)
-    ) {
+    if (this.match(tiposDeSimbolos.IGUAL)) {
       inicializador = this.expressao();
     }
 
