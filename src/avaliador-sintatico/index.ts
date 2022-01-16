@@ -18,28 +18,12 @@ import {
   Vetor,
   Isto,
 } from "../construtos";
-import {
-  Block,
-  Classe,
-  Continua,
-  Enquanto,
-  Escolha,
-  Escreva,
-  Expressao,
-  Fazer,
-  Funcao,
-  Importar,
-  Para,
-  Pausa,
-  Retorna,
-  Se,
-  Tente,
-  Var,
-} from "../declaracoes";
 
 import {
   ErroAvaliador
-} from './parser-error';
+} from './erros-avaliador';
+
+import { Block, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "../declaracoes";
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
