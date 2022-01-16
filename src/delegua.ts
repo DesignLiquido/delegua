@@ -67,7 +67,12 @@ export class Delegua {
     }
 
     versao() {
-        return JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version || ''
+        try {
+            const manifesto = caminho.resolve(__dirname, 'package.json');
+            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.1';
+        } catch (error: any) {
+            return '0.1 (desenvolvimento)';
+        }        
     }
 
     iniciarDelegua() {
@@ -84,7 +89,7 @@ export class Delegua {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.run(linha);
+            this.executar(linha);
             leiaLinha.prompt();
         });
     }
@@ -93,13 +98,13 @@ export class Delegua {
         this.nomeArquivo = caminho.basename(nomeArquivo);
 
         const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
-        this.run(dadosDoArquivo);
+        this.executar(dadosDoArquivo);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    run(codigo: any) {
+    executar(codigo: any) {
         const simbolos = this.lexador.scan(codigo);
 
         if (this.teveErro === true) return;
@@ -132,7 +137,7 @@ export class Delegua {
         }
     }
 
-    lexerError(linha: any, caractere: any, mensagem: any) {
+    erroNoLexador(linha: any, caractere: any, mensagem: any) {
         this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
