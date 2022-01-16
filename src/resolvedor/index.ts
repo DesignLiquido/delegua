@@ -178,7 +178,7 @@ export class Resolver implements ResolvedorInterface {
             stmt.superClasse !== null &&
             stmt.nome.lexema === stmt.superClasse.nome.lexema
         ) {
-            this.Delegua.error("Uma classe não pode herdar de si mesma.");
+            this.Delegua.erro("Uma classe não pode herdar de si mesma.");
         }
 
         if (stmt.superClasse !== null) {
@@ -215,9 +215,9 @@ export class Resolver implements ResolvedorInterface {
 
     visitSuperExpr(expr: any): any {
         if (this.ClasseAtual === TipoClasse.NENHUM) {
-            this.Delegua.error(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
+            this.Delegua.erro(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
         } else if (this.ClasseAtual !== TipoClasse.SUBCLASSE) {
-            this.Delegua.error(
+            this.Delegua.erro(
                 expr.palavraChave,
                 "Não se usa 'super' numa classe sem SuperClasse."
             );
@@ -260,12 +260,12 @@ export class Resolver implements ResolvedorInterface {
 
     visitReturnStmt(stmt: any): any {
         if (this.FuncaoAtual === TipoFuncao.NENHUM) {
-            this.Delegua.error(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
+            this.Delegua.erro(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
 
         if (stmt.valor !== null) {
             if (this.FuncaoAtual === TipoFuncao.CONSTRUTOR) {
-                this.Delegua.error(
+                this.Delegua.erro(
                     stmt.palavraChave,
                     "Não pode retornar o valor do construtor."
                 );
@@ -404,7 +404,7 @@ export class Resolver implements ResolvedorInterface {
 
     visitThisExpr(expr?: any): any {
         if (this.ClasseAtual == TipoClasse.NENHUM) {
-            this.Delegua.error(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
+            this.Delegua.erro(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
         }
         this.resolverLocal(expr, expr.palavraChave);
         return null;
