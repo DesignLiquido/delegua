@@ -1,0 +1,29 @@
+// Recursão para o cálculo da sequência de fibonacci
+
+funcao fibonacci(n){
+  se(n==0){
+    retorna(0);
+ }senao{
+    se(n==1){
+      retorna(1);
+   }senao{
+    var n1 = n-1;
+    var n2 = n-2;
+    var f1 = fibonacci(n1);
+    var f2 = fibonacci(n2);
+    retorna(f1 + f2);}
+  }
+}
+
+var a = fibonacci(0);
+escreva(a);
+a = fibonacci(1);
+escreva(a);
+a = fibonacci(2);
+escreva(a);
+a = fibonacci(3);
+escreva(a);
+a = fibonacci(4);
+escreva(a);
+a = fibonacci(5);
+escreva(a);

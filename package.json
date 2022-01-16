@@ -7,6 +7,7 @@
     "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
     "npm-publish": "npm publish --access public",
     "testes": "./bin/delegua-ts testes/testes.egua",
+    "testes:egua-classico": "./bin/delegua-ts testes/dialetos/egua-classico/testes.egua",
     "testes-unitarios": "jest",
     "release": "release-it"
   },

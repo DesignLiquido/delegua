@@ -56,7 +56,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}\\index.ts", "--dialeto", "egua", "./testes/testes.egua"],
+            "args": ["${workspaceFolder}\\index.ts", "--dialeto", "egua", "./testes/dialetos/egua-classico/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
         },
