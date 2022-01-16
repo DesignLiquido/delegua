@@ -453,7 +453,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   visitImportStmt(stmt: any) {
     const caminhoRelativo = this.avaliar(stmt.caminho);
     const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-    const pastaTotal = caminho.dirname(caminhoTotal);
+    // const pastaTotal = caminho.dirname(caminhoTotal);
     const nomeArquivo = caminho.basename(caminhoTotal);
 
     let dados: any = carregarModulo(caminhoRelativo);
@@ -476,9 +476,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     dados = fs.readFileSync(caminhoTotal).toString();
 
     const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
-    // const interpretador = new InterpretadorEguaClassico(delegua, pastaTotal);
 
-    delegua.run(dados);
+    delegua.executar(dados);
 
     let exportar = delegua.interpretador.global.valores.exports;
 

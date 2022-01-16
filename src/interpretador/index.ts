@@ -473,7 +473,7 @@ export class Interpretador implements InterpretadorInterface {
     const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
     // const interpretador = new Interpretador(delegua, pastaTotal);
 
-    delegua.run(dados);
+    delegua.executar(dados);
 
     let exportar = delegua.interpretador.global.valores.exports;
 
