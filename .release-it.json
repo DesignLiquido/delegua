@@ -9,6 +9,7 @@
     "publishPath": "dist"
   },
   "hooks": {
+    "before:init": ["yarn empacotar"],
     "after:bump": "copyfiles -V ./package.json ./dist"
   }
 }
