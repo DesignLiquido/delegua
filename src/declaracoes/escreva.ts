@@ -10,6 +10,6 @@ export class Escreva extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitPrintStmt(this);
+        return visitor.visitarExpressaoEscreva(this);
     }
 }

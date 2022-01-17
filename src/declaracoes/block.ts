@@ -10,6 +10,6 @@ export class Block extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitBlockStmt(this);
+        return visitor.visitarExpressaoBloco(this);
     }
 }

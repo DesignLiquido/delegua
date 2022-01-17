@@ -12,6 +12,6 @@ export class Funcao extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitFunctionExpr(this);
+        return visitor.visitarExpressaoDeleguaFuncao(this);
     }
 }

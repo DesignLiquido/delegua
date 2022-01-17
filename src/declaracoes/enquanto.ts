@@ -12,6 +12,6 @@ export class Enquanto extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitWhileStmt(this);
+        return visitor.visitarExpressaoEnquanto(this);
     }
 }

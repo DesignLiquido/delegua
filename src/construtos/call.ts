@@ -14,6 +14,6 @@ export class Call extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitCallExpr(this);
+        return visitor.visitarExpressaoDeChamada(this);
     }
 }

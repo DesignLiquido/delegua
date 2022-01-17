@@ -12,6 +12,6 @@ export class Unario extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitUnaryExpr(this);
+        return visitor.visitarExpressaoUnaria(this);
     }
 }

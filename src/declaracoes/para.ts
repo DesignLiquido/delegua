@@ -16,6 +16,6 @@ export class Para extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitForStmt(this);
+        return visitor.visitarExpressaoPara(this);
     }
 }

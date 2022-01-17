@@ -12,6 +12,6 @@ export class Get extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitGetExpr(this);
+        return visitor.visitarExpressaoObter(this);
     }
 }

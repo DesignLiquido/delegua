@@ -91,14 +91,14 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         }
     }
 
-    visitBlockStmt(stmt: any) : any {
+    visitarExpressaoBloco(stmt: any) : any {
         this.inicioDoEscopo();
         this.resolver(stmt.declaracoes);
         this.finalDoEscopo();
         return null;
     }
 
-    visitVariableExpr(expr: any): any {
+    visitarExpressaoDeVariavel(expr: any): any {
         if (
             !this.escopos.eVazio() &&
             this.escopos.peek()[expr.nome.lexema] === false
@@ -111,7 +111,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitVarStmt(stmt: any): any {
+    visitarExpressaoVar(stmt: any): any {
         this.declarar(stmt.nome);
         if (stmt.inicializador !== null) {
             this.resolver(stmt.inicializador);
@@ -120,7 +120,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitAssignExpr(expr: any): any {
+    visitarExpressaoDeAtribuicao(expr: any): any {
         this.resolver(expr.valor);
         this.resolverLocal(expr, expr.nome);
         return null;
@@ -146,7 +146,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         this.FuncaoAtual = enclosingFunc;
     }
 
-    visitFunctionStmt(stmt: any): any {
+    visitarExpressaoFuncao(stmt: any): any {
         this.declarar(stmt.nome);
         this.definir(stmt.nome);
 
@@ -154,12 +154,12 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitFunctionExpr(stmt: any): any {
+    visitarExpressaoDeleguaFuncao(stmt: any): any {
         this.resolverFuncao(stmt, TipoFuncao.FUNCAO);
         return null;
     }
 
-    visitTryStmt(stmt: any): any {
+    visitarExpressaoTente(stmt: any): any {
         this.resolver(stmt.tryBranch);
 
         if (stmt.catchBranch !== null) this.resolver(stmt.catchBranch);
@@ -167,7 +167,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         if (stmt.finallyBranch !== null) this.resolver(stmt.finallyBranch);
     }
 
-    visitClassStmt(stmt: any): any {
+    visitarExpressaoClasse(stmt: any): any {
         let enclosingClass = this.ClasseAtual;
         this.ClasseAtual = TipoClasse.CLASSE;
 
@@ -213,7 +213,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitSuperExpr(expr: any): any {
+    visitarExpressaoSuper(expr: any): any {
         if (this.ClasseAtual === TipoClasse.NENHUM) {
             this.Delegua.erro(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
         } else if (this.ClasseAtual !== TipoClasse.SUBCLASSE) {
@@ -227,17 +227,17 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitGetExpr(expr: any): any {
+    visitarExpressaoObter(expr: any): any {
         this.resolver(expr.objeto);
         return null;
     }
 
-    visitExpressionStmt(stmt: any): any {
+    visitarDeclaracaoDeExpressao(stmt: any): any {
         this.resolver(stmt.expressao);
         return null;
     }
 
-    visitIfStmt(stmt: any): any {
+    visitarExpressaoSe(stmt: any): any {
         this.resolver(stmt.condicao);
         this.resolver(stmt.thenBranch);
 
@@ -250,15 +250,15 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitImportStmt(stmt: any): void {
+    visitarExpressaoImportar(stmt: any): void {
         this.resolver(stmt.caminho);
     }
 
-    visitPrintStmt(stmt: any): void {
+    visitarExpressaoEscreva(stmt: any): void {
         this.resolver(stmt.expressao);
     }
 
-    visitReturnStmt(stmt: any): any {
+    visitarExpressaoRetornar(stmt: any): any {
         if (this.FuncaoAtual === TipoFuncao.NENHUM) {
             this.Delegua.erro(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
@@ -275,7 +275,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitSwitchStmt(stmt: any): void {
+    visitarExpressaoEscolha(stmt: any): void {
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
@@ -291,13 +291,13 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         this.cicloAtual = enclosingType;
     }
 
-    visitWhileStmt(stmt: any): any {
+    visitarExpressaoEnquanto(stmt: any): any {
         this.resolver(stmt.condicao);
         this.resolver(stmt.corpo);
         return null;
     }
 
-    visitForStmt(stmt: any): any {
+    visitarExpressaoPara(stmt: any): any {
         if (stmt.inicializador !== null) {
             this.resolver(stmt.inicializador);
         }
@@ -316,7 +316,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitDoStmt(stmt: any): any {
+    visitarExpressaoFazer(stmt: any): any {
         this.resolver(stmt.whileCondition);
 
         let enclosingType = this.cicloAtual;
@@ -326,13 +326,13 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitBinaryExpr(expr: any): any {
+    visitarExpressaoBinaria(expr: any): any {
         this.resolver(expr.esquerda);
         this.resolver(expr.direita);
         return null;
     }
 
-    visitCallExpr(expr: any): any {
+    visitarExpressaoDeChamada(expr: any): any {
         this.resolver(expr.callee);
 
         let argumentos = expr.argumentos;
@@ -343,12 +343,12 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitGroupingExpr(expr: any): any {
+    visitarExpressaoAgrupamento(expr: any): any {
         this.resolver(expr.expressao);
         return null;
     }
 
-    visitDictionaryExpr(expr: any): any {
+    visitarExpressaoDicionario(expr: any): any {
         for (let i = 0; i < expr.chaves.length; i++) {
             this.resolver(expr.chaves[i]);
             this.resolver(expr.valores[i]);
@@ -356,53 +356,53 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitArrayExpr(expr: any): any {
+    visitarExpressaoVetor(expr: any): any {
         for (let i = 0; i < expr.valores.length; i++) {
             this.resolver(expr.valores[i]);
         }
         return null;
     }
 
-    visitSubscriptExpr(expr: any): any {
+    visitarExpressaoVetorIndice(expr: any): any {
         this.resolver(expr.callee);
         this.resolver(expr.indice);
         return null;
     }
 
-    visitContinueStmt(stmt?: any): any {
+    visitarExpressaoContinua(stmt?: any): any {
         return null;
     }
 
-    visitBreakStmt(stmt?: any): any {
+    visitarExpressaoPausa(stmt?: any): any {
         return null;
     }
 
-    visitAssignsubscriptExpr(expr?: any): any {
+    visitarExpressaoAtribuicaoSobrescrita(expr?: any): any {
         return null;
     }
 
-    visitLiteralExpr(expr?: any): any {
+    visitarExpressaoLiteral(expr?: any): any {
         return null;
     }
 
-    visitLogicalExpr(expr?: any): any {
+    visitarExpressaoLogica(expr?: any): any {
         this.resolver(expr.esquerda);
         this.resolver(expr.direita);
         return null;
     }
 
-    visitUnaryExpr(expr?: any): any {
+    visitarExpressaoUnaria(expr?: any): any {
         this.resolver(expr.direita);
         return null;
     }
 
-    visitSetExpr(expr?: any): any {
+    visitarExpressaoDefinir(expr?: any): any {
         this.resolver(expr.valor);
         this.resolver(expr.objeto);
         return null;
     }
 
-    visitThisExpr(expr?: any): any {
+    visitarExpressaoIsto(expr?: any): any {
         if (this.ClasseAtual == TipoClasse.NENHUM) {
             this.Delegua.erro(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
         }

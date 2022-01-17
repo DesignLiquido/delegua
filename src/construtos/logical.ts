@@ -14,6 +14,6 @@ export class Logical extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitLogicalExpr(this);
+        return visitor.visitarExpressaoLogica(this);
     }
 }

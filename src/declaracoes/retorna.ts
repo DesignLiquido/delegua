@@ -12,6 +12,6 @@ export class Retorna extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitReturnStmt(this);
+        return visitor.visitarExpressaoRetornar(this);
     }
 }

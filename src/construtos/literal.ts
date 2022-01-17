@@ -10,6 +10,6 @@ export class Literal extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitLiteralExpr(this);
+        return visitor.visitarExpressaoLiteral(this);
     }
 }

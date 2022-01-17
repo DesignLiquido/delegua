@@ -12,6 +12,6 @@ export class Dicionario extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitDictionaryExpr(this);
+        return visitor.visitarExpressaoDicionario(this);
     }
 }

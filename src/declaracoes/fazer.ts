@@ -12,6 +12,6 @@ export class Fazer extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitDoStmt(this);
+        return visitor.visitarExpressaoFazer(this);
     }
 }

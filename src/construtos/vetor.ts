@@ -10,6 +10,6 @@ export class Vetor extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitArrayExpr(this);
+        return visitor.visitarExpressaoVetor(this);
     }
 }

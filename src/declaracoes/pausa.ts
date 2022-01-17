@@ -7,6 +7,6 @@ export class Pausa extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitBreakStmt(this);
+        return visitor.visitarExpressaoPausa(this);
     }
 }

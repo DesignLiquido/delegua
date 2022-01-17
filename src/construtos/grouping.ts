@@ -10,6 +10,6 @@ export class Grouping extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitGroupingExpr(this);
+        return visitor.visitarExpressaoAgrupamento(this);
     }
 }

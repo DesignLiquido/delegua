@@ -14,6 +14,6 @@ export class Classe extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitClassStmt(this);
+        return visitor.visitarExpressaoClasse(this);
     }
 }

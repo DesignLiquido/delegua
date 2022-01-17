@@ -14,6 +14,6 @@ export class Subscript extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitSubscriptExpr(this);
+        return visitor.visitarExpressaoVetorIndice(this);
     }
 }

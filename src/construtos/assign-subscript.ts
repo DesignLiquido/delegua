@@ -14,6 +14,6 @@ export class AssignSubscript extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitAssignsubscriptExpr(this);
+        return visitor.visitarExpressaoAtribuicaoSobrescrita(this);
     }
 }

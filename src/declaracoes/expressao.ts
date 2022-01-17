@@ -10,6 +10,6 @@ export class Expressao extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitExpressionStmt(this);
+        return visitor.visitarDeclaracaoDeExpressao(this);
     }
 }

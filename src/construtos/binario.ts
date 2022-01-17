@@ -14,6 +14,6 @@ export class Binario extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitBinaryExpr(this);
+        return visitor.visitarExpressaoBinaria(this);
     }
 }

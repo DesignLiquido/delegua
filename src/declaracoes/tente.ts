@@ -16,6 +16,6 @@ export class Tente extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitTryStmt(this);
+        return visitor.visitarExpressaoTente(this);
     }
 }

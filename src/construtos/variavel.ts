@@ -10,6 +10,6 @@ export class Variavel extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitVariableExpr(this);
+        return visitor.visitarExpressaoDeVariavel(this);
     }
 }

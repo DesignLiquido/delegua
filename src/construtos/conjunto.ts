@@ -14,6 +14,6 @@ export class Conjunto extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitSetExpr(this);
+        return visitor.visitarExpressaoDefinir(this);
     }
 }

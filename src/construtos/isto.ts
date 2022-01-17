@@ -10,6 +10,6 @@ export class Isto extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitThisExpr(this);
+        return visitor.visitarExpressaoIsto(this);
     }
 }

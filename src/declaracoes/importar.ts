@@ -12,6 +12,6 @@ export class Importar extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitImportStmt(this);
+        return visitor.visitarExpressaoImportar(this);
     }
 }

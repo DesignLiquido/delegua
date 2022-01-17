@@ -7,6 +7,6 @@ export class Continua extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitContinueStmt(this);
+        return visitor.visitarExpressaoContinua(this);
     }
 }

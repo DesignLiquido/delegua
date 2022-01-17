@@ -14,6 +14,6 @@ export class Escolha extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitSwitchStmt(this);
+        return visitor.visitarExpressaoEscolha(this);
     }
 }

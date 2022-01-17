@@ -12,6 +12,6 @@ export class Super extends Expr {
     }
 
     aceitar(visitor: any) {
-        return visitor.visitSuperExpr(this);
+        return visitor.visitarExpressaoSuper(this);
     }
 }

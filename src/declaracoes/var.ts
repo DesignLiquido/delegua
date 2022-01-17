@@ -12,6 +12,6 @@ export class Var extends Stmt {
     }
 
     aceitar(visitor: any): any {
-        return visitor.visitVarStmt(this);
+        return visitor.visitarExpressaoVar(this);
     }
 }
