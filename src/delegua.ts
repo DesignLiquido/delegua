@@ -77,6 +77,8 @@ export class Delegua {
 
     iniciarDelegua() {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
+        console.log('Pressione Ctrl + C para sair');
+
         const leiaLinha = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
