@@ -16,7 +16,7 @@
     <img src="https://img.shields.io/github/issues/Designliquido/delegua" />
     <img src="https://img.shields.io/github/stars/Designliquido/delegua" />
     <img src="https://img.shields.io/github/forks/Designliquido/delegua" />
-    <img src="https://img.shields.io/npm/v/@designliquido/delegua" />
+    <a href="https://www.npmjs.com/package/@designliquido/delegua" target="_blank"><img src="https://img.shields.io/npm/v/@designliquido/delegua" /></a>
     <img src="https://img.shields.io/github/license/Designliquido/delegua" />
     <br>
   </p>
