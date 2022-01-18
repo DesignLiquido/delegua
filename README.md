@@ -1,6 +1,6 @@
 <br>
 <p align="center">
-  <img src="./recursos/delegua.png" alt="delegua" width="auto" height="auto">
+  <img src="./recursos/imagens/delegua.png" alt="delegua" width="auto" height="auto">
   <h3 align="center">Linguagem Delégua</h3>
 
   <p align="center">
