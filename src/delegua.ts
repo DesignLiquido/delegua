@@ -9,7 +9,7 @@ import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
 import { ReturnException } from "./excecoes";
-import { AvaliadorSintaticoInterface, InterpretadorInterface, LexadorInterface } from "./interfaces";
+import { AvaliadorSintaticoInterface, InterpretadorInterface, LexadorInterface, SimboloInterface } from "./interfaces";
 import { ResolvedorInterface } from "./interfaces/resolvedor-interface";
 import { InterpretadorEguaClassico } from "./interpretador/dialetos/egua-classico";
 import { ResolverEguaClassico } from "./resolvedor/dialetos/egua-classico";
@@ -18,8 +18,8 @@ import { LexerEguaClassico } from "./lexador/dialetos/egua-classico";
 
 export class Delegua {
     nomeArquivo: any;
-    teveErro: any;
-    teveErroEmTempoDeExecucao: any;
+    teveErro: boolean;
+    teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
 
     interpretador: InterpretadorInterface;
@@ -109,15 +109,15 @@ export class Delegua {
     executar(codigo: any) {
         const simbolos = this.lexador.scan(codigo);
 
-        if (this.teveErro === true) return;
+        if (this.teveErro) return;
 
         const declaracoes = this.avaliadorSintatico.analisar(simbolos);
 
-        if (this.teveErro === true) return;
+        if (this.teveErro) return;
 
         this.resolvedor.resolver(declaracoes);
 
-        if (this.teveErro === true) return;
+        if (this.teveErro) return;
 
         this.interpretador.interpretar(declaracoes);
     }
@@ -131,11 +131,11 @@ export class Delegua {
         this.teveErro = true;
     }
 
-    erro(simbolo: any, mensagemDeErro: any) {
+    erro(simbolo: SimboloInterface, mensagemDeErro: any) {
         if (simbolo.tipo === tiposDeSimbolos.EOF) {
-            this.reportar(simbolo.line, " no final", mensagemDeErro);
+            this.reportar(simbolo.linha, " no final", mensagemDeErro);
         } else {
-            this.reportar(simbolo.line, ` no '${simbolo.lexema}'`, mensagemDeErro);
+            this.reportar(simbolo.linha, ` no '${simbolo.lexema}'`, mensagemDeErro);
         }
     }
 
