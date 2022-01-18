@@ -207,7 +207,7 @@ export class Lexer implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO);
                 break;
             case "-":
-                this.adicionarSimbolo(this.match("=") ? tiposDeSimbolos.MENOR_IGUAL : tiposDeSimbolos.SUBTRACAO);
+                this.adicionarSimbolo(this.match("=") ? tiposDeSimbolos.MENOS_IGUAL : tiposDeSimbolos.SUBTRACAO);
                 break;
             case "+":
                 this.adicionarSimbolo(this.match("=") ? tiposDeSimbolos.MAIS_IGUAL : tiposDeSimbolos.ADICAO);
