@@ -11,7 +11,7 @@ export class Fazer extends Stmt {
         this.whileCondition = whileCondition;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoFazer(this);
+    aceitar(visitar: any): any {
+        return visitar.visitarExpressaoFazer(this);
     }
 }

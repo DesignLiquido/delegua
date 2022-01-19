@@ -13,7 +13,7 @@ export class Logical extends Expr {
         this.direita = direita;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoLogica(this);
+    aceitar(visitar: any) {
+        return visitar.visitarExpressaoLogica(this);
     }
 }

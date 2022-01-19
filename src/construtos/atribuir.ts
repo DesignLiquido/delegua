@@ -11,7 +11,7 @@ export class Atribuir extends Expr {
         this.valor = valor;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoDeAtribuicao(this);
+    aceitar(visitar: any) {
+        return visitar.visitarExpressaoDeAtribuicao(this);
     }
 }

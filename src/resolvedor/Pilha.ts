@@ -15,7 +15,7 @@ export class Pilha implements PilhaInterface {
         return this.pilha.length === 0;
     }
 
-    peek() {
+    topoDaPilha() {
         if (this.eVazio())
             throw new Error("Pilha vazia.");
         return this.pilha[this.pilha.length - 1];

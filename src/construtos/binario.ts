@@ -13,7 +13,7 @@ export class Binario extends Expr {
         this.direita = direita;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoBinaria(this);
+    aceitar(visitar: any) {
+        return visitar.visitarExpressaoBinaria(this);
     }
 }

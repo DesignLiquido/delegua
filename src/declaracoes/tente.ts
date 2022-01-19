@@ -15,7 +15,7 @@ export class Tente extends Stmt {
         this.finallyBranch = finallyBranch;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoTente(this);
+    aceitar(visitar: any): any {
+        return visitar.visitarExpressaoTente(this);
     }
 }

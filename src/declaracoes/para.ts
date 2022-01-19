@@ -15,7 +15,7 @@ export class Para extends Stmt {
         this.corpo = corpo;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoPara(this);
+    aceitar(visitar: any): any {
+        return visitar.visitarExpressaoPara(this);
     }
 }

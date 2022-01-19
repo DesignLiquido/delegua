@@ -22,7 +22,7 @@ import {
 import { ErroAvaliador } from "./erros-avaliador";
 
 import {
-  Block,
+  Bloco,
   Classe,
   Continua,
   Enquanto,
@@ -879,7 +879,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA))
       return this.declaracaoMostrar();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
-      return new Block(this.blocoEscopo());
+      return new Bloco(this.blocoEscopo());
 
     return this.declaracaoExpressao();
   }

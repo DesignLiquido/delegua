@@ -9,7 +9,7 @@ export class Vetor extends Expr {
         this.valores = valores;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoVetor(this);
+    aceitar(visitar: any) {
+        return visitar.visitarExpressaoVetor(this);
     }
 }

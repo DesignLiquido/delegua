@@ -13,7 +13,7 @@ export class Subscript extends Expr {
         this.closeBracket = closeBracket;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoVetorIndice(this);
+    aceitar(visitar: any) {
+        return visitar.visitarExpressaoVetorIndice(this);
     }
 }

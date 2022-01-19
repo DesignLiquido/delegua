@@ -22,7 +22,7 @@ import {
 import {
   ErroAvaliador
 } from '../erros-avaliador';
-import { Block, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "../../declaracoes";
+import { Bloco, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "../../declaracoes";
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -811,7 +811,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA)) return this.declaracaoMostrar();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
-      return new Block(this.blocoEscopo());
+      return new Bloco(this.blocoEscopo());
 
     return this.declaracaoExpressao();
   }

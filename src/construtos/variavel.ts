@@ -9,7 +9,7 @@ export class Variavel extends Expr {
         this.nome = nome;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoDeVariavel(this);
+    aceitar(visitar: any) {
+        return visitar.visitarExpressaoDeVariavel(this);
     }
 }

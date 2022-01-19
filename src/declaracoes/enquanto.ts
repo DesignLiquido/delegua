@@ -11,7 +11,7 @@ export class Enquanto extends Stmt {
         this.corpo = corpo;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoEnquanto(this);
+    aceitar(visitar: any): any {
+        return visitar.visitarExpressaoEnquanto(this);
     }
 }

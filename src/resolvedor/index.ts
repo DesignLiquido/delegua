@@ -49,12 +49,12 @@ export class Resolver implements ResolvedorInterface {
 
     definir(nome: any): void {
         if (this.escopos.eVazio()) return;
-        this.escopos.peek()[nome.lexema] = true;
+        this.escopos.topoDaPilha()[nome.lexema] = true;
     }
 
     declarar(nome: any): void {
         if (this.escopos.eVazio()) return;
-        let escopo = this.escopos.peek();
+        let escopo = this.escopos.topoDaPilha();
         if (escopo.hasOwnProperty(nome.lexema))
             this.Delegua.erro(
                 nome,
@@ -101,7 +101,7 @@ export class Resolver implements ResolvedorInterface {
     visitarExpressaoDeVariavel(expr: any): any {
         if (
             !this.escopos.eVazio() &&
-            this.escopos.peek()[expr.nome.lexema] === false
+            this.escopos.topoDaPilha()[expr.nome.lexema] === false
         ) {
             throw new ResolverError(
                 "Não é possível ler a variável local em seu próprio inicializador."
@@ -188,11 +188,11 @@ export class Resolver implements ResolvedorInterface {
 
         if (stmt.superClasse !== null) {
             this.inicioDoEscopo();
-            this.escopos.peek()["super"] = true;
+            this.escopos.topoDaPilha()["super"] = true;
         }
 
         this.inicioDoEscopo();
-        this.escopos.peek()["isto"] = true;
+        this.escopos.topoDaPilha()["isto"] = true;
 
         let metodos = stmt.metodos;
         for (let i = 0; i < metodos.length; i++) {
