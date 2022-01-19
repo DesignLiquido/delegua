@@ -1,3 +1,3 @@
 export class Expr {
-    aceitar(visitor: any) { }
+    aceitar(visitante: any) { }
 }

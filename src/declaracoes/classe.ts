@@ -13,7 +13,7 @@ export class Classe extends Stmt {
         this.metodos = metodos;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoClasse(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoClasse(this);
     }
 }

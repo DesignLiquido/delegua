@@ -6,7 +6,7 @@ export class Continua extends Stmt {
         super();
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoContinua(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoContinua(this);
     }
 }

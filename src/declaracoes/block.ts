@@ -1,7 +1,7 @@
 import { Stmt } from "./stmt";
 
 
-export class Block extends Stmt {
+export class Bloco extends Stmt {
     declaracoes: any;
 
     constructor(declaracoes: any) {
@@ -9,7 +9,7 @@ export class Block extends Stmt {
         this.declaracoes = declaracoes;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoBloco(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoBloco(this);
     }
 }

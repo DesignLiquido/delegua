@@ -5,14 +5,14 @@ import { ReturnException } from "../excecoes";
 export class DeleguaFuncao extends Callable {
     nome: any;
     declaracao: any;
-    closure: any;
+    ambienteAnterior: any;
     eInicializador: any;
 
-    constructor(nome: any, declaracao: any, closure: any, eInicializador = false) {
+    constructor(nome: any, declaracao: any, ambienteAnterior: any, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
-        this.closure = closure;
+        this.ambienteAnterior = ambienteAnterior;
         this.eInicializador = eInicializador;
     }
 
@@ -26,7 +26,7 @@ export class DeleguaFuncao extends Callable {
     }
 
     chamar(interpretador: any, argumentos: any): any {
-        let ambiente = new Ambiente(this.closure);
+        let ambiente = new Ambiente(this.ambienteAnterior);
         let parametros = this.declaracao.parametros;
 
         if (parametros && parametros.length) {
@@ -46,19 +46,19 @@ export class DeleguaFuncao extends Callable {
             interpretador.executarBloco(this.declaracao.funcao, ambiente);
         } catch (erro) {
             if (erro instanceof ReturnException) {
-                if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");
+                if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
                 return erro.valor;
             } else {
                 throw erro;
             }
         }
 
-        if (this.eInicializador) return this.closure.obterVariavelEm(0, "isto");
+        if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
         return null;
     }
 
     bind(instancia: any): any {
-        let ambiente = new Ambiente(this.closure);
+        let ambiente = new Ambiente(this.ambienteAnterior);
         ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(
             this.nome,

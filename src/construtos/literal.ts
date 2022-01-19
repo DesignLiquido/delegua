@@ -9,7 +9,7 @@ export class Literal extends Expr {
         this.valor = valor;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoLiteral(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoLiteral(this);
     }
 }

@@ -22,7 +22,7 @@ import {
 import {
   ErroAvaliador
 } from '../erros-avaliador';
-import { Block, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "../../declaracoes";
+import { Bloco, Classe, Continua, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Pausa, Retorna, Se, Tente, Var } from "../../declaracoes";
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -52,7 +52,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
       switch (this.simboloAtual().tipo) {
         case tiposDeSimbolos.CLASSE:
         case tiposDeSimbolos.FUNCAO:
-        case tiposDeSimbolos.VAR:
+        case tiposDeSimbolos.VARIAVEL:
         case tiposDeSimbolos.PARA:
         case tiposDeSimbolos.SE:
         case tiposDeSimbolos.ENQUANTO:
@@ -93,7 +93,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     return this.simbolos[this.atual - 1];
   }
 
-  seek(posicao: number): any {
+  procurar(posicao: number): any {
     return this.simbolos[this.atual + posicao];
   }
 
@@ -553,7 +553,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
       let inicializador;
       if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
         inicializador = null;
-      } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAR)) {
+      } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
         inicializador = this.declaracaoDeVariavel();
       } else {
         inicializador = this.declaracaoExpressao();
@@ -587,7 +587,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
   }
 
-  breakStatement(): any {
+  declaracaoInterromper(): any {
     if (this.ciclos < 1) {
       this.erro(this.voltar(), "'pausa' deve estar dentro de um loop.");
     }
@@ -805,13 +805,13 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)) return this.breakStatement();
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)) return this.declaracaoInterromper();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA)) return this.declaracaoMostrar();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
-      return new Block(this.blocoEscopo());
+      return new Bloco(this.blocoEscopo());
 
     return this.declaracaoExpressao();
   }
@@ -939,7 +939,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         this.consumir(tiposDeSimbolos.FUNCAO, null);
         return this.funcao("funcao");
       }
-      if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAR)) return this.declaracaoDeVariavel();
+      if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariavel();
       if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
       return this.resolverDeclaracao();

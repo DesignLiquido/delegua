@@ -14,7 +14,7 @@ export interface AvaliadorSintaticoInterface {
     verificarProximo(tipo: any): boolean;
     simboloAtual(): any;
     voltar(): any;
-    seek(posicao: number): any;
+    procurar(posicao: number): any;
     estaNoFinal(): boolean;
     avancar(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
@@ -41,7 +41,7 @@ export interface AvaliadorSintaticoInterface {
     declaracaoSe(): any;
     declaracaoEnquanto(): any;
     declaracaoPara(): any;
-    breakStatement(): any;
+    declaracaoInterromper(): any;
     declaracaoContinua(): any;
     declaracaoRetorna(): any;
     declaracaoEscolha(): any;

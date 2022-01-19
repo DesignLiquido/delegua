@@ -13,7 +13,7 @@ export class Escolha extends Stmt {
         this.defaultBranch = defaultBranch;
     }
 
-    aceitar(visitor: any): any {
-        return visitor.visitarExpressaoEscolha(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoEscolha(this);
     }
 }

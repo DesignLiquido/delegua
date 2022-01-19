@@ -9,7 +9,7 @@ export class Grouping extends Expr {
         this.expressao = expressao;
     }
 
-    aceitar(visitor: any) {
-        return visitor.visitarExpressaoAgrupamento(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoAgrupamento(this);
     }
 }
