@@ -201,7 +201,7 @@ export class LexerEguaClassico implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
                 break;
             case ",":
-                this.adicionarSimbolo(tiposDeSimbolos.COMMA);
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 break;
             case ".":
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO);
@@ -310,7 +310,7 @@ export class LexerEguaClassico implements LexadorInterface {
         }
     }
 
-    scan(codigo?: any) {
+    mapear(codigo?: any) {
         this.simbolos = [];
         this.inicio = 0;
         this.atual = 0;

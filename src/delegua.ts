@@ -107,7 +107,7 @@ export class Delegua {
     }
 
     executar(codigo: any) {
-        const simbolos = this.lexador.scan(codigo);
+        const simbolos = this.lexador.mapear(codigo);
 
         if (this.teveErro) return;
 
