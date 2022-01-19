@@ -223,6 +223,10 @@ export class Lexer implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case "*":
+                if (this.match("/")) {
+                    while (this.peek() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
+                    break;
+                }
                 if (this.peek() === "*") {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
@@ -278,8 +282,8 @@ export class Lexer implements LexadorInterface {
                 break;
 
             case "/":
-                if (this.match("/")) {
-                    while (this.peek() != "\n" && !this.eFinalDoCodigo()) this.avancar();
+                if (this.match("/") || this.match("*")) {
+                    while (this.peek() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }
