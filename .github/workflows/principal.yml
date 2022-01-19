@@ -21,4 +21,3 @@ jobs:
         sudo chmod +x ./bin/delegua-ts
         sudo npm run testes
         sudo npm run testes:delegua:bhaskara
-        sudo npm run testes:egua-classico
