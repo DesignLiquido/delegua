@@ -6,19 +6,19 @@ escreva("|")
 var erros = 0
 
 funcao startTest(){
-  escreva(tSeSenao())
-  escreva("|")
-  escreva(tEnquanto())
-  escreva("|")
-  escreva(tPara())
-  escreva("|")
-  escreva(tFacaEnquanto())
-  escreva("|")
-  escreva(tCasoEscolha())
-  escreva("|")
-  escreva(tTentePegue())
-  escreva("|")
-  escreva(tClasse())
+  escreva(tSeSenao());
+  escreva("|");
+  escreva(tEnquanto());
+  escreva("|");
+  escreva(tPara());
+  escreva("|");
+  escreva(tFacaEnquanto());
+  escreva("|");
+  escreva(tCasoEscolha());
+  escreva("|");
+  escreva(tTentePegue());
+  escreva("|");
+  escreva(tClasse());
 }
 
 funcao tSeSenao(){
