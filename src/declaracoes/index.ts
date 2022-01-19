@@ -1,4 +1,4 @@
-export * from './block';
+export * from './bloco';
 export * from './classe';
 export * from './continua';
 export * from './enquanto';
