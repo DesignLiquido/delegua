@@ -43,7 +43,7 @@ export class DeleguaFuncao extends Callable {
         }
 
         try {
-            interpretador.executarBloco(this.declaracao.funcao, ambiente);
+            interpretador.executarBloco(this.declaracao.corpo, ambiente);
         } catch (erro) {
             if (erro instanceof ReturnException) {
                 if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");

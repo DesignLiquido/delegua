@@ -7,6 +7,7 @@ import {
   Call,
   Dicionario,
   Conjunto,
+  Funcao,
   Get,
   Grouping,
   Literal,
@@ -30,7 +31,7 @@ import {
   Escreva,
   Expressao,
   Fazer,
-  Funcao,
+  Funcao as FuncaoDeclaracao,
   Importar,
   Para,
   Pausa,
@@ -905,7 +906,7 @@ export class Parser implements AvaliadorSintaticoInterface {
       tiposDeSimbolos.IDENTIFICADOR,
       `Esperado nome ${tipo}.`
     );
-    return new Funcao(nome, this.corpoDaFuncao(tipo));
+    return new FuncaoDeclaracao(nome, this.corpoDaFuncao(tipo));
   }
 
   corpoDaFuncao(tipo: any): any {
