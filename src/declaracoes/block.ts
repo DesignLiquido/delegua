@@ -9,7 +9,7 @@ export class Bloco extends Stmt {
         this.declaracoes = declaracoes;
     }
 
-    aceitar(visitar: any): any {
-        return visitar.visitarExpressaoBloco(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoBloco(this);
     }
 }

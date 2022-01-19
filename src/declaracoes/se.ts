@@ -15,7 +15,7 @@ export class Se extends Stmt {
         this.elseBranch = elseBranch;
     }
 
-    aceitar(visitar: any): any {
-        return visitar.visitarExpressaoSe(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoSe(this);
     }
 }

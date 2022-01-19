@@ -13,7 +13,7 @@ export class Call extends Expr {
         this.argumentos = argumentos;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoDeChamada(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoDeChamada(this);
     }
 }

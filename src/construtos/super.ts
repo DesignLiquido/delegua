@@ -11,7 +11,7 @@ export class Super extends Expr {
         this.metodo = metodo;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoSuper(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoSuper(this);
     }
 }

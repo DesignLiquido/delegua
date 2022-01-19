@@ -11,7 +11,7 @@ export class Dicionario extends Expr {
         this.valores = valores;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoDicionario(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoDicionario(this);
     }
 }

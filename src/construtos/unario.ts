@@ -11,7 +11,7 @@ export class Unario extends Expr {
         this.direita = direita;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoUnaria(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoUnaria(this);
     }
 }

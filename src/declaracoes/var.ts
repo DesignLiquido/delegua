@@ -11,7 +11,7 @@ export class Var extends Stmt {
         this.inicializador = inicializador;
     }
 
-    aceitar(visitar: any): any {
-        return visitar.visitarExpressaoVar(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoVar(this);
     }
 }

@@ -1,3 +1,3 @@
 export class Stmt {
-    aceitar(visitar: any): any { }
+    aceitar(visitante: any): any { }
 }

@@ -11,7 +11,7 @@ export class Funcao extends Expr {
         this.corpo = corpo;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoDeleguaFuncao(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoDeleguaFuncao(this);
     }
 }

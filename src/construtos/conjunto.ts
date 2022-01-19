@@ -13,7 +13,7 @@ export class Conjunto extends Expr {
         this.valor = valor;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoDefinir(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoDefinir(this);
     }
 }

@@ -13,7 +13,7 @@ export class AssignSubscript extends Expr {
         this.valor = valor;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoAtribuicaoSobrescrita(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoAtribuicaoSobrescrita(this);
     }
 }

@@ -11,7 +11,7 @@ export class Importar extends Stmt {
         this.closeBracket = closeBracket;
     }
 
-    aceitar(visitar: any): any {
-        return visitar.visitarExpressaoImportar(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoImportar(this);
     }
 }

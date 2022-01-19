@@ -11,7 +11,7 @@ export class Get extends Expr {
         this.nome = nome;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoObter(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoObter(this);
     }
 }

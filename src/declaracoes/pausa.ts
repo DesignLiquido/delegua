@@ -6,7 +6,7 @@ export class Pausa extends Stmt {
         super();
     }
 
-    aceitar(visitar: any): any {
-        return visitar.visitarExpressaoPausa(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarExpressaoPausa(this);
     }
 }

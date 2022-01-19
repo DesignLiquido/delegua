@@ -9,7 +9,7 @@ export class Expressao extends Stmt {
         this.expressao = expressao;
     }
 
-    aceitar(visitar: any): any {
-        return visitar.visitarDeclaracaoDeExpressao(this);
+    aceitar(visitante: any): any {
+        return visitante.visitarDeclaracaoDeExpressao(this);
     }
 }

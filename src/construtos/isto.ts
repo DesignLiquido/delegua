@@ -9,7 +9,7 @@ export class Isto extends Expr {
         this.palavraChave = palavraChave;
     }
 
-    aceitar(visitar: any) {
-        return visitar.visitarExpressaoIsto(this);
+    aceitar(visitante: any) {
+        return visitante.visitarExpressaoIsto(this);
     }
 }
