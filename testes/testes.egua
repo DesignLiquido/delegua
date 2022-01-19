@@ -157,6 +157,12 @@ var nula = 0 //m.nula()
 var o = [1,1,2,3,15]
 var p = [2,6,7,10,20]
 
+/*
+
+teste comentários multiplas linhas
+
+*/
+
 // funcao teste_gerarPontosAbscissa() {
 //   var gerarPontosAbscissa = m.gerarPontosAbscissa(2,3)
 
