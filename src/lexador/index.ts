@@ -201,7 +201,7 @@ export class Lexer implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
                 break;
             case ",":
-                this.adicionarSimbolo(tiposDeSimbolos.COMMA);
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 break;
             case ".":
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO);
@@ -216,7 +216,8 @@ export class Lexer implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 break;
             case ";":
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
+                // Ponto-e-vírgula é opcional em Delégua, então nem precisa ser considerado
+                // nas etapas seguintes.
                 break;
             case "%":
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
@@ -310,7 +311,7 @@ export class Lexer implements LexadorInterface {
         }
     }
 
-    scan(codigo?: any) {
+    mapear(codigo?: any) {
         this.simbolos = [];
         this.inicio = 0;
         this.atual = 0;

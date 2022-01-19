@@ -138,7 +138,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         valores.push(valor);
         if (this.simboloAtual().tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
           this.consumir(
-            tiposDeSimbolos.COMMA,
+            tiposDeSimbolos.VIRGULA,
             "Esperado vírgula antes da próxima expressão."
           );
         }
@@ -164,7 +164,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
 
         if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
           this.consumir(
-            tiposDeSimbolos.COMMA,
+            tiposDeSimbolos.VIRGULA,
             "Esperado vírgula antes da próxima expressão."
           );
         }
@@ -206,7 +206,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
           );
         }
         argumentos.push(this.expressao());
-      } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COMMA));
+      } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
     }
 
     const parenteseDireito = this.consumir(
@@ -878,7 +878,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         parametros.push(paramObj);
 
         if (paramObj["tipo"] === "wildcard") break;
-      } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COMMA));
+      } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
     }
 
     this.consumir(
