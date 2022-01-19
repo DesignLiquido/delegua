@@ -136,7 +136,7 @@ export class Lexer implements LexadorInterface {
         }
 
         if (this.eFinalDoCodigo()) {
-            this.Delegua.lexerError(
+            this.Delegua.erroNoLexador(
                 this.linha,
                 this.voltar(),
                 "Texto não finalizado."
@@ -317,7 +317,7 @@ export class Lexer implements LexadorInterface {
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
-                else this.Delegua.lexerError(this.linha, caractere, "Caractere inesperado.");
+                else this.Delegua.erroNoLexador(this.linha, caractere, "Caractere inesperado.");
         }
     }
 
