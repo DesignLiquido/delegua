@@ -20,3 +20,5 @@ jobs:
       run: | 
         sudo chmod +x ./bin/delegua-ts
         sudo npm run testes
+    - name: Teste de Bhaskara
+      run: ./bin/delegua-ts testes/dialetos/egua-classico/bhaskara.egua
