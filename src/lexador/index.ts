@@ -223,17 +223,19 @@ export class Lexer implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case "*":
-                if (this.match("/")) {
-                    while (this.peek() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
-                    break;
-                }
                 if (this.peek() === "*") {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     break;
                 }
-                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                break;
+                else if (this.match("/")) {
+                    while (!this.eFinalDoCodigo()) this.avancar();
+                    break;
+                }
+                else{
+                    this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                    break;
+                }
             case "!":
                 this.adicionarSimbolo(
                     this.match("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
@@ -282,9 +284,13 @@ export class Lexer implements LexadorInterface {
                 break;
 
             case "/":
-                if (this.match("/") || this.match("*")) {
+                if (this.match("/")) {
                     while (this.peek() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
-                } else {
+                }
+                else if(this.match("*")){
+                    while (!this.eFinalDoCodigo()) this.avancar();
+                }
+                else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }
                 break;
