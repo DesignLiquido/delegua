@@ -68,7 +68,7 @@ export class Delegua {
 
     versao() {
         try {
-            const manifesto = caminho.resolve(__dirname, 'package.json');
+            const manifesto = caminho.resolve('package.json');
             return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.1';
         } catch (error: any) {
             return '0.1 (desenvolvimento)';
