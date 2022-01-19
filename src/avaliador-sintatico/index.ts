@@ -68,7 +68,7 @@ export class Parser implements AvaliadorSintaticoInterface {
       switch (this.simboloAtual().tipo) {
         case tiposDeSimbolos.CLASSE:
         case tiposDeSimbolos.FUNCAO:
-        case tiposDeSimbolos.VAR:
+        case tiposDeSimbolos.VARIAVEL:
         case tiposDeSimbolos.PARA:
         case tiposDeSimbolos.SE:
         case tiposDeSimbolos.ENQUANTO:
@@ -109,7 +109,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     return this.simbolos[this.atual - 1];
   }
 
-  seek(posicao: number): any {
+  procurar(posicao: number): any {
     return this.simbolos[this.atual + posicao];
   }
 
@@ -626,7 +626,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)
       ) {
         inicializador = null;
-      } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAR)) {
+      } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
         inicializador = this.declaracaoDeVariavel();
       } else {
         inicializador = this.declaracaoExpressao();
@@ -655,8 +655,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     }
   }
 
-  // TODO: Mudar palavra para 'interromper'
-  breakStatement(): any {
+  declaracaoInterromper(): any {
     if (this.ciclos < 1) {
       this.erro(this.voltar(), "'pausa' deve estar dentro de um loop.");
     }
@@ -870,7 +869,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
       return this.declaracaoContinua();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-      return this.breakStatement();
+      return this.declaracaoInterromper();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
       return this.declaracaoPara();
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))
@@ -1007,7 +1006,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         this.consumir(tiposDeSimbolos.FUNCAO, null);
         return this.funcao("funcao");
       }
-      if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAR))
+      if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL))
         return this.declaracaoDeVariavel();
       if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE))
         return this.declaracaoDeClasse();

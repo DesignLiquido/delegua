@@ -62,6 +62,6 @@ export default {
     SUPER: "SUPER",
     TENTE: "TENTE",
     TEXTO: "TEXTO",
-    VAR: "VAR",
+    VARIAVEL: "VARIAVEL",
     VERDADEIRO: "VERDADEIRO"
 };

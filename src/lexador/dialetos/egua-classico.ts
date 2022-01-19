@@ -18,7 +18,7 @@ const palavrasReservadas = {
     super: tiposDeSimbolos.SUPER,
     isto: tiposDeSimbolos.ISTO,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
-    var: tiposDeSimbolos.VAR,
+    var: tiposDeSimbolos.VARIAVEL,
     fazer: tiposDeSimbolos.FAZER,
     enquanto: tiposDeSimbolos.ENQUANTO,
     pausa: tiposDeSimbolos.PAUSA,
