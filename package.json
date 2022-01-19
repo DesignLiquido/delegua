@@ -8,7 +8,7 @@
     "publicar-npm": "npm publish --access public",
     "testes": "./bin/delegua-ts testes/testes.egua",
     "testes:delegua:bhaskara": "./bin/delegua-ts testes/dialetos/egua-classico/bhaskara.egua",
-    "testes:egua-classico": "./bin/delegua-ts testes/dialetos/egua-classico/testes.egua",
+    "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/dialetos/egua-classico/testes.egua",
     "testes-unitarios": "jest",
     "release": "release-it"
   },
