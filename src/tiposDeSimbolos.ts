@@ -27,6 +27,7 @@ export default {
     FALSO: "FALSO",
     FAZER: "FAZER",
     FINALMENTE: "FINALMENTE",
+    FUNCAO: "FUNCAO",
     FUNÇÃO: "FUNÇÃO",
     HERDA: "HERDA",
     IDENTIFICADOR: "IDENTIFICADOR",

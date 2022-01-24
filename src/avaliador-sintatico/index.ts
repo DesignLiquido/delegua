@@ -7,7 +7,7 @@ import {
   Call,
   Dicionario,
   Conjunto,
-  Função,
+  Funcao,
   Get,
   Grouping,
   Literal,
@@ -31,7 +31,7 @@ import {
   Escreva,
   Expressao,
   Fazer,
-  Função as FuncaoDeclaracao,
+  Funcao as FuncaoDeclaracao,
   Importar,
   Para,
   Pausa,
@@ -68,6 +68,7 @@ export class Parser implements AvaliadorSintaticoInterface {
 
       switch (this.simboloAtual().tipo) {
         case tiposDeSimbolos.CLASSE:
+        case tiposDeSimbolos.FUNCAO:
         case tiposDeSimbolos.FUNÇÃO:
         case tiposDeSimbolos.VARIAVEL:
         case tiposDeSimbolos.PARA:
@@ -212,6 +213,8 @@ export class Parser implements AvaliadorSintaticoInterface {
 
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO))
       return this.corpoDaFuncao("função");
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO))
+      return this.corpoDaFuncao("funcao");
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
       return new Literal(false);
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
@@ -960,7 +963,7 @@ export class Parser implements AvaliadorSintaticoInterface {
 
     const corpo = this.blocoEscopo();
 
-    return new Função(parametros, corpo);
+    return new Funcao(parametros, corpo);
   }
 
   declaracaoDeClasse(): any {
@@ -1006,6 +1009,13 @@ export class Parser implements AvaliadorSintaticoInterface {
       ) {
         this.consumir(tiposDeSimbolos.FUNÇÃO, null);
         return this.funcao("função");
+      }
+      if (
+        this.verificar(tiposDeSimbolos.FUNCAO) &&
+        this.verificarProximo(tiposDeSimbolos.IDENTIFICADOR)
+      ) {
+        this.consumir(tiposDeSimbolos.FUNCAO, null);
+        return this.funcao("funcao");
       }
       if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL))
         return this.declaracaoDeVariavel();

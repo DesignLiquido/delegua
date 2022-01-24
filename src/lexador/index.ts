@@ -8,6 +8,7 @@ const palavrasReservadas = {
     senao: tiposDeSimbolos.SENAO,
     falso: tiposDeSimbolos.FALSO,
     para: tiposDeSimbolos.PARA,
+    funcao: tiposDeSimbolos.FUNCAO,
     função: tiposDeSimbolos.FUNÇÃO,
     se: tiposDeSimbolos.SE,
     senaose: tiposDeSimbolos.SENAOSE,

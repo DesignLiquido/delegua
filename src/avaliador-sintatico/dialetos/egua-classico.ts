@@ -10,7 +10,7 @@ import {
   Call,
   Dicionario,
   Conjunto,
-  Função,
+  Funcao,
   Get,
   Grouping,
   Literal,
@@ -33,7 +33,7 @@ import {
   Escreva,
   Expressao,
   Fazer,
-  Função as FuncaoDeclaracao,
+  Funcao as FuncaoDeclaracao,
   Importar,
   Para,
   Pausa,
@@ -969,7 +969,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
 
     const corpo = this.blocoEscopo();
 
-    return new Função(parametros, corpo);
+    return new Funcao(parametros, corpo);
   }
 
   declaracaoDeClasse(): any {

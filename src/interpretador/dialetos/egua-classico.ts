@@ -708,7 +708,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       let eInicializado = metodoAtual.nome.lexema === "construtor";
       const funcao = new DeleguaFuncao(
         metodoAtual.nome.lexema,
-        metodoAtual.funcao,
+        metodoAtual.função,
         this.ambiente,
         eInicializado
       );

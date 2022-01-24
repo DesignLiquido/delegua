@@ -6,7 +6,7 @@ export * from './escolha';
 export * from './escreva';
 export * from './expressao';
 export * from './fazer';
-export * from './função';
+export * from './funcao';
 export * from './importar';
 export * from './para';
 export * from './pausa';

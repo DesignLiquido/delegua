@@ -671,7 +671,7 @@ export class Interpretador implements InterpretadorInterface {
   visitarExpressaoFuncao(stmt: any) {
     const funcao = new DeleguaFuncao(
       stmt.nome.lexema,
-      stmt.função,
+      stmt.funcao,
       this.ambiente,
       false
     );
@@ -704,7 +704,7 @@ export class Interpretador implements InterpretadorInterface {
       let eInicializado = metodoAtual.nome.lexema === "construtor";
       const funcao = new DeleguaFuncao(
         metodoAtual.nome.lexema,
-        metodoAtual.funcao,
+        metodoAtual.função,
         this.ambiente,
         eInicializado
       );
