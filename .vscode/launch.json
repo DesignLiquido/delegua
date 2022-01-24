@@ -102,5 +102,47 @@
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Importação (Delégua)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\index.ts", "./testes/importacao-1.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Classes > Construtor (Delégua)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\index.ts", "./testes/classes/construtor-classe.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Classes > Construtor (Égua Clássico)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\index.ts", "--dialeto", "egua", "./testes/classes/construtor-classe.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
     ]
 }

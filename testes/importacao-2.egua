@@ -1,0 +1,3 @@
+funcao escreverAlgumaCoisa() {
+    escreva("Importação funcionou.")
+}

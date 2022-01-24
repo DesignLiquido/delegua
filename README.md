@@ -4,16 +4,13 @@
   <h3 align="center">Linguagem Delégua</h3>
 
   <p align="center">
-    Linguagem de programação, derivada da linguagem Égua
+    Linguagem de programação, derivada da <a href="https://egua.tech/docs/egua" target="_blank">Linguagem Égua</a>
     <br />
-    <a href="https://egua.tech/docs/egua" target="_blank"><strong>Documentação da Linguagem Égua »</strong></a>
-    <br />
-    <br />
-    <a href="https://egua.tech/egua/" target="_blank">IDEgua (Ambiente de Desenvolvimento Integrado da Linguagem Égua)</a>
+    <a href="https://designliquido.github.io/delegua-web/" target="_blank">Página Web com Interpretador Delégua para demonstrações</a>
   </p>
 
   <p align="center">
-    <img src="https://img.shields.io/github/issues/Designliquido/delegua" />
+    <a href="https://github.com/DesignLiquido/delegua/issues" target="_blank"><img src="https://img.shields.io/github/issues/Designliquido/delegua" /></a>
     <img src="https://img.shields.io/github/stars/Designliquido/delegua" />
     <img src="https://img.shields.io/github/forks/Designliquido/delegua" />
     <a href="https://www.npmjs.com/package/@designliquido/delegua" target="_blank"><img src="https://img.shields.io/npm/v/@designliquido/delegua" /></a>
@@ -53,14 +50,20 @@ Feito isso, execute o seguinte comando:
 delegua
 ```
 
-Você terá um interpretador Egua que avalia expressões linha a linha. 
+Você terá um interpretador Delégua que avalia expressões linha a linha. 
 
 Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ctrl</key> + <key>C</key> (todos os sistemas operacionais).
 
+É possível usar o interpretador com outros dialetos, como Égua. 
+
+```
+delegua -- dialeto egua
+```
+
 ## Documentação
 
-- Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki). 
+- Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
 
 ## Contribuições
 
