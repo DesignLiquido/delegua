@@ -553,15 +553,15 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     const thenBranch = this.resolverDeclaracao();
 
     const elifBranches = [];
-    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE)) {
+    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃOSE)) {
       this.consumir(
         tiposDeSimbolos.PARENTESE_ESQUERDO,
-        "Esperado '(' após 'senaose'."
+        "Esperado '(' após 'senãose'."
       );
       let elifCondition = this.expressao();
       this.consumir(
         tiposDeSimbolos.PARENTESE_DIREITO,
-        "Esperado ')' apóes codição do 'senaose."
+        "Esperado ')' apóes codição do 'senãose."
       );
 
       const branch = this.resolverDeclaracao();
@@ -573,7 +573,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
 
     let elseBranch = null;
-    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
       elseBranch = this.resolverDeclaracao();
     }
 
@@ -815,7 +815,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
 
     let elseBlock = null;
-    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
       this.consumir(
         tiposDeSimbolos.CHAVE_ESQUERDA,
         "Esperado '{' após a declaração 'pegue'."
