@@ -1,14 +1,14 @@
 import { Stmt } from "./stmt";
 
 
-export class Funcao extends Stmt {
+export class Função extends Stmt {
     nome: string;
-    funcao: any;
+    função: any;
 
-    constructor(nome: any, funcao: any) {
+    constructor(nome: any, função: any) {
         super();
         this.nome = nome;
-        this.funcao = funcao;
+        this.função = função;
     }
 
     aceitar(visitante: any): any {

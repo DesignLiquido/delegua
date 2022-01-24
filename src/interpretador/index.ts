@@ -671,7 +671,7 @@ export class Interpretador implements InterpretadorInterface {
   visitarExpressaoFuncao(stmt: any) {
     const funcao = new DeleguaFuncao(
       stmt.nome.lexema,
-      stmt.funcao,
+      stmt.função,
       this.ambiente,
       false
     );

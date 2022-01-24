@@ -5,7 +5,7 @@ export * from "./call";
 export * from "./conjunto";
 export * from "./dicionario";
 export * from "./expr";
-export * from "./funcao";
+export * from "./função";
 export * from "./get";
 export * from "./grouping";
 export * from "./isto";

@@ -8,7 +8,7 @@ const palavrasReservadas = {
     senao: tiposDeSimbolos.SENAO,
     falso: tiposDeSimbolos.FALSO,
     para: tiposDeSimbolos.PARA,
-    funcao: tiposDeSimbolos.FUNCAO,
+    função: tiposDeSimbolos.FUNÇÃO,
     se: tiposDeSimbolos.SE,
     senaose: tiposDeSimbolos.SENAOSE,
     nulo: tiposDeSimbolos.NULO,
@@ -81,7 +81,8 @@ export class LexerEguaClassico implements LexadorInterface {
     }
 
     eAlfabeto(caractere: any) {
-        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || caractere == "_";
+        const acentuacoes = ["á", "Á", "ã", "Ã", "â", "Â", "à", "À", "é", "É", "ê", "Ê", "í", "Í", "ó", "Ó", "õ", "Õ", "ô", "Ô", "ú", "Ú", "ç", "Ç", "_"];
+        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || acentuacoes.includes(caractere);
     }
 
     eAlfabetoOuDigito(caractere: any) {

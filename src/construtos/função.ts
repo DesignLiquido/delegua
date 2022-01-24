@@ -1,7 +1,7 @@
 import { Expr } from "./expr";
 
 
-export class Funcao extends Expr {
+export class Função extends Expr {
     parametros: any;
     corpo: any;
 
