@@ -140,7 +140,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
             }
         }
 
-        this.resolver(funcao.funcao);
+        this.resolver(funcao.corpo);
         this.finalDoEscopo();
 
         this.FuncaoAtual = enclosingFunc;
