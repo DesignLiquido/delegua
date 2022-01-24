@@ -8,7 +8,7 @@ export class Funcao extends Stmt {
     constructor(nome: any, funcao: any) {
         super();
         this.nome = nome;
-        this.funcao = funcao
+        this.funcao = funcao;
     }
 
     aceitar(visitante: any): any {
