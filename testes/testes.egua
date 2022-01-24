@@ -8,6 +8,10 @@ var erros = 0
 função startTest(){
   escreva(tSeSenao());
   escreva("|");
+  escreva(tSeSenao2());
+  escreva("|");
+  escreva(tSeSenao3());
+  escreva("|");
   escreva(tEnquanto());
   escreva("|");
   escreva(tPara());
@@ -35,7 +39,33 @@ funcao tSeSenao(){
   }
 }
 
-funcao tEnquanto(){
+funcao tSeSenao2(){
+  escreva("--------------------------------")
+  escreva("Iniciando Teste: Senão 2")
+  escreva("--------------------------------")
+  var a = 1
+  var b = 1
+  se (a != b)
+    retorna("Senão - Senão: ERRO!")
+  senão {
+    retorna("Senão - Senão: OK!")
+  }
+}
+
+funcao tSeSenao3(){
+  escreva("--------------------------------")
+  escreva("Iniciando Teste: Senao 3")
+  escreva("--------------------------------")
+  var a = 1
+  var b = 1
+  se (a != b)
+    retorna("Senao - Senao: ERRO!")
+  senao {
+    retorna("Senao - Senao: OK!")
+  }
+}
+
+função tEnquanto(){
   escreva("--------------------------------")
   escreva("Iniciando Teste: Enquanto")
   escreva("--------------------------------")
@@ -52,7 +82,7 @@ funcao tEnquanto(){
   escreva(a)
 }
 
-funcao tPara(){
+função tPara(){
   escreva("--------------------------------")
   escreva("Iniciando Teste: Para")
   escreva("--------------------------------")
