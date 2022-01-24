@@ -473,7 +473,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       );
     }
 
-    dados = fs.readFileSync(caminhoTotal).paraTexto();
+    dados = fs.readFileSync(caminhoTotal).toString();
 
     const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
 
@@ -779,7 +779,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     return metodo.definirEscopo(objeto);
   }
 
-  paraTexto(objeto: any) {
+  paraTexto(objeto: any): any {
     if (objeto === null) return "nulo";
     if (typeof objeto === "boolean") {
       return objeto ? "verdadeiro" : "falso";
