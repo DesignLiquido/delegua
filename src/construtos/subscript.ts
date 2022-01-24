@@ -1,13 +1,12 @@
 import { Expr } from "./expr";
 
 
-export class Subscript extends Expr {
+export class Subscript implements Expr {
     callee: any;
     closeBracket: any;
     indice: any;
 
     constructor(callee: any, indice: any, closeBracket: any) {
-        super();
         this.callee = callee;
         this.indice = indice;
         this.closeBracket = closeBracket;

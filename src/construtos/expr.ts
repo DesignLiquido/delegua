@@ -1,3 +1,3 @@
-export class Expr {
-    aceitar(visitante: any) { }
+export interface Expr {
+    aceitar(visitante: any): any;
 }
