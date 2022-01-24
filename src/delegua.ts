@@ -99,7 +99,7 @@ export class Delegua {
     carregarArquivo(nomeArquivo: any) {
         this.nomeArquivo = caminho.basename(nomeArquivo);
 
-        const dadosDoArquivo = fs.readFileSync(nomeArquivo).paraTexto();
+        const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
         this.executar(dadosDoArquivo);
 
         if (this.teveErro) process.exit(65);
