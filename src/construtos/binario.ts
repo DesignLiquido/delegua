@@ -1,13 +1,12 @@
 import { Expr } from "./expr";
 
 
-export class Binario extends Expr {
+export class Binario implements Expr {
     esquerda: any;
     operador: any;
     direita: any;
 
     constructor(esquerda: any, operador: any, direita: any) {
-        super();
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;

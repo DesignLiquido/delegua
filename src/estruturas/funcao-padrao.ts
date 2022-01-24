@@ -16,7 +16,7 @@ export class FuncaoPadrao extends Callable {
         return this.funcao.apply(this, argumentos);
     }
 
-    toString(): string {
+    paraTexto(): string {
         return "<função>";
     }
 }

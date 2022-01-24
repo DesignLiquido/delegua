@@ -1,11 +1,10 @@
 import { Expr } from "./expr";
 
 
-export class Variavel extends Expr {
+export class Variavel implements Expr {
     nome: any;
 
     constructor(nome: any) {
-        super();
         this.nome = nome;
     }
 

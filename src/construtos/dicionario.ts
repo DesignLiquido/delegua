@@ -1,12 +1,11 @@
 import { Expr } from "./expr";
 
 
-export class Dicionario extends Expr {
+export class Dicionario implements Expr {
     chaves: any;
     valores: any;
 
     constructor(chaves: any, valores: any) {
-        super();
         this.chaves = chaves;
         this.valores = valores;
     }

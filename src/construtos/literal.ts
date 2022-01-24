@@ -1,11 +1,10 @@
 import { Expr } from "./expr";
 
 
-export class Literal extends Expr {
+export class Literal implements Expr {
     valor: any;
 
     constructor(valor: any) {
-        super();
         this.valor = valor;
     }
 

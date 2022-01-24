@@ -20,7 +20,7 @@ export class DeleguaFuncao extends Callable {
         return this.declaracao?.parametros?.length || 0;
     }
 
-    toString(): string {
+    paraTexto(): string {
         if (this.nome === null) return "<função>";
         return `<função ${this.nome}>`;
     }

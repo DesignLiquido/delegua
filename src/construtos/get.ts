@@ -1,12 +1,11 @@
 import { Expr } from "./expr";
 
 
-export class Get extends Expr {
+export class Get implements Expr {
     objeto: any;
     nome: any;
 
     constructor(objeto: any, nome: any) {
-        super();
         this.objeto = objeto;
         this.nome = nome;
     }

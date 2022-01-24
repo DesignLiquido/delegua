@@ -25,7 +25,7 @@ export class DeleguaClasse extends Callable {
         return undefined;
     }
 
-    toString(): string {
+    paraTexto(): string {
         return `<classe ${this.nome}>`;
     }
 

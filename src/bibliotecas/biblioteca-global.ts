@@ -91,7 +91,7 @@ export default function (interpretador: any, global: any) {
                 );
             }
 
-            let trocado;
+            let trocado: boolean;
             let tamanho = objeto.length;
             do {
                 trocado = false;
