@@ -27,11 +27,10 @@ Delégua tem retrocompatibilidade com a linguagem Égua e usa a mesma extensão 
 
 ## Características
 
-- **Simples e Completa.** Podendo ser usadas por pessoas com ou sem experiência em programação.
+- **Simples e Completa.** Podendo ser usada por pessoas com ou sem experiência em programação.
 - **Totalmente em Português.** Desenvolvida totalmente em português para quebrar a barreira do inglês.
 - **Grátis.** Sem planos, sem limitações e sem propaganda.
-- **Código aberto (open-source).** Todo código fonte disponível para estudar, modificar e contribuir.
-- **Constantes Atualizações.** Junto à nossa comunidade, para trazermos melhorias e inovações.
+- **Código aberto (open source).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
 
 ### Usando como LAIR (Leia-Avalie-Imprima-Repita) em console
@@ -57,7 +56,7 @@ Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ct
 É possível usar o interpretador com outros dialetos, como Égua. 
 
 ```
-delegua -- dialeto egua
+delegua --dialeto egua
 ```
 
 ## Documentação
