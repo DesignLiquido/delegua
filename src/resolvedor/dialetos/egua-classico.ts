@@ -4,7 +4,7 @@ import { ResolverError } from "../ResolverError";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
-    FUNCAO: "FUNCAO",
+    FUNÇÃO: "FUNÇÃO",
     CONSTRUTOR: "CONSTRUTOR",
     METODO: "METODO"
 };
@@ -150,12 +150,12 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         this.declarar(stmt.nome);
         this.definir(stmt.nome);
 
-        this.resolverFuncao(stmt.funcao, TipoFuncao.FUNCAO);
+        this.resolverFuncao(stmt.funcao, TipoFuncao.FUNÇÃO);
         return null;
     }
 
     visitarExpressaoDeleguaFuncao(stmt: any): any {
-        this.resolverFuncao(stmt, TipoFuncao.FUNCAO);
+        this.resolverFuncao(stmt, TipoFuncao.FUNÇÃO);
         return null;
     }
 

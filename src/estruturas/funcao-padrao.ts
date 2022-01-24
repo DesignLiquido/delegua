@@ -2,18 +2,18 @@ import { Callable } from "./callable";
 
 export class FuncaoPadrao extends Callable {
     valorAridade: any;
-    função: any;
+    funcao: any;
     simbolo: any;
 
-    constructor(valorAridade, função) {
+    constructor(valorAridade, funcao) {
         super();
         this.valorAridade = valorAridade;
-        this.função = função;
+        this.funcao = funcao;
     }
 
     chamar(interpretador: any, argumentos: any, simbolo: any): any {
         this.simbolo = simbolo;
-        return this.função.apply(this, argumentos);
+        return this.funcao.apply(this, argumentos);
     }
 
     toString(): string {
