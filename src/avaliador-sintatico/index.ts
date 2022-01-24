@@ -69,6 +69,7 @@ export class Parser implements AvaliadorSintaticoInterface {
       switch (this.simboloAtual().tipo) {
         case tiposDeSimbolos.CLASSE:
         case tiposDeSimbolos.FUNCAO:
+        case tiposDeSimbolos.FUNÇÃO:
         case tiposDeSimbolos.VARIAVEL:
         case tiposDeSimbolos.PARA:
         case tiposDeSimbolos.SE:
@@ -210,6 +211,8 @@ export class Parser implements AvaliadorSintaticoInterface {
       return new Dicionario(chaves, valores);
     }
 
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO))
+      return this.corpoDaFuncao("função");
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO))
       return this.corpoDaFuncao("funcao");
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
@@ -565,15 +568,15 @@ export class Parser implements AvaliadorSintaticoInterface {
     const thenBranch = this.resolverDeclaracao();
 
     const elifBranches = [];
-    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE)) {
+    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
       this.consumir(
         tiposDeSimbolos.PARENTESE_ESQUERDO,
-        "Esperado '(' após 'senaose'."
+        "Esperado '(' após 'senaose' ou 'senãose'."
       );
       let elifCondition = this.expressao();
       this.consumir(
         tiposDeSimbolos.PARENTESE_DIREITO,
-        "Esperado ')' apóes codição do 'senaose."
+        "Esperado ')' após codição do 'senaose' ou 'senãose'."
       );
 
       const branch = this.resolverDeclaracao();
@@ -585,7 +588,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     }
 
     let elseBranch = null;
-    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
       elseBranch = this.resolverDeclaracao();
     }
 
@@ -808,7 +811,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     }
 
     let elseBlock = null;
-    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
       this.consumir(
         tiposDeSimbolos.CHAVE_ESQUERDA,
         "Esperado '{' após a declaração 'pegue'."
@@ -1000,6 +1003,13 @@ export class Parser implements AvaliadorSintaticoInterface {
 
   declaracao(): any {
     try {
+      if (
+        this.verificar(tiposDeSimbolos.FUNÇÃO) &&
+        this.verificarProximo(tiposDeSimbolos.IDENTIFICADOR)
+      ) {
+        this.consumir(tiposDeSimbolos.FUNÇÃO, null);
+        return this.funcao("função");
+      }
       if (
         this.verificar(tiposDeSimbolos.FUNCAO) &&
         this.verificarProximo(tiposDeSimbolos.IDENTIFICADOR)
