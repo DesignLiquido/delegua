@@ -57,7 +57,7 @@ export class DeleguaFuncao extends Callable {
         return null;
     }
 
-    bind(instancia: any): any {
+    definirEscopo(instancia: any): any {
         let ambiente = new Ambiente(this.ambienteAnterior);
         ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(

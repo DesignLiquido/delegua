@@ -71,7 +71,7 @@ export default function (interpretador: any, global: any) {
             let provisorio = [];
             for (let indice = 0; indice < array.length; ++indice) {
                 provisorio.push(
-                    callback.call(
+                    callback.chamar(
                         interpretador, [array[indice]]
                     )
                 );

@@ -15,7 +15,7 @@ export class DeleguaInstancia {
         }
 
         let metodo = this.criarClasse.encontrarMetodo(nome.lexema);
-        if (metodo) return metodo.bind(this);
+        if (metodo) return metodo.definirEscopo(this);
 
         throw new ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
     }

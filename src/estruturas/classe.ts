@@ -39,7 +39,7 @@ export class DeleguaClasse extends Callable {
 
         let inicializador = this.encontrarMetodo("construtor");
         if (inicializador) {
-            inicializador.bind(instancia).call(interpretador, argumentos);
+            inicializador.definirEscopo(instancia).chamar(interpretador, argumentos);
         }
 
         return instancia;
