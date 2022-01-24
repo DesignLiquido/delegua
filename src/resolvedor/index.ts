@@ -1,6 +1,6 @@
 import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
-import { Pilha } from "./Pilha";
-import { ResolverError } from "./ResolverError";
+import { PilhaEscopos } from "./pilha-escopos";
+import { ErroResolvedor } from "./erro-resolvedor";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -32,7 +32,7 @@ const LoopType = {
 export class Resolver implements ResolvedorInterface {
     interpretador: any;
     Delegua: any;
-    escopos: any;
+    escopos: PilhaEscopos;
     FuncaoAtual: any;
     ClasseAtual: any;
     cicloAtual: any;
@@ -40,7 +40,7 @@ export class Resolver implements ResolvedorInterface {
     constructor(Delegua: any, interpretador: any) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
-        this.escopos = new Pilha();
+        this.escopos = new PilhaEscopos();
 
         this.FuncaoAtual = TipoFuncao.NENHUM;
         this.ClasseAtual = TipoClasse.NENHUM;
@@ -103,7 +103,7 @@ export class Resolver implements ResolvedorInterface {
             !this.escopos.eVazio() &&
             this.escopos.topoDaPilha()[expr.nome.lexema] === false
         ) {
-            throw new ResolverError(
+            throw new ErroResolvedor(
                 "Não é possível ler a variável local em seu próprio inicializador."
             );
         }

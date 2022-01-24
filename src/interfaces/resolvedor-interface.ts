@@ -1,7 +1,9 @@
+import { PilhaEscopos } from "../resolvedor/pilha-escopos";
+
 export interface ResolvedorInterface {
     interpretador: any;
     Delegua: any;
-    escopos: any;
+    escopos: PilhaEscopos;
     FuncaoAtual: any;
     ClasseAtual: any;
     cicloAtual: any;
