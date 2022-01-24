@@ -1,12 +1,11 @@
 import { Expr } from "./expr";
 
 
-export class Super extends Expr {
+export class Super implements Expr {
     palavraChave: any;
     metodo: any;
 
     constructor(palavraChave: any, metodo: any) {
-        super();
         this.palavraChave = palavraChave;
         this.metodo = metodo;
     }

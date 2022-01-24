@@ -2,16 +2,16 @@ import { ErroEmTempoDeExecucao } from "../excecoes";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaModulo } from "../estruturas/modulo";
 
-const carregarModulo = function (nomeDoModulo: any, caminhoDoModulo: any) {
+const carregarBiblioteca = function (nomeDaBiblioteca: any, caminhoDaBiblioteca: any) {
     let dadosDoModulo: any;
 
     try {
-        dadosDoModulo = require(caminhoDoModulo);
+        dadosDoModulo = require(caminhoDaBiblioteca);
     } catch (erro) {
-        throw new ErroEmTempoDeExecucao(nomeDoModulo, `Biblioteca ${nomeDoModulo} não encontrada para importação.`);
+        throw new ErroEmTempoDeExecucao(nomeDaBiblioteca, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
     }
 
-    let novoModulo = new DeleguaModulo(nomeDoModulo);
+    let novoModulo = new DeleguaModulo(nomeDaBiblioteca);
 
     let chaves = Object.keys(dadosDoModulo);
     for (let i = 0; i < chaves.length; i++) {
@@ -27,6 +27,6 @@ const carregarModulo = function (nomeDoModulo: any, caminhoDoModulo: any) {
     return novoModulo;
 };
 
-export default function (nome: any) {
-    return carregarModulo(nome, nome);
+export default function (nome: string) {
+    return carregarBiblioteca(nome, nome);
 };

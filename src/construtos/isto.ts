@@ -1,11 +1,10 @@
 import { Expr } from "./expr";
 
 
-export class Isto extends Expr {
+export class Isto implements Expr {
     palavraChave: any;
 
     constructor(palavraChave?: any) {
-        super();
         this.palavraChave = palavraChave;
     }
 
