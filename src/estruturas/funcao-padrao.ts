@@ -1,11 +1,11 @@
-import { Callable } from "./callable";
+import { Chamavel } from "./chamavel";
 
-export class FuncaoPadrao extends Callable {
-    valorAridade: any;
-    funcao: any;
+export class FuncaoPadrao extends Chamavel {
+    valorAridade: number;
+    funcao: Function;
     simbolo: any;
 
-    constructor(valorAridade, funcao) {
+    constructor(valorAridade: number, funcao: Function) {
         super();
         this.valorAridade = valorAridade;
         this.funcao = funcao;

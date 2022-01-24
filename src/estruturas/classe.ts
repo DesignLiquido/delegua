@@ -1,7 +1,7 @@
-import { Callable } from "./callable";
+import { Chamavel } from "./chamavel";
 import { DeleguaInstancia } from "./instancia";
 
-export class DeleguaClasse extends Callable {
+export class DeleguaClasse extends Chamavel {
     nome: any;
     superClasse: any;
     metodos: any;

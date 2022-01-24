@@ -1,7 +1,7 @@
-export class Callable {
-    valorAridade: any;
+export class Chamavel {
+    valorAridade: number;
 
-    aridade(): any {
+    aridade(): number {
         return this.valorAridade;
     }
 

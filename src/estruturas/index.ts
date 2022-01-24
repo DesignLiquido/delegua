@@ -1,4 +1,4 @@
-export * from "./callable";
+export * from "./chamavel";
 export * from "./classe";
 export * from "./funcao-padrao";
 export * from "./funcao";

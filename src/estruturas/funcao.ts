@@ -1,8 +1,8 @@
-import { Callable } from "./callable";
+import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
 import { ReturnException } from "../excecoes";
 
-export class DeleguaFuncao extends Callable {
+export class DeleguaFuncao extends Chamavel {
     nome: any;
     declaracao: any;
     ambienteAnterior: any;

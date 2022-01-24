@@ -6,7 +6,7 @@ import * as caminho from "path";
 import * as fs from "fs";
 import carregarModulo from "../bibliotecas/importar-biblioteca";
 
-import { Callable } from "../estruturas/callable";
+import { Chamavel } from "../estruturas/chamavel";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaClasse } from "../estruturas/classe";
 import { DeleguaFuncao } from "../estruturas/funcao";
@@ -193,7 +193,7 @@ export class Interpretador implements InterpretadorInterface {
       argumentos.push(this.avaliar(expr.argumentos[i]));
     }
 
-    if (!(callee instanceof Callable)) {
+    if (!(callee instanceof Chamavel)) {
       throw new ErroEmTempoDeExecucao(
         expr.parentese,
         "Só pode chamar função ou classe."
