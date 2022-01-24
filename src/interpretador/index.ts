@@ -1,10 +1,10 @@
 import tiposDeSimbolos from "../tiposDeSimbolos";
 import { Ambiente } from "../ambiente";
 import { Delegua } from "../delegua";
-import carregarBibliotecaGlobal from "../bibliotecas/bibliotecaGlobal";
+import carregarBibliotecaGlobal from "../bibliotecas/biblioteca-global";
 import * as caminho from "path";
 import * as fs from "fs";
-import carregarModulo from "../bibliotecas/importarBiblioteca";
+import carregarModulo from "../bibliotecas/importar-biblioteca";
 
 import { Callable } from "../estruturas/callable";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
@@ -468,7 +468,7 @@ export class Interpretador implements InterpretadorInterface {
       );
     }
 
-    dados = fs.readFileSync(caminhoTotal).toString();
+    dados = fs.readFileSync(caminhoTotal).paraTexto();
 
     const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
     // const interpretador = new Interpretador(delegua, pastaTotal);

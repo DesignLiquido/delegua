@@ -1,7 +1,7 @@
 import tiposDeSimbolos from "../tiposDeSimbolos";
 import { AvaliadorSintaticoInterface, SimboloInterface } from "../interfaces";
 import {
-  AssignSubscript,
+  AtribuicaoSobrescrita,
   Atribuir,
   Binario,
   Call,
@@ -504,7 +504,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         const get = expr;
         return new Conjunto(get.objeto, get.nome, valor);
       } else if (expr instanceof Subscript) {
-        return new AssignSubscript(expr.callee, expr.indice, valor);
+        return new AtribuicaoSobrescrita(expr.callee, expr.indice, valor);
       }
       this.erro(igual, "Tarefa de atribuição inválida");
     }

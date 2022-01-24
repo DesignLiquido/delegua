@@ -46,7 +46,7 @@ class Simbolo implements SimboloInterface {
         this.linha = linha;
     }
 
-    toString() {
+    paraTexto() {
         return this.tipo + " " + this.lexema + " " + this.literal;
     }
 }

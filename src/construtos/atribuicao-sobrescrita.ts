@@ -1,7 +1,7 @@
 import { Expr } from "./expr";
 
 
-export class AssignSubscript extends Expr {
+export class AtribuicaoSobrescrita extends Expr {
     objeto: any;
     valor: any;
     indice: any;

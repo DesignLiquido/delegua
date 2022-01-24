@@ -1,4 +1,4 @@
-export * from "./assign-subscript";
+export * from "./atribuicao-sobrescrita";
 export * from "./atribuir";
 export * from "./binario";
 export * from "./call";
