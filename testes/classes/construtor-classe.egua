@@ -1,0 +1,7 @@
+classe Teste {
+  construtor() {
+    escreva("começou");
+  }
+}
+
+var teste = Teste();

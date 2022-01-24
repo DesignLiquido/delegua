@@ -776,7 +776,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       );
     }
 
-    return metodo.bind(objeto);
+    return metodo.definirEscopo(objeto);
   }
 
   paraTexto(objeto: any) {

@@ -1,7 +1,7 @@
-export class ResolverError extends Error {
+export class ErroResolvedor extends Error {
     mensagem: String;
 
-    constructor(mensagem) {
+    constructor(mensagem: any) {
         super(mensagem);
         this.mensagem = mensagem;
     }

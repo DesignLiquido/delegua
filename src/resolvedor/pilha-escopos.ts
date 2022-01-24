@@ -1,13 +1,13 @@
 import { PilhaInterface } from "../interfaces";
 
-export class Pilha implements PilhaInterface {
+export class PilhaEscopos implements PilhaInterface {
     pilha: any[];
 
     constructor() {
         this.pilha = [];
     }
 
-    empilhar(item) {
+    empilhar(item: any) {
         this.pilha.push(item);
     }
 
