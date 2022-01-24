@@ -468,7 +468,7 @@ export class Interpretador implements InterpretadorInterface {
       );
     }
 
-    dados = fs.readFileSync(caminhoTotal).paraTexto();
+    dados = fs.readFileSync(caminhoTotal).toString();
 
     const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
     // const interpretador = new Interpretador(delegua, pastaTotal);

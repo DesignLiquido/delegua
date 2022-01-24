@@ -1,11 +1,10 @@
 import { Expr } from "./expr";
 
 
-export class Vetor extends Expr {
+export class Vetor implements Expr {
     valores: any;
 
     constructor(valores: any) {
-        super();
         this.valores = valores;
     }
 

@@ -1,12 +1,11 @@
 import { Expr } from "./expr";
 
 
-export class Funcao extends Expr {
+export class Funcao implements Expr {
     parametros: any;
     corpo: any;
 
     constructor(parametros: any, corpo: any) {
-        super();
         this.parametros = parametros;
         this.corpo = corpo;
     }

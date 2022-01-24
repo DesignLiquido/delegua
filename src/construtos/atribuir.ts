@@ -1,12 +1,11 @@
 import { Expr } from "./expr";
 
 
-export class Atribuir extends Expr {
+export class Atribuir implements Expr {
     nome: any;
     valor: any;
 
     constructor(nome: any, valor: any) {
-        super();
         this.nome = nome;
         this.valor = valor;
     }
