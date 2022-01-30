@@ -27,6 +27,9 @@ function operarConexao(conexao: net.Socket) {
 const servidor: net.Server = net.createServer();
 servidor.on('connection', operarConexao);
 
-servidor.listen(9000, function() {    
-    console.log('Servidor esperando mensagens de %j', servidor.address());  
+servidor.listen(9000, function() {
+    const dadosEndereco: net.AddressInfo = servidor.address() as net.AddressInfo;
+    console.log("Endereço IP: ", dadosEndereco.address);
+    console.log("Protocolo de Transporte: ", dadosEndereco.family);
+    console.log("Porta: ", dadosEndereco.port);
 });
