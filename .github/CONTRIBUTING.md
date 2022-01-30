@@ -35,3 +35,17 @@ Ao abrir uma _Pull Request_, fazemos alguns testes automatizados para verificar 
 ```bash
 yarn testes
 ```
+
+### Testando o servidor do depurador
+
+Para testar o servidor do depurador, execute
+
+```bash
+yarn testes:servidor-depuracao
+```
+
+Abra outra shell (PowerShell, bash, etc.) e execute:
+
+```bash
+nc localhost 9000
+```
