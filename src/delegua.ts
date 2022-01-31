@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as caminho from "path";
 import * as readline from "readline";
 
-import { Lexer } from "./lexador";
+import { Lexador } from "./lexador";
 import { Parser } from "./avaliador-sintatico";
 import { Resolver } from "./resolvedor";
 import { Interpretador } from "./interpretador";
@@ -14,7 +14,7 @@ import { ResolvedorInterface } from "./interfaces/resolvedor-interface";
 import { InterpretadorEguaClassico } from "./interpretador/dialetos/egua-classico";
 import { ResolverEguaClassico } from "./resolvedor/dialetos/egua-classico";
 import { ParserEguaClassico } from "./avaliador-sintatico/dialetos/egua-classico";
-import { LexerEguaClassico } from "./lexador/dialetos/egua-classico";
+import { LexadorEguaClassico } from "./lexador/dialetos/egua-classico";
 
 export class Delegua {
     nomeArquivo: any;
@@ -37,28 +37,28 @@ export class Delegua {
         switch (this.dialeto) {
             case 'egua':
                 this.interpretador = new InterpretadorEguaClassico(this, process.cwd());
-                this.lexador = new LexerEguaClassico(this);
+                this.lexador = new LexadorEguaClassico(this);
                 this.avaliadorSintatico = new ParserEguaClassico(this);
                 this.resolvedor = new ResolverEguaClassico(this, this.interpretador);
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguac':
                 this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexer(this);
+                this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
                 this.resolvedor = new Resolver(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaC');
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexer(this);
+                this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
                 this.resolvedor = new Resolver(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
                 this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexer(this);
+                this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
                 this.resolvedor = new Resolver(this, this.interpretador);
                 console.log('Usando dialeto: padrão');
