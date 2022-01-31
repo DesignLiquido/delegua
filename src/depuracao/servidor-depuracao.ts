@@ -24,14 +24,11 @@ function operarConexao(conexao: net.Socket) {
     conexao.on('error', aoObterErro);
 }
 
-export function iniciarServidorDepuracao() {
+export function iniciarServidorDepuracao(): net.AddressInfo {
     const servidor: net.Server = net.createServer();
     servidor.on('connection', operarConexao);
 
-    servidor.listen(9000, function() {
-        const dadosEndereco: net.AddressInfo = servidor.address() as net.AddressInfo;
-        console.log("Endereço IP: ", dadosEndereco.address);
-        console.log("Protocolo de Transporte: ", dadosEndereco.family);
-        console.log("Porta: ", dadosEndereco.port);
-    });
+    servidor.listen(7777);
+
+    return servidor.address() as net.AddressInfo;
 }

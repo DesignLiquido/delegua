@@ -80,7 +80,9 @@ export class Delegua {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
-        iniciarServidorDepuracao();
+        const dadosServidorDepuracao = iniciarServidorDepuracao();
+        console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s): ", 
+            dadosServidorDepuracao.port, dadosServidorDepuracao.family);
 
         const leiaLinha = readline.createInterface({
             input: process.stdin,
