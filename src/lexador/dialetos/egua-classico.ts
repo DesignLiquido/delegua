@@ -57,7 +57,7 @@ class Simbolo implements SimboloInterface {
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-export class LexerEguaClassico implements LexadorInterface {
+export class LexadorEguaClassico implements LexadorInterface {
     Delegua: any;
     codigo: any;
     simbolos: any;
@@ -317,9 +317,7 @@ export class LexerEguaClassico implements LexadorInterface {
         this.atual = 0;
         this.linha = 1;
         
-        if (codigo) {
-            this.codigo = codigo;
-        }
+        this.codigo = codigo || '';
 
         while (!this.eFinalDoCodigo()) {
             this.inicio = this.atual;
