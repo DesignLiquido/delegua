@@ -14,6 +14,10 @@ function operarConexao(conexao: net.Socket) {
             case "continuar":
                 conexao.write("Recebido comando 'continuar'\n");
                 break;
+            case "tchau":
+                conexao.write("Recebido comando 'tchau'. Conexão será encerrada\n");
+                conexao.destroy();
+                break;
         }
     }
 
