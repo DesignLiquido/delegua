@@ -15,7 +15,7 @@ import { InterpretadorEguaClassico } from "./interpretador/dialetos/egua-classic
 import { ResolverEguaClassico } from "./resolvedor/dialetos/egua-classico";
 import { ParserEguaClassico } from "./avaliador-sintatico/dialetos/egua-classico";
 import { LexadorEguaClassico } from "./lexador/dialetos/egua-classico";
-import { iniciarServidorDepuracao } from "./depuracao";
+import { ServidorDepuracao } from "./depuracao";
 
 export class Delegua {
     nomeArquivo: any;
@@ -81,7 +81,8 @@ export class Delegua {
         console.log('Pressione Ctrl + C para sair');
 
         if (depurador) {
-            const dadosServidorDepuracao = iniciarServidorDepuracao();
+            const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
+            const dadosServidorDepuracao = servidorDepuracao.iniciarServidorDepuracao();
             console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s): ", 
                 dadosServidorDepuracao.port, dadosServidorDepuracao.family);
         }
