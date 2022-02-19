@@ -2,21 +2,27 @@ import * as net from 'net';
 
 function operarConexao(conexao: net.Socket) {
     const enderecoRemoto = conexao.remoteAddress + ':' + conexao.remotePort;
-    console.log('Nova conexão de cliente de %s', enderecoRemoto);
+    process.stdout.write('\n[Depurador] Nova conexão de cliente de ' + enderecoRemoto + '\ndelegua> ');
 
     conexao.setEncoding('utf8');
 
     function aoReceberDados(dados: Buffer) {
-        console.log('Dados da conexão vindos de %s: %j', enderecoRemoto, dados);  
-        conexao.write(dados);  
+        const comando: string = String(dados).replace(/\r?\n|\r/g, "");
+        process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
+
+        switch (comando) {
+            case "continuar":
+                conexao.write("Recebido comando 'continuar'\n");
+                break;
+        }
     }
 
     function aoFecharConexao() {
-        console.log('Conexão de %s fechada', enderecoRemoto);  
+        process.stdout.write('\n[Depurador] Conexão de ' + enderecoRemoto + ' fechada\ndelegua> ');  
     }
 
     function aoObterErro(erro: Error) {
-        console.log('Conexão %s com erro: %s', enderecoRemoto, erro.message);  
+        process.stdout.write('\n[Depurador] Conexão ' + enderecoRemoto + ' com erro: ' + erro.message + '\ndelegua> ');  
     }
 
     conexao.on('data', aoReceberDados);  

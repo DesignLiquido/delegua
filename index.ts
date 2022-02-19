@@ -7,6 +7,7 @@ const principal = function () {
 
   analisadorArgumentos
     .option("-d, --dialeto <dialeto>", "Dialeto a ser usado. Padrão: delegua",  "delegua")
+    .option("-D, --depurador", "Habilita o depurador, permitindo depuração em um ambiente como o VSCode")
     .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
     .action((arquivos) => {
         if (arquivos.length > 0) {
@@ -20,7 +21,7 @@ const principal = function () {
   const delegua = new Delegua(opcoes.dialeto);
 
   if (!nomeArquivo) {
-    delegua.iniciarDelegua();
+    delegua.iniciarDelegua(true);
   } else {
     delegua.carregarArquivo(nomeArquivo);
   }

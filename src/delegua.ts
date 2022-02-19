@@ -76,13 +76,15 @@ export class Delegua {
         }        
     }
 
-    iniciarDelegua() {
+    iniciarDelegua(depurador: boolean = false) {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
-        const dadosServidorDepuracao = iniciarServidorDepuracao();
-        console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s): ", 
-            dadosServidorDepuracao.port, dadosServidorDepuracao.family);
+        if (depurador) {
+            const dadosServidorDepuracao = iniciarServidorDepuracao();
+            console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s): ", 
+                dadosServidorDepuracao.port, dadosServidorDepuracao.family);
+        }
 
         const leiaLinha = readline.createInterface({
             input: process.stdin,

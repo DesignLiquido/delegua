@@ -6,10 +6,15 @@ A primeira fonte de inspiração foi [um artigo do Vassili Kaplan](https://www.c
 
 - https://zetcode.com/javascript/socket/
 
-Você pode depurar o depurador usando o VSCode. 
+Você pode depurar o depurador usando o VSCode. Ele inicia juntamente com o modo REPL (LAIR). 
 
 Uma forma bastante simples de testar o depurador é abrindo uma conexão usando o comando `nc` (Netcat), para qualquer sistema operacional:
 
 ```
 nc localhost 7777
 ```
+
+Isso abrirá um _socket_ entre o Netcat e a linguagem. Uma mensagem como esta irá aparecer.
+
+> Nova conexão de cliente de ::1:49649
+
