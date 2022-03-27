@@ -12,13 +12,13 @@ export interface LexadorInterface {
     eFinalDoCodigo(): boolean;
     avancar(): void;
     adicionarSimbolo(tipo: any, literal: any): void;
-    match(esperado: any): boolean;
-    peek(): any;
-    peekNext(): any;
+    correspondeA(esperado: any): boolean;
+    caracterAtual(): any;
+    proximoCaracter(): any;
     voltar(): any;
     analisarTexto(texto: string): void;
     analisarNumero(): void;
     identificarPalavraChave(): void;
-    scanToken(): void;
+    classificarToken(): void;
     mapear(codigo?: any): any;
 }

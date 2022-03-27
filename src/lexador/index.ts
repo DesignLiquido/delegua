@@ -90,7 +90,7 @@ export class Lexador implements LexadorInterface {
         this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
     }
 
-    match(esperado: any) {
+    correspondeA(esperado: any) {
         if (this.eFinalDoCodigo()) {
             return false;
         }
@@ -103,12 +103,12 @@ export class Lexador implements LexadorInterface {
         return true;
     }
 
-    peek() {
+    caracterAtual() {
         if (this.eFinalDoCodigo()) return "\0";
         return this.codigo.charAt(this.atual);
     }
 
-    peekNext() {
+    proximoCaracter() {
         if (this.atual + 1 >= this.codigo.length) return "\0";
         return this.codigo.charAt(this.atual + 1);
     }
@@ -118,8 +118,8 @@ export class Lexador implements LexadorInterface {
     }
 
     analisarTexto(texto: string = '"') {
-        while (this.peek() !== texto && !this.eFinalDoCodigo()) {
-            if (this.peek() === "\n") this.linha = +1;
+        while (this.caracterAtual() !== texto && !this.eFinalDoCodigo()) {
+            if (this.caracterAtual() === "\n") this.linha = +1;
             this.avancar();
         }
 
@@ -139,14 +139,14 @@ export class Lexador implements LexadorInterface {
     }
 
     analisarNumero() {
-        while (this.eDigito(this.peek())) {
+        while (this.eDigito(this.caracterAtual())) {
             this.avancar();
         }
 
-        if (this.peek() == "." && this.eDigito(this.peekNext())) {
+        if (this.caracterAtual() == "." && this.eDigito(this.proximoCaracter())) {
             this.avancar();
 
-            while (this.eDigito(this.peek())) {
+            while (this.eDigito(this.caracterAtual())) {
                 this.avancar();
             }
         }
@@ -156,7 +156,7 @@ export class Lexador implements LexadorInterface {
     }
 
     identificarPalavraChave() {
-        while (this.eAlfabetoOuDigito(this.peek())) {
+        while (this.eAlfabetoOuDigito(this.caracterAtual())) {
             this.avancar();
         }
 
@@ -166,7 +166,7 @@ export class Lexador implements LexadorInterface {
         this.adicionarSimbolo(tipo);
     }
 
-    scanToken() {
+    classificarToken() {
         const caractere = this.avancar();
 
         switch (caractere) {
@@ -195,10 +195,10 @@ export class Lexador implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO);
                 break;
             case "-":
-                this.adicionarSimbolo(this.match("=") ? tiposDeSimbolos.MENOS_IGUAL : tiposDeSimbolos.SUBTRACAO);
+                this.adicionarSimbolo(this.correspondeA("=") ? tiposDeSimbolos.MENOS_IGUAL : tiposDeSimbolos.SUBTRACAO);
                 break;
             case "+":
-                this.adicionarSimbolo(this.match("=") ? tiposDeSimbolos.MAIS_IGUAL : tiposDeSimbolos.ADICAO);
+                this.adicionarSimbolo(this.correspondeA("=") ? tiposDeSimbolos.MAIS_IGUAL : tiposDeSimbolos.ADICAO);
                 break;
             case ":":
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
@@ -211,12 +211,12 @@ export class Lexador implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case "*":
-                if (this.peek() === "*") {
+                if (this.caracterAtual() === "*") {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     break;
                 }
-                else if (this.match("/")) {
+                else if (this.correspondeA("/")) {
                     while (!this.eFinalDoCodigo()) this.avancar();
                     break;
                 }
@@ -226,12 +226,12 @@ export class Lexador implements LexadorInterface {
                 }
             case "!":
                 this.adicionarSimbolo(
-                    this.match("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
+                    this.correspondeA("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
                 );
                 break;
             case "=":
                 this.adicionarSimbolo(
-                    this.match("=") ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
+                    this.correspondeA("=") ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
                 );
                 break;
 
@@ -252,9 +252,9 @@ export class Lexador implements LexadorInterface {
                 break;
 
             case "<":
-                if (this.match("=")) {
+                if (this.correspondeA("=")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                } else if (this.match("<")) {
+                } else if (this.correspondeA("<")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
@@ -262,9 +262,9 @@ export class Lexador implements LexadorInterface {
                 break;
 
             case ">":
-                if (this.match("=")) {
+                if (this.correspondeA("=")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
-                } else if (this.match(">")) {
+                } else if (this.correspondeA(">")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
@@ -272,10 +272,10 @@ export class Lexador implements LexadorInterface {
                 break;
 
             case "/":
-                if (this.match("/")) {
-                    while (this.peek() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
+                if (this.correspondeA("/")) {
+                    while (this.caracterAtual() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
                 }
-                else if(this.match("*")){
+                else if(this.correspondeA("*")){
                     while (!this.eFinalDoCodigo()) this.avancar();
                 }
                 else {
@@ -319,7 +319,7 @@ export class Lexador implements LexadorInterface {
 
         while (!this.eFinalDoCodigo()) {
             this.inicio = this.atual;
-            this.scanToken();
+            this.classificarToken();
         }
 
         return this.simbolos;
