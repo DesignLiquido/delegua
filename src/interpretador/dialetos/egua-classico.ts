@@ -28,8 +28,8 @@ import { InterpretadorInterface } from "../../interfaces";
 export class InterpretadorEguaClassico implements InterpretadorInterface {
   Delegua: any;
   diretorioBase: any;
-  global: any;
-  ambiente: any;
+  global: Ambiente;
+  ambiente: Ambiente;
   locais: any;
 
   constructor(Delegua: any, diretorioBase: any) {
@@ -718,7 +718,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     const criado = new DeleguaClasse(stmt.nome.lexema, superClasse, metodos);
 
     if (superClasse !== null) {
-      this.ambiente = this.ambiente.enclosing;
+      this.ambiente = this.ambiente.ambientePai;
     }
 
     this.ambiente.atribuirVariavel(stmt.nome, criado);
