@@ -1,11 +1,12 @@
 import { ErroEmTempoDeExecucao } from "./excecoes";
+import { SimboloInterface } from "./interfaces";
 
 export class Ambiente {
-    enclosing: any;
+    ambientePai: any;
     valores: any;
 
-    constructor(enclosing?: any) {
-        this.enclosing = enclosing || null;
+    constructor(ambientePai?: any) {
+        this.ambientePai = ambientePai || null;
         this.valores = {};
     }
 
@@ -14,43 +15,55 @@ export class Ambiente {
     }
 
     atribuirVariavelEm(distancia: any, nome: any, valor: any) {
-        this.ancestor(distancia).valores[nome.lexema] = valor;
+        this.obterAmbienteAncestral(distancia).valores[nome.lexema] = valor;
     }
 
-    atribuirVariavel(nome: any, valor: any) {
-        if (this.valores[nome.lexema] !== undefined) {
-            this.valores[nome.lexema] = valor;
+    atribuirVariavel(simbolo: SimboloInterface, valor: any) {
+        if (this.valores[simbolo.lexema] !== undefined) {
+            this.valores[simbolo.lexema] = valor;
             return;
         }
 
-        if (this.enclosing != null) {
-            this.enclosing.atribuirVariavel(nome, valor);
+        if (this.ambientePai != null) {
+            this.ambientePai.atribuirVariavel(simbolo, valor);
             return;
         }
 
-        throw new ErroEmTempoDeExecucao(nome, "Variável não definida '" + nome.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     }
 
-    ancestor(distancia: any) {
+    obterAmbienteAncestral(distancia: number) {
         let ambiente = this;
         for (let i = 0; i < distancia; i++) {
-            ambiente = ambiente.enclosing;
+            ambiente = ambiente.ambientePai;
         }
 
         return ambiente;
     }
 
-    obterVariavelEm(distancia: any, nome: any) {
-        return this.ancestor(distancia).valores[nome];
+    obterVariavelEm(distancia: number, nome: string) {
+        return this.obterAmbienteAncestral(distancia).valores[nome];
     }
 
-    obterVariavel(simbolo: any) {
+    obterVariavel(simbolo: SimboloInterface) {
         if (this.valores[simbolo.lexema] !== undefined) {
             return this.valores[simbolo.lexema];
         }
 
-        if (this.enclosing !== null) return this.enclosing.obterVariavel(simbolo);
+        if (this.ambientePai !== null) return this.ambientePai.obterVariavel(simbolo);
 
         throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
+    }
+
+    /**
+     * Método usado pelo depurador para obter todas as variáveis definidas.
+     */
+    obterTodasVariaveis(todasVariaveis: any[] = []) {
+        todasVariaveis.push(this.valores);
+        if (this.ambientePai != null) {
+            this.ambientePai.obterTodasVariaveis(todasVariaveis);
+        } else {
+            return todasVariaveis;
+        }
     }
 };
