@@ -31,6 +31,7 @@ export class Interpretador implements InterpretadorInterface {
   global: Ambiente;
   ambiente: Ambiente;
   locais: any;
+  linhaAtual: number;
 
   constructor(Delegua: any, diretorioBase: any) {
     this.Delegua = Delegua;
@@ -39,6 +40,7 @@ export class Interpretador implements InterpretadorInterface {
     this.global = new Ambiente();
     this.ambiente = this.global;
     this.locais = new Map();
+    this.linhaAtual = 0;
 
     this.global = carregarBibliotecaGlobal(this, this.global);
   }
@@ -805,6 +807,7 @@ export class Interpretador implements InterpretadorInterface {
 
   interpretar(declaracoes: any) {
     try {
+      this.linhaAtual = 1;
       if (declaracoes.length === 1) {
         const eObjetoExpressao =
           declaracoes[0].constructor.name === "Expressao";
@@ -814,6 +817,7 @@ export class Interpretador implements InterpretadorInterface {
         }
       }
       for (let i = 0; i < declaracoes.length; i++) {
+        this.linhaAtual = i + 1;
         this.executar(declaracoes[i]);
       }
     } catch (erro) {

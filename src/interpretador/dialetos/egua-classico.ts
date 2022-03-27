@@ -31,6 +31,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   global: Ambiente;
   ambiente: Ambiente;
   locais: any;
+  linhaAtual: number;
 
   constructor(Delegua: any, diretorioBase: any) {
     this.Delegua = Delegua;
@@ -39,6 +40,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     this.global = new Ambiente();
     this.ambiente = this.global;
     this.locais = new Map();
+    this.linhaAtual = 0;
 
     this.global = carregarBibliotecaGlobal(this, this.global);
   }
@@ -807,6 +809,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   interpretar(declaracoes: any) {
     try {
       for (let i = 0; i < declaracoes.length; i++) {
+        this.linhaAtual = i + 1;
         this.executar(declaracoes[i], false);
       }
     } catch (erro) {
