@@ -83,7 +83,7 @@ export class Delegua {
         if (depurador) {
             const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
             const dadosServidorDepuracao = servidorDepuracao.iniciarServidorDepuracao();
-            console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s): ", 
+            console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s)", 
                 dadosServidorDepuracao.port, dadosServidorDepuracao.family);
         }
 
