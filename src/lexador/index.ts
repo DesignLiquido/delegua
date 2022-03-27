@@ -1,5 +1,7 @@
-import { LexadorInterface, SimboloInterface } from "../interfaces";
+import { Delegua } from "../delegua";
+import { LexadorInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
+import { Simbolo } from "./simbolo";
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,
@@ -36,24 +38,6 @@ const palavrasReservadas = {
     herda: tiposDeSimbolos.HERDA
 };
 
-class Simbolo implements SimboloInterface {
-    lexema: string;
-    tipo: string;
-    literal: string;
-    linha: string;
-
-    constructor(tipo: string, lexema: string, literal: string, linha: string) {
-        this.tipo = tipo;
-        this.lexema = lexema;
-        this.literal = literal;
-        this.linha = linha;
-    }
-
-    paraTexto(): string {
-        return this.tipo + " " + this.lexema + " " + this.literal;
-    }
-}
-
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
@@ -64,11 +48,11 @@ export class Lexador implements LexadorInterface {
     Delegua: any;
     codigo: any;
     simbolos: any;
-    inicio: any;
-    atual: any;
-    linha: any;
+    inicio: number;
+    atual: number;
+    linha: number;
 
-    constructor(Delegua: any, codigo?: any) {
+    constructor(Delegua: Delegua, codigo?: any) {
         this.Delegua = Delegua;
         this.codigo = codigo;
 
