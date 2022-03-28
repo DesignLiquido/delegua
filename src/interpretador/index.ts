@@ -476,8 +476,7 @@ export class Interpretador implements InterpretadorInterface {
 
     delegua.executar(conteudoImportacao);
 
-    // let exportar = delegua.interpretador.global.obterTodasDeleguaFuncao();
-    let exportar = delegua.interpretador.global.valores.exports;
+    let exportar = delegua.interpretador.global.obterTodasDeleguaFuncao();
 
     const eDicionario = (objeto: any) => objeto.constructor === Object;
 
