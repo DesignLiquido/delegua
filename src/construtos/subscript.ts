@@ -2,12 +2,12 @@ import { Expr } from "./expr";
 
 
 export class Subscript implements Expr {
-    callee: any;
+    entidadeChamada: any;
     closeBracket: any;
     indice: any;
 
-    constructor(callee: any, indice: any, closeBracket: any) {
-        this.callee = callee;
+    constructor(entidadeChamada: any, indice: any, closeBracket: any) {
+        this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.closeBracket = closeBracket;
     }

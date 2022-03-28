@@ -1,3 +1,4 @@
+import { DeleguaFuncao } from "./estruturas";
 import { ErroEmTempoDeExecucao } from "./excecoes";
 import { SimboloInterface } from "./interfaces";
 
@@ -65,5 +66,20 @@ export class Ambiente {
         } else {
             return todasVariaveis;
         }
+    }
+
+    /*
+     * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
+     * em console.
+     */
+    obterTodasDeleguaFuncao() {
+        const retorno = {};
+        for (const [nome, corpo] of Object.entries(this.valores)) {
+            if (corpo instanceof DeleguaFuncao) {
+                retorno[nome] = corpo;
+            }
+        }
+
+        return retorno;
     }
 };

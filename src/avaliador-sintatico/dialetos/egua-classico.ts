@@ -7,7 +7,7 @@ import {
   AtribuicaoSobrescrita,
   Atribuir,
   Binario,
-  Call,
+  Chamada,
   Dicionario,
   Conjunto,
   Funcao,
@@ -235,7 +235,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     throw this.erro(this.simboloAtual(), "Esperado expressão.");
   }
 
-  finalizarChamada(callee: any): any {
+  finalizarChamada(entidadeChamada: any): any {
     const argumentos = [];
     if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
       do {
@@ -254,7 +254,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
       "Esperado ')' após os argumentos."
     );
 
-    return new Call(callee, parenteseDireito, argumentos);
+    return new Chamada(entidadeChamada, parenteseDireito, argumentos);
   }
 
   chamar(): any {
@@ -483,7 +483,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         const get = expr;
         return new Conjunto(get.objeto, get.nome, valor);
       } else if (expr instanceof Subscript) {
-        return new AtribuicaoSobrescrita(expr.callee, expr.indice, valor);
+        return new AtribuicaoSobrescrita(expr.entidadeChamada, expr.indice, valor);
       }
       this.erro(igual, "Tarefa de atribuição inválida");
     }

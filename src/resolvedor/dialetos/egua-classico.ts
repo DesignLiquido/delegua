@@ -333,7 +333,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoDeChamada(expr: any): any {
-        this.resolver(expr.callee);
+        this.resolver(expr.entidadeChamada);
 
         let argumentos = expr.argumentos;
         for (let i = 0; i < argumentos.length; i++) {
@@ -364,7 +364,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoVetorIndice(expr: any): any {
-        this.resolver(expr.callee);
+        this.resolver(expr.entidadeChamada);
         this.resolver(expr.indice);
         return null;
     }
