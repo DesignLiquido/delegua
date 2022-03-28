@@ -19,7 +19,7 @@ export interface AvaliadorSintaticoInterface {
     avancar(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
     primario(): any;
-    finalizarChamada(callee: any): any;
+    finalizarChamada(entidadeChamada: any): any;
     chamar(): any;
     unario(): any;
     exponenciacao(): any;

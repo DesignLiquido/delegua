@@ -1,3 +1,4 @@
+import { DeleguaFuncao } from "./estruturas";
 import { ErroEmTempoDeExecucao } from "./excecoes";
 
 export class Ambiente {
@@ -52,5 +53,20 @@ export class Ambiente {
         if (this.enclosing !== null) return this.enclosing.obterVariavel(simbolo);
 
         throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
+    }
+
+    /**
+     * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
+     * em console.
+     */
+    obterTodasDeleguaFuncao() {
+        const retorno = {};
+        for (const [nome, corpo] of Object.entries(this.valores)) {
+            if (corpo instanceof DeleguaFuncao) {
+                retorno[nome] = corpo;
+            }
+        }
+
+        return retorno;
     }
 };

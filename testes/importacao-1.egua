@@ -1,2 +1,2 @@
 var importacao = importar("./testes/importacao-2.egua")
-escreva(importacao.escreverAlgumaCoisa())
+importacao.escreverAlgumaCoisa()

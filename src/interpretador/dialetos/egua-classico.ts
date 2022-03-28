@@ -194,14 +194,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   }
 
   visitarExpressaoDeChamada(expr: any) {
-    let callee = this.avaliar(expr.callee);
+    let entidadeChamada = this.avaliar(expr.entidadeChamada);
 
     let argumentos = [];
     for (let i = 0; i < expr.argumentos.length; i++) {
       argumentos.push(this.avaliar(expr.argumentos[i]));
     }
 
-    if (!(callee instanceof Chamavel)) {
+    if (!(entidadeChamada instanceof Chamavel)) {
       throw new ErroEmTempoDeExecucao(
         expr.parentese,
         "Só pode chamar função ou classe."
@@ -209,19 +209,19 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     let parametros;
-    if (callee instanceof DeleguaFuncao) {
-      parametros = callee.declaracao.parametros;
-    } else if (callee instanceof DeleguaClasse) {
-      parametros = callee.metodos.init
-        ? callee.metodos.init.declaracao.parametros
+    if (entidadeChamada instanceof DeleguaFuncao) {
+      parametros = entidadeChamada.declaracao.parametros;
+    } else if (entidadeChamada instanceof DeleguaClasse) {
+      parametros = entidadeChamada.metodos.init
+        ? entidadeChamada.metodos.init.declaracao.parametros
         : [];
     } else {
       parametros = [];
     }
 
     // Isso aqui completa os parâmetros não preenchidos com nulos.
-    if (argumentos.length < callee.aridade()) {
-      let diferenca = callee.aridade() - argumentos.length;
+    if (argumentos.length < entidadeChamada.aridade()) {
+      let diferenca = entidadeChamada.aridade() - argumentos.length;
       for (let i = 0; i < diferenca; i++) {
         argumentos.push(null);
       }
@@ -239,11 +239,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       }
     }
 
-    if (callee instanceof FuncaoPadrao) {
-      return callee.chamar(this, argumentos, expr.callee.nome);
+    if (entidadeChamada instanceof FuncaoPadrao) {
+      return entidadeChamada.chamar(this, argumentos, expr.entidadeChamada.nome);
     }
 
-    return callee.chamar(this, argumentos);
+    return entidadeChamada.chamar(this, argumentos);
   }
 
   visitarExpressaoDeAtribuicao(expr: any) {
@@ -589,7 +589,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   }
 
   visitarExpressaoVetorIndice(expressao: any) {
-    const objeto = this.avaliar(expressao.callee);
+    const objeto = this.avaliar(expressao.entidadeChamada);
 
     let indice = this.avaliar(expressao.indice);
     if (Array.isArray(objeto)) {
@@ -644,7 +644,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       return objeto.charAt(indice);
     } else {
       throw new ErroEmTempoDeExecucao(
-        expressao.callee.nome,
+        expressao.entidadeChamada.nome,
         "Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita."
       );
     }
