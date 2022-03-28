@@ -474,7 +474,8 @@ export class Interpretador implements InterpretadorInterface {
 
     delegua.executar(conteudoImportacao);
 
-    let exportar = delegua.interpretador.global.obterTodasDeleguaFuncao();
+    // let exportar = delegua.interpretador.global.obterTodasDeleguaFuncao();
+    let exportar = delegua.interpretador.global.valores.exports;
 
     const eDicionario = (objeto: any) => objeto.constructor === Object;
 
@@ -584,7 +585,7 @@ export class Interpretador implements InterpretadorInterface {
   }
 
   visitarExpressaoVetorIndice(expressao: any) {
-    const objeto = this.avaliar(expressao.callee);
+    const objeto = this.avaliar(expressao.entidadeChamada);
 
     let indice = this.avaliar(expressao.indice);
     if (Array.isArray(objeto)) {
@@ -639,7 +640,7 @@ export class Interpretador implements InterpretadorInterface {
       return objeto.charAt(indice);
     } else {
       throw new ErroEmTempoDeExecucao(
-        expressao.callee.nome,
+        expressao.entidadeChamada.nome,
         "Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita."
       );
     }
