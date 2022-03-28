@@ -63,6 +63,20 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Teste Classe (Delégua)",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}\\index.ts", "./testes/classes/teste-classe.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Bhaskara (Delégua)",
             "skipFiles": [
                 "<node_internals>/**",

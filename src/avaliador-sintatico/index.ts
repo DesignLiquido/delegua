@@ -255,7 +255,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     throw this.erro(this.simboloAtual(), "Esperado expressão.");
   }
 
-  finalizarChamada(callee: any): any {
+  finalizarChamada(entidadeChamada: any): any {
     const argumentos = [];
 
     if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -275,7 +275,7 @@ export class Parser implements AvaliadorSintaticoInterface {
       "Esperado ')' após os argumentos."
     );
 
-    return new Chamada(callee, parenteseDireito, argumentos);
+    return new Chamada(entidadeChamada, parenteseDireito, argumentos);
   }
 
   chamar(): any {

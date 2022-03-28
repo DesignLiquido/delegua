@@ -232,7 +232,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     if (entidadeChamada instanceof FuncaoPadrao) {
-      return entidadeChamada.chamar(this, argumentos, expr.callee.nome);
+      return entidadeChamada.chamar(this, argumentos, expr.entidadeChamada.nome);
     }
 
     return entidadeChamada.chamar(this, argumentos);
