@@ -3,9 +3,11 @@ import { DeleguaFuncao } from "../estruturas/funcao";
 import { DeleguaInstancia } from "../estruturas/instancia";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaClasse } from "../estruturas/classe";
+import { Ambiente } from "../ambiente";
+import { InterpretadorInterface } from "../interfaces";
 
 
-export default function (interpretador: any, global: any) {
+export default function (interpretador: InterpretadorInterface, global: Ambiente) {
     // Retorna um número aleatório entre 0 e 1.
     global.definirVariavel(
         "aleatorio",

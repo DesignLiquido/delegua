@@ -4,7 +4,7 @@ import { Delegua } from "../delegua";
 import carregarBibliotecaGlobal from "../bibliotecas/biblioteca-global";
 import * as caminho from "path";
 import * as fs from "fs";
-import carregarModulo from "../bibliotecas/importar-biblioteca";
+import carregarBibliotecaNode from "../bibliotecas/importar-biblioteca";
 
 import { Chamavel } from "../estruturas/chamavel";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
@@ -186,14 +186,14 @@ export class Interpretador implements InterpretadorInterface {
   }
 
   visitarExpressaoDeChamada(expr: any) {
-    let callee = this.avaliar(expr.callee);
+    let entidadeChamada = this.avaliar(expr.entidadeChamada);
 
     let argumentos = [];
     for (let i = 0; i < expr.argumentos.length; i++) {
       argumentos.push(this.avaliar(expr.argumentos[i]));
     }
 
-    if (!(callee instanceof Chamavel)) {
+    if (!(entidadeChamada instanceof Chamavel)) {
       throw new ErroEmTempoDeExecucao(
         expr.parentese,
         "Só pode chamar função ou classe."
@@ -201,19 +201,19 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     let parametros;
-    if (callee instanceof DeleguaFuncao) {
-      parametros = callee.declaracao.parametros;
-    } else if (callee instanceof DeleguaClasse) {
-      parametros = callee.metodos.init
-        ? callee.metodos.init.declaracao.parametros
+    if (entidadeChamada instanceof DeleguaFuncao) {
+      parametros = entidadeChamada.declaracao.parametros;
+    } else if (entidadeChamada instanceof DeleguaClasse) {
+      parametros = entidadeChamada.metodos.init
+        ? entidadeChamada.metodos.init.declaracao.parametros
         : [];
     } else {
       parametros = [];
     }
 
     // Isso aqui completa os parâmetros não preenchidos com nulos.
-    if (argumentos.length < callee.aridade()) {
-      let diferenca = callee.aridade() - argumentos.length;
+    if (argumentos.length < entidadeChamada.aridade()) {
+      let diferenca = entidadeChamada.aridade() - argumentos.length;
       for (let i = 0; i < diferenca; i++) {
         argumentos.push(null);
       }
@@ -231,11 +231,11 @@ export class Interpretador implements InterpretadorInterface {
       }
     }
 
-    if (callee instanceof FuncaoPadrao) {
-      return callee.chamar(this, argumentos, expr.callee.nome);
+    if (entidadeChamada instanceof FuncaoPadrao) {
+      return entidadeChamada.chamar(this, argumentos, expr.callee.nome);
     }
 
-    return callee.chamar(this, argumentos);
+    return entidadeChamada.chamar(this, argumentos);
   }
 
   visitarExpressaoDeAtribuicao(expr: any) {
@@ -448,10 +448,10 @@ export class Interpretador implements InterpretadorInterface {
     // const pastaTotal = caminho.dirname(caminhoTotal);
     const nomeArquivo = caminho.basename(caminhoTotal);
 
-    let dados: any;
+    let conteudoImportacao: any;
     if (!caminhoTotal.endsWith('.egua')) {
-      dados = carregarModulo(caminhoRelativo);
-      if (dados) return dados;
+      conteudoImportacao = carregarBibliotecaNode(caminhoRelativo);
+      if (conteudoImportacao) return conteudoImportacao;
     }
 
     try {
@@ -468,14 +468,13 @@ export class Interpretador implements InterpretadorInterface {
       );
     }
 
-    dados = fs.readFileSync(caminhoTotal).toString();
+    conteudoImportacao = fs.readFileSync(caminhoTotal).toString();
 
     const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
-    // const interpretador = new Interpretador(delegua, pastaTotal);
 
-    delegua.executar(dados);
+    delegua.executar(conteudoImportacao);
 
-    let exportar = delegua.interpretador.global.valores.exports;
+    let exportar = delegua.interpretador.global.obterTodasDeleguaFuncao();
 
     const eDicionario = (objeto: any) => objeto.constructor === Object;
 

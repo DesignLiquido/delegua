@@ -4,7 +4,7 @@ import {
   AtribuicaoSobrescrita,
   Atribuir,
   Binario,
-  Call,
+  Chamada,
   Dicionario,
   Conjunto,
   Funcao,
@@ -275,7 +275,7 @@ export class Parser implements AvaliadorSintaticoInterface {
       "Esperado ')' após os argumentos."
     );
 
-    return new Call(callee, parenteseDireito, argumentos);
+    return new Chamada(callee, parenteseDireito, argumentos);
   }
 
   chamar(): any {
