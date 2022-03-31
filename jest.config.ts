@@ -5,6 +5,7 @@ export default async (): Promise<Config.InitialOptions> => {
     verbose: true,
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
     preset: 'ts-jest',
-    testEnvironment: 'node'
+    testEnvironment: 'node',
+    coverageReporters: ['text', 'text-summary', 'lcov']
   };
 };
