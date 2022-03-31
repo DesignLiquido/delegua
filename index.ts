@@ -3,7 +3,7 @@ import { Command } from "commander";
 
 const principal = function () {
   const analisadorArgumentos = new Command();
-  let nomeArquivo;
+  let nomeArquivo: string;
 
   analisadorArgumentos
     .option("-d, --dialeto <dialeto>", "Dialeto a ser usado. Padrão: delegua",  "delegua")
