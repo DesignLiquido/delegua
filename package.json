@@ -7,8 +7,8 @@
     "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
     "publicar-npm": "npm publish --access public",
     "testes": "./bin/delegua-ts testes/exemplos/testes.egua",
-    "testes:delegua:bhaskara": "./bin/delegua-ts testes/dialetos/egua-classico/bhaskara.egua",
-    "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/dialetos/egua-classico/testes.egua",
+    "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
+    "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
     "testes-unitarios": "jest --coverage",
     "release": "release-it"
   },
