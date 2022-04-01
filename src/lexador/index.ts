@@ -326,7 +326,7 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: any) {
+    mapear(codigo?: string) {
         this.simbolos = [];
         this.inicio = 0;
         this.atual = 0;

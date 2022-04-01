@@ -1,6 +1,9 @@
 import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
 import { PilhaEscopos } from "./pilha-escopos";
 import { ErroResolvedor } from "./erro-resolvedor";
+import { Expr } from "../construtos";
+import { Delegua } from "../delegua";
+import { InterpretadorInterface } from "../interfaces";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -29,7 +32,7 @@ const LoopType = {
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
-export class Resolver implements ResolvedorInterface {
+export class Resolvedor implements ResolvedorInterface {
     interpretador: any;
     Delegua: any;
     escopos: PilhaEscopos;
@@ -37,7 +40,7 @@ export class Resolver implements ResolvedorInterface {
     ClasseAtual: any;
     cicloAtual: any;
 
-    constructor(Delegua: any, interpretador: any) {
+    constructor(Delegua: Delegua, interpretador: InterpretadorInterface) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
         this.escopos = new PilhaEscopos();
@@ -71,7 +74,7 @@ export class Resolver implements ResolvedorInterface {
         this.escopos.removerUltimo();
     }
 
-    resolver(declaracoes: any): void {
+    resolver(declaracoes: Expr | Expr[]): void {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
