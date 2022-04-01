@@ -10,6 +10,7 @@
     "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
     "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
     "testes-unitarios": "jest --coverage",
+    "observar-testes-unitarios": "jest --watchAll",
     "release": "release-it"
   },
   "repository": {
