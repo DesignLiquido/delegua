@@ -1,6 +1,6 @@
 import { Delegua } from '../src/delegua';
 
-describe('lexador', () => {
+describe('Lexador', () => {
     describe('mapear()', () => {
         const delegua = new Delegua('delegua');
 

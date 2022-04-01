@@ -4,7 +4,7 @@ import * as readline from "readline";
 
 import { Lexador } from "./lexador";
 import { Parser } from "./avaliador-sintatico";
-import { Resolver } from "./resolvedor";
+import { Resolvedor } from "./resolvedor";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
@@ -46,21 +46,21 @@ export class Delegua {
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
-                this.resolvedor = new Resolver(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaC');
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
-                this.resolvedor = new Resolver(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
-                this.resolvedor = new Resolver(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: padrão');
                 break;
         }
