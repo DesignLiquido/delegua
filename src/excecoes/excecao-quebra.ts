@@ -1,1 +1,1 @@
-export class BreakException extends Error { }
+export class ExcecaoQuebra extends Error { }

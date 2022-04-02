@@ -15,8 +15,8 @@ import { DeleguaModulo } from '../estruturas/modulo';
 
 import {
     ExcecaoRetornar,
-    BreakException as ExcecaoQuebra,
-    ContinueException as ExcecaoContinuar,
+    ExcecaoQuebra,
+    ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import { InterpretadorInterface } from '../interfaces';

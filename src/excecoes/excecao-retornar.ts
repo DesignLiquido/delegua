@@ -1,4 +1,3 @@
-
 export class ExcecaoRetornar extends Error {
   valor: any;
 
