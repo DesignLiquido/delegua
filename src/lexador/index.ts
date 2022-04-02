@@ -204,7 +204,7 @@ export class Lexador implements LexadorInterface {
 
         const valor = this.codigo[this.linha].substring(
             this.inicioSimbolo + 1,
-            this.atual - 1
+            this.atual
         );
         this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
@@ -311,17 +311,20 @@ export class Lexador implements LexadorInterface {
                 this.avancar();
                 break;
             case '*':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '*') {
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                    this.avancar();
+                    break;
                 } else if (this.simboloAtual() === '/') {
                     while (!this.eFinalDoCodigo()) this.avancar();
                     break;
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                    break;
                 }
-                this.avancar();
-                break;
+                
             case '!':
                 this.adicionarSimbolo(
                     this.proximoIgualA('=')
@@ -382,15 +385,16 @@ export class Lexador implements LexadorInterface {
                 break;
 
             case '/':
-                if (this.proximoIgualA('/')) {
+                this.avancar();
+                if (this.simboloAtual() == '/') {
                     this.avancarParaProximaLinha();
-                } else if (this.proximoIgualA('*')) {
+                    break;
+                } else if (this.simboloAtual() === '*') {
                     while (!this.eFinalDoCodigo()) this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                    break;
                 }
-                this.avancar();
-                break;
 
             // Esta sessão ignora espaços em branco na tokenização
             case ' ':
