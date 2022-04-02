@@ -889,6 +889,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     interpretar(declaracoes: any) {
+        const inicioInterpretacao: number = performance.now();
         try {
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
@@ -903,6 +904,9 @@ export class Interpretador implements InterpretadorInterface {
             }
         } catch (erro) {
             this.Delegua.erroEmTempoDeExecucao(erro);
+        } finally {
+            const fimInterpretacao: number = performance.now();
+            console.log(`[Interpretador] Tempo para interpretaçao: ${fimInterpretacao - inicioInterpretacao}ms`);
         }
     }
 }
