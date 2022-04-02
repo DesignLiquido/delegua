@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Conjunto implements Expr {
+export class Conjunto implements Construto {
     objeto: any;
     nome: any;
     valor: any;

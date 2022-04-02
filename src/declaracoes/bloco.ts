@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Bloco extends Stmt {
+export class Bloco extends Declaracao {
     declaracoes: any;
 
     constructor(declaracoes: any) {

@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Logical implements Expr {
+export class Logical implements Construto {
     esquerda: any;
     operador: any;
     direita: any;

@@ -1,3 +1,3 @@
-export interface Expr {
+export interface Construto {
     aceitar(visitante: any): any;
 }

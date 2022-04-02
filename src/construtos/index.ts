@@ -4,7 +4,7 @@ export * from "./binario";
 export * from "./chamada";
 export * from "./conjunto";
 export * from "./dicionario";
-export * from "./expr";
+export * from "./construto";
 export * from "./funcao";
 export * from "./get";
 export * from "./grouping";

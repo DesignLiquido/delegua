@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Retorna extends Stmt {
+export class Retorna extends Declaracao {
     palavraChave: string;
     valor: any;
 

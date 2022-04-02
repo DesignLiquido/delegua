@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Isto implements Expr {
+export class Isto implements Construto {
     palavraChave: any;
 
     constructor(palavraChave?: any) {

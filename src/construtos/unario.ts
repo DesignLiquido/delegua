@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Unario implements Expr {
+export class Unario implements Construto {
     operador: any;
     direita: any;
 

@@ -1,9 +1,9 @@
 import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
 import { PilhaEscopos } from "./pilha-escopos";
 import { ErroResolvedor } from "./erro-resolvedor";
-import { Expr } from "../construtos";
+import { Construto } from "../construtos";
 import { Delegua } from "../delegua";
-import { InterpretadorInterface } from "../interfaces";
+import { InterpretadorInterface, SimboloInterface } from "../interfaces";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -50,20 +50,20 @@ export class Resolvedor implements ResolvedorInterface {
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
-    definir(nome: any): void {
+    definir(simbolo: SimboloInterface): void {
         if (this.escopos.eVazio()) return;
-        this.escopos.topoDaPilha()[nome.lexema] = true;
+        this.escopos.topoDaPilha()[simbolo.lexema] = true;
     }
 
-    declarar(nome: any): void {
+    declarar(simbolo: SimboloInterface): void {
         if (this.escopos.eVazio()) return;
         let escopo = this.escopos.topoDaPilha();
-        if (escopo.hasOwnProperty(nome.lexema))
+        if (escopo.hasOwnProperty(simbolo.lexema))
             this.Delegua.erro(
-                nome,
+                simbolo,
                 "Variável com esse nome já declarada neste escopo."
             );
-        escopo[nome.lexema] = false;
+        escopo[simbolo.lexema] = false;
     }
 
     inicioDoEscopo(): void {
@@ -74,7 +74,7 @@ export class Resolvedor implements ResolvedorInterface {
         this.escopos.removerUltimo();
     }
 
-    resolver(declaracoes: Expr | Expr[]): void {
+    resolver(declaracoes: Construto | Construto[]): void {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
