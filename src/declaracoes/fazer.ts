@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Fazer extends Stmt {
+export class Fazer extends Declaracao {
     doBranch: any;
     whileCondition: any;
 

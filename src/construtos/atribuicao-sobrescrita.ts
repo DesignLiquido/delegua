@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class AtribuicaoSobrescrita implements Expr {
+export class AtribuicaoSobrescrita implements Construto {
     objeto: any;
     valor: any;
     indice: any;

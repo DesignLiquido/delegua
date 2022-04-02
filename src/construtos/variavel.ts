@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Variavel implements Expr {
+export class Variavel implements Construto {
     nome: any;
 
     constructor(nome: any) {

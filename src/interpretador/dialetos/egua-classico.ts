@@ -14,7 +14,7 @@ import { DeleguaInstancia } from "../../estruturas/instancia";
 import { DeleguaModulo } from "../../estruturas/modulo";
 
 import {
-  ReturnException,
+  ExcecaoRetornar,
   BreakException,
   ContinueException,
   ErroEmTempoDeExecucao,
@@ -550,7 +550,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     let valor = null;
     if (stmt.valor != null) valor = this.avaliar(stmt.valor);
 
-    throw new ReturnException(valor);
+    throw new ExcecaoRetornar(valor);
   }
 
   visitarExpressaoDeleguaFuncao(expr: any) {

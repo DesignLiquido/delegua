@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Tente extends Stmt {
+export class Tente extends Declaracao {
     tryBranch: any;
     catchBranch: any;
     elseBranch: any;

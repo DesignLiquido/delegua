@@ -4,11 +4,11 @@ import * as readline from "readline";
 
 import { Lexador } from "./lexador";
 import { Parser } from "./avaliador-sintatico";
-import { Resolver } from "./resolvedor";
+import { Resolvedor } from "./resolvedor";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
-import { ReturnException } from "./excecoes";
+import { ExcecaoRetornar } from "./excecoes";
 import { AvaliadorSintaticoInterface, InterpretadorInterface, LexadorInterface, SimboloInterface } from "./interfaces";
 import { ResolvedorInterface } from "./interfaces/resolvedor-interface";
 import { InterpretadorEguaClassico } from "./interpretador/dialetos/egua-classico";
@@ -47,21 +47,21 @@ export class Delegua {
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
-                this.resolvedor = new Resolver(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaC');
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
-                this.resolvedor = new Resolver(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador(this);
                 this.avaliadorSintatico = new Parser(this);
-                this.resolvedor = new Resolver(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: padrão');
                 break;
         }
@@ -158,7 +158,7 @@ export class Delegua {
                     `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
                 );
             else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
-        } else if (!(erro instanceof ReturnException)) { // TODO: Ao se livrar de ReturnException, remover isto.
+        } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Ao se livrar de ReturnException, remover isto.
             console.error(`Erro: ${erro.mensagem}`);
         }
         

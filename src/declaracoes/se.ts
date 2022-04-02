@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Se extends Stmt {
+export class Se extends Declaracao {
     condicao: any;
     thenBranch: any;
     elifBranches: any;

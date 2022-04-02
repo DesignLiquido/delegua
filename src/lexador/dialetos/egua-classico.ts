@@ -86,7 +86,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
     }
 
-    correspondeA(esperado: any) {
+    igualA(esperado: any) {
         if (this.eFinalDoCodigo()) {
             return false;
         }
@@ -99,12 +99,12 @@ export class LexadorEguaClassico implements LexadorInterface {
         return true;
     }
 
-    caracterAtual() {
+    simboloAtual() {
         if (this.eFinalDoCodigo()) return "\0";
         return this.codigo.charAt(this.atual);
     }
 
-    proximoCaracter() {
+    proximoSimbolo() {
         if (this.atual + 1 >= this.codigo.length) return "\0";
         return this.codigo.charAt(this.atual + 1);
     }
@@ -114,8 +114,8 @@ export class LexadorEguaClassico implements LexadorInterface {
     }
 
     analisarTexto(texto: string = '"') {
-        while (this.caracterAtual() !== texto && !this.eFinalDoCodigo()) {
-            if (this.caracterAtual() === "\n") this.linha = +1;
+        while (this.simboloAtual() !== texto && !this.eFinalDoCodigo()) {
+            if (this.simboloAtual() === "\n") this.linha = +1;
             this.avancar();
         }
 
@@ -135,14 +135,14 @@ export class LexadorEguaClassico implements LexadorInterface {
     }
 
     analisarNumero() {
-        while (this.eDigito(this.caracterAtual())) {
+        while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
 
-        if (this.caracterAtual() == "." && this.eDigito(this.proximoCaracter())) {
+        if (this.simboloAtual() == "." && this.eDigito(this.proximoSimbolo())) {
             this.avancar();
 
-            while (this.eDigito(this.caracterAtual())) {
+            while (this.eDigito(this.simboloAtual())) {
                 this.avancar();
             }
         }
@@ -152,7 +152,7 @@ export class LexadorEguaClassico implements LexadorInterface {
     }
 
     identificarPalavraChave() {
-        while (this.eAlfabetoOuDigito(this.caracterAtual())) {
+        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
         }
 
@@ -162,7 +162,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         this.adicionarSimbolo(tipo);
     }
 
-    classificarToken() {
+    analisarToken() {
         const caractere = this.avancar();
 
         switch (caractere) {
@@ -206,7 +206,7 @@ export class LexadorEguaClassico implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case "*":
-                if (this.caracterAtual() === "*") {
+                if (this.simboloAtual() === "*") {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     break;
@@ -215,12 +215,12 @@ export class LexadorEguaClassico implements LexadorInterface {
                 break;
             case "!":
                 this.adicionarSimbolo(
-                    this.correspondeA("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
+                    this.igualA("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
                 );
                 break;
             case "=":
                 this.adicionarSimbolo(
-                    this.correspondeA("=") ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
+                    this.igualA("=") ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
                 );
                 break;
 
@@ -241,9 +241,9 @@ export class LexadorEguaClassico implements LexadorInterface {
                 break;
 
             case "<":
-                if (this.correspondeA("=")) {
+                if (this.igualA("=")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                } else if (this.correspondeA("<")) {
+                } else if (this.igualA("<")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
@@ -251,9 +251,9 @@ export class LexadorEguaClassico implements LexadorInterface {
                 break;
 
             case ">":
-                if (this.correspondeA("=")) {
+                if (this.igualA("=")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
-                } else if (this.correspondeA(">")) {
+                } else if (this.igualA(">")) {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
@@ -261,8 +261,8 @@ export class LexadorEguaClassico implements LexadorInterface {
                 break;
 
             case "/":
-                if (this.correspondeA("/")) {
-                    while (this.caracterAtual() != "\n" && !this.eFinalDoCodigo()) this.avancar();
+                if (this.igualA("/")) {
+                    while (this.simboloAtual() != "\n" && !this.eFinalDoCodigo()) this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }
@@ -304,7 +304,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
         while (!this.eFinalDoCodigo()) {
             this.inicio = this.atual;
-            this.classificarToken();
+            this.analisarToken();
         }
 
         this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, "", null, this.linha));

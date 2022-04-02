@@ -1,6 +1,9 @@
 import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
 import { PilhaEscopos } from "./pilha-escopos";
 import { ErroResolvedor } from "./erro-resolvedor";
+import { Construto } from "../construtos";
+import { Delegua } from "../delegua";
+import { InterpretadorInterface, SimboloInterface } from "../interfaces";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -29,7 +32,7 @@ const LoopType = {
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
-export class Resolver implements ResolvedorInterface {
+export class Resolvedor implements ResolvedorInterface {
     interpretador: any;
     Delegua: any;
     escopos: PilhaEscopos;
@@ -37,7 +40,7 @@ export class Resolver implements ResolvedorInterface {
     ClasseAtual: any;
     cicloAtual: any;
 
-    constructor(Delegua: any, interpretador: any) {
+    constructor(Delegua: Delegua, interpretador: InterpretadorInterface) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
         this.escopos = new PilhaEscopos();
@@ -47,20 +50,20 @@ export class Resolver implements ResolvedorInterface {
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
-    definir(nome: any): void {
+    definir(simbolo: SimboloInterface): void {
         if (this.escopos.eVazio()) return;
-        this.escopos.topoDaPilha()[nome.lexema] = true;
+        this.escopos.topoDaPilha()[simbolo.lexema] = true;
     }
 
-    declarar(nome: any): void {
+    declarar(simbolo: SimboloInterface): void {
         if (this.escopos.eVazio()) return;
         let escopo = this.escopos.topoDaPilha();
-        if (escopo.hasOwnProperty(nome.lexema))
+        if (escopo.hasOwnProperty(simbolo.lexema))
             this.Delegua.erro(
-                nome,
+                simbolo,
                 "Variável com esse nome já declarada neste escopo."
             );
-        escopo[nome.lexema] = false;
+        escopo[simbolo.lexema] = false;
     }
 
     inicioDoEscopo(): void {
@@ -71,7 +74,7 @@ export class Resolver implements ResolvedorInterface {
         this.escopos.removerUltimo();
     }
 
-    resolver(declaracoes: any): void {
+    resolver(declaracoes: Construto | Construto[]): void {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {

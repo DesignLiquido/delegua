@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Super implements Expr {
+export class Super implements Construto {
     palavraChave: any;
     metodo: any;
 

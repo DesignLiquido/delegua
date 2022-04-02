@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Chamada implements Expr {
+export class Chamada implements Construto {
     entidadeChamada: any;
     argumentos: any;
     parentese: any;
