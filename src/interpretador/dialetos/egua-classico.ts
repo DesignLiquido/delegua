@@ -15,8 +15,8 @@ import { DeleguaModulo } from "../../estruturas/modulo";
 
 import {
   ExcecaoRetornar,
-  BreakException,
-  ContinueException,
+  ExcecaoQuebra,
+  ExcecaoContinuar,
   ErroEmTempoDeExecucao,
 } from "../../excecoes";
 import { InterpretadorInterface } from "../../interfaces";
@@ -342,9 +342,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       try {
         this.executar(stmt.corpo);
       } catch (erro) {
-        if (erro instanceof BreakException) {
+        if (erro instanceof ExcecaoQuebra) {
           break;
-        } else if (erro instanceof ContinueException) {
+        } else if (erro instanceof ExcecaoContinuar) {
         } else {
           throw erro;
         }
@@ -362,9 +362,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       try {
         this.executar(stmt.doBranch);
       } catch (erro) {
-        if (erro instanceof BreakException) {
+        if (erro instanceof ExcecaoQuebra) {
           break;
-        } else if (erro instanceof ContinueException) {
+        } else if (erro instanceof ExcecaoContinuar) {
         } else {
           throw erro;
         }
@@ -391,7 +391,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 this.executar(branch.stmts[k]);
               }
             } catch (erro) {
-              if (erro instanceof ContinueException) {
+              if (erro instanceof ExcecaoContinuar) {
               } else {
                 throw erro;
               }
@@ -406,7 +406,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
       }
     } catch (erro) {
-      if (erro instanceof BreakException) {
+      if (erro instanceof ExcecaoQuebra) {
       } else {
         throw erro;
       }
@@ -440,9 +440,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
       try {
         this.executar(stmt.corpo);
       } catch (erro) {
-        if (erro instanceof BreakException) {
+        if (erro instanceof ExcecaoQuebra) {
           break;
-        } else if (erro instanceof ContinueException) {
+        } else if (erro instanceof ExcecaoContinuar) {
         } else {
           throw erro;
         }
@@ -539,11 +539,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   }
 
   visitarExpressaoContinua(stmt?: any) {
-    throw new ContinueException();
+    throw new ExcecaoContinuar();
   }
 
   visitarExpressaoPausa(stmt?: any) {
-    throw new BreakException();
+    throw new ExcecaoQuebra();
   }
 
   visitarExpressaoRetornar(stmt: any) {

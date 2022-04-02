@@ -1,1 +1,1 @@
-export class ContinueException extends Error { }
+export class ExcecaoContinuar extends Error { }
