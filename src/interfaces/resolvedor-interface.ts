@@ -1,4 +1,5 @@
 import { PilhaEscopos } from "../resolvedor/pilha-escopos";
+import { SimboloInterface } from "./simbolo-interface";
 
 export interface ResolvedorInterface {
     interpretador: any;
@@ -8,8 +9,8 @@ export interface ResolvedorInterface {
     ClasseAtual: any;
     cicloAtual: any;
 
-    definir(nome: any): void;
-    declarar(nome: any): void;
+    definir(simbolo: SimboloInterface): void;
+    declarar(simbolo: SimboloInterface): void;
     inicioDoEscopo(): void;
     finalDoEscopo(): void;
     resolver(declaracoes: any): void;
