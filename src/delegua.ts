@@ -91,22 +91,23 @@ export class Delegua {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.executar(linha);
+            this.executar([linha]);
             leiaLinha.prompt();
         });
     }
 
-    carregarArquivo(nomeArquivo: any) {
+    carregarArquivo(nomeArquivo: string) {
         this.nomeArquivo = caminho.basename(nomeArquivo);
 
-        const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
-        this.executar(dadosDoArquivo);
+        const dadosDoArquivo: Buffer = fs.readFileSync(nomeArquivo);
+        const conteudoDoArquivo: string[] = dadosDoArquivo.toString().split('\n');
+        this.executar(conteudoDoArquivo);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(codigo: any) {
+    executar(codigo: string[], nomeArquivo: string = "") {
         const simbolos = this.lexador.mapear(codigo);
 
         if (this.teveErro) return;

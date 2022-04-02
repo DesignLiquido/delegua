@@ -34,7 +34,7 @@ const palavrasReservadas = {
     tente: tiposDeSimbolos.TENTE,
     pegue: tiposDeSimbolos.PEGUE,
     finalmente: tiposDeSimbolos.FINALMENTE,
-    herda: tiposDeSimbolos.HERDA
+    herda: tiposDeSimbolos.HERDA,
 };
 
 class Simbolo implements SimboloInterface {
@@ -63,104 +63,158 @@ class Simbolo implements SimboloInterface {
  */
 export class Lexador implements LexadorInterface {
     Delegua: Delegua;
-    codigo: any;
+    codigo: string[];
     simbolos: any;
-    inicio: any;
+    inicioSimbolo: any;
     atual: any;
     linha: any;
 
-    constructor(Delegua: any, codigo?: any) {
+    constructor(Delegua: Delegua, codigo?: string[]) {
         this.Delegua = Delegua;
         this.codigo = codigo;
 
         this.simbolos = [];
 
-        this.inicio = 0;
+        this.inicioSimbolo = 0;
         this.atual = 0;
-        this.linha = 1;
+        this.linha = 0;
     }
 
-    eDigito(caractere: any) {
-        return caractere >= "0" && caractere <= "9";
+    eDigito(caractere: string) {
+        return caractere >= '0' && caractere <= '9';
     }
 
-    eAlfabeto(caractere: any) {
-        const acentuacoes = ["á", "Á", "ã", "Ã", "â", "Â", "à", "À", "é", "É", "ê", "Ê", "í", "Í", "ó", "Ó", "õ", "Õ", "ô", "Ô", "ú", "Ú", "ç", "Ç", "_"];
-        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || acentuacoes.includes(caractere);
+    eAlfabeto(caractere: string) {
+        const acentuacoes = [
+            'á',
+            'Á',
+            'ã',
+            'Ã',
+            'â',
+            'Â',
+            'à',
+            'À',
+            'é',
+            'É',
+            'ê',
+            'Ê',
+            'í',
+            'Í',
+            'ó',
+            'Ó',
+            'õ',
+            'Õ',
+            'ô',
+            'Ô',
+            'ú',
+            'Ú',
+            'ç',
+            'Ç',
+            '_',
+        ];
+
+        return (
+            (caractere >= 'a' && caractere <= 'z') ||
+            (caractere >= 'A' && caractere <= 'Z') ||
+            acentuacoes.includes(caractere)
+        );
     }
 
     eAlfabetoOuDigito(caractere: any) {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
-    eFinalDoCodigo() {
-        return this.atual >= this.codigo.length;
+    eFinalDaLinha(): boolean {
+        return this.atual >= this.codigo[this.linha].length;
     }
 
-    avancar() {
+    /**
+     * Depois de ler todas as linhas, como this.codigo começa com zero, 
+     *  se o contador da linha é maior ou igual que a largura de this.codigo, 
+     *  significa que o código terminou.
+     * @returns Verdadeiro se contador de linhas é maior ou igual à contagem de linhas.
+     *          Falso caso contrário.
+     */
+    eFinalDoCodigo(): boolean {
+        return this.linha >= this.codigo.length;
+    }
+
+    avancar(): void {
         this.atual += 1;
-        return this.codigo[this.atual - 1];
+
+        if (this.eFinalDaLinha()) {
+            this.linha++;
+            this.atual = 0;
+        }
     }
 
-    adicionarSimbolo(tipo: any, literal: any = null) {
-        const texto = this.codigo.substring(this.inicio, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
+    adicionarSimbolo(tipo: any, literal: any = null): void {
+        const texto: string = this.codigo[this.linha].substring(
+            this.inicioSimbolo,
+            this.atual
+        );
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1));
     }
 
-    igualA(esperado: any) {
-        if (this.eFinalDoCodigo()) {
+    proximoIgualA(esperado: any): boolean {
+        if (this.eFinalDaLinha()) {
             return false;
         }
 
-        if (this.codigo[this.atual] !== esperado) {
+        if (this.codigo[this.linha][this.atual + 1] !== esperado) {
             return false;
         }
 
-        this.atual += 1;
+        this.avancar();
         return true;
     }
 
-    simboloAtual() {
-        if (this.eFinalDoCodigo()) return "\0";
-        return this.codigo.charAt(this.atual);
+    simboloAtual(): string {
+        if (this.eFinalDaLinha()) return '\0';
+        return this.codigo[this.linha].charAt(this.atual);
     }
 
-    proximoSimbolo() {
-        if (this.atual + 1 >= this.codigo.length) return "\0";
-        return this.codigo.charAt(this.atual + 1);
+    avancarParaProximaLinha() {
+        this.linha++;
+        this.atual = 1;
     }
 
-    voltar() {
-        return this.codigo.charAt(this.atual - 1);
+    proximoSimbolo(): string {
+        if (this.atual + 1 >= this.codigo.length) return '\0';
+        return this.codigo[this.linha].charAt(this.atual + 1);
     }
 
-    analisarTexto(texto: string = '"') {
-        while (this.simboloAtual() !== texto && !this.eFinalDoCodigo()) {
-            if (this.simboloAtual() === "\n") this.linha = +1;
+    simboloAnterior(): string {
+        return this.codigo[this.linha].charAt(this.atual - 1);
+    }
+
+    analisarTexto(delimitador: string = '"') {
+        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
 
         if (this.eFinalDoCodigo()) {
             this.Delegua.erroNoLexador(
                 this.linha,
-                this.voltar(),
-                "Texto não finalizado."
+                this.simboloAnterior(),
+                'Texto não finalizado.'
             );
             return;
         }
 
-        this.avancar();
-
-        const valor = this.codigo.substring(this.inicio + 1, this.atual - 1);
+        const valor = this.codigo[this.linha].substring(
+            this.inicioSimbolo + 1,
+            this.atual - 1
+        );
         this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
 
-    analisarNumero() {
+    analisarNumero(): void {
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
 
-        if (this.simboloAtual() == "." && this.eDigito(this.proximoSimbolo())) {
+        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
             this.avancar();
 
             while (this.eDigito(this.simboloAtual())) {
@@ -168,177 +222,227 @@ export class Lexador implements LexadorInterface {
             }
         }
 
-        const numeroCompleto = this.codigo.substring(this.inicio, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
+        const numeroCompleto = this.codigo[this.linha].substring(
+            this.inicioSimbolo,
+            this.atual
+        );
+        this.adicionarSimbolo(
+            tiposDeSimbolos.NUMERO,
+            parseFloat(numeroCompleto)
+        );
     }
 
-    identificarPalavraChave() {
+    identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
         }
 
-        const codigo = this.codigo.substring(this.inicio, this.atual);
-        const tipo = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const codigo: string = this.codigo[this.linha].substring(
+            this.inicioSimbolo,
+            this.atual
+        );
+        const tipo: string =
+            codigo in palavrasReservadas
+                ? palavrasReservadas[codigo]
+                : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
 
-    analisarToken() {
-        const caractere = this.avancar();
+    analisarToken(): void {
+        const caractere = this.simboloAtual();
 
         switch (caractere) {
-            case "[":
+            case '[':
                 this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.avancar();
                 break;
-            case "]":
+            case ']':
                 this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.avancar();
                 break;
-            case "(":
+            case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.avancar();
                 break;
-            case ")":
+            case ')':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
                 break;
-            case "{":
+            case '{':
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
+                this.avancar();
                 break;
-            case "}":
+            case '}':
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
+                this.avancar();
                 break;
-            case ",":
+            case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.avancar();
                 break;
-            case ".":
+            case '.':
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.avancar();
                 break;
-            case "-":
-                this.adicionarSimbolo(this.igualA("=") ? tiposDeSimbolos.MENOS_IGUAL : tiposDeSimbolos.SUBTRACAO);
+            case '-':
+                this.adicionarSimbolo(
+                    this.proximoIgualA('=')
+                        ? tiposDeSimbolos.MENOS_IGUAL
+                        : tiposDeSimbolos.SUBTRACAO
+                );
+                this.avancar();
                 break;
-            case "+":
-                this.adicionarSimbolo(this.igualA("=") ? tiposDeSimbolos.MAIS_IGUAL : tiposDeSimbolos.ADICAO);
+            case '+':
+                this.adicionarSimbolo(
+                    this.proximoIgualA('=')
+                        ? tiposDeSimbolos.MAIS_IGUAL
+                        : tiposDeSimbolos.ADICAO
+                );
+                this.avancar();
                 break;
-            case ":":
+            case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
                 break;
-            case ";":
-                // Ponto-e-vírgula é opcional em Delégua, então nem precisa ser considerado
-                // nas etapas seguintes.
-                break;
-            case "%":
+            
+            case '%':
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.avancar();
                 break;
-            case "*":
-                if (this.simboloAtual() === "*") {
-                    this.avancar();
+            case '*':
+                this.avancar();
+                if (this.simboloAtual() === '*') {
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
-                    break;
-                }
-                else if (this.igualA("/")) {
+                } else if (this.simboloAtual() === '/') {
                     while (!this.eFinalDoCodigo()) this.avancar();
                     break;
-                }
-                else{
+                } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                    break;
                 }
-            case "!":
-                this.adicionarSimbolo(
-                    this.igualA("=") ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
-                );
+                this.avancar();
                 break;
-            case "=":
+            case '!':
                 this.adicionarSimbolo(
-                    this.igualA("=") ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
+                    this.proximoIgualA('=')
+                        ? tiposDeSimbolos.DIFERENTE
+                        : tiposDeSimbolos.NEGACAO
                 );
+                this.avancar();
+                break;
+            case '=':
+                this.adicionarSimbolo(
+                    this.proximoIgualA('=')
+                        ? tiposDeSimbolos.IGUAL_IGUAL
+                        : tiposDeSimbolos.IGUAL
+                );
+                this.avancar();
                 break;
 
-            case "&":
+            case '&':
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
+                this.avancar();
                 break;
 
-            case "~":
+            case '~':
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
+                this.avancar();
                 break;
 
-            case "|":
+            case '|':
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
+                this.avancar();
                 break;
 
-            case "^":
+            case '^':
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.avancar();
                 break;
 
-            case "<":
-                if (this.igualA("=")) {
+            case '<':
+                if (this.proximoIgualA('=')) {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                } else if (this.igualA("<")) {
+                } else if (this.proximoIgualA('<')) {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                 }
+                this.avancar();
                 break;
 
-            case ">":
-                if (this.igualA("=")) {
+            case '>':
+                if (this.proximoIgualA('=')) {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
-                } else if (this.igualA(">")) {
+                } else if (this.proximoIgualA('>')) {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
+                this.avancar();
                 break;
 
-            case "/":
-                if (this.igualA("/")) {
-                    while (this.simboloAtual() !== "\n" && !this.eFinalDoCodigo()) this.avancar();
-                }
-                else if(this.igualA("*")){
+            case '/':
+                if (this.proximoIgualA('/')) {
+                    this.avancarParaProximaLinha();
+                } else if (this.proximoIgualA('*')) {
                     while (!this.eFinalDoCodigo()) this.avancar();
-                }
-                else {
+                } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }
+                this.avancar();
                 break;
 
             // Esta sessão ignora espaços em branco na tokenização
-            case " ":
-            case "\r":
-            case "\t":
-                break;
-
-            // tentativa de pulhar linha com \n que ainda não funciona
-            case "\n":
-                this.linha += 1;
+            case ' ':
+            case '\r':
+            case '\t':
+            // Ponto-e-vírgula é opcional em Delégua, então nem precisa ser considerado
+            // nas etapas seguintes.
+            case ';':
+                this.avancar();
                 break;
 
             case '"':
+                this.avancar();
                 this.analisarTexto('"');
+                this.avancar();
                 break;
 
             case "'":
+                this.avancar();
                 this.analisarTexto("'");
+                this.avancar();
                 break;
 
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
-                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
-                else this.Delegua.erroNoLexador(this.linha, caractere, "Caractere inesperado.");
+                else if (this.eAlfabeto(caractere))
+                    this.identificarPalavraChave();
+                else
+                    this.Delegua.erroNoLexador(
+                        this.linha + 1,
+                        caractere,
+                        'Caractere inesperado.'
+                    );
         }
     }
 
-    mapear(codigo?: string) {
+    mapear(codigo?: string[]): any {
+        const inicioMapeamento: number = performance.now();
         this.simbolos = [];
-        this.inicio = 0;
+        this.inicioSimbolo = 0;
         this.atual = 0;
-        this.linha = 1;
-        
-        this.codigo = codigo || '';
+        this.linha = 0;
+
+        this.codigo = codigo || [''];
 
         while (!this.eFinalDoCodigo()) {
-            this.inicio = this.atual;
+            this.inicioSimbolo = this.atual;
             this.analisarToken();
         }
 
+        const fimMapeamento: number = performance.now();
+        console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
         return this.simbolos;
     }
-};
+}
