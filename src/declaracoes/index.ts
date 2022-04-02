@@ -12,6 +12,6 @@ export * from './para';
 export * from './pausa';
 export * from './retorna';
 export * from './se';
-export * from './stmt';
+export * from './declaracao';
 export * from './tente';
 export * from './var';

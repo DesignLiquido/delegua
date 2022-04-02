@@ -8,7 +8,7 @@ import { Resolvedor } from "./resolvedor";
 import { Interpretador } from "./interpretador";
 import tiposDeSimbolos from "./tiposDeSimbolos";
 
-import { ReturnException } from "./excecoes";
+import { ExcecaoRetornar } from "./excecoes";
 import { AvaliadorSintaticoInterface, InterpretadorInterface, LexadorInterface, SimboloInterface } from "./interfaces";
 import { ResolvedorInterface } from "./interfaces/resolvedor-interface";
 import { InterpretadorEguaClassico } from "./interpretador/dialetos/egua-classico";
@@ -150,7 +150,7 @@ export class Delegua {
                     `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
                 );
             else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
-        } else if (!(erro instanceof ReturnException)) { // TODO: Ao se livrar de ReturnException, remover isto.
+        } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Ao se livrar de ReturnException, remover isto.
             console.error(`Erro: ${erro.mensagem}`);
         }
         

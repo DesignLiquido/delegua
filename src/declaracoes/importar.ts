@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Importar extends Stmt {
+export class Importar extends Declaracao {
     caminho: string;
     closeBracket: any;
 

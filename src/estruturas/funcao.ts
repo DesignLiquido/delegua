@@ -1,6 +1,6 @@
 import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
-import { ReturnException } from "../excecoes";
+import { ExcecaoRetornar } from "../excecoes";
 
 export class DeleguaFuncao extends Chamavel {
     nome: any;
@@ -45,7 +45,7 @@ export class DeleguaFuncao extends Chamavel {
         try {
             interpretador.executarBloco(this.declaracao.corpo, ambiente);
         } catch (erro) {
-            if (erro instanceof ReturnException) {
+            if (erro instanceof ExcecaoRetornar) {
                 if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
                 return erro.valor;
             } else {

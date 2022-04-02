@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Para extends Stmt {
+export class Para extends Declaracao {
     inicializador: any;
     condicao: any;
     incrementar: any;

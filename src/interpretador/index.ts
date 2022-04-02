@@ -14,9 +14,9 @@ import { DeleguaInstancia } from '../estruturas/instancia';
 import { DeleguaModulo } from '../estruturas/modulo';
 
 import {
-    ReturnException,
-    BreakException,
-    ContinueException,
+    ExcecaoRetornar,
+    BreakException as ExcecaoQuebra,
+    ContinueException as ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import { InterpretadorInterface } from '../interfaces';
@@ -400,9 +400,9 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(stmt.corpo);
             } catch (erro) {
-                if (erro instanceof BreakException) {
+                if (erro instanceof ExcecaoQuebra) {
                     break;
-                } else if (erro instanceof ContinueException) {
+                } else if (erro instanceof ExcecaoContinuar) {
                 } else {
                     throw erro;
                 }
@@ -420,9 +420,9 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(stmt.doBranch);
             } catch (erro) {
-                if (erro instanceof BreakException) {
+                if (erro instanceof ExcecaoQuebra) {
                     break;
-                } else if (erro instanceof ContinueException) {
+                } else if (erro instanceof ExcecaoContinuar) {
                 } else {
                     throw erro;
                 }
@@ -451,7 +451,7 @@ export class Interpretador implements InterpretadorInterface {
                                 this.executar(branch.stmts[k]);
                             }
                         } catch (erro) {
-                            if (erro instanceof ContinueException) {
+                            if (erro instanceof ExcecaoContinuar) {
                             } else {
                                 throw erro;
                             }
@@ -466,7 +466,7 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
         } catch (erro) {
-            if (erro instanceof BreakException) {
+            if (erro instanceof ExcecaoQuebra) {
             } else {
                 throw erro;
             }
@@ -509,9 +509,9 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(stmt.corpo);
             } catch (erro) {
-                if (erro instanceof BreakException) {
+                if (erro instanceof ExcecaoQuebra) {
                     break;
-                } else if (erro instanceof ContinueException) {
+                } else if (erro instanceof ExcecaoContinuar) {
                 } else {
                     throw erro;
                 }
@@ -612,18 +612,18 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoContinua(stmt?: any) {
-        throw new ContinueException();
+        throw new ExcecaoContinuar();
     }
 
     visitarExpressaoPausa(stmt?: any) {
-        throw new BreakException();
+        throw new ExcecaoQuebra();
     }
 
     visitarExpressaoRetornar(stmt: any) {
         let valor = null;
         if (stmt.valor != null) valor = this.avaliar(stmt.valor);
 
-        throw new ReturnException(valor);
+        throw new ExcecaoRetornar(valor);
     }
 
     visitarExpressaoDeleguaFuncao(expr: any) {

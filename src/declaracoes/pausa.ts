@@ -1,7 +1,7 @@
-import { Stmt } from "./stmt";
+import { Declaracao } from "./declaracao";
 
 
-export class Pausa extends Stmt {
+export class Pausa extends Declaracao {
     constructor() {
         super();
     }
