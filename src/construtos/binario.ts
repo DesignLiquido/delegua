@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Binario implements Expr {
+export class Binario implements Construto {
     esquerda: any;
     operador: any;
     direita: any;

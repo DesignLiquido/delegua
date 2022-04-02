@@ -1,7 +1,7 @@
 import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
 import { PilhaEscopos } from "./pilha-escopos";
 import { ErroResolvedor } from "./erro-resolvedor";
-import { Expr } from "../construtos";
+import { Construto } from "../construtos";
 import { Delegua } from "../delegua";
 import { InterpretadorInterface } from "../interfaces";
 
@@ -74,7 +74,7 @@ export class Resolvedor implements ResolvedorInterface {
         this.escopos.removerUltimo();
     }
 
-    resolver(declaracoes: Expr | Expr[]): void {
+    resolver(declaracoes: Construto | Construto[]): void {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {

@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Grouping implements Expr {
+export class Grouping implements Construto {
     expressao: any;
 
     constructor(expressao: any) {

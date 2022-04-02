@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Funcao implements Expr {
+export class Funcao implements Construto {
     parametros: any;
     corpo: any;
 

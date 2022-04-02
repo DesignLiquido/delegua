@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Literal implements Expr {
+export class Literal implements Construto {
     valor: any;
 
     constructor(valor: any) {

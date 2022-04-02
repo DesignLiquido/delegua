@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Subscript implements Expr {
+export class Subscript implements Construto {
     entidadeChamada: any;
     closeBracket: any;
     indice: any;

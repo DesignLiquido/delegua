@@ -1,7 +1,7 @@
-import { Expr } from "./expr";
+import { Construto } from "./construto";
 
 
-export class Dicionario implements Expr {
+export class Dicionario implements Construto {
     chaves: any;
     valores: any;
 
