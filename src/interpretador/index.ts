@@ -1,4 +1,4 @@
-import { performance as _performance} from 'perf_hooks';
+import { performance } from 'perf_hooks';
 import tiposDeSimbolos from '../tiposDeSimbolos';
 import { Ambiente } from '../ambiente';
 import { Delegua } from '../delegua';
@@ -892,7 +892,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     interpretar(declaracoes: any) {
-        const inicioInterpretacao: number = _performance.now();
+        const inicioInterpretacao: number = performance.now();
         try {
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
@@ -908,7 +908,7 @@ export class Interpretador implements InterpretadorInterface {
         } catch (erro) {
             this.Delegua.erroEmTempoDeExecucao(erro);
         } finally {
-            const fimInterpretacao: number = _performance.now();
+            const fimInterpretacao: number = performance.now();
             if (this.performance) {
                 console.log(`[Interpretador] Tempo para interpretaçao: ${fimInterpretacao - inicioInterpretacao}ms`);
             }
