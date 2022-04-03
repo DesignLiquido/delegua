@@ -1,4 +1,4 @@
-import { performance as _performance} from 'perf_hooks'
+import { performance as _performance} from 'perf_hooks';
 import tiposDeSimbolos from '../tiposDeSimbolos';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {

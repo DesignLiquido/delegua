@@ -1,4 +1,4 @@
-import { performance as _performance} from 'perf_hooks'
+import { performance as _performance} from 'perf_hooks';
 import { Delegua } from "../delegua";
 import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
