@@ -51,13 +51,14 @@ export class Parser implements AvaliadorSintaticoInterface {
 
     atual: number;
     ciclos: number;
+    performance: boolean;
 
-    constructor(Delegua: any, simbolos?: SimboloInterface[]) {
-        this.simbolos = simbolos;
+    constructor(Delegua: any, performance: boolean = false) {
         this.Delegua = Delegua;
 
         this.atual = 0;
         this.ciclos = 0;
+        this.performance = performance;
     }
 
     sincronizar() {
@@ -1100,6 +1101,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     }
 
     analisar(simbolos?: SimboloInterface[]): any {
+        const inicioAnalise: number = performance.now();
         this.atual = 0;
         this.ciclos = 0;
 
@@ -1112,6 +1114,11 @@ export class Parser implements AvaliadorSintaticoInterface {
             declaracoes.push(this.declaracao());
         }
 
+        const fimAnalise: number = performance.now();
+        if (this.performance) {
+            console.log(`[Avaliador Sintático] Tempo para análise: ${fimAnalise - inicioAnalise}ms`);
+        }
+        
         return declaracoes;
     }
 }

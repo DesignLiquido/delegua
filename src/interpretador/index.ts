@@ -31,10 +31,12 @@ export class Interpretador implements InterpretadorInterface {
     global: any;
     ambiente: any;
     locais: any;
+    performance: boolean
 
-    constructor(Delegua: any, diretorioBase: any) {
+    constructor(Delegua: any, diretorioBase: string, performance: boolean = false) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
+        this.performance = performance;
 
         this.global = new Ambiente();
         this.ambiente = this.global;
@@ -549,7 +551,7 @@ export class Interpretador implements InterpretadorInterface {
 
         conteudoImportacao = fs.readFileSync(caminhoTotal).toString();
 
-        const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
+        const delegua = new Delegua(this.Delegua.dialeto, this.performance, nomeArquivo);
 
         delegua.executar(conteudoImportacao);
 
@@ -889,6 +891,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     interpretar(declaracoes: any) {
+        const inicioInterpretacao: number = performance.now();
         try {
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
@@ -903,6 +906,11 @@ export class Interpretador implements InterpretadorInterface {
             }
         } catch (erro) {
             this.Delegua.erroEmTempoDeExecucao(erro);
+        } finally {
+            const fimInterpretacao: number = performance.now();
+            if (this.performance) {
+                console.log(`[Interpretador] Tempo para interpretaçao: ${fimInterpretacao - inicioInterpretacao}ms`);
+            }
         }
     }
 }

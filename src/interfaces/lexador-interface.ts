@@ -1,10 +1,10 @@
 export interface LexadorInterface {
     Delegua: any;
-    codigo: any;
     simbolos: any;
-    inicio: any;
-    atual: any;
-    linha: any;
+    codigo: any;
+    inicioSimbolo: number;
+    atual: number;
+    linha: number;
 
     eDigito(caractere: any): boolean;
     eAlfabeto(caractere: any): boolean;
@@ -12,13 +12,13 @@ export interface LexadorInterface {
     eFinalDoCodigo(): boolean;
     avancar(): void;
     adicionarSimbolo(tipo: any, literal: any): void;
-    igualA(esperado: any): boolean;
+    proximoIgualA(esperado: any): boolean;
     simboloAtual(): any;
     proximoSimbolo(): any;
-    voltar(): any;
+    simboloAnterior(): any;
     analisarTexto(texto: string): void;
     analisarNumero(): void;
     identificarPalavraChave(): void;
     analisarToken(): void;
-    mapear(codigo?: any): any;
+    mapear(codigo?: string[]): any;
 }

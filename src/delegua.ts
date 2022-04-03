@@ -27,7 +27,7 @@ export class Delegua {
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
 
-    constructor(dialeto: string = 'delegua', nomeArquivo?: string) {
+    constructor(dialeto: string = 'delegua', performance: boolean = false, nomeArquivo?: string) {
         this.nomeArquivo = nomeArquivo;
 
         this.teveErro = false;
@@ -57,9 +57,9 @@ export class Delegua {
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
-                this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexador(this);
-                this.avaliadorSintatico = new Parser(this);
+                this.interpretador = new Interpretador(this, process.cwd(), performance);
+                this.lexador = new Lexador(this, performance);
+                this.avaliadorSintatico = new Parser(this, performance);
                 this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: padrão');
                 break;
@@ -69,9 +69,9 @@ export class Delegua {
     versao() {
         try {
             const manifesto = caminho.resolve('package.json');
-            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.1';
+            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.2';
         } catch (error: any) {
-            return '0.1 (desenvolvimento)';
+            return '0.2 (desenvolvimento)';
         }        
     }
 
@@ -91,22 +91,23 @@ export class Delegua {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.executar(linha);
+            this.executar([linha]);
             leiaLinha.prompt();
         });
     }
 
-    carregarArquivo(nomeArquivo: any) {
+    carregarArquivo(nomeArquivo: string) {
         this.nomeArquivo = caminho.basename(nomeArquivo);
 
-        const dadosDoArquivo = fs.readFileSync(nomeArquivo).toString();
-        this.executar(dadosDoArquivo);
+        const dadosDoArquivo: Buffer = fs.readFileSync(nomeArquivo);
+        const conteudoDoArquivo: string[] = dadosDoArquivo.toString().split('\n');
+        this.executar(conteudoDoArquivo);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(codigo: any) {
+    executar(codigo: string[], nomeArquivo: string = "") {
         const simbolos = this.lexador.mapear(codigo);
 
         if (this.teveErro) return;
