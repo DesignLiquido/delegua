@@ -165,7 +165,6 @@ export class Lexador implements LexadorInterface {
             return false;
         }
 
-        this.avancar();
         return true;
     }
 
@@ -286,20 +285,24 @@ export class Lexador implements LexadorInterface {
                 this.avancar();
                 break;
             case '-':
-                this.adicionarSimbolo(
-                    this.proximoIgualA('=')
-                        ? tiposDeSimbolos.MENOS_IGUAL
-                        : tiposDeSimbolos.SUBTRACAO
-                );
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                }
+                
                 break;
             case '+':
-                this.adicionarSimbolo(
-                    this.proximoIgualA('=')
-                        ? tiposDeSimbolos.MAIS_IGUAL
-                        : tiposDeSimbolos.ADICAO
-                );
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                }
+                
                 break;
             case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
@@ -316,30 +319,32 @@ export class Lexador implements LexadorInterface {
                 if (this.simboloAtual() === '*') {
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     this.avancar();
-                    break;
                 } else if (this.simboloAtual() === '/') {
                     while (!this.eFinalDoCodigo()) this.avancar();
-                    break;
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                    break;
+                }
+
+                break;
+            case '!':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
                 }
                 
-            case '!':
-                this.adicionarSimbolo(
-                    this.proximoIgualA('=')
-                        ? tiposDeSimbolos.DIFERENTE
-                        : tiposDeSimbolos.NEGACAO
-                );
-                this.avancar();
                 break;
             case '=':
-                this.adicionarSimbolo(
-                    this.proximoIgualA('=')
-                        ? tiposDeSimbolos.IGUAL_IGUAL
-                        : tiposDeSimbolos.IGUAL
-                );
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                }
+                
                 break;
 
             case '&':
@@ -363,26 +368,32 @@ export class Lexador implements LexadorInterface {
                 break;
 
             case '<':
-                if (this.proximoIgualA('=')) {
+                this.avancar();
+                if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                } else if (this.proximoIgualA('<')) {
+                    this.avancar();
+                    break;
+                } else if (this.simboloAtual() === '<') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
+                    this.avancar();
+                    break;
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                 }
-                this.avancar();
-                break;
 
             case '>':
-                if (this.proximoIgualA('=')) {
+                this.avancar();
+                if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
-                } else if (this.proximoIgualA('>')) {
+                    this.avancar();
+                    break;
+                } else if (this.simboloAtual() === '>') {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
+                    this.avancar();
+                    break;
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
-                this.avancar();
-                break;
 
             case '/':
                 this.avancar();
@@ -396,12 +407,12 @@ export class Lexador implements LexadorInterface {
                     break;
                 }
 
-            // Esta sessão ignora espaços em branco na tokenização
+            // Esta sessão ignora espaços em branco na tokenização.
+            // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
             case ' ':
+            case '\0':
             case '\r':
             case '\t':
-            // Ponto-e-vírgula é opcional em Delégua, então nem precisa ser considerado
-            // nas etapas seguintes.
             case ';':
                 this.avancar();
                 break;
@@ -422,12 +433,14 @@ export class Lexador implements LexadorInterface {
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
-                else
+                else {
                     this.Delegua.erroNoLexador(
                         this.linha + 1,
                         caractere,
                         'Caractere inesperado.'
                     );
+                    this.avancar();
+                }
         }
     }
 
