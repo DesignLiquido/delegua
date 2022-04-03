@@ -20,7 +20,7 @@ describe('Lexador', () => {
             });
 
             it('Sucesso - Olá mundo', () => {
-                const resultado = delegua.lexador.mapear(["esceva('Olá mundo')"]);
+                const resultado = delegua.lexador.mapear(["escreva('Olá mundo')"]);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toHaveLength(4);
@@ -35,7 +35,7 @@ describe('Lexador', () => {
             });
 
             it('Sucesso - Se', () => {
-                const resultado = delegua.lexador.mapear(["se (1 == 1) { esceva('Tautologia') }"]);
+                const resultado = delegua.lexador.mapear(["se (1 == 1) { escreva('Tautologia') }"]);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toHaveLength(12);

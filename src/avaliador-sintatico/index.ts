@@ -1,3 +1,4 @@
+import { performance as _performance} from 'perf_hooks'
 import tiposDeSimbolos from '../tiposDeSimbolos';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {
@@ -1101,7 +1102,7 @@ export class Parser implements AvaliadorSintaticoInterface {
     }
 
     analisar(simbolos?: SimboloInterface[]): any {
-        const inicioAnalise: number = performance.now();
+        const inicioAnalise: number = _performance.now();
         this.atual = 0;
         this.ciclos = 0;
 
@@ -1114,7 +1115,7 @@ export class Parser implements AvaliadorSintaticoInterface {
             declaracoes.push(this.declaracao());
         }
 
-        const fimAnalise: number = performance.now();
+        const fimAnalise: number = _performance.now();
         if (this.performance) {
             console.log(`[Avaliador Sintático] Tempo para análise: ${fimAnalise - inicioAnalise}ms`);
         }

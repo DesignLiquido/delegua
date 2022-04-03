@@ -1,3 +1,4 @@
+import { performance as _performance} from 'perf_hooks'
 import { Delegua } from "../delegua";
 import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
@@ -452,7 +453,7 @@ export class Lexador implements LexadorInterface {
     }
 
     mapear(codigo?: string[]): any {
-        const inicioMapeamento: number = performance.now();
+        const inicioMapeamento: number = _performance.now();
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -465,7 +466,7 @@ export class Lexador implements LexadorInterface {
             this.analisarToken();
         }
 
-        const fimMapeamento: number = performance.now();
+        const fimMapeamento: number = _performance.now();
         if (this.performance) {
             console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
         }
