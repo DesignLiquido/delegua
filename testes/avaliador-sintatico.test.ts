@@ -5,7 +5,7 @@ describe('Avaliador sintático', () => {
         const delegua = new Delegua('delegua');
 
         it('Sucesso - Olá Mundo', () => {
-            const simbolos = delegua.lexador.mapear("escreva('Olá mundo')");
+            const simbolos = delegua.lexador.mapear(["escreva('Olá mundo')"]);
             const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
 
             expect(declaracoes).toBeTruthy();
