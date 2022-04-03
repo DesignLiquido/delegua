@@ -26,7 +26,7 @@ describe('Lexador', () => {
                 expect(resultado).toHaveLength(4);
                 expect(resultado).toEqual(
                     expect.arrayContaining([
-                        expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
+                        expect.objectContaining({ tipo: 'ESCREVA' }),
                         expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
                         expect.objectContaining({ tipo: 'TEXTO' }),
                         expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
@@ -42,7 +42,6 @@ describe('Lexador', () => {
                 expect(resultado).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({ tipo: 'SE' }),
-                        expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
                         expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
                         expect.objectContaining({ tipo: 'TEXTO' }),
                         expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
