@@ -21,13 +21,6 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
     global.definirVariavel(
         "aleatorioEntre",
         new FuncaoPadrao(1, function (minimo: number, maximo: number) {
-            if (typeof minimo !== 'number' || typeof maximo !== 'number') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Os dois parâmetros devem ser do tipo número."
-                );
-            }
-
             return Math.floor(Math.random() * (maximo - minimo)) + minimo;
         })
     );
@@ -55,14 +48,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
 
     global.definirVariavel(
         "mapear",
-        new FuncaoPadrao(1, function (array: any, callback: any) {
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
-                );
-            }
-
+        new FuncaoPadrao(1, function (array: Array<any>[], callback: any) {
             if (callback.constructor.nome !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -86,13 +72,6 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
     global.definirVariavel(
         "ordenar",
         new FuncaoPadrao(1, function (objeto: Array<any>) {
-            if (!Array.isArray(objeto)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Valor Inválido. Objeto inserido não é um vetor."
-                );
-            }
-
             let trocado: boolean;
             let tamanho = objeto.length;
             do {
