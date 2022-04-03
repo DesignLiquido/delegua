@@ -175,11 +175,11 @@ export class Lexador implements LexadorInterface {
 
     avancarParaProximaLinha() {
         this.linha++;
-        this.atual = 1;
+        this.atual = 0;
     }
 
     proximoSimbolo(): string {
-        if (this.atual + 1 >= this.codigo.length) return '\0';
+        if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
         return this.codigo[this.linha].charAt(this.atual + 1);
     }
 
@@ -246,6 +246,17 @@ export class Lexador implements LexadorInterface {
                 : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
+    }
+
+    encontrarFimComentarioAsterisco(): void {
+        while (!this.eFinalDoCodigo()) { 
+            this.avancar();
+            if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
+                this.avancar();
+                this.avancar();
+                break;
+            }
+        }
     }
 
     analisarToken(): void {
@@ -319,8 +330,6 @@ export class Lexador implements LexadorInterface {
                 if (this.simboloAtual() === '*') {
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     this.avancar();
-                } else if (this.simboloAtual() === '/') {
-                    while (!this.eFinalDoCodigo()) this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 }
@@ -372,40 +381,37 @@ export class Lexador implements LexadorInterface {
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
                     this.avancar();
-                    break;
                 } else if (this.simboloAtual() === '<') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
                     this.avancar();
-                    break;
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                 }
+                break;
 
             case '>':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
                     this.avancar();
-                    break;
                 } else if (this.simboloAtual() === '>') {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
                     this.avancar();
-                    break;
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
+                break;
 
             case '/':
                 this.avancar();
                 if (this.simboloAtual() == '/') {
                     this.avancarParaProximaLinha();
-                    break;
                 } else if (this.simboloAtual() === '*') {
-                    while (!this.eFinalDoCodigo()) this.avancar();
+                    this.encontrarFimComentarioAsterisco();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
-                    break;
                 }
+                break;
 
             // Esta sessão ignora espaços em branco na tokenização.
             // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
