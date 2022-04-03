@@ -27,7 +27,7 @@ export class Delegua {
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
 
-    constructor(dialeto: string = 'delegua', nomeArquivo?: string) {
+    constructor(dialeto: string = 'delegua', performance: boolean = false, nomeArquivo?: string) {
         this.nomeArquivo = nomeArquivo;
 
         this.teveErro = false;
@@ -57,9 +57,9 @@ export class Delegua {
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
-                this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexador(this);
-                this.avaliadorSintatico = new Parser(this);
+                this.interpretador = new Interpretador(this, process.cwd(), performance);
+                this.lexador = new Lexador(this, performance);
+                this.avaliadorSintatico = new Parser(this, performance);
                 this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: padrão');
                 break;
@@ -69,9 +69,9 @@ export class Delegua {
     versao() {
         try {
             const manifesto = caminho.resolve('package.json');
-            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.1';
+            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.2';
         } catch (error: any) {
-            return '0.1 (desenvolvimento)';
+            return '0.2 (desenvolvimento)';
         }        
     }
 

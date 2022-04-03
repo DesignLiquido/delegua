@@ -32,7 +32,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
   ambiente: any;
   locais: any;
 
-  constructor(Delegua: any, diretorioBase: any) {
+  constructor(Delegua: any, diretorioBase: string) {
     this.Delegua = Delegua;
     this.diretorioBase = diretorioBase;
 
@@ -475,7 +475,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     dados = fs.readFileSync(caminhoTotal).toString();
 
-    const delegua = new Delegua(this.Delegua.dialeto, nomeArquivo);
+    const delegua = new Delegua(this.Delegua.dialeto, false, nomeArquivo);
 
     delegua.executar(dados);
 

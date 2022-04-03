@@ -1,10 +1,10 @@
 export interface LexadorInterface {
     Delegua: any;
-    codigo: any;
     simbolos: any;
-    inicioSimbolo: any;
-    atual: any;
-    linha: any;
+    codigo: any;
+    inicioSimbolo: number;
+    atual: number;
+    linha: number;
 
     eDigito(caractere: any): boolean;
     eAlfabeto(caractere: any): boolean;

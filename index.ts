@@ -7,6 +7,7 @@ const principal = function () {
 
   analisadorArgumentos
     .option("-d, --dialeto <dialeto>", "Dialeto a ser usado. Padrão: delegua",  "delegua")
+    .option("-p, --performance", "Visualizar indicadores de performance. Desabilitado por padrão",  false)
     .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
     .action((arquivos) => {
         if (arquivos.length > 0) {
@@ -17,7 +18,7 @@ const principal = function () {
   analisadorArgumentos.parse();
   const opcoes = analisadorArgumentos.opts();
 
-  const delegua = new Delegua(opcoes.dialeto);
+  const delegua = new Delegua(opcoes.dialeto, opcoes.performance);
 
   if (!nomeArquivo) {
     delegua.iniciarDelegua();

@@ -41,9 +41,9 @@ class Simbolo implements SimboloInterface {
     lexema: string;
     tipo: string;
     literal: string;
-    linha: string;
+    linha: number;
 
-    constructor(tipo: string, lexema: string, literal: string, linha: string) {
+    constructor(tipo: string, lexema: string, literal: string, linha: number) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
@@ -64,14 +64,15 @@ class Simbolo implements SimboloInterface {
 export class Lexador implements LexadorInterface {
     Delegua: Delegua;
     codigo: string[];
-    simbolos: any;
-    inicioSimbolo: any;
-    atual: any;
-    linha: any;
+    simbolos: SimboloInterface[];
+    inicioSimbolo: number;
+    atual: number;
+    linha: number;
+    performance: boolean;
 
-    constructor(Delegua: Delegua, codigo?: string[]) {
+    constructor(Delegua: Delegua, performance: boolean = false) {
         this.Delegua = Delegua;
-        this.codigo = codigo;
+        this.performance = performance;
 
         this.simbolos = [];
 
@@ -465,7 +466,10 @@ export class Lexador implements LexadorInterface {
         }
 
         const fimMapeamento: number = performance.now();
-        console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
+        if (this.performance) {
+            console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
+        }
+        
         return this.simbolos;
     }
 }
