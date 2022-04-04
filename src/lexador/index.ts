@@ -1,4 +1,5 @@
 import { Delegua } from "../delegua";
+import { performance } from 'perf_hooks';
 import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
 
@@ -41,7 +42,7 @@ class Simbolo implements SimboloInterface {
     lexema: string;
     tipo: string;
     literal: string;
-    linha: number;
+    linha: number;    
 
     constructor(tipo: string, lexema: string, literal: string, linha: number) {
         this.tipo = tipo;
@@ -130,20 +131,23 @@ export class Lexador implements LexadorInterface {
     }
 
     /**
-     * Depois de ler todas as linhas, como this.codigo começa com zero, 
-     *  se o contador da linha é maior ou igual que a largura de this.codigo, 
-     *  significa que o código terminou.
-     * @returns Verdadeiro se contador de linhas é maior ou igual à contagem de linhas.
+     * Indica se o código está na última linha.
+     * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
      */
+    eUltimaLinha(): boolean {
+        return this.linha >= this.codigo.length - 1;
+    }
+
     eFinalDoCodigo(): boolean {
-        return this.linha >= this.codigo.length;
+        return this.eUltimaLinha() && 
+            this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
     avancar(): void {
         this.atual += 1;
 
-        if (this.eFinalDaLinha()) {
+        if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
         }
@@ -250,7 +254,7 @@ export class Lexador implements LexadorInterface {
     }
 
     encontrarFimComentarioAsterisco(): void {
-        while (!this.eFinalDoCodigo()) { 
+        while (!this.eUltimaLinha()) { 
             this.avancar();
             if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
                 this.avancar();
@@ -329,8 +333,8 @@ export class Lexador implements LexadorInterface {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '*') {
-                    this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                     this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 }
@@ -451,7 +455,7 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: string[]): any {
+    mapear(codigo?: string[]): SimboloInterface[] {
         const inicioMapeamento: number = performance.now();
         this.simbolos = [];
         this.inicioSimbolo = 0;

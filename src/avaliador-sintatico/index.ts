@@ -1,4 +1,5 @@
 import tiposDeSimbolos from '../tiposDeSimbolos';
+import { performance } from 'perf_hooks';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {
     AtribuicaoSobrescrita,
