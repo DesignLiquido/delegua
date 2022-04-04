@@ -3,7 +3,7 @@ import { Declaracao } from "./declaracao";
 
 export class Pausa extends Declaracao {
     constructor() {
-        super();
+        super(0);
     }
 
     aceitar(visitante: any): any {

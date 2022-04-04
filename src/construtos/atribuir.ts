@@ -1,12 +1,13 @@
+import { SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
 export class Atribuir implements Construto {
-    nome: any;
+    simbolo: SimboloInterface;
     valor: any;
 
-    constructor(nome: any, valor: any) {
-        this.nome = nome;
+    constructor(nome: SimboloInterface, valor: any) {
+        this.simbolo = nome;
         this.valor = valor;
     }
 

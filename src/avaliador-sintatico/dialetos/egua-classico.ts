@@ -477,7 +477,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
       const valor = this.atribuir();
 
       if (expr instanceof Variavel) {
-        const nome = expr.nome;
+        const nome = expr.simbolo;
         return new Atribuir(nome, valor);
       } else if (expr instanceof Get) {
         const get = expr;
@@ -522,7 +522,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
       tiposDeSimbolos.PONTO_E_VIRGULA,
       "Esperado ';' após expressão."
     );
-    return new Expressao(expr);
+    return new Expressao(0, expr);
   }
 
   blocoEscopo(): any {

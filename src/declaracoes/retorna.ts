@@ -6,7 +6,7 @@ export class Retorna extends Declaracao {
     valor: any;
 
     constructor(palavraChave: any, valor: any) {
-        super();
+        super(0);
         this.palavraChave = palavraChave;
         this.valor = valor;
     }

@@ -6,7 +6,7 @@ export class Enquanto extends Declaracao {
     corpo: any;
 
     constructor(condicao: any, corpo: any) {
-        super();
+        super(0);
         this.condicao = condicao;
         this.corpo = corpo;
     }

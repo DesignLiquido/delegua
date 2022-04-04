@@ -85,9 +85,9 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         }
     }
 
-    resolverLocal(expr: any, nome: any): void {
+    resolverLocal(expr: any, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
-            if (this.escopos.pilha[i].hasOwnProperty(nome.lexema)) {
+            if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
                 this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
             }
         }
@@ -103,7 +103,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     visitarExpressaoDeVariavel(expr: any): any {
         if (
             !this.escopos.eVazio() &&
-            this.escopos.topoDaPilha()[expr.nome.lexema] === false
+            this.escopos.topoDaPilha()[expr.simbolo.lexema] === false
         ) {
             throw new ErroResolvedor(
                 "Não é possível ler a variável local em seu próprio inicializador."
@@ -114,11 +114,11 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoVar(stmt: any): any {
-        this.declarar(stmt.nome);
+        this.declarar(stmt.simbolo);
         if (stmt.inicializador !== null) {
             this.resolver(stmt.inicializador);
         }
-        this.definir(stmt.nome);
+        this.definir(stmt.simbolo);
         return null;
     }
 
@@ -149,8 +149,8 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoFuncao(stmt: any): any {
-        this.declarar(stmt.nome);
-        this.definir(stmt.nome);
+        this.declarar(stmt.simbolo);
+        this.definir(stmt.simbolo);
 
         this.resolverFuncao(stmt.funcao, TipoFuncao.FUNÇÃO);
         return null;
@@ -173,12 +173,12 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         let enclosingClass = this.ClasseAtual;
         this.ClasseAtual = TipoClasse.CLASSE;
 
-        this.declarar(stmt.nome);
-        this.definir(stmt.nome);
+        this.declarar(stmt.simbolo);
+        this.definir(stmt.simbolo);
 
         if (
             stmt.superClasse !== null &&
-            stmt.nome.lexema === stmt.superClasse.nome.lexema
+            stmt.simbolo.lexema === stmt.superClasse.simbolo.lexema
         ) {
             this.Delegua.erro("Uma classe não pode herdar de si mesma.");
         }
@@ -200,7 +200,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         for (let i = 0; i < metodos.length; i++) {
             let declaracao = TipoFuncao.METODO;
 
-            if (metodos[i].nome.lexema === "isto") {
+            if (metodos[i].simbolo.lexema === "isto") {
                 declaracao = TipoFuncao.CONSTRUTOR;
             }
 

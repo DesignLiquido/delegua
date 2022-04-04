@@ -19,6 +19,7 @@ import {
     Variavel,
     Vetor,
     Isto,
+    Construto,
 } from '../construtos';
 
 import { ErroAvaliador } from './erros-avaliador';
@@ -27,6 +28,7 @@ import {
     Bloco,
     Classe,
     Continua,
+    Declaracao,
     Enquanto,
     Escolha,
     Escreva,
@@ -90,7 +92,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         return new ErroAvaliador();
     }
 
-    consumir(tipo: any, mensagemDeErro: any): any {
+    consumir(tipo: any, mensagemDeErro: string): any {
         if (this.verificar(tipo)) return this.avancar();
         throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
@@ -528,7 +530,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         return expr;
     }
 
-    atribuir(): any {
+    atribuir(): Construto {
         const expr = this.ou();
 
         if (
@@ -539,7 +541,7 @@ export class Parser implements AvaliadorSintaticoInterface {
             const valor = this.atribuir();
 
             if (expr instanceof Variavel) {
-                const nome = expr.nome;
+                const nome = expr.simbolo;
                 return new Atribuir(nome, valor);
             } else if (expr instanceof Get) {
                 const get = expr;
@@ -557,29 +559,29 @@ export class Parser implements AvaliadorSintaticoInterface {
         return expr;
     }
 
-    expressao(): any {
+    expressao(): Construto {
         return this.atribuir();
     }
 
-    declaracaoMostrar() {
+    declaracaoMostrar(): Escreva {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const valor = this.expressao();
+        const simbolo: any = this.expressao();
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em escreva."
         );
 
-        return new Escreva(valor);
+        return new Escreva(simbolo);
     }
 
     declaracaoExpressao(): any {
-        const expr = this.expressao();
-        return new Expressao(expr);
+        const expressao = this.expressao();
+        return new Expressao(0, expressao);
     }
 
     blocoEscopo(): any {
@@ -954,8 +956,8 @@ export class Parser implements AvaliadorSintaticoInterface {
         return this.declaracaoExpressao();
     }
 
-    declaracaoDeVariavel(): any {
-        const nome = this.consumir(
+    declaracaoDeVariavel(): Var {
+        const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome de variável.'
         );
@@ -967,18 +969,18 @@ export class Parser implements AvaliadorSintaticoInterface {
             inicializador = this.expressao();
         }
 
-        return new Var(nome, inicializador);
+        return new Var(simbolo, inicializador);
     }
 
-    funcao(tipo: any): any {
-        const nome = this.consumir(
+    funcao(tipo: string): FuncaoDeclaracao {
+        const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             `Esperado nome ${tipo}.`
         );
-        return new FuncaoDeclaracao(nome, this.corpoDaFuncao(tipo));
+        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
-    corpoDaFuncao(tipo: any): any {
+    corpoDaFuncao(tipo: string): any {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${tipo}.`
@@ -1038,8 +1040,8 @@ export class Parser implements AvaliadorSintaticoInterface {
         return new Funcao(parametros, corpo);
     }
 
-    declaracaoDeClasse(): any {
-        const nome = this.consumir(
+    declaracaoDeClasse(): Classe {
+        const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
         );
@@ -1070,7 +1072,7 @@ export class Parser implements AvaliadorSintaticoInterface {
             tiposDeSimbolos.CHAVE_DIREITA,
             "Esperado '}' após o escopo da classe."
         );
-        return new Classe(nome, superClasse, metodos);
+        return new Classe(simbolo, superClasse, metodos);
     }
 
     declaracao(): any {
@@ -1101,7 +1103,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(simbolos?: SimboloInterface[]): any {
+    analisar(simbolos?: SimboloInterface[]): Declaracao[] {
         const inicioAnalise: number = performance.now();
         this.atual = 0;
         this.ciclos = 0;

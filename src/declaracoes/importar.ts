@@ -6,7 +6,7 @@ export class Importar extends Declaracao {
     closeBracket: any;
 
     constructor(caminho: any, closeBracket: any) {
-        super();
+        super(0);
         this.caminho = caminho;
         this.closeBracket = closeBracket;
     }

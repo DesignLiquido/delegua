@@ -8,7 +8,7 @@ export class Se extends Declaracao {
     elseBranch: any;
 
     constructor(condicao: any, thenBranch: any, elifBranches: any, elseBranch: any) {
-        super();
+        super(0);
         this.condicao = condicao;
         this.thenBranch = thenBranch;
         this.elifBranches = elifBranches;
