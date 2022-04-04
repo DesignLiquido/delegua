@@ -41,7 +41,7 @@ class Simbolo implements SimboloInterface {
     lexema: string;
     tipo: string;
     literal: string;
-    linha: number;
+    linha: number;    
 
     constructor(tipo: string, lexema: string, literal: string, linha: number) {
         this.tipo = tipo;
@@ -68,6 +68,7 @@ export class Lexador implements LexadorInterface {
     inicioSimbolo: number;
     atual: number;
     linha: number;
+    tamanhoLinhaAtual: number;
     performance: boolean;
 
     constructor(Delegua: Delegua, performance: boolean = false) {
@@ -79,6 +80,7 @@ export class Lexador implements LexadorInterface {
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 0;
+        this.tamanhoLinhaAtual = 0;
     }
 
     eDigito(caractere: string) {
@@ -126,25 +128,29 @@ export class Lexador implements LexadorInterface {
     }
 
     eFinalDaLinha(): boolean {
-        return this.atual >= this.codigo[this.linha].length;
+        return this.atual >= this.tamanhoLinhaAtual;
     }
 
     /**
-     * Depois de ler todas as linhas, como this.codigo começa com zero, 
-     *  se o contador da linha é maior ou igual que a largura de this.codigo, 
-     *  significa que o código terminou.
-     * @returns Verdadeiro se contador de linhas é maior ou igual à contagem de linhas.
+     * Indica se o código está na última linha.
+     * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
      */
+    eUltimaLinha(): boolean {
+        return this.linha >= this.codigo.length - 1;
+    }
+
     eFinalDoCodigo(): boolean {
-        return this.linha >= this.codigo.length;
+        return this.eUltimaLinha && 
+            this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
     avancar(): void {
         this.atual += 1;
 
-        if (this.eFinalDaLinha()) {
+        if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
+            this.tamanhoLinhaAtual = this.codigo[this.linha].length;
             this.atual = 0;
         }
     }
@@ -250,7 +256,7 @@ export class Lexador implements LexadorInterface {
     }
 
     encontrarFimComentarioAsterisco(): void {
-        while (!this.eFinalDoCodigo()) { 
+        while (!this.eUltimaLinha()) { 
             this.avancar();
             if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
                 this.avancar();
@@ -459,6 +465,7 @@ export class Lexador implements LexadorInterface {
         this.linha = 0;
 
         this.codigo = codigo || [''];
+        this.tamanhoLinhaAtual = this.codigo[0].length;
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
