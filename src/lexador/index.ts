@@ -1,4 +1,5 @@
 import { Delegua } from "../delegua";
+import { performance } from 'perf_hooks';
 import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
 

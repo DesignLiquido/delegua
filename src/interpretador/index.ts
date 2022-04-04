@@ -1,4 +1,5 @@
 import tiposDeSimbolos from '../tiposDeSimbolos';
+import { performance } from 'perf_hooks';
 import { Ambiente } from '../ambiente';
 import { Delegua } from '../delegua';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
