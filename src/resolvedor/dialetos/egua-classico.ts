@@ -85,10 +85,10 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         }
     }
 
-    resolverLocal(expr: any, simbolo: SimboloInterface): void {
+    resolverLocal(expressao: any, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
             if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
-                this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
+                this.interpretador.resolver(expressao, this.escopos.pilha.length - 1 - i);
             }
         }
     }
@@ -100,16 +100,16 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoDeVariavel(expr: any): any {
+    visitarExpressaoDeVariavel(expressao: any): any {
         if (
             !this.escopos.eVazio() &&
-            this.escopos.topoDaPilha()[expr.simbolo.lexema] === false
+            this.escopos.topoDaPilha()[expressao.simbolo.lexema] === false
         ) {
             throw new ErroResolvedor(
                 "Não é possível ler a variável local em seu próprio inicializador."
             );
         }
-        this.resolverLocal(expr, expr.nome);
+        this.resolverLocal(expressao, expressao.simbolo);
         return null;
     }
 
@@ -122,9 +122,9 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoDeAtribuicao(expr: any): any {
-        this.resolver(expr.valor);
-        this.resolverLocal(expr, expr.nome);
+    visitarExpressaoDeAtribuicao(expressao: any): any {
+        this.resolver(expressao.valor);
+        this.resolverLocal(expressao, expressao.simbolo);
         return null;
     }
 

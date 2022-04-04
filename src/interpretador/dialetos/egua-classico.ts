@@ -312,14 +312,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expr: any) {
-        const valor = this.avaliar(expr.valor);
+    visitarExpressaoDeAtribuicao(expressao: any) {
+        const valor = this.avaliar(expressao.valor);
 
-        const distancia = this.locais.get(expr);
+        const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
-            this.ambiente.atribuirVariavelEm(distancia, expr.nome, valor);
+            this.ambiente.atribuirVariavelEm(distancia, expressao.simbolo, valor);
         } else {
-            this.ambiente.atribuirVariavel(expr.nome, valor);
+            this.ambiente.atribuirVariavel(expressao.simbolo, valor);
         }
 
         return valor;
@@ -334,8 +334,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDeVariavel(expr: any) {
-        return this.procurarVariavel(expr.nome, expr);
+    visitarExpressaoDeVariavel(expressao: any) {
+        return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
     visitarDeclaracaoDeExpressao(stmt: any) {
