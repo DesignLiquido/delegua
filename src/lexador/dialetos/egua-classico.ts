@@ -311,13 +311,14 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: any) {
+    mapear(codigo?: string[]): SimboloInterface[] {
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 1;
         
-        this.codigo = codigo || '';
+        // Por enquanto, o Lexador de Égua Clássico vai ter uma linha só.
+        this.codigo = codigo.join('\n') || '';
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;

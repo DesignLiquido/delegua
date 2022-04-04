@@ -457,7 +457,7 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: string[]): any {
+    mapear(codigo?: string[]): SimboloInterface[] {
         const inicioMapeamento: number = performance.now();
         this.simbolos = [];
         this.inicioSimbolo = 0;
