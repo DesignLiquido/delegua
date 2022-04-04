@@ -1,5 +1,6 @@
 import { DeleguaFuncao } from "./estruturas";
 import { ErroEmTempoDeExecucao } from "./excecoes";
+import { SimboloInterface } from "./interfaces";
 
 export class Ambiente {
     enclosing: any;
@@ -18,7 +19,7 @@ export class Ambiente {
         this.ancestor(distancia).valores[simbolo.lexema] = valor;
     }
 
-    atribuirVariavel(simbolo: any, valor: any) {
+    atribuirVariavel(simbolo: SimboloInterface, valor: any) {
         if (this.valores[simbolo.lexema] !== undefined) {
             this.valores[simbolo.lexema] = valor;
             return;
@@ -45,7 +46,7 @@ export class Ambiente {
         return this.ancestor(distancia).valores[nome];
     }
 
-    obterVariavel(simbolo: any) {
+    obterVariavel(simbolo: SimboloInterface) {
         if (this.valores[simbolo.lexema] !== undefined) {
             return this.valores[simbolo.lexema];
         }
