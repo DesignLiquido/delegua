@@ -6,7 +6,7 @@ describe('Interpretador', () => {
 
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
-                it.skip('Trivial', () => {
+                it('Trivial', () => {
                     const simbolos = delegua.lexador.mapear(["var a = 1"]);
                     const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
                     delegua.resolvedor.resolver(declaracoes);
