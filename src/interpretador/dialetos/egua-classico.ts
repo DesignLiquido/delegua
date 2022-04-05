@@ -20,6 +20,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
+import { Para, Se } from '../../declaracoes';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -372,14 +373,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.avaliar(expr.direita);
     }
 
-    visitarExpressaoSe(stmt: any) {
+    visitarExpressaoSe(stmt: Se) {
         if (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
-            this.executar(stmt.thenBranch);
+            this.executar(stmt.caminhoEntao);
             return null;
         }
 
-        for (let i = 0; i < stmt.elifBranches.length; i++) {
-            const atual = stmt.elifBranches[i];
+        for (let i = 0; i < stmt.caminhosSeSenao.length; i++) {
+            const atual = stmt.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
                 this.executar(atual.branch);
@@ -387,14 +388,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
         }
 
-        if (stmt.elseBranch !== null) {
-            this.executar(stmt.elseBranch);
+        if (stmt.caminhoSenao !== null) {
+            this.executar(stmt.caminhoSenao);
         }
 
         return null;
     }
 
-    visitarExpressaoPara(stmt: any) {
+    visitarExpressaoPara(stmt: Para) {
         if (stmt.inicializador !== null) {
             this.avaliar(stmt.inicializador);
         }

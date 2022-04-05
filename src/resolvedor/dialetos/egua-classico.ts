@@ -3,6 +3,7 @@ import { PilhaEscopos } from "../pilha-escopos";
 import { ErroResolvedor } from "../erro-resolvedor";
 import { Delegua } from "../../delegua";
 import { SimboloInterface } from "../../interfaces";
+import { Se } from "../../declaracoes";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -239,16 +240,16 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoSe(stmt: any): any {
+    visitarExpressaoSe(stmt: Se): any {
         this.resolver(stmt.condicao);
-        this.resolver(stmt.thenBranch);
+        this.resolver(stmt.caminhoEntao);
 
-        for (let i = 0; i < stmt.elifBranches.length; i++) {
-            this.resolver(stmt.elifBranches[i].condicao);
-            this.resolver(stmt.elifBranches[i].branch);
+        for (let i = 0; i < stmt.caminhosSeSenao.length; i++) {
+            this.resolver(stmt.caminhosSeSenao[i].condicao);
+            this.resolver(stmt.caminhosSeSenao[i].branch);
         }
 
-        if (stmt.elseBranch !== null) this.resolver(stmt.elseBranch);
+        if (stmt.caminhoSenao !== null) this.resolver(stmt.caminhoSenao);
         return null;
     }
 
