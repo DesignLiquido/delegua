@@ -6,8 +6,8 @@ export class Variavel implements Construto {
     linha: number;
     simbolo: SimboloInterface;
 
-    constructor(linha: number, simbolo: SimboloInterface) {
-        this.linha = linha;
+    constructor(simbolo: SimboloInterface) {
+        this.linha = Number(simbolo.linha);
         this.simbolo = simbolo;
     }
 

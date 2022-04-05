@@ -7,8 +7,8 @@ export class Atribuir implements Construto {
     simbolo: SimboloInterface;
     valor: any;
 
-    constructor(linha: number, simbolo: SimboloInterface, valor: any) {
-        this.linha = linha;
+    constructor(simbolo: SimboloInterface, valor: any) {
+        this.linha = Number(simbolo.linha);
         this.simbolo = simbolo;
         this.valor = valor;
     }

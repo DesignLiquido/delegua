@@ -1,11 +1,12 @@
+import { Construto } from "../construtos";
 import { Declaracao } from "./declaracao";
 
 
 export class Expressao extends Declaracao {
-    expressao: any;
+    expressao: Construto;
 
-    constructor(linha: number, expressao: any) {
-        super(linha);
+    constructor(expressao: Construto) {
+        super(expressao.linha);
         this.expressao = expressao;
     }
 

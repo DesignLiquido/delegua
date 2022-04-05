@@ -262,7 +262,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
         ) {
-            return new Variavel(0, this.voltar());
+            return new Variavel(this.voltar());
         }
 
         if (
@@ -285,7 +285,7 @@ export class Parser implements AvaliadorSintaticoInterface {
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: any): any {
+    finalizarChamada(entidadeChamada: Construto): Construto {
         const argumentos = [];
 
         if (!this.verificar(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -307,11 +307,11 @@ export class Parser implements AvaliadorSintaticoInterface {
             "Esperado ')' após os argumentos."
         );
 
-        return new Chamada(0, entidadeChamada, parenteseDireito, argumentos);
+        return new Chamada(entidadeChamada, parenteseDireito, argumentos);
     }
 
     chamar(): any {
-        let expr = this.primario();
+        let expressao = this.primario();
 
         while (true) {
             if (
@@ -319,7 +319,7 @@ export class Parser implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.PARENTESE_ESQUERDO
                 )
             ) {
-                expr = this.finalizarChamada(expr);
+                expressao = this.finalizarChamada(expressao);
             } else if (
                 this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)
             ) {
@@ -327,7 +327,7 @@ export class Parser implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
-                expr = new Get(0, expr, nome);
+                expressao = new Get(0, expressao, nome);
             } else if (
                 this.verificarSeSimboloAtualEIgualA(
                     tiposDeSimbolos.COLCHETE_ESQUERDO
@@ -338,13 +338,13 @@ export class Parser implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
-                expr = new Subscript(0, expr, indice, closeBracket);
+                expressao = new Subscript(0, expressao, indice, closeBracket);
             } else {
                 break;
             }
         }
 
-        return expr;
+        return expressao;
     }
 
     unario(): any {
@@ -542,7 +542,7 @@ export class Parser implements AvaliadorSintaticoInterface {
 
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
-                return new Atribuir(0, simbolo, valor);
+                return new Atribuir(simbolo, valor);
             } else if (expressao instanceof Get) {
                 const get = expressao;
                 return new Conjunto(0, get.objeto, get.nome, valor);
@@ -581,7 +581,7 @@ export class Parser implements AvaliadorSintaticoInterface {
 
     declaracaoExpressao(): any {
         const expressao = this.expressao();
-        return new Expressao(0, expressao);
+        return new Expressao(expressao);
     }
 
     blocoEscopo(): any {
@@ -1052,7 +1052,7 @@ export class Parser implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da SuperClasse.'
             );
-            superClasse = new Variavel(0, this.voltar());
+            superClasse = new Variavel(this.voltar());
         }
 
         this.consumir(

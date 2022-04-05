@@ -238,7 +238,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
         ) {
-            return new Variavel(0, this.voltar());
+            return new Variavel(this.voltar());
         }
         if (
             this.verificarSeSimboloAtualEIgualA(
@@ -279,7 +279,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
             "Esperado ')' após os argumentos."
         );
 
-        return new Chamada(0, entidadeChamada, parenteseDireito, argumentos);
+        return new Chamada(entidadeChamada, parenteseDireito, argumentos);
     }
 
     chamar(): any {
@@ -503,30 +503,30 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
 
     atribuir(): any {
-        const expr = this.ou();
+        const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.voltar();
             const valor = this.atribuir();
 
-            if (expr instanceof Variavel) {
-                const nome = expr.simbolo;
-                return new Atribuir(0, nome, valor);
-            } else if (expr instanceof Get) {
-                const get = expr;
+            if (expressao instanceof Variavel) {
+                const simbolo = expressao.simbolo;
+                return new Atribuir(simbolo, valor);
+            } else if (expressao instanceof Get) {
+                const get = expressao;
                 return new Conjunto(0, get.objeto, get.nome, valor);
-            } else if (expr instanceof Subscript) {
+            } else if (expressao instanceof Subscript) {
                 return new AtribuicaoSobrescrita(
                     0,
-                    expr.entidadeChamada,
-                    expr.indice,
+                    expressao.entidadeChamada,
+                    expressao.indice,
                     valor
                 );
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
 
-        return expr;
+        return expressao;
     }
 
     expressao(): any {
@@ -555,12 +555,12 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
 
     declaracaoExpressao(): any {
-        const expr = this.expressao();
+        const expressao = this.expressao();
         this.consumir(
             tiposDeSimbolos.PONTO_E_VIRGULA,
             "Esperado ';' após expressão."
         );
-        return new Expressao(0, expr);
+        return new Expressao(expressao);
     }
 
     blocoEscopo(): any {
@@ -1035,7 +1035,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da SuperClasse.'
             );
-            superClasse = new Variavel(0, this.voltar());
+            superClasse = new Variavel(this.voltar());
         }
 
         this.consumir(
