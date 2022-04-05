@@ -21,6 +21,7 @@ import {
     Variavel,
     Vetor,
     Isto,
+    Construto,
 } from '../../construtos';
 
 import { ErroAvaliador } from '../erros-avaliador';
@@ -282,7 +283,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         return new Chamada(entidadeChamada, parenteseDireito, argumentos);
     }
 
-    chamar(): any {
+    chamar(): Construto {
         let expressao = this.primario();
 
         while (true) {
@@ -299,7 +300,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
-                expressao = new AcessoMetodo(0, expressao, nome);
+                expressao = new AcessoMetodo(expressao, nome);
             } else if (
                 this.verificarSeSimboloAtualEIgualA(
                     tiposDeSimbolos.COLCHETE_ESQUERDO
@@ -319,7 +320,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         return expressao;
     }
 
-    unario(): any {
+    unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
@@ -329,28 +330,28 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.unario();
-            return new Unario(0, operador, direito);
+            return new Unario(operador, direito);
         }
 
         return this.chamar();
     }
 
-    exponenciacao(): any {
-        let expr = this.unario();
+    exponenciacao(): Construto {
+        let expressao = this.unario();
 
         while (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)
         ) {
             const operador = this.simboloAnterior();
             const direito = this.unario();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    multiplicar(): any {
-        let expr = this.exponenciacao();
+    multiplicar(): Construto {
+        let expressao = this.exponenciacao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -361,14 +362,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.exponenciacao();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    adicionar(): any {
-        let expr = this.multiplicar();
+    adicionar(): Construto {
+        let expressao = this.multiplicar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -378,14 +379,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.multiplicar();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    bitFill(): any {
-        let expr = this.adicionar();
+    bitFill(): Construto {
+        let expressao = this.adicionar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -395,26 +396,26 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.adicionar();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    bitE(): any {
-        let expr = this.bitFill();
+    bitE(): Construto {
+        let expressao = this.bitFill();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
             const operador = this.simboloAnterior();
             const direito = this.bitFill();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    bitOu(): any {
-        let expr = this.bitE();
+    bitOu(): Construto {
+        let expressao = this.bitE();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -424,14 +425,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.bitE();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    comparar(): any {
-        let expr = this.bitOu();
+    comparar(): Construto {
+        let expressao = this.bitOu();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -443,14 +444,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.bitOu();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    comparacaoIgualdade(): any {
-        let expr = this.comparar();
+    comparacaoIgualdade(): Construto {
+        let expressao = this.comparar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -460,49 +461,49 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         ) {
             const operador = this.simboloAnterior();
             const direito = this.comparar();
-            expr = new Binario(0, expr, operador, direito);
+            expressao = new Binario(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    em(): any {
-        let expr = this.comparacaoIgualdade();
+    em(): Construto {
+        let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
             const operador = this.simboloAnterior();
             const direito = this.comparacaoIgualdade();
-            expr = new Logico(0, expr, operador, direito);
+            expressao = new Logico(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    e(): any {
-        let expr = this.em();
+    e(): Construto {
+        let expressao = this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
             const operador = this.simboloAnterior();
             const direito = this.em();
-            expr = new Logico(0, expr, operador, direito);
+            expressao = new Logico(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    ou(): any {
-        let expr = this.e();
+    ou(): Construto {
+        let expressao = this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
             const operador = this.simboloAnterior();
             const direito = this.e();
-            expr = new Logico(0, expr, operador, direito);
+            expressao = new Logico(expressao, operador, direito);
         }
 
-        return expr;
+        return expressao;
     }
 
-    atribuir(): any {
+    atribuir(): Construto {
         const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
@@ -533,7 +534,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         return this.atribuir();
     }
 
-    declaracaoMostrar(): any {
+    declaracaoEscreva(): any {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
@@ -932,7 +933,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE))
             return this.declaracaoSe();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA))
-            return this.declaracaoMostrar();
+            return this.declaracaoEscreva();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
             return new Bloco(this.blocoEscopo());
 

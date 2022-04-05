@@ -24,18 +24,18 @@ import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Para, Se } from '../declaracoes';
 
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
+ * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
-    Delegua: any;
+    Delegua: Delegua;
     diretorioBase: any;
     global: any;
     ambiente: any;
     locais: any;
     performance: boolean
 
-    constructor(Delegua: any, diretorioBase: string, performance: boolean = false) {
+    constructor(Delegua: Delegua, diretorioBase: string, performance: boolean = false) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
@@ -804,7 +804,7 @@ export class Interpretador implements InterpretadorInterface {
             this.ambiente = this.ambiente.enclosing;
         }
 
-        this.ambiente.atribuirVariavel(stmt.nome, criado);
+        this.ambiente.atribuirVariavel(stmt.simbolo, criado);
         return null;
     }
 

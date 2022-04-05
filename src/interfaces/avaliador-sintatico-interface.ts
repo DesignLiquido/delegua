@@ -35,7 +35,7 @@ export interface AvaliadorSintaticoInterface {
     ou(): any;
     atribuir(): any;
     expressao(): any;
-    declaracaoMostrar(): any;
+    declaracaoEscreva(): any;
     declaracaoExpressao(): any;
     blocoEscopo(): any;
     declaracaoSe(): any;

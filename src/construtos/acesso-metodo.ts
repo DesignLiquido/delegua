@@ -6,11 +6,11 @@ import { Construto } from "./construto";
  */
 export class AcessoMetodo implements Construto {
     linha: number;
-    objeto: any;
+    objeto: Construto;
     nome: any;
 
-    constructor(linha: number, objeto: any, nome: any) {
-        this.linha = linha;
+    constructor(objeto: Construto, nome: any) {
+        this.linha = objeto.linha;
         this.objeto = objeto;
         this.nome = nome;
     }

@@ -7,8 +7,8 @@ export class Binario implements Construto {
     operador: any;
     direita: any;
 
-    constructor(linha: number, esquerda: any, operador: any, direita: any) {
-        this.linha = linha;
+    constructor(esquerda: any, operador: any, direita: any) {
+        this.linha = esquerda.linha;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
