@@ -3,11 +3,13 @@ import { Construto } from "./construto";
 
 
 export class Atribuir implements Construto {
+    linha: number;
     simbolo: SimboloInterface;
     valor: any;
 
-    constructor(nome: SimboloInterface, valor: any) {
-        this.simbolo = nome;
+    constructor(linha: number, simbolo: SimboloInterface, valor: any) {
+        this.linha = linha;
+        this.simbolo = simbolo;
         this.valor = valor;
     }
 

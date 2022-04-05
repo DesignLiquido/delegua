@@ -1,12 +1,14 @@
 import { Construto } from "./construto";
 
 
-export class Logical implements Construto {
+export class Logico implements Construto {
+    linha: number;
     esquerda: any;
     operador: any;
     direita: any;
 
-    constructor(esquerda: any, operador: any, direita: any) {
+    constructor(linha: number, esquerda: any, operador: any, direita: any) {
+        this.linha = linha;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;

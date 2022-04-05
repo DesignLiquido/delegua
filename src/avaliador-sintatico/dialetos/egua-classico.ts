@@ -12,9 +12,9 @@ import {
   Conjunto,
   Funcao,
   Get,
-  Grouping,
+  Agrupamento,
   Literal,
-  Logical,
+  Logico,
   Subscript,
   Super,
   Unario,
@@ -227,7 +227,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         tiposDeSimbolos.PARENTESE_DIREITO,
         "Esperado ')' após a expressão."
       );
-      return new Grouping(expr);
+      return new Agrupamento(expr);
     }
     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
       return this.declaracaoImportar();
@@ -439,7 +439,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
       const operador = this.voltar();
       const direito = this.comparacaoIgualdade();
-      expr = new Logical(expr, operador, direito);
+      expr = new Logico(expr, operador, direito);
     }
 
     return expr;
@@ -451,7 +451,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
       const operador = this.voltar();
       const direito = this.em();
-      expr = new Logical(expr, operador, direito);
+      expr = new Logico(expr, operador, direito);
     }
 
     return expr;
@@ -463,7 +463,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
       const operador = this.voltar();
       const direito = this.e();
-      expr = new Logical(expr, operador, direito);
+      expr = new Logico(expr, operador, direito);
     }
 
     return expr;
