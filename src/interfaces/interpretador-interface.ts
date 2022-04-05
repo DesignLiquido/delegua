@@ -1,8 +1,11 @@
+import { Ambiente } from "../ambiente";
+import { Delegua } from "../delegua";
+
 export interface InterpretadorInterface {
-    Delegua: any;
+    Delegua: Delegua;
     diretorioBase: any;
-    global: any;
-    ambiente: any;
+    global: Ambiente;
+    ambiente: Ambiente;
     locais: any;
 
     resolver(expr: any, depth: any): void;

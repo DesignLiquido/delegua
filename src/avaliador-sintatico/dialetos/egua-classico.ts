@@ -836,12 +836,12 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
 
         const caminho = this.expressao();
 
-        let closeBracket = this.consumir(
+        let simboloFechamento = this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após declaração."
         );
 
-        return new Importar(caminho, closeBracket);
+        return new Importar(caminho, simboloFechamento);
     }
 
     declaracaoTentar(): any {

@@ -17,7 +17,7 @@ import { ParserEguaClassico } from "./avaliador-sintatico/dialetos/egua-classico
 import { LexadorEguaClassico } from "./lexador/dialetos/egua-classico";
 
 export class Delegua {
-    nomeArquivo: any;
+    nomeArquivo: string;
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
@@ -144,7 +144,7 @@ export class Delegua {
         this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
-    erroEmTempoDeExecucao(erro: any) {
+    erroEmTempoDeExecucao(erro: any): void {
         if (erro & erro.simbolo && erro.simbolo.linha) {
             if (this.nomeArquivo)
                 console.error(
@@ -152,7 +152,7 @@ export class Delegua {
                 );
             else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
         } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Ao se livrar de ReturnException, remover isto.
-            console.error(`Erro: ${erro.mensagem}`);
+            console.error(`Erro: [Linha: ${erro.linha}] ${erro.mensagem}`);
         }
         
         this.teveErroEmTempoDeExecucao = true;

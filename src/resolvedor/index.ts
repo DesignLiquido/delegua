@@ -164,11 +164,11 @@ export class Resolvedor implements ResolvedorInterface {
     }
 
     visitarExpressaoTente(stmt: any): any {
-        this.resolver(stmt.tryBranch);
+        this.resolver(stmt.caminhoTente);
 
-        if (stmt.catchBranch !== null) this.resolver(stmt.catchBranch);
-        if (stmt.elseBranch !== null) this.resolver(stmt.elseBranch);
-        if (stmt.finallyBranch !== null) this.resolver(stmt.finallyBranch);
+        if (stmt.caminhoPegue !== null) this.resolver(stmt.caminhoPegue);
+        if (stmt.caminhoSenao !== null) this.resolver(stmt.caminhoSenao);
+        if (stmt.caminhoFinalmente !== null) this.resolver(stmt.caminhoFinalmente);
     }
 
     visitarExpressaoClasse(stmt: any): any {
