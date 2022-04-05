@@ -3,16 +3,16 @@ import { Declaracao } from "./declaracao";
 
 export class Se extends Declaracao {
     condicao: any;
-    thenBranch: any;
-    elifBranches: any;
-    elseBranch: any;
+    caminhoEntao: any;
+    caminhosSeSenao: any;
+    caminhoSenao: any;
 
-    constructor(condicao: any, thenBranch: any, elifBranches: any, elseBranch: any) {
-        super();
+    constructor(linha: number, condicao: any, caminhoEntao: any, caminhosSeSenao: any, caminhoSenao: any) {
+        super(linha);
         this.condicao = condicao;
-        this.thenBranch = thenBranch;
-        this.elifBranches = elifBranches;
-        this.elseBranch = elseBranch;
+        this.caminhoEntao = caminhoEntao;
+        this.caminhosSeSenao = caminhosSeSenao;
+        this.caminhoSenao = caminhoSenao;
     }
 
     aceitar(visitante: any): any {

@@ -1,10 +1,12 @@
 import { Construto } from "./construto";
 
 
-export class Grouping implements Construto {
+export class Agrupamento implements Construto {
+    linha: number;
     expressao: any;
 
-    constructor(expressao: any) {
+    constructor(linha: number, expressao: any) {
+        this.linha = linha;
         this.expressao = expressao;
     }
 

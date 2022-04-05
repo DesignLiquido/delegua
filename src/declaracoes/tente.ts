@@ -8,7 +8,7 @@ export class Tente extends Declaracao {
     finallyBranch: any;
 
     constructor(tryBranch: any, catchBranch: any, elseBranch: any, finallyBranch: any) {
-        super();
+        super(0);
         this.tryBranch = tryBranch;
         this.catchBranch = catchBranch;
         this.elseBranch = elseBranch;

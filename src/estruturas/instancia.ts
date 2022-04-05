@@ -1,27 +1,28 @@
 import { ErroEmTempoDeExecucao } from "../excecoes";
+import { SimboloInterface } from "../interfaces";
 
 export class DeleguaInstancia {
     criarClasse: any;
     campos: any;
 
-    constructor(criarClasse) {
+    constructor(criarClasse: any) {
         this.criarClasse = criarClasse;
         this.campos = {};
     }
 
-    get(nome: any): any {
-        if (this.campos.hasOwnProperty(nome.lexema)) {
-            return this.campos[nome.lexema];
+    get(simbolo: SimboloInterface): any {
+        if (this.campos.hasOwnProperty(simbolo.lexema)) {
+            return this.campos[simbolo.lexema];
         }
 
-        let metodo = this.criarClasse.encontrarMetodo(nome.lexema);
+        let metodo = this.criarClasse.encontrarMetodo(simbolo.lexema);
         if (metodo) return metodo.definirEscopo(this);
 
-        throw new ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
+        throw new ErroEmTempoDeExecucao(simbolo, "Método indefinido não recuperado.");
     }
 
-    set(nome: any, valor: any): void {
-        this.campos[nome.lexema] = valor;
+    set(simbolo: SimboloInterface, valor: any): void {
+        this.campos[simbolo.lexema] = valor;
     }
 
     toString(): string {

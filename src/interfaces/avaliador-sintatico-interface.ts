@@ -10,11 +10,11 @@ export interface AvaliadorSintaticoInterface {
     sincronizar(): void;
     erro(simbolo: any, mensagemDeErro: any): any;
     consumir(tipo: any, mensagemDeErro: any): any;
-    verificar(tipo: any): boolean;
-    verificarProximo(tipo: any): boolean;
+    verificarTipoSimboloAtual(tipo: any): boolean;
+    verificarTipoProximoSimbolo(tipo: any): boolean;
     simboloAtual(): any;
-    voltar(): any;
-    procurar(posicao: number): any;
+    simboloAnterior(): any;
+    simboloNaPosicao(posicao: number): any;
     estaNoFinal(): boolean;
     avancar(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
@@ -35,7 +35,7 @@ export interface AvaliadorSintaticoInterface {
     ou(): any;
     atribuir(): any;
     expressao(): any;
-    declaracaoMostrar(): any;
+    declaracaoEscreva(): any;
     declaracaoExpressao(): any;
     blocoEscopo(): any;
     declaracaoSe(): any;

@@ -6,7 +6,7 @@ export class Fazer extends Declaracao {
     whileCondition: any;
 
     constructor(doBranch: any, whileCondition: any) {
-        super();
+        super(0);
         this.doBranch = doBranch;
         this.whileCondition = whileCondition;
     }

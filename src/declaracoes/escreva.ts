@@ -5,7 +5,7 @@ export class Escreva extends Declaracao {
     expressao: any;
 
     constructor(expressao: any) {
-        super();
+        super(expressao.linha);
         this.expressao = expressao;
     }
 

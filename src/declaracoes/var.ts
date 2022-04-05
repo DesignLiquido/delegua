@@ -1,13 +1,14 @@
+import { SimboloInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
 export class Var extends Declaracao {
-    nome: any;
+    simbolo: SimboloInterface;
     inicializador: any;
 
-    constructor(nome: any, inicializador: any) {
-        super();
-        this.nome = nome;
+    constructor(simbolo: SimboloInterface, inicializador: any) {
+        super(Number(simbolo.linha));
+        this.simbolo = simbolo;
         this.inicializador = inicializador;
     }
 

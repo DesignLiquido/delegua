@@ -3,6 +3,7 @@ import { PilhaEscopos } from "../pilha-escopos";
 import { ErroResolvedor } from "../erro-resolvedor";
 import { Delegua } from "../../delegua";
 import { SimboloInterface } from "../../interfaces";
+import { Se } from "../../declaracoes";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -85,10 +86,10 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         }
     }
 
-    resolverLocal(expr: any, nome: any): void {
+    resolverLocal(expressao: any, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
-            if (this.escopos.pilha[i].hasOwnProperty(nome.lexema)) {
-                this.interpretador.resolver(expr, this.escopos.pilha.length - 1 - i);
+            if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
+                this.interpretador.resolver(expressao, this.escopos.pilha.length - 1 - i);
             }
         }
     }
@@ -100,31 +101,31 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoDeVariavel(expr: any): any {
+    visitarExpressaoDeVariavel(expressao: any): any {
         if (
             !this.escopos.eVazio() &&
-            this.escopos.topoDaPilha()[expr.nome.lexema] === false
+            this.escopos.topoDaPilha()[expressao.simbolo.lexema] === false
         ) {
             throw new ErroResolvedor(
                 "Não é possível ler a variável local em seu próprio inicializador."
             );
         }
-        this.resolverLocal(expr, expr.nome);
+        this.resolverLocal(expressao, expressao.simbolo);
         return null;
     }
 
     visitarExpressaoVar(stmt: any): any {
-        this.declarar(stmt.nome);
+        this.declarar(stmt.simbolo);
         if (stmt.inicializador !== null) {
             this.resolver(stmt.inicializador);
         }
-        this.definir(stmt.nome);
+        this.definir(stmt.simbolo);
         return null;
     }
 
-    visitarExpressaoDeAtribuicao(expr: any): any {
-        this.resolver(expr.valor);
-        this.resolverLocal(expr, expr.nome);
+    visitarExpressaoDeAtribuicao(expressao: any): any {
+        this.resolver(expressao.valor);
+        this.resolverLocal(expressao, expressao.simbolo);
         return null;
     }
 
@@ -149,8 +150,8 @@ export class ResolverEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoFuncao(stmt: any): any {
-        this.declarar(stmt.nome);
-        this.definir(stmt.nome);
+        this.declarar(stmt.simbolo);
+        this.definir(stmt.simbolo);
 
         this.resolverFuncao(stmt.funcao, TipoFuncao.FUNÇÃO);
         return null;
@@ -173,12 +174,12 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         let enclosingClass = this.ClasseAtual;
         this.ClasseAtual = TipoClasse.CLASSE;
 
-        this.declarar(stmt.nome);
-        this.definir(stmt.nome);
+        this.declarar(stmt.simbolo);
+        this.definir(stmt.simbolo);
 
         if (
             stmt.superClasse !== null &&
-            stmt.nome.lexema === stmt.superClasse.nome.lexema
+            stmt.simbolo.lexema === stmt.superClasse.simbolo.lexema
         ) {
             this.Delegua.erro("Uma classe não pode herdar de si mesma.");
         }
@@ -200,7 +201,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         for (let i = 0; i < metodos.length; i++) {
             let declaracao = TipoFuncao.METODO;
 
-            if (metodos[i].nome.lexema === "isto") {
+            if (metodos[i].simbolo.lexema === "isto") {
                 declaracao = TipoFuncao.CONSTRUTOR;
             }
 
@@ -239,16 +240,16 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoSe(stmt: any): any {
+    visitarExpressaoSe(stmt: Se): any {
         this.resolver(stmt.condicao);
-        this.resolver(stmt.thenBranch);
+        this.resolver(stmt.caminhoEntao);
 
-        for (let i = 0; i < stmt.elifBranches.length; i++) {
-            this.resolver(stmt.elifBranches[i].condicao);
-            this.resolver(stmt.elifBranches[i].branch);
+        for (let i = 0; i < stmt.caminhosSeSenao.length; i++) {
+            this.resolver(stmt.caminhosSeSenao[i].condicao);
+            this.resolver(stmt.caminhosSeSenao[i].branch);
         }
 
-        if (stmt.elseBranch !== null) this.resolver(stmt.elseBranch);
+        if (stmt.caminhoSenao !== null) this.resolver(stmt.caminhoSenao);
         return null;
     }
 

@@ -1,11 +1,14 @@
+import { SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
 export class Variavel implements Construto {
-    nome: any;
+    linha: number;
+    simbolo: SimboloInterface;
 
-    constructor(nome: any) {
-        this.nome = nome;
+    constructor(simbolo: SimboloInterface) {
+        this.linha = Number(simbolo.linha);
+        this.simbolo = simbolo;
     }
 
     aceitar(visitante: any) {

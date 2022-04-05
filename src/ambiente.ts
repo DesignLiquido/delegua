@@ -1,5 +1,6 @@
 import { DeleguaFuncao } from "./estruturas";
 import { ErroEmTempoDeExecucao } from "./excecoes";
+import { SimboloInterface } from "./interfaces";
 
 export class Ambiente {
     enclosing: any;
@@ -14,22 +15,22 @@ export class Ambiente {
         this.valores[nomeVariavel] = valor;
     }
 
-    atribuirVariavelEm(distancia: any, nome: any, valor: any) {
-        this.ancestor(distancia).valores[nome.lexema] = valor;
+    atribuirVariavelEm(distancia: any, simbolo: any, valor: any) {
+        this.ancestor(distancia).valores[simbolo.lexema] = valor;
     }
 
-    atribuirVariavel(nome: any, valor: any) {
-        if (this.valores[nome.lexema] !== undefined) {
-            this.valores[nome.lexema] = valor;
+    atribuirVariavel(simbolo: SimboloInterface, valor: any) {
+        if (this.valores[simbolo.lexema] !== undefined) {
+            this.valores[simbolo.lexema] = valor;
             return;
         }
 
         if (this.enclosing != null) {
-            this.enclosing.atribuirVariavel(nome, valor);
+            this.enclosing.atribuirVariavel(simbolo, valor);
             return;
         }
 
-        throw new ErroEmTempoDeExecucao(nome, "Variável não definida '" + nome.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     }
 
     ancestor(distancia: any) {
@@ -45,7 +46,7 @@ export class Ambiente {
         return this.ancestor(distancia).valores[nome];
     }
 
-    obterVariavel(simbolo: any) {
+    obterVariavel(simbolo: SimboloInterface) {
         if (this.valores[simbolo.lexema] !== undefined) {
             return this.valores[simbolo.lexema];
         }

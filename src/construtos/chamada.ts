@@ -2,11 +2,13 @@ import { Construto } from "./construto";
 
 
 export class Chamada implements Construto {
-    entidadeChamada: any;
+    linha: number;
+    entidadeChamada: Construto;
     argumentos: any;
     parentese: any;
 
-    constructor(entidadeChamada: any, parentese: any, argumentos: any) {
+    constructor(entidadeChamada: Construto, parentese: any, argumentos: any) {
+        this.linha = entidadeChamada.linha;
         this.entidadeChamada = entidadeChamada;
         this.parentese = parentese;
         this.argumentos = argumentos;

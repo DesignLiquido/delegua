@@ -7,7 +7,7 @@ export class Escolha extends Declaracao {
     defaultBranch: any;
 
     constructor(condicao: any, branches: any, defaultBranch: any) {
-        super();
+        super(0);
         this.condicao = condicao;
         this.branches = branches;
         this.defaultBranch = defaultBranch;

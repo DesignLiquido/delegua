@@ -20,21 +20,22 @@ import {
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
-import { InterpretadorInterface } from '../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { Para, Se } from '../declaracoes';
 
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
+ * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
-    Delegua: any;
+    Delegua: Delegua;
     diretorioBase: any;
     global: any;
     ambiente: any;
     locais: any;
     performance: boolean
 
-    constructor(Delegua: any, diretorioBase: string, performance: boolean = false) {
+    constructor(Delegua: Delegua, diretorioBase: string, performance: boolean = false) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
@@ -307,30 +308,30 @@ export class Interpretador implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expr: any) {
-        const valor = this.avaliar(expr.valor);
+    visitarExpressaoDeAtribuicao(expressao: any) {
+        const valor = this.avaliar(expressao.valor);
 
-        const distancia = this.locais.get(expr);
+        const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
-            this.ambiente.atribuirVariavelEm(distancia, expr.nome, valor);
+            this.ambiente.atribuirVariavelEm(distancia, expressao.simbolo, valor);
         } else {
-            this.ambiente.atribuirVariavel(expr.nome, valor);
+            this.ambiente.atribuirVariavel(expressao.simbolo, valor);
         }
 
         return valor;
     }
 
-    procurarVariavel(nome: any, expr: any) {
-        const distancia = this.locais.get(expr);
+    procurarVariavel(simbolo: SimboloInterface, expressao: any) {
+        const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
-            return this.ambiente.obterVariavelEm(distancia, nome.lexema);
+            return this.ambiente.obterVariavelEm(distancia, simbolo.lexema);
         } else {
-            return this.global.obterVariavel(nome);
+            return this.global.obterVariavel(simbolo);
         }
     }
 
     visitarExpressaoDeVariavel(expr: any) {
-        return this.procurarVariavel(expr.nome, expr);
+        return this.procurarVariavel(expr.simbolo, expr);
     }
 
     visitarDeclaracaoDeExpressao(stmt: any) {
@@ -367,29 +368,29 @@ export class Interpretador implements InterpretadorInterface {
         return this.avaliar(expr.direita);
     }
 
-    visitarExpressaoSe(stmt: any) {
+    visitarExpressaoSe(stmt: Se) {
         if (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
-            this.executar(stmt.thenBranch);
+            this.executar(stmt.caminhoEntao);
             return null;
         }
 
-        for (let i = 0; i < stmt.elifBranches.length; i++) {
-            const atual = stmt.elifBranches[i];
+        for (let i = 0; i < stmt.caminhosSeSenao.length; i++) {
+            const atual = stmt.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
-                this.executar(atual.branch);
+                this.executar(atual.caminho);
                 return null;
             }
         }
 
-        if (stmt.elseBranch !== null) {
-            this.executar(stmt.elseBranch);
+        if (stmt.caminhoSenao !== null) {
+            this.executar(stmt.caminhoSenao);
         }
 
         return null;
     }
 
-    visitarExpressaoPara(stmt: any) {
+    visitarExpressaoPara(stmt: Para) {
         if (stmt.inicializador !== null) {
             this.avaliar(stmt.inicializador);
         }
@@ -610,7 +611,7 @@ export class Interpretador implements InterpretadorInterface {
             valor = this.avaliar(stmt.inicializador);
         }
 
-        this.ambiente.definirVariavel(stmt.nome.lexema, valor);
+        this.ambiente.definirVariavel(stmt.simbolo.lexema, valor);
         return null;
     }
 
@@ -746,18 +747,18 @@ export class Interpretador implements InterpretadorInterface {
             objeto.set(expr.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
-            objeto[expr.nome.lexema] = valor;
+            objeto[expr.simbolo.lexema] = valor;
         }
     }
 
     visitarExpressaoFuncao(stmt: any) {
         const funcao = new DeleguaFuncao(
-            stmt.nome.lexema,
+            stmt.simbolo.lexema,
             stmt.funcao,
             this.ambiente,
             false
         );
-        this.ambiente.definirVariavel(stmt.nome.lexema, funcao);
+        this.ambiente.definirVariavel(stmt.simbolo.lexema, funcao);
     }
 
     visitarExpressaoClasse(stmt: any) {
@@ -772,7 +773,7 @@ export class Interpretador implements InterpretadorInterface {
             }
         }
 
-        this.ambiente.definirVariavel(stmt.nome.lexema, null);
+        this.ambiente.definirVariavel(stmt.simbolo.lexema, null);
 
         if (stmt.superClasse !== null) {
             this.ambiente = new Ambiente(this.ambiente);
@@ -783,18 +784,18 @@ export class Interpretador implements InterpretadorInterface {
         let definirMetodos = stmt.metodos;
         for (let i = 0; i < stmt.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
-            let eInicializado = metodoAtual.nome.lexema === 'construtor';
+            let eInicializado = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
-                metodoAtual.nome.lexema,
+                metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
                 this.ambiente,
                 eInicializado
             );
-            metodos[metodoAtual.nome.lexema] = funcao;
+            metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
         const criado = new DeleguaClasse(
-            stmt.nome.lexema,
+            stmt.simbolo.lexema,
             superClasse,
             metodos
         );
@@ -803,7 +804,7 @@ export class Interpretador implements InterpretadorInterface {
             this.ambiente = this.ambiente.enclosing;
         }
 
-        this.ambiente.atribuirVariavel(stmt.nome, criado);
+        this.ambiente.atribuirVariavel(stmt.simbolo, criado);
         return null;
     }
 
@@ -812,9 +813,9 @@ export class Interpretador implements InterpretadorInterface {
         if (objeto instanceof DeleguaInstancia) {
             return objeto.get(expr.nome) || null;
         } else if (objeto.constructor === Object) {
-            return objeto[expr.nome.lexema] || null;
+            return objeto[expr.simbolo.lexema] || null;
         } else if (objeto instanceof DeleguaModulo) {
-            return objeto[expr.nome.lexema] || null;
+            return objeto[expr.simbolo.lexema] || null;
         }
 
         throw new ErroEmTempoDeExecucao(

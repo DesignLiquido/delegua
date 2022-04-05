@@ -2,9 +2,11 @@ import { Construto } from "./construto";
 
 
 export class Vetor implements Construto {
+    linha: number;
     valores: any;
 
-    constructor(valores: any) {
+    constructor(linha: number, valores: any) {
+        this.linha = linha;
         this.valores = valores;
     }
 

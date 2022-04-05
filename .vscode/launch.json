@@ -33,7 +33,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "lexador.test.ts",
+                "interpretador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -168,6 +168,48 @@
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/classes/construtor-classe.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Merge Sort (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/dialetos/egua-classico/merge-sort.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Fila Estática (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/dialetos/egua-classico/fila-estatica.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Perception (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/dialetos/egua-classico/perceptron.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

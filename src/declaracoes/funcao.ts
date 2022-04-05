@@ -1,13 +1,14 @@
+import { SimboloInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
 export class Funcao extends Declaracao {
-    nome: string;
+    simbolo: SimboloInterface;
     funcao: any;
 
-    constructor(nome: any, funcao: any) {
-        super();
-        this.nome = nome;
+    constructor(simbolo: SimboloInterface, funcao: any) {
+        super(Number(simbolo.linha));
+        this.simbolo = simbolo;
         this.funcao = funcao;
     }
 
