@@ -6,7 +6,8 @@
         "rootDir": ".",
         "allowJs": true,
         "sourceMap": true,
-        "declaration": true
+        "declaration": true,
+        "esModuleInterop": true
     },
     "exclude": ["babel.config.js", "dist/**/*"]
 }

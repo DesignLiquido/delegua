@@ -2,13 +2,13 @@ import { Declaracao } from "./declaracao";
 
 
 export class Fazer extends Declaracao {
-    doBranch: any;
-    whileCondition: any;
+    caminhoFazer: any;
+    condicaoEnquanto: any;
 
-    constructor(doBranch: any, whileCondition: any) {
+    constructor(caminhoFazer: any, condicaoEnquanto: any) {
         super(0);
-        this.doBranch = doBranch;
-        this.whileCondition = whileCondition;
+        this.caminhoFazer = caminhoFazer;
+        this.condicaoEnquanto = condicaoEnquanto;
     }
 
     aceitar(visitante: any): any {

@@ -355,6 +355,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 return esquerda in direita;
             } else {
                 throw new ErroEmTempoDeExecucao(
+                    esquerda,
                     "Tipo de chamada inválida com 'em'."
                 );
             }
@@ -427,7 +428,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoFazer(stmt: any) {
         do {
             try {
-                this.executar(stmt.doBranch);
+                this.executar(stmt.caminhoFazer);
             } catch (erro) {
                 if (erro instanceof ExcecaoQuebra) {
                     break;
@@ -436,18 +437,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     throw erro;
                 }
             }
-        } while (this.eVerdadeiro(this.avaliar(stmt.whileCondition)));
+        } while (this.eVerdadeiro(this.avaliar(stmt.condicaoEnquanto)));
     }
 
     visitarExpressaoEscolha(stmt: any) {
         let switchCondition = this.avaliar(stmt.condicao);
-        let branches = stmt.branches;
-        let defaultBranch = stmt.defaultBranch;
+        let caminhos = stmt.caminhos;
+        let caminhoPadrao = stmt.caminhoPadrao;
 
         let matched = false;
         try {
-            for (let i = 0; i < branches.length; i++) {
-                let branch = branches[i];
+            for (let i = 0; i < caminhos.length; i++) {
+                let branch = caminhos[i];
 
                 for (let j = 0; j < branch.conditions.length; j++) {
                     if (
@@ -456,8 +457,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                         matched = true;
 
                         try {
-                            for (let k = 0; k < branch.stmts.length; k++) {
-                                this.executar(branch.stmts[k]);
+                            for (let k = 0; k < branch.declaracoes.length; k++) {
+                                this.executar(branch.declaracoes[k]);
                             }
                         } catch (erro) {
                             if (erro instanceof ExcecaoContinuar) {
@@ -469,9 +470,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
             }
 
-            if (defaultBranch !== null && matched === false) {
-                for (let i = 0; i < defaultBranch.stmts.length; i++) {
-                    this.executar(defaultBranch['stmts'][i]);
+            if (caminhoPadrao !== null && matched === false) {
+                for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
+                    this.executar(caminhoPadrao['declaracoes'][i]);
                 }
             }
         } catch (erro) {
@@ -486,28 +487,28 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         try {
             let sucesso = true;
             try {
-                this.executarBloco(stmt.tryBranch, new Ambiente(this.ambiente));
+                this.executarBloco(stmt.caminhoTente, new Ambiente(this.ambiente));
             } catch (erro) {
                 sucesso = false;
 
-                if (stmt.catchBranch !== null) {
+                if (stmt.caminhoPegue !== null) {
                     this.executarBloco(
-                        stmt.catchBranch,
+                        stmt.caminhoPegue,
                         new Ambiente(this.ambiente)
                     );
                 }
             }
 
-            if (sucesso && stmt.elseBranch !== null) {
+            if (sucesso && stmt.caminhoSenao !== null) {
                 this.executarBloco(
-                    stmt.elseBranch,
+                    stmt.caminhoSenao,
                     new Ambiente(this.ambiente)
                 );
             }
         } finally {
-            if (stmt.finallyBranch !== null)
+            if (stmt.caminhoFinalmente !== null)
                 this.executarBloco(
-                    stmt.finallyBranch,
+                    stmt.caminhoFinalmente,
                     new Ambiente(this.ambiente)
                 );
         }
@@ -542,13 +543,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         try {
             if (!fs.existsSync(caminhoTotal)) {
                 throw new ErroEmTempoDeExecucao(
-                    stmt.closeBracket,
+                    stmt.simboloFechamento,
                     'Não foi possível encontrar arquivo importado.'
                 );
             }
         } catch (erro) {
             throw new ErroEmTempoDeExecucao(
-                stmt.closeBracket,
+                stmt.simboloFechamento,
                 'Não foi possível ler o arquivo.'
             );
         }
@@ -675,8 +676,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(indice)) {
                 throw new ErroEmTempoDeExecucao(
-                    expressao.closeBracket,
-                    'Somente inteiros podem ser usados para indexar um vetor.'
+                    expressao.simboloFechamento,
+                    'Somente inteiros podem ser usados para indexar um vetor.',
+                    expressao.linha
                 );
             }
 
@@ -688,8 +690,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             if (indice >= objeto.length) {
                 throw new ErroEmTempoDeExecucao(
-                    expressao.closeBracket,
-                    'Índice do vetor fora do intervalo.'
+                    expressao.simboloFechamento,
+                    'Índice do vetor fora do intervalo.',
+                    expressao.linha
                 );
             }
             return objeto[indice];
@@ -704,7 +707,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         } else if (typeof objeto === 'string') {
             if (!Number.isInteger(indice)) {
                 throw new ErroEmTempoDeExecucao(
-                    expressao.closeBracket,
+                    expressao.simboloFechamento,
                     'Somente inteiros podem ser usados para indexar um vetor.'
                 );
             }
@@ -717,7 +720,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             if (indice >= objeto.length) {
                 throw new ErroEmTempoDeExecucao(
-                    expressao.closeBracket,
+                    expressao.simboloFechamento,
                     'Índice fora do tamanho.'
                 );
             }

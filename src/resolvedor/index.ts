@@ -164,11 +164,11 @@ export class Resolvedor implements ResolvedorInterface {
     }
 
     visitarExpressaoTente(stmt: any): any {
-        this.resolver(stmt.tryBranch);
+        this.resolver(stmt.caminhoTente);
 
-        if (stmt.catchBranch !== null) this.resolver(stmt.catchBranch);
-        if (stmt.elseBranch !== null) this.resolver(stmt.elseBranch);
-        if (stmt.finallyBranch !== null) this.resolver(stmt.finallyBranch);
+        if (stmt.caminhoPegue !== null) this.resolver(stmt.caminhoPegue);
+        if (stmt.caminhoSenao !== null) this.resolver(stmt.caminhoSenao);
+        if (stmt.caminhoFinalmente !== null) this.resolver(stmt.caminhoFinalmente);
     }
 
     visitarExpressaoClasse(stmt: any): any {
@@ -283,14 +283,14 @@ export class Resolvedor implements ResolvedorInterface {
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
-        let branches = stmt.branches;
-        let defaultBranch = stmt.defaultBranch;
+        let caminhos = stmt.caminhos;
+        let caminhoPadrao = stmt.caminhoPadrao;
 
-        for (let i = 0; i < branches.length; i++) {
-            this.resolver(branches[i]["stmts"]);
+        for (let i = 0; i < caminhos.length; i++) {
+            this.resolver(caminhos[i]["declaracoes"]);
         }
 
-        if (defaultBranch !== null) this.resolver(defaultBranch["stmts"]);
+        if (caminhoPadrao !== null) this.resolver(caminhoPadrao["declaracoes"]);
 
         this.cicloAtual = enclosingType;
     }
@@ -321,11 +321,11 @@ export class Resolvedor implements ResolvedorInterface {
     }
 
     visitarExpressaoFazer(stmt: any): any {
-        this.resolver(stmt.whileCondition);
+        this.resolver(stmt.condicaoEnquanto);
 
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.FAZER;
-        this.resolver(stmt.doBranch);
+        this.resolver(stmt.caminhoFazer);
         this.cicloAtual = enclosingType;
         return null;
     }

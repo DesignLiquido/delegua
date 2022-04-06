@@ -82,11 +82,11 @@ export class Lexador implements LexadorInterface {
         this.linha = 0;
     }
 
-    eDigito(caractere: string) {
+    eDigito(caractere: string): boolean {
         return caractere >= '0' && caractere <= '9';
     }
 
-    eAlfabeto(caractere: string) {
+    eAlfabeto(caractere: string): boolean {
         const acentuacoes = [
             'á',
             'Á',
@@ -122,7 +122,7 @@ export class Lexador implements LexadorInterface {
         );
     }
 
-    eAlfabetoOuDigito(caractere: any) {
+    eAlfabetoOuDigito(caractere: any): boolean {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
@@ -178,7 +178,7 @@ export class Lexador implements LexadorInterface {
         return this.codigo[this.linha].charAt(this.atual);
     }
 
-    avancarParaProximaLinha() {
+    avancarParaProximaLinha(): void {
         this.linha++;
         this.atual = 0;
     }
@@ -192,7 +192,7 @@ export class Lexador implements LexadorInterface {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
 
-    analisarTexto(delimitador: string = '"') {
+    analisarTexto(delimitador: string = '"'): void {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }

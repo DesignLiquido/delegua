@@ -1,11 +1,15 @@
-export class ErroEmTempoDeExecucao extends Error {
-  simbolo: any;
-  mensagem: string;
+import { SimboloInterface } from "../interfaces";
 
-  constructor(simbolo?: any, mensagem?: string) {
+export class ErroEmTempoDeExecucao extends Error {
+  simbolo: SimboloInterface;
+  mensagem: string;
+  linha?: number;
+
+  constructor(simbolo?: SimboloInterface, mensagem?: string, linha?: number) {
     super(mensagem);
     this.simbolo = simbolo;
     this.mensagem = mensagem;
+    this.linha = linha;
     Object.setPrototypeOf(this, ErroEmTempoDeExecucao.prototype);
   }
 }

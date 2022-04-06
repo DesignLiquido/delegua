@@ -3,12 +3,12 @@ import { Declaracao } from "./declaracao";
 
 export class Importar extends Declaracao {
     caminho: string;
-    closeBracket: any;
+    simboloFechamento: any;
 
-    constructor(caminho: any, closeBracket: any) {
+    constructor(caminho: any, simboloFechamento: any) {
         super(0);
         this.caminho = caminho;
-        this.closeBracket = closeBracket;
+        this.simboloFechamento = simboloFechamento;
     }
 
     aceitar(visitante: any): any {

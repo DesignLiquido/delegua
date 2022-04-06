@@ -757,8 +757,8 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 "Esperado '{' antes do escopo do 'escolha'."
             );
 
-            const branches = [];
-            let defaultBranch = null;
+            const caminhos = [];
+            let caminhoPadrao = null;
             while (
                 !this.verificarSeSimboloAtualEIgualA(
                     tiposDeSimbolos.CHAVE_DIREITA
@@ -781,23 +781,23 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                         );
                     }
 
-                    const stmts = [];
+                    const declaracoes = [];
                     do {
-                        stmts.push(this.resolverDeclaracao());
+                        declaracoes.push(this.resolverDeclaracao());
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
                     );
 
-                    branches.push({
+                    caminhos.push({
                         conditions: branchConditions,
-                        stmts,
+                        declaracoes,
                     });
                 } else if (
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)
                 ) {
-                    if (defaultBranch !== null)
+                    if (caminhoPadrao !== null)
                         throw new ErroAvaliador(
                             "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
                         );
@@ -807,22 +807,22 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                         "Esperado ':' após declaração do 'padrao'."
                     );
 
-                    const stmts = [];
+                    const declaracoes = [];
                     do {
-                        stmts.push(this.resolverDeclaracao());
+                        declaracoes.push(this.resolverDeclaracao());
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
                     );
 
-                    defaultBranch = {
-                        stmts,
+                    caminhoPadrao = {
+                        declaracoes,
                     };
                 }
             }
 
-            return new Escolha(condicao, branches, defaultBranch);
+            return new Escolha(condicao, caminhos, caminhoPadrao);
         } finally {
             this.ciclos -= 1;
         }
@@ -836,15 +836,15 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
 
         const caminho = this.expressao();
 
-        let closeBracket = this.consumir(
+        let simboloFechamento = this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após declaração."
         );
 
-        return new Importar(caminho, closeBracket);
+        return new Importar(caminho, simboloFechamento);
     }
 
-    declaracaoTentar(): any {
+    declaracaoTente(): any {
         this.consumir(
             tiposDeSimbolos.CHAVE_ESQUERDA,
             "Esperado '{' após a declaração 'tente'."
@@ -889,7 +889,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         try {
             this.ciclos += 1;
 
-            const doBranch = this.resolverDeclaracao();
+            const caminhoFazer = this.resolverDeclaracao();
 
             this.consumir(
                 tiposDeSimbolos.ENQUANTO,
@@ -900,14 +900,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 "Esperado '(' após declaração 'enquanto'."
             );
 
-            const whileCondition = this.expressao();
+            const condicaoEnquanto = this.expressao();
 
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após declaração do 'enquanto'."
             );
 
-            return new Fazer(doBranch, whileCondition);
+            return new Fazer(caminhoFazer, condicaoEnquanto);
         } finally {
             this.ciclos -= 1;
         }
@@ -917,7 +917,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
-            return this.declaracaoTentar();
+            return this.declaracaoTente();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA))
             return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA))
