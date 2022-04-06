@@ -16,7 +16,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../interfaces';
-import { Enquanto, Escolha, Fazer, Importar, Para, Se, Tente } from '../declaracoes';
+import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
 import {
     Chamavel,
     DeleguaClasse,
@@ -25,6 +25,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
+import { Super } from '../construtos';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -54,8 +55,8 @@ export class Interpretador implements InterpretadorInterface {
         this.global = carregarBibliotecaGlobal(this, this.global);
     }
 
-    resolver(expr: any, depth: any): void {
-        this.locais.set(expr, depth);
+    resolver(expressao: any, profundidade: number): void {
+        this.locais.set(expressao, profundidade);
     }
 
     visitarExpressaoLiteral(expressao: any) {
@@ -484,7 +485,7 @@ export class Interpretador implements InterpretadorInterface {
                     this.executar(caminhoPadrao['declaracoes'][i]);
                 }
             }
-        } catch (erro) {
+        } catch (erro: any) {
             if (erro instanceof ExcecaoQuebra) {
             } else {
                 throw erro;
@@ -595,8 +596,8 @@ export class Interpretador implements InterpretadorInterface {
         return exportar;
     }
 
-    visitarExpressaoEscreva(stmt: any): any {
-        const valor = this.avaliar(stmt.expressao);
+    visitarExpressaoEscreva(declaracao: Escreva): any {
+        const valor = this.avaliar(declaracao.expressao);
         console.log(this.paraTexto(valor));
         return null;
     }
@@ -777,17 +778,17 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoFuncao(stmt: any) {
+    visitarExpressaoFuncao(declaracao: Funcao) {
         const funcao = new DeleguaFuncao(
-            stmt.simbolo.lexema,
-            stmt.funcao,
+            declaracao.simbolo.lexema,
+            declaracao.funcao,
             this.ambiente,
             false
         );
-        this.ambiente.definirVariavel(stmt.simbolo.lexema, funcao);
+        this.ambiente.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
 
-    visitarExpressaoClasse(declaracao: any) {
+    visitarExpressaoClasse(declaracao: Classe) {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
             superClasse = this.avaliar(declaracao.superClasse);
@@ -873,7 +874,7 @@ export class Interpretador implements InterpretadorInterface {
         return valores;
     }
 
-    visitarExpressaoSuper(expressao: any) {
+    visitarExpressaoSuper(expressao: Super) {
         const distancia = this.locais.get(expressao);
         const superClasse = this.ambiente.obterVariavelEm(distancia, 'super');
 
@@ -920,7 +921,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(declaracoes: any) {
+    interpretar(declaracoes: any): void {
         const inicioInterpretacao: number = performance.now();
         try {
             if (declaracoes.length === 1) {

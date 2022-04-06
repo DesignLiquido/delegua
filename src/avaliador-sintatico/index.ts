@@ -89,7 +89,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    erro(simbolo: any, mensagemDeErro: any): any {
+    erro(simbolo: any, mensagemDeErro: string): ErroAvaliador {
         this.Delegua.erro(simbolo, mensagemDeErro);
         return new ErroAvaliador();
     }
@@ -604,7 +604,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return declaracoes;
     }
 
-    declaracaoSe(): any {
+    declaracaoSe(): Se {
         const simboloSe = this.simboloAnterior();
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
@@ -656,7 +656,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Se(Number(simboloSe.linha), condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
     }
 
-    declaracaoEnquanto(): any {
+    declaracaoEnquanto(): Enquanto {
         try {
             this.ciclos += 1;
 
@@ -677,7 +677,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoPara(): any {
+    declaracaoPara(): Para {
         try {
             const simboloPara: SimboloInterface = this.simboloAnterior();
             this.ciclos += 1;
@@ -733,7 +733,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Pausa();
     }
 
-    declaracaoContinua(): any {
+    declaracaoContinua(): Continua {
         if (this.ciclos < 1) {
             this.erro(
                 this.simboloAnterior(),
@@ -744,7 +744,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Continua();
     }
 
-    declaracaoRetorna(): any {
+    declaracaoRetorna(): Retorna {
         const palavraChave = this.simboloAnterior();
         let valor = null;
 
@@ -755,7 +755,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Retorna(palavraChave, valor);
     }
 
-    declaracaoEscolha(): any {
+    declaracaoEscolha(): Escolha {
         try {
             this.ciclos += 1;
 
@@ -844,7 +844,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoImportar(): any {
+    declaracaoImportar(): Importar {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' após declaração."
@@ -860,25 +860,25 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Importar(caminho, simboloFechamento);
     }
 
-    declaracaoTentar(): any {
+    declaracaoTente(): Tente {
         this.consumir(
             tiposDeSimbolos.CHAVE_ESQUERDA,
             "Esperado '{' após a declaração 'tente'."
         );
 
-        let tryBlock = this.blocoEscopo();
+        let blocoTente = this.blocoEscopo();
 
-        let catchBlock = null;
+        let blocoPegue = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
             this.consumir(
                 tiposDeSimbolos.CHAVE_ESQUERDA,
                 "Esperado '{' após a declaração 'pegue'."
             );
 
-            catchBlock = this.blocoEscopo();
+            blocoPegue = this.blocoEscopo();
         }
 
-        let elseBlock = null;
+        let blocoSenao = null;
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.SENAO,
@@ -890,23 +890,23 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 "Esperado '{' após a declaração 'pegue'."
             );
 
-            elseBlock = this.blocoEscopo();
+            blocoSenao = this.blocoEscopo();
         }
 
-        let finallyBlock = null;
+        let blocoFinalmente = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(
                 tiposDeSimbolos.CHAVE_ESQUERDA,
                 "Esperado '{' após a declaração 'pegue'."
             );
 
-            finallyBlock = this.blocoEscopo();
+            blocoFinalmente = this.blocoEscopo();
         }
 
-        return new Tente(tryBlock, catchBlock, elseBlock, finallyBlock);
+        return new Tente(blocoTente, blocoPegue, blocoSenao, blocoFinalmente);
     }
 
-    declaracaoFazer(): any {
+    declaracaoFazer(): Fazer {
         try {
             this.ciclos += 1;
 
@@ -938,7 +938,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
-            return this.declaracaoTentar();
+            return this.declaracaoTente();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA))
             return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA))
@@ -985,7 +985,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
-    corpoDaFuncao(tipo: string): any {
+    corpoDaFuncao(tipo: string): Funcao {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${tipo}.`
@@ -1117,7 +1117,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.simbolos = simbolos;
         }
 
-        const declaracoes = [];
+        const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }

@@ -844,7 +844,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         return new Importar(caminho, simboloFechamento);
     }
 
-    declaracaoTentar(): any {
+    declaracaoTente(): any {
         this.consumir(
             tiposDeSimbolos.CHAVE_ESQUERDA,
             "Esperado '{' após a declaração 'tente'."
@@ -917,7 +917,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
-            return this.declaracaoTentar();
+            return this.declaracaoTente();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA))
             return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA))
