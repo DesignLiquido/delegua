@@ -161,7 +161,35 @@ describe('Interpretador', () => {
         
                     expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
                 });
-            });            
+            });
+            
+            describe('Classes', () => {
+                it('Trivial', () => {
+                    const codigo = [
+                        "classe Animal {",
+                        "    correr() {",
+                        "        escreva('Correndo Loucamente')",
+                        "    }",
+                        "}",
+                        "classe Cachorro herda Animal {",
+                        "    latir() {",
+                        "        escreva('Au Au Au Au')",
+                        "    }",
+                        "}",
+                        "var nomeDoCachorro = Cachorro()",
+                        "nomeDoCachorro.correr()",
+                        "nomeDoCachorro.latir()",
+                        "escreva('Classe: OK!')"
+                    ];
+                    
+                    const simbolos = delegua.lexador.mapear(codigo);
+                    const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
+                    delegua.resolvedor.resolver(declaracoes);
+                    delegua.interpretador.interpretar(declaracoes);
+        
+                    expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
