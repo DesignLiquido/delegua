@@ -89,7 +89,7 @@ export class Delegua {
         }
     }
 
-    versao() {
+    versao(): string {
         try {
             const manifesto = caminho.resolve('package.json');
             return (
@@ -101,7 +101,7 @@ export class Delegua {
         }
     }
 
-    iniciarDelegua() {
+    iniciarDelegua(): void {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
@@ -122,7 +122,7 @@ export class Delegua {
         });
     }
 
-    carregarArquivo(nomeArquivo: string) {
+    carregarArquivo(nomeArquivo: string): void {
         this.nomeArquivo = caminho.basename(nomeArquivo);
 
         const dadosDoArquivo: Buffer = fs.readFileSync(nomeArquivo);
@@ -151,7 +151,7 @@ export class Delegua {
         this.interpretador.interpretar(declaracoes);
     }
 
-    reportar(linha: any, onde: any, mensagem: any) {
+    reportar(linha: number, onde: any, mensagem: string) {
         if (this.nomeArquivo)
             console.error(
                 chalk.red(`[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}]`) + ` Erro${onde}: ${mensagem}`
@@ -160,12 +160,12 @@ export class Delegua {
         this.teveErro = true;
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: any) {
+    erro(simbolo: SimboloInterface, mensagemDeErro: string) {
         if (simbolo.tipo === tiposDeSimbolos.EOF) {
-            this.reportar(simbolo.linha, ' no final', mensagemDeErro);
+            this.reportar(Number(simbolo.linha), ' no final', mensagemDeErro);
         } else {
             this.reportar(
-                simbolo.linha,
+                Number(simbolo.linha),
                 ` no '${simbolo.lexema}'`,
                 mensagemDeErro
             );
