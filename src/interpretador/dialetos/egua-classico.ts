@@ -428,7 +428,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoFazer(stmt: any) {
         do {
             try {
-                this.executar(stmt.doBranch);
+                this.executar(stmt.caminhoFazer);
             } catch (erro) {
                 if (erro instanceof ExcecaoQuebra) {
                     break;
@@ -437,18 +437,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     throw erro;
                 }
             }
-        } while (this.eVerdadeiro(this.avaliar(stmt.whileCondition)));
+        } while (this.eVerdadeiro(this.avaliar(stmt.condicaoEnquanto)));
     }
 
     visitarExpressaoEscolha(stmt: any) {
         let switchCondition = this.avaliar(stmt.condicao);
-        let branches = stmt.branches;
-        let defaultBranch = stmt.defaultBranch;
+        let caminhos = stmt.caminhos;
+        let caminhoPadrao = stmt.caminhoPadrao;
 
         let matched = false;
         try {
-            for (let i = 0; i < branches.length; i++) {
-                let branch = branches[i];
+            for (let i = 0; i < caminhos.length; i++) {
+                let branch = caminhos[i];
 
                 for (let j = 0; j < branch.conditions.length; j++) {
                     if (
@@ -457,8 +457,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                         matched = true;
 
                         try {
-                            for (let k = 0; k < branch.stmts.length; k++) {
-                                this.executar(branch.stmts[k]);
+                            for (let k = 0; k < branch.declaracoes.length; k++) {
+                                this.executar(branch.declaracoes[k]);
                             }
                         } catch (erro) {
                             if (erro instanceof ExcecaoContinuar) {
@@ -470,9 +470,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
             }
 
-            if (defaultBranch !== null && matched === false) {
-                for (let i = 0; i < defaultBranch.stmts.length; i++) {
-                    this.executar(defaultBranch['stmts'][i]);
+            if (caminhoPadrao !== null && matched === false) {
+                for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
+                    this.executar(caminhoPadrao['declaracoes'][i]);
                 }
             }
         } catch (erro) {

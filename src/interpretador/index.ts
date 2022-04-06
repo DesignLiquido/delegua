@@ -16,7 +16,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../interfaces';
-import { Enquanto, Importar, Para, Se, Tente } from '../declaracoes';
+import { Enquanto, Escolha, Fazer, Importar, Para, Se, Tente } from '../declaracoes';
 import {
     Chamavel,
     DeleguaClasse,
@@ -33,8 +33,8 @@ import {
 export class Interpretador implements InterpretadorInterface {
     Delegua: Delegua;
     diretorioBase: any;
-    global: any;
-    ambiente: any;
+    global: Ambiente;
+    ambiente: Ambiente;
     locais: any;
     performance: boolean;
 
@@ -54,32 +54,32 @@ export class Interpretador implements InterpretadorInterface {
         this.global = carregarBibliotecaGlobal(this, this.global);
     }
 
-    resolver(expr: any, depth: any) {
+    resolver(expr: any, depth: any): void {
         this.locais.set(expr, depth);
     }
 
-    visitarExpressaoLiteral(expr: any) {
-        return expr.valor;
+    visitarExpressaoLiteral(expressao: any) {
+        return expressao.valor;
     }
 
-    avaliar(expr: any) {
-        if (expr.aceitar) {
-            return expr.aceitar(this);
+    avaliar(expressao: any) {
+        if (expressao.aceitar) {
+            return expressao.aceitar(this);
         }
     }
 
-    visitarExpressaoAgrupamento(expr: any) {
-        return this.avaliar(expr.expressao);
+    visitarExpressaoAgrupamento(expressao: any) {
+        return this.avaliar(expressao.expressao);
     }
 
-    eVerdadeiro(objeto: any) {
+    eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
 
         return true;
     }
 
-    verificarOperandoNumero(operador: any, operando: any) {
+    verificarOperandoNumero(operador: any, operando: any): void {
         if (typeof operando === 'number') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -87,12 +87,12 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoUnaria(expr: any) {
-        const direita = this.avaliar(expr.direita);
+    visitarExpressaoUnaria(expressao: any) {
+        const direita = this.avaliar(expressao.direita);
 
-        switch (expr.operador.tipo) {
+        switch (expressao.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandoNumero(expr.operador, direita);
+                this.verificarOperandoNumero(expressao.operador, direita);
                 return -direita;
             case tiposDeSimbolos.NEGACAO:
                 return !this.eVerdadeiro(direita);
@@ -103,14 +103,14 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    eIgual(esquerda: any, direita: any) {
+    eIgual(esquerda: any, direita: any): boolean {
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
 
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(operador: any, direita: any, esquerda: any) {
+    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
         if (typeof direita === 'number' && typeof esquerda === 'number') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -119,14 +119,14 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoBinaria(expr: any) {
-        let esquerda = this.avaliar(expr.esquerda);
-        let direita = this.avaliar(expr.direita);
+    visitarExpressaoBinaria(expressao: any) {
+        let esquerda = this.avaliar(expressao.esquerda);
+        let direita = this.avaliar(expressao.direita);
 
-        switch (expr.operador.tipo) {
+        switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -134,7 +134,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -142,7 +142,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -150,7 +150,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -158,7 +158,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -166,7 +166,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.SUBTRACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -184,7 +184,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.DIVISAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -192,7 +192,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -200,7 +200,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MODULO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -208,7 +208,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -216,7 +216,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -224,7 +224,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -232,7 +232,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -240,7 +240,7 @@ export class Interpretador implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -343,12 +343,12 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDeVariavel(expr: any) {
-        return this.procurarVariavel(expr.simbolo, expr);
+    visitarExpressaoDeVariavel(expressao: any) {
+        return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(stmt: any) {
-        return this.avaliar(stmt.expressao);
+    visitarDeclaracaoDeExpressao(declaracao: any) {
+        return this.avaliar(declaracao.expressao);
     }
 
     visitarExpressaoLogica(expressao: any) {
@@ -383,14 +383,14 @@ export class Interpretador implements InterpretadorInterface {
         return this.avaliar(expressao.direita);
     }
 
-    visitarExpressaoSe(stmt: Se) {
-        if (this.eVerdadeiro(this.avaliar(stmt.condicao))) {
-            this.executar(stmt.caminhoEntao);
+    visitarExpressaoSe(declaracao: Se) {
+        if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+            this.executar(declaracao.caminhoEntao);
             return null;
         }
 
-        for (let i = 0; i < stmt.caminhosSeSenao.length; i++) {
-            const atual = stmt.caminhosSeSenao[i];
+        for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
+            const atual = declaracao.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
                 this.executar(atual.caminho);
@@ -398,27 +398,27 @@ export class Interpretador implements InterpretadorInterface {
             }
         }
 
-        if (stmt.caminhoSenao !== null) {
-            this.executar(stmt.caminhoSenao);
+        if (declaracao.caminhoSenao !== null) {
+            this.executar(declaracao.caminhoSenao);
         }
 
         return null;
     }
 
-    visitarExpressaoPara(stmt: Para) {
-        if (stmt.inicializador !== null) {
-            this.avaliar(stmt.inicializador);
+    visitarExpressaoPara(declaracao: Para) {
+        if (declaracao.inicializador !== null) {
+            this.avaliar(declaracao.inicializador);
         }
         while (true) {
-            if (stmt.condicao !== null) {
-                if (!this.eVerdadeiro(this.avaliar(stmt.condicao))) {
+            if (declaracao.condicao !== null) {
+                if (!this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
                     break;
                 }
             }
 
             try {
-                this.executar(stmt.corpo);
-            } catch (erro) {
+                this.executar(declaracao.corpo);
+            } catch (erro: any) {
                 if (erro instanceof ExcecaoQuebra) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
@@ -427,18 +427,18 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
 
-            if (stmt.incrementar !== null) {
-                this.avaliar(stmt.incrementar);
+            if (declaracao.incrementar !== null) {
+                this.avaliar(declaracao.incrementar);
             }
         }
         return null;
     }
 
-    visitarExpressaoFazer(stmt: any) {
+    visitarExpressaoFazer(declaracao: Fazer) {
         do {
             try {
-                this.executar(stmt.doBranch);
-            } catch (erro) {
+                this.executar(declaracao.caminhoFazer);
+            } catch (erro: any) {
                 if (erro instanceof ExcecaoQuebra) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
@@ -446,30 +446,30 @@ export class Interpretador implements InterpretadorInterface {
                     throw erro;
                 }
             }
-        } while (this.eVerdadeiro(this.avaliar(stmt.whileCondition)));
+        } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     }
 
-    visitarExpressaoEscolha(stmt: any) {
-        let switchCondition = this.avaliar(stmt.condicao);
-        let branches = stmt.branches;
-        let defaultBranch = stmt.defaultBranch;
+    visitarExpressaoEscolha(declaracao: Escolha) {
+        let condicaoEscolha = this.avaliar(declaracao.condicao);
+        let caminhos = declaracao.caminhos;
+        let caminhoPadrao = declaracao.caminhoPadrao;
 
-        let matched = false;
+        let encontrado = false;
         try {
-            for (let i = 0; i < branches.length; i++) {
-                let branch = branches[i];
+            for (let i = 0; i < caminhos.length; i++) {
+                let caminho = caminhos[i];
 
-                for (let j = 0; j < branch.conditions.length; j++) {
+                for (let j = 0; j < caminho.conditions.length; j++) {
                     if (
-                        this.avaliar(branch.conditions[j]) === switchCondition
+                        this.avaliar(caminho.conditions[j]) === condicaoEscolha
                     ) {
-                        matched = true;
+                        encontrado = true;
 
                         try {
-                            for (let k = 0; k < branch.stmts.length; k++) {
-                                this.executar(branch.stmts[k]);
+                            for (let k = 0; k < caminho.declaracoes.length; k++) {
+                                this.executar(caminho.declaracoes[k]);
                             }
-                        } catch (erro) {
+                        } catch (erro: any) {
                             if (erro instanceof ExcecaoContinuar) {
                             } else {
                                 throw erro;
@@ -479,9 +479,9 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
 
-            if (defaultBranch !== null && matched === false) {
-                for (let i = 0; i < defaultBranch.stmts.length; i++) {
-                    this.executar(defaultBranch['stmts'][i]);
+            if (caminhoPadrao !== null && encontrado === false) {
+                for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
+                    this.executar(caminhoPadrao['declaracoes'][i]);
                 }
             }
         } catch (erro) {

@@ -3,14 +3,14 @@ import { Declaracao } from "./declaracao";
 
 export class Escolha extends Declaracao {
     condicao: any;
-    branches: any;
-    defaultBranch: any;
+    caminhos: any;
+    caminhoPadrao: any;
 
-    constructor(condicao: any, branches: any, defaultBranch: any) {
+    constructor(condicao: any, caminhos: any, caminhoPadrao: any) {
         super(0);
         this.condicao = condicao;
-        this.branches = branches;
-        this.defaultBranch = defaultBranch;
+        this.caminhos = caminhos;
+        this.caminhoPadrao = caminhoPadrao;
     }
 
     aceitar(visitante: any): any {
