@@ -1,0 +1,8 @@
+var n = 15;
+para (var i = 1; i <= n; i = i + 1) {
+    var resultado = '';
+    se (i % 3 == 0) { resultado = resultado + 'Fizz'; }
+    se (i % 5 == 0) { resultado = resultado + 'Buzz'; }
+    se (resultado == '') { escreva(i); }
+    senão { escreva(resultado); }
+}

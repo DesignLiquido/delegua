@@ -154,9 +154,9 @@ export class Delegua {
     reportar(linha: any, onde: any, mensagem: any) {
         if (this.nomeArquivo)
             console.error(
-                `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`
+                chalk.red(`[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}]`) + ` Erro${onde}: ${mensagem}`
             );
-        else console.error(`[Linha: ${linha}] Erro${onde}: ${mensagem}`);
+        else console.error(chalk.red(`[Linha: ${linha}]`) +  ` Erro${onde}: ${mensagem}`);
         this.teveErro = true;
     }
 
@@ -172,7 +172,7 @@ export class Delegua {
         }
     }
 
-    erroNoLexador(linha: any, caractere: any, mensagem: any) {
+    erroNoLexador(linha: number, caractere: any, mensagem: string) {
         this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
@@ -188,7 +188,7 @@ export class Delegua {
                 );
         } else if (!(erro instanceof ExcecaoRetornar)) {
             // TODO: Ao se livrar de ReturnException, remover isto.
-            console.error(chalk.red(`Erro: [Linha: ${erro.linha}]`) + ` ${erro.mensagem}`);
+            console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
         }
 
         this.teveErroEmTempoDeExecucao = true;
