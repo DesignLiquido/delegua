@@ -63,23 +63,23 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
                 );
             }
 
-            if (callback.constructor.nome !== 'DeleguaFuncao') {
+            if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
                 );
             }
 
-            let provisorio = [];
+            let resultados = [];
             for (let indice = 0; indice < array.length; ++indice) {
-                provisorio.push(
+                resultados.push(
                     callback.chamar(
                         interpretador, [array[indice]]
                     )
                 );
             }
 
-            return provisorio;
+            return resultados;
         })
     );
 
