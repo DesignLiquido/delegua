@@ -123,6 +123,20 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/fibonacci.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Fibonacci (Égua Clássico)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
                 "./testes/exemplos/dialetos/egua-classico/fibonacci.egua"
             ],
             "runtimeExecutable": "node",

@@ -765,28 +765,28 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.ambiente.definirVariavel(stmt.simbolo.lexema, funcao);
     }
 
-    visitarExpressaoClasse(stmt: any) {
+    visitarExpressaoClasse(declaracao: any) {
         let superClasse = null;
-        if (stmt.superClasse !== null) {
-            superClasse = this.avaliar(stmt.superClasse);
+        if (declaracao.superClasse !== null) {
+            superClasse = this.avaliar(declaracao.superClasse);
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
-                    stmt.superClasse.nome,
+                    declaracao.superClasse.nome,
                     'SuperClasse precisa ser uma classe.'
                 );
             }
         }
 
-        this.ambiente.definirVariavel(stmt.simbolo.lexema, null);
+        this.ambiente.definirVariavel(declaracao.simbolo.lexema, null);
 
-        if (stmt.superClasse !== null) {
+        if (declaracao.superClasse !== null) {
             this.ambiente = new Ambiente(this.ambiente);
             this.ambiente.definirVariavel('super', superClasse);
         }
 
         let metodos = {};
-        let definirMetodos = stmt.metodos;
-        for (let i = 0; i < stmt.metodos.length; i++) {
+        let definirMetodos = declaracao.metodos;
+        for (let i = 0; i < declaracao.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
             let eInicializado = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
@@ -799,7 +799,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const criado = new DeleguaClasse(
-            stmt.simbolo.lexema,
+            declaracao.simbolo.lexema,
             superClasse,
             metodos
         );
@@ -808,7 +808,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.ambiente = this.ambiente.enclosing;
         }
 
-        this.ambiente.atribuirVariavel(stmt.nome, criado);
+        this.ambiente.atribuirVariavel(declaracao.simbolo, criado);
         return null;
     }
 
@@ -889,8 +889,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(stmt: any, mostrarResultado: boolean = false): void {
-        stmt.aceitar(this);
+    executar(declaracao: any, mostrarResultado: boolean = false): void {
+        declaracao.aceitar(this);
     }
 
     interpretar(declaracoes: any) {
