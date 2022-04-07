@@ -1,6 +1,6 @@
-escreva("--------------------------------")
+escreva("-----------------------------------")
 escreva("Testes Internos - Linguagem Delégua")
-escreva("--------------------------------")
+escreva("-----------------------------------")
 escreva("|")
 
 var erros = 0
