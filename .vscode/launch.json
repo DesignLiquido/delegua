@@ -153,7 +153,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}\\index.ts",
-                "./testes/exemplos/importacao-1.egua"
+                "./testes/exemplos/importacao/importacao-1.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
