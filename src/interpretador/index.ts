@@ -84,7 +84,8 @@ export class Interpretador implements InterpretadorInterface {
         if (typeof operando === 'number') return;
         throw new ErroEmTempoDeExecucao(
             operador,
-            'Operando precisa ser um número.'
+            'Operando precisa ser um número.',
+            operador.linha
         );
     }
 
@@ -612,7 +613,7 @@ export class Interpretador implements InterpretadorInterface {
                     this.executar(declaracoes[i]);
                 }
             }
-        } catch (erro) {
+        } catch (erro: any) {
             // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
             throw erro;
         } finally {
@@ -795,7 +796,8 @@ export class Interpretador implements InterpretadorInterface {
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
-                    'SuperClasse precisa ser uma classe.'
+                    'SuperClasse precisa ser uma classe.',
+                    declaracao.linha
                 );
             }
         }

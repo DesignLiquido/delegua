@@ -33,7 +33,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "interpretador.test.ts",
+                // "interpretador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -118,6 +118,20 @@
             "type": "node",
             "request": "launch",
             "name": "Fibonacci (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/fibonacci.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Fibonacci (Égua Clássico)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",

@@ -161,7 +161,73 @@ describe('Interpretador (Égua Clássico)', () => {
         
                     expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
                 });
-            });            
+            });
+
+            describe('Classes', () => {
+                it('Trivial', () => {
+                    const codigo = [
+                        "classe Animal {",
+                        "    correr() {",
+                        "        escreva('Correndo Loucamente');",
+                        "    }",
+                        "}",
+                        "classe Cachorro herda Animal {",
+                        "    latir() {",
+                        "        escreva('Au Au Au Au');",
+                        "    }",
+                        "}",
+                        "var nomeDoCachorro = Cachorro();",
+                        "nomeDoCachorro.correr();",
+                        "nomeDoCachorro.latir();",
+                        "escreva('Classe: OK!');"
+                    ];
+                    
+                    const simbolos = delegua.lexador.mapear(codigo);
+                    const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
+                    delegua.resolvedor.resolver(declaracoes);
+                    delegua.interpretador.interpretar(declaracoes);
+        
+                    expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
+                });
+            });
+
+            describe('Declaração e chamada de funções', () => {
+                it('Fibonacci', () => {
+                    const codigo = [
+                        "função fibonacci(n) {",
+                        "    se (n == 0) {",
+                        "      retorna(0);",
+                        "    }",
+                        "    se (n == 1) {",
+                        "      retorna(1);",
+                        "    }",
+                        "    var n1 = n - 1;",
+                        "    var n2 = n - 2;",
+                        "    var f1 = fibonacci(n1);",
+                        "    var f2 = fibonacci(n2);",
+                        "    retorna(f1 + f2);",
+                        "}",
+                        "var a = fibonacci(0);",
+                        "escreva(a);",
+                        "a = fibonacci(1);",
+                        "escreva(a);",
+                        "a = fibonacci(2);",
+                        "escreva(a);",
+                        "a = fibonacci(3);",
+                        "escreva(a);",
+                        "a = fibonacci(4);",
+                        "escreva(a);",
+                        "a = fibonacci(5);",
+                        "escreva(a);"
+                    ];
+                    const simbolos = delegua.lexador.mapear(codigo);
+                    const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
+                    delegua.resolvedor.resolver(declaracoes);
+                    delegua.interpretador.interpretar(declaracoes);
+        
+                    expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
