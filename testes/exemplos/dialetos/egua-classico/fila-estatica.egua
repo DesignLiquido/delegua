@@ -1,34 +1,34 @@
-funcao enfileirar (valorEntrada) {
+função enfileirar (valorEntrada) {
   se (indexFinal == maximoDeElementos){
     escreva("Fila Cheia");
-  } senao {
+  } senão {
     filaEstatica[indexFinal] = valorEntrada;
     escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));
     retorna indexFinal = indexFinal + 1;
   }
 }
 
-funcao desenfileirar(){
+função desenfileirar(){
   se (indexInicial == indexFinal){
     escreva("Fila Vazia") ;
-  } senao {
+  } senão {
     para (i = 0; i <= indexFinal; i=i+1){
       
       se(i+1 == indexFinal){
         indexFinal = indexFinal - 1;
         escreva("Valor retirado com sucesso.");
         
-      } senao {
+      } senão {
         filaEstatica[i] = filaEstatica[i+1];
       }
     }    
   }
 }
 
-funcao mostrar_fila () {
+função mostrar_fila () {
   se(indexInicial == indexFinal){
     escreva("Fila Vazia");
-  } senao {  
+  } senão {  
     para (var i = 0; i < indexFinal; i = i + 1){
       escreva("index "+texto(i)); 
       escreva(texto(filaEstatica[i]));
