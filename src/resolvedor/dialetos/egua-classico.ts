@@ -261,19 +261,19 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         this.resolver(stmt.expressao);
     }
 
-    visitarExpressaoRetornar(stmt: any): any {
+    visitarExpressaoRetornar(declaracao: any): any {
         if (this.FuncaoAtual === TipoFuncao.NENHUM) {
-            this.Delegua.erro(stmt.palavraChave, "Não é possível retornar do código do escopo superior.");
+            this.Delegua.erro(declaracao.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
 
-        if (stmt.valor !== null) {
+        if (declaracao.valor !== null) {
             if (this.FuncaoAtual === TipoFuncao.CONSTRUTOR) {
                 this.Delegua.erro(
-                    stmt.palavraChave,
+                    declaracao.palavraChave,
                     "Não pode retornar o valor do construtor."
                 );
             }
-            this.resolver(stmt.valor);
+            this.resolver(declaracao.valor);
         }
         return null;
     }

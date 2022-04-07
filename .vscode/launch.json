@@ -33,7 +33,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "interpretador.test.ts",
+                // "interpretador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -207,12 +207,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Fila Estática (Delégua)",
+            "name": "Fila Estática (Égua Clássico)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}\\index.ts",
+                "--dialeto",
+                "egua",
                 "./testes/exemplos/dialetos/egua-classico/fila-estatica.egua"
             ],
             "runtimeExecutable": "node",
