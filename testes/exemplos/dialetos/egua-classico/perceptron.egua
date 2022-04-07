@@ -13,7 +13,7 @@ enquanto(erro!=0){
     se(entrada2 == 1){
       resultadoEsperado = 1;
     }
-  } senao {
+  } senão {
     resultadoEsperado = 0;
   }
   
@@ -24,7 +24,7 @@ enquanto(erro!=0){
   
   se(somatoria < 1){
     resultado = 0;
-  } senao{
+  } senão{
     se(somatoria>=1){
       resultado = 1;
     }
