@@ -3,7 +3,8 @@ import { PilhaEscopos } from "../pilha-escopos";
 import { ErroResolvedor } from "../erro-resolvedor";
 import { Delegua } from "../../delegua";
 import { SimboloInterface } from "../../interfaces";
-import { Se } from "../../declaracoes";
+import { Bloco, Declaracao, Expressao, Se } from "../../declaracoes";
+import { AcessoMetodo, Construto, Super, Variavel } from "../../construtos";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -34,7 +35,7 @@ const LoopType = {
  */
 export class ResolverEguaClassico implements ResolvedorInterface {
     interpretador: any;
-    Delegua: any;
+    Delegua: Delegua;
     escopos: PilhaEscopos;
     funcaoAtual: any;
     classeAtual: any;
@@ -74,7 +75,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         this.escopos.removerUltimo();
     }
 
-    resolver(declaracoes: any): void {
+    resolver(declaracoes: Declaracao | Declaracao[]): void {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
@@ -86,7 +87,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         }
     }
 
-    resolverLocal(expressao: any, simbolo: SimboloInterface): void {
+    resolverLocal(expressao: Construto, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
             if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
                 this.interpretador.resolver(expressao, this.escopos.pilha.length - 1 - i);
@@ -94,14 +95,14 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         }
     }
 
-    visitarExpressaoBloco(declaracao: any) : any {
+    visitarExpressaoBloco(declaracao: Bloco) : any {
         this.inicioDoEscopo();
         this.resolver(declaracao.declaracoes);
         this.finalDoEscopo();
         return null;
     }
 
-    visitarExpressaoDeVariavel(expressao: any): any {
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
         if (
             !this.escopos.eVazio() &&
             this.escopos.topoDaPilha()[expressao.simbolo.lexema] === false
@@ -181,7 +182,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
             declaracao.superClasse !== null &&
             declaracao.simbolo.lexema === declaracao.superClasse.simbolo.lexema
         ) {
-            this.Delegua.erro("Uma classe não pode herdar de si mesma.");
+            this.Delegua.erro(declaracao, "Uma classe não pode herdar de si mesma.");
         }
 
         if (declaracao.superClasse !== null) {
@@ -216,7 +217,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoSuper(expressao: any): any {
+    visitarExpressaoSuper(expressao: Super): any {
         if (this.classeAtual === TipoClasse.NENHUM) {
             this.Delegua.erro(expressao.palavraChave, "Não pode usar 'super' fora de uma classe.");
         } else if (this.classeAtual !== TipoClasse.SUBCLASSE) {
@@ -230,12 +231,12 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoObter(expressao: any): any {
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): any {
         this.resolver(expressao.objeto);
         return null;
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any): any {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): any {
         this.resolver(declaracao.expressao);
         return null;
     }
@@ -366,7 +367,7 @@ export class ResolverEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoVetorIndice(expressao: any): any {
+    visitarExpressaoAcessoIndiceVariavel(expressao: any): any {
         this.resolver(expressao.entidadeChamada);
         this.resolver(expressao.indice);
         return null;

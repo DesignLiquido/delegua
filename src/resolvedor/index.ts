@@ -1,10 +1,10 @@
 import { ResolvedorInterface } from "../interfaces/resolvedor-interface";
 import { PilhaEscopos } from "./pilha-escopos";
 import { ErroResolvedor } from "./erro-resolvedor";
-import { Construto } from "../construtos";
+import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, Atribuir, Binario, Chamada, Construto, Dicionario, Funcao, Logico, Super, Variavel, Vetor } from "../construtos";
 import { Delegua } from "../delegua";
 import { InterpretadorInterface, SimboloInterface } from "../interfaces";
-import { Se } from "../declaracoes";
+import { Bloco, Classe, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao as FuncaoDeclaracao, Importar, Para, Se, Tente, Var } from "../declaracoes";
 
 const TipoFuncao = {
     NENHUM: "NENHUM",
@@ -35,7 +35,7 @@ const LoopType = {
  */
 export class Resolvedor implements ResolvedorInterface {
     interpretador: any;
-    Delegua: any;
+    Delegua: Delegua;
     escopos: PilhaEscopos;
     funcaoAtual: any;
     classeAtual: any;
@@ -87,7 +87,7 @@ export class Resolvedor implements ResolvedorInterface {
         }
     }
 
-    resolverLocal(expressao: any, simbolo: any): void {
+    resolverLocal(expressao: Construto, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
             if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
                 this.interpretador.resolver(expressao, this.escopos.pilha.length - 1 - i);
@@ -95,14 +95,14 @@ export class Resolvedor implements ResolvedorInterface {
         }
     }
 
-    visitarExpressaoBloco(declaracao: any) : any {
+    visitarExpressaoBloco(declaracao: Bloco) : any {
         this.inicioDoEscopo();
         this.resolver(declaracao.declaracoes);
         this.finalDoEscopo();
         return null;
     }
 
-    visitarExpressaoDeVariavel(expressao: any): any {
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
         if (
             !this.escopos.eVazio() &&
             this.escopos.topoDaPilha()[expressao.simbolo.lexema] === false
@@ -115,7 +115,7 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoVar(declaracao: any): any {
+    visitarExpressaoVar(declaracao: Var): any {
         this.declarar(declaracao.simbolo);
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
@@ -124,13 +124,13 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any): any {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
         this.resolver(expressao.valor);
         this.resolverLocal(expressao, expressao.simbolo);
         return null;
     }
 
-    resolverFuncao(funcao: any, tipoFuncao: any): void {
+    resolverFuncao(funcao: Funcao, tipoFuncao: string): void {
         let enclosingFunc = this.funcaoAtual;
         this.funcaoAtual = tipoFuncao;
 
@@ -150,7 +150,7 @@ export class Resolvedor implements ResolvedorInterface {
         this.funcaoAtual = enclosingFunc;
     }
 
-    visitarExpressaoFuncao(declaracao: any): any {
+    visitarExpressaoFuncao(declaracao: FuncaoDeclaracao): any {
         this.declarar(declaracao.simbolo);
         this.definir(declaracao.simbolo);
 
@@ -158,12 +158,12 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoDeleguaFuncao(declaracao: any): any {
+    visitarExpressaoDeleguaFuncao(declaracao: Funcao): any {
         this.resolverFuncao(declaracao, TipoFuncao.FUNCAO);
         return null;
     }
 
-    visitarExpressaoTente(declaracao: any): any {
+    visitarExpressaoTente(declaracao: Tente): any {
         this.resolver(declaracao.caminhoTente);
 
         if (declaracao.caminhoPegue !== null) this.resolver(declaracao.caminhoPegue);
@@ -171,7 +171,7 @@ export class Resolvedor implements ResolvedorInterface {
         if (declaracao.caminhoFinalmente !== null) this.resolver(declaracao.caminhoFinalmente);
     }
 
-    visitarExpressaoClasse(declaracao: any): any {
+    visitarExpressaoClasse(declaracao: Classe): any {
         let enclosingClass = this.classeAtual;
         this.classeAtual = TipoClasse.CLASSE;
 
@@ -182,7 +182,7 @@ export class Resolvedor implements ResolvedorInterface {
             declaracao.superClasse !== null &&
             declaracao.simbolo.lexema === declaracao.superClasse.simbolo.lexema
         ) {
-            this.Delegua.erro("Uma classe não pode herdar de si mesma.");
+            this.Delegua.erro(declaracao.simbolo, "Uma classe não pode herdar de si mesma.");
         }
 
         if (declaracao.superClasse !== null) {
@@ -217,7 +217,7 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoSuper(expressao: any): any {
+    visitarExpressaoSuper(expressao: Super): any {
         if (this.classeAtual === TipoClasse.NENHUM) {
             this.Delegua.erro(expressao.palavraChave, "Não pode usar 'super' fora de uma classe.");
         } else if (this.classeAtual !== TipoClasse.SUBCLASSE) {
@@ -231,12 +231,12 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoObter(expressao: any): any {
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): any {
         this.resolver(expressao.objeto);
         return null;
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any): any {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): any {
         this.resolver(declaracao.expressao);
         return null;
     }
@@ -254,11 +254,11 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoImportar(declaracao: any): void {
+    visitarExpressaoImportar(declaracao: Importar): void {
         this.resolver(declaracao.caminho);
     }
 
-    visitarExpressaoEscreva(declaracao: any): void {
+    visitarExpressaoEscreva(declaracao: Escreva): void {
         this.resolver(declaracao.expressao);
     }
 
@@ -279,7 +279,7 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoEscolha(declaracao: any): void {
+    visitarExpressaoEscolha(declaracao: Escolha): void {
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
@@ -295,13 +295,13 @@ export class Resolvedor implements ResolvedorInterface {
         this.cicloAtual = enclosingType;
     }
 
-    visitarExpressaoEnquanto(declaracao: any): any {
+    visitarExpressaoEnquanto(declaracao: Enquanto): any {
         this.resolver(declaracao.condicao);
         this.resolver(declaracao.corpo);
         return null;
     }
 
-    visitarExpressaoPara(declaracao: any): any {
+    visitarExpressaoPara(declaracao: Para): any {
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
         }
@@ -320,7 +320,7 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoFazer(declaracao: any): any {
+    visitarExpressaoFazer(declaracao: Fazer): any {
         this.resolver(declaracao.condicaoEnquanto);
 
         let enclosingType = this.cicloAtual;
@@ -330,13 +330,13 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoBinaria(expressao: any): any {
+    visitarExpressaoBinaria(expressao: Binario): any {
         this.resolver(expressao.esquerda);
         this.resolver(expressao.direita);
         return null;
     }
 
-    visitarExpressaoDeChamada(expressao: any): any {
+    visitarExpressaoDeChamada(expressao: Chamada): any {
         this.resolver(expressao.entidadeChamada);
 
         let argumentos = expressao.argumentos;
@@ -347,12 +347,12 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoAgrupamento(expressao: any): any {
+    visitarExpressaoAgrupamento(expressao: Agrupamento): any {
         this.resolver(expressao.expressao);
         return null;
     }
 
-    visitarExpressaoDicionario(expressao: any): any {
+    visitarExpressaoDicionario(expressao: Dicionario): any {
         for (let i = 0; i < expressao.chaves.length; i++) {
             this.resolver(expressao.chaves[i]);
             this.resolver(expressao.valores[i]);
@@ -360,14 +360,14 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoVetor(expressao: any): any {
+    visitarExpressaoVetor(expressao: Vetor): any {
         for (let i = 0; i < expressao.valores.length; i++) {
             this.resolver(expressao.valores[i]);
         }
         return null;
     }
 
-    visitarExpressaoVetorIndice(expressao: any): any {
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): any {
         this.resolver(expressao.entidadeChamada);
         this.resolver(expressao.indice);
         return null;
@@ -389,7 +389,7 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoLogica(expressao?: any): any {
+    visitarExpressaoLogica(expressao?: Logico): any {
         this.resolver(expressao.esquerda);
         this.resolver(expressao.direita);
         return null;

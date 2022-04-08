@@ -1,11 +1,12 @@
+import { Literal } from "../construtos";
 import { Declaracao } from "./declaracao";
 
 
 export class Importar extends Declaracao {
-    caminho: string;
+    caminho: Literal;
     simboloFechamento: any;
 
-    constructor(caminho: any, simboloFechamento: any) {
+    constructor(caminho: Literal, simboloFechamento: any) {
         super(0);
         this.caminho = caminho;
         this.simboloFechamento = simboloFechamento;

@@ -548,7 +548,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return new Atribuir(simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                return new Conjunto(0, get.objeto, get.nome, valor);
+                return new Conjunto(0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(0, 
                     expressao.entidadeChamada,

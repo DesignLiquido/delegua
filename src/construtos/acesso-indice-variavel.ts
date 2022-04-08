@@ -18,6 +18,6 @@ export class AcessoIndiceVariavel implements Construto {
     }
 
     aceitar(visitante: any) {
-        return visitante.visitarExpressaoVetorIndice(this);
+        return visitante.visitarExpressaoAcessoIndiceVariavel(this);
     }
 }
