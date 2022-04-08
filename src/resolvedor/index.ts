@@ -37,8 +37,8 @@ export class Resolvedor implements ResolvedorInterface {
     interpretador: any;
     Delegua: any;
     escopos: PilhaEscopos;
-    FuncaoAtual: any;
-    ClasseAtual: any;
+    funcaoAtual: any;
+    classeAtual: any;
     cicloAtual: any;
 
     constructor(Delegua: Delegua, interpretador: InterpretadorInterface) {
@@ -46,8 +46,8 @@ export class Resolvedor implements ResolvedorInterface {
         this.Delegua = Delegua;
         this.escopos = new PilhaEscopos();
 
-        this.FuncaoAtual = TipoFuncao.NENHUM;
-        this.ClasseAtual = TipoClasse.NENHUM;
+        this.funcaoAtual = TipoFuncao.NENHUM;
+        this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
@@ -95,9 +95,9 @@ export class Resolvedor implements ResolvedorInterface {
         }
     }
 
-    visitarExpressaoBloco(stmt: any) : any {
+    visitarExpressaoBloco(declaracao: any) : any {
         this.inicioDoEscopo();
-        this.resolver(stmt.declaracoes);
+        this.resolver(declaracao.declaracoes);
         this.finalDoEscopo();
         return null;
     }
@@ -115,24 +115,24 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoVar(stmt: any): any {
-        this.declarar(stmt.simbolo);
-        if (stmt.inicializador !== null) {
-            this.resolver(stmt.inicializador);
+    visitarExpressaoVar(declaracao: any): any {
+        this.declarar(declaracao.simbolo);
+        if (declaracao.inicializador !== null) {
+            this.resolver(declaracao.inicializador);
         }
-        this.definir(stmt.simbolo);
+        this.definir(declaracao.simbolo);
         return null;
     }
 
-    visitarExpressaoDeAtribuicao(expr: any): any {
-        this.resolver(expr.valor);
-        this.resolverLocal(expr, expr.simbolo);
+    visitarExpressaoDeAtribuicao(expressao: any): any {
+        this.resolver(expressao.valor);
+        this.resolverLocal(expressao, expressao.simbolo);
         return null;
     }
 
-    resolverFuncao(funcao: any, funcType: any): void {
-        let enclosingFunc = this.FuncaoAtual;
-        this.FuncaoAtual = funcType;
+    resolverFuncao(funcao: any, tipoFuncao: any): void {
+        let enclosingFunc = this.funcaoAtual;
+        this.funcaoAtual = tipoFuncao;
 
         this.inicioDoEscopo();
         let parametros = funcao.parametros;
@@ -147,50 +147,50 @@ export class Resolvedor implements ResolvedorInterface {
         this.resolver(funcao.corpo);
         this.finalDoEscopo();
 
-        this.FuncaoAtual = enclosingFunc;
+        this.funcaoAtual = enclosingFunc;
     }
 
-    visitarExpressaoFuncao(stmt: any): any {
-        this.declarar(stmt.simbolo);
-        this.definir(stmt.simbolo);
+    visitarExpressaoFuncao(declaracao: any): any {
+        this.declarar(declaracao.simbolo);
+        this.definir(declaracao.simbolo);
 
-        this.resolverFuncao(stmt.funcao, TipoFuncao.FUNCAO);
+        this.resolverFuncao(declaracao.funcao, TipoFuncao.FUNCAO);
         return null;
     }
 
-    visitarExpressaoDeleguaFuncao(stmt: any): any {
-        this.resolverFuncao(stmt, TipoFuncao.FUNCAO);
+    visitarExpressaoDeleguaFuncao(declaracao: any): any {
+        this.resolverFuncao(declaracao, TipoFuncao.FUNCAO);
         return null;
     }
 
-    visitarExpressaoTente(stmt: any): any {
-        this.resolver(stmt.caminhoTente);
+    visitarExpressaoTente(declaracao: any): any {
+        this.resolver(declaracao.caminhoTente);
 
-        if (stmt.caminhoPegue !== null) this.resolver(stmt.caminhoPegue);
-        if (stmt.caminhoSenao !== null) this.resolver(stmt.caminhoSenao);
-        if (stmt.caminhoFinalmente !== null) this.resolver(stmt.caminhoFinalmente);
+        if (declaracao.caminhoPegue !== null) this.resolver(declaracao.caminhoPegue);
+        if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);
+        if (declaracao.caminhoFinalmente !== null) this.resolver(declaracao.caminhoFinalmente);
     }
 
-    visitarExpressaoClasse(stmt: any): any {
-        let enclosingClass = this.ClasseAtual;
-        this.ClasseAtual = TipoClasse.CLASSE;
+    visitarExpressaoClasse(declaracao: any): any {
+        let enclosingClass = this.classeAtual;
+        this.classeAtual = TipoClasse.CLASSE;
 
-        this.declarar(stmt.simbolo);
-        this.definir(stmt.simbolo);
+        this.declarar(declaracao.simbolo);
+        this.definir(declaracao.simbolo);
 
         if (
-            stmt.superClasse !== null &&
-            stmt.simbolo.lexema === stmt.superClasse.simbolo.lexema
+            declaracao.superClasse !== null &&
+            declaracao.simbolo.lexema === declaracao.superClasse.simbolo.lexema
         ) {
             this.Delegua.erro("Uma classe não pode herdar de si mesma.");
         }
 
-        if (stmt.superClasse !== null) {
-            this.ClasseAtual = TipoClasse.SUBCLASSE;
-            this.resolver(stmt.superClasse);
+        if (declaracao.superClasse !== null) {
+            this.classeAtual = TipoClasse.SUBCLASSE;
+            this.resolver(declaracao.superClasse);
         }
 
-        if (stmt.superClasse !== null) {
+        if (declaracao.superClasse !== null) {
             this.inicioDoEscopo();
             this.escopos.topoDaPilha()["super"] = true;
         }
@@ -198,7 +198,7 @@ export class Resolvedor implements ResolvedorInterface {
         this.inicioDoEscopo();
         this.escopos.topoDaPilha()["isto"] = true;
 
-        let metodos = stmt.metodos;
+        let metodos = declaracao.metodos;
         for (let i = 0; i < metodos.length; i++) {
             let declaracao = TipoFuncao.METODO;
 
@@ -211,64 +211,64 @@ export class Resolvedor implements ResolvedorInterface {
 
         this.finalDoEscopo();
 
-        if (stmt.superClasse !== null) this.finalDoEscopo();
+        if (declaracao.superClasse !== null) this.finalDoEscopo();
 
-        this.ClasseAtual = enclosingClass;
+        this.classeAtual = enclosingClass;
         return null;
     }
 
-    visitarExpressaoSuper(expr: any): any {
-        if (this.ClasseAtual === TipoClasse.NENHUM) {
-            this.Delegua.erro(expr.palavraChave, "Não pode usar 'super' fora de uma classe.");
-        } else if (this.ClasseAtual !== TipoClasse.SUBCLASSE) {
+    visitarExpressaoSuper(expressao: any): any {
+        if (this.classeAtual === TipoClasse.NENHUM) {
+            this.Delegua.erro(expressao.palavraChave, "Não pode usar 'super' fora de uma classe.");
+        } else if (this.classeAtual !== TipoClasse.SUBCLASSE) {
             this.Delegua.erro(
-                expr.palavraChave,
+                expressao.palavraChave,
                 "Não se usa 'super' numa classe sem SuperClasse."
             );
         }
 
-        this.resolverLocal(expr, expr.palavraChave);
+        this.resolverLocal(expressao, expressao.palavraChave);
         return null;
     }
 
-    visitarExpressaoObter(expr: any): any {
-        this.resolver(expr.objeto);
+    visitarExpressaoObter(expressao: any): any {
+        this.resolver(expressao.objeto);
         return null;
     }
 
-    visitarDeclaracaoDeExpressao(stmt: any): any {
-        this.resolver(stmt.expressao);
+    visitarDeclaracaoDeExpressao(declaracao: any): any {
+        this.resolver(declaracao.expressao);
         return null;
     }
 
-    visitarExpressaoSe(stmt: Se): any {
-        this.resolver(stmt.condicao);
-        this.resolver(stmt.caminhoEntao);
+    visitarExpressaoSe(declaracao: Se): any {
+        this.resolver(declaracao.condicao);
+        this.resolver(declaracao.caminhoEntao);
 
-        for (let i = 0; i < stmt.caminhosSeSenao.length; i++) {
-            this.resolver(stmt.caminhosSeSenao[i].condicao);
-            this.resolver(stmt.caminhosSeSenao[i].caminho);
+        for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
+            this.resolver(declaracao.caminhosSeSenao[i].condicao);
+            this.resolver(declaracao.caminhosSeSenao[i].caminho);
         }
 
-        if (stmt.caminhoSenao !== null) this.resolver(stmt.caminhoSenao);
+        if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);
         return null;
     }
 
-    visitarExpressaoImportar(stmt: any): void {
-        this.resolver(stmt.caminho);
+    visitarExpressaoImportar(declaracao: any): void {
+        this.resolver(declaracao.caminho);
     }
 
-    visitarExpressaoEscreva(stmt: any): void {
-        this.resolver(stmt.expressao);
+    visitarExpressaoEscreva(declaracao: any): void {
+        this.resolver(declaracao.expressao);
     }
 
     visitarExpressaoRetornar(declaracao: any): any {
-        if (this.FuncaoAtual === TipoFuncao.NENHUM) {
+        if (this.funcaoAtual === TipoFuncao.NENHUM) {
             this.Delegua.erro(declaracao.palavraChave, "Não é possível retornar do código do escopo superior.");
         }
 
         if (declaracao.valor !== null) {
-            if (this.FuncaoAtual === TipoFuncao.CONSTRUTOR) {
+            if (this.funcaoAtual === TipoFuncao.CONSTRUTOR) {
                 this.Delegua.erro(
                     declaracao.palavraChave,
                     "Não pode retornar o valor do construtor."
@@ -279,12 +279,12 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoEscolha(stmt: any): void {
+    visitarExpressaoEscolha(declaracao: any): void {
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
-        let caminhos = stmt.caminhos;
-        let caminhoPadrao = stmt.caminhoPadrao;
+        let caminhos = declaracao.caminhos;
+        let caminhoPadrao = declaracao.caminhoPadrao;
 
         for (let i = 0; i < caminhos.length; i++) {
             this.resolver(caminhos[i]["declaracoes"]);
@@ -295,51 +295,51 @@ export class Resolvedor implements ResolvedorInterface {
         this.cicloAtual = enclosingType;
     }
 
-    visitarExpressaoEnquanto(stmt: any): any {
-        this.resolver(stmt.condicao);
-        this.resolver(stmt.corpo);
+    visitarExpressaoEnquanto(declaracao: any): any {
+        this.resolver(declaracao.condicao);
+        this.resolver(declaracao.corpo);
         return null;
     }
 
-    visitarExpressaoPara(stmt: any): any {
-        if (stmt.inicializador !== null) {
-            this.resolver(stmt.inicializador);
+    visitarExpressaoPara(declaracao: any): any {
+        if (declaracao.inicializador !== null) {
+            this.resolver(declaracao.inicializador);
         }
-        if (stmt.condicao !== null) {
-            this.resolver(stmt.condicao);
+        if (declaracao.condicao !== null) {
+            this.resolver(declaracao.condicao);
         }
-        if (stmt.incrementar !== null) {
-            this.resolver(stmt.incrementar);
+        if (declaracao.incrementar !== null) {
+            this.resolver(declaracao.incrementar);
         }
 
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ENQUANTO;
-        this.resolver(stmt.corpo);
+        this.resolver(declaracao.corpo);
         this.cicloAtual = enclosingType;
 
         return null;
     }
 
-    visitarExpressaoFazer(stmt: any): any {
-        this.resolver(stmt.condicaoEnquanto);
+    visitarExpressaoFazer(declaracao: any): any {
+        this.resolver(declaracao.condicaoEnquanto);
 
         let enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.FAZER;
-        this.resolver(stmt.caminhoFazer);
+        this.resolver(declaracao.caminhoFazer);
         this.cicloAtual = enclosingType;
         return null;
     }
 
-    visitarExpressaoBinaria(expr: any): any {
-        this.resolver(expr.esquerda);
-        this.resolver(expr.direita);
+    visitarExpressaoBinaria(expressao: any): any {
+        this.resolver(expressao.esquerda);
+        this.resolver(expressao.direita);
         return null;
     }
 
-    visitarExpressaoDeChamada(expr: any): any {
-        this.resolver(expr.entidadeChamada);
+    visitarExpressaoDeChamada(expressao: any): any {
+        this.resolver(expressao.entidadeChamada);
 
-        let argumentos = expr.argumentos;
+        let argumentos = expressao.argumentos;
         for (let i = 0; i < argumentos.length; i++) {
             this.resolver(argumentos[i]);
         }
@@ -347,70 +347,70 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoAgrupamento(expr: any): any {
-        this.resolver(expr.expressao);
+    visitarExpressaoAgrupamento(expressao: any): any {
+        this.resolver(expressao.expressao);
         return null;
     }
 
-    visitarExpressaoDicionario(expr: any): any {
-        for (let i = 0; i < expr.chaves.length; i++) {
-            this.resolver(expr.chaves[i]);
-            this.resolver(expr.valores[i]);
+    visitarExpressaoDicionario(expressao: any): any {
+        for (let i = 0; i < expressao.chaves.length; i++) {
+            this.resolver(expressao.chaves[i]);
+            this.resolver(expressao.valores[i]);
         }
         return null;
     }
 
-    visitarExpressaoVetor(expr: any): any {
-        for (let i = 0; i < expr.valores.length; i++) {
-            this.resolver(expr.valores[i]);
+    visitarExpressaoVetor(expressao: any): any {
+        for (let i = 0; i < expressao.valores.length; i++) {
+            this.resolver(expressao.valores[i]);
         }
         return null;
     }
 
-    visitarExpressaoVetorIndice(expr: any): any {
-        this.resolver(expr.entidadeChamada);
-        this.resolver(expr.indice);
+    visitarExpressaoVetorIndice(expressao: any): any {
+        this.resolver(expressao.entidadeChamada);
+        this.resolver(expressao.indice);
         return null;
     }
 
-    visitarExpressaoContinua(stmt?: any): any {
+    visitarExpressaoContinua(declaracao?: any): any {
         return null;
     }
 
-    visitarExpressaoPausa(stmt?: any): any {
+    visitarExpressaoPausa(declaracao?: any): any {
         return null;
     }
 
-    visitarExpressaoAtribuicaoSobrescrita(expr?: any): any {
+    visitarExpressaoAtribuicaoSobrescrita(expressao?: any): any {
         return null;
     }
 
-    visitarExpressaoLiteral(expr?: any): any {
+    visitarExpressaoLiteral(expressao?: any): any {
         return null;
     }
 
-    visitarExpressaoLogica(expr?: any): any {
-        this.resolver(expr.esquerda);
-        this.resolver(expr.direita);
+    visitarExpressaoLogica(expressao?: any): any {
+        this.resolver(expressao.esquerda);
+        this.resolver(expressao.direita);
         return null;
     }
 
-    visitarExpressaoUnaria(expr?: any): any {
-        this.resolver(expr.direita);
+    visitarExpressaoUnaria(expressao?: any): any {
+        this.resolver(expressao.direita);
         return null;
     }
 
-    visitarExpressaoDefinir(expr?: any): any {
-        this.resolver(expr.valor);
-        this.resolver(expr.objeto);
+    visitarExpressaoDefinir(expressao?: any): any {
+        this.resolver(expressao.valor);
+        this.resolver(expressao.objeto);
         return null;
     }
 
-    visitarExpressaoIsto(expr?: any): any {
-        if (this.ClasseAtual == TipoClasse.NENHUM) {
-            this.Delegua.erro(expr.palavraChave, "Não pode usar 'isto' fora da classe.");
+    visitarExpressaoIsto(expressao?: any): any {
+        if (this.classeAtual == TipoClasse.NENHUM) {
+            this.Delegua.erro(expressao.palavraChave, "Não pode usar 'isto' fora da classe.");
         }
-        this.resolverLocal(expr, expr.palavraChave);
+        this.resolverLocal(expressao, expressao.palavraChave);
         return null;
     }
 };
