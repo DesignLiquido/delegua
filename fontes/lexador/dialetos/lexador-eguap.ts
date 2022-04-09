@@ -85,7 +85,7 @@ export class LexadorEguaP implements LexadorInterface {
 
     eFinalDoCodigo(): boolean {
         if (this.linha > this.codigo.length - 1) return true;
-        return this.linha == this.codigo.length - 1 ||
+        return this.linha == this.codigo.length - 1 &&
             this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
@@ -171,7 +171,7 @@ export class LexadorEguaP implements LexadorInterface {
     }
 
     identificarPalavraChave(): void {
-                while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
         }
 
@@ -281,6 +281,7 @@ export class LexadorEguaP implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 }
+                break;
 
             case '/':
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
