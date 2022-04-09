@@ -852,7 +852,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const caminho = this.expressao();
 
-        let simboloFechamento = this.consumir(
+        const simboloFechamento = this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após declaração."
         );
