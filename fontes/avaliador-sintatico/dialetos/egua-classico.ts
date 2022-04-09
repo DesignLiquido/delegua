@@ -1,4 +1,4 @@
-import tiposDeSimbolos from '../../tiposDeSimbolos';
+import tiposDeSimbolos from '../../lexador/tipos-de-simbolos';
 import {
     AvaliadorSintaticoInterface,
     SimboloInterface,

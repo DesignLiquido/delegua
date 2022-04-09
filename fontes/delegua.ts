@@ -3,11 +3,11 @@ import * as caminho from 'path';
 import * as readline from 'readline';
 import chalk from 'chalk';
 
-import { Lexador } from './lexador';
+import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico';
 import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador';
-import tiposDeSimbolos from './tiposDeSimbolos';
+import tiposDeSimbolos from './lexador/tipos-de-simbolos';
 
 import { ExcecaoRetornar } from './excecoes';
 import {
@@ -20,13 +20,15 @@ import { ResolvedorInterface } from './interfaces/resolvedor-interface';
 import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
 import { ResolverEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { ParserEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
-import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
+import { LexadorEguaClassico } from './lexador/dialetos/lexador-egua-classico';
+import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 
 export class Delegua {
     nomeArquivo: string;
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
+    arquivosAbertos: { [identificador: string]: string };
 
     interpretador: InterpretadorInterface;
     lexador: LexadorInterface;
@@ -60,7 +62,7 @@ export class Delegua {
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexador(this);
+                this.lexador = new LexadorEguaP(this);
                 this.avaliadorSintatico = new AvaliadorSintatico(this);
                 this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
@@ -115,10 +117,10 @@ export class Delegua {
         });
     }
 
-    carregarArquivo(nomeArquivo: string): void {
-        this.nomeArquivo = caminho.basename(nomeArquivo);
+    carregarArquivo(caminhoRelativoArquivo: string): void {
+        this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
-        const dadosDoArquivo: Buffer = fs.readFileSync(nomeArquivo);
+        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
             .split('\n');

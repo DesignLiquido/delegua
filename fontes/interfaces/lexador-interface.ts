@@ -19,7 +19,7 @@ export interface LexadorInterface {
     simboloAtual(): string;
     proximoSimbolo(): string;
     simboloAnterior(): string;
-    analisarTexto(texto: string): void;
+    analisarTexto(delimitador: string): void;
     analisarNumero(): void;
     identificarPalavraChave(): void;
     analisarToken(): void;

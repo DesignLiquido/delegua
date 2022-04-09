@@ -1,56 +1,8 @@
 import { Delegua } from '../../delegua';
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
-import tiposDeSimbolos from '../../tiposDeSimbolos';
-
-const palavrasReservadas = {
-    e: tiposDeSimbolos.E,
-    em: tiposDeSimbolos.EM,
-    classe: tiposDeSimbolos.CLASSE,
-    senão: tiposDeSimbolos.SENÃO,
-    falso: tiposDeSimbolos.FALSO,
-    para: tiposDeSimbolos.PARA,
-    função: tiposDeSimbolos.FUNÇÃO,
-    se: tiposDeSimbolos.SE,
-    senãose: tiposDeSimbolos.SENÃOSE,
-    nulo: tiposDeSimbolos.NULO,
-    ou: tiposDeSimbolos.OU,
-    escreva: tiposDeSimbolos.ESCREVA,
-    retorna: tiposDeSimbolos.RETORNA,
-    super: tiposDeSimbolos.SUPER,
-    isto: tiposDeSimbolos.ISTO,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO,
-    var: tiposDeSimbolos.VARIAVEL,
-    fazer: tiposDeSimbolos.FAZER,
-    enquanto: tiposDeSimbolos.ENQUANTO,
-    pausa: tiposDeSimbolos.PAUSA,
-    continua: tiposDeSimbolos.CONTINUA,
-    escolha: tiposDeSimbolos.ESCOLHA,
-    caso: tiposDeSimbolos.CASO,
-    padrao: tiposDeSimbolos.PADRAO,
-    importar: tiposDeSimbolos.IMPORTAR,
-    tente: tiposDeSimbolos.TENTE,
-    pegue: tiposDeSimbolos.PEGUE,
-    finalmente: tiposDeSimbolos.FINALMENTE,
-    herda: tiposDeSimbolos.HERDA,
-};
-
-class Simbolo implements SimboloInterface {
-    lexema: string;
-    tipo: string;
-    literal: string;
-    linha: string;
-
-    constructor(tipo: any, lexema: any, literal: any, linha: any) {
-        this.tipo = tipo;
-        this.lexema = lexema;
-        this.literal = literal;
-        this.linha = linha;
-    }
-
-    paraTexto(): string {
-        return this.tipo + ' ' + this.lexema + ' ' + this.literal;
-    }
-}
+import tiposDeSimbolos from '../tipos-de-simbolos';
+import { Simbolo } from '../simbolo';
+import palavrasReservadas from '../palavras-reservadas';
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -77,11 +29,11 @@ export class LexadorEguaClassico implements LexadorInterface {
         this.linha = 1;
     }
 
-    eDigito(caractere: any): boolean {
+    eDigito(caractere: string): boolean {
         return caractere >= '0' && caractere <= '9';
     }
 
-    eAlfabeto(caractere: any): boolean {
+    eAlfabeto(caractere: string): boolean {
         const acentuacoes = [
             'á',
             'Á',
