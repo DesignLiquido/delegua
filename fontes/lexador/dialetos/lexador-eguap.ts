@@ -75,7 +75,7 @@ export class LexadorEguaP implements LexadorInterface {
      * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
      */
-     eUltimaLinha(): boolean {
+    eUltimaLinha(): boolean {
         return this.linha >= this.codigo.length - 1;
     }
 
@@ -84,7 +84,8 @@ export class LexadorEguaP implements LexadorInterface {
     }
 
     eFinalDoCodigo(): boolean {
-        return this.eUltimaLinha() && 
+        if (this.linha > this.codigo.length - 1) return true;
+        return this.linha == this.codigo.length - 1 ||
             this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
@@ -94,6 +95,7 @@ export class LexadorEguaP implements LexadorInterface {
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
+            this.logicaEmLinhaIniciada = false;
         }
     }
 
@@ -111,6 +113,7 @@ export class LexadorEguaP implements LexadorInterface {
 
     simboloAtual(): string {
         if (this.eFinalDaLinha()) return '\0';
+        if (this.linha > this.codigo.length - 1) return '\0';
         return this.codigo[this.linha].charAt(this.atual);
     }
 
@@ -194,6 +197,11 @@ export class LexadorEguaP implements LexadorInterface {
         this.adicionarSimbolo(tiposDeSimbolos.ESPACO_INDENTACAO, espacos);
     }
 
+    avancarParaProximaLinha(): void {
+        this.linha++;
+        this.atual = 0;
+    }
+
     analisarToken(): void {
         const caractere = this.simboloAtual();
 
@@ -201,7 +209,7 @@ export class LexadorEguaP implements LexadorInterface {
             case ' ':
             case '\t':
                 if (!this.logicaEmLinhaIniciada) {
-
+                    this.analisarIndentacao();
                 } else {
                     this.avancar();
                 }
@@ -218,6 +226,10 @@ export class LexadorEguaP implements LexadorInterface {
                 }
                 
                 break;
+
+            case '#':
+                this.avancarParaProximaLinha();
+                break;
                 
             case '"':
                 this.avancar();
@@ -232,6 +244,7 @@ export class LexadorEguaP implements LexadorInterface {
                 break;
 
             default:
+                this.logicaEmLinhaIniciada = true;
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
