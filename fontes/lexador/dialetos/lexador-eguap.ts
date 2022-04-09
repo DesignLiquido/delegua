@@ -230,6 +230,137 @@ export class LexadorEguaP implements LexadorInterface {
             case '#':
                 this.avancarParaProximaLinha();
                 break;
+
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.avancar();
+                break;
+            case '(':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.avancar();
+                break;
+            case ')':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
+                break;
+            case '{':
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
+                this.avancar();
+                break;
+            case '}':
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
+                this.avancar();
+                break;
+            case ',':
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.avancar();
+                break;
+            case '.':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.avancar();
+                break;
+            case '-':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                }
+                
+                break;
+            case '+':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                }
+
+            case '/':
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                this.avancar();
+                break;
+                
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
+                break;
+
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.avancar();
+                break;
+            case '*':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                if (this.simboloAtual() === '*') {
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                }
+
+                break;
+            case '!':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
+                }
+
+            case '&':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
+                this.avancar();
+                break;
+
+            case '~':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
+                this.avancar();
+                break;
+
+            case '|':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
+                this.avancar();
+                break;
+
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.avancar();
+                break;
+
+            case '<':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '<') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+                break;
+
+            case '>':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '>') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
+                }
+                break;
                 
             case '"':
                 this.avancar();
