@@ -1,3 +1,4 @@
+import { SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -7,15 +8,15 @@ import { Construto } from "./construto";
 export class AcessoMetodo implements Construto {
     linha: number;
     objeto: Construto;
-    nome: any;
+    simbolo: SimboloInterface;
 
-    constructor(objeto: Construto, nome: any) {
+    constructor(objeto: Construto, simbolo: SimboloInterface) {
         this.linha = objeto.linha;
         this.objeto = objeto;
-        this.nome = nome;
+        this.simbolo = simbolo;
     }
 
     aceitar(visitante: any) {
-        return visitante.visitarExpressaoObter(this);
+        return visitante.visitarExpressaoAcessoMetodo(this);
     }
 }

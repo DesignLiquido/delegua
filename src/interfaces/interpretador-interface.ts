@@ -40,11 +40,11 @@ export interface InterpretadorInterface {
     visitarExpressaoRetornar(declaracao: any): void;
     visitarExpressaoDeleguaFuncao(expressao: any): any;
     visitarExpressaoAtribuicaoSobrescrita(expressao: any): void;
-    visitarExpressaoVetorIndice(expressao: any): any;
+    visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoDefinir(expressao: any): any;
     visitarExpressaoFuncao(declaracao: any): any;
     visitarExpressaoClasse(declaracao: any): any;
-    visitarExpressaoObter(expressao: any): any;
+    visitarExpressaoAcessoMetodo(expressao: any): any;
     visitarExpressaoIsto(expressao: any): any;
     visitarExpressaoDicionario(expressao: any): any;
     visitarExpressaoVetor(expressao: any): any;

@@ -547,10 +547,8 @@ export class Interpretador implements InterpretadorInterface {
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
-        let conteudoImportacao: any;
-        if (!caminhoTotal.endsWith('.egua')) {
-            conteudoImportacao = carregarBibliotecaNode(caminhoRelativo);
-            if (conteudoImportacao) return conteudoImportacao;
+        if (!caminhoTotal.endsWith('.egua') && !caminhoTotal.endsWith('.delegua')) {
+            return carregarBibliotecaNode(caminhoRelativo);
         }
 
         try {
@@ -569,7 +567,9 @@ export class Interpretador implements InterpretadorInterface {
             );
         }
 
-        conteudoImportacao = fs.readFileSync(caminhoTotal).toString();
+        const conteudoImportacao: string[] = fs.readFileSync(caminhoTotal)
+            .toString()
+            .split('\n');
 
         const delegua: Delegua = new Delegua(
             this.Delegua.dialeto,
@@ -579,22 +579,22 @@ export class Interpretador implements InterpretadorInterface {
 
         delegua.executar(conteudoImportacao);
 
-        let exportar = delegua.interpretador.global.obterTodasDeleguaFuncao();
+        let funcoesDeclaradas = delegua.interpretador.global.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
-        if (eDicionario(exportar)) {
+        if (eDicionario(funcoesDeclaradas)) {
             let novoModulo = new DeleguaModulo();
 
-            let chaves = Object.keys(exportar);
+            let chaves = Object.keys(funcoesDeclaradas);
             for (let i = 0; i < chaves.length; i++) {
-                novoModulo[chaves[i]] = exportar[chaves[i]];
+                novoModulo.componentes[chaves[i]] = funcoesDeclaradas[chaves[i]];
             }
 
             return novoModulo;
         }
 
-        return exportar;
+        return funcoesDeclaradas;
     }
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
@@ -689,7 +689,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoVetorIndice(expressao: any) {
+    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         const objeto = this.avaliar(expressao.entidadeChamada);
 
         let indice = this.avaliar(expressao.indice);
@@ -837,14 +837,14 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoObter(expressao: any) {
+    visitarExpressaoAcessoMetodo(expressao: any) {
         let objeto = this.avaliar(expressao.objeto);
         if (objeto instanceof DeleguaInstancia) {
-            return objeto.get(expressao.nome) || null;
+            return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
         } else if (objeto instanceof DeleguaModulo) {
-            return objeto[expressao.simbolo.lexema] || null;
+            return objeto.componentes[expressao.simbolo.lexema] || null;
         }
 
         throw new ErroEmTempoDeExecucao(

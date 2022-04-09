@@ -258,7 +258,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.TEXTO
             )
         ) {
-            const simboloAnterior: SimboloInterface = this.simboloAnterior(); 
+            const simboloAnterior: SimboloInterface = this.simboloAnterior();
             return new Literal(Number(simboloAnterior.linha), simboloAnterior.literal);
         }
 
@@ -548,7 +548,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return new Atribuir(simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                return new Conjunto(0, get.objeto, get.nome, valor);
+                return new Conjunto(0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(0, 
                     expressao.entidadeChamada,
@@ -852,12 +852,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const caminho = this.expressao();
 
-        let simboloFechamento = this.consumir(
+        const simboloFechamento = this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após declaração."
         );
 
-        return new Importar(caminho, simboloFechamento);
+        return new Importar(caminho as Literal, simboloFechamento);
     }
 
     declaracaoTente(): Tente {

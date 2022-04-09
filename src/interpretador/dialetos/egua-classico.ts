@@ -676,7 +676,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoVetorIndice(expressao: any) {
+    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         const objeto = this.avaliar(expressao.entidadeChamada);
 
         let indice = this.avaliar(expressao.indice);
@@ -824,10 +824,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoObter(expressao: any) {
+    visitarExpressaoAcessoMetodo(expressao: any) {
         let objeto = this.avaliar(expressao.objeto);
         if (objeto instanceof DeleguaInstancia) {
-            return objeto.get(expressao.nome) || null;
+            return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
         } else if (objeto instanceof DeleguaModulo) {

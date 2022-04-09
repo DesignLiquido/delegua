@@ -25,7 +25,7 @@ export interface ResolvedorInterface {
     visitarExpressaoTente(declaracao: any): any;
     visitarExpressaoClasse(declaracao: any): any;
     visitarExpressaoSuper(expressao: any): any;
-    visitarExpressaoObter(expressao: any): any;
+    visitarExpressaoAcessoMetodo(expressao: any): any;
     visitarDeclaracaoDeExpressao(declaracao: any): any;
     visitarExpressaoSe(declaracao: any): any;
     visitarExpressaoImportar(declaracao: any): void;
@@ -40,7 +40,7 @@ export interface ResolvedorInterface {
     visitarExpressaoAgrupamento(expressao: any): any;
     visitarExpressaoDicionario(expressao: any): any;
     visitarExpressaoVetor(expressao: any): any;
-    visitarExpressaoVetorIndice(expressao: any): any;
+    visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoContinua(declaracao?: any): any;
     visitarExpressaoPausa(declaracao?: any): any;
     visitarExpressaoAtribuicaoSobrescrita(expressao?: any): any;

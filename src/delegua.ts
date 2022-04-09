@@ -21,6 +21,7 @@ import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classic
 import { ResolverEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { ParserEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
+import { Declaracao } from './declaracoes';
 
 export class Delegua {
     nomeArquivo: string;
