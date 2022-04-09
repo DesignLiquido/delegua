@@ -840,7 +840,7 @@ export class Interpretador implements InterpretadorInterface {
     visitarExpressaoAcessoMetodo(expressao: any) {
         let objeto = this.avaliar(expressao.objeto);
         if (objeto instanceof DeleguaInstancia) {
-            return objeto.get(expressao.nome) || null;
+            return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
         } else if (objeto instanceof DeleguaModulo) {
