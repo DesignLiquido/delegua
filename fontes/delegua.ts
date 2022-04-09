@@ -21,7 +21,6 @@ import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classic
 import { ResolverEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { ParserEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
-import { Declaracao } from './declaracoes';
 
 export class Delegua {
     nomeArquivo: string;
@@ -58,13 +57,6 @@ export class Delegua {
                     this.interpretador
                 );
                 console.log('Usando dialeto: Égua');
-                break;
-            case 'eguac':
-                this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexador(this);
-                this.avaliadorSintatico = new AvaliadorSintatico(this);
-                this.resolvedor = new Resolvedor(this, this.interpretador);
-                console.log('Usando dialeto: ÉguaC');
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
