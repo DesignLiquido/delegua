@@ -258,7 +258,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.TEXTO
             )
         ) {
-            const simboloAnterior: SimboloInterface = this.simboloAnterior(); 
+            const simboloAnterior: SimboloInterface = this.simboloAnterior();
             return new Literal(Number(simboloAnterior.linha), simboloAnterior.literal);
         }
 
@@ -857,7 +857,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             "Esperado ')' após declaração."
         );
 
-        return new Importar(caminho, simboloFechamento);
+        return new Importar(caminho as Literal, simboloFechamento);
     }
 
     declaracaoTente(): Tente {
