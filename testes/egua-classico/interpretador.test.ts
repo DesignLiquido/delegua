@@ -1,4 +1,4 @@
-import { Delegua } from "../../src/delegua";
+import { Delegua } from "../../fontes/delegua";
 
 describe('Interpretador (Égua Clássico)', () => {
     describe('interpretar()', () => {

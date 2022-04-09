@@ -1,4 +1,4 @@
-import { Delegua } from "./src/delegua";
+import { Delegua } from "./fontes/delegua";
 import { Command } from "commander";
 
 const principal = function () {
