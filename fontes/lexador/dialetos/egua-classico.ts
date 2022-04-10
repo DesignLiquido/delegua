@@ -1,4 +1,3 @@
-import { Delegua } from '../../delegua';
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tiposDeSimbolos';
 import { ErroLexador } from '../erro-lexador';

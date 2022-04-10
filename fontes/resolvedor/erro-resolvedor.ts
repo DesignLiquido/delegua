@@ -1,8 +1,11 @@
-export class ErroResolvedor extends Error {
-    mensagem: String;
+import { SimboloInterface } from "../interfaces";
 
-    constructor(mensagem: any) {
+export class ErroResolvedor extends Error {
+    simbolo: SimboloInterface;
+
+    constructor(simbolo: SimboloInterface, mensagem: string) {
         super(mensagem);
-        this.mensagem = mensagem;
+        this.simbolo = simbolo;
+        Object.setPrototypeOf(this, ErroResolvedor.prototype);
     }
 }

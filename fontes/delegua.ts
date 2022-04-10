@@ -18,7 +18,7 @@ import {
 } from './interfaces';
 import { ResolvedorInterface } from './interfaces/resolvedor-interface';
 import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
-import { ResolverEguaClassico } from './resolvedor/dialetos/egua-classico';
+import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico as AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
 
@@ -52,17 +52,14 @@ export class Delegua {
                 );
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.resolvedor = new ResolverEguaClassico(
-                    this,
-                    this.interpretador
-                );
+                this.resolvedor = new ResolvedorEguaClassico(this.interpretador);
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador();
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.resolvedor = new Resolvedor(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
@@ -73,7 +70,7 @@ export class Delegua {
                 );
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.resolvedor = new Resolvedor(this, this.interpretador);
+                this.resolvedor = new Resolvedor(this.interpretador);
                 console.log('Usando dialeto: padrão');
                 break;
         }
@@ -144,9 +141,14 @@ export class Delegua {
             return;
         }
 
-        this.resolvedor.resolver(retornoAvaliadorSintatico);
+        const retornoResolvedor = this.resolvedor.resolver(retornoAvaliadorSintatico);
 
-        if (this.teveErro) return;
+        if (retornoResolvedor.erros.length > 0) {
+            for (const erroResolvedor of retornoResolvedor.erros) {
+                this.erro(erroResolvedor.simbolo, erroResolvedor.message);
+            }
+            return;
+        }
 
         this.interpretador.interpretar(retornoAvaliadorSintatico);
     }
