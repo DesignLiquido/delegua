@@ -7,6 +7,6 @@ export class Sustar extends Declaracao {
     }
 
     aceitar(visitante: any): any {
-        return visitante.visitarExpressaoPausa(this);
+        return visitante.visitarExpressaoSustar(this);
     }
 }

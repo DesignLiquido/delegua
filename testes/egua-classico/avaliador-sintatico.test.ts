@@ -8,32 +8,32 @@ describe('Avaliador sintático (Égua Clássico)', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
 
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(1);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
         // TODO: Resolver bug.
         it.skip('Sucesso - Vetor vazio', () => {
-            const declaracoes = delegua.avaliadorSintatico.analisar([]);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar([]);
 
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(0);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
         });
 
         // TODO: Resolver bug.
         it.skip('Sucesso - Undefined', () => {
-            const declaracoes = delegua.avaliadorSintatico.analisar(undefined);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(undefined);
 
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(0);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
         });
 
         // TODO: Resolver bug.
         it.skip('Sucesso - Null', () => {
-            const declaracoes = delegua.avaliadorSintatico.analisar(null);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(null);
 
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(0);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
         });
     });
 });
