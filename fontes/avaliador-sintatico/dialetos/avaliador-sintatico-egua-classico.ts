@@ -747,7 +747,9 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 "Esperado '{' após 'escolha'."
             );
+
             const condicao = this.expressao();
+            
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado '}' após a condição de 'escolha'."
@@ -766,7 +768,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let branchConditions = [this.expressao()];
+                    let caminhoCondicoes = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -774,7 +776,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
-                        branchConditions.push(this.expressao());
+                        caminhoCondicoes.push(this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
@@ -791,7 +793,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                     );
 
                     caminhos.push({
-                        conditions: branchConditions,
+                        condicoes: caminhoCondicoes,
                         declaracoes,
                     });
                 } else if (

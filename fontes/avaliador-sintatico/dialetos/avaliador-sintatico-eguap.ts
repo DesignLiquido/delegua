@@ -821,18 +821,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             this.ciclos += 1;
 
             this.consumir(
-                tiposDeSimbolos.PARENTESE_ESQUERDO,
-                "Esperado '{' após 'escolha'."
+                tiposDeSimbolos.DOIS_PONTOS,
+                "Esperado ':' após 'escolha'."
             );
+
             const condicao = this.expressao();
-            this.consumir(
-                tiposDeSimbolos.PARENTESE_DIREITO,
-                "Esperado '}' após a condição de 'escolha'."
-            );
-            this.consumir(
-                tiposDeSimbolos.CHAVE_ESQUERDA,
-                "Esperado '{' antes do escopo do 'escolha'."
-            );
 
             const caminhos = [];
             let caminhoPadrao = null;
@@ -843,7 +836,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let branchConditions = [this.expressao()];
+                    let caminhoCondicoes = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -851,7 +844,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
-                        branchConditions.push(this.expressao());
+                        caminhoCondicoes.push(this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
@@ -868,7 +861,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                     );
 
                     caminhos.push({
-                        conditions: branchConditions,
+                        condicoes: caminhoCondicoes,
                         declaracoes,
                     });
                 } else if (
@@ -923,8 +916,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     declaracaoTente(): Tente {
         this.consumir(
-            tiposDeSimbolos.CHAVE_ESQUERDA,
-            "Esperado '{' após a declaração 'tente'."
+            tiposDeSimbolos.DOIS_PONTOS,
+            "Esperado ':' após a declaração 'tente'."
         );
 
         let blocoTente = this.blocoEscopo();
@@ -932,8 +925,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         let blocoPegue = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
             this.consumir(
-                tiposDeSimbolos.CHAVE_ESQUERDA,
-                "Esperado '{' após a declaração 'pegue'."
+                tiposDeSimbolos.DOIS_PONTOS,
+                "Esperado ':' após a declaração 'pegue'."
             );
 
             blocoPegue = this.blocoEscopo();
@@ -947,8 +940,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             )
         ) {
             this.consumir(
-                tiposDeSimbolos.CHAVE_ESQUERDA,
-                "Esperado '{' após a declaração 'pegue'."
+                tiposDeSimbolos.DOIS_PONTOS,
+                "Esperado ':' após a declaração 'pegue'."
             );
 
             blocoSenao = this.blocoEscopo();
@@ -957,8 +950,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         let blocoFinalmente = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(
-                tiposDeSimbolos.CHAVE_ESQUERDA,
-                "Esperado '{' após a declaração 'pegue'."
+                tiposDeSimbolos.DOIS_PONTOS,
+                "Esperado ':' após a declaração 'pegue'."
             );
 
             blocoFinalmente = this.blocoEscopo();
@@ -1022,6 +1015,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         return this.declaracaoExpressao();
     }
+
     declaracaoDeVariavel(): Var {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -1097,11 +1091,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             "Esperado ')' após parâmetros."
         );
 
-        this.consumir(
-            tiposDeSimbolos.CHAVE_ESQUERDA,
-            `Esperado '{' antes do escopo do ${tipo}.`
-        );
-
         const corpo = this.blocoEscopo();
 
         return new Funcao(0, parametros, corpo);
@@ -1123,8 +1112,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
 
         this.consumir(
-            tiposDeSimbolos.CHAVE_ESQUERDA,
-            "Esperado '{' antes do escopo da classe."
+            tiposDeSimbolos.DOIS_PONTOS,
+            "Esperado ':' antes do escopo da classe."
         );
 
         const metodos = [];
@@ -1135,10 +1124,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             metodos.push(this.funcao('método'));
         }
 
-        this.consumir(
-            tiposDeSimbolos.CHAVE_DIREITA,
-            "Esperado '}' após o escopo da classe."
-        );
         return new Classe(simbolo, superClasse, metodos);
     }
 
