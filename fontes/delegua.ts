@@ -51,7 +51,7 @@ export class Delegua {
                     process.cwd()
                 );
                 this.lexador = new LexadorEguaClassico();
-                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico(this);
+                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
                 this.resolvedor = new ResolverEguaClassico(
                     this,
                     this.interpretador
@@ -61,7 +61,7 @@ export class Delegua {
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador();
-                this.avaliadorSintatico = new AvaliadorSintatico(this);
+                this.avaliadorSintatico = new AvaliadorSintatico(performance);
                 this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
                 break;
@@ -72,10 +72,7 @@ export class Delegua {
                     performance
                 );
                 this.lexador = new Lexador(performance);
-                this.avaliadorSintatico = new AvaliadorSintatico(
-                    this,
-                    performance
-                );
+                this.avaliadorSintatico = new AvaliadorSintatico(performance);
                 this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: padrão');
                 break;
@@ -138,15 +135,20 @@ export class Delegua {
             return;
         }
 
-        const declaracoes = this.avaliadorSintatico.analisar(retornoLexador.simbolos);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador.simbolos);
+
+        if (retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
+                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+            }
+            return;
+        }
+
+        this.resolvedor.resolver(retornoAvaliadorSintatico);
 
         if (this.teveErro) return;
 
-        this.resolvedor.resolver(declaracoes);
-
-        if (this.teveErro) return;
-
-        this.interpretador.interpretar(declaracoes);
+        this.interpretador.interpretar(retornoAvaliadorSintatico);
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
