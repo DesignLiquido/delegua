@@ -11,7 +11,7 @@ import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
 import {
     ExcecaoRetornar,
-    ExcecaoQuebra,
+    ExcecaoSustar,
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
@@ -421,7 +421,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoQuebra) {
+                if (erro instanceof ExcecaoSustar) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
                 } else {
@@ -441,7 +441,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(declaracao.caminhoFazer);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoQuebra) {
+                if (erro instanceof ExcecaoSustar) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
                 } else {
@@ -487,7 +487,7 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
         } catch (erro: any) {
-            if (erro instanceof ExcecaoQuebra) {
+            if (erro instanceof ExcecaoSustar) {
             } else {
                 throw erro;
             }
@@ -530,7 +530,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro) {
-                if (erro instanceof ExcecaoQuebra) {
+                if (erro instanceof ExcecaoSustar) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
                 } else {
@@ -640,8 +640,8 @@ export class Interpretador implements InterpretadorInterface {
         throw new ExcecaoContinuar();
     }
 
-    visitarExpressaoPausa(declaracao?: any) {
-        throw new ExcecaoQuebra();
+    visitarExpressaoSustar(declaracao?: any) {
+        throw new ExcecaoSustar();
     }
 
     visitarExpressaoRetornar(declaracao: any) {

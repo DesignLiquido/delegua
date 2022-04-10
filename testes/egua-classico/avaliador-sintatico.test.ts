@@ -5,8 +5,8 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         const delegua = new Delegua('egua');
 
         it('Sucesso - Olá Mundo', () => {
-            const simbolos = delegua.lexador.mapear(["escreva('Olá mundo');"]);
-            const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"]);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
 
             expect(declaracoes).toBeTruthy();
             expect(declaracoes).toHaveLength(1);

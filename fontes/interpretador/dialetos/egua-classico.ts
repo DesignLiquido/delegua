@@ -15,7 +15,7 @@ import { DeleguaModulo } from '../../estruturas/modulo';
 
 import {
     ExcecaoRetornar,
-    ExcecaoQuebra,
+    ExcecaoSustar,
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
@@ -415,7 +415,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoQuebra) {
+                if (erro instanceof ExcecaoSustar) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
                 } else {
@@ -435,7 +435,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.caminhoFazer);
             } catch (erro) {
-                if (erro instanceof ExcecaoQuebra) {
+                if (erro instanceof ExcecaoSustar) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
                 } else {
@@ -481,7 +481,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
             }
         } catch (erro) {
-            if (erro instanceof ExcecaoQuebra) {
+            if (erro instanceof ExcecaoSustar) {
             } else {
                 throw erro;
             }
@@ -524,7 +524,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro) {
-                if (erro instanceof ExcecaoQuebra) {
+                if (erro instanceof ExcecaoSustar) {
                     break;
                 } else if (erro instanceof ExcecaoContinuar) {
                 } else {
@@ -627,8 +627,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new ExcecaoContinuar();
     }
 
-    visitarExpressaoPausa(declaracao?: any) {
-        throw new ExcecaoQuebra();
+    visitarExpressaoSustar(declaracao?: any) {
+        throw new ExcecaoSustar();
     }
 
     visitarExpressaoRetornar(declaracao: any) {

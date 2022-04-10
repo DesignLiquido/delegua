@@ -5,9 +5,9 @@ describe('Resolvedor', () => {
         const delegua = new Delegua('delegua');
 
         it('Sucesso', () => {
-            const simbolos = delegua.lexador.mapear(["escreva('Olá mundo')"]);
-            const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
-            delegua.resolvedor.resolver(declaracoes);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo')"]);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
+            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
             expect(delegua.resolvedor.escopos).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toHaveLength(0);
