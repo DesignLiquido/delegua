@@ -945,7 +945,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return this.declaracaoRetorna();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUSTAR) || this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
             return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();

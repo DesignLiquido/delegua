@@ -63,6 +63,7 @@ export default {
     SENAOSE: "SENAOSE",
     SENÃOSE: "SENÃOSE",
     SUPER: "SUPER",
+    SUSTAR: "SUSTAR",
     TENTE: "TENTE",
     TEXTO: "TEXTO",
     VARIAVEL: "VARIAVEL",
