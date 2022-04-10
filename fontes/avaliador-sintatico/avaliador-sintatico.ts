@@ -37,7 +37,7 @@ import {
     Funcao as FuncaoDeclaracao,
     Importar,
     Para,
-    Pausa,
+    Sustar,
     Retorna,
     Se,
     Tente,
@@ -725,12 +725,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoInterromper(): any {
+    declaracaoSustar(): any {
         if (this.ciclos < 1) {
-            this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
+            this.erro(this.simboloAnterior(), "'sustar' deve estar dentro de um laço de repetição.");
         }
 
-        return new Pausa();
+        return new Sustar();
     }
 
     declaracaoContinua(): Continua {
@@ -946,7 +946,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-            return this.declaracaoInterromper();
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))
@@ -1098,7 +1098,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 this.consumir(tiposDeSimbolos.FUNCAO, null);
                 return this.funcao('funcao');
             }
-            
+
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL))
                 return this.declaracaoDeVariavel();
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE))

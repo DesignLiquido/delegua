@@ -39,7 +39,7 @@ export interface AvaliadorSintaticoInterface {
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
     primario(): any;
     finalizarChamada(entidadeChamada: Construto): Construto;
-    chamar(): Construto;
+    chamar(): any;
     unario(): Construto;
     exponenciacao(): Construto;
     multiplicar(): Construto;
@@ -60,7 +60,7 @@ export interface AvaliadorSintaticoInterface {
     declaracaoSe(): Se;
     declaracaoEnquanto(): Enquanto;
     declaracaoPara(): Para;
-    declaracaoInterromper(): any;
+    declaracaoSustar(): any;
     declaracaoContinua(): Continua;
     declaracaoRetorna(): Retorna;
     declaracaoEscolha(): Escolha;

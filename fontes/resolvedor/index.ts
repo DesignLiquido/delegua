@@ -377,7 +377,7 @@ export class Resolvedor implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoPausa(declaracao?: any): any {
+    visitarExpressaoSustar(declaracao?: any): any {
         return null;
     }
 

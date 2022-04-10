@@ -128,6 +128,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Bhaskara (EguaP)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/bhaskara.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Fibonacci (Delégua)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",

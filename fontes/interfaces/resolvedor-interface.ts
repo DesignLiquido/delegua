@@ -42,7 +42,7 @@ export interface ResolvedorInterface {
     visitarExpressaoVetor(expressao: any): any;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoContinua(declaracao?: any): any;
-    visitarExpressaoPausa(declaracao?: any): any;
+    visitarExpressaoSustar(declaracao?: any): any;
     visitarExpressaoAtribuicaoSobrescrita(expressao?: any): any;
     visitarExpressaoLiteral(expressao?: any): any;
     visitarExpressaoLogica(expressao?: any): any;

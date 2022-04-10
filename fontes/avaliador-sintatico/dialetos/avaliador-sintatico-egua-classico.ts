@@ -37,7 +37,7 @@ import {
     Funcao as FuncaoDeclaracao,
     Importar,
     Para,
-    Pausa,
+    Sustar,
     Retorna,
     Se,
     Tente,
@@ -697,7 +697,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoInterromper(): any {
+    declaracaoSustar(): any {
         if (this.ciclos < 1) {
             this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
         }
@@ -706,7 +706,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
             tiposDeSimbolos.PONTO_E_VIRGULA,
             "Esperado ';' após 'pausa'."
         );
-        return new Pausa();
+        return new Sustar();
     }
 
     declaracaoContinua(): any {
@@ -925,7 +925,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-            return this.declaracaoInterromper();
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))

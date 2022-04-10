@@ -1,4 +1,4 @@
-import { AcessoIndiceVariavel, AcessoMetodo, AtribuicaoSobrescrita, Atribuir, Binario, Chamada, Conjunto, Construto, Funcao, Logico, Unario, Variavel } from '../../construtos';
+import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoSobrescrita, Atribuir, Binario, Chamada, Conjunto, Construto, Dicionario, Funcao, Isto, Literal, Logico, Super, Unario, Variavel, Vetor } from '../../construtos';
 import {
     Escreva,
     Se,
@@ -118,7 +118,141 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     primario() {
-        throw new Error('Method not implemented.');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
+            const palavraChave = this.simboloAnterior();
+            this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
+            const metodo = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome do método da SuperClasse.'
+            );
+            return new Super(0, palavraChave, metodo);
+        }
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.COLCHETE_ESQUERDO
+            )
+        ) {
+            const valores = [];
+
+            if (
+                this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.COLCHETE_DIREITO
+                )
+            ) {
+                return new Vetor(0, []);
+            }
+
+            while (
+                !this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.COLCHETE_DIREITO
+                )
+            ) {
+                const valor = this.atribuir();
+                valores.push(valor);
+                if (
+                    this.simboloAtual().tipo !==
+                    tiposDeSimbolos.COLCHETE_DIREITO
+                ) {
+                    this.consumir(
+                        tiposDeSimbolos.VIRGULA,
+                        'Esperado vírgula antes da próxima expressão.'
+                    );
+                }
+            }
+
+            return new Vetor(0, valores);
+        }
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)
+        ) {
+            const chaves = [];
+            const valores = [];
+
+            if (
+                this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.CHAVE_DIREITA
+                )
+            ) {
+                return new Dicionario(0, [], []);
+            }
+
+            while (
+                !this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.CHAVE_DIREITA
+                )
+            ) {
+                let chave = this.atribuir();
+                this.consumir(
+                    tiposDeSimbolos.DOIS_PONTOS,
+                    "Esperado ':' entre chave e valor."
+                );
+                let valor = this.atribuir();
+
+                chaves.push(chave);
+                valores.push(valor);
+
+                if (
+                    this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA
+                ) {
+                    this.consumir(
+                        tiposDeSimbolos.VIRGULA,
+                        'Esperado vírgula antes da próxima expressão.'
+                    );
+                }
+            }
+
+            return new Dicionario(0, chaves, valores);
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO))
+            return this.corpoDaFuncao('função');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO))
+            return this.corpoDaFuncao('funcao');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
+            return new Literal(0, false);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
+            return new Literal(0, true);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NULO))
+            return new Literal(0, null);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
+            return new Isto(0, this.simboloAnterior());
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NUMERO,
+                tiposDeSimbolos.TEXTO
+            )
+        ) {
+            const simboloAnterior: SimboloInterface = this.simboloAnterior();
+            return new Literal(Number(simboloAnterior.linha), simboloAnterior.literal);
+        }
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
+        ) {
+            return new Variavel(this.simboloAnterior());
+        }
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.PARENTESE_ESQUERDO
+            )
+        ) {
+            let expr = this.expressao();
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após a expressão."
+            );
+
+            return new Agrupamento(0, expr);
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
+            return this.declaracaoImportar();
+
+        throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
     finalizarChamada(entidadeChamada: Construto): Construto {
@@ -146,8 +280,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new Chamada(entidadeChamada, parenteseDireito, argumentos);
     }
     
-    chamar(): Construto {
-        /* let expressao = this.primario();
+    chamar(): any {
+        let expressao: any = this.primario();
 
         while (true) {
             if (
@@ -180,8 +314,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             }
         }
 
-        return expressao; */
-        return null;
+        return expressao;
     }
 
     unario(): Construto {
@@ -471,16 +604,127 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     declaracaoSe(): Se {
-        throw new Error('Method not implemented.');
+        const simboloSe = this.simboloAnterior();
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' após 'se'."
+        );
+        const condicao = this.expressao();
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após condição do se."
+        );
+
+        const caminhoEntao = this.resolverDeclaracao();
+
+        const caminhosSeSenao = [];
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.SENAOSE,
+                tiposDeSimbolos.SENÃOSE
+            )
+        ) {
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_ESQUERDO,
+                "Esperado '(' após 'senaose' ou 'senãose'."
+            );
+            let condicaoSeSenao = this.expressao();
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após codição do 'senaose' ou 'senãose'."
+            );
+
+            const caminho = this.resolverDeclaracao();
+
+            caminhosSeSenao.push({
+                condicao: condicaoSeSenao,
+                caminho: caminho,
+            });
+        }
+
+        let caminhoSenao = null;
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.SENAO,
+                tiposDeSimbolos.SENÃO
+            )
+        ) {
+            caminhoSenao = this.resolverDeclaracao();
+        }
+
+        return new Se(Number(simboloSe.linha), condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
     }
 
     declaracaoEnquanto(): Enquanto {
-        throw new Error('Method not implemented.');
+        try {
+            this.ciclos += 1;
+
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_ESQUERDO,
+                "Esperado '(' após 'enquanto'."
+            );
+            const condicao = this.expressao();
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após condicional."
+            );
+            const corpo = this.resolverDeclaracao();
+
+            return new Enquanto(condicao, corpo);
+        } finally {
+            this.ciclos -= 1;
+        }
     }
+
     declaracaoPara(): Para {
-        throw new Error('Method not implemented.');
+        try {
+            const simboloPara: SimboloInterface = this.simboloAnterior();
+            this.ciclos += 1;
+
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_ESQUERDO,
+                "Esperado '(' após 'para'."
+            );
+
+            let inicializador: any;
+            if (
+                this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.PONTO_E_VIRGULA
+                )
+            ) {
+                inicializador = null;
+            } else if (
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)
+            ) {
+                inicializador = this.declaracaoDeVariavel();
+            } else {
+                inicializador = this.declaracaoExpressao();
+            }
+
+            let condicao = null;
+            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+                condicao = this.expressao();
+            }
+
+            let incrementar = null;
+            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                incrementar = this.expressao();
+            }
+
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após cláusulas"
+            );
+
+            const corpo = this.resolverDeclaracao();
+
+            return new Para(Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+        } finally {
+            this.ciclos -= 1;
+        }
     }
-    declaracaoInterromper() {
+
+    declaracaoSustar() {
         throw new Error('Method not implemented.');
     }
     declaracaoContinua(): Continua {
@@ -513,7 +757,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-            return this.declaracaoInterromper();
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))
@@ -544,7 +788,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         throw new Error('Method not implemented.');
     }
 
-    declaracao() {
+    declaracao(): any {
         try {
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO) &&
@@ -573,6 +817,24 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     analisar(simbolos?: SimboloInterface[]): Declaracao[] {
-        throw new Error('Method not implemented.');
+        const inicioAnalise: number = performance.now();
+        this.atual = 0;
+        this.ciclos = 0;
+
+        if (simbolos) {
+            this.simbolos = simbolos;
+        }
+
+        const declaracoes: Declaracao[] = [];
+        while (!this.estaNoFinal()) {
+            declaracoes.push(this.declaracao());
+        }
+
+        const fimAnalise: number = performance.now();
+        if (this.performance) {
+            console.log(`[Avaliador Sintático] Tempo para análise: ${fimAnalise - inicioAnalise}ms`);
+        }
+        
+        return declaracoes;
     }
 }
