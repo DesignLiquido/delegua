@@ -37,7 +37,7 @@ import {
     Funcao as FuncaoDeclaracao,
     Importar,
     Para,
-    Pausa,
+    Sustar,
     Retorna,
     Se,
     Tente,
@@ -48,7 +48,7 @@ import {
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
-export class ParserEguaClassico implements AvaliadorSintaticoInterface {
+export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
     Delegua: any;
 
@@ -64,7 +64,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
 
     sincronizar(): void {
-        this.avancar();
+        this.avancarEDevolverAnterior();
 
         while (!this.estaNoFinal()) {
             if (this.simboloAnterior().tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
@@ -81,7 +81,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                     return;
             }
 
-            this.avancar();
+            this.avancarEDevolverAnterior();
         }
     }
 
@@ -91,7 +91,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
     }
 
     consumir(tipo: any, mensagemDeErro: any): any {
-        if (this.verificarTipoSimboloAtual(tipo)) return this.avancar();
+        if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         else throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
 
@@ -121,7 +121,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         return this.simboloAtual().tipo === tiposDeSimbolos.EOF;
     }
 
-    avancar(): any {
+    avancarEDevolverAnterior(): any {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simboloAnterior();
     }
@@ -130,7 +130,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
-                this.avancar();
+                this.avancarEDevolverAnterior();
                 return true;
             }
         }
@@ -697,7 +697,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoInterromper(): any {
+    declaracaoSustar(): any {
         if (this.ciclos < 1) {
             this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
         }
@@ -706,7 +706,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
             tiposDeSimbolos.PONTO_E_VIRGULA,
             "Esperado ';' após 'pausa'."
         );
-        return new Pausa();
+        return new Sustar();
     }
 
     declaracaoContinua(): any {
@@ -925,7 +925,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-            return this.declaracaoInterromper();
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))

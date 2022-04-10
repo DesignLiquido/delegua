@@ -9,7 +9,7 @@ export * from './fazer';
 export * from './funcao';
 export * from './importar';
 export * from './para';
-export * from './pausa';
+export * from './sustar';
 export * from './retorna';
 export * from './se';
 export * from './declaracao';

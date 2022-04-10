@@ -37,7 +37,7 @@ import {
     Funcao as FuncaoDeclaracao,
     Importar,
     Para,
-    Pausa,
+    Sustar,
     Retorna,
     Se,
     Tente,
@@ -67,7 +67,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     sincronizar() {
-        this.avancar();
+        this.avancarEDevolverAnterior();
 
         while (!this.estaNoFinal()) {
             if (this.simboloAnterior().tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
@@ -85,7 +85,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     return;
             }
 
-            this.avancar();
+            this.avancarEDevolverAnterior();
         }
     }
 
@@ -95,7 +95,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     consumir(tipo: any, mensagemDeErro: string): any {
-        if (this.verificarTipoSimboloAtual(tipo)) return this.avancar();
+        if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
 
@@ -133,7 +133,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.atual === this.simbolos.length;
     }
 
-    avancar(): any {
+    avancarEDevolverAnterior(): any {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simboloAnterior();
     }
@@ -142,7 +142,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
-                this.avancar();
+                this.avancarEDevolverAnterior();
                 return true;
             }
         }
@@ -725,12 +725,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoInterromper(): any {
+    declaracaoSustar(): any {
         if (this.ciclos < 1) {
-            this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
+            this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um loop.");
         }
 
-        return new Pausa();
+        return new Sustar();
     }
 
     declaracaoContinua(): Continua {
@@ -946,7 +946,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-            return this.declaracaoInterromper();
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))

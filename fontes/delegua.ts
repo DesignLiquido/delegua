@@ -19,7 +19,7 @@ import {
 import { ResolvedorInterface } from './interfaces/resolvedor-interface';
 import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
 import { ResolverEguaClassico } from './resolvedor/dialetos/egua-classico';
-import { ParserEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
+import { AvaliadorSintaticoEguaClassico as AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
 
 export class Delegua {
@@ -50,8 +50,8 @@ export class Delegua {
                     this,
                     process.cwd()
                 );
-                this.lexador = new LexadorEguaClassico(this);
-                this.avaliadorSintatico = new ParserEguaClassico(this);
+                this.lexador = new LexadorEguaClassico();
+                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico(this);
                 this.resolvedor = new ResolverEguaClassico(
                     this,
                     this.interpretador
@@ -60,7 +60,7 @@ export class Delegua {
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexador(this);
+                this.lexador = new Lexador();
                 this.avaliadorSintatico = new AvaliadorSintatico(this);
                 this.resolvedor = new Resolvedor(this, this.interpretador);
                 console.log('Usando dialeto: ÉguaP');
@@ -71,7 +71,7 @@ export class Delegua {
                     process.cwd(),
                     performance
                 );
-                this.lexador = new Lexador(this, performance);
+                this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(
                     this,
                     performance
@@ -129,11 +129,16 @@ export class Delegua {
     }
 
     executar(codigo: string[], nomeArquivo: string = '') {
-        const simbolos = this.lexador.mapear(codigo);
+        const retornoLexador = this.lexador.mapear(codigo);
 
-        if (this.teveErro) return;
+        if (retornoLexador.erros.length > 0) {
+            for (const erroLexador of retornoLexador.erros) {
+                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+            }
+            return;
+        }
 
-        const declaracoes = this.avaliadorSintatico.analisar(simbolos);
+        const declaracoes = this.avaliadorSintatico.analisar(retornoLexador.simbolos);
 
         if (this.teveErro) return;
 
@@ -163,10 +168,6 @@ export class Delegua {
                 mensagemDeErro
             );
         }
-    }
-
-    erroNoLexador(linha: number, caractere: any, mensagem: string) {
-        this.reportar(linha, ` no '${caractere}'`, mensagem);
     }
 
     erroEmTempoDeExecucao(erro: any): void {
