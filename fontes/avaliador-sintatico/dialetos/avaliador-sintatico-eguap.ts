@@ -1038,6 +1038,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             "Esperado ')' após parâmetros."
         );
 
+        this.consumir(
+            tiposDeSimbolos.DOIS_PONTOS,
+            `Esperado ':' antes do escopo do ${tipo}.`
+        );
+
         const corpo = this.blocoEscopo();
 
         return new Funcao(0, parametros, corpo);
