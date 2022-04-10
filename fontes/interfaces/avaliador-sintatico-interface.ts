@@ -27,15 +27,15 @@ export interface AvaliadorSintaticoInterface {
     ciclos: number;
 
     sincronizar(): void;
-    erro(simbolo: any, mensagemDeErro: string): ErroAvaliador;
-    consumir(tipo: any, mensagemDeErro: any): any;
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliador;
+    consumir(tipo: any, mensagemDeErro: string): any;
     verificarTipoSimboloAtual(tipo: any): boolean;
     verificarTipoProximoSimbolo(tipo: any): boolean;
     simboloAtual(): SimboloInterface;
     simboloAnterior(): SimboloInterface;
     simboloNaPosicao(posicao: number): SimboloInterface;
     estaNoFinal(): boolean;
-    avancar(): any;
+    avancarEDevolverAnterior(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
     primario(): any;
     finalizarChamada(entidadeChamada: Construto): Construto;

@@ -195,6 +195,7 @@ export class LexadorEguaP implements LexadorInterface {
         }
 
         this.adicionarSimbolo(tiposDeSimbolos.ESPACO_INDENTACAO, espacos);
+        this.logicaEmLinhaIniciada = true;
     }
 
     avancarParaProximaLinha(): void {

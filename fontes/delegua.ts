@@ -4,7 +4,7 @@ import * as readline from 'readline';
 import chalk from 'chalk';
 
 import { Lexador } from './lexador/lexador';
-import { AvaliadorSintatico } from './avaliador-sintatico';
+import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
 import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador';
 import tiposDeSimbolos from './lexador/tipos-de-simbolos';
@@ -19,7 +19,7 @@ import {
 import { ResolvedorInterface } from './interfaces/resolvedor-interface';
 import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
 import { ResolverEguaClassico } from './resolvedor/dialetos/egua-classico';
-import { ParserEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
+import { ParserEguaClassico } from './avaliador-sintatico/dialetos/avaliador-sintatico-egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/lexador-egua-classico';
 import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 
