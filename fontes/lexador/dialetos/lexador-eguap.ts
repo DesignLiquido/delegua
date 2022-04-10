@@ -217,6 +217,7 @@ export class LexadorEguaP implements LexadorInterface {
                 
                 break;
             case '\r':
+            case ';':
                 this.avancar();
                 break;
 

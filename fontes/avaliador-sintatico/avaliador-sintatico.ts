@@ -273,13 +273,13 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.PARENTESE_ESQUERDO
             )
         ) {
-            let expr = this.expressao();
+            let expressao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após a expressão."
             );
 
-            return new Agrupamento(0, expr);
+            return new Agrupamento(0, expressao);
         }
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))

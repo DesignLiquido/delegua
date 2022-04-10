@@ -51,7 +51,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     atual: number;
     ciclos: number;
-    tamanhoIndentacaoAnterior: number;
+    escopos: number[];
     performance: boolean;
 
     constructor(Delegua: Delegua, performance: boolean = false) {
@@ -59,8 +59,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         this.atual = 0;
         this.ciclos = 0;
-        this.tamanhoIndentacaoAnterior = 0;
         this.performance = performance;
+        this.escopos = [];
     }
 
     sincronizar(): void {
@@ -149,26 +149,14 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             return new Super(0, palavraChave, metodo);
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.COLCHETE_ESQUERDO
-            )
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
 
-            if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.COLCHETE_DIREITO
-                )
-            ) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 return new Vetor(0, []);
             }
 
-            while (
-                !this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.COLCHETE_DIREITO
-                )
-            ) {
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 const valor = this.atribuir();
                 valores.push(valor);
                 if (
@@ -185,25 +173,15 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             return new Vetor(0, valores);
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
             const chaves = [];
             const valores = [];
 
-            if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.CHAVE_DIREITA
-                )
-            ) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
                 return new Dicionario(0, [], []);
             }
 
-            while (
-                !this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.CHAVE_DIREITA
-                )
-            ) {
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
                 let chave = this.atribuir();
                 this.consumir(
                     tiposDeSimbolos.DOIS_PONTOS,
@@ -214,9 +192,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 chaves.push(chave);
                 valores.push(valor);
 
-                if (
-                    this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA
-                ) {
+                if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
                     this.consumir(
                         tiposDeSimbolos.VIRGULA,
                         'Esperado vírgula antes da próxima expressão.'
@@ -240,8 +216,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
             return new Isto(0, this.simboloAnterior());
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
+        if (this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.TEXTO
             )
@@ -253,24 +228,18 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             );
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.simboloAnterior());
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.PARENTESE_ESQUERDO
-            )
-        ) {
-            let expr = this.expressao();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            let expressao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após a expressão."
             );
 
-            return new Agrupamento(0, expr);
+            return new Agrupamento(0, expressao);
         }
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
@@ -282,9 +251,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     finalizarChamada(entidadeChamada: Construto): Construto {
         const argumentos = [];
 
-        if (
-            !this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)
-        ) {
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
                     throw this.erro(
@@ -310,30 +277,22 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         let expressao: any = this.primario();
 
         while (true) {
-            if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.PARENTESE_ESQUERDO
-                )
-            ) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
-            } else if (
-                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)
-            ) {
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 let nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
+
                 expressao = new AcessoMetodo(expressao, nome);
-            } else if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.COLCHETE_ESQUERDO
-                )
-            ) {
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 let simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
+
                 expressao = new AcessoIndiceVariavel(
                     expressao,
                     indice,
@@ -588,8 +547,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     blocoEscopo() {
         const declaracoes = [];
 
-        this.avancarEDevolverAnterior();
-
         // Situação 1: não tem bloco de escopo.
         // Não existe um símbolo de espaço de indentação como
         // próximo símbolo.
@@ -598,50 +555,26 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             declaracoes.push(this.declaracao());
         } else {
             // Situação 2: Tem bloco de escopo.
-            // Precisamos saber o nível de indentação anterior e o atual.
-            const simboloEspacoIndentacao: SimboloInterface =
-                this.simboloAtual();
-            let tamanhoIndentacaoAtual: number = Number(
-                simboloEspacoIndentacao.literal
-            );
-            while (tamanhoIndentacaoAtual > this.tamanhoIndentacaoAnterior) {
-                this.avancarEDevolverAnterior();
-                let simboloAtual: SimboloInterface;
+            // Definimos o tamanho do bloco de indentação e começamos a iterar.
+            const simboloEspacoIndentacao: SimboloInterface = 
+                this.consumir(tiposDeSimbolos.ESPACO_INDENTACAO, null);
+            let tamanhoIndentacaoBlocoAtual: number = Number(simboloEspacoIndentacao.literal);
+            this.escopos.push(tamanhoIndentacaoBlocoAtual);
 
-                if (
-                    this.simboloAtual().tipo ===
-                    tiposDeSimbolos.ESPACO_INDENTACAO
-                ) {
-                    simboloAtual = this.simboloAtual();
-                    const indentacaoSimbolo: number = Number(
-                        simboloEspacoIndentacao.literal
+            while (this.escopos.at(-1) === tamanhoIndentacaoBlocoAtual && !this.estaNoFinal()) {
+                let simboloAtual: SimboloInterface = this.simboloAtual();
+
+                if (simboloAtual.tipo === tiposDeSimbolos.ESPACO_INDENTACAO) {
+                    tamanhoIndentacaoBlocoAtual = Number(
+                        simboloAtual.literal
                     );
-
-                    if (
-                        tamanhoIndentacaoAtual !== indentacaoSimbolo &&
-                        indentacaoSimbolo !== this.tamanhoIndentacaoAnterior
-                    ) {
-                        throw this.erro(
-                            simboloAtual,
-                            `Indentação da linha ${simboloAtual.linha} (${indentacaoSimbolo}) inconsistente com indentação atual do bloco (${tamanhoIndentacaoAtual}).`
-                        );
-                    }
-
-                    tamanhoIndentacaoAtual = indentacaoSimbolo;
-
-                    /* if (indentacaoSimbolo === this.tamanhoIndentacaoAnterior) {
-                        // Bloco acabou
-                        break;
-                    }
-
-                    if (tamanhoIndentacaoAtual === indentacaoSimbolo) {
-                        // Ainda estamos no mesmo bloco
-                        continue;
-                    } */
+                    this.consumir(tiposDeSimbolos.ESPACO_INDENTACAO, null);
                 } else {
                     declaracoes.push(this.declaracao());
                 }
             }
+
+            this.escopos.pop();
         }
 
         return declaracoes;
@@ -684,6 +617,12 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 condicao: condicaoSeSenao,
                 caminho: caminho,
             });
+        }
+
+        // Se há algum escopo aberto, conferir antes do senão se símbolo 
+        // atual é um espaço de indentação
+        if (this.escopos.length > 0) {
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESPACO_INDENTACAO);
         }
 
         let caminhoSenao = null;
@@ -781,6 +720,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 incrementar,
                 corpo
             );
+        } catch (erro: any) {
+            throw erro;
         } finally {
             this.ciclos -= 1;
         }
@@ -989,6 +930,12 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     resolverDeclaracao() {
+        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESPACO_INDENTACAO)) {
+            const espacoIndentacao = this.avancarEDevolverAnterior();
+            this.tamanhoIndentacaoAnterior = Number(espacoIndentacao.literal);
+            return null;
+        } */
+            
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))

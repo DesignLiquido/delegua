@@ -264,6 +264,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "FizzBuzz (EguaP)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/fizzbuzz.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Perception (Égua Clássico)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
