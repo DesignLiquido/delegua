@@ -923,9 +923,10 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(declaracoes: any): void {
+    interpretar(objeto: any): void {
         const inicioInterpretacao: number = performance.now();
         try {
+            const declaracoes = objeto.declaracoes || objeto;
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
                     declaracoes[0].constructor.name === 'Expressao';

@@ -467,12 +467,12 @@ export class Resolvedor implements ResolvedorInterface {
     resolver(declaracoes: Construto | Construto[]): RetornoResolvedor {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
-                if (declaracoes[i] && declaracoes[i].aceitar) {
+                if (declaracoes[i] && declaracoes[i].aceitar)
                     declaracoes[i].aceitar(this);
-                }
             }
         } else if (declaracoes) {
-            declaracoes.aceitar(this);
+            if(declaracoes && declaracoes.aceitar)
+                declaracoes.aceitar(this);
         }
 
         return {
