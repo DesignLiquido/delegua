@@ -1,7 +1,8 @@
-import { Delegua } from "../delegua";
 import { performance } from 'perf_hooks';
 import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tiposDeSimbolos";
+import { ErroLexador } from "./erro-lexador";
+import { RetornoLexador } from "./retorno-lexador";
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,
@@ -63,19 +64,19 @@ class Simbolo implements SimboloInterface {
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
 export class Lexador implements LexadorInterface {
-    Delegua: Delegua;
     codigo: string[];
     simbolos: SimboloInterface[];
+    erros: ErroLexador[];
     inicioSimbolo: number;
     atual: number;
     linha: number;
     performance: boolean;
 
-    constructor(Delegua: Delegua, performance: boolean = false) {
-        this.Delegua = Delegua;
+    constructor(performance: boolean = false) {
         this.performance = performance;
 
         this.simbolos = [];
+        this.erros = [];
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -198,11 +199,11 @@ export class Lexador implements LexadorInterface {
         }
 
         if (this.eFinalDoCodigo()) {
-            this.Delegua.erroNoLexador(
-                this.linha,
-                this.simboloAnterior(),
-                'Texto não finalizado.'
-            );
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Texto não finalizado.'
+            } as ErroLexador);
             return;
         }
 
@@ -445,22 +446,20 @@ export class Lexador implements LexadorInterface {
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
                 else {
-                    this.Delegua.erroNoLexador(
-                        this.linha + 1,
-                        caractere,
-                        'Caractere inesperado.'
-                    );
+                    this.erros.push({
+                        linha: this.linha + 1,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.'
+                    } as ErroLexador);
                     this.avancar();
                 }
         }
     }
 
-    mapear(codigo?: string[]): SimboloInterface[] {
+    mapear(codigo?: string[]): RetornoLexador {
         const inicioMapeamento: number = performance.now();
+        this.erros = [];
         this.simbolos = [];
-        this.inicioSimbolo = 0;
-        this.atual = 0;
-        this.linha = 0;
 
         this.codigo = codigo || [''];
 
@@ -474,6 +473,9 @@ export class Lexador implements LexadorInterface {
             console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
         }
         
-        return this.simbolos;
+        return { 
+            simbolos: this.simbolos,
+            erros: this.erros
+        } as RetornoLexador;
     }
 }

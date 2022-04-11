@@ -36,7 +36,7 @@ export interface InterpretadorInterface {
     visitarExpressaoBloco(declaracao: any): null;
     visitarExpressaoVar(declaracao: any): null;
     visitarExpressaoContinua(declaracao?: any): void;
-    visitarExpressaoPausa(declaracao?: any): void;
+    visitarExpressaoSustar(declaracao?: any): void;
     visitarExpressaoRetornar(declaracao: any): void;
     visitarExpressaoDeleguaFuncao(expressao: any): any;
     visitarExpressaoAtribuicaoSobrescrita(expressao: any): void;

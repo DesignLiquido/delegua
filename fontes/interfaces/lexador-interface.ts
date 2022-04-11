@@ -1,8 +1,7 @@
-import { Delegua } from "../delegua";
+import { RetornoLexador } from "../lexador/retorno-lexador";
 import { SimboloInterface } from "./simbolo-interface";
 
 export interface LexadorInterface {
-    Delegua: Delegua;
     simbolos: SimboloInterface[];
     codigo: string[];
     inicioSimbolo: number;
@@ -23,5 +22,5 @@ export interface LexadorInterface {
     analisarNumero(): void;
     identificarPalavraChave(): void;
     analisarToken(): void;
-    mapear(codigo?: string[]): SimboloInterface[];
+    mapear(codigo?: string[]): RetornoLexador;
 }

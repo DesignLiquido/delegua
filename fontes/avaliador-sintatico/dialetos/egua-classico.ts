@@ -24,7 +24,7 @@ import {
     Construto,
 } from '../../construtos';
 
-import { ErroAvaliador } from '../erros-avaliador';
+import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import {
     Bloco,
     Classe,
@@ -37,34 +37,34 @@ import {
     Funcao as FuncaoDeclaracao,
     Importar,
     Para,
-    Pausa,
+    Sustar,
     Retorna,
     Se,
     Tente,
     Var,
 } from '../../declaracoes';
+import { RetornoAvaliadorSintatico } from '../retorno-avaliador-sintatico';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
-export class ParserEguaClassico implements AvaliadorSintaticoInterface {
+export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
-    Delegua: any;
+    erros: ErroAvaliadorSintatico[];
 
     atual: number;
     ciclos: number;
 
-    constructor(Delegua: any, simbolos?: SimboloInterface[]) {
+    constructor(simbolos?: SimboloInterface[]) {
         this.simbolos = simbolos;
-        this.Delegua = Delegua;
 
         this.atual = 0;
         this.ciclos = 0;
     }
 
     sincronizar(): void {
-        this.avancar();
+        this.avancarEDevolverAnterior();
 
         while (!this.estaNoFinal()) {
             if (this.simboloAnterior().tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
@@ -81,17 +81,18 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                     return;
             }
 
-            this.avancar();
+            this.avancarEDevolverAnterior();
         }
     }
 
-    erro(simbolo: any, mensagemDeErro: any): any {
-        this.Delegua.erro(simbolo, mensagemDeErro);
-        return new ErroAvaliador();
+    erro(simbolo: SimboloInterface, mensagemDeErro: any): any {
+        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+        this.erros.push(excecao);
+        return excecao;
     }
 
     consumir(tipo: any, mensagemDeErro: any): any {
-        if (this.verificarTipoSimboloAtual(tipo)) return this.avancar();
+        if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         else throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
 
@@ -121,7 +122,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         return this.simboloAtual().tipo === tiposDeSimbolos.EOF;
     }
 
-    avancar(): any {
+    avancarEDevolverAnterior(): any {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simboloAnterior();
     }
@@ -130,7 +131,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
-                this.avancar();
+                this.avancarEDevolverAnterior();
                 return true;
             }
         }
@@ -697,7 +698,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoInterromper(): any {
+    declaracaoSustar(): any {
         if (this.ciclos < 1) {
             this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
         }
@@ -706,7 +707,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
             tiposDeSimbolos.PONTO_E_VIRGULA,
             "Esperado ';' após 'pausa'."
         );
-        return new Pausa();
+        return new Sustar();
     }
 
     declaracaoContinua(): any {
@@ -797,10 +798,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 } else if (
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)
                 ) {
-                    if (caminhoPadrao !== null)
-                        throw new ErroAvaliador(
+                    if (caminhoPadrao !== null) {
+                        const excecao = new ErroAvaliadorSintatico(
+                            this.simboloAtual(),
                             "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
                         );
+                        this.erros.push(excecao);
+                        throw excecao;
+                    }
 
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
@@ -925,7 +930,7 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
             return this.declaracaoContinua();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
-            return this.declaracaoInterromper();
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA))
             return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))
@@ -1082,7 +1087,8 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(simbolos?: SimboloInterface[]): any {
+    analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico {
+        this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
 
@@ -1095,6 +1101,9 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
             declaracoes.push(this.declaracao());
         }
 
-        return declaracoes;
+        return { 
+            declaracoes: declaracoes,
+            erros: this.erros
+        } as RetornoAvaliadorSintatico;
     }
 }

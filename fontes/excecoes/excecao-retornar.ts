@@ -1,9 +1,9 @@
 export class ExcecaoRetornar extends Error {
-  valor: any;
+    valor: any;
 
-  constructor(valor: any) {
-    super(valor);
-    this.valor = valor;
-    Object.setPrototypeOf(this, ExcecaoRetornar.prototype);
-  }
+    constructor(valor: any) {
+        super(valor);
+        this.valor = valor;
+        Object.setPrototypeOf(this, ExcecaoRetornar.prototype);
+    }
 }

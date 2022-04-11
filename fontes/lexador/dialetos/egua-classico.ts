@@ -1,6 +1,7 @@
-import { Delegua } from '../../delegua';
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tiposDeSimbolos';
+import { ErroLexador } from '../erro-lexador';
+import { RetornoLexador } from '../retorno-lexador';
 
 const palavrasReservadas = {
     e: tiposDeSimbolos.E,
@@ -59,18 +60,18 @@ class Simbolo implements SimboloInterface {
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
 export class LexadorEguaClassico implements LexadorInterface {
-    Delegua: Delegua;
     codigo: any;
     simbolos: SimboloInterface[];
+    erros: ErroLexador[];
     inicioSimbolo: number;
     atual: number;
     linha: number;
 
-    constructor(Delegua: Delegua, codigo?: any) {
-        this.Delegua = Delegua;
+    constructor(codigo?: any) {
         this.codigo = codigo;
 
         this.simbolos = [];
+        this.erros = [];
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -168,11 +169,11 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
 
         if (this.eFinalDoCodigo()) {
-            this.Delegua.erroNoLexador(
-                this.linha,
-                this.simboloAnterior(),
-                'Texto não finalizado.'
-            );
+            this.erros.push({
+                linha: this.linha,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Texto não finalizado.'
+            } as ErroLexador);
             return;
         }
 
@@ -360,15 +361,16 @@ export class LexadorEguaClassico implements LexadorInterface {
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
                 else
-                    this.Delegua.erroNoLexador(
-                        this.linha,
-                        caractere,
-                        'Caractere inesperado.'
-                    );
+                    this.erros.push({
+                        linha: this.linha,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.'
+                    } as ErroLexador);
         }
     }
 
-    mapear(codigo?: string[]): SimboloInterface[] {
+    mapear(codigo?: string[]): RetornoLexador {
+        this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -386,6 +388,9 @@ export class LexadorEguaClassico implements LexadorInterface {
             new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha)
         );
 
-        return this.simbolos;
+        return { 
+            simbolos: this.simbolos,
+            erros: this.erros
+        } as RetornoLexador;
     }
 }
