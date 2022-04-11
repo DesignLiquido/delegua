@@ -1115,6 +1115,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
     analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico {
         const inicioAnalise: number = performance.now();
+        this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
 

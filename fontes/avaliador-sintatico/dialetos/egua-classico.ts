@@ -1088,6 +1088,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     }
 
     analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico {
+        this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
 

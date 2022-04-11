@@ -1,9 +1,13 @@
 import { Delegua } from "../fontes/delegua";
 
 describe('Biblioteca Global', () => {
-    describe('aleatorio()', () => {
-        const delegua = new Delegua('delegua');
-        
+    let delegua: Delegua;
+
+    beforeEach(() => {
+        delegua = new Delegua('delegua');
+    });
+
+    describe('aleatorio()', () => { 
         it('Trivial', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(aleatorio())"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
@@ -14,9 +18,7 @@ describe('Biblioteca Global', () => {
         });
     });
 
-    describe('aleatorioEntre()', () => {
-        const delegua = new Delegua('delegua');
-        
+    describe('aleatorioEntre()', () => {        
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(aleatorioEntre(1, 5))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
@@ -28,8 +30,6 @@ describe('Biblioteca Global', () => {
     });
 
     describe('inteiro()', () => {
-        const delegua = new Delegua('delegua');
-        
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(1))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
@@ -58,9 +58,7 @@ describe('Biblioteca Global', () => {
         });
     });
 
-    describe('mapear()', () => {
-        const delegua = new Delegua('delegua');
-        
+    describe('mapear()', () => {        
         it('Sucesso', () => {
             const codigo = [
                 "var f = funcao(x) { retorna(x ** x) }",
@@ -75,9 +73,7 @@ describe('Biblioteca Global', () => {
         });
     });
 
-    describe('ordenar()', () => {
-        const delegua = new Delegua('delegua');
-        
+    describe('ordenar()', () => {        
         it('Sucesso', () => {
             const codigo = [
                 "ordenar([5, 12, 10, 1, 4, 25, 33, 9, 7, 6, 2])"
@@ -92,8 +88,6 @@ describe('Biblioteca Global', () => {
     });
 
     describe('real()', () => {
-        const delegua = new Delegua('delegua');
-        
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(real(3.14))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
@@ -122,9 +116,7 @@ describe('Biblioteca Global', () => {
         });
     });
 
-    describe('tamanho()', () => {
-        const delegua = new Delegua('delegua');
-        
+    describe('tamanho()', () => {        
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(tamanho([1, 2, 3]))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
@@ -153,9 +145,7 @@ describe('Biblioteca Global', () => {
         });
     });
 
-    describe('texto()', () => {
-        const delegua = new Delegua('delegua');
-        
+    describe('texto()', () => {        
         it('Trivial', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(texto(123))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);

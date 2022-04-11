@@ -458,6 +458,8 @@ export class Lexador implements LexadorInterface {
 
     mapear(codigo?: string[]): RetornoLexador {
         const inicioMapeamento: number = performance.now();
+        this.erros = [];
+        this.simbolos = [];
 
         this.codigo = codigo || [''];
 

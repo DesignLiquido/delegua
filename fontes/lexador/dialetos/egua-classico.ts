@@ -370,6 +370,7 @@ export class LexadorEguaClassico implements LexadorInterface {
     }
 
     mapear(codigo?: string[]): RetornoLexador {
+        this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;

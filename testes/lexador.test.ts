@@ -2,7 +2,11 @@ import { Delegua } from '../fontes/delegua';
 
 describe('Lexador', () => {
     describe('mapear()', () => {
-        const delegua = new Delegua('delegua');
+        let delegua: Delegua;
+
+        beforeEach(() => {
+            delegua = new Delegua('delegua');
+        });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
@@ -78,14 +82,14 @@ describe('Lexador', () => {
         describe('Cenários de falha', () => {
             it('Falha léxica - texto sem fim', () => {
                 const resultado = delegua.lexador.mapear(['"texto sem fim']);
-                expect(resultado.simbolos).toHaveLength(4);
+                expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(1);
             });
 
             it('Falha léxica - caractere inesperado', () => {
                 const resultado = delegua.lexador.mapear(['平']);
                 expect(resultado.simbolos).toHaveLength(0);
-                expect(resultado.erros).toHaveLength(2);
+                expect(resultado.erros).toHaveLength(1);
             });
         });
     });

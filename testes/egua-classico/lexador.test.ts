@@ -2,7 +2,11 @@ import { Delegua } from "../../fontes/delegua";
 
 describe('Lexador (Égua Clássico)', () => {
     describe('mapear()', () => {
-        const delegua = new Delegua('egua');
+        let delegua: Delegua;
+
+        beforeEach(() => {
+            delegua = new Delegua('egua');
+        });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
@@ -88,7 +92,7 @@ describe('Lexador (Égua Clássico)', () => {
             it('Falha léxica - caractere inesperado', () => {
                 const resultado = delegua.lexador.mapear(['平']);
                 expect(resultado.simbolos).toHaveLength(1);
-                expect(resultado.erros).toHaveLength(2);
+                expect(resultado.erros).toHaveLength(1);
             });
         });
     });
