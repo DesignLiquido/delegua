@@ -141,7 +141,7 @@ export class Delegua {
             return;
         }
 
-        const retornoResolvedor = this.resolvedor.resolver(retornoAvaliadorSintatico);
+        const retornoResolvedor = this.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
 
         if (retornoResolvedor.erros.length > 0) {
             for (const erroResolvedor of retornoResolvedor.erros) {

@@ -470,9 +470,8 @@ export class Resolvedor implements ResolvedorInterface {
                 if (declaracoes[i] && declaracoes[i].aceitar)
                     declaracoes[i].aceitar(this);
             }
-        } else if (declaracoes) {
-            if(declaracoes && declaracoes.aceitar)
-                declaracoes.aceitar(this);
+        } else if (declaracoes && declaracoes.aceitar) {
+            declaracoes.aceitar(this);
         }
 
         return {
