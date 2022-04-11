@@ -36,7 +36,10 @@ describe('Interpretador', () => {
 
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3];\nescreva(a[1])"]);
+                    const retornoLexador = delegua.lexador.mapear([
+                        "var a = [1, 2, 3]", 
+                        "escreva(a[1])"
+                    ]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
                     delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
                     delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -45,7 +48,10 @@ describe('Interpretador', () => {
                 });
 
                 it('Acesso a elementos de dicionário', () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2};\nescreva(a['b'])"]);
+                    const retornoLexador = delegua.lexador.mapear([
+                        "var a = {'a': 1, 'b': 2}",
+                        "escreva(a['b'])"
+                    ]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
                     delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
                     delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -145,7 +151,10 @@ describe('Interpretador', () => {
                 });
     
                 it('Laços de repetição - fazer ... enquanto', () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = 0;\nfazer { a = a + 1 } enquanto (a < 10)"]);
+                    const retornoLexador = delegua.lexador.mapear([
+                        "var a = 0",
+                        "fazer { a = a + 1 } enquanto (a < 10)"
+                    ]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
                     delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
                     delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
