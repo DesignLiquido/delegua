@@ -257,7 +257,7 @@ describe('Interpretador', () => {
                     expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
                 });
 
-                it.skip('Acesso a elementos de dicionário', () => {
+                it('Acesso a elementos de dicionário', () => {
                     const retornoLexador = delegua.lexador.mapear([
                         "var a = {'a': 1, 'b': 2};",
                         "escreva(a['c']);"

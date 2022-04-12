@@ -2,7 +2,7 @@ import * as caminho from 'path';
 import * as fs from 'fs';
 import { performance } from 'perf_hooks';
 
-import tiposDeSimbolos from '../tiposDeSimbolos';
+import tiposDeSimbolos from '../tipos-de-simbolos';
 
 import { Ambiente } from '../ambiente';
 import { Delegua } from '../delegua';
@@ -26,6 +26,8 @@ import {
     FuncaoPadrao,
 } from '../estruturas';
 import { Construto, Super } from '../construtos';
+import { ErroInterpretador } from './erro-interpretador';
+import { RetornoInterpretador } from './retorno-interpretador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -37,10 +39,11 @@ export class Interpretador implements InterpretadorInterface {
     global: Ambiente;
     ambiente: Ambiente;
     locais: Map<Construto, number>;
+    erros: ErroInterpretador[];
     performance: boolean;
 
     constructor(
-        Delegua: Delegua,
+        Delegua: Delegua, 
         diretorioBase: string,
         performance: boolean = false
     ) {
@@ -51,6 +54,7 @@ export class Interpretador implements InterpretadorInterface {
         this.global = new Ambiente();
         this.ambiente = this.global;
         this.locais = new Map();
+        this.erros = [];
 
         this.global = carregarBibliotecaGlobal(this, this.global);
     }
@@ -575,7 +579,7 @@ export class Interpretador implements InterpretadorInterface {
             this.Delegua.dialeto,
             this.performance,
             nomeArquivo
-        );
+        ); 
 
         delegua.executar(conteudoImportacao);
 
@@ -923,8 +927,10 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(objeto: any, locais: Map<Construto, number>): void {
+    interpretar(objeto: any, locais: Map<Construto, number>): RetornoInterpretador {
         this.locais = locais;
+        this.erros = [];
+
         const inicioInterpretacao: number = performance.now();
         try {
             const declaracoes = objeto.declaracoes || objeto;
@@ -940,7 +946,7 @@ export class Interpretador implements InterpretadorInterface {
                 this.executar(declaracoes[i]);
             }
         } catch (erro: any) {
-            this.Delegua.erroEmTempoDeExecucao(erro);
+            this.erros.push(erro);
         } finally {
             const fimInterpretacao: number = performance.now();
             if (this.performance) {
@@ -951,5 +957,9 @@ export class Interpretador implements InterpretadorInterface {
                 );
             }
         }
+
+        return {
+            erros: this.erros
+        } as RetornoInterpretador;
     }
 }

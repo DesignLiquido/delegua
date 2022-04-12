@@ -1,4 +1,4 @@
-import tiposDeSimbolos from '../tiposDeSimbolos';
+import tiposDeSimbolos from '../tipos-de-simbolos';
 import { performance } from 'perf_hooks';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {

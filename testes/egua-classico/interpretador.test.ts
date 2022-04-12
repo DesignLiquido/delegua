@@ -245,7 +245,7 @@ describe('Interpretador (Égua Clássico)', () => {
                     expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
                 });
 
-                it.skip('Acesso a elementos de dicionário', () => {
+                it('Acesso a elementos de dicionário', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2};\nescreva(a['c']);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
                     const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);

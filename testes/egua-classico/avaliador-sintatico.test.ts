@@ -13,7 +13,7 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         });
 
         // TODO: Resolver bug.
-        it.skip('Sucesso - Vetor vazio', () => {
+        it('Sucesso - Vetor vazio', () => {
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar([]);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -21,7 +21,7 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         });
 
         // TODO: Resolver bug.
-        it.skip('Sucesso - Undefined', () => {
+        it('Sucesso - Undefined', () => {
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(undefined);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -29,7 +29,7 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         });
 
         // TODO: Resolver bug.
-        it.skip('Sucesso - Null', () => {
+        it('Sucesso - Null', () => {
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(null);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
