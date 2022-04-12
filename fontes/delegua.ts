@@ -52,14 +52,14 @@ export class Delegua {
                 );
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.resolvedor = new ResolvedorEguaClassico(this.interpretador);
+                this.resolvedor = new ResolvedorEguaClassico();
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
                 this.lexador = new Lexador();
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.resolvedor = new Resolvedor(this.interpretador);
+                this.resolvedor = new Resolvedor();
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
@@ -70,7 +70,7 @@ export class Delegua {
                 );
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.resolvedor = new Resolvedor(this.interpretador);
+                this.resolvedor = new Resolvedor();
                 console.log('Usando dialeto: padrão');
                 break;
         }
@@ -150,7 +150,7 @@ export class Delegua {
             return;
         }
 
-        this.interpretador.interpretar(retornoAvaliadorSintatico);
+        this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
     }
 
     reportar(linha: number, onde: any, mensagem: string) {

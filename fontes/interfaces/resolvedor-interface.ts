@@ -1,13 +1,13 @@
+import { Construto } from "../construtos";
 import { ErroResolvedor } from "../resolvedor/erro-resolvedor";
 import { PilhaEscopos } from "../resolvedor/pilha-escopos";
 import { RetornoResolvedor } from "../resolvedor/retorno-resolvedor";
-import { InterpretadorInterface } from "./interpretador-interface";
 import { SimboloInterface } from "./simbolo-interface";
 
 export interface ResolvedorInterface {
-    interpretador: InterpretadorInterface;
     erros: ErroResolvedor[];
     escopos: PilhaEscopos;
+    locais: Map<Construto, number>;
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;

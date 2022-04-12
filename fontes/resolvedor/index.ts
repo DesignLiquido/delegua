@@ -16,7 +16,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { SimboloInterface } from '../interfaces';
 import {
     Bloco,
     Classe,
@@ -62,17 +62,17 @@ const LoopType = {
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
  */
 export class Resolvedor implements ResolvedorInterface {
-    interpretador: InterpretadorInterface;
     erros: ErroResolvedor[];
     escopos: PilhaEscopos;
+    locais: Map<Construto, number>;
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;
 
-    constructor(interpretador: InterpretadorInterface) {
-        this.interpretador = interpretador;
+    constructor() {
         this.erros = [];
         this.escopos = new PilhaEscopos();
+        this.locais = new Map();
 
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
@@ -109,10 +109,7 @@ export class Resolvedor implements ResolvedorInterface {
     resolverLocal(expressao: Construto, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
             if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
-                this.interpretador.resolver(
-                    expressao,
-                    this.escopos.pilha.length - 1 - i
-                );
+                this.locais.set(expressao, this.escopos.pilha.length - 1 - i);
             }
         }
     }
@@ -475,7 +472,8 @@ export class Resolvedor implements ResolvedorInterface {
         }
 
         return {
-            erros: this.erros
+            erros: this.erros,
+            locais: this.locais
         } as RetornoResolvedor;
     }
 }

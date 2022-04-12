@@ -1,14 +1,12 @@
 import { Ambiente } from "../ambiente";
-import { Delegua } from "../delegua";
+import { Construto } from "../construtos";
 
 export interface InterpretadorInterface {
-    Delegua: Delegua;
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
-    locais: any;
+    locais: Map<Construto, number>;
 
-    resolver(expressao: any, profundidade: number): void;
     visitarExpressaoLiteral(expressao: any): any;
     avaliar(expressao: any): any;
     visitarExpressaoAgrupamento(expressao: any): any;
@@ -51,5 +49,5 @@ export interface InterpretadorInterface {
     visitarExpressaoSuper(expressao: any): any;
     paraTexto(objeto: any): any;
     executar(declaracao: any, mostrarResultado: boolean): void;
-    interpretar(declaracoes: any): void;
+    interpretar(declaracoes: any, locais: Map<Construto, number>): void;
 }
