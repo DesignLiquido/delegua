@@ -1,9 +1,10 @@
+import * as caminho from 'path';
+import * as fs from 'fs';
+
 import tiposDeSimbolos from '../../tiposDeSimbolos';
 import { Ambiente } from '../../ambiente';
 import { Delegua } from '../../delegua';
 import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';
-import * as caminho from 'path';
-import * as fs from 'fs';
 import carregarModulo from '../../bibliotecas/importar-biblioteca';
 
 import { Chamavel } from '../../estruturas/chamavel';
@@ -21,7 +22,7 @@ import {
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../../declaracoes';
-import { Super } from '../../construtos';
+import { Construto, Super } from '../../construtos';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -43,10 +44,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.locais = new Map();
 
         this.global = carregarBibliotecaGlobal(this, this.global);
-    }
-
-    resolver(expressao: any, profundidade: number) {
-        this.locais.set(expressao, profundidade);
     }
 
     visitarExpressaoLiteral(expressao: any) {
@@ -907,7 +904,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         declaracao.aceitar(this);
     }
 
-    interpretar(declaracoes: any): void {
+    interpretar(declaracoes: any, locais: Map<Construto, number>): void {
+        this.locais = locais;
         try {
             for (let i = 0; i < declaracoes.length; i++) {
                 this.executar(declaracoes[i], false);

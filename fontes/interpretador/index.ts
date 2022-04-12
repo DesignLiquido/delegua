@@ -25,7 +25,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Super } from '../construtos';
+import { Construto, Super } from '../construtos';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -36,7 +36,7 @@ export class Interpretador implements InterpretadorInterface {
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
-    locais: any;
+    locais: Map<Construto, number>;
     performance: boolean;
 
     constructor(
@@ -923,7 +923,8 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(objeto: any): void {
+    interpretar(objeto: any, locais: Map<Construto, number>): void {
+        this.locais = locais;
         const inicioInterpretacao: number = performance.now();
         try {
             const declaracoes = objeto.declaracoes || objeto;

@@ -1,6 +1,6 @@
 import { PilhaInterface } from "../interfaces";
 
-export class PilhaEscopos implements PilhaInterface {
+export class PilhaEscopos implements PilhaInterface<any> {
     pilha: any[];
 
     constructor() {
