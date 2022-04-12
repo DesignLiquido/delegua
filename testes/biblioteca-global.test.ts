@@ -11,8 +11,8 @@ describe('Biblioteca Global', () => {
         it('Trivial', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(aleatorio())"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -22,8 +22,8 @@ describe('Biblioteca Global', () => {
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(aleatorioEntre(1, 5))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -33,8 +33,8 @@ describe('Biblioteca Global', () => {
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(1))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -42,8 +42,8 @@ describe('Biblioteca Global', () => {
         it('Falha - Não inteiro', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(inteiro('Oi'))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
         });
@@ -51,8 +51,8 @@ describe('Biblioteca Global', () => {
         it('Falha - Nulo', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(nulo))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
         });
@@ -66,8 +66,8 @@ describe('Biblioteca Global', () => {
             ];
             const retornoLexador = delegua.lexador.mapear(codigo);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -80,8 +80,8 @@ describe('Biblioteca Global', () => {
             ];
             const retornoLexador = delegua.lexador.mapear(codigo);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -91,8 +91,8 @@ describe('Biblioteca Global', () => {
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(real(3.14))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -100,8 +100,8 @@ describe('Biblioteca Global', () => {
         it('Falha - Não inteiro', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(real('Oi'))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
         });
@@ -109,8 +109,8 @@ describe('Biblioteca Global', () => {
         it('Falha - Nulo', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(real(nulo))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
         });
@@ -120,8 +120,8 @@ describe('Biblioteca Global', () => {
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(tamanho([1, 2, 3]))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
@@ -129,8 +129,8 @@ describe('Biblioteca Global', () => {
         it('Falha - Não lista', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(tamanho(1))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
         });
@@ -138,8 +138,8 @@ describe('Biblioteca Global', () => {
         it('Falha - Nulo', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(tamanho(nulo))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(true);
         });
@@ -149,8 +149,8 @@ describe('Biblioteca Global', () => {
         it('Trivial', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(texto(123))"]);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
             expect(delegua.teveErroEmTempoDeExecucao).toBe(false);
         });
