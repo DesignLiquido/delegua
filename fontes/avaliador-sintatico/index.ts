@@ -1119,9 +1119,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.atual = 0;
         this.ciclos = 0;
 
-        if (simbolos) {
-            this.simbolos = simbolos;
-        }
+        this.simbolos = simbolos || [];
 
         const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {

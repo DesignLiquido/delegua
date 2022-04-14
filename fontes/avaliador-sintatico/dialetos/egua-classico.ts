@@ -1092,9 +1092,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         this.atual = 0;
         this.ciclos = 0;
 
-        if (simbolos) {
-            this.simbolos = simbolos;
-        }
+        this.simbolos = simbolos || [];
 
         const declaracoes = [];
         while (!this.estaNoFinal()) {
