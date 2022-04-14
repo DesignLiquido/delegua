@@ -1,5 +1,6 @@
 import { Ambiente } from "../ambiente";
 import { Construto } from "../construtos";
+import { RetornoInterpretador } from "../interpretador/retorno-interpretador";
 
 export interface InterpretadorInterface {
     diretorioBase: any;
@@ -49,5 +50,5 @@ export interface InterpretadorInterface {
     visitarExpressaoSuper(expressao: any): any;
     paraTexto(objeto: any): any;
     executar(declaracao: any, mostrarResultado: boolean): void;
-    interpretar(declaracoes: any, locais: Map<Construto, number>): void;
+    interpretar(declaracoes: any, locais: Map<Construto, number>): RetornoInterpretador;
 }

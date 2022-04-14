@@ -14,7 +14,7 @@ describe('Resolvedor (Égua Clássico)', () => {
         });
 
         // TODO: Resolver bug.
-        it.skip('Sucesso - Vetor vazio', () => {
+        it('Sucesso - Vetor vazio', () => {
             delegua.resolvedor.resolver([]);
             expect(delegua.resolvedor.escopos).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
@@ -22,7 +22,7 @@ describe('Resolvedor (Égua Clássico)', () => {
         });
 
         // TODO: Resolver bug.
-        it.skip('Sucesso - Undefined', () => {
+        it('Sucesso - Undefined', () => {
             delegua.resolvedor.resolver(undefined);
             expect(delegua.resolvedor.escopos).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
@@ -30,7 +30,7 @@ describe('Resolvedor (Égua Clássico)', () => {
         });
 
         // TODO: Resolver bug.
-        it.skip('Sucesso - Null', () => {
+        it('Sucesso - Null', () => {
             delegua.resolvedor.resolver(null);
             expect(delegua.resolvedor.escopos).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toBeTruthy();

@@ -12,28 +12,16 @@ describe('Avaliador sintático (Égua Clássico)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        // TODO: Resolver bug.
-        it.skip('Sucesso - Vetor vazio', () => {
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar([]);
-
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+        it('Falha - Vetor vazio', () => {
+            expect(() => delegua.avaliadorSintatico.analisar([])).toThrow(TypeError);
         });
 
-        // TODO: Resolver bug.
-        it.skip('Sucesso - Undefined', () => {
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(undefined);
-
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+        it('Falha - Undefined', () => {
+            expect(() => delegua.avaliadorSintatico.analisar(undefined)).toThrow(TypeError);
         });
 
-        // TODO: Resolver bug.
-        it.skip('Sucesso - Null', () => {
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(null);
-
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+        it('Falha - Null', () => {
+            expect(() => delegua.avaliadorSintatico.analisar(null)).toThrow(TypeError);
         });
     });
 });

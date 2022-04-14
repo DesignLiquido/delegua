@@ -7,11 +7,12 @@ import { Lexador } from './lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico';
 import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador';
-import tiposDeSimbolos from './tiposDeSimbolos';
+import tiposDeSimbolos from './tipos-de-simbolos';
 
 import { ExcecaoRetornar } from './excecoes';
 import {
     AvaliadorSintaticoInterface,
+    DeleguaInterface,
     InterpretadorInterface,
     LexadorInterface,
     SimboloInterface,
@@ -22,7 +23,7 @@ import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico as AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
 
-export class Delegua {
+export class Delegua implements DeleguaInterface {
     nomeArquivo: string;
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;
@@ -150,7 +151,13 @@ export class Delegua {
             return;
         }
 
-        this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+        const retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+
+        if (retornoInterpretador.erros.length > 0) {
+            for (const erroInterpretador of retornoInterpretador.erros) {
+                this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+            }
+        }
     }
 
     reportar(linha: number, onde: any, mensagem: string) {

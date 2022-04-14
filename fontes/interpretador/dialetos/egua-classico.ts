@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 import * as fs from 'fs';
 
-import tiposDeSimbolos from '../../tiposDeSimbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos';
 import { Ambiente } from '../../ambiente';
 import { Delegua } from '../../delegua';
 import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';
@@ -23,6 +23,8 @@ import {
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../../declaracoes';
 import { Construto, Super } from '../../construtos';
+import { RetornoInterpretador } from '../retorno-interpretador';
+import { ErroInterpretador } from '../erro-interpretador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -33,7 +35,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
-    locais: Map<any, any>;
+    locais: Map<Construto, number>;
+    erros: ErroInterpretador[];
 
     constructor(Delegua: Delegua, diretorioBase: string) {
         this.Delegua = Delegua;
@@ -42,6 +45,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.global = new Ambiente();
         this.ambiente = this.global;
         this.locais = new Map();
+        this.erros = [];
 
         this.global = carregarBibliotecaGlobal(this, this.global);
     }
@@ -904,14 +908,20 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         declaracao.aceitar(this);
     }
 
-    interpretar(declaracoes: any, locais: Map<Construto, number>): void {
+    interpretar(declaracoes: any, locais: Map<Construto, number>): RetornoInterpretador {
         this.locais = locais;
+        this.erros = [];
+        
         try {
             for (let i = 0; i < declaracoes.length; i++) {
                 this.executar(declaracoes[i], false);
             }
         } catch (erro) {
-            this.Delegua.erroEmTempoDeExecucao(erro);
+            this.erros.push(erro);
         }
+
+        return {
+            erros: this.erros
+        } as RetornoInterpretador;
     }
 }

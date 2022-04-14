@@ -1,5 +1,5 @@
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
-import tiposDeSimbolos from '../../tiposDeSimbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../retorno-lexador';
 
