@@ -5,35 +5,23 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         const delegua = new Delegua('egua');
 
         it('Sucesso - Olá Mundo', () => {
-            const simbolos = delegua.lexador.mapear(["escreva('Olá mundo');"]);
-            const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"]);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
 
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(1);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        // TODO: Resolver bug.
-        it.skip('Sucesso - Vetor vazio', () => {
-            const declaracoes = delegua.avaliadorSintatico.analisar([]);
-
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(0);
+        it('Falha - Vetor vazio', () => {
+            expect(() => delegua.avaliadorSintatico.analisar([])).toThrow(TypeError);
         });
 
-        // TODO: Resolver bug.
-        it.skip('Sucesso - Undefined', () => {
-            const declaracoes = delegua.avaliadorSintatico.analisar(undefined);
-
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(0);
+        it('Falha - Undefined', () => {
+            expect(() => delegua.avaliadorSintatico.analisar(undefined)).toThrow(TypeError);
         });
 
-        // TODO: Resolver bug.
-        it.skip('Sucesso - Null', () => {
-            const declaracoes = delegua.avaliadorSintatico.analisar(null);
-
-            expect(declaracoes).toBeTruthy();
-            expect(declaracoes).toHaveLength(0);
+        it('Falha - Null', () => {
+            expect(() => delegua.avaliadorSintatico.analisar(null)).toThrow(TypeError);
         });
     });
 });

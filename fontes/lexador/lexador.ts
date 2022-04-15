@@ -1,9 +1,61 @@
-import { Delegua } from "../delegua";
 import { performance } from 'perf_hooks';
 import { LexadorInterface, SimboloInterface } from "../interfaces";
-import { Simbolo } from './simbolo';
-import tiposDeSimbolos from "./tipos-de-simbolos";
-import palavrasReservadas from "./palavras-reservadas";
+import tiposDeSimbolos from "../tipos-de-simbolos";
+import { ErroLexador } from "./erro-lexador";
+import { RetornoLexador } from "./retorno-lexador";
+
+const palavrasReservadas = {
+    e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
+    classe: tiposDeSimbolos.CLASSE,
+    senao: tiposDeSimbolos.SENAO,
+    senão: tiposDeSimbolos.SENÃO,
+    falso: tiposDeSimbolos.FALSO,
+    para: tiposDeSimbolos.PARA,
+    funcao: tiposDeSimbolos.FUNCAO,
+    função: tiposDeSimbolos.FUNÇÃO,
+    se: tiposDeSimbolos.SE,
+    senaose: tiposDeSimbolos.SENAOSE,
+    senãose: tiposDeSimbolos.SENÃOSE,
+    nulo: tiposDeSimbolos.NULO,
+    ou: tiposDeSimbolos.OU,
+    escreva: tiposDeSimbolos.ESCREVA,
+    retorna: tiposDeSimbolos.RETORNA,
+    super: tiposDeSimbolos.SUPER,
+    isto: tiposDeSimbolos.ISTO,
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+    var: tiposDeSimbolos.VARIAVEL,
+    fazer: tiposDeSimbolos.FAZER,
+    enquanto: tiposDeSimbolos.ENQUANTO,
+    pausa: tiposDeSimbolos.PAUSA,
+    continua: tiposDeSimbolos.CONTINUA,
+    escolha: tiposDeSimbolos.ESCOLHA,
+    caso: tiposDeSimbolos.CASO,
+    padrao: tiposDeSimbolos.PADRAO,
+    importar: tiposDeSimbolos.IMPORTAR,
+    tente: tiposDeSimbolos.TENTE,
+    pegue: tiposDeSimbolos.PEGUE,
+    finalmente: tiposDeSimbolos.FINALMENTE,
+    herda: tiposDeSimbolos.HERDA,
+};
+
+class Simbolo implements SimboloInterface {
+    lexema: string;
+    tipo: string;
+    literal: string;
+    linha: number;    
+
+    constructor(tipo: string, lexema: string, literal: string, linha: number) {
+        this.tipo = tipo;
+        this.lexema = lexema;
+        this.literal = literal;
+        this.linha = linha;
+    }
+
+    paraTexto(): string {
+        return this.tipo + " " + this.lexema + " " + this.literal;
+    }
+}
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -12,19 +64,19 @@ import palavrasReservadas from "./palavras-reservadas";
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
 export class Lexador implements LexadorInterface {
-    Delegua: Delegua;
     codigo: string[];
     simbolos: SimboloInterface[];
+    erros: ErroLexador[];
     inicioSimbolo: number;
     atual: number;
     linha: number;
     performance: boolean;
 
-    constructor(Delegua: Delegua, performance: boolean = false) {
-        this.Delegua = Delegua;
+    constructor(performance: boolean = false) {
         this.performance = performance;
 
         this.simbolos = [];
+        this.erros = [];
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -147,11 +199,11 @@ export class Lexador implements LexadorInterface {
         }
 
         if (this.eFinalDoCodigo()) {
-            this.Delegua.erroNoLexador(
-                this.linha,
-                this.simboloAnterior(),
-                'Texto não finalizado.'
-            );
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Texto não finalizado.'
+            } as ErroLexador);
             return;
         }
 
@@ -394,22 +446,20 @@ export class Lexador implements LexadorInterface {
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
                 else {
-                    this.Delegua.erroNoLexador(
-                        this.linha + 1,
-                        caractere,
-                        'Caractere inesperado.'
-                    );
+                    this.erros.push({
+                        linha: this.linha + 1,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.'
+                    } as ErroLexador);
                     this.avancar();
                 }
         }
     }
 
-    mapear(codigo?: string[]): SimboloInterface[] {
+    mapear(codigo?: string[]): RetornoLexador {
         const inicioMapeamento: number = performance.now();
+        this.erros = [];
         this.simbolos = [];
-        this.inicioSimbolo = 0;
-        this.atual = 0;
-        this.linha = 0;
 
         this.codigo = codigo || [''];
 
@@ -423,6 +473,9 @@ export class Lexador implements LexadorInterface {
             console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
         }
         
-        return this.simbolos;
+        return { 
+            simbolos: this.simbolos,
+            erros: this.erros
+        } as RetornoLexador;
     }
 }

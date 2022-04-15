@@ -1,4 +1,5 @@
 import tiposDeSimbolos from '../../lexador/tipos-de-simbolos';
+
 import {
     AvaliadorSintaticoInterface,
     SimboloInterface,
@@ -24,7 +25,7 @@ import {
     Construto,
 } from '../../construtos';
 
-import { ErroAvaliador } from '../erros-avaliador';
+import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import {
     Bloco,
     Classe,
@@ -43,21 +44,21 @@ import {
     Tente,
     Var,
 } from '../../declaracoes';
+import { RetornoAvaliadorSintatico } from '../retorno-avaliador-sintatico';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  */
-export class ParserEguaClassico implements AvaliadorSintaticoInterface {
+export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
-    Delegua: any;
+    erros: ErroAvaliadorSintatico[];
 
     atual: number;
     ciclos: number;
 
-    constructor(Delegua: any, simbolos?: SimboloInterface[]) {
+    constructor(simbolos?: SimboloInterface[]) {
         this.simbolos = simbolos;
-        this.Delegua = Delegua;
 
         this.atual = 0;
         this.ciclos = 0;
@@ -85,9 +86,10 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         }
     }
 
-    erro(simbolo: any, mensagemDeErro: any): any {
-        this.Delegua.erro(simbolo, mensagemDeErro);
-        return new ErroAvaliador();
+    erro(simbolo: SimboloInterface, mensagemDeErro: any): any {
+        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+        this.erros.push(excecao);
+        return excecao;
     }
 
     consumir(tipo: any, mensagemDeErro: any): any {
@@ -800,10 +802,14 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
                 } else if (
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)
                 ) {
-                    if (caminhoPadrao !== null)
-                        throw new ErroAvaliador(
+                    if (caminhoPadrao !== null) {
+                        const excecao = new ErroAvaliadorSintatico(
+                            this.simboloAtual(),
                             "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
                         );
+                        this.erros.push(excecao);
+                        throw excecao;
+                    }
 
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
@@ -1085,19 +1091,21 @@ export class ParserEguaClassico implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(simbolos?: SimboloInterface[]): any {
+    analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico {
+        this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
 
-        if (simbolos) {
-            this.simbolos = simbolos;
-        }
+        this.simbolos = simbolos || [];
 
         const declaracoes = [];
         while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
 
-        return declaracoes;
+        return { 
+            declaracoes: declaracoes,
+            erros: this.erros
+        } as RetornoAvaliadorSintatico;
     }
 }

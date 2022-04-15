@@ -1,10 +1,13 @@
+import { Construto } from "../construtos";
+import { ErroResolvedor } from "../resolvedor/erro-resolvedor";
 import { PilhaEscopos } from "../resolvedor/pilha-escopos";
+import { RetornoResolvedor } from "../resolvedor/retorno-resolvedor";
 import { SimboloInterface } from "./simbolo-interface";
 
 export interface ResolvedorInterface {
-    interpretador: any;
-    Delegua: any;
+    erros: ErroResolvedor[];
     escopos: PilhaEscopos;
+    locais: Map<Construto, number>;
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;
@@ -13,7 +16,7 @@ export interface ResolvedorInterface {
     declarar(simbolo: SimboloInterface): void;
     inicioDoEscopo(): void;
     finalDoEscopo(): void;
-    resolver(declaracoes: any): void;
+    resolver(declaracoes: any): RetornoResolvedor;
     resolverLocal(expressao: any, nome: any): void;
     visitarExpressaoBloco(declaracao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;

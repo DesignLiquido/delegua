@@ -25,7 +25,9 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Super } from '../construtos';
+import { Construto, Super } from '../construtos';
+import { ErroInterpretador } from './erro-interpretador';
+import { RetornoInterpretador } from './retorno-interpretador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -36,11 +38,12 @@ export class Interpretador implements InterpretadorInterface {
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
-    locais: any;
+    locais: Map<Construto, number>;
+    erros: ErroInterpretador[];
     performance: boolean;
 
     constructor(
-        Delegua: Delegua,
+        Delegua: Delegua, 
         diretorioBase: string,
         performance: boolean = false
     ) {
@@ -51,6 +54,7 @@ export class Interpretador implements InterpretadorInterface {
         this.global = new Ambiente();
         this.ambiente = this.global;
         this.locais = new Map();
+        this.erros = [];
 
         this.global = carregarBibliotecaGlobal(this, this.global);
     }
@@ -575,7 +579,7 @@ export class Interpretador implements InterpretadorInterface {
             this.Delegua.dialeto,
             this.performance,
             nomeArquivo
-        );
+        ); 
 
         delegua.executar(conteudoImportacao);
 
@@ -923,9 +927,13 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(declaracoes: any): void {
+    interpretar(objeto: any, locais: Map<Construto, number>): RetornoInterpretador {
+        this.locais = locais;
+        this.erros = [];
+
         const inicioInterpretacao: number = performance.now();
         try {
+            const declaracoes = objeto.declaracoes || objeto;
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
                     declaracoes[0].constructor.name === 'Expressao';
@@ -938,7 +946,7 @@ export class Interpretador implements InterpretadorInterface {
                 this.executar(declaracoes[i]);
             }
         } catch (erro: any) {
-            this.Delegua.erroEmTempoDeExecucao(erro);
+            this.erros.push(erro);
         } finally {
             const fimInterpretacao: number = performance.now();
             if (this.performance) {
@@ -949,5 +957,9 @@ export class Interpretador implements InterpretadorInterface {
                 );
             }
         }
+
+        return {
+            erros: this.erros
+        } as RetornoInterpretador;
     }
 }

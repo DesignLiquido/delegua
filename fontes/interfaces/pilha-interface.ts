@@ -1,7 +1,7 @@
-export interface PilhaInterface {
-    pilha: Array<any>;
-    empilhar(item: any);
-    eVazio(item: any): Boolean;
-    topoDaPilha(): Array<any>;
-    removerUltimo(): Array<any>;
+export interface PilhaInterface<T> {
+    pilha: Array<T>;
+    empilhar(item: T);
+    eVazio(item: T): Boolean;
+    topoDaPilha(): Array<T>;
+    removerUltimo(): Array<T>;
 }

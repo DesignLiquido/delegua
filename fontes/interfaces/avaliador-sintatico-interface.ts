@@ -1,4 +1,5 @@
-import { ErroAvaliador } from '../avaliador-sintatico/erros-avaliador';
+import { ErroAvaliadorSintatico } from '../avaliador-sintatico/erro-avaliador-sintatico';
+import { RetornoAvaliadorSintatico } from '../avaliador-sintatico/retorno-avaliador-sintatico';
 import { Construto, Funcao } from '../construtos';
 import {
     Classe,
@@ -13,22 +14,23 @@ import {
     Para,
     Retorna,
     Se,
+    Sustar,
     Tente,
     Var,
 } from '../declaracoes';
-import { Delegua } from '../delegua';
+
 import { SimboloInterface } from './simbolo-interface';
 
 export interface AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
-    Delegua: Delegua;
+    erros: ErroAvaliadorSintatico[];
 
     atual: number;
     ciclos: number;
 
     sincronizar(): void;
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliador;
     consumir(tipo: any, mensagemDeErro: string): any;
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: any): boolean;
     verificarTipoProximoSimbolo(tipo: any): boolean;
     simboloAtual(): SimboloInterface;
@@ -60,7 +62,7 @@ export interface AvaliadorSintaticoInterface {
     declaracaoSe(): Se;
     declaracaoEnquanto(): Enquanto;
     declaracaoPara(): Para;
-    declaracaoSustar(): any;
+    declaracaoSustar(): Sustar;
     declaracaoContinua(): Continua;
     declaracaoRetorna(): Retorna;
     declaracaoEscolha(): Escolha;
@@ -73,5 +75,5 @@ export interface AvaliadorSintaticoInterface {
     corpoDaFuncao(tipo: any): Funcao;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
-    analisar(simbolos?: SimboloInterface[]): Declaracao[];
+    analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico;
 }

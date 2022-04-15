@@ -1,8 +1,59 @@
-import { Delegua } from '../../delegua';
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../tipos-de-simbolos';
 import { Simbolo } from '../simbolo';
 import palavrasReservadas from '../palavras-reservadas';
+import { ErroLexador } from '../erro-lexador';
+import { RetornoLexador } from '../retorno-lexador';
+
+/* const palavrasReservadas = {
+    e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
+    classe: tiposDeSimbolos.CLASSE,
+    senão: tiposDeSimbolos.SENÃO,
+    falso: tiposDeSimbolos.FALSO,
+    para: tiposDeSimbolos.PARA,
+    função: tiposDeSimbolos.FUNÇÃO,
+    se: tiposDeSimbolos.SE,
+    senãose: tiposDeSimbolos.SENÃOSE,
+    nulo: tiposDeSimbolos.NULO,
+    ou: tiposDeSimbolos.OU,
+    escreva: tiposDeSimbolos.ESCREVA,
+    retorna: tiposDeSimbolos.RETORNA,
+    super: tiposDeSimbolos.SUPER,
+    isto: tiposDeSimbolos.ISTO,
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+    var: tiposDeSimbolos.VARIAVEL,
+    fazer: tiposDeSimbolos.FAZER,
+    enquanto: tiposDeSimbolos.ENQUANTO,
+    pausa: tiposDeSimbolos.PAUSA,
+    continua: tiposDeSimbolos.CONTINUA,
+    escolha: tiposDeSimbolos.ESCOLHA,
+    caso: tiposDeSimbolos.CASO,
+    padrao: tiposDeSimbolos.PADRAO,
+    importar: tiposDeSimbolos.IMPORTAR,
+    tente: tiposDeSimbolos.TENTE,
+    pegue: tiposDeSimbolos.PEGUE,
+    finalmente: tiposDeSimbolos.FINALMENTE,
+    herda: tiposDeSimbolos.HERDA,
+}; */
+
+/* class Simbolo implements SimboloInterface {
+    lexema: string;
+    tipo: string;
+    literal: string;
+    linha: string;
+
+    constructor(tipo: any, lexema: any, literal: any, linha: any) {
+        this.tipo = tipo;
+        this.lexema = lexema;
+        this.literal = literal;
+        this.linha = linha;
+    }
+
+    paraTexto(): string {
+        return this.tipo + ' ' + this.lexema + ' ' + this.literal;
+    }
+} */
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -11,18 +62,18 @@ import palavrasReservadas from '../palavras-reservadas';
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
 export class LexadorEguaClassico implements LexadorInterface {
-    Delegua: Delegua;
     codigo: any;
     simbolos: SimboloInterface[];
+    erros: ErroLexador[];
     inicioSimbolo: number;
     atual: number;
     linha: number;
 
-    constructor(Delegua: Delegua, codigo?: any) {
-        this.Delegua = Delegua;
+    constructor(codigo?: any) {
         this.codigo = codigo;
 
         this.simbolos = [];
+        this.erros = [];
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -120,11 +171,11 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
 
         if (this.eFinalDoCodigo()) {
-            this.Delegua.erroNoLexador(
-                this.linha,
-                this.simboloAnterior(),
-                'Texto não finalizado.'
-            );
+            this.erros.push({
+                linha: this.linha,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Texto não finalizado.'
+            } as ErroLexador);
             return;
         }
 
@@ -312,15 +363,16 @@ export class LexadorEguaClassico implements LexadorInterface {
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
                 else
-                    this.Delegua.erroNoLexador(
-                        this.linha,
-                        caractere,
-                        'Caractere inesperado.'
-                    );
+                    this.erros.push({
+                        linha: this.linha,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.'
+                    } as ErroLexador);
         }
     }
 
-    mapear(codigo?: string[]): SimboloInterface[] {
+    mapear(codigo?: string[]): RetornoLexador {
+        this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -338,6 +390,9 @@ export class LexadorEguaClassico implements LexadorInterface {
             new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha)
         );
 
-        return this.simbolos;
+        return { 
+            simbolos: this.simbolos,
+            erros: this.erros
+        } as RetornoLexador;
     }
 }

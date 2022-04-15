@@ -2,29 +2,33 @@ import { Delegua } from "../../fontes/delegua";
 
 describe('Lexador (Égua Clássico)', () => {
     describe('mapear()', () => {
-        const delegua = new Delegua('egua');
+        let delegua: Delegua;
+
+        beforeEach(() => {
+            delegua = new Delegua('egua');
+        });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
                 const resultado = delegua.lexador.mapear(['']);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toHaveLength(1);
+                expect(resultado.simbolos).toHaveLength(1);
             });
 
             it('Sucesso - Ponto-e-vírgula, obrigatório', () => {
                 const resultado = delegua.lexador.mapear([';;;;;;;;;;;;;;;;;;;;;']);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toHaveLength(22);
+                expect(resultado.simbolos).toHaveLength(22);
             });
 
             it('Sucesso - Olá mundo', () => {
                 const resultado = delegua.lexador.mapear(["escreva('Olá mundo');"]);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toHaveLength(6);
-                expect(resultado).toEqual(
+                expect(resultado.simbolos).toHaveLength(6);
+                expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({ tipo: 'ESCREVA' }),
                         expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
@@ -39,8 +43,8 @@ describe('Lexador (Égua Clássico)', () => {
                 const resultado = delegua.lexador.mapear(["se (1 == 1) { escreva('Tautologia'); }"]);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toHaveLength(14);
-                expect(resultado).toEqual(
+                expect(resultado.simbolos).toHaveLength(14);
+                expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({ tipo: 'SE' }),
                         expect.objectContaining({ tipo: 'ESCREVA' }),
@@ -60,8 +64,8 @@ describe('Lexador (Égua Clássico)', () => {
                 const resultado = delegua.lexador.mapear(['2 + 3 == 5;']);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toHaveLength(7);
-                expect(resultado).toEqual(
+                expect(resultado.simbolos).toHaveLength(7);
+                expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({ tipo: 'ADICAO' }),
                         expect.objectContaining({ tipo: 'IGUAL_IGUAL' }),
@@ -81,14 +85,14 @@ describe('Lexador (Égua Clássico)', () => {
         describe('Cenários de falha', () => {
             it('Falha léxica - texto sem fim', () => {
                 const resultado = delegua.lexador.mapear(['"texto sem fim']);
-                expect(resultado).toHaveLength(1);
-                expect(delegua.teveErro).toBe(true);
+                expect(resultado.simbolos).toHaveLength(1);
+                expect(resultado.erros).toHaveLength(1);
             });
 
             it('Falha léxica - caractere inesperado', () => {
                 const resultado = delegua.lexador.mapear(['平']);
-                expect(resultado).toHaveLength(1);
-                expect(delegua.teveErro).toBe(true);
+                expect(resultado.simbolos).toHaveLength(1);
+                expect(resultado.erros).toHaveLength(1);
             });
         });
     });
