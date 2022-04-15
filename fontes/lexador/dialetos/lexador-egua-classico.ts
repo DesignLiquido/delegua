@@ -5,56 +5,6 @@ import palavrasReservadas from '../palavras-reservadas';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../retorno-lexador';
 
-/* const palavrasReservadas = {
-    e: tiposDeSimbolos.E,
-    em: tiposDeSimbolos.EM,
-    classe: tiposDeSimbolos.CLASSE,
-    senão: tiposDeSimbolos.SENÃO,
-    falso: tiposDeSimbolos.FALSO,
-    para: tiposDeSimbolos.PARA,
-    função: tiposDeSimbolos.FUNÇÃO,
-    se: tiposDeSimbolos.SE,
-    senãose: tiposDeSimbolos.SENÃOSE,
-    nulo: tiposDeSimbolos.NULO,
-    ou: tiposDeSimbolos.OU,
-    escreva: tiposDeSimbolos.ESCREVA,
-    retorna: tiposDeSimbolos.RETORNA,
-    super: tiposDeSimbolos.SUPER,
-    isto: tiposDeSimbolos.ISTO,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO,
-    var: tiposDeSimbolos.VARIAVEL,
-    fazer: tiposDeSimbolos.FAZER,
-    enquanto: tiposDeSimbolos.ENQUANTO,
-    pausa: tiposDeSimbolos.PAUSA,
-    continua: tiposDeSimbolos.CONTINUA,
-    escolha: tiposDeSimbolos.ESCOLHA,
-    caso: tiposDeSimbolos.CASO,
-    padrao: tiposDeSimbolos.PADRAO,
-    importar: tiposDeSimbolos.IMPORTAR,
-    tente: tiposDeSimbolos.TENTE,
-    pegue: tiposDeSimbolos.PEGUE,
-    finalmente: tiposDeSimbolos.FINALMENTE,
-    herda: tiposDeSimbolos.HERDA,
-}; */
-
-/* class Simbolo implements SimboloInterface {
-    lexema: string;
-    tipo: string;
-    literal: string;
-    linha: string;
-
-    constructor(tipo: any, lexema: any, literal: any, linha: any) {
-        this.tipo = tipo;
-        this.lexema = lexema;
-        this.literal = literal;
-        this.linha = linha;
-    }
-
-    paraTexto(): string {
-        return this.tipo + ' ' + this.lexema + ' ' + this.literal;
-    }
-} */
-
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
