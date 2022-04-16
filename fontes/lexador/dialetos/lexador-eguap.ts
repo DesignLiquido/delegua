@@ -4,11 +4,14 @@ import { Simbolo } from "../simbolo";
 import palavrasReservadas from "../palavras-reservadas";
 import { ErroLexador } from "../erro-lexador";
 import { RetornoLexador } from "../retorno-lexador";
+import { Pragma } from "./pragma";
 
 export class LexadorEguaP implements LexadorInterface {
     codigo: string[];
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
+    pragmas: { [ linha: number]: Pragma };
+
     inicioSimbolo: number;
     atual: number;
     linha: number;
@@ -19,6 +22,8 @@ export class LexadorEguaP implements LexadorInterface {
         this.performance = performance;
 
         this.simbolos = [];
+        this.erros = [];
+        this.pragmas = {};
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -194,7 +199,7 @@ export class LexadorEguaP implements LexadorInterface {
             this.avancar();
         }
 
-        this.adicionarSimbolo(tiposDeSimbolos.ESPACO_INDENTACAO, espacos);
+        this.pragmas[this.linha] = { linha: this.linha, espacosIndentacao: espacos };
         this.logicaEmLinhaIniciada = true;
     }
 
@@ -400,6 +405,7 @@ export class LexadorEguaP implements LexadorInterface {
         const inicioMapeamento: number = performance.now();
         this.simbolos = [];
         this.erros = [];
+        this.pragmas = {};
 
         this.inicioSimbolo = 0;
         this.atual = 0;
