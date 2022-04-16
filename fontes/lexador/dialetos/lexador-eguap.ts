@@ -156,7 +156,7 @@ export class LexadorEguaP implements LexadorInterface {
             new Simbolo(
                 tiposDeSimbolos.TEXTO, 
                 textoCompleto, 
-                null, 
+                textoCompleto, 
                 linhaPrimeiroCaracter + 1
             )
         );

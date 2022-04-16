@@ -1130,6 +1130,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     analisar(retornoLexador: RetornoLexador): RetornoAvaliadorSintatico {
         const inicioAnalise: number = performance.now();
+        this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
         this.escopos = [];
