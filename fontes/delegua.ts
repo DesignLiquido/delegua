@@ -136,7 +136,7 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador.simbolos);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
 
         if (retornoAvaliadorSintatico.erros.length > 0) {
             for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {

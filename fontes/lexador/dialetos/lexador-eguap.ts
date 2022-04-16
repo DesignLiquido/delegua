@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks';
+
 import { LexadorInterface, SimboloInterface } from "../../interfaces";
 import tiposDeSimbolos from "./tipos-de-simbolos-eguap";
 import { Simbolo } from "../simbolo";
@@ -222,6 +224,8 @@ export class LexadorEguaP implements LexadorInterface {
                 
                 break;
             case '\r':
+            case '\n':
+            case '\0':
             case ';':
                 this.avancar();
                 break;
@@ -425,7 +429,8 @@ export class LexadorEguaP implements LexadorInterface {
         
         return { 
             simbolos: this.simbolos,
-            erros: this.erros
+            erros: this.erros,
+            pragmas: this.pragmas
         } as RetornoLexador;
     }
 }

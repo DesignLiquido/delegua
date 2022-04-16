@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks';
+
 import {
     AcessoIndiceVariavel,
     AcessoMetodo,
@@ -42,13 +44,16 @@ import {
     AvaliadorSintaticoInterface,
     SimboloInterface,
 } from '../../interfaces';
+import { Pragma } from '../../lexador/dialetos/pragma';
 import tiposDeSimbolos from '../../lexador/dialetos/tipos-de-simbolos-eguap';
+import { RetornoLexador } from '../../lexador/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../retorno-avaliador-sintatico';
 
 export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
+    pragmas: {[linha: number]: Pragma};
 
     atual: number;
     ciclos: number;
@@ -546,35 +551,42 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     blocoEscopo() {
         const declaracoes = [];
+        let blocoComecou = false;
+        const simboloAtual = this.simboloAtual();
+        const simboloAnterior = this.simboloAnterior();
 
         // Situação 1: não tem bloco de escopo.
-        // Não existe um símbolo de espaço de indentação como
-        // próximo símbolo.
-
-        if (this.simboloAtual().tipo !== tiposDeSimbolos.ESPACO_INDENTACAO) {
+        // Exemplo: `se verdadeiro: escreva('Alguma coisa')`.
+        // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
+        
+        if (simboloAtual.linha === simboloAnterior.linha) {
             declaracoes.push(this.declaracao());
         } else {
-            // Situação 2: Tem bloco de escopo.
-            // Definimos o tamanho do bloco de indentação e começamos a iterar.
-            const simboloEspacoIndentacao: SimboloInterface = 
-                this.consumir(tiposDeSimbolos.ESPACO_INDENTACAO, null);
-            let tamanhoIndentacaoBlocoAtual: number = Number(simboloEspacoIndentacao.literal);
-            this.escopos.push(tamanhoIndentacaoBlocoAtual);
-
-            while (this.escopos.at(-1) === tamanhoIndentacaoBlocoAtual && !this.estaNoFinal()) {
-                let simboloAtual: SimboloInterface = this.simboloAtual();
-
-                if (simboloAtual.tipo === tiposDeSimbolos.ESPACO_INDENTACAO) {
-                    tamanhoIndentacaoBlocoAtual = Number(
-                        simboloAtual.literal
-                    );
-                    this.consumir(tiposDeSimbolos.ESPACO_INDENTACAO, null);
-                } else {
+            // Situação 2: símbolo atual fica na próxima linha.
+            // 
+            // Verifica-se o número de espaços à esquerda da linha através dos pragmas. 
+            // Se número de espaços da linha do símbolo atual é menor ou igual ao número de espaços
+            // da linha anterior, e bloco ainda não começou, é uma situação de erro. 
+            let espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
+            let espacosIndentacaoLinhaAnterior = this.pragmas[simboloAnterior.linha].espacosIndentacao;
+            if (!blocoComecou && espacosIndentacaoLinhaAtual <= espacosIndentacaoLinhaAnterior) {
+                this.erro(
+                    simboloAtual, 
+                    `Indentação inconsistente na linha ${simboloAtual.linha}. `+
+                    `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
+                    `Atual: ${espacosIndentacaoLinhaAtual}`
+                )
+            } else {
+                // Indentação ok, é um bloco de escopo. 
+                // Inclui todas as declarações cujas linhas tenham o mesmo número de espaços
+                // de indentação do bloco.
+                const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
+                while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
                     declaracoes.push(this.declaracao());
+                    espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
+                    // const espacosIndentacaoLinhaAnterior = this.pragmas[simboloAnterior.linha].espacosIndentacao;
                 }
-            }
-
-            this.escopos.pop();
+            }            
         }
 
         return declaracoes;
@@ -621,9 +633,9 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         // Se há algum escopo aberto, conferir antes do senão se símbolo 
         // atual é um espaço de indentação
-        if (this.escopos.length > 0) {
+        /* if (this.escopos.length > 0) {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESPACO_INDENTACAO);
-        }
+        } */
 
         let caminhoSenao = null;
         if (
@@ -1083,6 +1095,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new Classe(simbolo, superClasse, metodos);
     }
 
+    /**
+     * Consome o símbolo atual, verificando se é uma declaração de função, variável, classe
+     * ou uma expressão. 
+     * @returns Objeto do tipo `Declaracao`.
+     */
     declaracao(): any {
         try {
             if (
@@ -1111,14 +1128,14 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador): RetornoAvaliadorSintatico {
         const inicioAnalise: number = performance.now();
         this.atual = 0;
         this.ciclos = 0;
+        this.escopos = [];
 
-        if (simbolos) {
-            this.simbolos = simbolos;
-        }
+        this.simbolos = retornoLexador?.simbolos || [];
+        this.pragmas = retornoLexador?.pragmas || {};
 
         const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {

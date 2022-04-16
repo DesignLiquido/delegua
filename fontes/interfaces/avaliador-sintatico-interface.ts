@@ -18,6 +18,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
+import { RetornoLexador } from '../lexador/retorno-lexador';
 
 import { SimboloInterface } from './simbolo-interface';
 
@@ -75,5 +76,5 @@ export interface AvaliadorSintaticoInterface {
     corpoDaFuncao(tipo: any): Funcao;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
-    analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico;
+    analisar(retornoLexador: RetornoLexador): RetornoAvaliadorSintatico;
 }

@@ -1,4 +1,5 @@
 import { Delegua } from "../fontes/delegua";
+import { RetornoLexador } from "../fontes/lexador/retorno-lexador";
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -6,14 +7,14 @@ describe('Avaliador sintático', () => {
 
         it('Sucesso - Olá Mundo', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo')"]);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador.simbolos);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
         it('Sucesso - Vetor vazio', () => {
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar([]);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
