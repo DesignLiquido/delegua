@@ -3,10 +3,10 @@ import { SimboloInterface } from "../interfaces";
 export class Simbolo implements SimboloInterface {
     lexema: string;
     tipo: string;
-    literal: string;
+    literal: any;
     linha: number;    
 
-    constructor(tipo: string, lexema: string, literal: string, linha: number) {
+    constructor(tipo: string, lexema: string, literal: any, linha: number) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;

@@ -12,12 +12,11 @@ export class LexadorEguaP implements LexadorInterface {
     codigo: string[];
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
-    pragmas: { [ linha: number]: Pragma };
+    pragmas: { [linha: number]: Pragma };
 
     inicioSimbolo: number;
     atual: number;
     linha: number;
-    logicaEmLinhaIniciada: boolean;
     performance: boolean;
 
     constructor(performance: boolean = false) {
@@ -30,7 +29,6 @@ export class LexadorEguaP implements LexadorInterface {
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 0;
-        this.logicaEmLinhaIniciada = false;
     }
 
     eDigito(caractere: string): boolean {
@@ -102,7 +100,8 @@ export class LexadorEguaP implements LexadorInterface {
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
-            this.logicaEmLinhaIniciada = false;
+            // this.logicaEmLinhaIniciada = false;
+            this.analisarIndentacao();
         }
     }
 
@@ -134,6 +133,7 @@ export class LexadorEguaP implements LexadorInterface {
     }
 
     analisarTexto(delimitador: string = '"'): void {
+        const linhaPrimeiroCaracter: number = this.linha;
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
@@ -147,15 +147,24 @@ export class LexadorEguaP implements LexadorInterface {
             return;
         }
 
-        const valor = this.codigo[this.linha].substring(
+        const textoCompleto = this.codigo[this.linha].substring(
             this.inicioSimbolo + 1,
             this.atual
         );
-        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
+
+        this.simbolos.push(
+            new Simbolo(
+                tiposDeSimbolos.TEXTO, 
+                textoCompleto, 
+                null, 
+                linhaPrimeiroCaracter + 1
+            )
+        );
     }
 
     analisarNumero(): void {
-        while (this.eDigito(this.simboloAtual())) {
+        const linhaPrimeiroDigito: number = this.linha;
+        while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
             this.avancar();
         }
 
@@ -167,31 +176,63 @@ export class LexadorEguaP implements LexadorInterface {
             }
         }
 
-        const numeroCompleto = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
-        this.adicionarSimbolo(
-            tiposDeSimbolos.NUMERO,
-            parseFloat(numeroCompleto)
+        let numeroCompleto: string;
+        if (linhaPrimeiroDigito < this.linha) {
+            const linhaNumero: string = this.codigo[linhaPrimeiroDigito];
+            numeroCompleto = linhaNumero.substring(
+                this.inicioSimbolo,
+                linhaNumero.length
+            );
+        } else {
+            numeroCompleto = this.codigo[this.linha].substring(
+                this.inicioSimbolo,
+                this.atual
+            );
+        }
+        
+        this.simbolos.push(
+            new Simbolo(
+                tiposDeSimbolos.NUMERO, 
+                numeroCompleto, 
+                parseFloat(numeroCompleto), 
+                linhaPrimeiroDigito + 1
+            )
         );
     }
 
     identificarPalavraChave(): void {
-        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+        const linhaPrimeiroCaracter: number = this.linha;
+        while (this.eAlfabetoOuDigito(this.simboloAtual()) && this.linha === linhaPrimeiroCaracter) {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
+        let textoPalavraChave: string;
+        if (linhaPrimeiroCaracter < this.linha) {
+            const linhaPalavraChave: string = this.codigo[linhaPrimeiroCaracter];
+            textoPalavraChave = linhaPalavraChave.substring(
+                this.inicioSimbolo,
+                linhaPalavraChave.length
+            );
+        } else {
+            textoPalavraChave = this.codigo[this.linha].substring(
+                this.inicioSimbolo,
+                this.atual
+            );
+        }
+
         const tipo: string =
-            codigo in palavrasReservadas
-                ? palavrasReservadas[codigo]
+            textoPalavraChave in palavrasReservadas
+                ? palavrasReservadas[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
-        this.adicionarSimbolo(tipo);
+        this.simbolos.push(
+            new Simbolo(
+                tipo, 
+                textoPalavraChave, 
+                null, 
+                linhaPrimeiroCaracter + 1
+            )
+        );
     }
 
     analisarIndentacao(): void {
@@ -201,13 +242,13 @@ export class LexadorEguaP implements LexadorInterface {
             this.avancar();
         }
 
-        this.pragmas[this.linha] = { linha: this.linha, espacosIndentacao: espacos };
-        this.logicaEmLinhaIniciada = true;
+        this.pragmas[this.linha + 1] = { linha: this.linha + 1, espacosIndentacao: espacos };
     }
 
     avancarParaProximaLinha(): void {
         this.linha++;
         this.atual = 0;
+        this.analisarIndentacao();
     }
 
     analisarToken(): void {
@@ -216,12 +257,8 @@ export class LexadorEguaP implements LexadorInterface {
         switch (caractere) {
             case ' ':
             case '\t':
-                if (!this.logicaEmLinhaIniciada) {
-                    this.analisarIndentacao();
-                } else {
-                    this.avancar();
-                }
-                
+                this.avancar();
+
                 break;
             case '\r':
             case '\n':
@@ -238,7 +275,7 @@ export class LexadorEguaP implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
                 }
-                
+
                 break;
 
             case '#':
@@ -285,7 +322,7 @@ export class LexadorEguaP implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 }
-                
+
                 break;
             case '+':
                 this.avancar();
@@ -301,7 +338,7 @@ export class LexadorEguaP implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 this.avancar();
                 break;
-                
+
             case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
@@ -376,7 +413,7 @@ export class LexadorEguaP implements LexadorInterface {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
                 break;
-                
+
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
@@ -390,7 +427,6 @@ export class LexadorEguaP implements LexadorInterface {
                 break;
 
             default:
-                this.logicaEmLinhaIniciada = true;
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
@@ -416,6 +452,8 @@ export class LexadorEguaP implements LexadorInterface {
         this.linha = 0;
 
         this.codigo = codigo || [''];
+        // Análise de indentação da primeira linha.
+        this.analisarIndentacao();
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
@@ -426,8 +464,8 @@ export class LexadorEguaP implements LexadorInterface {
         if (this.performance) {
             console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
         }
-        
-        return { 
+
+        return {
             simbolos: this.simbolos,
             erros: this.erros,
             pragmas: this.pragmas

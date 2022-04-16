@@ -508,8 +508,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
-                const get = expressao;
-                return new Conjunto(0, get.objeto, get.simbolo, valor);
+                return new Conjunto(0, expressao.objeto, expressao.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(
                     0,
@@ -551,9 +550,9 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     blocoEscopo() {
         const declaracoes = [];
-        let blocoComecou = false;
-        const simboloAtual = this.simboloAtual();
-        const simboloAnterior = this.simboloAnterior();
+        // let blocoComecou = false;
+        let simboloAtual = this.simboloAtual();
+        let simboloAnterior = this.simboloAnterior();
 
         // Situação 1: não tem bloco de escopo.
         // Exemplo: `se verdadeiro: escreva('Alguma coisa')`.
@@ -569,7 +568,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             // da linha anterior, e bloco ainda não começou, é uma situação de erro. 
             let espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
             let espacosIndentacaoLinhaAnterior = this.pragmas[simboloAnterior.linha].espacosIndentacao;
-            if (!blocoComecou && espacosIndentacaoLinhaAtual <= espacosIndentacaoLinhaAnterior) {
+            if (espacosIndentacaoLinhaAtual <= espacosIndentacaoLinhaAnterior) {
                 this.erro(
                     simboloAtual, 
                     `Indentação inconsistente na linha ${simboloAtual.linha}. `+
@@ -583,6 +582,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
                 while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
                     declaracoes.push(this.declaracao());
+                    simboloAtual = this.simboloAtual();
                     espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
                     // const espacosIndentacaoLinhaAnterior = this.pragmas[simboloAnterior.linha].espacosIndentacao;
                 }
