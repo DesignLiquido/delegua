@@ -39,7 +39,7 @@ import {
     Bloco,
     Sustar,
 } from '../../declaracoes';
-import { Delegua } from '../../delegua';
+
 import {
     AvaliadorSintaticoInterface,
     SimboloInterface,
@@ -50,6 +50,14 @@ import { RetornoLexador } from '../../lexador/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../retorno-avaliador-sintatico';
 
+/**
+ * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
+ * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
+ * 
+ * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
+ * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
+ */
 export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
@@ -550,11 +558,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     blocoEscopo() {
         const declaracoes = [];
-        // let blocoComecou = false;
         let simboloAtual = this.simboloAtual();
         let simboloAnterior = this.simboloAnterior();
 
         // Situação 1: não tem bloco de escopo.
+        // 
         // Exemplo: `se verdadeiro: escreva('Alguma coisa')`.
         // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
         
@@ -579,6 +587,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 // Indentação ok, é um bloco de escopo. 
                 // Inclui todas as declarações cujas linhas tenham o mesmo número de espaços
                 // de indentação do bloco.
+                // Se `simboloAtual` for definido em algum momento como indefinido,
+                // Significa que o código acabou, então o bloco também acabou.
                 const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
                 while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
                     declaracoes.push(this.declaracao());
