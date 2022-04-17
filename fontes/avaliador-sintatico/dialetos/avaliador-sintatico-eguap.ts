@@ -583,8 +583,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
                     declaracoes.push(this.declaracao());
                     simboloAtual = this.simboloAtual();
+                    if (!simboloAtual) break;
                     espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
-                    // const espacosIndentacaoLinhaAnterior = this.pragmas[simboloAnterior.linha].espacosIndentacao;
                 }
             }            
         }
@@ -1122,7 +1122,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();
-        } catch (erro) {
+        } catch (erro: any) {
             this.sincronizar();
             return null;
         }

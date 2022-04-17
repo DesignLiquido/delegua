@@ -158,7 +158,13 @@ export class Delegua implements DeleguaInterface {
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
-                this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                if (erroInterpretador.simbolo) {
+                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                } else {
+                    const erroEmJavaScript: any = erroInterpretador as any;
+                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
+                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
+                }
             }
         }
     }
@@ -185,7 +191,7 @@ export class Delegua implements DeleguaInterface {
     }
 
     erroEmTempoDeExecucao(erro: any): void {
-        if (erro & erro.simbolo && erro.simbolo.linha) {
+        if (erro && erro.simbolo && erro.simbolo.linha) {
             if (this.nomeArquivo)
                 console.error(
                     chalk.red(`Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
@@ -194,8 +200,7 @@ export class Delegua implements DeleguaInterface {
                 console.error(
                     chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
                 );
-        } else if (!(erro instanceof ExcecaoRetornar)) {
-            // TODO: Ao se livrar de ReturnException, remover isto.
+        } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
             console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
         }
 
