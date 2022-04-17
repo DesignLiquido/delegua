@@ -3,11 +3,11 @@ import * as caminho from 'path';
 import * as readline from 'readline';
 import chalk from 'chalk';
 
-import { Lexador } from './lexador';
-import { AvaliadorSintatico } from './avaliador-sintatico';
+import { Lexador } from './lexador/lexador';
+import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
 import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador';
-import tiposDeSimbolos from './tipos-de-simbolos';
+import tiposDeSimbolos from './lexador/tipos-de-simbolos';
 
 import { ExcecaoRetornar } from './excecoes';
 import {
@@ -19,15 +19,18 @@ import {
 } from './interfaces';
 import { ResolvedorInterface } from './interfaces/resolvedor-interface';
 import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
+import { LexadorEguaClassico } from './lexador/dialetos/lexador-egua-classico';
+import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
+import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
-import { AvaliadorSintaticoEguaClassico as AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos/egua-classico';
-import { LexadorEguaClassico } from './lexador/dialetos/egua-classico';
+import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
 
 export class Delegua implements DeleguaInterface {
     nomeArquivo: string;
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
+    arquivosAbertos: { [identificador: string]: string };
 
     interpretador: InterpretadorInterface;
     lexador: LexadorInterface;
@@ -58,8 +61,8 @@ export class Delegua implements DeleguaInterface {
                 break;
             case 'eguap':
                 this.interpretador = new Interpretador(this, process.cwd());
-                this.lexador = new Lexador();
-                this.avaliadorSintatico = new AvaliadorSintatico(performance);
+                this.lexador = new LexadorEguaP();
+                this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
                 this.resolvedor = new Resolvedor();
                 console.log('Usando dialeto: ÉguaP');
                 break;
@@ -110,10 +113,10 @@ export class Delegua implements DeleguaInterface {
         });
     }
 
-    carregarArquivo(nomeArquivo: string): void {
-        this.nomeArquivo = caminho.basename(nomeArquivo);
+    carregarArquivo(caminhoRelativoArquivo: string): void {
+        this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
-        const dadosDoArquivo: Buffer = fs.readFileSync(nomeArquivo);
+        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
             .split('\n');
@@ -133,7 +136,7 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador.simbolos);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
 
         if (retornoAvaliadorSintatico.erros.length > 0) {
             for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
@@ -155,7 +158,13 @@ export class Delegua implements DeleguaInterface {
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
-                this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                if (erroInterpretador.simbolo) {
+                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                } else {
+                    const erroEmJavaScript: any = erroInterpretador as any;
+                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
+                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
+                }
             }
         }
     }
@@ -182,7 +191,7 @@ export class Delegua implements DeleguaInterface {
     }
 
     erroEmTempoDeExecucao(erro: any): void {
-        if (erro & erro.simbolo && erro.simbolo.linha) {
+        if (erro && erro.simbolo && erro.simbolo.linha) {
             if (this.nomeArquivo)
                 console.error(
                     chalk.red(`Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
@@ -191,8 +200,7 @@ export class Delegua implements DeleguaInterface {
                 console.error(
                     chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
                 );
-        } else if (!(erro instanceof ExcecaoRetornar)) {
-            // TODO: Ao se livrar de ReturnException, remover isto.
+        } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
             console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
         }
 

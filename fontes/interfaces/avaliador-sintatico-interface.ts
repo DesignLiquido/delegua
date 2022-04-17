@@ -18,6 +18,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
+import { RetornoLexador } from '../lexador/retorno-lexador';
 
 import { SimboloInterface } from './simbolo-interface';
 
@@ -29,8 +30,8 @@ export interface AvaliadorSintaticoInterface {
     ciclos: number;
 
     sincronizar(): void;
+    consumir(tipo: any, mensagemDeErro: string): any;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
-    consumir(tipo: any, mensagemDeErro: any): any;
     verificarTipoSimboloAtual(tipo: any): boolean;
     verificarTipoProximoSimbolo(tipo: any): boolean;
     simboloAtual(): SimboloInterface;
@@ -41,7 +42,7 @@ export interface AvaliadorSintaticoInterface {
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
     primario(): any;
     finalizarChamada(entidadeChamada: Construto): Construto;
-    chamar(): Construto;
+    chamar(): any;
     unario(): Construto;
     exponenciacao(): Construto;
     multiplicar(): Construto;
@@ -75,5 +76,5 @@ export interface AvaliadorSintaticoInterface {
     corpoDaFuncao(tipo: any): Funcao;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
-    analisar(simbolos?: SimboloInterface[]): RetornoAvaliadorSintatico;
+    analisar(retornoLexador: RetornoLexador): RetornoAvaliadorSintatico;
 }
