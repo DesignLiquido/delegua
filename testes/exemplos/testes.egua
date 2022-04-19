@@ -1,6 +1,6 @@
-escreva("--------------------------------")
+escreva("-----------------------------------")
 escreva("Testes Internos - Linguagem Delégua")
-escreva("--------------------------------")
+escreva("-----------------------------------")
 escreva("|")
 
 var erros = 0
@@ -172,6 +172,11 @@ escreva("--------------------------------")
 escreva("Teste terminado com " + texto(erros) + " erro(s)!")
 escreva("--------------------------------")
 
+/* Teste com comentário de asterisco na mesma linha */
+/* 
+  Teste com comentário 
+  de várias linhas
+*/
 
 // escreva("--------------------------------")
 // escreva("Testes Internos - Biblioteca EguaMat")

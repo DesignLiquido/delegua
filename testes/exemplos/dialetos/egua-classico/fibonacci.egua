@@ -1,12 +1,12 @@
 // Recursão para o cálculo da sequência de fibonacci
 
-funcao fibonacci(n){
+função fibonacci(n){
   se(n==0){
     retorna(0);
- }senao{
+  }senão{
     se(n==1){
       retorna(1);
-   }senao{
+    }senão{
     var n1 = n-1;
     var n2 = n-2;
     var f1 = fibonacci(n1);

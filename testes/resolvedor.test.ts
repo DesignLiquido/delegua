@@ -1,13 +1,13 @@
-import { Delegua } from '../src/delegua';
+import { Delegua } from '../fontes/delegua';
 
 describe('Resolvedor', () => {
     describe('resolver()', () => {
         const delegua = new Delegua('delegua');
 
         it('Sucesso', () => {
-            const simbolos = delegua.lexador.mapear("escreva('Olá mundo')");
-            const declaracoes = delegua.avaliadorSintatico.analisar(simbolos);
-            delegua.resolvedor.resolver(declaracoes);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo')"]);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
             expect(delegua.resolvedor.escopos).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
             expect(delegua.resolvedor.escopos.pilha).toHaveLength(0);
