@@ -24,8 +24,7 @@ import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
-
-import { ServidorDepuracao } from "./depuracao";
+import { ServidorDepuracao } from './depuracao';
 
 export class Delegua implements DeleguaInterface {
     nomeArquivo: string;
