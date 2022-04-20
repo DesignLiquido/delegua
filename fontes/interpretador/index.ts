@@ -1,6 +1,6 @@
 import * as caminho from 'path';
 import * as fs from 'fs';
-import { performance } from 'perf_hooks';
+import hrtime from 'browser-process-hrtime';
 
 import tiposDeSimbolos from '../lexador/tipos-de-simbolos';
 
@@ -931,7 +931,7 @@ export class Interpretador implements InterpretadorInterface {
         this.locais = locais;
         this.erros = [];
 
-        const inicioInterpretacao: number = performance.now();
+        const inicioInterpretacao: [number, number] = hrtime();
         try {
             const declaracoes = objeto.declaracoes || objeto;
             if (declaracoes.length === 1) {
@@ -948,12 +948,12 @@ export class Interpretador implements InterpretadorInterface {
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            const fimInterpretacao: number = performance.now();
+            const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
             if (this.performance) {
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
-                        fimInterpretacao - inicioInterpretacao
-                    }ms`
+                        deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]
+                    }ns`
                 );
             }
         }
