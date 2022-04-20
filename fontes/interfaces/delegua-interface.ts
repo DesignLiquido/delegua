@@ -1,3 +1,3 @@
 export interface DeleguaInterface {
-    executar(codigo: string[], nomeArquivo: string): void;
+    executar(codigo: string[], hashArquivo?: number): void;
 }

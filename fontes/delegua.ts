@@ -25,6 +25,7 @@ import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliado
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
 import { ServidorDepuracao } from './depuracao';
+import cyrb53 from './depuracao/cyrb53';
 
 export class Delegua implements DeleguaInterface {
     nomeArquivo: string;
@@ -44,6 +45,7 @@ export class Delegua implements DeleguaInterface {
         nomeArquivo?: string
     ) {
         this.nomeArquivo = nomeArquivo;
+        this.arquivosAbertos = {};
 
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
@@ -128,13 +130,15 @@ export class Delegua implements DeleguaInterface {
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
             .split('\n');
-        this.executar(conteudoDoArquivo);
+        const hashArquivo = cyrb53(this.nomeArquivo);
+        this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
+        this.executar(conteudoDoArquivo, hashArquivo);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(codigo: string[], nomeArquivo: string = '') {
+    executar(codigo: string[], hashArquivo?: number) {
         const retornoLexador = this.lexador.mapear(codigo);
 
         if (retornoLexador.erros.length > 0) {
