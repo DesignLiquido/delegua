@@ -409,6 +409,9 @@ export class Lexador implements LexadorInterface {
         const inicioMapeamento: [number, number] = hrtime();
         this.erros = [];
         this.simbolos = [];
+        this.inicioSimbolo = 0;
+        this.atual = 0;
+        this.linha = 0;
 
         this.codigo = codigo || [''];
 
