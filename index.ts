@@ -22,9 +22,9 @@ const principal = function () {
   const delegua = new Delegua(opcoes.dialeto, opcoes.performance);
 
   if (!nomeArquivo) {
-    delegua.iniciarDelegua(true);
+    delegua.iniciarLairDelegua(true);
   } else {
-    delegua.carregarArquivo(nomeArquivo);
+    delegua.carregarArquivo(nomeArquivo, true);
   }
 };
 

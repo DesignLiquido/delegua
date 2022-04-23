@@ -1,6 +1,6 @@
 import * as net from 'net';
 
-import { Delegua } from '../../src/delegua';
+import { Delegua } from '../delegua';
 
 export class ServidorDepuracao {
     instanciaDelegua: Delegua;
@@ -17,12 +17,16 @@ export class ServidorDepuracao {
         conexao.setEncoding('utf8');
 
         const aoReceberDados: any = (dados: Buffer) => {
-            const comando: string = String(dados).replace(/\r?\n|\r/g, "");
+            const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
             process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
 
-            switch (comando) {
+            switch (comando[0]) {
                 case "adentrar-escopo":
                     conexao.write("Recebido comando 'adentrar-escopo'\n");
+                    break;
+                case "adicionar-ponto-parada":
+                    conexao.write("Recebido comando 'adicionar-ponto-parada'\n");
+                    Object.keys(this.instanciaDelegua.arquivosAbertos).forEach((arquivo) => conexao.write(arquivo));  
                     break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
@@ -32,6 +36,9 @@ export class ServidorDepuracao {
                     break;
                 case "proximo":
                     conexao.write("Recebido comando 'proximo'\n");
+                    break;
+                case "remover-ponto-parada":
+                    conexao.write("Recebido comando 'remover-ponto-parada'\n");
                     break;
                 case "sair-escopo":
                     conexao.write("Recebido comando 'sair-escopo'\n");

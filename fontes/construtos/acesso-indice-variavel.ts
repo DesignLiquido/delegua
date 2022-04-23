@@ -6,12 +6,16 @@ import { Construto } from "./construto";
  */
 export class AcessoIndiceVariavel implements Construto {
     linha: number;
+    hashArquivo?: number;
+
     entidadeChamada: Construto;
     simboloFechamento: any;
     indice: any;
 
-    constructor(entidadeChamada: Construto, indice: any, simboloFechamento: any) {
+    constructor(hashArquivo: number, entidadeChamada: Construto, indice: any, simboloFechamento: any) {
         this.linha = entidadeChamada.linha;
+        this.hashArquivo = hashArquivo;
+        
         this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.simboloFechamento = simboloFechamento;

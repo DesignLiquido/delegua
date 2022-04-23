@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
 import { Resolvedor } from './resolvedor';
-import { Interpretador } from './interpretador';
+import { Interpretador } from './interpretador/interpretador';
 import tiposDeSimbolos from './lexador/tipos-de-simbolos';
 
 import { ExcecaoRetornar } from './excecoes';
@@ -95,7 +95,12 @@ export class Delegua implements DeleguaInterface {
         }
     }
 
-    iniciarDelegua(depurador: boolean = false): void {
+    /**
+     * LAIR (Leia-Avalie-Imprima-Repita) é o modo em que Delégua executa em modo console, 
+     * ou seja, esperando como entrada linhas de código fornecidas pelo usuário.
+     * @param depurador Booleano que liga ou desliga o depurador.
+     */
+    iniciarLairDelegua(depurador: boolean = false): void {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
@@ -123,8 +128,13 @@ export class Delegua implements DeleguaInterface {
         });
     }
 
-    carregarArquivo(caminhoRelativoArquivo: string): void {
+    carregarArquivo(caminhoRelativoArquivo: string, depurador: boolean = false): void {
         this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
+
+        if (depurador) {
+            const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
+            servidorDepuracao.iniciarServidorDepuracao();
+        }
 
         const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
@@ -148,7 +158,7 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
 
         if (retornoAvaliadorSintatico.erros.length > 0) {
             for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
