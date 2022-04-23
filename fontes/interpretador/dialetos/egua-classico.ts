@@ -818,7 +818,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
 
         if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
+            this.ambiente = this.ambiente.ambientePai;
         }
 
         this.ambiente.atribuirVariavel(declaracao.simbolo, criado);

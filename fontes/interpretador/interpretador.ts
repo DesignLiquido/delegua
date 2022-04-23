@@ -28,6 +28,7 @@ import {
 import { Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
+import { PontoParada } from '../depuracao';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -41,6 +42,7 @@ export class Interpretador implements InterpretadorInterface {
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     performance: boolean;
+    pontosParada: PontoParada[];
 
     constructor(
         Delegua: Delegua, 
@@ -50,6 +52,7 @@ export class Interpretador implements InterpretadorInterface {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
+        this.pontosParada = [];
 
         this.global = new Ambiente();
         this.ambiente = this.global;
@@ -834,7 +837,7 @@ export class Interpretador implements InterpretadorInterface {
         );
 
         if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
+            this.ambiente = this.ambiente.ambientePai;
         }
 
         this.ambiente.atribuirVariavel(declaracao.simbolo, criado);
