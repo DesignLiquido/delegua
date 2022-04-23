@@ -24,6 +24,8 @@ import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
+import { ImportadorInterface } from './interfaces/importador-interface';
+import { Importador, RetornoImportador } from './importador';
 
 export class Delegua implements DeleguaInterface {
     nomeArquivo: string;
@@ -36,6 +38,7 @@ export class Delegua implements DeleguaInterface {
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
+    importador: ImportadorInterface;
 
     constructor(
         dialeto: string = 'delegua',
@@ -78,6 +81,8 @@ export class Delegua implements DeleguaInterface {
                 console.log('Usando dialeto: padrão');
                 break;
         }
+
+        this.importador = new Importador(this.lexador, this.avaliadorSintatico);
     }
 
     versao(): string {
@@ -114,19 +119,64 @@ export class Delegua implements DeleguaInterface {
     }
 
     carregarArquivo(caminhoRelativoArquivo: string): void {
-        this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
+        /* this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
         const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
             .split('\n');
-        this.executar(conteudoDoArquivo);
+        this.executar(conteudoDoArquivo); */
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
+        this.executar2(retornoImportador);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(codigo: string[], nomeArquivo: string = '') {
+    executar2(retornoImportador: RetornoImportador) {
+        // const retornoLexador = this.lexador.mapear(codigo);
+
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (const erroLexador of retornoImportador.retornoLexador.erros) {
+                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+            }
+            return;
+        }
+
+        // const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
+                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+            }
+            return;
+        }
+
+        const retornoResolvedor = this.resolvedor.resolver(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+
+        if (retornoResolvedor.erros.length > 0) {
+            for (const erroResolvedor of retornoResolvedor.erros) {
+                this.erro(erroResolvedor.simbolo, erroResolvedor.message);
+            }
+            return;
+        }
+
+        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+
+        if (retornoInterpretador.erros.length > 0) {
+            for (const erroInterpretador of retornoInterpretador.erros) {
+                if (erroInterpretador.simbolo) {
+                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                } else {
+                    const erroEmJavaScript: any = erroInterpretador as any;
+                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
+                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
+                }
+            }
+        }
+    }
+
+    executar(codigo: string[]) {
         const retornoLexador = this.lexador.mapear(codigo);
 
         if (retornoLexador.erros.length > 0) {
