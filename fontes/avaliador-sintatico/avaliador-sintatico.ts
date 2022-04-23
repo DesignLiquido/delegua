@@ -1,5 +1,5 @@
 import tiposDeSimbolos from '../tipos-de-simbolos';
-import { performance } from 'perf_hooks';
+import hrtime from 'browser-process-hrtime';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {
     AtribuicaoSobrescrita,
@@ -1117,7 +1117,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
-        const inicioAnalise: number = performance.now();
+        const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
@@ -1130,9 +1130,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             declaracoes.push(this.declaracao());
         }
 
-        const fimAnalise: number = performance.now();
+        const deltaAnalise: [number, number] = hrtime(inicioAnalise);
         if (this.performance) {
-            console.log(`[Avaliador Sintático] Tempo para análise: ${fimAnalise - inicioAnalise}ms`);
+            console.log(`[Avaliador Sintático] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`);
         }
         
         return { 

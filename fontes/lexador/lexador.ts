@@ -1,4 +1,4 @@
-import { performance } from 'perf_hooks';
+import hrtime from 'browser-process-hrtime';
 import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tipos-de-simbolos";
 import { ErroLexador } from "./erro-lexador";
@@ -406,9 +406,12 @@ export class Lexador implements LexadorInterface {
     }
 
     mapear(codigo?: string[]): RetornoLexador {
-        const inicioMapeamento: number = performance.now();
+        const inicioMapeamento: [number, number] = hrtime();
         this.erros = [];
         this.simbolos = [];
+        this.inicioSimbolo = 0;
+        this.atual = 0;
+        this.linha = 0;
 
         this.codigo = codigo || [''];
 
@@ -417,9 +420,9 @@ export class Lexador implements LexadorInterface {
             this.analisarToken();
         }
 
-        const fimMapeamento: number = performance.now();
+        const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
         if (this.performance) {
-            console.log(`[Lexador] Tempo para mapeamento: ${fimMapeamento - inicioMapeamento}ms`);
+            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
         
         return { 
