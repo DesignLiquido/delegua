@@ -51,6 +51,7 @@ export class Delegua implements DeleguaInterface {
         this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
+
         switch (this.dialeto) {
             case 'egua':
                 this.interpretador = new InterpretadorEguaClassico(
@@ -60,29 +61,33 @@ export class Delegua implements DeleguaInterface {
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
                 this.resolvedor = new ResolvedorEguaClassico();
+                
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguap':
-                this.interpretador = new Interpretador(this, process.cwd());
+                this.resolvedor = new Resolvedor();
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
-                this.resolvedor = new Resolvedor();
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
+                this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd());
+
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
+                this.resolvedor = new Resolvedor();
+                this.lexador = new Lexador(performance);
+                this.avaliadorSintatico = new AvaliadorSintatico(performance);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
                 this.interpretador = new Interpretador(
-                    this,
+                    this.importador,
+                    this.resolvedor,
                     process.cwd(),
                     performance
                 );
-                this.lexador = new Lexador(performance);
-                this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.resolvedor = new Resolvedor();
+                
                 console.log('Usando dialeto: padrão');
                 break;
         }
-
-        this.importador = new Importador(this.lexador, this.avaliadorSintatico);
     }
 
     versao(): string {
@@ -152,16 +157,17 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        const retornoResolvedor = this.resolvedor.resolver(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+        /* const retornoResolvedor = this.resolvedor.resolver(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (retornoResolvedor.erros.length > 0) {
             for (const erroResolvedor of retornoResolvedor.erros) {
                 this.erro(erroResolvedor.simbolo, erroResolvedor.message);
             }
             return;
-        }
+        } */
 
-        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+        // const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {

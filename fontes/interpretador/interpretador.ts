@@ -15,7 +15,7 @@ import {
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from '../interfaces';
 import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
 import {
     Chamavel,
@@ -28,13 +28,17 @@ import {
 import { Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
+import { ImportadorInterface } from '../interfaces/importador-interface';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
-    Delegua: Delegua;
+    // Delegua: Delegua;
+    importador: ImportadorInterface;
+    resolvedor: ResolvedorInterface;
+
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
@@ -43,11 +47,15 @@ export class Interpretador implements InterpretadorInterface {
     performance: boolean;
 
     constructor(
-        Delegua: Delegua, 
+        // Delegua: Delegua, 
+        importador: ImportadorInterface,
+        resolvedor: ResolvedorInterface,
         diretorioBase: string,
         performance: boolean = false
     ) {
-        this.Delegua = Delegua;
+        // this.Delegua = Delegua;
+        this.importador = importador;
+        this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
 
@@ -555,7 +563,7 @@ export class Interpretador implements InterpretadorInterface {
             return carregarBibliotecaNode(caminhoRelativo);
         }
 
-        try {
+        /* try {
             if (!fs.existsSync(caminhoTotal)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.simboloFechamento,
@@ -569,22 +577,24 @@ export class Interpretador implements InterpretadorInterface {
                 'Não foi possível ler o arquivo.',
                 declaracao.linha
             );
-        }
-
-        const conteudoImportacao: string[] = fs.readFileSync(caminhoTotal)
+        } */
+        
+        /* const conteudoImportacao: string[] = fs.readFileSync(caminhoTotal)
             .toString()
-            .split('\n');
+            .split('\n'); */
+        const conteudoImportacao = this.importador.importar(caminhoRelativo);
 
-        const delegua: Delegua = new Delegua(
+        /* const delegua: Delegua = new Delegua(
             this.Delegua.dialeto,
             this.performance,
             nomeArquivo
         ); 
 
-        delegua.executar(conteudoImportacao);
+        delegua.executar(conteudoImportacao); */
+        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
 
-        let funcoesDeclaradas = delegua.interpretador.global.obterTodasDeleguaFuncao();
-
+        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
+        
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
         if (eDicionario(funcoesDeclaradas)) {
@@ -927,9 +937,13 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(objeto: any, locais: Map<Construto, number>): RetornoInterpretador {
-        this.locais = locais;
+    // interpretar(objeto: any, locais: Map<Construto, number>): RetornoInterpretador {
+    interpretar(objeto: any): RetornoInterpretador {
+        // this.locais = locais;
         this.erros = [];
+
+        const retornoResolvedor = this.resolvedor.resolver(objeto);
+        this.locais = retornoResolvedor.locais;
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {

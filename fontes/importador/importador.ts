@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as caminho from 'path';
+import { ErroEmTempoDeExecucao } from '../excecoes';
 import { AvaliadorSintaticoInterface, LexadorInterface } from '../interfaces';
 
 import { ImportadorInterface } from "../interfaces/importador-interface";
@@ -16,6 +17,15 @@ export class Importador implements ImportadorInterface {
 
     importar(caminhoRelativoArquivo: string): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
+        // const hashArquivo = 
+
+        if (!fs.existsSync(nomeArquivo)) {
+            /* throw new ErroEmTempoDeExecucao(
+                declaracao.simboloFechamento,
+                'Não foi possível encontrar arquivo importado.',
+                declaracao.linha
+            ); */
+        }
 
         const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
