@@ -35,7 +35,6 @@ import { ImportadorInterface } from '../interfaces/importador-interface';
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
-    // Delegua: Delegua;
     importador: ImportadorInterface;
     resolvedor: ResolvedorInterface;
 
@@ -47,13 +46,11 @@ export class Interpretador implements InterpretadorInterface {
     performance: boolean;
 
     constructor(
-        // Delegua: Delegua, 
         importador: ImportadorInterface,
         resolvedor: ResolvedorInterface,
         diretorioBase: string,
         performance: boolean = false
     ) {
-        // this.Delegua = Delegua;
         this.importador = importador;
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
@@ -563,34 +560,7 @@ export class Interpretador implements InterpretadorInterface {
             return carregarBibliotecaNode(caminhoRelativo);
         }
 
-        /* try {
-            if (!fs.existsSync(caminhoTotal)) {
-                throw new ErroEmTempoDeExecucao(
-                    declaracao.simboloFechamento,
-                    'Não foi possível encontrar arquivo importado.',
-                    declaracao.linha
-                );
-            }
-        } catch (erro) {
-            throw new ErroEmTempoDeExecucao(
-                declaracao.simboloFechamento,
-                'Não foi possível ler o arquivo.',
-                declaracao.linha
-            );
-        } */
-        
-        /* const conteudoImportacao: string[] = fs.readFileSync(caminhoTotal)
-            .toString()
-            .split('\n'); */
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
-
-        /* const delegua: Delegua = new Delegua(
-            this.Delegua.dialeto,
-            this.performance,
-            nomeArquivo
-        ); 
-
-        delegua.executar(conteudoImportacao); */
         const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
 
         let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
@@ -937,9 +907,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    // interpretar(objeto: any, locais: Map<Construto, number>): RetornoInterpretador {
     interpretar(objeto: any): RetornoInterpretador {
-        // this.locais = locais;
         this.erros = [];
 
         const retornoResolvedor = this.resolvedor.resolver(objeto);

@@ -54,13 +54,14 @@ export class Delegua implements DeleguaInterface {
 
         switch (this.dialeto) {
             case 'egua':
+                this.resolvedor = new ResolvedorEguaClassico();
+                this.lexador = new LexadorEguaClassico();
+                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
                 this.interpretador = new InterpretadorEguaClassico(
                     this,
                     process.cwd()
                 );
-                this.lexador = new LexadorEguaClassico();
-                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.resolvedor = new ResolvedorEguaClassico();
                 
                 console.log('Usando dialeto: Égua');
                 break;
@@ -124,31 +125,20 @@ export class Delegua implements DeleguaInterface {
     }
 
     carregarArquivo(caminhoRelativoArquivo: string): void {
-        /* this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-
-        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
-        const conteudoDoArquivo: string[] = dadosDoArquivo
-            .toString()
-            .split('\n');
-        this.executar(conteudoDoArquivo); */
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
-        this.executar2(retornoImportador);
+        this.executar(retornoImportador);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar2(retornoImportador: RetornoImportador) {
-        // const retornoLexador = this.lexador.mapear(codigo);
-
+    executar(retornoImportador: RetornoImportador) {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
             }
             return;
         }
-
-        // const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
 
         if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
             for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
@@ -166,51 +156,7 @@ export class Delegua implements DeleguaInterface {
             return;
         } */
 
-        // const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
         const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-
-        if (retornoInterpretador.erros.length > 0) {
-            for (const erroInterpretador of retornoInterpretador.erros) {
-                if (erroInterpretador.simbolo) {
-                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
-                } else {
-                    const erroEmJavaScript: any = erroInterpretador as any;
-                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
-                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
-                }
-            }
-        }
-    }
-
-    executar(codigo: string[]) {
-        const retornoLexador = this.lexador.mapear(codigo);
-
-        if (retornoLexador.erros.length > 0) {
-            for (const erroLexador of retornoLexador.erros) {
-                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
-            }
-            return;
-        }
-
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-
-        if (retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
-                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
-            }
-            return;
-        }
-
-        const retornoResolvedor = this.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-
-        if (retornoResolvedor.erros.length > 0) {
-            for (const erroResolvedor of retornoResolvedor.erros) {
-                this.erro(erroResolvedor.simbolo, erroResolvedor.message);
-            }
-            return;
-        }
-
-        const retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
