@@ -119,7 +119,13 @@ export class Delegua implements DeleguaInterface {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.executar([linha]);
+            const retornoLexador = this.lexador.mapear([linha]);
+            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+            this.executar({
+                codigo: [linha],
+                retornoLexador,
+                retornoAvaliadorSintatico
+            } as RetornoImportador);
             leiaLinha.prompt();
         });
     }
@@ -146,15 +152,6 @@ export class Delegua implements DeleguaInterface {
             }
             return;
         }
-
-        /* const retornoResolvedor = this.resolvedor.resolver(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-
-        if (retornoResolvedor.erros.length > 0) {
-            for (const erroResolvedor of retornoResolvedor.erros) {
-                this.erro(erroResolvedor.simbolo, erroResolvedor.message);
-            }
-            return;
-        } */
 
         const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
