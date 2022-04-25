@@ -24,6 +24,8 @@ import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
+import { ImportadorInterface } from './interfaces/importador-interface';
+import { Importador, RetornoImportador } from './importador';
 
 export class Delegua implements DeleguaInterface {
     nomeArquivo: string;
@@ -36,6 +38,7 @@ export class Delegua implements DeleguaInterface {
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
+    importador: ImportadorInterface;
 
     constructor(
         dialeto: string = 'delegua',
@@ -48,33 +51,41 @@ export class Delegua implements DeleguaInterface {
         this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
+
         switch (this.dialeto) {
             case 'egua':
+                this.resolvedor = new ResolvedorEguaClassico();
+                this.lexador = new LexadorEguaClassico();
+                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
                 this.interpretador = new InterpretadorEguaClassico(
                     this,
                     process.cwd()
                 );
-                this.lexador = new LexadorEguaClassico();
-                this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.resolvedor = new ResolvedorEguaClassico();
+                
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguap':
-                this.interpretador = new Interpretador(this, process.cwd());
+                this.resolvedor = new Resolvedor();
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
-                this.resolvedor = new Resolvedor();
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
+                this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd());
+
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
+                this.resolvedor = new Resolvedor();
+                this.lexador = new Lexador(performance);
+                this.avaliadorSintatico = new AvaliadorSintatico(performance);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
                 this.interpretador = new Interpretador(
-                    this,
+                    this.importador,
+                    this.resolvedor,
                     process.cwd(),
                     performance
                 );
-                this.lexador = new Lexador(performance);
-                this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.resolvedor = new Resolvedor();
+                
                 console.log('Usando dialeto: padrão');
                 break;
         }
@@ -108,53 +119,41 @@ export class Delegua implements DeleguaInterface {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            this.executar([linha]);
+            const retornoLexador = this.lexador.mapear([linha]);
+            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+            this.executar({
+                codigo: [linha],
+                retornoLexador,
+                retornoAvaliadorSintatico
+            } as RetornoImportador);
             leiaLinha.prompt();
         });
     }
 
     carregarArquivo(caminhoRelativoArquivo: string): void {
-        this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-
-        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
-        const conteudoDoArquivo: string[] = dadosDoArquivo
-            .toString()
-            .split('\n');
-        this.executar(conteudoDoArquivo);
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
+        this.executar(retornoImportador);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(codigo: string[], nomeArquivo: string = '') {
-        const retornoLexador = this.lexador.mapear(codigo);
-
-        if (retornoLexador.erros.length > 0) {
-            for (const erroLexador of retornoLexador.erros) {
+    executar(retornoImportador: RetornoImportador) {
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
             }
             return;
         }
 
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-
-        if (retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
                 this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
             }
             return;
         }
 
-        const retornoResolvedor = this.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-
-        if (retornoResolvedor.erros.length > 0) {
-            for (const erroResolvedor of retornoResolvedor.erros) {
-                this.erro(erroResolvedor.simbolo, erroResolvedor.message);
-            }
-            return;
-        }
-
-        const retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
