@@ -5,6 +5,7 @@ import {
     InterpretadorInterface,
     LexadorInterface,
     ResolvedorInterface,
+    SimboloInterface,
 } from "../interfaces";
 
 export interface DeleguaInterface {
@@ -20,5 +21,11 @@ export interface DeleguaInterface {
     resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
 
+    versao(): string;
+    iniciarDelegua(): void;
+    carregarArquivo(caminhoRelativoArquivo: string): void;
     executar(retornoImportador: RetornoImportador): void;
+    reportar(linha: number, onde: any, mensagem: string): void;
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): void;
+    erroEmTempoDeExecucao(erro: any): void;
 }
