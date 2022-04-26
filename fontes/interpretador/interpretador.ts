@@ -1,11 +1,9 @@
 import * as caminho from 'path';
-import * as fs from 'fs';
 import hrtime from 'browser-process-hrtime';
 
 import tiposDeSimbolos from '../lexador/tipos-de-simbolos';
 
 import { Ambiente } from '../ambiente';
-import { Delegua } from '../delegua';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
