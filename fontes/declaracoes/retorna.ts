@@ -7,7 +7,7 @@ export class Retorna extends Declaracao {
     valor: any;
 
     constructor(simboloChave: SimboloInterface, valor: any) {
-        super(Number(simboloChave.linha));
+        super(Number(simboloChave.linha), simboloChave.hashArquivo);
         this.simboloChave = simboloChave;
         this.valor = valor;
     }

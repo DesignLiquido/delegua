@@ -22,5 +22,5 @@ export interface LexadorInterface {
     analisarNumero(): void;
     identificarPalavraChave(): void;
     analisarToken(): void;
-    mapear(codigo?: string[]): RetornoLexador;
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador;
 }

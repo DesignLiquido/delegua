@@ -8,7 +8,7 @@ export class Classe extends Declaracao {
     metodos: any;
 
     constructor(simbolo: SimboloInterface, superClasse: any, metodos: any) {
-        super(Number(simbolo.linha));
+        super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.superClasse = superClasse;
         this.metodos = metodos;

@@ -7,7 +7,7 @@ export class Importar extends Declaracao {
     simboloFechamento: any;
 
     constructor(caminho: Literal, simboloFechamento: any) {
-        super(0);
+        super(caminho.linha, 0);
         this.caminho = caminho;
         this.simboloFechamento = simboloFechamento;
     }

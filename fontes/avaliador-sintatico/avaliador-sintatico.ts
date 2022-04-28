@@ -736,7 +736,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
 
-        return new Sustar();
+        return new Sustar(this.simboloAtual());
     }
 
     declaracaoContinua(): Continua {
@@ -747,7 +747,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             );
         }
 
-        return new Continua();
+        return new Continua(this.simboloAtual());
     }
 
     declaracaoRetorna(): Retorna {
