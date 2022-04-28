@@ -35,7 +35,7 @@ export class Importador implements ImportadorInterface {
             .split('\n');
 
         const retornoLexador = this.lexador.mapear(conteudoDoArquivo, hashArquivo);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
         
         return {
             nomeArquivo,

@@ -7,8 +7,8 @@ export class Para extends Declaracao {
     incrementar: any;
     corpo: any;
 
-    constructor(linha: number, inicializador: any, condicao: any, incrementar: any, corpo: any) {
-        super(linha, 0);
+    constructor(hashArquivo: number, linha: number, inicializador: any, condicao: any, incrementar: any, corpo: any) {
+        super(linha, hashArquivo);
         this.inicializador = inicializador;
         this.condicao = condicao;
         this.incrementar = incrementar;

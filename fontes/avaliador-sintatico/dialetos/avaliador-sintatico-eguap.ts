@@ -740,6 +740,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             const corpo = this.resolverDeclaracao();
 
             return new Para(
+                this.hashArquivo,
                 Number(simboloPara.linha),
                 inicializador,
                 condicao,
@@ -758,7 +759,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             this.erro(this.simboloAnterior(), "'sustar' deve estar dentro de um laço de repetição.");
         }
 
-        return new Sustar();
+        return new Sustar(this.simboloAtual());
     }
 
     declaracaoContinua(): Continua {
@@ -769,7 +770,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             );
         }
 
-        return new Continua();
+        return new Continua(this.simboloAtual());
     }
 
     declaracaoRetorna(): Retorna {

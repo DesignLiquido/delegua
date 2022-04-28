@@ -6,7 +6,7 @@ export class Expressao extends Declaracao {
     expressao: Construto;
 
     constructor(expressao: Construto) {
-        super(expressao.linha, 0);
+        super(expressao.linha, expressao.hashArquivo);
         this.expressao = expressao;
     }
 

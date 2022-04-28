@@ -697,7 +697,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
             const corpo = this.resolverDeclaracao();
 
-            return new Para(Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+            return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
         } finally {
             this.ciclos -= 1;
         }
@@ -712,7 +712,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             tiposDeSimbolos.PONTO_E_VIRGULA,
             "Esperado ';' após 'pausa'."
         );
-        return new Sustar();
+        return new Sustar(this.simboloAtual());
     }
 
     declaracaoContinua(): any {
@@ -727,7 +727,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             tiposDeSimbolos.PONTO_E_VIRGULA,
             "Esperado ';' após 'continua'."
         );
-        return new Continua();
+        return new Continua(this.simboloAtual());
     }
 
     declaracaoRetorna(): any {

@@ -430,7 +430,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    resolver(declaracoes: Declaracao | Declaracao[]): RetornoResolvedor {
+    resolver(declaracoes: Construto | Declaracao | Declaracao[]): RetornoResolvedor {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
