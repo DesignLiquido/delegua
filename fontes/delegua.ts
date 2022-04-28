@@ -168,7 +168,7 @@ export class Delegua implements DeleguaInterface {
         }
     }
 
-    reportar(linha: number, onde: any, mensagem: string) {
+    reportar(linha: number, onde: any, mensagem: string): void {
         if (this.nomeArquivo)
             console.error(
                 chalk.red(`[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}]`) + ` Erro${onde}: ${mensagem}`
@@ -177,7 +177,7 @@ export class Delegua implements DeleguaInterface {
         this.teveErro = true;
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string) {
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
         if (simbolo.tipo === tiposDeSimbolos.EOF) {
             this.reportar(Number(simbolo.linha), ' no final', mensagemDeErro);
         } else {
