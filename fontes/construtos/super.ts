@@ -1,7 +1,6 @@
 import { SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
-
 export class Super implements Construto {
     linha: number;
     hashArquivo?: number;

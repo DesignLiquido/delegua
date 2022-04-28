@@ -136,7 +136,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.atual === this.simbolos.length;
     }
 
-    avancarEDevolverAnterior(): any {
+    avancarEDevolverAnterior(): SimboloInterface {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simboloAnterior();
     }
@@ -153,7 +153,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return false;
     }
 
-    primario(): any {
+    primario(): Construto {
+        const simboloAtual = this.simboloAtual();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
@@ -176,7 +177,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.COLCHETE_DIREITO
                 )
             ) {
-                return new Vetor(this.hashArquivo, 0, []);
+                return new Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
             }
 
             while (
@@ -197,7 +198,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 }
             }
 
-            return new Vetor(this.hashArquivo, 0, valores);
+            return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
         }
 
         if (
@@ -211,7 +212,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.CHAVE_DIREITA
                 )
             ) {
-                return new Dicionario(this.hashArquivo, 0, [], []);
+                return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), [], []);
             }
 
             while (
@@ -239,7 +240,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 }
             }
 
-            return new Dicionario(this.hashArquivo, 0, chaves, valores);
+            return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
         }
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO))
@@ -247,13 +248,13 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO))
             return this.corpoDaFuncao('funcao');
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
-            return new Literal(this.hashArquivo, 0, false);
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
-            return new Literal(this.hashArquivo, 0, true);
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NULO))
-            return new Literal(this.hashArquivo, 0, null);
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), null);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
-            return new Isto(this.hashArquivo, 0, this.simboloAnterior());
+            return new Isto(this.hashArquivo, Number(simboloAtual.linha), this.simboloAnterior());
 
         if (
             this.verificarSeSimboloAtualEIgualA(
@@ -276,13 +277,13 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.PARENTESE_ESQUERDO
             )
         ) {
-            let expr = this.expressao();
+            let expressao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após a expressão."
             );
 
-            return new Agrupamento(this.hashArquivo, 0, expr);
+            return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
@@ -732,7 +733,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
     declaracaoSustar(): any {
         if (this.ciclos < 1) {
-            this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um loop.");
+            this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
 
         return new Sustar();
@@ -750,14 +751,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     declaracaoRetorna(): Retorna {
-        const palavraChave = this.simboloAnterior();
+        const simboloChave = this.simboloAnterior();
         let valor = null;
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
             valor = this.expressao();
         }
 
-        return new Retorna(palavraChave, valor);
+        return new Retorna(simboloChave, valor);
     }
 
     declaracaoEscolha(): Escolha {
@@ -787,7 +788,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let branchConditions = [this.expressao()];
+                    let condicoesCaminho = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -795,7 +796,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
-                        branchConditions.push(this.expressao());
+                        condicoesCaminho.push(this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
@@ -812,7 +813,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     );
 
                     caminhos.push({
-                        conditions: branchConditions,
+                        condicoes: condicoesCaminho,
                         declaracoes,
                     });
                 } else if (

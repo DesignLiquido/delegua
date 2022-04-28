@@ -1,13 +1,14 @@
+import { SimboloInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
 export class Retorna extends Declaracao {
-    palavraChave: string;
+    simboloChave: SimboloInterface;
     valor: any;
 
-    constructor(palavraChave: any, valor: any) {
-        super(0);
-        this.palavraChave = palavraChave;
+    constructor(simboloChave: SimboloInterface, valor: any) {
+        super(Number(simboloChave.linha));
+        this.simboloChave = simboloChave;
         this.valor = valor;
     }
 
