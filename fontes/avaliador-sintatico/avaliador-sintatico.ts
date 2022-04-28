@@ -151,7 +151,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return false;
     }
 
-    primario(): any {
+    primario(): Construto {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const palavraChave = this.simboloAnterior();
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
