@@ -50,5 +50,5 @@ export interface InterpretadorInterface {
     visitarExpressaoSuper(expressao: any): any;
     paraTexto(objeto: any): any;
     executar(declaracao: any, mostrarResultado: boolean): void;
-    interpretar(declaracoes: any, locais: Map<Construto, number>): RetornoInterpretador;
+    interpretar(declaracoes: any, locais?: Map<Construto, number>): RetornoInterpretador;
 }

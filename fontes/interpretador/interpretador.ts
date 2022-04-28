@@ -1,11 +1,9 @@
 import * as caminho from 'path';
-import * as fs from 'fs';
 import hrtime from 'browser-process-hrtime';
 
 import tiposDeSimbolos from '../lexador/tipos-de-simbolos';
 
 import { Ambiente } from '../ambiente';
-import { Delegua } from '../delegua';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
@@ -15,7 +13,7 @@ import {
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from '../interfaces';
 import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
 import {
     Chamavel,
@@ -28,6 +26,7 @@ import {
 import { Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
+import { ImportadorInterface } from '../interfaces/importador-interface';
 import { PontoParada } from '../depuracao';
 
 /**
@@ -35,7 +34,9 @@ import { PontoParada } from '../depuracao';
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
-    Delegua: Delegua;
+    importador: ImportadorInterface;
+    resolvedor: ResolvedorInterface;
+
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
@@ -45,11 +46,13 @@ export class Interpretador implements InterpretadorInterface {
     pontosParada: PontoParada[];
 
     constructor(
-        Delegua: Delegua, 
+        importador: ImportadorInterface,
+        resolvedor: ResolvedorInterface,
         diretorioBase: string,
         performance: boolean = false
     ) {
-        this.Delegua = Delegua;
+        this.importador = importador;
+        this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
         this.pontosParada = [];
@@ -468,9 +471,9 @@ export class Interpretador implements InterpretadorInterface {
             for (let i = 0; i < caminhos.length; i++) {
                 let caminho = caminhos[i];
 
-                for (let j = 0; j < caminho.conditions.length; j++) {
+                for (let j = 0; j < caminho.condicoes.length; j++) {
                     if (
-                        this.avaliar(caminho.conditions[j]) === condicaoEscolha
+                        this.avaliar(caminho.condicoes[j]) === condicaoEscolha
                     ) {
                         encontrado = true;
 
@@ -558,36 +561,11 @@ export class Interpretador implements InterpretadorInterface {
             return carregarBibliotecaNode(caminhoRelativo);
         }
 
-        try {
-            if (!fs.existsSync(caminhoTotal)) {
-                throw new ErroEmTempoDeExecucao(
-                    declaracao.simboloFechamento,
-                    'Não foi possível encontrar arquivo importado.',
-                    declaracao.linha
-                );
-            }
-        } catch (erro) {
-            throw new ErroEmTempoDeExecucao(
-                declaracao.simboloFechamento,
-                'Não foi possível ler o arquivo.',
-                declaracao.linha
-            );
-        }
+        const conteudoImportacao = this.importador.importar(caminhoRelativo);
+        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
 
-        const conteudoImportacao: string[] = fs.readFileSync(caminhoTotal)
-            .toString()
-            .split('\n');
-
-        const delegua: Delegua = new Delegua(
-            this.Delegua.dialeto,
-            this.performance,
-            nomeArquivo
-        ); 
-
-        delegua.executar(conteudoImportacao);
-
-        let funcoesDeclaradas = delegua.interpretador.global.obterTodasDeleguaFuncao();
-
+        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
+        
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
         if (eDicionario(funcoesDeclaradas)) {
@@ -930,9 +908,11 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(objeto: any, locais: Map<Construto, number>): RetornoInterpretador {
-        this.locais = locais;
+    interpretar(objeto: any): RetornoInterpretador {
         this.erros = [];
+
+        const retornoResolvedor = this.resolvedor.resolver(objeto);
+        this.locais = retornoResolvedor.locais;
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {

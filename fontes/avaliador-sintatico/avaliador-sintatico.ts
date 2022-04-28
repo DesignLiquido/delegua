@@ -97,7 +97,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return excecao;
     }
 
-    consumir(tipo: any, mensagemDeErro: string): any {
+    consumir(tipo: any, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
@@ -997,7 +997,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     corpoDaFuncao(tipo: string): Funcao {
-        this.consumir(
+        // O parêntese esquerdo é considerado o símbolo inicial para
+        // fins de pragma.
+        const parenteseEsquerdo = this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${tipo}.`
         );
@@ -1053,7 +1055,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(this.hashArquivo, 0, parametros, corpo);
+        return new Funcao(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     }
 
     declaracaoDeClasse(): Classe {

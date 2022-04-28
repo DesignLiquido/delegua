@@ -32,13 +32,17 @@ import { ErroInterpretador } from '../erro-interpretador';
  */
 export class InterpretadorEguaClassico implements InterpretadorInterface {
     Delegua: Delegua;
+
     diretorioBase: any;
     global: Ambiente;
     ambiente: Ambiente;
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
 
-    constructor(Delegua: Delegua, diretorioBase: string) {
+    constructor(
+        Delegua: Delegua,
+        diretorioBase: string
+    ) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
 
@@ -908,9 +912,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         declaracao.aceitar(this);
     }
 
-    interpretar(declaracoes: any, locais: Map<Construto, number>): RetornoInterpretador {
-        this.locais = locais;
+    interpretar(declaracoes: any): RetornoInterpretador {
         this.erros = [];
+
+        const retornoResolvedor = this.Delegua.resolvedor.resolver(declaracoes);
+        this.locais = retornoResolvedor.locais;
         
         try {
             for (let i = 0; i < declaracoes.length; i++) {

@@ -1,0 +1,3 @@
+funcao escreverMaisAlgumaCoisa() {
+    escreva("Essa outra importação também funcionou.")
+}

@@ -1,4 +1,4 @@
-funcao bhaskara(a,b,c){
+função bhaskara(a,b,c){
   //A variável "d" vai simbolizar o Delta.
   //"a", "b", e "c" irão representar os coeficientes da equação.
   var d = b**2;

@@ -1,2 +1,5 @@
 var importacao = importar("./testes/exemplos/importacao/importacao-2.egua")
 importacao.escreverAlgumaCoisa()
+
+var segundaImportacao = importar("./testes/exemplos/importacao/importacao-3.egua")
+segundaImportacao.escreverMaisAlgumaCoisa()
