@@ -4,9 +4,11 @@ import { Delegua } from '../delegua';
 
 export class ServidorDepuracao {
     instanciaDelegua: Delegua;
+    servidor: net.Server;
 
     constructor(_instanciaDelegua: Delegua) {
         this.instanciaDelegua = _instanciaDelegua;
+        this.servidor = net.createServer();
         this.operarConexao.bind(this);
     }
 
@@ -70,12 +72,15 @@ export class ServidorDepuracao {
     }
 
     iniciarServidorDepuracao(): net.AddressInfo {
-        const servidor: net.Server = net.createServer();
         // É necessário mudar o `this` aqui por `.bind()`, senão `this` será net.Server dentro dos métodos.
-        servidor.on('connection', this.operarConexao.bind(this));
+        this.servidor.on('connection', this.operarConexao.bind(this));
 
-        servidor.listen(7777);
+        this.servidor.listen(7777);
 
-        return servidor.address() as net.AddressInfo;
+        return this.servidor.address() as net.AddressInfo;
+    }
+
+    finalizarServidorDepuracao(): void {
+        this.servidor.close();
     }
 }

@@ -25,7 +25,7 @@ import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliado
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
 import { ServidorDepuracao } from './depuracao';
-import cyrb53 from './depuracao/cyrb53';
+
 import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
 
@@ -42,6 +42,8 @@ export class Delegua implements DeleguaInterface {
     resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
 
+    servidorDepuracao: ServidorDepuracao;
+
     constructor(
         dialeto: string = 'delegua',
         performance: boolean = false,
@@ -54,6 +56,7 @@ export class Delegua implements DeleguaInterface {
         this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
+        this.servidorDepuracao = new ServidorDepuracao(this);
 
         switch (this.dialeto) {
             case 'egua':
@@ -115,12 +118,12 @@ export class Delegua implements DeleguaInterface {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
-        if (depurador) {
+        /* if (depurador) {
             const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
             const dadosServidorDepuracao = servidorDepuracao.iniciarServidorDepuracao();
             console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s)", 
                 dadosServidorDepuracao.port, dadosServidorDepuracao.family);
-        }
+        } */
 
         const leiaLinha = readline.createInterface({
             input: process.stdin,
@@ -134,7 +137,7 @@ export class Delegua implements DeleguaInterface {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            const retornoLexador = this.lexador.mapear([linha]);
+            const retornoLexador = this.lexador.mapear([linha], -1);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
             this.executar({
                 codigo: [linha],
@@ -145,22 +148,19 @@ export class Delegua implements DeleguaInterface {
         });
     }
 
+    iniciarDepuracao() {
+        const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
+        servidorDepuracao.iniciarServidorDepuracao();
+    }
+
     carregarArquivo(caminhoRelativoArquivo: string, depurador: boolean = false): void {
         this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
-        if (depurador) {
+        /* if (depurador) {
             const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
             servidorDepuracao.iniciarServidorDepuracao();
-        }
+        } */
 
-        /* const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
-        const conteudoDoArquivo: string[] = dadosDoArquivo
-            .toString()
-            .split('\n');
-        const hashArquivo = cyrb53(this.nomeArquivo);
-        this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
-        this.executar(conteudoDoArquivo, hashArquivo); */
-    // carregarArquivo(caminhoRelativoArquivo: string): void {
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
         this.executar(retornoImportador);
 

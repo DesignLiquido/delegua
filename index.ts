@@ -7,8 +7,8 @@ const principal = () => {
 
   analisadorArgumentos
     .option("-d, --dialeto <dialeto>", "Dialeto a ser usado. Padrão: delegua",  "delegua")
-    .option("-D, --depurador", "Habilita o depurador, permitindo depuração em um ambiente como o VSCode")
-    .option("-p, --performance", "Visualizar indicadores de performance. Desabilitado por padrão",  false)
+    .option("-D, --depurador", "Habilita o depurador, permitindo depuração em um ambiente como o VSCode", true)
+    .option("-p, --performance", "Visualizar indicadores de performance. Desabilitado por padrão", false)
     .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
     .action((arquivos) => {
         if (arquivos.length > 0) {
@@ -21,11 +21,20 @@ const principal = () => {
 
     const delegua = new Delegua(opcoes.dialeto, opcoes.performance);
 
+    if (opcoes.depurador) {
+        delegua.servidorDepuracao.iniciarServidorDepuracao();
+    }
+
     if (!nomeArquivo) {
         delegua.iniciarLairDelegua(true);
     } else {
         delegua.carregarArquivo(nomeArquivo, true);
     }
+
+    if (opcoes.depurador) {
+        delegua.servidorDepuracao.finalizarServidorDepuracao();
+    }
 };
 
 principal();
+// console.log((process as any)._getActiveHandles());
