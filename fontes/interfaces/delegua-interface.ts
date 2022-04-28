@@ -22,10 +22,8 @@ export interface DeleguaInterface {
     importador: ImportadorInterface;
 
     versao(): string;
-    // iniciarDelegua(): void;
     carregarArquivo(caminhoRelativoArquivo: string): void;
     executar(retornoImportador: RetornoImportador): void;
-    // executar(codigo: string[], hashArquivo?: number): void;
     reportar(linha: number, onde: any, mensagem: string): void;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void;
     erroEmTempoDeExecucao(erro: any): void;

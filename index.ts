@@ -26,9 +26,9 @@ const principal = () => {
     }
 
     if (!nomeArquivo) {
-        delegua.iniciarLairDelegua(true);
+        delegua.iniciarLairDelegua();
     } else {
-        delegua.carregarArquivo(nomeArquivo, true);
+        delegua.carregarArquivo(nomeArquivo);
     }
 
     if (opcoes.depurador) {

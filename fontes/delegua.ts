@@ -112,18 +112,10 @@ export class Delegua implements DeleguaInterface {
     /**
      * LAIR (Leia-Avalie-Imprima-Repita) é o modo em que Delégua executa em modo console, 
      * ou seja, esperando como entrada linhas de código fornecidas pelo usuário.
-     * @param depurador Booleano que liga ou desliga o depurador.
      */
-    iniciarLairDelegua(depurador: boolean = false): void {
+    iniciarLairDelegua(): void {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
-
-        /* if (depurador) {
-            const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
-            const dadosServidorDepuracao = servidorDepuracao.iniciarServidorDepuracao();
-            console.log("Servidor de depuração disponível em 127.0.0.1:%s (%s)", 
-                dadosServidorDepuracao.port, dadosServidorDepuracao.family);
-        } */
 
         const leiaLinha = readline.createInterface({
             input: process.stdin,
@@ -153,13 +145,8 @@ export class Delegua implements DeleguaInterface {
         servidorDepuracao.iniciarServidorDepuracao();
     }
 
-    carregarArquivo(caminhoRelativoArquivo: string, depurador: boolean = false): void {
+    carregarArquivo(caminhoRelativoArquivo: string): void {
         this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-
-        /* if (depurador) {
-            const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
-            servidorDepuracao.iniciarServidorDepuracao();
-        } */
 
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
         this.executar(retornoImportador);
@@ -168,11 +155,6 @@ export class Delegua implements DeleguaInterface {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    /* executar(codigo: string[], hashArquivo?: number) {
-        const retornoLexador = this.lexador.mapear(codigo);
-
-        if (retornoLexador.erros.length > 0) {
-            for (const erroLexador of retornoLexador.erros) { */
     executar(retornoImportador: RetornoImportador) {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
@@ -181,10 +163,6 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        /* const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
-
-        if (retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) { */
         if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
             for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
                 this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
