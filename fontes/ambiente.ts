@@ -11,7 +11,7 @@ export class Ambiente {
         this.valores = {};
     }
 
-    definirVariavel(nomeVariavel: any, valor: any) {
+    definirVariavel(nomeVariavel: string, valor: any) {
         this.valores[nomeVariavel] = valor;
     }
 

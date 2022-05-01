@@ -13,8 +13,25 @@ import {
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
-import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from '../interfaces';
-import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
+import {
+    InterpretadorInterface,
+    ResolvedorInterface,
+    SimboloInterface,
+} from '../interfaces';
+import {
+    Classe,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    Expressao,
+    Fazer,
+    Funcao,
+    Importar,
+    Para,
+    Se,
+    Tente,
+} from '../declaracoes';
 import {
     Chamavel,
     DeleguaClasse,
@@ -27,7 +44,7 @@ import { Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
-import { PontoParada } from '../depuracao';
+import { PontoParada, PragmaExecucao } from '../depuracao';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -44,6 +61,7 @@ export class Interpretador implements InterpretadorInterface {
     erros: ErroInterpretador[];
     performance: boolean;
     pontosParada: PontoParada[];
+    pilhaExecucao: PragmaExecucao[];
 
     constructor(
         importador: ImportadorInterface,
@@ -56,6 +74,7 @@ export class Interpretador implements InterpretadorInterface {
         this.diretorioBase = diretorioBase;
         this.performance = performance;
         this.pontosParada = [];
+        this.pilhaExecucao = [];
 
         this.global = new Ambiente();
         this.ambiente = this.global;
@@ -73,10 +92,8 @@ export class Interpretador implements InterpretadorInterface {
         return expressao.valor;
     }
 
-    avaliar(expressao: any) {
-        if (expressao.aceitar) {
-            return expressao.aceitar(this);
-        }
+    avaliar(expressao: Construto) {
+        return expressao.aceitar(this);
     }
 
     visitarExpressaoAgrupamento(expressao: any) {
@@ -122,7 +139,11 @@ export class Interpretador implements InterpretadorInterface {
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+    verificarOperandosNumeros(
+        operador: any,
+        direita: any,
+        esquerda: any
+    ): void {
         if (typeof direita === 'number' && typeof esquerda === 'number') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -295,7 +316,7 @@ export class Interpretador implements InterpretadorInterface {
             parametros = [];
         }
 
-        // Isso aqui completa os parâmetros não preenchidos com nulos.
+        // Completar os parâmetros não preenchidos com nulos.
         if (argumentos.length < entidadeChamada.aridade()) {
             let diferenca = entidadeChamada.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
@@ -359,7 +380,7 @@ export class Interpretador implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any) {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         return this.avaliar(declaracao.expressao);
     }
 
@@ -478,7 +499,11 @@ export class Interpretador implements InterpretadorInterface {
                         encontrado = true;
 
                         try {
-                            for (let k = 0; k < caminho.declaracoes.length; k++) {
+                            for (
+                                let k = 0;
+                                k < caminho.declaracoes.length;
+                                k++
+                            ) {
                                 this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
@@ -508,7 +533,10 @@ export class Interpretador implements InterpretadorInterface {
         try {
             let sucesso = true;
             try {
-                this.executarBloco(declaracao.caminhoTente, new Ambiente(this.ambiente));
+                this.executarBloco(
+                    declaracao.caminhoTente,
+                    new Ambiente(this.ambiente)
+                );
             } catch (erro) {
                 sucesso = false;
 
@@ -557,15 +585,22 @@ export class Interpretador implements InterpretadorInterface {
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
-        if (!caminhoTotal.endsWith('.egua') && !caminhoTotal.endsWith('.delegua')) {
+        if (
+            !caminhoTotal.endsWith('.egua') &&
+            !caminhoTotal.endsWith('.delegua')
+        ) {
             return carregarBibliotecaNode(caminhoRelativo);
         }
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
-        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
+        const retornoInterpretador = this.interpretar(
+            conteudoImportacao.retornoAvaliadorSintatico
+        );
 
-        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao(conteudoImportacao.hashArquivo);
-        
+        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao(
+            conteudoImportacao.hashArquivo
+        );
+
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
         if (eDicionario(funcoesDeclaradas)) {
@@ -573,7 +608,8 @@ export class Interpretador implements InterpretadorInterface {
 
             let chaves = Object.keys(funcoesDeclaradas);
             for (let i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] = funcoesDeclaradas[chaves[i]];
+                novoModulo.componentes[chaves[i]] =
+                    funcoesDeclaradas[chaves[i]];
             }
 
             return novoModulo;
@@ -588,10 +624,27 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    executarBloco(declaracoes: any, ambiente: any) {
+    /**
+     * Executa um bloco de escopo, adicionando os devidos pragmas à pilha
+     * de execução.
+     * @param declaracoes Um vetor de declarações a serem executadas.
+     * @param ambiente A instância do ambiente (andar do escopo) atual.
+     * @param identificador O identificador do bloco de escopo. Normalmente o nome da
+     *                      função ou método.
+     */
+    executarBloco(
+        declaracoes: Declaracao[],
+        ambiente: Ambiente,
+        identificador?: string
+    ) {
         let anterior = this.ambiente;
         try {
             this.ambiente = ambiente;
+            this.pilhaExecucao.push({
+                identificador: identificador || '<Função anônima>',
+                hashArquivo: 0,
+                linha: 0
+            });
 
             if (declaracoes && declaracoes.length) {
                 for (let i = 0; i < declaracoes.length; i++) {
@@ -603,6 +656,7 @@ export class Interpretador implements InterpretadorInterface {
             throw erro;
         } finally {
             this.ambiente = anterior;
+            this.pilhaExecucao.pop();
         }
     }
 
@@ -901,7 +955,11 @@ export class Interpretador implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(declaracao: any, mostrarResultado: boolean = false): void {
+    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
+        const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
+        elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
+        elementoPilhaExecucao.linha = declaracao.linha;
+        
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
             console.log(this.paraTexto(resultado));
@@ -916,6 +974,12 @@ export class Interpretador implements InterpretadorInterface {
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {
+            this.pilhaExecucao.push({
+                identificador: '<Arquivo raiz>',
+                hashArquivo: 0,
+                linha: 1
+            });
+
             const declaracoes = objeto.declaracoes || objeto;
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
@@ -931,7 +995,9 @@ export class Interpretador implements InterpretadorInterface {
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
+            this.pilhaExecucao.pop();
+            const deltaInterpretacao: [number, number] =
+                hrtime(inicioInterpretacao);
             if (this.performance) {
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
@@ -941,7 +1007,7 @@ export class Interpretador implements InterpretadorInterface {
             }
 
             return {
-                erros: this.erros
+                erros: this.erros,
             } as RetornoInterpretador;
         }
     }

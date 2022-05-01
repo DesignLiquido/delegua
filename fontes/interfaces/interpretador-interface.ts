@@ -1,5 +1,6 @@
 import { Ambiente } from "../ambiente";
 import { Construto } from "../construtos";
+import { Declaracao } from "../declaracoes";
 import { RetornoInterpretador } from "../interpretador/retorno-interpretador";
 
 export interface InterpretadorInterface {
@@ -31,7 +32,7 @@ export interface InterpretadorInterface {
     visitarExpressaoEnquanto(declaracao: any): any;
     visitarExpressaoImportar(declaracao: any): any;
     visitarExpressaoEscreva(declaracao: any): any;
-    executarBloco(declaracoes: any, ambiente: any): void;
+    executarBloco(declaracoes: Declaracao[], ambiente: Ambiente, identificador?: string): void;
     visitarExpressaoBloco(declaracao: any): null;
     visitarExpressaoVar(declaracao: any): null;
     visitarExpressaoContinua(declaracao?: any): void;

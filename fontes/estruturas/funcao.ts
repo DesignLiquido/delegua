@@ -1,14 +1,15 @@
 import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
 import { ExcecaoRetornar } from "../excecoes";
+import { InterpretadorInterface } from "../interfaces";
 
 export class DeleguaFuncao extends Chamavel {
-    nome: any;
+    nome: string;
     declaracao: any;
     ambienteAnterior: any;
     eInicializador: any;
 
-    constructor(nome: any, declaracao: any, ambienteAnterior: any, eInicializador = false) {
+    constructor(nome: string, declaracao: any, ambienteAnterior: any, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
@@ -25,7 +26,7 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    chamar(interpretador: any, argumentos: any): any {
+    chamar(interpretador: InterpretadorInterface, argumentos: any): any {
         let ambiente = new Ambiente(this.ambienteAnterior);
         let parametros = this.declaracao.parametros;
 
@@ -43,7 +44,7 @@ export class DeleguaFuncao extends Chamavel {
         }
 
         try {
-            interpretador.executarBloco(this.declaracao.corpo, ambiente);
+            interpretador.executarBloco(this.declaracao.corpo, ambiente, this.nome);
         } catch (erro) {
             if (erro instanceof ExcecaoRetornar) {
                 if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
