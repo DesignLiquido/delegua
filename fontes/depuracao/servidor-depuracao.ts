@@ -1,6 +1,7 @@
 import * as net from 'net';
 
 import { Delegua } from '../delegua';
+import cyrb53 from './cyrb53';
 
 export class ServidorDepuracao {
     instanciaDelegua: Delegua;
@@ -8,6 +9,13 @@ export class ServidorDepuracao {
 
     constructor(_instanciaDelegua: Delegua) {
         this.instanciaDelegua = _instanciaDelegua;
+        // Isso é só um exemplo de definição de ponto de parada para testar
+        // `Interpretador.executar()`. 
+        // Deve ser removido num futuro próximo.
+        (this.instanciaDelegua.interpretador as any).pontosParada.push({
+            hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-1.egua'),
+            linha: 2
+        });
         this.servidor = net.createServer();
         this.operarConexao.bind(this);
     }

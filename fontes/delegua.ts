@@ -56,7 +56,6 @@ export class Delegua implements DeleguaInterface {
         this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
-        this.servidorDepuracao = new ServidorDepuracao(this);
 
         switch (this.dialeto) {
             case 'egua':
@@ -95,6 +94,8 @@ export class Delegua implements DeleguaInterface {
                 console.log('Usando dialeto: padrão');
                 break;
         }
+
+        this.servidorDepuracao = new ServidorDepuracao(this);
     }
 
     versao(): string {
@@ -170,12 +171,6 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        // Isso é só um exemplo de definição de ponto de parada para testar
-        // `Interpretador.executar()`. 
-        (this.interpretador as any).pontosParada.push({
-            hashArquivo: retornoImportador.hashArquivo,
-            linha: 2
-        });
         const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (retornoInterpretador.erros.length > 0) {
