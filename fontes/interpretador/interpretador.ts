@@ -30,7 +30,7 @@ import { ImportadorInterface } from '../interfaces/importador-interface';
 import { PontoParada } from '../depuracao';
 
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
+ * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
@@ -564,7 +564,7 @@ export class Interpretador implements InterpretadorInterface {
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
         const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
 
-        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
+        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao(conteudoImportacao.hashArquivo);
         
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 

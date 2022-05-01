@@ -70,12 +70,14 @@ export class Ambiente {
 
     /*
      * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
-     * em console.
+     * em console, buscando pelo hash do arquivo, para não importar elementos em duplicidade.
+     * @param hashArquivo O hash do arquivo ao qual a declaração pertence. 
+     * @returns Um dicionário contendo todas as funções declaradas no arquivo.
      */
-    obterTodasDeleguaFuncao() {
+    obterTodasDeleguaFuncao(hashArquivo: number): {[nome: string]: DeleguaFuncao} {
         const retorno = {};
         for (const [nome, corpo] of Object.entries(this.valores)) {
-            if (corpo instanceof DeleguaFuncao) {
+            if (corpo instanceof DeleguaFuncao && corpo.declaracao.hashArquivo === hashArquivo) {
                 retorno[nome] = corpo;
             }
         }
