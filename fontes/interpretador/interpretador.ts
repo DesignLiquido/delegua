@@ -971,8 +971,14 @@ export class Interpretador implements InterpretadorInterface {
         const buscaPontoParada: PontoParada[] = this.pontosParada.filter(p => 
             p.hashArquivo === elementoPilhaExecucao.hashArquivo &&
             p.linha === elementoPilhaExecucao.linha);
+
         if (buscaPontoParada.length > 0) {
             console.log('Ponto de parada encontrado.');
+            // A construção abaixo bloqueia o socket do depurador. 
+            // Outra solução deve ser encontrada.
+            /* while (true) {
+                Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+            } */
         }
 
         const resultado = declaracao.aceitar(this);

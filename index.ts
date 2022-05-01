@@ -29,10 +29,11 @@ const principal = () => {
         delegua.iniciarLairDelegua();
     } else {
         delegua.carregarArquivo(nomeArquivo);
-    }
-
-    if (opcoes.depurador) {
-        delegua.servidorDepuracao.finalizarServidorDepuracao();
+        // Pedir a finalização do servidor de depuração só é necessária quando 
+        // a execução é por arquivo
+        if (opcoes.depurador) {
+            delegua.servidorDepuracao.finalizarServidorDepuracao();
+        }
     }
 };
 
