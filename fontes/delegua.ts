@@ -170,6 +170,12 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
+        // Isso é só um exemplo de definição de ponto de parada para testar
+        // `Interpretador.executar()`. 
+        (this.interpretador as any).pontosParada.push({
+            hashArquivo: retornoImportador.hashArquivo,
+            linha: 2
+        });
         const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (retornoInterpretador.erros.length > 0) {
