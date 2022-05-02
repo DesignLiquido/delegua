@@ -957,14 +957,28 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         }
 
     /**
-     * Efetivamente executa uma declaração. 
-     * Para fins de depuração, atualiza a pilha de execução e aguarda liberação do 
-     * depurador quanto há ponto de parada no mesmo pragma da declaração.
+     * Efetivamente executa uma declaração.
      * @param declaracao A declaração a ser executada.
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado 
      *                         pelo modo LAIR. 
      */
     executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
+        const resultado = declaracao.aceitar(this);
+        if (mostrarResultado) {
+            console.log(this.paraTexto(resultado));
+        }
+    }
+
+    /**
+     * Efetivamente executa uma declaração, considerando configurações do depurador. 
+     * Para fins de depuração, atualiza a pilha de execução e aguarda liberação do 
+     * depurador quanto há ponto de parada no mesmo pragma da declaração.
+     * @param declaracao A declaração a ser executada.
+     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado 
+     *                         pelo modo LAIR. 
+     * @returns True quando execução deve parar. False caso contrário.
+     */
+    executarComDepuracao(declaracao: Declaracao, mostrarResultado: boolean = false): boolean {
         const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
         elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
         elementoPilhaExecucao.linha = declaracao.linha;
@@ -975,12 +989,15 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
 
         if (buscaPontoParada.length > 0) {
             console.log('Ponto de parada encontrado.');
+            return true;
         }
 
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
             console.log(this.paraTexto(resultado));
         }
+
+        return false;
     }
 
     /**
@@ -1004,16 +1021,10 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
                 linha: 1
             });
 
-            if (declaracoes.length === 1) {
-                const eObjetoExpressao =
-                    declaracoes[0].constructor.name === 'Expressao';
-                if (eObjetoExpressao) {
-                    this.executar(declaracoes[0], true);
-                    return;
-                }
-            }
             for (let i = 0; i < declaracoes.length; i++) {
-                this.executar(declaracoes[i]);
+                if (this.executarComDepuracao(declaracoes[i])) {
+                    break;
+                }
             }
         } catch (erro: any) {
             this.erros.push(erro);
