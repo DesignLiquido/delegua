@@ -22,18 +22,12 @@ const principal = () => {
     const delegua = new Delegua(opcoes.dialeto, opcoes.performance);
 
     if (opcoes.depurador) {
-        delegua.servidorDepuracao.iniciarServidorDepuracao();
-    }
-
-    if (!nomeArquivo) {
+        delegua.iniciarDepuracao();
+        delegua.carregarArquivoComDepurador(nomeArquivo);
+    } else if (!nomeArquivo) {
         delegua.iniciarLairDelegua();
     } else {
         delegua.carregarArquivo(nomeArquivo);
-        // Pedir a finalização do servidor de depuração só é necessária quando 
-        // a execução é por arquivo
-        if (opcoes.depurador) {
-            delegua.servidorDepuracao.finalizarServidorDepuracao();
-        }
     }
 };
 

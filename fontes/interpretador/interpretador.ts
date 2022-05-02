@@ -14,6 +14,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import {
+    InterpretadorComDepuracaoInterface,
     InterpretadorInterface,
     ResolvedorInterface,
     SimboloInterface,
@@ -50,7 +51,7 @@ import { PontoParada, PragmaExecucao } from '../depuracao';
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
-export class Interpretador implements InterpretadorInterface {
+export class Interpretador implements InterpretadorInterface, InterpretadorComDepuracaoInterface {
     importador: ImportadorInterface;
     resolvedor: ResolvedorInterface;
 
@@ -974,11 +975,6 @@ export class Interpretador implements InterpretadorInterface {
 
         if (buscaPontoParada.length > 0) {
             console.log('Ponto de parada encontrado.');
-            // A construção abaixo bloqueia o socket do depurador. 
-            // Outra solução deve ser encontrada.
-            /* while (true) {
-                Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
-            } */
         }
 
         const resultado = declaracao.aceitar(this);
@@ -987,13 +983,20 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
+    /**
+     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um 
+     * ponto de parada ou não. 
+     * Diferentemente da interpretação tradicional, não possui indicadores 
+     * de performance porque eles não fazem sentido aqui.
+     * @param declaracoes Um vetor de declarações.
+     * @returns Um objeto de retorno, com erros encontrados se houverem.
+     */
+    interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
 
         const retornoResolvedor = this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
 
-        const inicioInterpretacao: [number, number] = hrtime();
         try {
             this.pilhaExecucao.push({
                 identificador: '<Arquivo raiz>',
@@ -1016,6 +1019,40 @@ export class Interpretador implements InterpretadorInterface {
             this.erros.push(erro);
         } finally {
             this.pilhaExecucao.pop();
+
+            return {
+                erros: this.erros,
+            } as RetornoInterpretador;
+        }
+    }
+
+    /**
+     * Interpretação sem depurador, com medição de performance.
+     * @param declaracoes Um vetor de declarações.
+     * @returns Um objeto de retorno, com erros encontrados se houverem.
+     */
+    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
+        this.erros = [];
+
+        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
+        this.locais = retornoResolvedor.locais;
+
+        const inicioInterpretacao: [number, number] = hrtime();
+        try {
+            if (declaracoes.length === 1) {
+                const eObjetoExpressao =
+                    declaracoes[0].constructor.name === 'Expressao';
+                if (eObjetoExpressao) {
+                    this.executar(declaracoes[0], true);
+                    return;
+                }
+            }
+            for (let i = 0; i < declaracoes.length; i++) {
+                this.executar(declaracoes[i]);
+            }
+        } catch (erro: any) {
+            this.erros.push(erro);
+        } finally {
             const deltaInterpretacao: [number, number] =
                 hrtime(inicioInterpretacao);
             if (this.performance) {

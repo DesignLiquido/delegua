@@ -1,6 +1,7 @@
 import * as net from 'net';
 
 import { Delegua } from '../delegua';
+import { InterpretadorComDepuracaoInterface } from '../interfaces';
 import cyrb53 from './cyrb53';
 
 export class ServidorDepuracao {
@@ -43,6 +44,7 @@ export class ServidorDepuracao {
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
+                    conexao.write(String(((this.instanciaDelegua.interpretador as any) as InterpretadorComDepuracaoInterface).pilhaExecucao) + '\n');
                     break;
                 case "proximo":
                     conexao.write("Recebido comando 'proximo'\n");

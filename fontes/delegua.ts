@@ -13,6 +13,7 @@ import { ExcecaoRetornar } from './excecoes';
 import {
     AvaliadorSintaticoInterface,
     DeleguaInterface,
+    InterpretadorComDepuracaoInterface,
     InterpretadorInterface,
     LexadorInterface,
     SimboloInterface,
@@ -94,8 +95,6 @@ export class Delegua implements DeleguaInterface {
                 console.log('Usando dialeto: padrão');
                 break;
         }
-
-        this.servidorDepuracao = new ServidorDepuracao(this);
     }
 
     versao(): string {
@@ -142,8 +141,18 @@ export class Delegua implements DeleguaInterface {
     }
 
     iniciarDepuracao() {
-        const servidorDepuracao: ServidorDepuracao = new ServidorDepuracao(this);
-        servidorDepuracao.iniciarServidorDepuracao();
+        this.servidorDepuracao = new ServidorDepuracao(this);
+        this.servidorDepuracao.iniciarServidorDepuracao();
+    }
+
+    finalizarDepuracao() {
+        if (this.servidorDepuracao) {
+            this.servidorDepuracao.finalizarServidorDepuracao();
+        }
+    }
+
+    interpretadorSuportaDepuracao(interpretador: any): interpretador is InterpretadorComDepuracaoInterface {
+        return 'interpretarParcial' in interpretador;
     }
 
     carregarArquivo(caminhoRelativoArquivo: string): void {
@@ -151,6 +160,34 @@ export class Delegua implements DeleguaInterface {
 
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
         this.executar(retornoImportador);
+
+        if (this.teveErro) process.exit(65);
+        if (this.teveErroEmTempoDeExecucao) process.exit(70);
+    }
+
+    carregarArquivoComDepurador(caminhoRelativoArquivo: string): void {
+        if (!this.interpretadorSuportaDepuracao(this.interpretador)) {
+            throw new Error("Dialeto " + this.dialeto + " não suporta depuração.");
+        }
+
+        this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
+
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (const erroLexador of retornoImportador.retornoLexador.erros) {
+                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+            }
+            return;
+        }
+
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
+                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+            }
+            return;
+        }
+
+        const retornoInterpretador = this.interpretador.interpretarParcial(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
