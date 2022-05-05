@@ -42,17 +42,20 @@ export class Interpretador implements InterpretadorInterface {
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     performance: boolean;
+    funcaoDeRetorno: Function = null;
 
     constructor(
         importador: ImportadorInterface,
         resolvedor: ResolvedorInterface,
         diretorioBase: string,
-        performance: boolean = false
+        performance: boolean = false,
+        funcaoDeRetorno: Function
     ) {
         this.importador = importador;
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         this.global = new Ambiente();
         this.ambiente = this.global;
@@ -581,7 +584,7 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
-        console.log(this.paraTexto(valor));
+        this.funcaoDeRetorno(this.paraTexto(valor));
         return null;
     }
 
@@ -901,7 +904,7 @@ export class Interpretador implements InterpretadorInterface {
     executar(declaracao: any, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            console.log(this.paraTexto(resultado));
+            this.funcaoDeRetorno(this.paraTexto(resultado));
         }
     }
 

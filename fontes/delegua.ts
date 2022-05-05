@@ -43,7 +43,8 @@ export class Delegua implements DeleguaInterface {
     constructor(
         dialeto: string = 'delegua',
         performance: boolean = false,
-        nomeArquivo?: string
+        nomeArquivo?: string,
+        funcaoDeRetorno: Function = null
     ) {
         this.nomeArquivo = nomeArquivo;
 
@@ -70,7 +71,7 @@ export class Delegua implements DeleguaInterface {
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
                 this.importador = new Importador(this.lexador, this.avaliadorSintatico);
-                this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd());
+                this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, null);
 
                 console.log('Usando dialeto: ÉguaP');
                 break;
@@ -83,7 +84,8 @@ export class Delegua implements DeleguaInterface {
                     this.importador,
                     this.resolvedor,
                     process.cwd(),
-                    performance
+                    performance,
+                    funcaoDeRetorno
                 );
                 
                 console.log('Usando dialeto: padrão');
