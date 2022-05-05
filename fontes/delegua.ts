@@ -64,7 +64,7 @@ export class Delegua implements DeleguaInterface {
                 this.resolvedor = new ResolvedorEguaClassico();
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos);
                 this.interpretador = new InterpretadorEguaClassico(
                     this,
                     process.cwd()
@@ -76,7 +76,7 @@ export class Delegua implements DeleguaInterface {
                 this.resolvedor = new Resolvedor();
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos);
                 this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, null);
 
                 console.log('Usando dialeto: ÉguaP');
@@ -85,7 +85,7 @@ export class Delegua implements DeleguaInterface {
                 this.resolvedor = new Resolvedor();
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos);
                 this.interpretador = new Interpretador(
                     this.importador,
                     this.resolvedor,

@@ -37,7 +37,9 @@ export class ServidorDepuracao {
                     break;
                 case "adicionar-ponto-parada":
                     conexao.write("Recebido comando 'adicionar-ponto-parada'\n");
-                    Object.keys(this.instanciaDelegua.arquivosAbertos).forEach((arquivo) => conexao.write(arquivo));  
+                    Object.entries(this.instanciaDelegua.arquivosAbertos).forEach(([hashArquivo, caminhoArquivo]) => { 
+                        conexao.write(hashArquivo + ': ' + caminhoArquivo + '\n');
+                    });  
                     break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");

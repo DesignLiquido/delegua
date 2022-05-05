@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as caminho from 'path';
+
 import cyrb53 from '../depuracao/cyrb53';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { AvaliadorSintaticoInterface, LexadorInterface } from '../interfaces';
@@ -10,16 +11,17 @@ import { RetornoImportador } from './retorno-importador';
 export class Importador implements ImportadorInterface {
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
+    arquivosAbertos: { [identificador: string]: string };
 
-    constructor(lexador: LexadorInterface, avaliadorSintatico: AvaliadorSintaticoInterface) {
+    constructor(lexador: LexadorInterface, avaliadorSintatico: AvaliadorSintaticoInterface, arquivosAbertos: { [identificador: string]: string }) {
         this.lexador = lexador;
         this.avaliadorSintatico = avaliadorSintatico;
+        this.arquivosAbertos = arquivosAbertos;
     }
 
     importar(caminhoRelativoArquivo: string): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
         const hashArquivo = cyrb53(caminhoRelativoArquivo);
-        // this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
 
         if (!fs.existsSync(nomeArquivo)) {
             /* throw new ErroEmTempoDeExecucao(
@@ -36,6 +38,7 @@ export class Importador implements ImportadorInterface {
 
         const retornoLexador = this.lexador.mapear(conteudoDoArquivo, hashArquivo);
         const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
+        this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
         
         return {
             nomeArquivo,
