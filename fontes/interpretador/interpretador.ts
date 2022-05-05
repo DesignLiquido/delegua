@@ -63,12 +63,14 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
     performance: boolean;
     pontosParada: PontoParada[];
     pilhaExecucao: PragmaExecucao[];
+    funcaoDeRetorno: Function = null;
 
     constructor(
         importador: ImportadorInterface,
         resolvedor: ResolvedorInterface,
         diretorioBase: string,
-        performance: boolean = false
+        performance: boolean = false,
+        funcaoDeRetorno: Function
     ) {
         this.importador = importador;
         this.resolvedor = resolvedor;
@@ -76,6 +78,7 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         this.performance = performance;
         this.pontosParada = [];
         this.pilhaExecucao = [];
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         this.global = new Ambiente();
         this.ambiente = this.global;
@@ -621,7 +624,7 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
-        console.log(this.paraTexto(valor));
+        this.funcaoDeRetorno(this.paraTexto(valor));
         return null;
     }
 
@@ -965,7 +968,7 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
     executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            console.log(this.paraTexto(resultado));
+            this.funcaoDeRetorno(this.paraTexto(resultado));
         }
     }
 
