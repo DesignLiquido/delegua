@@ -1017,6 +1017,11 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         const retornoResolvedor = this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
 
+        this.pontosParada.push({
+            hashArquivo: 2174307748922580,
+            linha: 2
+        } as PontoParada)
+
         try {
             this.pilhaExecucao.push({
                 identificador: '<Arquivo raiz>',
