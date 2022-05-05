@@ -55,7 +55,7 @@ export class Interpretador implements InterpretadorInterface {
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
-        this.funcaoDeRetorno = funcaoDeRetorno;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         this.global = new Ambiente();
         this.ambiente = this.global;
@@ -584,11 +584,7 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
-        if(this.funcaoDeRetorno !== null){
-            this.funcaoDeRetorno(this.paraTexto(valor))
-        }else{
-            console.log(this.paraTexto(valor));
-        }
+        this.funcaoDeRetorno(this.paraTexto(valor))
         return null;
     }
 
@@ -908,11 +904,7 @@ export class Interpretador implements InterpretadorInterface {
     executar(declaracao: any, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            if(this.funcaoDeRetorno !== null){
-                this.funcaoDeRetorno(this.paraTexto(resultado))
-            }else{
-                console.log(this.paraTexto(resultado));
-            }
+            this.funcaoDeRetorno(this.paraTexto(resultado))
         }
     }
 

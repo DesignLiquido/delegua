@@ -1,10 +1,6 @@
 import { Delegua } from "./fontes/delegua";
 import { Command } from "commander";
 
-const testandoFuncaoRetorno = (mensagem) => {
-    console.log(`SA >> ${mensagem}`)
-}
-
 const principal = () => {
     const analisadorArgumentos = new Command();
     let nomeArquivo: string;
@@ -22,7 +18,7 @@ const principal = () => {
     analisadorArgumentos.parse();
     const opcoes = analisadorArgumentos.opts();
 
-    const delegua = new Delegua(opcoes.dialeto, opcoes.performance, '', testandoFuncaoRetorno);
+    const delegua = new Delegua(opcoes.dialeto, opcoes.performance);
 
     if (!nomeArquivo) {
         delegua.iniciarDelegua();
