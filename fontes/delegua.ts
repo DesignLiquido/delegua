@@ -71,7 +71,7 @@ export class Delegua implements DeleguaInterface {
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
                 this.importador = new Importador(this.lexador, this.avaliadorSintatico);
-                this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd(), null);
+                this.interpretador = new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, null);
 
                 console.log('Usando dialeto: ÉguaP');
                 break;
