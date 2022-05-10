@@ -121,17 +121,13 @@ export class Delegua implements DeleguaInterface {
             this.teveErro = false;
             this.teveErroEmTempoDeExecucao = false;
 
-            const codigoq = "escreva('aa')\nescreva('bbb')";
-            const x = codigoq.split('\n');
-
-            const retornoLexador = this.lexador.mapear(x);
+            const retornoLexador = this.lexador.mapear([linha]);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-            const res = this.executar({
-                codigo: x,
+            this.executar({
+                codigo: [linha],
                 retornoLexador,
                 retornoAvaliadorSintatico
             } as RetornoImportador);
-            console.log(res.join('\n'))
             leiaLinha.prompt();
         });
     }

@@ -585,8 +585,9 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
-        this.arr.push(this.paraTexto(valor));
-        this.funcaoDeRetorno(this.paraTexto(valor), this.arr);
+        const formatoTexto = this.paraTexto(valor);
+        this.arr.push(formatoTexto);
+        this.funcaoDeRetorno(formatoTexto);
         return null;
     }
 
@@ -906,8 +907,9 @@ export class Interpretador implements InterpretadorInterface {
     executar(declaracao: any, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            this.arr.push(this.paraTexto(resultado))
-            this.funcaoDeRetorno(this.paraTexto(resultado), this.arr);
+            const formatoTexto = this.paraTexto(resultado);
+            this.arr.push(formatoTexto)
+            this.funcaoDeRetorno(formatoTexto);
         }
     }
 
