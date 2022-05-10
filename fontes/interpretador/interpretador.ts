@@ -936,8 +936,8 @@ export class Interpretador implements InterpretadorInterface {
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
             if (this.performance) {
+                const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
                         deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]
