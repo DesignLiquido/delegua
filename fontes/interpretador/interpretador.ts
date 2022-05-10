@@ -907,9 +907,10 @@ export class Interpretador implements InterpretadorInterface {
     executar(declaracao: any, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            const formatoTexto = this.paraTexto(resultado);
-            this.resultadoInterpretador.push(formatoTexto)
-            this.funcaoDeRetorno(formatoTexto);
+            this.funcaoDeRetorno(this.paraTexto(resultado));
+        }
+        if(resultado || typeof resultado === 'boolean'){
+            this.resultadoInterpretador.push(this.paraTexto(resultado))
         }
     }
 
