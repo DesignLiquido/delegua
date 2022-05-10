@@ -43,7 +43,7 @@ export class Interpretador implements InterpretadorInterface {
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
-    arr: Array<String> = [];
+    resultadoInterpretador: Array<String> = [];
 
     constructor(
         importador: ImportadorInterface,
@@ -586,7 +586,7 @@ export class Interpretador implements InterpretadorInterface {
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
         const formatoTexto = this.paraTexto(valor);
-        this.arr.push(formatoTexto);
+        this.resultadoInterpretador.push(formatoTexto);
         this.funcaoDeRetorno(formatoTexto);
         return null;
     }
@@ -908,7 +908,7 @@ export class Interpretador implements InterpretadorInterface {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
             const formatoTexto = this.paraTexto(resultado);
-            this.arr.push(formatoTexto)
+            this.resultadoInterpretador.push(formatoTexto)
             this.funcaoDeRetorno(formatoTexto);
         }
     }
@@ -947,10 +947,10 @@ export class Interpretador implements InterpretadorInterface {
 
             const retorno = {
                 erros: this.erros,
-                resultado: this.arr
+                resultado: this.resultadoInterpretador
             } as RetornoInterpretador;
 
-            this.arr = [];
+            this.resultadoInterpretador = [];
             return retorno;
         }
     }
