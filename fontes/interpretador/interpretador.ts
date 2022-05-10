@@ -906,10 +906,12 @@ export class Interpretador implements InterpretadorInterface {
 
     executar(declaracao: any, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
+        const formatoTexto = this.paraTexto(resultado);
         if (mostrarResultado) {
-            const formatoTexto = this.paraTexto(resultado);
-            this.resultadoInterpretador.push(formatoTexto)
             this.funcaoDeRetorno(formatoTexto);
+        }
+        if(resultado !== null){
+            this.resultadoInterpretador.push(formatoTexto)
         }
     }
 
