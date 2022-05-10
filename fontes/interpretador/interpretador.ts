@@ -909,7 +909,7 @@ export class Interpretador implements InterpretadorInterface {
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
-        if(resultado){
+        if(resultado || typeof resultado === 'boolean'){
             this.resultadoInterpretador.push(this.paraTexto(resultado))
         }
     }
