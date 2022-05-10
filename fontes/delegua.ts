@@ -140,7 +140,7 @@ export class Delegua implements DeleguaInterface {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(retornoImportador: RetornoImportador) {
+    executar(retornoImportador: RetornoImportador): String[] {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
@@ -168,6 +168,8 @@ export class Delegua implements DeleguaInterface {
                 }
             }
         }
+        
+        return retornoInterpretador.resultado;
     }
 
     reportar(linha: number, onde: any, mensagem: string): void {

@@ -24,7 +24,7 @@ export interface DeleguaInterface {
     versao(): string;
     iniciarDelegua(): void;
     carregarArquivo(caminhoRelativoArquivo: string): void;
-    executar(retornoImportador: RetornoImportador): void;
+    executar(retornoImportador: RetornoImportador): String[];
     reportar(linha: number, onde: any, mensagem: string): void;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void;
     erroEmTempoDeExecucao(erro: any): void;

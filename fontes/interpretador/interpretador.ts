@@ -43,6 +43,7 @@ export class Interpretador implements InterpretadorInterface {
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
+    resultadoInterpretador: Array<String> = [];
 
     constructor(
         importador: ImportadorInterface,
@@ -584,7 +585,9 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
-        this.funcaoDeRetorno(this.paraTexto(valor));
+        const formatoTexto = this.paraTexto(valor);
+        this.resultadoInterpretador.push(formatoTexto);
+        this.funcaoDeRetorno(formatoTexto);
         return null;
     }
 
@@ -904,7 +907,9 @@ export class Interpretador implements InterpretadorInterface {
     executar(declaracao: any, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            this.funcaoDeRetorno(this.paraTexto(resultado));
+            const formatoTexto = this.paraTexto(resultado);
+            this.resultadoInterpretador.push(formatoTexto)
+            this.funcaoDeRetorno(formatoTexto);
         }
     }
 
@@ -931,8 +936,8 @@ export class Interpretador implements InterpretadorInterface {
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
             if (this.performance) {
+                const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
                         deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]
@@ -940,9 +945,13 @@ export class Interpretador implements InterpretadorInterface {
                 );
             }
 
-            return {
-                erros: this.erros
+            const retorno = {
+                erros: this.erros,
+                resultado: this.resultadoInterpretador
             } as RetornoInterpretador;
+
+            this.resultadoInterpretador = [];
+            return retorno;
         }
     }
 }
