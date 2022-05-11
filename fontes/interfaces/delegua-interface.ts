@@ -5,7 +5,7 @@ import {
     InterpretadorInterface,
     LexadorInterface,
     ResolvedorInterface,
-    RetornoExecutarInterface,
+    RetornoExecucaoInterface,
     SimboloInterface,
 } from "../interfaces";
 
@@ -25,7 +25,7 @@ export interface DeleguaInterface {
     versao(): string;
     iniciarDelegua(): void;
     carregarArquivo(caminhoRelativoArquivo: string): void;
-    executar(retornoImportador: RetornoImportador): RetornoExecutarInterface;
+    executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface;
     reportar(linha: number, onde: any, mensagem: string): void;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void;
     erroEmTempoDeExecucao(erro: any): void;
