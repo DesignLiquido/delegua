@@ -5,5 +5,5 @@ export * from './interpretador-interface';
 export * from './lexador-interface';
 export * from './pilha-interface';
 export * from './resolvedor-interface';
-export * from './retorno-executar-interface';
+export * from './retorno-execucao-interface';
 export * from './simbolo-interface';

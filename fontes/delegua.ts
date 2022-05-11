@@ -15,7 +15,7 @@ import {
     DeleguaInterface,
     InterpretadorInterface,
     LexadorInterface,
-    RetornoExecutarInterface,
+    RetornoExecucaoInterface,
     SimboloInterface,
 } from './interfaces';
 import { ResolvedorInterface } from './interfaces/resolvedor-interface';
@@ -141,7 +141,7 @@ export class Delegua implements DeleguaInterface {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(retornoImportador: RetornoImportador): RetornoExecutarInterface {
+    executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
@@ -170,14 +170,12 @@ export class Delegua implements DeleguaInterface {
             }
         }
 
-        const erros = [
-            ...retornoImportador.retornoLexador.erros,
-            ...retornoImportador.retornoAvaliadorSintatico.erros,
-            ...retornoInterpretador.erros
-        ]
-        
         return {
-            erros,
+            erros: {
+                lexador: retornoImportador.retornoLexador.erros,
+                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
+                interpretador: retornoInterpretador.erros
+            },
             resultado: retornoInterpretador.resultado,
         };
     }
