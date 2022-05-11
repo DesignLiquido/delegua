@@ -470,8 +470,8 @@ export class LexadorEguaP implements LexadorInterface {
             this.analisarToken();
         }
 
-        const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
         if (this.performance) {
+            const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
             console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
 
