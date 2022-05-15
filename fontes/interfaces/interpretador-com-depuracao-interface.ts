@@ -10,5 +10,5 @@ export interface InterpretadorComDepuracaoInterface {
 
     etapaResolucao(declaracoes: Declaracao[]): void;
     interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador;
-    continuarInterpretacaoParcial(): RetornoInterpretador;
+    continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean): RetornoInterpretador;
 }

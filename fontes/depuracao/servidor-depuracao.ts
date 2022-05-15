@@ -28,14 +28,14 @@ export class ServidorDepuracao {
 
     operarConexao = (conexao: net.Socket) => {
         const enderecoRemoto = conexao.remoteAddress + ':' + conexao.remotePort;
-        process.stdout.write('\n[Depurador] Nova conexão de cliente de ' + enderecoRemoto + '\ndelegua> ');
+        // process.stdout.write('\n[Depurador] Nova conexão de cliente de ' + enderecoRemoto + '\ndelegua> ');
 
         conexao.setEncoding('utf8');
         this.conexoes[this.contadorConexoes++] = conexao;
 
         const aoReceberDados: any = (dados: Buffer) => {
             const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
-            process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
+            // process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
             const interpretadorInterface = (this.instanciaDelegua.interpretador as any as InterpretadorComDepuracaoInterface);
 
             switch (comando[0]) {
@@ -50,8 +50,7 @@ export class ServidorDepuracao {
                     break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
-                    interpretadorInterface.declaracaoAtual++;
-                    interpretadorInterface.continuarInterpretacaoParcial();
+                    interpretadorInterface.continuarInterpretacaoParcial(true);
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");

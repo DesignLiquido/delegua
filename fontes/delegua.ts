@@ -163,7 +163,7 @@ export class Delegua implements DeleguaInterface {
         this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
         (this.interpretador as any).pontosParada.push({
-            hashArquivo: 2174307748922580,
+            hashArquivo: 6448476244935139,
             linha: 2,
         } as PontoParada);
 

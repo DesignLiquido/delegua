@@ -952,7 +952,7 @@ export class Interpretador
             this.pilhaExecucao.push({
                 identificador: identificador || '<Função anônima>',
                 hashArquivo: 0,
-                linha: 0,
+                linha: 0
             });
 
             if (declaracoes && declaracoes.length) {
@@ -986,18 +986,11 @@ export class Interpretador
     }
 
     /**
-     * Efetivamente executa uma declaração, considerando configurações do depurador.
-     * Para fins de depuração, atualiza a pilha de execução e aguarda liberação do
-     * depurador quanto há ponto de parada no mesmo pragma da declaração.
+     * Para fins de depuração, verifica se há ponto de parada no mesmo pragma da declaração.
      * @param declaracao A declaração a ser executada.
-     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
-     *                         pelo modo LAIR.
      * @returns True quando execução deve parar. False caso contrário.
      */
-    executarComDepuracao(
-        declaracao: Declaracao,
-        mostrarResultado: boolean = false
-    ): boolean {
+    verificarPontoParada(declaracao: Declaracao): boolean {
         const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
         elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
         elementoPilhaExecucao.linha = declaracao.linha;
@@ -1011,11 +1004,6 @@ export class Interpretador
         if (buscaPontoParada.length > 0) {
             console.log('Ponto de parada encontrado.');
             return true;
-        }
-
-        const resultado = declaracao.aceitar(this);
-        if (mostrarResultado) {
-            console.log(this.paraTexto(resultado));
         }
 
         return false;
@@ -1047,12 +1035,24 @@ export class Interpretador
         return this.continuarInterpretacaoParcial();
     }
 
-    continuarInterpretacaoParcial(): RetornoInterpretador {
+    /**
+     * Continua a interpretação parcial do último ponto em que parou. 
+     * Pode ser tanto o começo da execução inteira, ou pós comando do depurador
+     * quando há um ponto de parada.
+     * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
+     * verificar o ponto de parada na primeira execução. 
+     * Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
+     * @returns Um objeto de retorno, com erros encontrados se houverem.
+     */
+    continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
         try {
             for (; this.declaracaoAtual < this.declaracoes.length; this.declaracaoAtual++) {
-                if (this.executarComDepuracao(this.declaracoes[this.declaracaoAtual])) {
+                if (naoVerificarPrimeiraExecucao) {
+                    naoVerificarPrimeiraExecucao = false;
+                } else if (this.verificarPontoParada(this.declaracoes[this.declaracaoAtual])) {
                     break;
                 }
+                this.executar(this.declaracoes[this.declaracaoAtual]);
             }
         } catch (erro: any) {
             this.erros.push(erro);
