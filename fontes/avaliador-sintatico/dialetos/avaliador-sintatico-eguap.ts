@@ -1159,8 +1159,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             declaracoes.push(this.declaracao());
         }
 
-        const deltaAnalise: [number, number] = hrtime(inicioAnalise);
         if (this.performance) {
+            const deltaAnalise: [number, number] = hrtime(inicioAnalise);
             console.log(
                 `[Avaliador Sintático] Tempo para análise: ${
                     deltaAnalise[0] * 1e9 + deltaAnalise[1]

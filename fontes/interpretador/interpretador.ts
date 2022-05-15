@@ -64,6 +64,7 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
     pontosParada: PontoParada[];
     pilhaExecucao: PragmaExecucao[];
     funcaoDeRetorno: Function = null;
+    resultadoInterpretador: Array<String> = [];
 
     constructor(
         importador: ImportadorInterface,
@@ -624,7 +625,9 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         const valor = this.avaliar(declaracao.expressao);
-        this.funcaoDeRetorno(this.paraTexto(valor));
+        const formatoTexto = this.paraTexto(valor);
+        this.resultadoInterpretador.push(formatoTexto);
+        this.funcaoDeRetorno(formatoTexto);
         return null;
     }
 
@@ -970,6 +973,9 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
+        if(resultado || typeof resultado === 'boolean'){
+            this.resultadoInterpretador.push(this.paraTexto(resultado))
+        }
     }
 
     /**
@@ -1075,6 +1081,7 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
             const deltaInterpretacao: [number, number] =
                 hrtime(inicioInterpretacao);
             if (this.performance) {
+                const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
                         deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]
@@ -1082,9 +1089,13 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
                 );
             }
 
-            return {
+            const retorno = {
                 erros: this.erros,
+                resultado: this.resultadoInterpretador
             } as RetornoInterpretador;
+
+            this.resultadoInterpretador = [];
+            return retorno;
         }
     }
 }
