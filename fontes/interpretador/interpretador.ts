@@ -69,6 +69,7 @@ export class Interpretador
     resultadoInterpretador: Array<String> = [];
     declaracoes: Declaracao[];
     declaracaoAtual: number;
+    finalizacaoDaExecucao: Function;
 
     constructor(
         importador: ImportadorInterface,
@@ -1056,6 +1057,10 @@ export class Interpretador
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
+            if (this.declaracoes.length === this.declaracaoAtual) {
+                this.finalizacaoDaExecucao();
+            }
+
             return {
                 erros: this.erros,
             } as RetornoInterpretador;

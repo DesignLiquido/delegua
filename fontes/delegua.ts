@@ -146,6 +146,7 @@ export class Delegua implements DeleguaInterface {
     iniciarDepuracao() {
         this.servidorDepuracao = new ServidorDepuracao(this);
         this.servidorDepuracao.iniciarServidorDepuracao();
+        (this.interpretador as any as InterpretadorComDepuracaoInterface).finalizacaoDaExecucao = this.finalizarDepuracao.bind(this);
     }
 
     finalizarDepuracao() {
@@ -197,9 +198,6 @@ export class Delegua implements DeleguaInterface {
 
         this.interpretador.etapaResolucao(retornoImportador.retornoAvaliadorSintatico.declaracoes);
         const retornoInterpretador = this.interpretador.interpretarParcial(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-
-        if (this.teveErro) process.exit(65);
-        if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
     executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface {

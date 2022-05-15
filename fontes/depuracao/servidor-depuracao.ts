@@ -8,6 +8,8 @@ import { PragmaExecucao } from './pragma-execucao';
 export class ServidorDepuracao {
     instanciaDelegua: Delegua;
     servidor: net.Server;
+    conexoes: {[chave: number]: any}
+    contadorConexoes: number;
 
     constructor(_instanciaDelegua: Delegua) {
         this.instanciaDelegua = _instanciaDelegua;
@@ -19,6 +21,8 @@ export class ServidorDepuracao {
             linha: 2
         });
         this.servidor = net.createServer();
+        this.conexoes = {};
+        this.contadorConexoes = 0;
         this.operarConexao.bind(this);
     }
 
@@ -27,10 +31,12 @@ export class ServidorDepuracao {
         process.stdout.write('\n[Depurador] Nova conexão de cliente de ' + enderecoRemoto + '\ndelegua> ');
 
         conexao.setEncoding('utf8');
+        this.conexoes[this.contadorConexoes++] = conexao;
 
         const aoReceberDados: any = (dados: Buffer) => {
             const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
             process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
+            const interpretadorInterface = (this.instanciaDelegua.interpretador as any as InterpretadorComDepuracaoInterface);
 
             switch (comando[0]) {
                 case "adentrar-escopo":
@@ -44,13 +50,12 @@ export class ServidorDepuracao {
                     break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
-                    const interpretadorInterface = (this.instanciaDelegua.interpretador as any as InterpretadorComDepuracaoInterface);
                     interpretadorInterface.declaracaoAtual++;
                     interpretadorInterface.continuarInterpretacaoParcial();
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
-                    const pilhaExecucao: PragmaExecucao[] = (this.instanciaDelegua.interpretador as any as InterpretadorComDepuracaoInterface).pilhaExecucao;
+                    const pilhaExecucao: PragmaExecucao[] = interpretadorInterface.pilhaExecucao;
                     for (const elementoPilha of pilhaExecucao) {
                         conexao.write(elementoPilha.identificador + ' - ' + this.instanciaDelegua.arquivosAbertos[elementoPilha.hashArquivo] + ':' + elementoPilha.linha + '\n');
                     }
@@ -101,6 +106,10 @@ export class ServidorDepuracao {
     }
 
     finalizarServidorDepuracao(): void {
+        Object.keys(this.conexoes).forEach((chave) => {
+            this.conexoes[chave].destroy();
+        });
+
         this.servidor.close();
     }
 }

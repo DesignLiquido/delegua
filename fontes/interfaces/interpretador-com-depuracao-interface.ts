@@ -6,6 +6,7 @@ export interface InterpretadorComDepuracaoInterface {
     pontosParada: PontoParada[];
     pilhaExecucao: PragmaExecucao[];
     declaracaoAtual: number;
+    finalizacaoDaExecucao: Function;
 
     etapaResolucao(declaracoes: Declaracao[]): void;
     interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador;
