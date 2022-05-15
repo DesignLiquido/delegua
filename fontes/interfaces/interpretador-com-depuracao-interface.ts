@@ -5,6 +5,9 @@ import { RetornoInterpretador } from "../interpretador";
 export interface InterpretadorComDepuracaoInterface {
     pontosParada: PontoParada[];
     pilhaExecucao: PragmaExecucao[];
-    
+    declaracaoAtual: number;
+
+    etapaResolucao(declaracoes: Declaracao[]): void;
     interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador;
+    continuarInterpretacaoParcial(): RetornoInterpretador;
 }

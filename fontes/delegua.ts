@@ -26,7 +26,7 @@ import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
-import { ServidorDepuracao } from './depuracao';
+import { PontoParada, ServidorDepuracao } from './depuracao';
 
 import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
@@ -161,6 +161,11 @@ export class Delegua implements DeleguaInterface {
     carregarArquivo(caminhoRelativoArquivo: string): void {
         this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
+        (this.interpretador as any).pontosParada.push({
+            hashArquivo: 2174307748922580,
+            linha: 2,
+        } as PontoParada);
+
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
         this.executar(retornoImportador);
 
@@ -190,6 +195,7 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
+        this.interpretador.etapaResolucao(retornoImportador.retornoAvaliadorSintatico.declaracoes);
         const retornoInterpretador = this.interpretador.interpretarParcial(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
         if (this.teveErro) process.exit(65);

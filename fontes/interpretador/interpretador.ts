@@ -51,7 +51,9 @@ import { PontoParada, PragmaExecucao } from '../depuracao';
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
-export class Interpretador implements InterpretadorInterface, InterpretadorComDepuracaoInterface {
+export class Interpretador
+    implements InterpretadorInterface, InterpretadorComDepuracaoInterface
+{
     importador: ImportadorInterface;
     resolvedor: ResolvedorInterface;
 
@@ -65,6 +67,8 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
     pilhaExecucao: PragmaExecucao[];
     funcaoDeRetorno: Function = null;
     resultadoInterpretador: Array<String> = [];
+    declaracoes: Declaracao[];
+    declaracaoAtual: number;
 
     constructor(
         importador: ImportadorInterface,
@@ -85,6 +89,8 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         this.ambiente = this.global;
         this.locais = new Map();
         this.erros = [];
+        this.declaracoes = [];
+        this.declaracaoAtual = 0;
 
         this.global = carregarBibliotecaGlobal(this, this.global);
     }
@@ -934,67 +940,72 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
      * @param identificador O identificador do bloco de escopo. Normalmente o nome da
      *                      função ou método.
      */
-         executarBloco(
-            declaracoes: Declaracao[],
-            ambiente: Ambiente,
-            identificador?: string
-        ) {
-            let anterior = this.ambiente;
-            try {
-                this.ambiente = ambiente;
-                this.pilhaExecucao.push({
-                    identificador: identificador || '<Função anônima>',
-                    hashArquivo: 0,
-                    linha: 0
-                });
-    
-                if (declaracoes && declaracoes.length) {
-                    for (let i = 0; i < declaracoes.length; i++) {
-                        this.executar(declaracoes[i]);
-                    }
+    executarBloco(
+        declaracoes: Declaracao[],
+        ambiente: Ambiente,
+        identificador?: string
+    ) {
+        let anterior = this.ambiente;
+        try {
+            this.ambiente = ambiente;
+            this.pilhaExecucao.push({
+                identificador: identificador || '<Função anônima>',
+                hashArquivo: 0,
+                linha: 0,
+            });
+
+            if (declaracoes && declaracoes.length) {
+                for (let i = 0; i < declaracoes.length; i++) {
+                    this.executar(declaracoes[i]);
                 }
-            } catch (erro: any) {
-                // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
-                throw erro;
-            } finally {
-                this.ambiente = anterior;
-                this.pilhaExecucao.pop();
             }
+        } catch (erro: any) {
+            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
+            throw erro;
+        } finally {
+            this.ambiente = anterior;
+            this.pilhaExecucao.pop();
         }
+    }
 
     /**
      * Efetivamente executa uma declaração.
      * @param declaracao A declaração a ser executada.
-     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado 
-     *                         pelo modo LAIR. 
+     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
+     *                         pelo modo LAIR.
      */
     executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
-        if(resultado || typeof resultado === 'boolean'){
-            this.resultadoInterpretador.push(this.paraTexto(resultado))
+        if (resultado || typeof resultado === 'boolean') {
+            this.resultadoInterpretador.push(this.paraTexto(resultado));
         }
     }
 
     /**
-     * Efetivamente executa uma declaração, considerando configurações do depurador. 
-     * Para fins de depuração, atualiza a pilha de execução e aguarda liberação do 
+     * Efetivamente executa uma declaração, considerando configurações do depurador.
+     * Para fins de depuração, atualiza a pilha de execução e aguarda liberação do
      * depurador quanto há ponto de parada no mesmo pragma da declaração.
      * @param declaracao A declaração a ser executada.
-     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado 
-     *                         pelo modo LAIR. 
+     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
+     *                         pelo modo LAIR.
      * @returns True quando execução deve parar. False caso contrário.
      */
-    executarComDepuracao(declaracao: Declaracao, mostrarResultado: boolean = false): boolean {
+    executarComDepuracao(
+        declaracao: Declaracao,
+        mostrarResultado: boolean = false
+    ): boolean {
         const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
         elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
         elementoPilhaExecucao.linha = declaracao.linha;
 
-        const buscaPontoParada: PontoParada[] = this.pontosParada.filter(p => 
-            p.hashArquivo === elementoPilhaExecucao.hashArquivo &&
-            p.linha === elementoPilhaExecucao.linha);
+        const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
+            (p) =>
+                p.hashArquivo === elementoPilhaExecucao.hashArquivo &&
+                p.linha === elementoPilhaExecucao.linha
+        );
 
         if (buscaPontoParada.length > 0) {
             console.log('Ponto de parada encontrado.');
@@ -1009,42 +1020,42 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         return false;
     }
 
+    etapaResolucao(declaracoes: Declaracao[]) {
+        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
+        this.locais = retornoResolvedor.locais;
+    }
+
     /**
-     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um 
-     * ponto de parada ou não. 
-     * Diferentemente da interpretação tradicional, não possui indicadores 
+     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
+     * ponto de parada ou não.
+     * Diferentemente da interpretação tradicional, não possui indicadores
      * de performance porque eles não fazem sentido aqui.
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
     interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
+        this.declaracoes = declaracoes;
 
-        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
-        this.locais = retornoResolvedor.locais;
+        this.pilhaExecucao.push({
+            identificador: '<Arquivo raiz>',
+            hashArquivo: 0,
+            linha: 1,
+        });
 
-        this.pontosParada.push({
-            hashArquivo: 2174307748922580,
-            linha: 2
-        } as PontoParada)
+        return this.continuarInterpretacaoParcial();
+    }
 
+    continuarInterpretacaoParcial(): RetornoInterpretador {
         try {
-            this.pilhaExecucao.push({
-                identificador: '<Arquivo raiz>',
-                hashArquivo: 0,
-                linha: 1
-            });
-
-            for (let i = 0; i < declaracoes.length; i++) {
-                if (this.executarComDepuracao(declaracoes[i])) {
+            for (; this.declaracaoAtual < this.declaracoes.length; this.declaracaoAtual++) {
+                if (this.executarComDepuracao(this.declaracoes[this.declaracaoAtual])) {
                     break;
                 }
             }
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            this.pilhaExecucao.pop();
-
             return {
                 erros: this.erros,
             } as RetornoInterpretador;
@@ -1078,10 +1089,9 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            const deltaInterpretacao: [number, number] =
-                hrtime(inicioInterpretacao);
             if (this.performance) {
-                const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
+                const deltaInterpretacao: [number, number] =
+                    hrtime(inicioInterpretacao);
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
                         deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]
@@ -1091,7 +1101,7 @@ export class Interpretador implements InterpretadorInterface, InterpretadorComDe
 
             const retorno = {
                 erros: this.erros,
-                resultado: this.resultadoInterpretador
+                resultado: this.resultadoInterpretador,
             } as RetornoInterpretador;
 
             this.resultadoInterpretador = [];
