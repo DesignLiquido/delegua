@@ -17,8 +17,8 @@ export class ServidorDepuracao {
         // `Interpretador.executar()`. 
         // Deve ser removido num futuro próximo.
         (this.instanciaDelegua.interpretador as any).pontosParada.push({
-            hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-1.egua'),
-            linha: 2
+            hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
+            linha: 5
         });
         this.servidor = net.createServer();
         this.conexoes = {};
@@ -65,6 +65,8 @@ export class ServidorDepuracao {
                     break;
                 case "remover-ponto-parada":
                     conexao.write("Recebido comando 'remover-ponto-parada'\n");
+                    conexao.write("Declaração atual: " + interpretadorInterface.declaracaoAtual + '\n')
+                    conexao.write("Objeto da declaração atual: " + JSON.stringify((this.instanciaDelegua.interpretador as any).declaracoes[interpretadorInterface.declaracaoAtual]) + '\n')
                     break;
                 case "sair-escopo":
                     conexao.write("Recebido comando 'sair-escopo'\n");

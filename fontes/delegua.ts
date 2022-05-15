@@ -162,11 +162,6 @@ export class Delegua implements DeleguaInterface {
     carregarArquivo(caminhoRelativoArquivo: string): void {
         this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
-        (this.interpretador as any).pontosParada.push({
-            hashArquivo: 6448476244935139,
-            linha: 2,
-        } as PontoParada);
-
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
         this.executar(retornoImportador);
 
