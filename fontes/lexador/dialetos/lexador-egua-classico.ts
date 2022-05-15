@@ -84,7 +84,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
     adicionarSimbolo(tipo: any, literal: any = null) {
         const texto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha, -1));
     }
 
     proximoIgualA(esperado: any) {
@@ -337,7 +337,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
 
         this.simbolos.push(
-            new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha)
+            new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha, -1)
         );
 
         return { 
