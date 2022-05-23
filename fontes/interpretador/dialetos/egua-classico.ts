@@ -21,7 +21,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
-import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../../declaracoes';
+import { Classe, Declaracao, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../../declaracoes';
 import { Construto, Super } from '../../construtos';
 import { RetornoInterpretador } from '../retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
@@ -912,7 +912,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         declaracao.aceitar(this);
     }
 
-    interpretar(declaracoes: any): RetornoInterpretador {
+    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
 
         const retornoResolvedor = this.Delegua.resolvedor.resolver(declaracoes);

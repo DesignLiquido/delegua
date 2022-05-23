@@ -14,7 +14,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from '../interfaces';
-import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
+import { Classe, Declaracao, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
 import {
     Chamavel,
     DeleguaClasse,
@@ -563,7 +563,7 @@ export class Interpretador implements InterpretadorInterface {
         }
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
-        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
+        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes);
 
         let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
         
@@ -914,15 +914,14 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    interpretar(objeto: any): RetornoInterpretador {
+    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
 
-        const retornoResolvedor = this.resolvedor.resolver(objeto);
+        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {
-            const declaracoes = objeto.declaracoes || objeto;
             if (declaracoes.length === 1) {
                 const eObjetoExpressao =
                     declaracoes[0].constructor.name === 'Expressao';
