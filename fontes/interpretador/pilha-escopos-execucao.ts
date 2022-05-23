@@ -43,7 +43,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     atribuirVariavel(simbolo: SimboloInterface, valor: any) {
-        for (let i = 1; i < this.pilha.length; i++) {
+        for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha.at(-i).ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 ambiente.valores[simbolo.lexema] = valor;
@@ -59,7 +59,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     obterVariavel(simbolo: SimboloInterface) {
-        for (let i = 1; i < this.pilha.length; i++) {
+        for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha.at(-i).ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 return ambiente.valores[simbolo.lexema];

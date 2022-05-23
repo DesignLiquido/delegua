@@ -47,10 +47,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
 
-        // this.global = new Ambiente();
-        // this.ambiente = this.global;
         this.locais = new Map();
         this.erros = [];
+        this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: [],
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }

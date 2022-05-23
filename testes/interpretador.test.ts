@@ -204,7 +204,7 @@ describe('Interpretador', () => {
                 });
             });
 
-            describe('Declaração e chamada de funções', () => {
+            describe.skip('Declaração e chamada de funções', () => {
                 it('Fibonacci', () => {
                     const codigo = [
                         "funcao fibonacci(n) {",
