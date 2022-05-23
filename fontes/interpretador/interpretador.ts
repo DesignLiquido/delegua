@@ -13,8 +13,24 @@ import {
     ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
-import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from '../interfaces';
-import { Classe, Declaracao, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../declaracoes';
+import {
+    InterpretadorInterface,
+    ResolvedorInterface,
+    SimboloInterface,
+} from '../interfaces';
+import {
+    Classe,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    Fazer,
+    Funcao,
+    Importar,
+    Para,
+    Se,
+    Tente,
+} from '../declaracoes';
 import {
     Chamavel,
     DeleguaClasse,
@@ -27,6 +43,8 @@ import { Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
+import { EscopoExecucao } from '../interfaces/escopo-execucao';
+import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -37,13 +55,12 @@ export class Interpretador implements InterpretadorInterface {
     resolvedor: ResolvedorInterface;
 
     diretorioBase: any;
-    global: Ambiente;
-    ambiente: Ambiente;
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
     resultadoInterpretador: Array<String> = [];
+    pilhaEscoposExecucao: PilhaEscoposExecucao;
 
     constructor(
         importador: ImportadorInterface,
@@ -58,12 +75,17 @@ export class Interpretador implements InterpretadorInterface {
         this.performance = performance;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
-        this.global = new Ambiente();
-        this.ambiente = this.global;
         this.locais = new Map();
         this.erros = [];
+        this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: [],
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
-        this.global = carregarBibliotecaGlobal(this, this.global);
+        carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
     resolver(expressao: any, profundidade: number): void {
@@ -123,7 +145,11 @@ export class Interpretador implements InterpretadorInterface {
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+    verificarOperandosNumeros(
+        operador: any,
+        direita: any,
+        esquerda: any
+    ): void {
         if (typeof direita === 'number' && typeof esquerda === 'number') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -335,13 +361,13 @@ export class Interpretador implements InterpretadorInterface {
 
         const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
-            this.ambiente.atribuirVariavelEm(
+            this.pilhaEscoposExecucao.atribuirVariavelEm(
                 distancia,
                 expressao.simbolo,
                 valor
             );
         } else {
-            this.ambiente.atribuirVariavel(expressao.simbolo, valor);
+            this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
         }
 
         return valor;
@@ -350,9 +376,9 @@ export class Interpretador implements InterpretadorInterface {
     procurarVariavel(simbolo: SimboloInterface, expressao: any) {
         const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
-            return this.ambiente.obterVariavelEm(distancia, simbolo.lexema);
+            return this.pilhaEscoposExecucao.obterVariavelEm(distancia, simbolo.lexema);
         } else {
-            return this.global.obterVariavel(simbolo);
+            return this.pilhaEscoposExecucao.obterVariavel(simbolo);
         }
     }
 
@@ -479,7 +505,11 @@ export class Interpretador implements InterpretadorInterface {
                         encontrado = true;
 
                         try {
-                            for (let k = 0; k < caminho.declaracoes.length; k++) {
+                            for (
+                                let k = 0;
+                                k < caminho.declaracoes.length;
+                                k++
+                            ) {
                                 this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
@@ -509,30 +539,21 @@ export class Interpretador implements InterpretadorInterface {
         try {
             let sucesso = true;
             try {
-                this.executarBloco(declaracao.caminhoTente, new Ambiente(this.ambiente));
+                this.executarBloco(declaracao.caminhoTente);
             } catch (erro) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    this.executarBloco(
-                        declaracao.caminhoPegue,
-                        new Ambiente(this.ambiente)
-                    );
+                    this.executarBloco(declaracao.caminhoPegue);
                 }
             }
 
             if (sucesso && declaracao.caminhoSenao !== null) {
-                this.executarBloco(
-                    declaracao.caminhoSenao,
-                    new Ambiente(this.ambiente)
-                );
+                this.executarBloco(declaracao.caminhoSenao);
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                this.executarBloco(
-                    declaracao.caminhoFinalmente,
-                    new Ambiente(this.ambiente)
-                );
+                this.executarBloco(declaracao.caminhoFinalmente);
         }
     }
 
@@ -558,15 +579,20 @@ export class Interpretador implements InterpretadorInterface {
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
-        if (!caminhoTotal.endsWith('.egua') && !caminhoTotal.endsWith('.delegua')) {
+        if (
+            !caminhoTotal.endsWith('.egua') &&
+            !caminhoTotal.endsWith('.delegua')
+        ) {
             return carregarBibliotecaNode(caminhoRelativo);
         }
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
-        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes);
+        const retornoInterpretador = this.interpretar(
+            conteudoImportacao.retornoAvaliadorSintatico.declaracoes
+        );
 
-        let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
-        
+        let funcoesDeclaradas = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
         if (eDicionario(funcoesDeclaradas)) {
@@ -574,7 +600,8 @@ export class Interpretador implements InterpretadorInterface {
 
             let chaves = Object.keys(funcoesDeclaradas);
             for (let i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] = funcoesDeclaradas[chaves[i]];
+                novoModulo.componentes[chaves[i]] =
+                    funcoesDeclaradas[chaves[i]];
             }
 
             return novoModulo;
@@ -591,26 +618,28 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    executarBloco(declaracoes: any, ambiente: any) {
-        let anterior = this.ambiente;
+    /**
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
+     * executa as declarações empilhadas.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     */
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente) {
         try {
-            this.ambiente = ambiente;
-
-            if (declaracoes && declaracoes.length) {
-                for (let i = 0; i < declaracoes.length; i++) {
-                    this.executar(declaracoes[i]);
-                }
+            const escopoExecucao: EscopoExecucao = {
+                declaracoes: declaracoes,
+                declaracaoAtual: 0,
+                ambiente: ambiente || new Ambiente()
             }
+            this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+            this.executarUltimoEscopo();
         } catch (erro: any) {
             // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
             throw erro;
-        } finally {
-            this.ambiente = anterior;
         }
     }
 
     visitarExpressaoBloco(declaracao: any) {
-        this.executarBloco(declaracao.declaracoes, new Ambiente(this.ambiente));
+        this.executarBloco(declaracao.declaracoes);
         return null;
     }
 
@@ -620,7 +649,7 @@ export class Interpretador implements InterpretadorInterface {
             valor = this.avaliar(declaracao.inicializador);
         }
 
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, valor);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valor);
         return null;
     }
 
@@ -640,7 +669,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        return new DeleguaFuncao(null, expressao, this.ambiente, false);
+        return new DeleguaFuncao(null, expressao, false);
     }
 
     visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
@@ -771,10 +800,9 @@ export class Interpretador implements InterpretadorInterface {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
             declaracao.funcao,
-            this.ambiente,
             false
         );
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, funcao);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
 
     visitarExpressaoClasse(declaracao: Classe) {
@@ -790,12 +818,13 @@ export class Interpretador implements InterpretadorInterface {
             }
         }
 
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, null);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
 
-        if (declaracao.superClasse !== null) {
+        // TODO: Recolocar isso se for necessário.
+        /* if (declaracao.superClasse !== null) {
             this.ambiente = new Ambiente(this.ambiente);
             this.ambiente.definirVariavel('super', superClasse);
-        }
+        } */
 
         let metodos = {};
         let definirMetodos = declaracao.metodos;
@@ -805,7 +834,6 @@ export class Interpretador implements InterpretadorInterface {
             const funcao = new DeleguaFuncao(
                 metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
-                this.ambiente,
                 eInicializado
             );
             metodos[metodoAtual.simbolo.lexema] = funcao;
@@ -817,11 +845,12 @@ export class Interpretador implements InterpretadorInterface {
             metodos
         );
 
-        if (superClasse !== null) {
+        // TODO: Recolocar isso se for necessário.
+        /* if (superClasse !== null) {
             this.ambiente = this.ambiente.enclosing;
-        }
+        } */
 
-        this.ambiente.atribuirVariavel(declaracao.simbolo, criado);
+        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, criado);
         return null;
     }
 
@@ -866,9 +895,9 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoSuper(expressao: Super) {
         const distancia = this.locais.get(expressao);
-        const superClasse = this.ambiente.obterVariavelEm(distancia, 'super');
+        const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
 
-        const objeto = this.ambiente.obterVariavelEm(distancia - 1, 'isto');
+        const objeto = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
 
         let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
 
@@ -909,8 +938,29 @@ export class Interpretador implements InterpretadorInterface {
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
-        if(resultado || typeof resultado === 'boolean'){
-            this.resultadoInterpretador.push(this.paraTexto(resultado))
+        if (resultado || typeof resultado === 'boolean') {
+            this.resultadoInterpretador.push(this.paraTexto(resultado));
+        }
+    }
+
+    executarUltimoEscopo() {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        try {
+            if (ultimoEscopo.declaracoes.length === 1) {
+                const eObjetoExpressao =
+                    ultimoEscopo.declaracoes[0].constructor.name === 'Expressao';
+                if (eObjetoExpressao) {
+                    this.executar(ultimoEscopo.declaracoes[0], true);
+                    return;
+                }
+            }
+            for (; ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            }
+        } catch (erro: any) {
+            this.erros.push(erro);
+        } finally {
+            this.pilhaEscoposExecucao.removerUltimo();
         }
     }
 
@@ -919,25 +969,20 @@ export class Interpretador implements InterpretadorInterface {
 
         const retornoResolvedor = this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {
-            if (declaracoes.length === 1) {
-                const eObjetoExpressao =
-                    declaracoes[0].constructor.name === 'Expressao';
-                if (eObjetoExpressao) {
-                    this.executar(declaracoes[0], true);
-                    return;
-                }
-            }
-            for (let i = 0; i < declaracoes.length; i++) {
-                this.executar(declaracoes[i]);
-            }
-        } catch (erro: any) {
-            this.erros.push(erro);
+            this.executarUltimoEscopo();
         } finally {
             if (this.performance) {
-                const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
+                const deltaInterpretacao: [number, number] =
+                    hrtime(inicioInterpretacao);
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${
                         deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]
@@ -947,7 +992,7 @@ export class Interpretador implements InterpretadorInterface {
 
             const retorno = {
                 erros: this.erros,
-                resultado: this.resultadoInterpretador
+                resultado: this.resultadoInterpretador,
             } as RetornoInterpretador;
 
             this.resultadoInterpretador = [];

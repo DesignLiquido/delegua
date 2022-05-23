@@ -1,4 +1,5 @@
 import { Chamavel } from "./chamavel";
+import { DeleguaFuncao } from "./funcao";
 import { DeleguaInstancia } from "./instancia";
 
 export class DeleguaClasse extends Chamavel {
@@ -13,7 +14,7 @@ export class DeleguaClasse extends Chamavel {
         this.metodos = metodos;
     }
 
-    encontrarMetodo(nome: any): any {
+    encontrarMetodo(nome: string): DeleguaFuncao {
         if (this.metodos.hasOwnProperty(nome)) {
             return this.metodos[nome];
         }

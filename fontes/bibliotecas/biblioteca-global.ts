@@ -3,13 +3,13 @@ import { DeleguaFuncao } from "../estruturas/funcao";
 import { DeleguaInstancia } from "../estruturas/instancia";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaClasse } from "../estruturas/classe";
-import { Ambiente } from "../ambiente";
 import { InterpretadorInterface } from "../interfaces";
+import { PilhaEscoposExecucao } from "../interpretador/pilha-escopos-execucao";
 
 
-export default function (interpretador: InterpretadorInterface, global: Ambiente) {
+export default function (interpretador: InterpretadorInterface, pilhaEscoposExecucao: PilhaEscoposExecucao) {
     // Retorna um número aleatório entre 0 e 1.
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "aleatorio",
         new FuncaoPadrao(1, function () {
             return Math.random();
@@ -18,7 +18,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
 
     // Retorna um número aleatório de acordo com o parâmetro passado.
     // Mínimo(inclusivo) - Máximo(exclusivo)
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "aleatorioEntre",
         new FuncaoPadrao(1, function (minimo: number, maximo: number) {
             if (typeof minimo !== 'number' || typeof maximo !== 'number') {
@@ -32,7 +32,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
         })
     );
 
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "inteiro",
         new FuncaoPadrao(1, function (valor: any) {
             if (!valor) {
@@ -53,7 +53,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
         })
     );
 
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "mapear",
         new FuncaoPadrao(1, function (array: any, callback: any) {
             if (!Array.isArray(array)) {
@@ -83,7 +83,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
         })
     );
 
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "ordenar",
         new FuncaoPadrao(1, function (objeto: Array<any>) {
             if (!Array.isArray(objeto)) {
@@ -108,7 +108,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
         })
     );
 
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "real",
         new FuncaoPadrao(1, function (valor: any) {
             if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor))
@@ -120,7 +120,7 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
         })
     );
 
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "tamanho",
         new FuncaoPadrao(1, function (objeto: any) {
             if (!isNaN(objeto)) {
@@ -160,14 +160,14 @@ export default function (interpretador: InterpretadorInterface, global: Ambiente
         })
     );
 
-    global.definirVariavel(
+    pilhaEscoposExecucao.definirVariavel(
         "texto",
         new FuncaoPadrao(1, function (valor: any) {
             return `${valor}`;
         })
     );
 
-    global.definirVariavel("exports", {});
+    pilhaEscoposExecucao.definirVariavel("exports", {});
 
-    return global;
+    return pilhaEscoposExecucao;
 };

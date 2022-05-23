@@ -1,18 +1,17 @@
 import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
 import { ExcecaoRetornar } from "../excecoes";
+import { InterpretadorInterface } from "../interfaces";
 
 export class DeleguaFuncao extends Chamavel {
     nome: any;
     declaracao: any;
-    ambienteAnterior: any;
     eInicializador: any;
 
-    constructor(nome: any, declaracao: any, ambienteAnterior: any, eInicializador = false) {
+    constructor(nome: any, declaracao: any, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
-        this.ambienteAnterior = ambienteAnterior;
         this.eInicializador = eInicializador;
     }
 
@@ -25,8 +24,8 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    chamar(interpretador: any, argumentos: any): any {
-        let ambiente = new Ambiente(this.ambienteAnterior);
+    chamar(interpretador: InterpretadorInterface, argumentos: any): any {
+        let ambiente = new Ambiente();
         let parametros = this.declaracao.parametros;
 
         if (parametros && parametros.length) {
@@ -38,32 +37,35 @@ export class DeleguaFuncao extends Chamavel {
                 if (argumentos[i] === null) {
                     valor = param["padrao"] ? param["padrao"].valor : null;
                 }
-                ambiente.definirVariavel(nome, valor);
+                // ambiente.definirVariavel(nome, valor);
+                ambiente.valores[nome] = valor;
             }
         }
 
         try {
             interpretador.executarBloco(this.declaracao.corpo, ambiente);
         } catch (erro) {
+            // TODO: Retirar essa roubada daqui.
             if (erro instanceof ExcecaoRetornar) {
-                if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
+                // if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
                 return erro.valor;
             } else {
                 throw erro;
             }
         }
 
-        if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
+        // if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
         return null;
     }
 
     definirEscopo(instancia: any): any {
-        let ambiente = new Ambiente(this.ambienteAnterior);
-        ambiente.definirVariavel("isto", instancia);
+        // TODO: Retirar dependência do núcleo da linguagem antes de refatorar aqui.
+        // Exemplo: fontes\estruturas\classe.ts
+        // let ambiente = new Ambiente(this.ambienteAnterior);
+        // ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(
             this.nome,
             this.declaracao,
-            ambiente,
             this.eInicializador
         );
     }
