@@ -30,6 +30,7 @@ import {
     Para,
     Se,
     Tente,
+    Var,
 } from '../declaracoes';
 import {
     Chamavel,
@@ -376,7 +377,7 @@ export class Interpretador implements InterpretadorInterface {
     procurarVariavel(simbolo: SimboloInterface, expressao: any) {
         const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
-            return this.pilhaEscoposExecucao.obterVariavelEm(distancia, simbolo.lexema);
+            return this.pilhaEscoposExecucao.obterVariavelEm(distancia + 1, simbolo.lexema);
         } else {
             return this.pilhaEscoposExecucao.obterVariavel(simbolo);
         }
@@ -643,7 +644,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoVar(declaracao: any) {
+    visitarExpressaoVar(declaracao: Var) {
         let valor = null;
         if (declaracao.inicializador !== null) {
             valor = this.avaliar(declaracao.inicializador);
@@ -958,7 +959,9 @@ export class Interpretador implements InterpretadorInterface {
                 this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
         } catch (erro: any) {
-            this.erros.push(erro);
+            if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+                this.erros.push(erro);
+            }
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }
