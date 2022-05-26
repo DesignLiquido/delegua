@@ -21,8 +21,8 @@ import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
-import { Classe, Declaracao, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../../declaracoes';
-import { Construto, Super } from '../../construtos';
+import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
+import { Atribuir, Construto, Super } from '../../construtos';
 import { RetornoInterpretador } from '../retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
@@ -122,14 +122,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoBinaria(expr: any) {
-        let esquerda = this.avaliar(expr.esquerda);
-        let direita = this.avaliar(expr.direita);
+    visitarExpressaoBinaria(expressao: any) {
+        let esquerda = this.avaliar(expressao.esquerda);
+        let direita = this.avaliar(expressao.direita);
 
-        switch (expr.operador.tipo) {
+        switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -137,7 +137,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -145,7 +145,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -153,7 +153,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -161,7 +161,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -169,7 +169,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.SUBTRACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -189,13 +189,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
 
                 throw new ErroEmTempoDeExecucao(
-                    expr.operador,
+                    expressao.operador,
                     'Operadores precisam ser dois números ou duas strings.'
                 );
 
             case tiposDeSimbolos.DIVISAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -203,7 +203,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -211,7 +211,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MODULO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -219,7 +219,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -227,7 +227,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -235,7 +235,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -243,7 +243,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -251,7 +251,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -328,7 +328,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         const valor = this.avaliar(expressao.valor);
 
         const distancia = this.locais.get(expressao);
@@ -354,7 +354,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any) {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         return this.avaliar(declaracao.expressao);
     }
 
@@ -617,7 +617,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoVar(declaracao: any) {
+    visitarExpressaoVar(declaracao: Var) {
         let valor = null;
         if (declaracao.inicializador !== null) {
             valor = this.avaliar(declaracao.inicializador);
@@ -907,7 +907,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(declaracao: any, mostrarResultado: boolean = false): void {
+    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
         declaracao.aceitar(this);
     }
 
