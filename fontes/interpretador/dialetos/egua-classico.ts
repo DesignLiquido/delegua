@@ -930,6 +930,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const retornoResolvedor = this.Delegua.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
         
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.executarUltimoEscopo();
 
         return {
