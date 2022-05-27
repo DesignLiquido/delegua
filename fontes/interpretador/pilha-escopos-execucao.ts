@@ -34,12 +34,9 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
         this.pilha.at(-1).ambiente.valores[nomeVariavel] = valor;
     }
 
-    ambienteAncestral(distancia: number) {
-        return this.pilha.at(-distancia).ambiente;
-    }
-
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any) {
-        this.ambienteAncestral(distancia).valores[simbolo.lexema] = valor;
+        const ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        ambienteAncestral.valores[simbolo.lexema] = valor;
     }
 
     atribuirVariavel(simbolo: SimboloInterface, valor: any) {
@@ -55,7 +52,8 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     obterVariavelEm(distancia: number, nome: any) {
-        return this.ambienteAncestral(distancia).valores[nome];
+        const ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        return ambienteAncestral.valores[nome];
     }
 
     obterVariavel(simbolo: SimboloInterface) {

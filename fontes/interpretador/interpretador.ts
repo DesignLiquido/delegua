@@ -19,6 +19,7 @@ import {
     SimboloInterface,
 } from '../interfaces';
 import {
+    Bloco,
     Classe,
     Declaracao,
     Enquanto,
@@ -28,6 +29,7 @@ import {
     Funcao,
     Importar,
     Para,
+    Retorna,
     Se,
     Tente,
     Var,
@@ -97,10 +99,8 @@ export class Interpretador implements InterpretadorInterface {
         return expressao.valor;
     }
 
-    avaliar(expressao: any) {
-        if (expressao.aceitar) {
-            return expressao.aceitar(this);
-        }
+    avaliar(expressao: Construto) {
+        return expressao.aceitar(this);
     }
 
     visitarExpressaoAgrupamento(expressao: any) {
@@ -623,6 +623,7 @@ export class Interpretador implements InterpretadorInterface {
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
      * executa as declarações empilhadas.
      * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
     executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente) {
         try {
@@ -639,7 +640,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoBloco(declaracao: any) {
+    visitarExpressaoBloco(declaracao: Bloco) {
         this.executarBloco(declaracao.declaracoes);
         return null;
     }
@@ -662,7 +663,7 @@ export class Interpretador implements InterpretadorInterface {
         throw new ExcecaoSustar();
     }
 
-    visitarExpressaoRetornar(declaracao: any) {
+    visitarExpressaoRetornar(declaracao: Retorna) {
         let valor = null;
         if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
 
@@ -934,7 +935,7 @@ export class Interpretador implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(declaracao: any, mostrarResultado: boolean = false): void {
+    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));

@@ -22,7 +22,7 @@ import {
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
-import { Atribuir, Construto, Super } from '../../construtos';
+import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
@@ -60,14 +60,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
-    visitarExpressaoLiteral(expressao: any) {
+    visitarExpressaoLiteral(expressao: Literal) {
         return expressao.valor;
     }
 
-    avaliar(expressao: any) {
-        if (expressao.aceitar) {
-            return expressao.aceitar(this);
-        }
+    avaliar(expressao: Construto) {
+        return expressao.aceitar(this);
     }
 
     visitarExpressaoAgrupamento(expressao: any) {
@@ -341,8 +339,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expr: any) {
-        const distancia = this.locais.get(expr);
+    procurarVariavel(simbolo: SimboloInterface, expressao: any) {
+        const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
             return this.pilhaEscoposExecucao.obterVariavelEm(distancia, simbolo.lexema);
         } else {
@@ -350,7 +348,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDeVariavel(expressao: any) {
+    visitarExpressaoDeVariavel(expressao: Variavel) {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
@@ -596,13 +594,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
      * executa as declarações empilhadas.
      * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[]) {
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente) {
         try {
             const escopoExecucao: EscopoExecucao = {
                 declaracoes: declaracoes,
                 declaracaoAtual: 0,
-                ambiente: new Ambiente()
+                ambiente: ambiente || new Ambiente()
             }
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             this.executarUltimoEscopo();
