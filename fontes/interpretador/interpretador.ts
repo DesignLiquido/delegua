@@ -357,7 +357,7 @@ export class Interpretador implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any) {
+    visitarExpressaoDeAtribuicao(expressao: any): any {
         const valor = this.avaliar(expressao.valor);
 
         const distancia = this.locais.get(expressao);
@@ -374,7 +374,7 @@ export class Interpretador implements InterpretadorInterface {
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expressao: any) {
+    procurarVariavel(simbolo: SimboloInterface, expressao: any): any {
         const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
             return this.pilhaEscoposExecucao.obterVariavelEm(distancia + 1, simbolo.lexema);
@@ -383,15 +383,15 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDeVariavel(expressao: any) {
+    visitarExpressaoDeVariavel(expressao: any): any {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any) {
+    visitarDeclaracaoDeExpressao(declaracao: any): any {
         return this.avaliar(declaracao.expressao);
     }
 
-    visitarExpressaoLogica(expressao: any) {
+    visitarExpressaoLogica(expressao: any): any {
         let esquerda = this.avaliar(expressao.esquerda);
 
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
@@ -423,7 +423,7 @@ export class Interpretador implements InterpretadorInterface {
         return this.avaliar(expressao.direita);
     }
 
-    visitarExpressaoSe(declaracao: Se) {
+    visitarExpressaoSe(declaracao: Se): any {
         if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
             this.executar(declaracao.caminhoEntao);
             return null;
@@ -445,7 +445,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoPara(declaracao: Para) {
+    visitarExpressaoPara(declaracao: Para): any {
         if (declaracao.inicializador !== null) {
             this.avaliar(declaracao.inicializador);
         }
@@ -474,7 +474,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoFazer(declaracao: Fazer) {
+    visitarExpressaoFazer(declaracao: Fazer): any {
         do {
             try {
                 this.executar(declaracao.caminhoFazer);
@@ -489,7 +489,7 @@ export class Interpretador implements InterpretadorInterface {
         } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     }
 
-    visitarExpressaoEscolha(declaracao: Escolha) {
+    visitarExpressaoEscolha(declaracao: Escolha): any {
         let condicaoEscolha = this.avaliar(declaracao.condicao);
         let caminhos = declaracao.caminhos;
         let caminhoPadrao = declaracao.caminhoPadrao;
@@ -536,7 +536,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoTente(declaracao: Tente) {
+    visitarExpressaoTente(declaracao: Tente): any {
         try {
             let sucesso = true;
             try {
@@ -558,7 +558,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoEnquanto(declaracao: Enquanto) {
+    visitarExpressaoEnquanto(declaracao: Enquanto): any {
         while (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
             try {
                 this.executar(declaracao.corpo);
@@ -575,7 +575,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoImportar(declaracao: Importar) {
+    visitarExpressaoImportar(declaracao: Importar): any {
         const caminhoRelativo = this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
@@ -625,7 +625,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente) {
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
         try {
             const escopoExecucao: EscopoExecucao = {
                 declaracoes: declaracoes,
@@ -645,7 +645,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoVar(declaracao: Var) {
+    visitarExpressaoVar(declaracao: Var): any {
         let valor = null;
         if (declaracao.inicializador !== null) {
             valor = this.avaliar(declaracao.inicializador);
@@ -655,15 +655,15 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoContinua(declaracao?: any) {
+    visitarExpressaoContinua(declaracao?: any): any {
         throw new ExcecaoContinuar();
     }
 
-    visitarExpressaoSustar(declaracao?: any) {
+    visitarExpressaoSustar(declaracao?: any): any {
         throw new ExcecaoSustar();
     }
 
-    visitarExpressaoRetornar(declaracao: Retorna) {
+    visitarExpressaoRetornar(declaracao: Retorna): any {
         let valor = null;
         if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
 
@@ -935,7 +935,7 @@ export class Interpretador implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
+    executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
         const resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
@@ -943,6 +943,7 @@ export class Interpretador implements InterpretadorInterface {
         if (resultado || typeof resultado === 'boolean') {
             this.resultadoInterpretador.push(this.paraTexto(resultado));
         }
+        
     }
 
     executarUltimoEscopo() {
