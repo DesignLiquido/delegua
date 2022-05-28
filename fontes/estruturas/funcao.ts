@@ -2,6 +2,7 @@ import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
 import { ExcecaoRetornar } from "../excecoes";
 import { InterpretadorInterface } from "../interfaces";
+import { RetornoQuebra } from "../quebras";
 
 export class DeleguaFuncao extends Chamavel {
     nome: any;
@@ -42,20 +43,13 @@ export class DeleguaFuncao extends Chamavel {
             }
         }
 
-        try {
-            interpretador.executarBloco(this.declaracao.corpo, ambiente);
-        } catch (erro) {
-            // TODO: Retirar essa roubada daqui.
-            if (erro instanceof ExcecaoRetornar) {
-                // if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
-                return erro.valor;
-            } else {
-                throw erro;
-            }
+        const retornoBloco: any = interpretador.executarBloco(this.declaracao.corpo, ambiente);
+        if (retornoBloco instanceof RetornoQuebra) {
+            return retornoBloco.valor;
         }
 
+        return retornoBloco;
         // if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
-        return null;
     }
 
     definirEscopo(instancia: any): any {

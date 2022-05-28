@@ -48,6 +48,7 @@ import { RetornoInterpretador } from './retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
@@ -425,8 +426,7 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoSe(declaracao: Se): any {
         if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-            this.executar(declaracao.caminhoEntao);
-            return null;
+            return this.executar(declaracao.caminhoEntao);
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
@@ -633,16 +633,15 @@ export class Interpretador implements InterpretadorInterface {
                 ambiente: ambiente || new Ambiente()
             }
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-            this.executarUltimoEscopo();
+            return this.executarUltimoEscopo();
         } catch (erro: any) {
             // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
             throw erro;
         }
     }
 
-    visitarExpressaoBloco(declaracao: Bloco) {
-        this.executarBloco(declaracao.declaracoes);
-        return null;
+    visitarExpressaoBloco(declaracao: Bloco): any {
+        return this.executarBloco(declaracao.declaracoes);
     }
 
     visitarExpressaoVar(declaracao: Var): any {
@@ -655,19 +654,19 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoContinua(declaracao?: any): any {
-        throw new ExcecaoContinuar();
+    visitarExpressaoContinua(declaracao?: any): ContinuarQuebra {
+        return new ContinuarQuebra();
     }
 
-    visitarExpressaoSustar(declaracao?: any): any {
-        throw new ExcecaoSustar();
+    visitarExpressaoSustar(declaracao?: any): SustarQuebra {
+        return new SustarQuebra();
     }
 
-    visitarExpressaoRetornar(declaracao: Retorna): any {
+    visitarExpressaoRetornar(declaracao: Retorna): RetornoQuebra {
         let valor = null;
         if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
 
-        throw new ExcecaoRetornar(valor);
+        return new RetornoQuebra(valor);
     }
 
     visitarExpressaoDeleguaFuncao(expressao: any) {
@@ -936,17 +935,17 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
-        const resultado = declaracao.aceitar(this);
+        const resultado: any = declaracao.aceitar(this);
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
         if (resultado || typeof resultado === 'boolean') {
             this.resultadoInterpretador.push(this.paraTexto(resultado));
         }
-        
+        return resultado;
     }
 
-    executarUltimoEscopo() {
+    executarUltimoEscopo(): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             if (ultimoEscopo.declaracoes.length === 1) {
@@ -957,9 +956,12 @@ export class Interpretador implements InterpretadorInterface {
                     return;
                 }
             }
-            for (; ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            let retornoExecucao: any;
+            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
+            
+            return retornoExecucao;
         } catch (erro: any) {
             if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
                 this.erros.push(erro);
