@@ -31,14 +31,14 @@ export class DeleguaFuncao extends Chamavel {
 
         if (parametros && parametros.length) {
             for (let i = 0; i < parametros.length; i++) {
-                const param = parametros[i];
+                const parametro = parametros[i];
 
-                const nome = param["nome"].lexema;
+                const nome = parametro["nome"].lexema;
                 let valor = argumentos[i];
                 if (argumentos[i] === null) {
-                    valor = param["padrao"] ? param["padrao"].valor : null;
+                    valor = parametro["padrao"] ? parametro["padrao"].valor : null;
                 }
-                // ambiente.definirVariavel(nome, valor);
+
                 ambiente.valores[nome] = valor;
             }
         }

@@ -992,18 +992,18 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                     );
                 }
 
-                let paramObj = {};
+                let parametro = {};
 
                 if (
                     this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO
                 ) {
                     this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                    paramObj['tipo'] = 'wildcard';
+                    parametro['tipo'] = 'estrela';
                 } else {
-                    paramObj['tipo'] = 'standard';
+                    parametro['tipo'] = 'padrao';
                 }
 
-                paramObj['nome'] = this.consumir(
+                parametro['nome'] = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
                     'Esperado nome do parâmetro.'
                 );
@@ -1011,12 +1011,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 if (
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)
                 ) {
-                    paramObj['default'] = this.primario();
+                    parametro['padrao'] = this.primario();
                 }
 
-                parametros.push(paramObj);
+                parametros.push(parametro);
 
-                if (paramObj['tipo'] === 'wildcard') break;
+                if (parametro['tipo'] === 'estrela') break;
             } while (
                 this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)
             );

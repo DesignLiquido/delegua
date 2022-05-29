@@ -300,7 +300,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             if (
                 parametros &&
                 parametros.length > 0 &&
-                parametros[parametros.length - 1]['tipo'] === 'wildcard'
+                parametros[parametros.length - 1]['tipo'] === 'estrela'
             ) {
                 let novosArgumentos = argumentos.slice(
                     0,
