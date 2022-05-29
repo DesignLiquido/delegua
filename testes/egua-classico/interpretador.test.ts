@@ -13,7 +13,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Trivial', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = 1;"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -22,7 +22,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Vetor', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3];"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -31,7 +31,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Dicionário', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2};"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -42,7 +42,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Acesso a elementos de vetor', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3];\nescreva(a[1]);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -51,7 +51,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Acesso a elementos de dicionário', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2};\nescreva(a['b']);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -62,7 +62,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Olá Mundo (escreva() e literal)', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -71,7 +71,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('nulo', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(nulo);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -82,7 +82,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Operações matemáticas - Trivial', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -93,7 +93,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Operações lógicas - ou', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro ou falso);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -102,7 +102,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Operações lógicas - e', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro e falso);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -111,7 +111,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Operações lógicas - em', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(2 em [1, 2, 3]);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -122,7 +122,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Condicionais - condição verdadeira', () => {
                     const retornoLexador = delegua.lexador.mapear(["se (1 < 2) { escreva('Um menor que dois'); } senão { escreva('Nunca será executado'); }"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -131,7 +131,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Condicionais - condição falsa', () => {
                     const retornoLexador = delegua.lexador.mapear(["se (1 > 2) { escreva('Nunca acontece'); } senão { escreva('Um não é maior que dois'); }"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -142,7 +142,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Laços de repetição - enquanto', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = 0;\nenquanto (a < 10) { a = a + 1; }"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -151,7 +151,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Laços de repetição - fazer ... enquanto', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = 0;\nfazer { a = a + 1; } enquanto (a < 10)"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -160,7 +160,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Laços de repetição - para', () => {
                     const retornoLexador = delegua.lexador.mapear(["para (var i = 0; i < 10; i = i + 1) { escreva(i); }"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -188,7 +188,7 @@ describe('Interpretador (Égua Clássico)', () => {
                     
                     const retornoLexador = delegua.lexador.mapear(codigo);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -226,7 +226,7 @@ describe('Interpretador (Égua Clássico)', () => {
                     ];
                     const retornoLexador = delegua.lexador.mapear(codigo);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -239,7 +239,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Acesso a elementos de vetor', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3];\nescreva(a[4]);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
@@ -248,7 +248,7 @@ describe('Interpretador (Égua Clássico)', () => {
                 it('Acesso a elementos de dicionário', () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2};\nescreva(a['c']);"]);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    const retornoResolvedor = delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+                    
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
