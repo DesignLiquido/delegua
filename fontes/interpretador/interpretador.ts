@@ -475,9 +475,9 @@ export class Interpretador implements InterpretadorInterface {
             for (let i = 0; i < caminhos.length; i++) {
                 let caminho = caminhos[i];
 
-                for (let j = 0; j < caminho.conditions.length; j++) {
+                for (let j = 0; j < caminho.condicoes.length; j++) {
                     if (
-                        this.avaliar(caminho.conditions[j]) === condicaoEscolha
+                        this.avaliar(caminho.condicoes[j]) === condicaoEscolha
                     ) {
                         encontrado = true;
 
@@ -511,7 +511,7 @@ export class Interpretador implements InterpretadorInterface {
             let sucesso = true;
             try {
                 this.executarBloco(declaracao.caminhoTente);
-            } catch (erro) {
+            } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {

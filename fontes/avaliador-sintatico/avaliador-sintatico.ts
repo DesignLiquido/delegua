@@ -783,7 +783,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let branchConditions = [this.expressao()];
+                    let caminhoCondicoes = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -791,7 +791,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
-                        branchConditions.push(this.expressao());
+                        caminhoCondicoes.push(this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
@@ -808,7 +808,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     );
 
                     caminhos.push({
-                        conditions: branchConditions,
+                        condicoes: caminhoCondicoes,
                         declaracoes,
                     });
                 } else if (
