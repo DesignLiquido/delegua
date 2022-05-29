@@ -531,6 +531,8 @@ export class Interpretador implements InterpretadorInterface {
 
                 if (declaracao.caminhoPegue !== null) {
                     this.executarBloco(declaracao.caminhoPegue);
+                } else {
+                    this.erros.push(erro);
                 }
             }
 
@@ -607,17 +609,13 @@ export class Interpretador implements InterpretadorInterface {
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
     executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
-        try {
-            const escopoExecucao: EscopoExecucao = {
-                declaracoes: declaracoes,
-                declaracaoAtual: 0,
-                ambiente: ambiente || new Ambiente()
-            }
-            this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-            return this.executarUltimoEscopo();
-        } catch (erro: any) {
-            throw erro;
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: ambiente || new Ambiente()
         }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        return this.executarUltimoEscopo();
     }
 
     visitarExpressaoBloco(declaracao: Bloco): any {
@@ -928,6 +926,11 @@ export class Interpretador implements InterpretadorInterface {
         return resultado;
     }
 
+    /**
+     * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
+     * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
+     * @returns O resultado da execução do escopo, se houver.
+     */
     executarUltimoEscopo(manterAmbiente: boolean = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
@@ -937,8 +940,6 @@ export class Interpretador implements InterpretadorInterface {
             }
             
             return retornoExecucao;
-        } catch (erro: any) {
-            this.erros.push(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {
