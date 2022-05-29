@@ -160,7 +160,7 @@ export class Delegua implements DeleguaInterface {
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
                 if (erroInterpretador.simbolo) {
-                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                    this.erroEmTempoDeExecucao(erroInterpretador);
                 } else {
                     const erroEmJavaScript: any = erroInterpretador as any;
                     console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);

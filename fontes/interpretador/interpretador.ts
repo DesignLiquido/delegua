@@ -446,15 +446,15 @@ export class Interpretador implements InterpretadorInterface {
         if (declaracao.inicializador !== null) {
             this.avaliar(declaracao.inicializador);
         }
-        while (true) {
-            if (declaracao.condicao !== null) {
-                if (!this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-                    break;
-                }
+
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra)) {
+            if (declaracao.condicao !== null || !this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+                break;
             }
 
             try {
-                this.executar(declaracao.corpo);
+                retornoExecucao = this.executar(declaracao.corpo);
             } catch (erro: any) {
                 throw erro;
             }
@@ -467,13 +467,14 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoFazer(declaracao: Fazer): any {
+        let retornoExecucao: any;
         do {
             try {
-                this.executar(declaracao.caminhoFazer);
+                retornoExecucao = this.executar(declaracao.caminhoFazer);
             } catch (erro: any) {
                 throw erro;
             }
-        } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
+        } while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     }
 
     visitarExpressaoEscolha(declaracao: Escolha): any {
@@ -540,9 +541,10 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoEnquanto(declaracao: Enquanto): any {
-        while (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
             try {
-                this.executar(declaracao.corpo);
+                retornoExecucao = this.executar(declaracao.corpo);
             } catch (erro) {
                 throw erro;
             }
