@@ -345,11 +345,14 @@ export class Interpretador implements InterpretadorInterface {
         }
 
         if (entidadeChamada instanceof FuncaoPadrao) {
-            return entidadeChamada.chamar(
-                this,
-                argumentos,
-                expressao.entidadeChamada.nome
-            );
+            try {
+                return entidadeChamada.chamar(
+                    argumentos,
+                    expressao.entidadeChamada.nome
+                );
+            } catch (erro: any) {
+                this.erros.push(erro);
+            }
         }
 
         return entidadeChamada.chamar(this, argumentos);
@@ -577,11 +580,15 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
-        const valor = this.avaliar(declaracao.expressao);
-        const formatoTexto = this.paraTexto(valor);
-        this.resultadoInterpretador.push(formatoTexto);
-        this.funcaoDeRetorno(formatoTexto);
-        return null;
+        try {
+            const valor = this.avaliar(declaracao.expressao);
+            const formatoTexto = this.paraTexto(valor);
+            this.resultadoInterpretador.push(formatoTexto);
+            this.funcaoDeRetorno(formatoTexto);
+            return null;
+        } catch (erro: any) {
+            this.erros.push(erro);
+        }
     }
 
     /**
@@ -868,7 +875,7 @@ export class Interpretador implements InterpretadorInterface {
             );
         }
 
-        return metodo.definirEscopo(objeto);
+        return metodo.definirInstancia(objeto);
     }
 
     paraTexto(objeto: any) {

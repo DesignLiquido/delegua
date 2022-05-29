@@ -1,12 +1,13 @@
 import { ErroEmTempoDeExecucao } from "../excecoes";
 import { SimboloInterface } from "../interfaces";
+import { DeleguaClasse } from "./delegua-classe";
 
 export class ObjetoDeleguaClasse {
-    criarClasse: any;
+    classe: DeleguaClasse;
     campos: any;
 
     constructor(criarClasse: any) {
-        this.criarClasse = criarClasse;
+        this.classe = criarClasse;
         this.campos = {};
     }
 
@@ -15,8 +16,8 @@ export class ObjetoDeleguaClasse {
             return this.campos[simbolo.lexema];
         }
 
-        let metodo = this.criarClasse.encontrarMetodo(simbolo.lexema);
-        if (metodo) return metodo.definirEscopo(this);
+        let metodo = this.classe.encontrarMetodo(simbolo.lexema);
+        if (metodo) return metodo.definirInstancia(this);
 
         throw new ErroEmTempoDeExecucao(simbolo, "Método indefinido não recuperado.");
     }
@@ -26,6 +27,6 @@ export class ObjetoDeleguaClasse {
     }
 
     toString(): string {
-        return "<Objeto " + this.criarClasse.nome + ">";
+        return "<Objeto " + this.classe.nome + ">";
     }
 }

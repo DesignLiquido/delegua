@@ -315,7 +315,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
-                this,
                 argumentos,
                 expressao.entidadeChamada.nome
             );
@@ -856,7 +855,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        return metodo.definirEscopo(objeto);
+        return metodo.definirInstancia(objeto);
     }
 
     paraTexto(objeto: any): any {

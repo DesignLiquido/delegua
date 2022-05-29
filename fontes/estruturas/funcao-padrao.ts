@@ -11,7 +11,7 @@ export class FuncaoPadrao extends Chamavel {
         this.funcao = funcao;
     }
 
-    chamar(interpretador: any, argumentos: any, simbolo: any): any {
+    chamar(argumentos: any[], simbolo: any): any {
         this.simbolo = simbolo;
         return this.funcao.apply(this, argumentos);
     }
