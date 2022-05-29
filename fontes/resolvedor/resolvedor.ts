@@ -47,7 +47,7 @@ const TipoClasse = {
     SUBCLASSE: 'SUBCLASSE',
 };
 
-const LoopType = {
+const TipoLacoRepeticao = {
     NENHUM: 'NENHUM',
     ENQUANTO: 'ENQUANTO',
     ESCOLHA: 'ESCOLHA',
@@ -60,6 +60,8 @@ const LoopType = {
  * e delimitar os escopos onde esses identificadores existem.
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
+ * @deprecated Marcado para remoção. Como a implementação de blocos de escopo não precisa mais ter etapa de resolução, o 
+ *              resolvedor deve ser removido em versões futuras.
  */
 export class Resolvedor implements ResolvedorInterface {
     erros: ErroResolvedor[];
@@ -323,7 +325,7 @@ export class Resolvedor implements ResolvedorInterface {
 
     visitarExpressaoEscolha(declaracao: Escolha): void {
         let enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.ESCOLHA;
+        this.cicloAtual = TipoLacoRepeticao.ESCOLHA;
 
         let caminhos = declaracao.caminhos;
         let caminhoPadrao = declaracao.caminhoPadrao;
@@ -355,7 +357,7 @@ export class Resolvedor implements ResolvedorInterface {
         }
 
         let enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.ENQUANTO;
+        this.cicloAtual = TipoLacoRepeticao.ENQUANTO;
         this.resolver(declaracao.corpo);
         this.cicloAtual = enclosingType;
 
@@ -366,7 +368,7 @@ export class Resolvedor implements ResolvedorInterface {
         this.resolver(declaracao.condicaoEnquanto);
 
         let enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.FAZER;
+        this.cicloAtual = TipoLacoRepeticao.FAZER;
         this.resolver(declaracao.caminhoFazer);
         this.cicloAtual = enclosingType;
         return null;
