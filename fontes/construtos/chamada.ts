@@ -1,3 +1,4 @@
+import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
@@ -14,7 +15,7 @@ export class Chamada implements Construto {
         this.argumentos = argumentos;
     }
 
-    aceitar(visitante: any) {
+    aceitar(visitante: ResolvedorInterface | InterpretadorInterface) {
         return visitante.visitarExpressaoDeChamada(this);
     }
 }

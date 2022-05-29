@@ -1,0 +1,11 @@
+var a = 0
+para (var i = 0; i < 5; i = i + 1) {
+    a = a + 1
+}
+
+se (a == 5)
+    escreva("Para: OK!")
+senao {
+    escreva("a: " + a)
+    escreva("Para: ERRO!")
+}

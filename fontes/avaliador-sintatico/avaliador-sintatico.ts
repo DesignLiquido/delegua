@@ -783,7 +783,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let branchConditions = [this.expressao()];
+                    let caminhoCondicoes = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -791,7 +791,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
-                        branchConditions.push(this.expressao());
+                        caminhoCondicoes.push(this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
@@ -808,7 +808,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     );
 
                     caminhos.push({
-                        conditions: branchConditions,
+                        condicoes: caminhoCondicoes,
                         declaracoes,
                     });
                 } else if (
@@ -1009,18 +1009,18 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     );
                 }
 
-                let paramObj = {};
+                let parametro = {};
 
                 if (
                     this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO
                 ) {
                     this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                    paramObj['tipo'] = 'wildcard';
+                    parametro['tipo'] = 'estrela';
                 } else {
-                    paramObj['tipo'] = 'standard';
+                    parametro['tipo'] = 'padrao';
                 }
 
-                paramObj['nome'] = this.consumir(
+                parametro['nome'] = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
                     'Esperado nome do parâmetro.'
                 );
@@ -1028,12 +1028,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 if (
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)
                 ) {
-                    paramObj['default'] = this.primario();
+                    parametro['default'] = this.primario();
                 }
 
-                parametros.push(paramObj);
+                parametros.push(parametro);
 
-                if (paramObj['tipo'] === 'wildcard') break;
+                if (parametro['tipo'] === 'estrela') break;
             } while (
                 this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)
             );

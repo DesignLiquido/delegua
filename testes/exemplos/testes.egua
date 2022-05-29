@@ -105,8 +105,8 @@ funcao tFacaEnquanto(){
   var a = 0
   fazer {
     a = a + 1
-  } enquanto(a<5){
-  }
+  } enquanto(a<5);
+  
   se (a == 5)
     retorna("Faça - Enquanto: OK!")
   senao {

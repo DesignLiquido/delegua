@@ -1,12 +1,14 @@
 import { Ambiente } from "../ambiente";
 import { Construto } from "../construtos";
+import { Declaracao } from "../declaracoes";
 import { RetornoInterpretador } from "../interpretador/retorno-interpretador";
+import { EscopoExecucao } from "./escopo-execucao";
+import { PilhaInterface } from "./pilha-interface";
 
 export interface InterpretadorInterface {
     diretorioBase: any;
-    global: Ambiente;
-    ambiente: Ambiente;
     locais: Map<Construto, number>;
+    pilhaEscoposExecucao: PilhaInterface<EscopoExecucao>;
 
     visitarExpressaoLiteral(expressao: any): any;
     avaliar(expressao: any): any;
@@ -31,7 +33,7 @@ export interface InterpretadorInterface {
     visitarExpressaoEnquanto(declaracao: any): any;
     visitarExpressaoImportar(declaracao: any): any;
     visitarExpressaoEscreva(declaracao: any): any;
-    executarBloco(declaracoes: any, ambiente: any): void;
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): void;
     visitarExpressaoBloco(declaracao: any): null;
     visitarExpressaoVar(declaracao: any): null;
     visitarExpressaoContinua(declaracao?: any): void;
@@ -50,5 +52,5 @@ export interface InterpretadorInterface {
     visitarExpressaoSuper(expressao: any): any;
     paraTexto(objeto: any): any;
     executar(declaracao: any, mostrarResultado: boolean): void;
-    interpretar(declaracoes: any, locais?: Map<Construto, number>): RetornoInterpretador;
+    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): RetornoInterpretador;
 }

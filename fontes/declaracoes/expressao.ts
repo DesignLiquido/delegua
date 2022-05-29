@@ -1,4 +1,5 @@
 import { Construto } from "../construtos";
+import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
@@ -10,7 +11,7 @@ export class Expressao extends Declaracao {
         this.expressao = expressao;
     }
 
-    aceitar(visitante: any): any {
+    aceitar(visitante: ResolvedorInterface | InterpretadorInterface): any {
         return visitante.visitarDeclaracaoDeExpressao(this);
     }
 }

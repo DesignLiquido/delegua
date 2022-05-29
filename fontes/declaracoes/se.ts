@@ -1,3 +1,4 @@
+import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
@@ -15,7 +16,7 @@ export class Se extends Declaracao {
         this.caminhoSenao = caminhoSenao;
     }
 
-    aceitar(visitante: any): any {
+    aceitar(visitante: ResolvedorInterface | InterpretadorInterface): any {
         return visitante.visitarExpressaoSe(this);
     }
 }

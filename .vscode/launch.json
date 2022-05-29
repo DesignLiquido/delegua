@@ -54,7 +54,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Testes (Delégua)",
+            "name": "Todos os Testes (Delégua)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -69,7 +69,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Testes (Égua Clássico)",
+            "name": "Todos os Testes (Égua Clássico)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -85,7 +85,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Teste Classe (Delégua)",
+            "name": "Teste de Classe (Delégua)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -290,6 +290,62 @@
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/perceptron.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Bloco Enquanto (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/estruturas-de-repeticao/enquanto.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Bloco Fazer ... Enquanto (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Bloco Para (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/estruturas-de-repeticao/para.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Bloco Se (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "./testes/exemplos/condicionais/se.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

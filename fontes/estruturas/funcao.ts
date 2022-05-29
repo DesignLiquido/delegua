@@ -1,22 +1,25 @@
 import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
-import { ExcecaoRetornar } from "../excecoes";
+
+import { InterpretadorInterface } from "../interfaces";
+import { RetornoQuebra } from "../quebras";
+import { ObjetoDeleguaClasse } from "./objeto-delegua-classe";
 
 export class DeleguaFuncao extends Chamavel {
-    nome: any;
+    nome: string;
     declaracao: any;
-    ambienteAnterior: any;
-    eInicializador: any;
+    eInicializador: boolean;
+    instancia: ObjetoDeleguaClasse;
 
-    constructor(nome: any, declaracao: any, ambienteAnterior: any, eInicializador = false) {
+    constructor(nome: string, declaracao: string, instancia: ObjetoDeleguaClasse = undefined, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
-        this.ambienteAnterior = ambienteAnterior;
+        this.instancia = instancia;
         this.eInicializador = eInicializador;
     }
 
-    aridade(): any {
+    aridade(): number {
         return this.declaracao?.parametros?.length || 0;
     }
 
@@ -25,45 +28,46 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    chamar(interpretador: any, argumentos: any): any {
-        let ambiente = new Ambiente(this.ambienteAnterior);
+    chamar(interpretador: InterpretadorInterface, argumentos: any): any {
+        let ambiente = new Ambiente();
         let parametros = this.declaracao.parametros;
 
         if (parametros && parametros.length) {
             for (let i = 0; i < parametros.length; i++) {
-                const param = parametros[i];
+                const parametro = parametros[i];
 
-                const nome = param["nome"].lexema;
+                const nome = parametro["nome"].lexema;
                 let valor = argumentos[i];
                 if (argumentos[i] === null) {
-                    valor = param["padrao"] ? param["padrao"].valor : null;
+                    valor = parametro["padrao"] ? parametro["padrao"].valor : null;
                 }
-                ambiente.definirVariavel(nome, valor);
+
+                ambiente.valores[nome] = valor;
             }
         }
 
-        try {
-            interpretador.executarBloco(this.declaracao.corpo, ambiente);
-        } catch (erro) {
-            if (erro instanceof ExcecaoRetornar) {
-                if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
-                return erro.valor;
-            } else {
-                throw erro;
-            }
+        if (this.instancia !== undefined) {
+            ambiente.valores['isto'] = this.instancia;
         }
 
-        if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
-        return null;
+        const retornoBloco: any = interpretador.executarBloco(this.declaracao.corpo, ambiente);
+        if (retornoBloco instanceof RetornoQuebra) {
+            return retornoBloco.valor;
+        }
+
+        if (this.eInicializador)  {
+            return this.instancia;
+        }
+
+        return retornoBloco;
+        
     }
 
-    definirEscopo(instancia: any): any {
-        let ambiente = new Ambiente(this.ambienteAnterior);
-        ambiente.definirVariavel("isto", instancia);
+    definirInstancia(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
         return new DeleguaFuncao(
             this.nome,
             this.declaracao,
-            ambiente,
+            instancia,
             this.eInicializador
         );
     }
