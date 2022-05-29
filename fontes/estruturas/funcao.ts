@@ -1,6 +1,6 @@
 import { Chamavel } from "./chamavel";
 import { Ambiente } from "../ambiente";
-import { ExcecaoRetornar } from "../excecoes";
+
 import { InterpretadorInterface } from "../interfaces";
 import { RetornoQuebra } from "../quebras";
 

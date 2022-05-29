@@ -9,7 +9,6 @@ import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador/interpretador';
 import tiposDeSimbolos from './lexador/tipos-de-simbolos';
 
-import { ExcecaoRetornar } from './excecoes';
 import {
     AvaliadorSintaticoInterface,
     DeleguaInterface,
@@ -211,7 +210,7 @@ export class Delegua implements DeleguaInterface {
                 console.error(
                     chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
                 );
-        } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+        } else {
             console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
         }
 

@@ -8,9 +8,6 @@ import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
 import {
-    ExcecaoRetornar,
-    ExcecaoSustar,
-    ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import {
@@ -459,12 +456,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
 
             if (declaracao.incrementar !== null) {
@@ -479,12 +471,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(declaracao.caminhoFazer);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
         } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     }
@@ -514,10 +501,7 @@ export class Interpretador implements InterpretadorInterface {
                                 this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
-                            if (erro instanceof ExcecaoContinuar) {
-                            } else {
-                                throw erro;
-                            }
+                            throw erro;
                         }
                     }
                 }
@@ -529,10 +513,7 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
         } catch (erro: any) {
-            if (erro instanceof ExcecaoSustar) {
-            } else {
-                throw erro;
-            }
+            throw erro;
         }
     }
 
@@ -563,12 +544,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
         }
 
@@ -635,7 +611,6 @@ export class Interpretador implements InterpretadorInterface {
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             return this.executarUltimoEscopo();
         } catch (erro: any) {
-            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
             throw erro;
         }
     }
@@ -963,9 +938,7 @@ export class Interpretador implements InterpretadorInterface {
             
             return retornoExecucao;
         } catch (erro: any) {
-            if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
-                this.erros.push(erro);
-            }
+            this.erros.push(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }

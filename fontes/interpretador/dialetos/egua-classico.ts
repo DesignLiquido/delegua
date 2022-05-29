@@ -15,9 +15,6 @@ import { DeleguaInstancia } from '../../estruturas/instancia';
 import { DeleguaModulo } from '../../estruturas/modulo';
 
 import {
-    ExcecaoRetornar,
-    ExcecaoSustar,
-    ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
@@ -27,6 +24,7 @@ import { RetornoInterpretador } from '../retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../interfaces/escopo-execucao';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -424,12 +422,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
 
             if (declaracao.incrementar !== null) {
@@ -444,12 +437,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.caminhoFazer);
             } catch (erro) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
         } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     }
@@ -475,10 +463,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                                 this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
-                            if (erro instanceof ExcecaoContinuar) {
-                            } else {
-                                throw erro;
-                            }
+                            throw erro;
                         }
                     }
                 }
@@ -490,10 +475,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
             }
         } catch (erro) {
-            if (erro instanceof ExcecaoSustar) {
-            } else {
-                throw erro;
-            }
+            throw erro;
         }
     }
 
@@ -524,12 +506,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
         }
 
@@ -596,7 +573,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente) {
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
         try {
             const escopoExecucao: EscopoExecucao = {
                 declaracoes: declaracoes,
@@ -604,9 +581,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 ambiente: ambiente || new Ambiente()
             }
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-            this.executarUltimoEscopo();
+            return this.executarUltimoEscopo();
         } catch (erro: any) {
-            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
             throw erro;
         }
     }
@@ -626,19 +602,19 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoContinua(declaracao?: any) {
-        throw new ExcecaoContinuar();
+    visitarExpressaoContinua(declaracao?: any): ContinuarQuebra {
+        return new ContinuarQuebra();
     }
 
-    visitarExpressaoSustar(declaracao?: any) {
-        throw new ExcecaoSustar();
+    visitarExpressaoSustar(declaracao?: any): SustarQuebra {
+        return new SustarQuebra();
     }
 
-    visitarExpressaoRetornar(declaracao: any) {
+    visitarExpressaoRetornar(declaracao: any): RetornoQuebra {
         let valor = null;
         if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
 
-        throw new ExcecaoRetornar(valor);
+        return new RetornoQuebra(valor);
     }
 
     visitarExpressaoDeleguaFuncao(expressao: any) {
