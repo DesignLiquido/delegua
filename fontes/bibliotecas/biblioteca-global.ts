@@ -1,8 +1,8 @@
 import { ErroEmTempoDeExecucao } from "../excecoes";
 import { DeleguaFuncao } from "../estruturas/funcao";
-import { DeleguaInstancia } from "../estruturas/instancia";
+import { ObjetoDeleguaClasse } from "../estruturas/objeto-delegua-classe";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
-import { DeleguaClasse } from "../estruturas/classe";
+import { DeleguaClasse } from "../estruturas/delegua-classe";
 import { InterpretadorInterface } from "../interfaces";
 import { PilhaEscoposExecucao } from "../interpretador/pilha-escopos-execucao";
 
@@ -130,7 +130,7 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
                 );
             }
 
-            if (objeto instanceof DeleguaInstancia) {
+            if (objeto instanceof ObjetoDeleguaClasse) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Você não pode encontrar o tamanho de uma declaração."

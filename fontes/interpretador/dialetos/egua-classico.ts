@@ -9,9 +9,9 @@ import carregarModulo from '../../bibliotecas/importar-biblioteca';
 
 import { Chamavel } from '../../estruturas/chamavel';
 import { FuncaoPadrao } from '../../estruturas/funcao-padrao';
-import { DeleguaClasse } from '../../estruturas/classe';
+import { DeleguaClasse } from '../../estruturas/delegua-classe';
 import { DeleguaFuncao } from '../../estruturas/funcao';
-import { DeleguaInstancia } from '../../estruturas/instancia';
+import { ObjetoDeleguaClasse } from '../../estruturas/objeto-delegua-classe';
 import { DeleguaModulo } from '../../estruturas/modulo';
 
 import {
@@ -618,7 +618,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        return new DeleguaFuncao(null, expressao, false);
+        return new DeleguaFuncao(null, expressao);
     }
 
     visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
@@ -640,7 +640,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             objeto[indice] = valor;
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof DeleguaInstancia ||
+            objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
@@ -684,7 +684,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             return objeto[indice];
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof DeleguaInstancia ||
+            objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
@@ -726,7 +726,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const objeto = this.avaliar(expressao.objeto);
 
         if (
-            !(objeto instanceof DeleguaInstancia) &&
+            !(objeto instanceof ObjetoDeleguaClasse) &&
             objeto.constructor !== Object
         ) {
             throw new ErroEmTempoDeExecucao(
@@ -737,7 +737,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const valor = this.avaliar(expressao.valor);
-        if (objeto instanceof DeleguaInstancia) {
+        if (objeto instanceof ObjetoDeleguaClasse) {
             objeto.set(expressao.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
@@ -748,8 +748,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoFuncao(declaracao: Funcao) {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
-            declaracao.funcao,
-            false
+            declaracao.funcao
         );
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
@@ -769,21 +768,20 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
 
-        // TODO: Recolocar isso se for necessário.
-        /* if (declaracao.superClasse !== null) {
-            this.ambiente = new Ambiente(this.ambiente);
-            this.ambiente.definirVariavel('super', superClasse);
-        } */
+        if (declaracao.superClasse !== null) {
+            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+        }
 
         let metodos = {};
         let definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
-            let eInicializado = metodoAtual.simbolo.lexema === 'construtor';
+            let eInicializador = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
                 metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
-                eInicializado
+                undefined,
+                eInicializador
             );
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
@@ -805,7 +803,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoAcessoMetodo(expressao: any) {
         let objeto = this.avaliar(expressao.objeto);
-        if (objeto instanceof DeleguaInstancia) {
+        if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;

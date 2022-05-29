@@ -1,7 +1,7 @@
 import { ErroEmTempoDeExecucao } from "../excecoes";
 import { SimboloInterface } from "../interfaces";
 
-export class DeleguaInstancia {
+export class ObjetoDeleguaClasse {
     criarClasse: any;
     campos: any;
 

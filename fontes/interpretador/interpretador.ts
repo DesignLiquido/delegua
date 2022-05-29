@@ -35,7 +35,7 @@ import {
     Chamavel,
     DeleguaClasse,
     DeleguaFuncao,
-    DeleguaInstancia,
+    ObjetoDeleguaClasse,
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
@@ -357,30 +357,12 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
         const valor = this.avaliar(expressao.valor);
-
-        /* const distancia = this.locais.get(expressao);
-        if (distancia !== undefined) {
-            this.pilhaEscoposExecucao.atribuirVariavelEm(
-                distancia,
-                expressao.simbolo,
-                valor
-            );
-        } else {
-            this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
-        } */
-
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
     }
 
     procurarVariavel(simbolo: SimboloInterface, expressao: any): any {
-        /* const distancia = this.locais.get(expressao);
-        if (distancia !== undefined) {
-            return this.pilhaEscoposExecucao.obterVariavelEm(distancia + 1, simbolo.lexema);
-        } else {
-            return this.pilhaEscoposExecucao.obterVariavel(simbolo);
-        } */
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
@@ -648,7 +630,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        return new DeleguaFuncao(null, expressao, false);
+        return new DeleguaFuncao(null, expressao);
     }
 
     visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
@@ -670,7 +652,7 @@ export class Interpretador implements InterpretadorInterface {
             objeto[indice] = valor;
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof DeleguaInstancia ||
+            objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
@@ -714,7 +696,7 @@ export class Interpretador implements InterpretadorInterface {
             return objeto[indice];
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof DeleguaInstancia ||
+            objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
@@ -756,7 +738,7 @@ export class Interpretador implements InterpretadorInterface {
         const objeto = this.avaliar(expressao.objeto);
 
         if (
-            !(objeto instanceof DeleguaInstancia) &&
+            !(objeto instanceof ObjetoDeleguaClasse) &&
             objeto.constructor !== Object
         ) {
             throw new ErroEmTempoDeExecucao(
@@ -767,7 +749,7 @@ export class Interpretador implements InterpretadorInterface {
         }
 
         const valor = this.avaliar(expressao.valor);
-        if (objeto instanceof DeleguaInstancia) {
+        if (objeto instanceof ObjetoDeleguaClasse) {
             objeto.set(expressao.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
@@ -778,8 +760,7 @@ export class Interpretador implements InterpretadorInterface {
     visitarExpressaoFuncao(declaracao: Funcao) {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
-            declaracao.funcao,
-            false
+            declaracao.funcao
         );
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
@@ -799,21 +780,20 @@ export class Interpretador implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
 
-        // TODO: Recolocar isso se for necessário.
-        /* if (declaracao.superClasse !== null) {
-            this.ambiente = new Ambiente(this.ambiente);
-            this.ambiente.definirVariavel('super', superClasse);
-        } */
+        if (declaracao.superClasse !== null) {
+            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+        }
 
         let metodos = {};
         let definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
-            let eInicializado = metodoAtual.simbolo.lexema === 'construtor';
+            let eInicializador = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
                 metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
-                eInicializado
+                undefined,
+                eInicializador
             );
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
@@ -835,7 +815,7 @@ export class Interpretador implements InterpretadorInterface {
 
     visitarExpressaoAcessoMetodo(expressao: any) {
         let objeto = this.avaliar(expressao.objeto);
-        if (objeto instanceof DeleguaInstancia) {
+        if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;

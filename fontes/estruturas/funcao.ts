@@ -3,20 +3,23 @@ import { Ambiente } from "../ambiente";
 
 import { InterpretadorInterface } from "../interfaces";
 import { RetornoQuebra } from "../quebras";
+import { ObjetoDeleguaClasse } from "./objeto-delegua-classe";
 
 export class DeleguaFuncao extends Chamavel {
-    nome: any;
+    nome: string;
     declaracao: any;
-    eInicializador: any;
+    eInicializador: boolean;
+    instancia: ObjetoDeleguaClasse;
 
-    constructor(nome: any, declaracao: any, eInicializador = false) {
+    constructor(nome: string, declaracao: string, instancia: ObjetoDeleguaClasse = undefined, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
+        this.instancia = instancia;
         this.eInicializador = eInicializador;
     }
 
-    aridade(): any {
+    aridade(): number {
         return this.declaracao?.parametros?.length || 0;
     }
 
@@ -43,23 +46,28 @@ export class DeleguaFuncao extends Chamavel {
             }
         }
 
+        if (this.instancia !== undefined) {
+            ambiente.valores['isto'] = this.instancia;
+        }
+
         const retornoBloco: any = interpretador.executarBloco(this.declaracao.corpo, ambiente);
         if (retornoBloco instanceof RetornoQuebra) {
             return retornoBloco.valor;
         }
 
+        if (this.eInicializador)  {
+            return this.instancia;
+        }
+
         return retornoBloco;
-        // if (this.eInicializador) return this.ambienteAnterior.obterVariavelEm(0, "isto");
+        
     }
 
-    definirEscopo(instancia: any): any {
-        // TODO: Retirar dependência do núcleo da linguagem antes de refatorar aqui.
-        // Exemplo: fontes\estruturas\classe.ts
-        // let ambiente = new Ambiente(this.ambienteAnterior);
-        // ambiente.definirVariavel("isto", instancia);
+    definirInstancia(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
         return new DeleguaFuncao(
             this.nome,
             this.declaracao,
+            instancia,
             this.eInicializador
         );
     }
