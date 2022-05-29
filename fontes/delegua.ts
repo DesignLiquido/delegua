@@ -39,6 +39,7 @@ export class Delegua implements DeleguaInterface {
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
+    funcaoDeRetorno: Function;
 
     constructor(
         dialeto: string = 'delegua',
@@ -52,6 +53,7 @@ export class Delegua implements DeleguaInterface {
         this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         switch (this.dialeto) {
             case 'egua':
@@ -123,11 +125,16 @@ export class Delegua implements DeleguaInterface {
 
             const retornoLexador = this.lexador.mapear([linha]);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-            this.executar({
+            const retornoInterpretacao = this.executar({
                 codigo: [linha],
                 retornoLexador,
                 retornoAvaliadorSintatico
-            } as RetornoImportador);
+            } as RetornoImportador, true);
+            const resultado = retornoInterpretacao.resultado[0];
+            if (resultado !== undefined) {
+                this.funcaoDeRetorno(resultado);
+            }
+            
             leiaLinha.prompt();
         });
     }
@@ -140,7 +147,7 @@ export class Delegua implements DeleguaInterface {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface {
+    executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
@@ -155,7 +162,7 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {

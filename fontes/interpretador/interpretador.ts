@@ -39,7 +39,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Construto, Super } from '../construtos';
+import { Atribuir, Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
@@ -355,10 +355,10 @@ export class Interpretador implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any): any {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
         const valor = this.avaliar(expressao.valor);
 
-        const distancia = this.locais.get(expressao);
+        /* const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
             this.pilhaEscoposExecucao.atribuirVariavelEm(
                 distancia,
@@ -367,18 +367,21 @@ export class Interpretador implements InterpretadorInterface {
             );
         } else {
             this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
-        }
+        } */
+
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
     }
 
     procurarVariavel(simbolo: SimboloInterface, expressao: any): any {
-        const distancia = this.locais.get(expressao);
+        /* const distancia = this.locais.get(expressao);
         if (distancia !== undefined) {
             return this.pilhaEscoposExecucao.obterVariavelEm(distancia + 1, simbolo.lexema);
         } else {
             return this.pilhaEscoposExecucao.obterVariavel(simbolo);
-        }
+        } */
+        return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
     visitarExpressaoDeVariavel(expressao: any): any {
@@ -449,7 +452,7 @@ export class Interpretador implements InterpretadorInterface {
 
         let retornoExecucao: any;
         while (!(retornoExecucao instanceof Quebra)) {
-            if (declaracao.condicao !== null || !this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
                 break;
             }
 
@@ -907,6 +910,9 @@ export class Interpretador implements InterpretadorInterface {
         if (Array.isArray(objeto)) return objeto;
 
         if (typeof objeto === 'object') return JSON.stringify(objeto);
+        if (objeto === undefined) { 
+            return 'nulo';
+        }
 
         return objeto.toString();
     }
@@ -922,17 +928,9 @@ export class Interpretador implements InterpretadorInterface {
         return resultado;
     }
 
-    executarUltimoEscopo(): any {
+    executarUltimoEscopo(manterAmbiente: boolean = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
-            if (ultimoEscopo.declaracoes.length === 1) {
-                const eObjetoExpressao =
-                    ultimoEscopo.declaracoes[0].constructor.name === 'Expressao';
-                if (eObjetoExpressao) {
-                    this.executar(ultimoEscopo.declaracoes[0], true);
-                    return;
-                }
-            }
             let retornoExecucao: any;
             for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
                 retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
@@ -943,10 +941,21 @@ export class Interpretador implements InterpretadorInterface {
             this.erros.push(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
+            if (manterAmbiente) {
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente = Object.assign(escopoAnterior.ambiente, ultimoEscopo.ambiente);
+            }
         }
     }
 
-    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
+    /**
+     * Método que efetivamente inicia o processo de interpretação. 
+     * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
+     * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado 
+     *                       pelo modo REPL (LEIA).
+     * @returns Um objeto com o resultado da interpretação.
+     */
+    interpretar(declaracoes: Declaracao[], manterAmbiente: boolean = false): RetornoInterpretador {
         this.erros = [];
 
         const retornoResolvedor = this.resolvedor.resolver(declaracoes);
@@ -960,7 +969,7 @@ export class Interpretador implements InterpretadorInterface {
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {
-            this.executarUltimoEscopo();
+            this.executarUltimoEscopo(manterAmbiente);
         } finally {
             if (this.performance) {
                 const deltaInterpretacao: [number, number] =
