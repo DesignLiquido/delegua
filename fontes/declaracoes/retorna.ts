@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../interfaces";
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
@@ -12,7 +12,7 @@ export class Retorna extends Declaracao {
         this.valor = valor;
     }
 
-    aceitar(visitante: any): any {
+    aceitar(visitante: ResolvedorInterface | InterpretadorInterface): any {
         return visitante.visitarExpressaoRetornar(this);
     }
 }

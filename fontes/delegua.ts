@@ -9,7 +9,6 @@ import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador/interpretador';
 import tiposDeSimbolos from './lexador/tipos-de-simbolos';
 
-import { ExcecaoRetornar } from './excecoes';
 import {
     AvaliadorSintaticoInterface,
     DeleguaInterface,
@@ -43,6 +42,7 @@ export class Delegua implements DeleguaInterface {
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
+    funcaoDeRetorno: Function;
 
     servidorDepuracao: ServidorDepuracao;
 
@@ -59,6 +59,7 @@ export class Delegua implements DeleguaInterface {
         this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         switch (this.dialeto) {
             case 'egua':
@@ -134,11 +135,16 @@ export class Delegua implements DeleguaInterface {
 
             const retornoLexador = this.lexador.mapear([linha], -1);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-            this.executar({
+            const retornoInterpretacao = this.executar({
                 codigo: [linha],
                 retornoLexador,
                 retornoAvaliadorSintatico
-            } as RetornoImportador);
+            } as RetornoImportador, true);
+            const resultado = retornoInterpretacao.resultado[0];
+            if (resultado !== undefined) {
+                this.funcaoDeRetorno(resultado);
+            }
+            
             leiaLinha.prompt();
         });
     }
@@ -169,14 +175,7 @@ export class Delegua implements DeleguaInterface {
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
 
-    carregarArquivoComDepurador(caminhoRelativoArquivo: string): void {
-        if (!this.interpretadorSuportaDepuracao(this.interpretador)) {
-            throw new Error("Dialeto " + this.dialeto + " não suporta depuração.");
-        }
-
-        this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
+    executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
@@ -191,31 +190,12 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        this.interpretador.etapaResolucao(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-        const retornoInterpretador = this.interpretador.interpretarParcial(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-    }
-
-    executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface {
-        if (retornoImportador.retornoLexador.erros.length > 0) {
-            for (const erroLexador of retornoImportador.retornoLexador.erros) {
-                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
-            }
-            return;
-        }
-
-        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
-                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
-            }
-            return;
-        }
-
-        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
                 if (erroInterpretador.simbolo) {
-                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                    this.erroEmTempoDeExecucao(erroInterpretador);
                 } else {
                     const erroEmJavaScript: any = erroInterpretador as any;
                     console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
@@ -265,7 +245,7 @@ export class Delegua implements DeleguaInterface {
                 console.error(
                     chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
                 );
-        } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+        } else {
             console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
         }
 

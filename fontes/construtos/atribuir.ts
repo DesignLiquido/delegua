@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../interfaces";
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
@@ -17,7 +17,7 @@ export class Atribuir implements Construto {
         this.valor = valor;
     }
 
-    aceitar(visitante: any) {
+    aceitar(visitante: ResolvedorInterface | InterpretadorInterface) {
         return visitante.visitarExpressaoDeAtribuicao(this);
     }
 }

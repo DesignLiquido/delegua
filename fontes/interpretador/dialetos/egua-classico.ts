@@ -9,22 +9,22 @@ import carregarModulo from '../../bibliotecas/importar-biblioteca';
 
 import { Chamavel } from '../../estruturas/chamavel';
 import { FuncaoPadrao } from '../../estruturas/funcao-padrao';
-import { DeleguaClasse } from '../../estruturas/classe';
+import { DeleguaClasse } from '../../estruturas/delegua-classe';
 import { DeleguaFuncao } from '../../estruturas/funcao';
-import { DeleguaInstancia } from '../../estruturas/instancia';
+import { ObjetoDeleguaClasse } from '../../estruturas/objeto-delegua-classe';
 import { DeleguaModulo } from '../../estruturas/modulo';
 
 import {
-    ExcecaoRetornar,
-    ExcecaoSustar,
-    ExcecaoContinuar,
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
-import { Classe, Enquanto, Escolha, Escreva, Fazer, Funcao, Importar, Para, Se, Tente } from '../../declaracoes';
-import { Construto, Super } from '../../construtos';
+import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
+import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
+import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
+import { EscopoExecucao } from '../../interfaces/escopo-execucao';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -34,10 +34,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     Delegua: Delegua;
 
     diretorioBase: any;
-    global: Ambiente;
-    ambiente: Ambiente;
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
+    pilhaEscoposExecucao: PilhaEscoposExecucao;
 
     constructor(
         Delegua: Delegua,
@@ -46,22 +45,25 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
 
-        this.global = new Ambiente();
-        this.ambiente = this.global;
         this.locais = new Map();
         this.erros = [];
+        this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: [],
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
-        this.global = carregarBibliotecaGlobal(this, this.global);
+        carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
-    visitarExpressaoLiteral(expressao: any) {
+    visitarExpressaoLiteral(expressao: Literal) {
         return expressao.valor;
     }
 
-    avaliar(expressao: any) {
-        if (expressao.aceitar) {
-            return expressao.aceitar(this);
-        }
+    avaliar(expressao: Construto) {
+        return expressao.aceitar(this);
     }
 
     visitarExpressaoAgrupamento(expressao: any) {
@@ -116,14 +118,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoBinaria(expr: any) {
-        let esquerda = this.avaliar(expr.esquerda);
-        let direita = this.avaliar(expr.direita);
+    visitarExpressaoBinaria(expressao: any) {
+        let esquerda = this.avaliar(expressao.esquerda);
+        let direita = this.avaliar(expressao.direita);
 
-        switch (expr.operador.tipo) {
+        switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -131,7 +133,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -139,7 +141,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -147,7 +149,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -155,7 +157,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -163,7 +165,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.SUBTRACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -183,13 +185,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
 
                 throw new ErroEmTempoDeExecucao(
-                    expr.operador,
+                    expressao.operador,
                     'Operadores precisam ser dois números ou duas strings.'
                 );
 
             case tiposDeSimbolos.DIVISAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -197,7 +199,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -205,7 +207,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MODULO:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -213,7 +215,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -221,7 +223,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -229,7 +231,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -237,7 +239,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -245,7 +247,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(
-                    expr.operador,
+                    expressao.operador,
                     esquerda,
                     direita
                 );
@@ -298,7 +300,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             if (
                 parametros &&
                 parametros.length > 0 &&
-                parametros[parametros.length - 1]['tipo'] === 'wildcard'
+                parametros[parametros.length - 1]['tipo'] === 'estrela'
             ) {
                 let novosArgumentos = argumentos.slice(
                     0,
@@ -313,7 +315,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
-                this,
                 argumentos,
                 expressao.entidadeChamada.nome
             );
@@ -322,33 +323,22 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         const valor = this.avaliar(expressao.valor);
-
-        const distancia = this.locais.get(expressao);
-        if (distancia !== undefined) {
-            this.ambiente.atribuirVariavelEm(distancia, expressao.simbolo, valor);
-        } else {
-            this.ambiente.atribuirVariavel(expressao.simbolo, valor);
-        }
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expr: any) {
-        const distancia = this.locais.get(expr);
-        if (distancia !== undefined) {
-            return this.ambiente.obterVariavelEm(distancia, simbolo.lexema);
-        } else {
-            return this.global.obterVariavel(simbolo);
-        }
+    procurarVariavel(simbolo: SimboloInterface, expressao: any) {
+        return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
-    visitarExpressaoDeVariavel(expressao: any) {
+    visitarExpressaoDeVariavel(expressao: Variavel) {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any) {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         return this.avaliar(declaracao.expressao);
     }
 
@@ -420,12 +410,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro: any) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
 
             if (declaracao.incrementar !== null) {
@@ -440,12 +425,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.caminhoFazer);
             } catch (erro) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
         } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     }
@@ -471,10 +451,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                                 this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
-                            if (erro instanceof ExcecaoContinuar) {
-                            } else {
-                                throw erro;
-                            }
+                            throw erro;
                         }
                     }
                 }
@@ -485,42 +462,32 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     this.executar(caminhoPadrao['declaracoes'][i]);
                 }
             }
-        } catch (erro) {
-            if (erro instanceof ExcecaoSustar) {
-            } else {
-                throw erro;
-            }
+        } catch (erro: any) {
+            throw erro;
         }
     }
 
-    visitarExpressaoTente(declaracao: Tente) {
+    visitarExpressaoTente(declaracao: Tente): any {
         try {
             let sucesso = true;
             try {
-                this.executarBloco(declaracao.caminhoTente, new Ambiente(this.ambiente));
-            } catch (erro) {
+                this.executarBloco(declaracao.caminhoTente);
+            } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    this.executarBloco(
-                        declaracao.caminhoPegue,
-                        new Ambiente(this.ambiente)
-                    );
+                    this.executarBloco(declaracao.caminhoPegue);
+                } else {
+                    this.erros.push(erro);
                 }
             }
 
             if (sucesso && declaracao.caminhoSenao !== null) {
-                this.executarBloco(
-                    declaracao.caminhoSenao,
-                    new Ambiente(this.ambiente)
-                );
+                this.executarBloco(declaracao.caminhoSenao);
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                this.executarBloco(
-                    declaracao.caminhoFinalmente,
-                    new Ambiente(this.ambiente)
-                );
+                this.executarBloco(declaracao.caminhoFinalmente);
         }
     }
 
@@ -529,12 +496,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             try {
                 this.executar(declaracao.corpo);
             } catch (erro) {
-                if (erro instanceof ExcecaoSustar) {
-                    break;
-                } else if (erro instanceof ExcecaoContinuar) {
-                } else {
-                    throw erro;
-                }
+                throw erro;
             }
         }
 
@@ -571,7 +533,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         delegua.executar(dados);
 
-        let exportar = delegua.interpretador.global.valores.exports;
+        let exportar = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
@@ -590,61 +552,63 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoEscreva(declaracao: Escreva) {
-        const valor = this.avaliar(declaracao.expressao);
-        console.log(this.paraTexto(valor));
-        return null;
-    }
-
-    executarBloco(declaracoes: any, ambiente: any) {
-        let anterior = this.ambiente;
         try {
-            this.ambiente = ambiente;
-
-            if (declaracoes && declaracoes.length) {
-                for (let i = 0; i < declaracoes.length; i++) {
-                    this.executar(declaracoes[i]);
-                }
-            }
+            const valor = this.avaliar(declaracao.expressao);
+            console.log(this.paraTexto(valor));
+            return null;
         } catch (erro: any) {
-            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
-            throw erro;
-        } finally {
-            this.ambiente = anterior;
+            this.erros.push(erro);
         }
     }
 
+    /**
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
+     * executa as declarações empilhadas.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     */
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: ambiente || new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        return this.executarUltimoEscopo();
+    }
+
     visitarExpressaoBloco(declaracao: any) {
-        this.executarBloco(declaracao.declaracoes, new Ambiente(this.ambiente));
+        this.executarBloco(declaracao.declaracoes);
         return null;
     }
 
-    visitarExpressaoVar(declaracao: any) {
+    visitarExpressaoVar(declaracao: Var) {
         let valor = null;
         if (declaracao.inicializador !== null) {
             valor = this.avaliar(declaracao.inicializador);
         }
 
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, valor);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valor);
         return null;
     }
 
-    visitarExpressaoContinua(declaracao?: any) {
-        throw new ExcecaoContinuar();
+    visitarExpressaoContinua(declaracao?: any): ContinuarQuebra {
+        return new ContinuarQuebra();
     }
 
-    visitarExpressaoSustar(declaracao?: any) {
-        throw new ExcecaoSustar();
+    visitarExpressaoSustar(declaracao?: any): SustarQuebra {
+        return new SustarQuebra();
     }
 
-    visitarExpressaoRetornar(declaracao: any) {
+    visitarExpressaoRetornar(declaracao: any): RetornoQuebra {
         let valor = null;
         if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
 
-        throw new ExcecaoRetornar(valor);
+        return new RetornoQuebra(valor);
     }
 
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        return new DeleguaFuncao(null, expressao, this.ambiente, false);
+        return new DeleguaFuncao(null, expressao);
     }
 
     visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
@@ -666,7 +630,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             objeto[indice] = valor;
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof DeleguaInstancia ||
+            objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
@@ -710,7 +674,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             return objeto[indice];
         } else if (
             objeto.constructor === Object ||
-            objeto instanceof DeleguaInstancia ||
+            objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
@@ -752,7 +716,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const objeto = this.avaliar(expressao.objeto);
 
         if (
-            !(objeto instanceof DeleguaInstancia) &&
+            !(objeto instanceof ObjetoDeleguaClasse) &&
             objeto.constructor !== Object
         ) {
             throw new ErroEmTempoDeExecucao(
@@ -763,7 +727,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const valor = this.avaliar(expressao.valor);
-        if (objeto instanceof DeleguaInstancia) {
+        if (objeto instanceof ObjetoDeleguaClasse) {
             objeto.set(expressao.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
@@ -774,11 +738,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoFuncao(declaracao: Funcao) {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
-            declaracao.funcao,
-            this.ambiente,
-            false
+            declaracao.funcao
         );
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, funcao);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
 
     visitarExpressaoClasse(declaracao: Classe) {
@@ -794,23 +756,22 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
         }
 
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, null);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
 
         if (declaracao.superClasse !== null) {
-            this.ambiente = new Ambiente(this.ambiente);
-            this.ambiente.definirVariavel('super', superClasse);
+            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
         let metodos = {};
         let definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             let metodoAtual = definirMetodos[i];
-            let eInicializado = metodoAtual.simbolo.lexema === 'construtor';
+            let eInicializador = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
                 metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
-                this.ambiente,
-                eInicializado
+                undefined,
+                eInicializador
             );
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
@@ -821,17 +782,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             metodos
         );
 
-        if (superClasse !== null) {
-            this.ambiente = this.ambiente.ambientePai;
-        }
+        // TODO: Recolocar isso se for necessário.
+        /* if (superClasse !== null) {
+            this.ambiente = this.ambiente.enclosing;
+        } */
 
-        this.ambiente.atribuirVariavel(declaracao.simbolo, criado);
+        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, criado);
         return null;
     }
 
     visitarExpressaoAcessoMetodo(expressao: any) {
         let objeto = this.avaliar(expressao.objeto);
-        if (objeto instanceof DeleguaInstancia) {
+        if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
@@ -870,9 +832,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoSuper(expressao: Super) {
         const distancia = this.locais.get(expressao);
-        const superClasse = this.ambiente.obterVariavelEm(distancia, 'super');
+        const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
 
-        const objeto = this.ambiente.obterVariavelEm(distancia - 1, 'isto');
+        const objeto = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
 
         let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
 
@@ -884,7 +846,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        return metodo.definirEscopo(objeto);
+        return metodo.definirInstancia(objeto);
     }
 
     paraTexto(objeto: any): any {
@@ -904,27 +866,41 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (Array.isArray(objeto)) return objeto;
 
         if (typeof objeto === 'object') return JSON.stringify(objeto);
+        if (objeto === undefined) { 
+            return 'nulo';
+        }
 
         return objeto.toString();
     }
 
-    executar(declaracao: any, mostrarResultado: boolean = false): void {
+    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
         declaracao.aceitar(this);
     }
 
-    interpretar(declaracoes: any): RetornoInterpretador {
+    executarUltimoEscopo() {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        try {
+            for (; ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            }
+        } finally {
+            this.pilhaEscoposExecucao.removerUltimo();
+        }
+    }
+
+    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
 
         const retornoResolvedor = this.Delegua.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
         
-        try {
-            for (let i = 0; i < declaracoes.length; i++) {
-                this.executar(declaracoes[i], false);
-            }
-        } catch (erro) {
-            this.erros.push(erro);
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
         }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        this.executarUltimoEscopo();
 
         return {
             erros: this.erros
