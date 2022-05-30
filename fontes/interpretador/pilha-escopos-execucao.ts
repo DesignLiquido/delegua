@@ -1,7 +1,7 @@
-import { DeleguaFuncao } from "../estruturas";
-import { ErroEmTempoDeExecucao } from "../excecoes";
-import { PilhaInterface, SimboloInterface } from "../interfaces";
-import { EscopoExecucao } from "../interfaces/escopo-execucao";
+import { DeleguaFuncao } from '../estruturas';
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { PilhaInterface, SimboloInterface } from '../interfaces';
+import { EscopoExecucao } from '../interfaces/escopo-execucao';
 
 export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     pilha: EscopoExecucao[];
@@ -19,14 +19,12 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     topoDaPilha() {
-        if (this.eVazio())
-            throw new Error("Pilha vazia.");
+        if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.at(-1);
     }
 
     removerUltimo() {
-        if (this.eVazio())
-            throw new Error("Pilha vazia.");
+        if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
     }
 
@@ -48,7 +46,10 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            "Variável não definida '" + simbolo.lexema + "'."
+        );
     }
 
     obterVariavelEm(distancia: number, nome: any) {
@@ -64,14 +65,29 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            "Variável não definida '" + simbolo.lexema + "'."
+        );
+    }
+
+    /**
+     * Método usado pelo depurador para obter todas as variáveis definidas.
+     */
+    obterTodasVariaveis(todasVariaveis: any[] = []) {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const ambiente = this.pilha.at(-i).ambiente;
+            todasVariaveis.push(ambiente.valores)
+        }
+
+        return todasVariaveis;
     }
 
     /**
      * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
      * em console.
      */
-     obterTodasDeleguaFuncao() {
+    obterTodasDeleguaFuncao() {
         const retorno = {};
         const ambiente = this.pilha.at(-1).ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {

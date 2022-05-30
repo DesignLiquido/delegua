@@ -77,7 +77,7 @@ export class ServidorDepuracao {
                     break;
                 case "variaveis":
                     conexao.write("Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n");
-                    conexao.write(JSON.stringify(this.instanciaDelegua.interpretador.ambiente.obterTodasVariaveis()) + '\n');
+                    conexao.write(JSON.stringify((this.instanciaDelegua.interpretador.pilhaEscoposExecucao as any).obterTodasVariaveis()) + '\n');
                     break;
             }
         }
