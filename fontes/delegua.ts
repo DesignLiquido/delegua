@@ -197,7 +197,6 @@ export class Delegua implements DeleguaInterface {
             return;
         }
 
-        this.interpretador.etapaResolucao(retornoImportador.retornoAvaliadorSintatico.declaracoes);
         const retornoInterpretador = this.interpretador.interpretarParcial(retornoImportador.retornoAvaliadorSintatico.declaracoes);
     }
 

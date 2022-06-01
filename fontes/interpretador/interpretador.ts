@@ -975,29 +975,6 @@ export class Interpretador
     }
 
     /**
-     * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
-     * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
-     * @returns O resultado da execução do escopo, se houver.
-     */
-    executarUltimoEscopo(manterAmbiente: boolean = false): any {
-        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-        try {
-            let retornoExecucao: any;
-            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
-            }
-            
-            return retornoExecucao;
-        } finally {
-            this.pilhaEscoposExecucao.removerUltimo();
-            if (manterAmbiente) {
-                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente = Object.assign(escopoAnterior.ambiente, ultimoEscopo.ambiente);
-            }
-        }
-    }
-
-    /**
      * Para fins de depuração, verifica se há ponto de parada no mesmo pragma da declaração.
      * @param declaracao A declaração a ser executada.
      * @returns True quando execução deve parar. False caso contrário.
@@ -1021,39 +998,13 @@ export class Interpretador
         return false;
     }
 
-    etapaResolucao(declaracoes: Declaracao[]) {
-        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
-        this.locais = retornoResolvedor.locais;
-    }
-
-    /**
-     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
-     * ponto de parada ou não.
-     * Diferentemente da interpretação tradicional, não possui indicadores
-     * de performance porque eles não fazem sentido aqui.
-     * @param declaracoes Um vetor de declarações.
-     * @returns Um objeto de retorno, com erros encontrados se houverem.
-     */
-    interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
-        this.erros = [];
-        this.declaracoes = declaracoes;
-
-        this.pilhaExecucao.push({
-            identificador: '<Arquivo raiz>',
-            hashArquivo: 0,
-            linha: 1,
-        });
-
-        return this.continuarInterpretacaoParcial();
-    }
-
     /**
      * Continua a interpretação parcial do último ponto em que parou. 
      * Pode ser tanto o começo da execução inteira, ou pós comando do depurador
      * quando há um ponto de parada.
      * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
-     * verificar o ponto de parada na primeira execução. 
-     * Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
+     *                                     verificar o ponto de parada na primeira execução. 
+     *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
     continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
@@ -1080,9 +1031,51 @@ export class Interpretador
     }
 
     /**
-     * Interpretação sem depurador, com medição de performance.
+     * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
+     * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
+     * @returns O resultado da execução do escopo, se houver.
+     */
+    executarUltimoEscopo(manterAmbiente: boolean = false): any {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        try {
+            let retornoExecucao: any;
+            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            }
+            
+            return retornoExecucao;
+        } finally {
+            this.pilhaEscoposExecucao.removerUltimo();
+            if (manterAmbiente) {
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente = Object.assign(escopoAnterior.ambiente, ultimoEscopo.ambiente);
+            }
+        }
+    }
+
+    /**
+     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
+     * ponto de parada ou não.
+     * Diferentemente da interpretação tradicional, não possui indicadores
+     * de performance porque eles não fazem sentido aqui.
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
+     */
+    interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
+        this.erros = [];
+        this.declaracoes = declaracoes;
+
+        this.pilhaExecucao.push({
+            identificador: '<Arquivo raiz>',
+            hashArquivo: 0,
+            linha: 1,
+        });
+
+        return this.continuarInterpretacaoParcial();
+    }
+
+    /**
+     * Interpretação sem depurador, com medição de performance.
      * Método que efetivamente inicia o processo de interpretação. 
      * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
      * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado 

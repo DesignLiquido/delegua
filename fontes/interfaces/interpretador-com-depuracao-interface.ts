@@ -8,7 +8,6 @@ export interface InterpretadorComDepuracaoInterface {
     declaracaoAtual: number;
     finalizacaoDaExecucao: Function;
 
-    etapaResolucao(declaracoes: Declaracao[]): void;
     interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador;
     continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean): RetornoInterpretador;
 }
