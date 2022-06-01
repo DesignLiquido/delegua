@@ -31,7 +31,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     definirVariavel(nomeVariavel: string, valor: any) {
-        this.pilha.at(-1).ambiente.valores[nomeVariavel] = valor;
+        this.pilha[this.pilha.length-1].ambiente.valores[nomeVariavel] = valor;
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any) {
