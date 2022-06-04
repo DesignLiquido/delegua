@@ -931,7 +931,8 @@ export class Interpretador implements InterpretadorInterface {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente = Object.assign(escopoAnterior.ambiente, ultimoEscopo.ambiente);
+                escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, 
+                    ultimoEscopo.ambiente.valores);
             }
         }
     }
