@@ -1,6 +1,6 @@
 import { Ambiente } from "../ambiente";
 import { Declaracao } from "../declaracoes";
-import { PontoParada, PragmaExecucao } from "../depuracao";
+import { PontoParada } from "../depuracao";
 import { ImportadorInterface, ResolvedorInterface } from "../interfaces";
 import { EscopoExecucao } from "../interfaces/escopo-execucao";
 import { Quebra } from "../quebras";
@@ -9,7 +9,6 @@ import { RetornoInterpretador } from "./retorno-interpretador";
 
 export class InterpretadorComDepuracao extends Interpretador {
     pontosParada: PontoParada[];
-    pilhaExecucao: PragmaExecucao[];
     declaracaoAtual: number;
     finalizacaoDaExecucao: Function;
 
@@ -22,7 +21,6 @@ export class InterpretadorComDepuracao extends Interpretador {
         super(importador, resolvedor, diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
-        this.pilhaExecucao = [];
         this.declaracaoAtual = 0;
     }
 
@@ -32,14 +30,10 @@ export class InterpretadorComDepuracao extends Interpretador {
      * @returns True quando execução deve parar. False caso contrário.
      */
      verificarPontoParada(declaracao: Declaracao): boolean {
-        const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
-        elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
-        elementoPilhaExecucao.linha = declaracao.linha;
-
         const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
             (p) =>
-                p.hashArquivo === elementoPilhaExecucao.hashArquivo &&
-                p.linha === elementoPilhaExecucao.linha
+                p.hashArquivo === declaracao.hashArquivo &&
+                p.linha === declaracao.linha
         );
 
         if (buscaPontoParada.length > 0) {
@@ -59,7 +53,7 @@ export class InterpretadorComDepuracao extends Interpretador {
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-     continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
+     executarUltimoEscopo(manterAmbiente: boolean = false, naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
@@ -75,6 +69,11 @@ export class InterpretadorComDepuracao extends Interpretador {
             this.erros.push(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
+            if (manterAmbiente) {
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, 
+                    ultimoEscopo.ambiente.valores);
+            }
 
             if (this.pilhaEscoposExecucao.elementos() === 1) {
                 this.finalizacaoDaExecucao();
@@ -98,12 +97,6 @@ export class InterpretadorComDepuracao extends Interpretador {
         this.erros = [];
         this.declaracoes = declaracoes;
 
-        this.pilhaExecucao.push({
-            identificador: '<Arquivo raiz>',
-            hashArquivo: 0,
-            linha: 1,
-        });
-
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
@@ -111,6 +104,6 @@ export class InterpretadorComDepuracao extends Interpretador {
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
-        return this.continuarInterpretacaoParcial();
+        return this.executarUltimoEscopo(manterAmbiente);
     }
 }

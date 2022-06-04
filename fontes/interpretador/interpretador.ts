@@ -63,13 +63,9 @@ export class Interpretador
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     performance: boolean;
-    // pontosParada: PontoParada[];
-    // pilhaExecucao: PragmaExecucao[];
     funcaoDeRetorno: Function = null;
     resultadoInterpretador: Array<String> = [];
     declaracoes: Declaracao[];
-    // declaracaoAtual: number;
-    // finalizacaoDaExecucao: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucao;
 
     constructor(
@@ -970,66 +966,6 @@ export class Interpretador
     }
 
     /**
-     * Para fins de depuração, verifica se há ponto de parada no mesmo pragma da declaração.
-     * @param declaracao A declaração a ser executada.
-     * @returns True quando execução deve parar. False caso contrário.
-     */
-    /* verificarPontoParada(declaracao: Declaracao): boolean {
-        const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
-        elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
-        elementoPilhaExecucao.linha = declaracao.linha;
-
-        const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
-            (p) =>
-                p.hashArquivo === elementoPilhaExecucao.hashArquivo &&
-                p.linha === elementoPilhaExecucao.linha
-        );
-
-        if (buscaPontoParada.length > 0) {
-            console.log('Ponto de parada encontrado.');
-            return true;
-        }
-
-        return false;
-    } */
-
-    /**
-     * Continua a interpretação parcial do último ponto em que parou. 
-     * Pode ser tanto o começo da execução inteira, ou pós comando do depurador
-     * quando há um ponto de parada.
-     * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
-     *                                     verificar o ponto de parada na primeira execução. 
-     *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
-     * @returns Um objeto de retorno, com erros encontrados se houverem.
-     */
-    /* continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
-        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-        try {
-            let retornoExecucao: any;
-            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                if (naoVerificarPrimeiraExecucao) {
-                    naoVerificarPrimeiraExecucao = false;
-                } else if (this.verificarPontoParada(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual])) {
-                    break;
-                }
-                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
-            }
-        } catch (erro: any) {
-            this.erros.push(erro);
-        } finally {
-            this.pilhaEscoposExecucao.removerUltimo();
-
-            if (this.pilhaEscoposExecucao.elementos() === 1) {
-                this.finalizacaoDaExecucao();
-            }
-
-            return {
-                erros: this.erros,
-            } as RetornoInterpretador;
-        }
-    } */
-
-    /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
@@ -1052,34 +988,6 @@ export class Interpretador
             }
         }
     }
-
-    /**
-     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
-     * ponto de parada ou não.
-     * Diferentemente da interpretação tradicional, não possui indicadores
-     * de performance porque eles não fazem sentido aqui.
-     * @param declaracoes Um vetor de declarações.
-     * @returns Um objeto de retorno, com erros encontrados se houverem.
-     */
-    /* interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
-        this.erros = [];
-        this.declaracoes = declaracoes;
-
-        this.pilhaExecucao.push({
-            identificador: '<Arquivo raiz>',
-            hashArquivo: 0,
-            linha: 1,
-        });
-
-        const escopoExecucao: EscopoExecucao = {
-            declaracoes: declaracoes,
-            declaracaoAtual: 0,
-            ambiente: new Ambiente()
-        }
-        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
-        return this.continuarInterpretacaoParcial();
-    } */
 
     /**
      * Interpretação sem depurador, com medição de performance.

@@ -1,8 +1,8 @@
 import * as net from 'net';
 
 import { Delegua } from '../delegua';
+import { PilhaEscoposExecucao } from '../interpretador/pilha-escopos-execucao';
 import cyrb53 from './cyrb53';
-import { PragmaExecucao } from './pragma-execucao';
 
 export class ServidorDepuracao {
     instanciaDelegua: Delegua;
@@ -53,10 +53,11 @@ export class ServidorDepuracao {
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
-                    const pilhaExecucao: PragmaExecucao[] = interpretadorInterface.pilhaExecucao;
-                    for (const elementoPilha of pilhaExecucao) {
+                    const pilhaEscoposExecucao: PilhaEscoposExecucao = interpretadorInterface.pilhaExecucao;
+                    // TODO: Voltar aqui depois.
+                    /* for (const elementoPilha of pilhaEscoposExecucao) {
                         conexao.write(elementoPilha.identificador + ' - ' + this.instanciaDelegua.arquivosAbertos[elementoPilha.hashArquivo] + ':' + elementoPilha.linha + '\n');
-                    }
+                    } */
                     
                     break;
                 case "proximo":
