@@ -11,7 +11,7 @@ export class DeleguaFuncao extends Chamavel {
     eInicializador: boolean;
     instancia: ObjetoDeleguaClasse;
 
-    constructor(nome: string, declaracao: string, instancia: ObjetoDeleguaClasse = undefined, eInicializador = false) {
+    constructor(nome: string, declaracao: any, instancia: ObjetoDeleguaClasse = undefined, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;

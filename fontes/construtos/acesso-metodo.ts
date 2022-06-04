@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../interfaces";
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -20,7 +20,7 @@ export class AcessoMetodo implements Construto {
         this.simbolo = simbolo;
     }
 
-    aceitar(visitante: any) {
+    aceitar(visitante: InterpretadorInterface | ResolvedorInterface) {
         return visitante.visitarExpressaoAcessoMetodo(this);
     }
 }

@@ -571,29 +571,26 @@ export class Interpretador
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
         const retornoInterpretador = this.interpretar(
-            conteudoImportacao.retornoAvaliadorSintatico.declaracoes
+            conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true
         );
 
-        /* let funcoesDeclaradas = this.global.obterTodasDeleguaFuncao(
-            conteudoImportacao.hashArquivo
-        ); */
-        let funcoesDeclaradas = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+        let funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
-        if (eDicionario(funcoesDeclaradas)) {
+        if (eDicionario(funcoesChamaveis)) {
             let novoModulo = new DeleguaModulo();
 
-            let chaves = Object.keys(funcoesDeclaradas);
+            let chaves = Object.keys(funcoesChamaveis);
             for (let i = 0; i < chaves.length; i++) {
                 novoModulo.componentes[chaves[i]] =
-                    funcoesDeclaradas[chaves[i]];
+                    funcoesChamaveis[chaves[i]];
             }
 
             return novoModulo;
         }
 
-        return funcoesDeclaradas;
+        return funcoesChamaveis;
     }
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
@@ -1008,19 +1005,23 @@ export class Interpretador
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
     continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
-            for (; this.declaracaoAtual < this.declaracoes.length; this.declaracaoAtual++) {
+            let retornoExecucao: any;
+            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
                 if (naoVerificarPrimeiraExecucao) {
                     naoVerificarPrimeiraExecucao = false;
-                } else if (this.verificarPontoParada(this.declaracoes[this.declaracaoAtual])) {
+                } else if (this.verificarPontoParada(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual])) {
                     break;
                 }
-                this.executar(this.declaracoes[this.declaracaoAtual]);
+                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            if (this.declaracoes.length === this.declaracaoAtual) {
+            this.pilhaEscoposExecucao.removerUltimo();
+
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
                 this.finalizacaoDaExecucao();
             }
 
@@ -1071,6 +1072,13 @@ export class Interpretador
             hashArquivo: 0,
             linha: 1,
         });
+
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: new Ambiente()
+        }
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         return this.continuarInterpretacaoParcial();
     }

@@ -18,6 +18,10 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
         return this.pilha.length === 0;
     }
 
+    elementos() {
+        return this.pilha.length;
+    }
+
     topoDaPilha() {
         if (this.eVazio())
             throw new Error("Pilha vazia.");
@@ -85,7 +89,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     /**
-     * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
+     * Obtém todas as funções declaradas ou por código-fonte, ou pelo desenvolvedor
      * em console.
      */
     obterTodasDeleguaFuncao() {
