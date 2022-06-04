@@ -1,7 +1,6 @@
 import * as net from 'net';
 
 import { Delegua } from '../delegua';
-import { InterpretadorComDepuracaoInterface } from '../interfaces';
 import cyrb53 from './cyrb53';
 import { PragmaExecucao } from './pragma-execucao';
 
@@ -36,7 +35,7 @@ export class ServidorDepuracao {
         const aoReceberDados: any = (dados: Buffer) => {
             const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
             // process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
-            const interpretadorInterface = (this.instanciaDelegua.interpretador as any as InterpretadorComDepuracaoInterface);
+            const interpretadorInterface = (this.instanciaDelegua.interpretador as any);
 
             switch (comando[0]) {
                 case "adentrar-escopo":

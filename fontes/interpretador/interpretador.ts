@@ -11,7 +11,6 @@ import {
     ErroEmTempoDeExecucao,
 } from '../excecoes';
 import {
-    InterpretadorComDepuracaoInterface,
     InterpretadorInterface,
     ResolvedorInterface,
     SimboloInterface,
@@ -45,7 +44,7 @@ import { Atribuir, Construto, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
-import { PontoParada, PragmaExecucao } from '../depuracao';
+// import { PontoParada, PragmaExecucao } from '../depuracao';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -55,7 +54,7 @@ import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador
-    implements InterpretadorInterface, InterpretadorComDepuracaoInterface
+    implements InterpretadorInterface
 {
     importador: ImportadorInterface;
     resolvedor: ResolvedorInterface;
@@ -64,13 +63,13 @@ export class Interpretador
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     performance: boolean;
-    pontosParada: PontoParada[];
-    pilhaExecucao: PragmaExecucao[];
+    // pontosParada: PontoParada[];
+    // pilhaExecucao: PragmaExecucao[];
     funcaoDeRetorno: Function = null;
     resultadoInterpretador: Array<String> = [];
     declaracoes: Declaracao[];
-    declaracaoAtual: number;
-    finalizacaoDaExecucao: Function;
+    // declaracaoAtual: number;
+    // finalizacaoDaExecucao: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucao;
 
     constructor(
@@ -84,14 +83,13 @@ export class Interpretador
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
-        this.pontosParada = [];
-        this.pilhaExecucao = [];
+        
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         this.locais = new Map();
         this.erros = [];
         this.declaracoes = [];
-        this.declaracaoAtual = 0;
+        
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
@@ -976,7 +974,7 @@ export class Interpretador
      * @param declaracao A declaração a ser executada.
      * @returns True quando execução deve parar. False caso contrário.
      */
-    verificarPontoParada(declaracao: Declaracao): boolean {
+    /* verificarPontoParada(declaracao: Declaracao): boolean {
         const elementoPilhaExecucao: PragmaExecucao = this.pilhaExecucao.at(-1);
         elementoPilhaExecucao.hashArquivo = declaracao.hashArquivo;
         elementoPilhaExecucao.linha = declaracao.linha;
@@ -993,7 +991,7 @@ export class Interpretador
         }
 
         return false;
-    }
+    } */
 
     /**
      * Continua a interpretação parcial do último ponto em que parou. 
@@ -1004,7 +1002,7 @@ export class Interpretador
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
+    /* continuarInterpretacaoParcial(naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
@@ -1029,7 +1027,7 @@ export class Interpretador
                 erros: this.erros,
             } as RetornoInterpretador;
         }
-    }
+    } */
 
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
@@ -1063,7 +1061,7 @@ export class Interpretador
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
+    /* interpretarParcial(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
         this.declaracoes = declaracoes;
 
@@ -1081,7 +1079,7 @@ export class Interpretador
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         return this.continuarInterpretacaoParcial();
-    }
+    } */
 
     /**
      * Interpretação sem depurador, com medição de performance.

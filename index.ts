@@ -31,12 +31,13 @@ const principal = () => {
     analisadorArgumentos.parse();
     const opcoes = analisadorArgumentos.opts();
 
-    const delegua = new Delegua(opcoes.dialeto, opcoes.performance);
+    const delegua = new Delegua(opcoes.dialeto, opcoes.performance, opcoes.depurador);
 
-    if (opcoes.depurador) {
+    /* if (opcoes.depurador) {
         delegua.iniciarDepuracao();
         delegua.carregarArquivoComDepurador(nomeArquivo);
-    } else if (!nomeArquivo) {
+    } else */
+    if (!nomeArquivo) {
         delegua.iniciarLairDelegua();
     } else {
         delegua.carregarArquivo(nomeArquivo);

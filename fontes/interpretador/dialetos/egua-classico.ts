@@ -506,7 +506,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoImportar(declaracao: Importar) {
         const caminhoRelativo = this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-        const nomeArquivo = caminho.basename(caminhoTotal);
+        // const nomeArquivo = caminho.basename(caminhoTotal);
 
         let dados: any = carregarModulo(caminhoRelativo);
         if (dados) return dados;
@@ -529,7 +529,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         dados = fs.readFileSync(caminhoTotal).toString();
 
-        const delegua = new Delegua(this.Delegua.dialeto, false, nomeArquivo);
+        const delegua = new Delegua(this.Delegua.dialeto, false);
 
         delegua.executar(dados);
 

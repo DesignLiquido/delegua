@@ -10,7 +10,6 @@ import {
 } from "../interfaces";
 
 export interface DeleguaInterface {
-    nomeArquivo: string;
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
