@@ -963,6 +963,19 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return this.declaracaoEscreva();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
             return new Bloco(this.blocoEscopo());
+        
+        const simboloAtual = this.simboloAtual();
+        if (simboloAtual.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            // Pela gramática, a seguinte situação não pode ocorrer:
+            // 1. O símbolo anterior ser um identificador; e
+            // 2. O símbolo anterior estar na mesma linha do identificador atual.
+            
+            const simboloAnterior = this.simboloAnterior();
+            if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR && 
+                    simboloAnterior.linha === simboloAtual.linha) {
+                this.erro(this.simboloAtual(), 'Não é permitido ter dois identificadores seguidos na mesma linha.');
+            }
+        }
 
         return this.declaracaoExpressao();
     }
