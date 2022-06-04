@@ -951,9 +951,7 @@ export class Interpretador
      * @param declaracao A declaração a ser executada.
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
-
-    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
-        const resultado = declaracao.aceitar(this); */
+     */
     executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
         const resultado: any = declaracao.aceitar(this);
         if (mostrarResultado) {

@@ -11,6 +11,7 @@ export class InterpretadorComDepuracao extends Interpretador {
     pontosParada: PontoParada[];
     declaracaoAtual: number;
     finalizacaoDaExecucao: Function;
+    pontoDeParadaAtivo: boolean;
 
     constructor(
         importador: ImportadorInterface,
@@ -22,6 +23,7 @@ export class InterpretadorComDepuracao extends Interpretador {
 
         this.pontosParada = [];
         this.declaracaoAtual = 0;
+        this.pontoDeParadaAtivo = false;
     }
 
     /**
@@ -55,24 +57,31 @@ export class InterpretadorComDepuracao extends Interpretador {
      */
      executarUltimoEscopo(manterAmbiente: boolean = false, naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+
         try {
             let retornoExecucao: any;
             for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
                 if (naoVerificarPrimeiraExecucao) {
                     naoVerificarPrimeiraExecucao = false;
-                } else if (this.verificarPontoParada(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual])) {
-                    break;
+                } else {
+                    this.pontoDeParadaAtivo = this.verificarPontoParada(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                    if (this.pontoDeParadaAtivo) {
+                        break;
+                    }
                 }
+                
                 retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
         } catch (erro: any) {
             this.erros.push(erro);
         } finally {
-            this.pilhaEscoposExecucao.removerUltimo();
-            if (manterAmbiente) {
-                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, 
-                    ultimoEscopo.ambiente.valores);
+            if (!this.pontoDeParadaAtivo) {
+                this.pilhaEscoposExecucao.removerUltimo();
+                if (manterAmbiente) {
+                    const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                    escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, 
+                        ultimoEscopo.ambiente.valores);
+                }
             }
 
             if (this.pilhaEscoposExecucao.elementos() === 1) {
@@ -82,6 +91,12 @@ export class InterpretadorComDepuracao extends Interpretador {
             return {
                 erros: this.erros,
             } as RetornoInterpretador;
+        }
+    }
+
+    continuarInterpretacaoParcial() {
+        while (this.pilhaEscoposExecucao.elementos() > 1) {
+            this.executarUltimoEscopo();
         }
     }
 
