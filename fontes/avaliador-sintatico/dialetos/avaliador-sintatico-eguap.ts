@@ -506,8 +506,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         const expressao = this.ou();
 
         if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)
         ) {
             const igual = this.simboloAnterior();
             const valor = this.atribuir();
@@ -996,8 +995,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         );
         let inicializador = null;
         if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)
         ) {
             inicializador = this.expressao();
         }

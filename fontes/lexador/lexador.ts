@@ -251,30 +251,17 @@ export class Lexador implements LexadorInterface {
                 this.avancar();
                 break;
             case '-':
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
-                }
-                
                 break;
             case '+':
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
-                }
-                
                 break;
             case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
                 break;
-            
             case '%':
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 this.avancar();
