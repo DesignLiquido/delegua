@@ -19,8 +19,9 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     topoDaPilha() {
-        if (this.eVazio()) throw new Error('Pilha vazia.');
-        return this.pilha.at(-1);
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha[this.pilha.length-1];
     }
 
     removerUltimo() {
@@ -29,17 +30,17 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     definirVariavel(nomeVariavel: string, valor: any) {
-        this.pilha.at(-1).ambiente.valores[nomeVariavel] = valor;
+        this.pilha[this.pilha.length-1].ambiente.valores[nomeVariavel] = valor;
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any) {
-        const ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        const ambienteAncestral = this.pilha[this.pilha.length-distancia].ambiente;
         ambienteAncestral.valores[simbolo.lexema] = valor;
     }
 
     atribuirVariavel(simbolo: SimboloInterface, valor: any) {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha.at(-i).ambiente;
+            const ambiente = this.pilha[this.pilha.length-i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 ambiente.valores[simbolo.lexema] = valor;
                 return;
@@ -53,13 +54,13 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     }
 
     obterVariavelEm(distancia: number, nome: any) {
-        const ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        const ambienteAncestral = this.pilha[this.pilha.length-distancia].ambiente;
         return ambienteAncestral.valores[nome];
     }
 
     obterVariavel(simbolo: SimboloInterface) {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha.at(-i).ambiente;
+            const ambiente = this.pilha[this.pilha.length-i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 return ambiente.valores[simbolo.lexema];
             }
@@ -89,7 +90,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
      */
     obterTodasDeleguaFuncao() {
         const retorno = {};
-        const ambiente = this.pilha.at(-1).ambiente;
+        const ambiente = this.pilha[this.pilha.length-1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
             if (corpo instanceof DeleguaFuncao) {
                 retorno[nome] = corpo;

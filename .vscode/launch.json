@@ -99,6 +99,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Teste de Classe (Égua Clássico)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "--dialeto",
+                "egua",
+                "./testes/exemplos/dialetos/egua-classico/teste-classe.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Bhaskara (Delégua)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
