@@ -12,6 +12,7 @@ export class InterpretadorComDepuracao extends Interpretador {
     declaracaoAtual: number;
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
+    escopoAtual: number;
 
     constructor(
         importador: ImportadorInterface,
@@ -24,6 +25,31 @@ export class InterpretadorComDepuracao extends Interpretador {
         this.pontosParada = [];
         this.declaracaoAtual = 0;
         this.pontoDeParadaAtivo = false;
+        this.escopoAtual = 0;
+    }
+
+    /**
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
+     * executa as declarações empilhadas.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     */
+    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
+        if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
+            this.escopoAtual++;
+            const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
+            this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual])
+        } else {
+            const escopoExecucao: EscopoExecucao = {
+                declaracoes: declaracoes,
+                declaracaoAtual: 0,
+                ambiente: ambiente || new Ambiente()
+            }
+            this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+            this.escopoAtual++;
+
+            return this.executarUltimoEscopo();
+        }
     }
 
     /**
@@ -82,6 +108,7 @@ export class InterpretadorComDepuracao extends Interpretador {
                     escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, 
                         ultimoEscopo.ambiente.valores);
                 }
+                this.escopoAtual--;
             }
 
             if (this.pilhaEscoposExecucao.elementos() === 1) {
@@ -95,9 +122,9 @@ export class InterpretadorComDepuracao extends Interpretador {
     }
 
     continuarInterpretacaoParcial() {
-        while (this.pilhaEscoposExecucao.elementos() > 1) {
-            this.executarUltimoEscopo();
-        }
+        this.escopoAtual = 1;
+        const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
+        this.executar(primeiroEscopo.declaracoes[--primeiroEscopo.declaracaoAtual]);
     }
 
     /**
@@ -118,6 +145,7 @@ export class InterpretadorComDepuracao extends Interpretador {
             ambiente: new Ambiente()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        this.escopoAtual++;
 
         return this.executarUltimoEscopo(manterAmbiente);
     }

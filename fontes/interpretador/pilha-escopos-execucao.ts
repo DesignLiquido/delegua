@@ -22,6 +22,10 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
         return this.pilha.length;
     }
 
+    naPosicao(posicao: number) {
+        return this.pilha[posicao];
+    }
+
     topoDaPilha() {
         if (this.eVazio())
             throw new Error("Pilha vazia.");

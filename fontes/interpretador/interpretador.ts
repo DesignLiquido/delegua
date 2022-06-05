@@ -40,7 +40,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Atribuir, Construto, Super } from '../construtos';
+import { Atribuir, Construto, Literal, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
@@ -101,7 +101,7 @@ export class Interpretador
         this.locais.set(expressao, profundidade);
     }
 
-    visitarExpressaoLiteral(expressao: any) {
+    visitarExpressaoLiteral(expressao: Literal) {
         return expressao.valor;
     }
 

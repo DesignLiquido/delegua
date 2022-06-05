@@ -50,7 +50,7 @@ export class ServidorDepuracao {
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
                     (interpretadorInterface as any).pontoDeParadaAtivo = false;
-                    interpretadorInterface.executarUltimoEscopo(false, true);
+                    interpretadorInterface.continuarInterpretacaoParcial();
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
