@@ -38,7 +38,10 @@ export class InterpretadorComDepuracao extends Interpretador {
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
             const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
-            this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual])
+            const resultadoExecucao = this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+            this.pilhaEscoposExecucao.removerUltimo();
+            this.escopoAtual--;
+            return resultadoExecucao;
         } else {
             const escopoExecucao: EscopoExecucao = {
                 declaracoes: declaracoes,
@@ -125,6 +128,10 @@ export class InterpretadorComDepuracao extends Interpretador {
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
         this.executar(primeiroEscopo.declaracoes[--primeiroEscopo.declaracaoAtual]);
+
+        if (this.pilhaEscoposExecucao.elementos() === 1) {
+            this.finalizacaoDaExecucao();
+        }
     }
 
     /**
