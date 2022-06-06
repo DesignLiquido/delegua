@@ -99,7 +99,7 @@ export class InterpretadorComDepuracao extends Interpretador {
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha. 
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-     executarUltimoEscopo(manterAmbiente: boolean = false, naoVerificarPrimeiraExecucao: boolean = false): RetornoInterpretador {
+     executarUltimoEscopo(manterAmbiente: boolean = false, naoVerificarPrimeiraExecucao: boolean = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
 
         try {
@@ -116,8 +116,10 @@ export class InterpretadorComDepuracao extends Interpretador {
                 
                 retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
-        } catch (erro: any) {
-            this.erros.push(erro);
+
+            return retornoExecucao;
+        // } catch (erro: any) {
+        //    this.erros.push(erro);
         } finally {
             if (!this.pontoDeParadaAtivo) {
                 this.pilhaEscoposExecucao.removerUltimo();
@@ -132,10 +134,6 @@ export class InterpretadorComDepuracao extends Interpretador {
             if (this.pilhaEscoposExecucao.elementos() === 1) {
                 this.finalizacaoDaExecucao();
             }
-
-            return {
-                erros: this.erros,
-            } as RetornoInterpretador;
         }
     }
 
@@ -188,6 +186,14 @@ export class InterpretadorComDepuracao extends Interpretador {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
 
-        return this.executarUltimoEscopo(manterAmbiente);
+        this.executarUltimoEscopo(manterAmbiente);
+
+        const retorno = {
+            erros: this.erros,
+            resultado: this.resultadoInterpretador,
+        } as RetornoInterpretador;
+
+        this.resultadoInterpretador = [];
+        return retorno;
     }
 }
