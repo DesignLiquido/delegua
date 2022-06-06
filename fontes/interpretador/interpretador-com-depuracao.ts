@@ -29,8 +29,10 @@ export class InterpretadorComDepuracao extends Interpretador {
     }
 
     /**
-     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
-     * executa as declarações empilhadas.
+     * Se bloco de execução já foi instanciado antes (por exemplo, quando há um ponto de parada e a
+     * execução do código é retomada pelo depurador), retoma a execução do bloco do ponto em que havia parado.
+     * Se bloco de execução ainda não foi instanciado, empilha declarações na pilha de escopos de execução, 
+     * cria um novo ambiente e executa as declarações empilhadas.
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
@@ -38,10 +40,23 @@ export class InterpretadorComDepuracao extends Interpretador {
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
             const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
-            const resultadoExecucao = this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+            let retornoExecucao: any;
+
+            // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
+            retornoExecucao = this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+            proximoEscopo.declaracaoAtual++
+            for (; !(retornoExecucao instanceof Quebra) && proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length; proximoEscopo.declaracaoAtual++) {
+                this.pontoDeParadaAtivo = this.verificarPontoParada(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+                if (this.pontoDeParadaAtivo) {
+                    break;
+                }
+                
+                retornoExecucao = this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+            }
+
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
-            return resultadoExecucao;
+            return retornoExecucao;
         } else {
             const escopoExecucao: EscopoExecucao = {
                 declaracoes: declaracoes,
@@ -124,10 +139,29 @@ export class InterpretadorComDepuracao extends Interpretador {
         }
     }
 
+    /**
+     * Continua a interprtação parcial. 
+     * Quando o depurador continua, a pilha de execução do TypeScript é perdida. 
+     * Esse método cria uma nova pilha de execução, começando do último elemento executado do 
+     * primeiro escopo. 
+     * @see executarBloco
+     */
     continuarInterpretacaoParcial() {
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
-        this.executar(primeiroEscopo.declaracoes[--primeiroEscopo.declaracaoAtual]);
+        --primeiroEscopo.declaracaoAtual;
+
+        let retornoExecucao: any;
+        for (; !(retornoExecucao instanceof Quebra) && primeiroEscopo.declaracaoAtual < primeiroEscopo.declaracoes.length; primeiroEscopo.declaracaoAtual++) {
+            this.pontoDeParadaAtivo = this.verificarPontoParada(primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]);
+            if (this.pontoDeParadaAtivo) {
+                break;
+            }
+            
+            retornoExecucao = this.executar(primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]);
+        }
+
+        this.pilhaEscoposExecucao.removerUltimo();
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {
             this.finalizacaoDaExecucao();
