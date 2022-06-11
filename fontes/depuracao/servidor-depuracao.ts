@@ -1,6 +1,7 @@
 import * as net from 'net';
 
 import { Delegua } from '../delegua';
+import { InterpretadorComDepuracaoInterface } from '../interfaces';
 import { PilhaEscoposExecucao } from '../interpretador/pilha-escopos-execucao';
 import cyrb53 from './cyrb53';
 
@@ -35,13 +36,13 @@ export class ServidorDepuracao {
         const aoReceberDados: any = (dados: Buffer) => {
             const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
             // process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
-            const interpretadorInterface = (this.instanciaDelegua.interpretador as any);
+            const interpretadorInterface = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
 
             switch (comando[0]) {
                 case "adentrar-escopo":
                     conexao.write("Recebido comando 'adentrar-escopo'\n");
-                    (interpretadorInterface as any).adentrarEscopoAtivo = true;
-                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.adentrarEscopoAtivo = true;
+                    interpretadorInterface.pontoDeParadaAtivo = false;
                     interpretadorInterface.interpretacaoApenasUmaInstrucao();
                     break;
                 case "adicionar-ponto-parada":
@@ -52,13 +53,12 @@ export class ServidorDepuracao {
                     break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
-                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.pontoDeParadaAtivo = false;
                     interpretadorInterface.continuarInterpretacao();
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
-                    const pilhaEscoposExecucao: PilhaEscoposExecucao = interpretadorInterface.pilhaExecucao;
-                    // TODO: Voltar aqui depois.
+                    const pilhaEscoposExecucao: PilhaEscoposExecucao = (interpretadorInterface as any).pilhaExecucao;
                     /* for (const elementoPilha of pilhaEscoposExecucao) {
                         conexao.write(elementoPilha.identificador + ' - ' + this.instanciaDelegua.arquivosAbertos[elementoPilha.hashArquivo] + ':' + elementoPilha.linha + '\n');
                     } */
@@ -71,8 +71,8 @@ export class ServidorDepuracao {
                     break;
                 case "remover-ponto-parada":
                     conexao.write("Recebido comando 'remover-ponto-parada'\n");
-                    conexao.write("Declaração atual: " + interpretadorInterface.declaracaoAtual + '\n')
-                    conexao.write("Objeto da declaração atual: " + JSON.stringify((this.instanciaDelegua.interpretador as any).declaracoes[interpretadorInterface.declaracaoAtual]) + '\n')
+                    // conexao.write("Declaração atual: " + interpretadorInterface.declaracaoAtual + '\n')
+                    // conexao.write("Objeto da declaração atual: " + JSON.stringify((this.instanciaDelegua.interpretador as any).declaracoes[interpretadorInterface.declaracaoAtual]) + '\n')
                     break;
                 case "sair-escopo":
                     conexao.write("Recebido comando 'sair-escopo'\n");

@@ -12,6 +12,7 @@ import tiposDeSimbolos from './lexador/tipos-de-simbolos';
 import {
     AvaliadorSintaticoInterface,
     DeleguaInterface,
+    InterpretadorComDepuracaoInterface,
     InterpretadorInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
@@ -36,7 +37,7 @@ export class Delegua implements DeleguaInterface {
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
 
-    interpretador: InterpretadorInterface;
+    interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
@@ -161,7 +162,7 @@ export class Delegua implements DeleguaInterface {
 
     /**
      * Pede ao servidor de depuração que finalize a execução. 
-     * Se não for feito, o servidor de depuração mantém um stream aberto e nunca finaliza.
+     * Se não for feito, o servidor de depuração mantém um _stream_ aberto e nunca finaliza.
      * Mais informações: https://stackoverflow.com/a/47456805/1314276
      */
     finalizarDepuracao(): void {
@@ -179,29 +180,6 @@ export class Delegua implements DeleguaInterface {
         if (this.teveErro) process.exit(65);
         if (this.teveErroEmTempoDeExecucao) process.exit(70);
     }
-
-    /* carregarArquivoComDepurador(caminhoRelativoArquivo: string): void {
-        
-
-        // this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
-        if (retornoImportador.retornoLexador.erros.length > 0) {
-            for (const erroLexador of retornoImportador.retornoLexador.erros) {
-                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
-            }
-            return;
-        }
-
-        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
-                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
-            }
-            return;
-        }
-
-        const retornoInterpretador = this.interpretador.interpretarParcial(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-    } */
 
     executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
         if (retornoImportador.retornoLexador.erros.length > 0) {

@@ -1,15 +1,38 @@
 import { Ambiente } from '../ambiente';
 import { Declaracao } from '../declaracoes';
 import { PontoParada } from '../depuracao';
-import { ImportadorInterface, ResolvedorInterface } from '../interfaces';
+import { ImportadorInterface, InterpretadorComDepuracaoInterface, ResolvedorInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra } from '../quebras';
 import { Interpretador } from './interpretador';
 import { RetornoInterpretador } from './retorno-interpretador';
 
-export class InterpretadorComDepuracao extends Interpretador {
+/**
+ * Implementação do Interpretador com suporte a depuração.
+ * Herda o Interpretador padrão de Delégua e implementa métodos a mais, que são
+ * usados pelo servidor de depuração. 
+ * Alguns métodos do Interpretador original, como `executarBloco` e `interpretar`, 
+ * são reimplementados aqui.
+ * 
+ * A separação entre `Interpretador` e `InterpretadorComDepuracao` se faz 
+ * necessária por uma série de motivos. 
+ * O primeiro deles é o desempenho. A depuração torna o desempenho do 
+ * Interpretador com depuração inferior ao Interpretador original pelas
+ * várias verificações de controle que precisam ser feitas para a
+ * funcionalidade do suporte a depuração, como verificar pontos de parada, 
+ * estados da pilha de execução e variáveis. 
+ * O segundo deles é manter o Interpretador original tão simples quanto possível. 
+ * Uma implementação mais simples normalmente é mais robusta. 
+ * O terceiro deles é o uso de memória. O Interpretador original não possui
+ * uma série de variáveis implementadas aqui, o que o torna mais econômico em 
+ * recursos de máquina.
+ */
+export class InterpretadorComDepuracao 
+    extends Interpretador
+    implements InterpretadorComDepuracaoInterface 
+{
     pontosParada: PontoParada[];
-    declaracaoAtual: number;
+    // declaracaoAtual: number;
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
     escopoAtual: number;
@@ -24,7 +47,7 @@ export class InterpretadorComDepuracao extends Interpretador {
         super(importador, resolvedor, diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
-        this.declaracaoAtual = 0;
+        // this.declaracaoAtual = 0;
         this.pontoDeParadaAtivo = false;
         this.escopoAtual = 0;
         this.adentrarEscopoAtivo = false;

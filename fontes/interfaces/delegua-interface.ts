@@ -2,6 +2,7 @@ import { RetornoImportador } from "../importador";
 import { 
     AvaliadorSintaticoInterface,
     ImportadorInterface,
+    InterpretadorComDepuracaoInterface,
     InterpretadorInterface,
     LexadorInterface,
     ResolvedorInterface,
@@ -15,7 +16,7 @@ export interface DeleguaInterface {
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
 
-    interpretador: InterpretadorInterface;
+    interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     resolvedor: ResolvedorInterface;
