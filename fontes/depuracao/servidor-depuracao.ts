@@ -104,7 +104,10 @@ export class ServidorDepuracao {
                     break;
                 case "pontos-parada":
                     conexao.write("Recebido comando 'pontos-parada'\n");
-                    
+                    for (let pontoParada of interpretadorInterface.pontosParada) {
+                        conexao.write(this.instanciaDelegua.arquivosAbertos[pontoParada.hashArquivo] + ": " + 
+                            pontoParada.linha + "\n");
+                    }
                     break;
                 case "proximo":
                     conexao.write("Recebido comando 'proximo'\n");
