@@ -86,7 +86,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      */
     obterTodasVariaveis(todasVariaveis: any[] = []): any[] {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha.at(-i).ambiente;
+            const ambiente = this.pilha[this.pilha.length - i].ambiente;
             todasVariaveis.push(ambiente.valores)
         }
 

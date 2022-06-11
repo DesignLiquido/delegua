@@ -55,5 +55,5 @@ yarn testes:servidor-depuracao
 Abra outra shell (PowerShell, bash, etc.) e execute:
 
 ```bash
-nc localhost 9000
+nc localhost 7777
 ```
