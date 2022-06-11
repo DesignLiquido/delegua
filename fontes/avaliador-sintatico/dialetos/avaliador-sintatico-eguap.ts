@@ -46,9 +46,9 @@ import {
 } from '../../interfaces';
 import { Pragma } from '../../lexador/dialetos/pragma';
 import tiposDeSimbolos from '../../lexador/dialetos/tipos-de-simbolos-eguap';
-import { RetornoLexador } from '../../lexador/retorno-lexador';
+import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
-import { RetornoAvaliadorSintatico } from '../retorno-avaliador-sintatico';
+import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.

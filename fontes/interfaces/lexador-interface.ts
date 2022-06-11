@@ -1,4 +1,4 @@
-import { RetornoLexador } from "../lexador/retorno-lexador";
+import { RetornoLexador } from "./retornos/retorno-lexador";
 import { SimboloInterface } from "./simbolo-interface";
 
 export interface LexadorInterface {

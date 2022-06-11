@@ -43,8 +43,8 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { RetornoAvaliadorSintatico } from './retorno-avaliador-sintatico';
-import { RetornoLexador } from '../lexador/retorno-lexador';
+import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.

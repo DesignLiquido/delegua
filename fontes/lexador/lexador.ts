@@ -3,7 +3,7 @@ import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tipos-de-simbolos";
 import { ErroLexador } from "./erro-lexador";
 import palavrasReservadas from './palavras-reservadas';
-import { RetornoLexador } from "./retorno-lexador";
+import { RetornoLexador } from "../interfaces/retornos/retorno-lexador";
 import { Simbolo } from './simbolo';
 
 /**

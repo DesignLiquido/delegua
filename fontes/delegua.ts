@@ -31,6 +31,9 @@ import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
 import { InterpretadorComDepuracao } from './interpretador/interpretador-com-depuracao';
 
+/**  
+ * O núcleo da linguagem. 
+ */
 export class Delegua implements DeleguaInterface {
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;

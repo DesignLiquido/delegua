@@ -58,10 +58,14 @@ export class ServidorDepuracao {
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
-                    const pilhaEscoposExecucao: PilhaEscoposExecucao = (interpretadorInterface as any).pilhaExecucao;
+                    const pilhaEscoposExecucao: PilhaEscoposExecucao = interpretadorInterface.pilhaEscoposExecucao;
                     /* for (const elementoPilha of pilhaEscoposExecucao) {
                         conexao.write(elementoPilha.identificador + ' - ' + this.instanciaDelegua.arquivosAbertos[elementoPilha.hashArquivo] + ':' + elementoPilha.linha + '\n');
                     } */
+                    
+                    break;
+                case "pontos-parada":
+                    conexao.write("Recebido comando 'pontos-parada'\n");
                     
                     break;
                 case "proximo":

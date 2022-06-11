@@ -42,7 +42,7 @@ import {
 } from '../estruturas';
 import { Atribuir, Construto, Literal, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
-import { RetornoInterpretador } from './retorno-interpretador';
+import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
 // import { PontoParada, PragmaExecucao } from '../depuracao';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';

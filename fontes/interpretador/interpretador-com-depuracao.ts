@@ -5,7 +5,7 @@ import { ImportadorInterface, InterpretadorComDepuracaoInterface, ResolvedorInte
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra } from '../quebras';
 import { Interpretador } from './interpretador';
-import { RetornoInterpretador } from './retorno-interpretador';
+import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 
 /**
  * Implementação do Interpretador com suporte a depuração.

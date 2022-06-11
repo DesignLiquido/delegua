@@ -1,5 +1,5 @@
 import { Delegua } from "../../fontes/delegua";
-import { RetornoLexador } from "../../fontes/lexador/retorno-lexador";
+import { RetornoLexador } from "../../fontes/interfaces/retornos/retorno-lexador";
 
 describe('Avaliador sintático (Égua Clássico)', () => {
     describe('analisar()', () => {

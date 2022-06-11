@@ -1,5 +1,5 @@
 import { ErroAvaliadorSintatico } from '../avaliador-sintatico/erro-avaliador-sintatico';
-import { RetornoAvaliadorSintatico } from '../avaliador-sintatico/retorno-avaliador-sintatico';
+import { RetornoAvaliadorSintatico } from './retornos/retorno-avaliador-sintatico';
 import { Construto, Funcao } from '../construtos';
 import {
     Classe,
@@ -18,7 +18,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { RetornoLexador } from '../lexador/retorno-lexador';
+import { RetornoLexador } from './retornos/retorno-lexador';
 
 import { SimboloInterface } from './simbolo-interface';
 
