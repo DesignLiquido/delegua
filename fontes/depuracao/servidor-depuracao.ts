@@ -1,4 +1,5 @@
 import * as net from 'net';
+import { Declaracao } from '../declaracoes';
 
 import { Delegua } from '../delegua';
 import { InterpretadorComDepuracaoInterface } from '../interfaces';
@@ -37,6 +38,7 @@ export class ServidorDepuracao {
             const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
             // process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
             const interpretadorInterface = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
+            const conteudoArquivosAbertos = this.instanciaDelegua.conteudoArquivosAbertos;
 
             switch (comando[0]) {
                 case "adentrar-escopo":
@@ -59,9 +61,16 @@ export class ServidorDepuracao {
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
                     const pilhaEscoposExecucao: PilhaEscoposExecucao = interpretadorInterface.pilhaEscoposExecucao;
-                    for (const elementoPilha of pilhaEscoposExecucao.obterTodasVariaveis()) {
-                        // conexao.write(elementoPilha.identificador + ' - ' + this.instanciaDelegua.arquivosAbertos[elementoPilha.hashArquivo] + ':' + elementoPilha.linha + '\n');
-                        conexao.write(elementoPilha+ '\n');
+
+                    for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
+                        const elementoPilha = pilhaEscoposExecucao.pilha[i];
+                        const posicaoDeclaracaoAtual: number = 
+                            elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
+                        let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
+                        
+                        conexao.write(conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' - ' + 
+                            this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + ':' + 
+                            declaracaoAtual.linha + '\n');
                     }
                     
                     break;
@@ -71,7 +80,7 @@ export class ServidorDepuracao {
                     break;
                 case "proximo":
                     conexao.write("Recebido comando 'proximo'\n");
-                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.pontoDeParadaAtivo = false;
                     interpretadorInterface.interpretacaoApenasUmaInstrucao();
                     break;
                 case "remover-ponto-parada":
@@ -81,7 +90,7 @@ export class ServidorDepuracao {
                     break;
                 case "sair-escopo":
                     conexao.write("Recebido comando 'sair-escopo'\n");
-                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.pontoDeParadaAtivo = false;
                     interpretadorInterface.proximoESair();
                     break;
                 case "tchau":

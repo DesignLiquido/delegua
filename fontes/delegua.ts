@@ -33,12 +33,15 @@ import { InterpretadorComDepuracao } from './interpretador/interpretador-com-dep
 
 /**  
  * O núcleo da linguagem. 
+ * 
+ * Responsável por avaliar a entrada fornecida, entender o código e executá-lo. 
  */
 export class Delegua implements DeleguaInterface {
     teveErro: boolean;
     teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
+    conteudoArquivosAbertos: { [identificador: string]: string[] };
 
     interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
@@ -56,6 +59,7 @@ export class Delegua implements DeleguaInterface {
         funcaoDeRetorno: Function = null
     ) {
         this.arquivosAbertos = {};
+        this.conteudoArquivosAbertos = {};
 
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
@@ -72,7 +76,7 @@ export class Delegua implements DeleguaInterface {
                 this.resolvedor = new ResolvedorEguaClassico();
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
                 this.interpretador = new InterpretadorEguaClassico(this, process.cwd());
                 
                 console.log('Usando dialeto: Égua');
@@ -81,7 +85,7 @@ export class Delegua implements DeleguaInterface {
                 this.resolvedor = new Resolvedor();
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
                 this.interpretador = depurador ? 
                     new InterpretadorComDepuracao(this.importador, this.resolvedor, process.cwd(), funcaoDeRetorno) :
                     new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, funcaoDeRetorno);
@@ -92,7 +96,7 @@ export class Delegua implements DeleguaInterface {
                 this.resolvedor = new Resolvedor();
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos);
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
                 this.interpretador = depurador ? 
                     new InterpretadorComDepuracao(this.importador, this.resolvedor, process.cwd(), funcaoDeRetorno) :
                     new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, funcaoDeRetorno);
@@ -141,7 +145,6 @@ export class Delegua implements DeleguaInterface {
             const retornoLexador = this.lexador.mapear([linha], -1);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
             const retornoInterpretacao = this.executar({
-                codigo: [linha],
                 retornoLexador,
                 retornoAvaliadorSintatico
             } as RetornoImportador, true);
