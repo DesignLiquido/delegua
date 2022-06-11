@@ -1,9 +1,10 @@
+import { SimboloInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
 export class Continua extends Declaracao {
-    constructor() {
-        super(0);
+    constructor(simbolo: SimboloInterface) {
+        super(Number(simbolo.linha), simbolo.hashArquivo);
     }
 
     aceitar(visitante: any): any {

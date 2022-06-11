@@ -5,7 +5,7 @@ describe('Resolvedor (Égua Clássico)', () => {
         const delegua = new Delegua('egua');
 
         it('Sucesso', () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"]);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
             delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
             expect(delegua.resolvedor.escopos).toBeTruthy();

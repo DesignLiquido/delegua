@@ -20,7 +20,7 @@ import {
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
 import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
-import { RetornoInterpretador } from '../retorno-interpretador';
+import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../interfaces/escopo-execucao';
@@ -506,7 +506,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoImportar(declaracao: Importar) {
         const caminhoRelativo = this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-        const nomeArquivo = caminho.basename(caminhoTotal);
+        // const nomeArquivo = caminho.basename(caminhoTotal);
 
         let dados: any = carregarModulo(caminhoRelativo);
         if (dados) return dados;
@@ -529,7 +529,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         dados = fs.readFileSync(caminhoTotal).toString();
 
-        const delegua = new Delegua(this.Delegua.dialeto, false, nomeArquivo);
+        const delegua = new Delegua(this.Delegua.dialeto, false);
 
         delegua.executar(dados);
 

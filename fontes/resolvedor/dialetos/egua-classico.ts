@@ -221,19 +221,19 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
     visitarExpressaoSuper(expressao: Super): any {
         if (this.classeAtual === TipoClasse.NENHUM) {
             const erro = new ErroResolvedor(
-                expressao.palavraChave,
+                expressao.simboloChave,
                 "Não pode usar 'super' fora de uma classe."
             );
             this.erros.push(erro);
         } else if (this.classeAtual !== TipoClasse.SUBCLASSE) {
             const erro = new ErroResolvedor(
-                expressao.palavraChave,
+                expressao.simboloChave,
                 "Não se usa 'super' numa classe sem SuperClasse."
             );
             this.erros.push(erro);
         }
 
-        this.resolverLocal(expressao, expressao.palavraChave);
+        this.resolverLocal(expressao, expressao.simboloChave);
         return null;
     }
 
@@ -430,7 +430,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    resolver(declaracoes: Declaracao | Declaracao[]): RetornoResolvedor {
+    resolver(declaracoes: Construto | Declaracao | Declaracao[]): RetornoResolvedor {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {

@@ -43,3 +43,17 @@ Isso testa a modificação com os exemplos de linguagem que temos no repositóri
 ```bash
 yarn testes-unitarios
 ```
+
+### Testando o servidor do depurador
+
+Para testar o servidor do depurador, execute
+
+```bash
+yarn testes:servidor-depuracao
+```
+
+Abra outra shell (PowerShell, bash, etc.) e execute:
+
+```bash
+nc localhost 7777
+```

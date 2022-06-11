@@ -1,25 +1,46 @@
 import * as fs from 'fs';
 import * as caminho from 'path';
+
+import cyrb53 from '../depuracao/cyrb53';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { AvaliadorSintaticoInterface, LexadorInterface } from '../interfaces';
 
 import { ImportadorInterface } from "../interfaces/importador-interface";
 import { RetornoImportador } from './retorno-importador';
 
+/**
+ * O Importador é responsável por manusear arquivos. Coordena as fases de lexação, avaliação sintática, 
+ * cataloga informações do arquivo no núcleo da linguagem (através das referências `arquivosAbertos` e 
+ * `conteudoArquivosAbertos`) e aponta erros caso ocorram.
+ * 
+ */
 export class Importador implements ImportadorInterface {
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
+    arquivosAbertos: { [identificador: string]: string };
+    conteudoArquivosAbertos: { [identificador: string]: string[] };
+    depuracao: boolean;
 
-    constructor(lexador: LexadorInterface, avaliadorSintatico: AvaliadorSintaticoInterface) {
+    constructor(
+        lexador: LexadorInterface, 
+        avaliadorSintatico: AvaliadorSintaticoInterface, 
+        arquivosAbertos: { [identificador: string]: string },
+        conteudoArquivosAbertos: { [identificador: string]: string[] },
+        depuracao: boolean) 
+    {
         this.lexador = lexador;
         this.avaliadorSintatico = avaliadorSintatico;
+        this.arquivosAbertos = arquivosAbertos;
+        this.conteudoArquivosAbertos = conteudoArquivosAbertos;
+        this.depuracao = depuracao;
     }
 
     importar(caminhoRelativoArquivo: string): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-        // const hashArquivo = 
+        const hashArquivo = cyrb53(caminhoRelativoArquivo);
 
         if (!fs.existsSync(nomeArquivo)) {
+            // TODO: Terminar.
             /* throw new ErroEmTempoDeExecucao(
                 declaracao.simboloFechamento,
                 'Não foi possível encontrar arquivo importado.',
@@ -32,12 +53,17 @@ export class Importador implements ImportadorInterface {
             .toString()
             .split('\n');
 
-        const retornoLexador = this.lexador.mapear(conteudoDoArquivo);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        const retornoLexador = this.lexador.mapear(conteudoDoArquivo, hashArquivo);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
+        this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
+
+        if (this.depuracao) {
+            this.conteudoArquivosAbertos[hashArquivo] = conteudoDoArquivo;
+        }
         
         return {
             nomeArquivo,
-            codigo: conteudoDoArquivo,
+            hashArquivo,
             retornoLexador,
             retornoAvaliadorSintatico
         } as RetornoImportador;

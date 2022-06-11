@@ -1,6 +1,6 @@
-import { ErroAvaliadorSintatico } from "../avaliador-sintatico";
-import { ErroInterpretador } from "../interpretador";
-import { ErroLexador } from "../lexador/erro-lexador";
+import { ErroAvaliadorSintatico } from "../../avaliador-sintatico";
+import { ErroInterpretador } from "../../interpretador";
+import { ErroLexador } from "../../lexador/erro-lexador";
 
 export interface RetornoExecucaoInterface {
     erros: {

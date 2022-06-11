@@ -1,12 +1,12 @@
 import { Delegua } from "../../fontes/delegua";
-import { RetornoLexador } from "../../fontes/lexador/retorno-lexador";
+import { RetornoLexador } from "../../fontes/interfaces/retornos/retorno-lexador";
 
 describe('Avaliador sintático (Égua Clássico)', () => {
     describe('analisar()', () => {
         const delegua = new Delegua('egua');
 
         it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"]);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();

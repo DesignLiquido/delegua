@@ -7,7 +7,7 @@ export class Funcao extends Declaracao {
     funcao: any;
 
     constructor(simbolo: SimboloInterface, funcao: any) {
-        super(Number(simbolo.linha));
+        super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.funcao = funcao;
     }

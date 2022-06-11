@@ -1,12 +1,13 @@
+import { Construto } from "../construtos";
 import { Declaracao } from "./declaracao";
 
 
 export class Enquanto extends Declaracao {
-    condicao: any;
+    condicao: Construto;
     corpo: any;
 
-    constructor(condicao: any, corpo: any) {
-        super(0);
+    constructor(condicao: Construto, corpo: any) {
+        super(condicao.linha, 0);
         this.condicao = condicao;
         this.corpo = corpo;
     }

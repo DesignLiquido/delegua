@@ -10,21 +10,21 @@ describe('Lexador', () => {
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
-                const resultado = delegua.lexador.mapear(['']);
+                const resultado = delegua.lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
             it('Sucesso - Ponto-e-vírgula, opcional', () => {
-                const resultado = delegua.lexador.mapear([';;;;;;;;;;;;;;;;;;;;;']);
+                const resultado = delegua.lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
             it('Sucesso - Olá mundo', () => {
-                const resultado = delegua.lexador.mapear(["escreva('Olá mundo')"]);
+                const resultado = delegua.lexador.mapear(["escreva('Olá mundo')"], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(4);
@@ -39,7 +39,7 @@ describe('Lexador', () => {
             });
 
             it('Sucesso - Se', () => {
-                const resultado = delegua.lexador.mapear(["se (1 == 1) { escreva('Tautologia') }"]);
+                const resultado = delegua.lexador.mapear(["se (1 == 1) { escreva('Tautologia') }"], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(12);
@@ -59,7 +59,7 @@ describe('Lexador', () => {
             });
 
             it('Sucesso - Operação Matemática (soma e igualdade)', () => {
-                const resultado = delegua.lexador.mapear(['2 + 3 == 5']);
+                const resultado = delegua.lexador.mapear(['2 + 3 == 5'], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(5);
@@ -73,7 +73,7 @@ describe('Lexador', () => {
             });
 
             it('Sucesso - Atribução de variável e Operação Matemática (diferença, multiplicação e módulo)', () => {
-                const resultado = delegua.lexador.mapear(['var numero = 1 * 2 - 3 % 4']);
+                const resultado = delegua.lexador.mapear(['var numero = 1 * 2 - 3 % 4'], -1);
 
                 expect(resultado).toBeTruthy();
             });
@@ -81,13 +81,13 @@ describe('Lexador', () => {
 
         describe('Cenários de falha', () => {
             it('Falha léxica - texto sem fim', () => {
-                const resultado = delegua.lexador.mapear(['"texto sem fim']);
+                const resultado = delegua.lexador.mapear(['"texto sem fim'], -1);
                 expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(1);
             });
 
             it('Falha léxica - caractere inesperado', () => {
-                const resultado = delegua.lexador.mapear(['平']);
+                const resultado = delegua.lexador.mapear(['平'], -1);
                 expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(1);
             });

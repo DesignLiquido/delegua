@@ -1,14 +1,18 @@
+import { SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
-
 
 export class Super implements Construto {
     linha: number;
-    palavraChave: any;
+    hashArquivo?: number;
+
+    simboloChave: SimboloInterface;
     metodo: any;
 
-    constructor(linha: number, palavraChave: any, metodo: any) {
-        this.linha = linha;
-        this.palavraChave = palavraChave;
+    constructor(hashArquivo: number, simboloChave: SimboloInterface, metodo: any) {
+        this.linha = Number(simboloChave.linha);
+        this.hashArquivo = hashArquivo;
+
+        this.simboloChave = simboloChave;
         this.metodo = metodo;
     }
 

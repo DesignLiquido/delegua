@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../interfaces";
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -7,16 +7,20 @@ import { Construto } from "./construto";
  */
 export class AcessoMetodo implements Construto {
     linha: number;
+    hashArquivo?: number;
+
     objeto: Construto;
     simbolo: SimboloInterface;
 
-    constructor(objeto: Construto, simbolo: SimboloInterface) {
+    constructor(hashArquivo: number, objeto: Construto, simbolo: SimboloInterface) {
         this.linha = objeto.linha;
+        this.hashArquivo = hashArquivo;
+        
         this.objeto = objeto;
         this.simbolo = simbolo;
     }
 
-    aceitar(visitante: any) {
+    aceitar(visitante: InterpretadorInterface | ResolvedorInterface) {
         return visitante.visitarExpressaoAcessoMetodo(this);
     }
 }

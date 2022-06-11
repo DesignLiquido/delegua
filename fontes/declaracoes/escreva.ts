@@ -1,12 +1,13 @@
+import { Construto } from "../construtos";
 import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
 export class Escreva extends Declaracao {
-    expressao: any;
+    expressao: Construto;
 
-    constructor(expressao: any) {
-        super(expressao.linha);
+    constructor(expressao: Construto) {
+        super(expressao.linha, expressao.hashArquivo);
         this.expressao = expressao;
     }
 

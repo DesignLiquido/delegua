@@ -3,7 +3,7 @@ import { LexadorInterface, SimboloInterface } from "../interfaces";
 import tiposDeSimbolos from "../tipos-de-simbolos";
 import { ErroLexador } from "./erro-lexador";
 import palavrasReservadas from './palavras-reservadas';
-import { RetornoLexador } from "./retorno-lexador";
+import { RetornoLexador } from "../interfaces/retornos/retorno-lexador";
 import { Simbolo } from './simbolo';
 
 /**
@@ -14,6 +14,7 @@ import { Simbolo } from './simbolo';
  */
 export class Lexador implements LexadorInterface {
     codigo: string[];
+    hashArquivo: number;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
     inicioSimbolo: number;
@@ -27,6 +28,7 @@ export class Lexador implements LexadorInterface {
         this.simbolos = [];
         this.erros = [];
 
+        this.hashArquivo = -1;
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 0;
@@ -108,7 +110,7 @@ export class Lexador implements LexadorInterface {
             this.inicioSimbolo,
             this.atual
         );
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     proximoIgualA(esperado: any): boolean {
@@ -405,7 +407,7 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: string[]): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
         const inicioMapeamento: [number, number] = hrtime();
         this.erros = [];
         this.simbolos = [];
@@ -414,6 +416,7 @@ export class Lexador implements LexadorInterface {
         this.linha = 0;
 
         this.codigo = codigo || [''];
+        this.hashArquivo = hashArquivo;
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;

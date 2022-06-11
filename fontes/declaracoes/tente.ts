@@ -8,7 +8,7 @@ export class Tente extends Declaracao {
     caminhoFinalmente: any;
 
     constructor(caminhoTente: any, caminhoPegue: any, caminhoSenao: any, caminhoFinalmente: any) {
-        super(0);
+        super(0, 0);
         this.caminhoTente = caminhoTente;
         this.caminhoPegue = caminhoPegue;
         this.caminhoSenao = caminhoSenao;

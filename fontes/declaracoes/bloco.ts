@@ -6,7 +6,7 @@ export class Bloco extends Declaracao {
     declaracoes: any;
 
     constructor(declaracoes: any) {
-        super(0);
+        super(0, 0);
         this.declaracoes = declaracoes;
     }
 

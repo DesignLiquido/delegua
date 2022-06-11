@@ -3,7 +3,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos';
 import { Simbolo } from '../simbolo';
 import palavrasReservadas from '../palavras-reservadas';
 import { ErroLexador } from '../erro-lexador';
-import { RetornoLexador } from '../retorno-lexador';
+import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -84,7 +84,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
     adicionarSimbolo(tipo: any, literal: any = null) {
         const texto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha, -1));
     }
 
     proximoIgualA(esperado: any) {
@@ -337,7 +337,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
 
         this.simbolos.push(
-            new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha)
+            new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha, -1)
         );
 
         return { 

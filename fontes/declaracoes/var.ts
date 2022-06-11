@@ -7,7 +7,7 @@ export class Var extends Declaracao {
     inicializador: any;
 
     constructor(simbolo: SimboloInterface, inicializador: any) {
-        super(Number(simbolo.linha));
+        super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
     }

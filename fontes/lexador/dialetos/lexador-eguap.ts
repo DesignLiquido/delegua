@@ -5,7 +5,7 @@ import tiposDeSimbolos from "./tipos-de-simbolos-eguap";
 import { Simbolo } from "../simbolo";
 import palavrasReservadas from "../palavras-reservadas";
 import { ErroLexador } from "../erro-lexador";
-import { RetornoLexador } from "../retorno-lexador";
+import { RetornoLexador } from "../../interfaces/retornos/retorno-lexador";
 import { Pragma } from "./pragma";
 
 /**
@@ -20,6 +20,7 @@ import { Pragma } from "./pragma";
  */
 export class LexadorEguaP implements LexadorInterface {
     codigo: string[];
+    hashArquivo: number;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
     pragmas: { [linha: number]: Pragma };
@@ -120,7 +121,7 @@ export class LexadorEguaP implements LexadorInterface {
             this.inicioSimbolo,
             this.atual
         );
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     proximoIgualA(esperado: any): boolean {
@@ -167,7 +168,8 @@ export class LexadorEguaP implements LexadorInterface {
                 tiposDeSimbolos.TEXTO, 
                 textoCompleto, 
                 textoCompleto, 
-                linhaPrimeiroCaracter + 1
+                linhaPrimeiroCaracter + 1,
+                this.hashArquivo
             )
         );
     }
@@ -205,7 +207,8 @@ export class LexadorEguaP implements LexadorInterface {
                 tiposDeSimbolos.NUMERO, 
                 numeroCompleto, 
                 parseFloat(numeroCompleto), 
-                linhaPrimeiroDigito + 1
+                linhaPrimeiroDigito + 1, 
+                this.hashArquivo
             )
         );
     }
@@ -240,7 +243,8 @@ export class LexadorEguaP implements LexadorInterface {
                 tipo, 
                 textoPalavraChave, 
                 null, 
-                linhaPrimeiroCaracter + 1
+                linhaPrimeiroCaracter + 1, 
+                this.hashArquivo
             )
         );
     }
@@ -451,7 +455,7 @@ export class LexadorEguaP implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: string[]): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
         const inicioMapeamento: [number, number] = hrtime();
         this.simbolos = [];
         this.erros = [];
@@ -462,6 +466,7 @@ export class LexadorEguaP implements LexadorInterface {
         this.linha = 0;
 
         this.codigo = codigo || [''];
+        this.hashArquivo = hashArquivo;
         // Análise de indentação da primeira linha.
         this.analisarIndentacao();
 

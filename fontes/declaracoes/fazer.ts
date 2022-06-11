@@ -6,7 +6,7 @@ export class Fazer extends Declaracao {
     condicaoEnquanto: any;
 
     constructor(caminhoFazer: any, condicaoEnquanto: any) {
-        super(0);
+        super(0, 0);
         this.caminhoFazer = caminhoFazer;
         this.condicaoEnquanto = condicaoEnquanto;
     }

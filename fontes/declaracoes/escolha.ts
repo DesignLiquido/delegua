@@ -1,13 +1,14 @@
+import { Construto } from "../construtos";
 import { Declaracao } from "./declaracao";
 
 
 export class Escolha extends Declaracao {
-    condicao: any;
+    condicao: Construto;
     caminhos: any;
     caminhoPadrao: any;
 
     constructor(condicao: any, caminhos: any, caminhoPadrao: any) {
-        super(0);
+        super(condicao.linha, 0);
         this.condicao = condicao;
         this.caminhos = caminhos;
         this.caminhoPadrao = caminhoPadrao;

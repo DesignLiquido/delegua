@@ -22,6 +22,7 @@ import {
     Enquanto,
     Escolha,
     Escreva,
+    Expressao,
     Fazer,
     Funcao,
     Importar,
@@ -39,19 +40,23 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Atribuir, Construto, Super } from '../construtos';
+import { Atribuir, Construto, Literal, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
-import { RetornoInterpretador } from './retorno-interpretador';
+import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
+// import { PontoParada, PragmaExecucao } from '../depuracao';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
+ * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
-export class Interpretador implements InterpretadorInterface {
+export class Interpretador
+    implements InterpretadorInterface
+{
     importador: ImportadorInterface;
     resolvedor: ResolvedorInterface;
 
@@ -61,7 +66,8 @@ export class Interpretador implements InterpretadorInterface {
     performance: boolean;
     funcaoDeRetorno: Function = null;
     resultadoInterpretador: Array<String> = [];
-    pilhaEscoposExecucao: PilhaEscoposExecucao;
+    declaracoes: Declaracao[];
+    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     constructor(
         importador: ImportadorInterface,
@@ -74,10 +80,13 @@ export class Interpretador implements InterpretadorInterface {
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
+        
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         this.locais = new Map();
         this.erros = [];
+        this.declaracoes = [];
+        
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
@@ -93,7 +102,7 @@ export class Interpretador implements InterpretadorInterface {
         this.locais.set(expressao, profundidade);
     }
 
-    visitarExpressaoLiteral(expressao: any) {
+    visitarExpressaoLiteral(expressao: Literal) {
         return expressao.valor;
     }
 
@@ -321,7 +330,7 @@ export class Interpretador implements InterpretadorInterface {
             parametros = [];
         }
 
-        // Isso aqui completa os parâmetros não preenchidos com nulos.
+        // Completar os parâmetros não preenchidos com nulos.
         if (argumentos.length < entidadeChamada.aridade()) {
             let diferenca = entidadeChamada.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
@@ -373,7 +382,7 @@ export class Interpretador implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: any): any {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): any {
         return this.avaliar(declaracao.expressao);
     }
 
@@ -557,26 +566,26 @@ export class Interpretador implements InterpretadorInterface {
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
         const retornoInterpretador = this.interpretar(
-            conteudoImportacao.retornoAvaliadorSintatico.declaracoes
+            conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true
         );
 
-        let funcoesDeclaradas = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+        let funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
-        if (eDicionario(funcoesDeclaradas)) {
+        if (eDicionario(funcoesChamaveis)) {
             let novoModulo = new DeleguaModulo();
 
-            let chaves = Object.keys(funcoesDeclaradas);
+            let chaves = Object.keys(funcoesChamaveis);
             for (let i = 0; i < chaves.length; i++) {
                 novoModulo.componentes[chaves[i]] =
-                    funcoesDeclaradas[chaves[i]];
+                    funcoesChamaveis[chaves[i]];
             }
 
             return novoModulo;
         }
 
-        return funcoesDeclaradas;
+        return funcoesChamaveis;
     }
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
@@ -902,6 +911,12 @@ export class Interpretador implements InterpretadorInterface {
         return objeto.toString();
     }
 
+    /**
+     * Efetivamente executa uma declaração.
+     * @param declaracao A declaração a ser executada.
+     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
+     *                         pelo modo LAIR.
+     */
     executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
         const resultado: any = declaracao.aceitar(this);
         if (mostrarResultado) {
@@ -938,6 +953,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     /**
+     * Interpretação sem depurador, com medição de performance.
      * Método que efetivamente inicia o processo de interpretação. 
      * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
      * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado 

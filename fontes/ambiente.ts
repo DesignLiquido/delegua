@@ -1,5 +1,3 @@
-import { DeleguaFuncao } from "./estruturas";
-
 export class Ambiente {
     valores: any;
 

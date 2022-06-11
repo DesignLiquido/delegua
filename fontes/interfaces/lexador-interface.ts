@@ -1,4 +1,4 @@
-import { RetornoLexador } from "../lexador/retorno-lexador";
+import { RetornoLexador } from "./retornos/retorno-lexador";
 import { SimboloInterface } from "./simbolo-interface";
 
 export interface LexadorInterface {
@@ -22,5 +22,5 @@ export interface LexadorInterface {
     analisarNumero(): void;
     identificarPalavraChave(): void;
     analisarToken(): void;
-    mapear(codigo?: string[]): RetornoLexador;
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador;
 }
