@@ -219,24 +219,24 @@ export class InterpretadorComDepuracao extends Interpretador {
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
     interpretacaoApenasUmaInstrucao(escopo: number = 1) {
-        const escopoExecucaoAtual = this.pilhaEscoposExecucao.naPosicao(escopo);
+        const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual) {
             this.interpretacaoApenasUmaInstrucao(escopo + 1);
         } else {
-            this.executar(escopoExecucaoAtual.declaracoes[escopoExecucaoAtual.declaracaoAtual]);
+            this.executar(escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual]);
             if (this.adentrarEscopoAtivo) {
                 // Depurador comandou instrução 'adentrar-escopo'. 
                 // Instrução só foi realmente executada se não abriu novo bloco de escopo.
                 // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
                 this.adentrarEscopoAtivo = false;
             } else {
-                escopoExecucaoAtual.declaracaoAtual++;
+                escopoVisitado.declaracaoAtual++;
             }
         }
 
         // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (escopoExecucaoAtual.declaracoes.length === escopoExecucaoAtual.declaracaoAtual) {
+        if (escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual) {
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
         }
@@ -247,17 +247,45 @@ export class InterpretadorComDepuracao extends Interpretador {
     }
 
     /**
-     * 
+     * Interpreta restante do bloco de execução em que o ponto de parada está, conforme comando do depurador.
+     * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados. 
+     * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    /* adentrarEscopo(escopo: number = 1) {
-        const escopoExecucaoAtual = this.pilhaEscoposExecucao.naPosicao(escopo);
+    proximoESair(escopo: number = 1) {
+        const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
-        if (escopo < this.escopoAtual) {
-            this.adentrarEscopo(escopo + 1);
+        if (escopo < this.escopoAtual - 1) {
+            this.proximoESair(escopo + 1);
         } else {
-            
+            const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+
+            let retornoExecucao: any;
+            for (
+                ;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                ultimoEscopo.declaracaoAtual++
+            ) {
+                retornoExecucao = this.executar(
+                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                );
+            }
+
+            this.pilhaEscoposExecucao.removerUltimo();
+            this.escopoAtual--;
+            escopoVisitado.declaracaoAtual++;
         }
-    } */
+
+        // Se última instrução do escopo atual foi executada, descartar escopo.
+        if (escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual) {
+            this.pilhaEscoposExecucao.removerUltimo();
+            this.escopoAtual--;
+        }
+
+        if (this.pilhaEscoposExecucao.elementos() === 1) {
+            this.finalizacaoDaExecucao();
+        }
+    }
 
     /**
      * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um

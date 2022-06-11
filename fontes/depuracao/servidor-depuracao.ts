@@ -17,7 +17,7 @@ export class ServidorDepuracao {
         // Deve ser removido num futuro próximo.
         (this.instanciaDelegua.interpretador as any).pontosParada.push({
             hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
-            linha: 5
+            linha: 4
         });
         this.servidor = net.createServer();
         this.conexoes = {};
@@ -76,6 +76,8 @@ export class ServidorDepuracao {
                     break;
                 case "sair-escopo":
                     conexao.write("Recebido comando 'sair-escopo'\n");
+                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.proximoESair();
                     break;
                 case "tchau":
                     conexao.write("Recebido comando 'tchau'. Conexão será encerrada\n");
