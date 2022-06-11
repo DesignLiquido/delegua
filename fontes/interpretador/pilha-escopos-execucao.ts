@@ -1,20 +1,21 @@
 import { DeleguaFuncao } from '../estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { PilhaInterface, SimboloInterface } from '../interfaces';
+import { SimboloInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
+import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 
-export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
+export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
 
     constructor() {
         this.pilha = [];
     }
 
-    empilhar(item: EscopoExecucao) {
+    empilhar(item: EscopoExecucao): void {
         this.pilha.push(item);
     }
 
-    eVazio() {
+    eVazio(): boolean {
         return this.pilha.length === 0;
     }
 
@@ -22,7 +23,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
         return this.pilha.length;
     }
 
-    naPosicao(posicao: number) {
+    naPosicao(posicao: number): EscopoExecucao {
         return this.pilha[posicao];
     }
 
@@ -41,7 +42,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
         this.pilha[this.pilha.length-1].ambiente.valores[nomeVariavel] = valor;
     }
 
-    atribuirVariavelEm(distancia: number, simbolo: any, valor: any) {
+    atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length-distancia].ambiente;
         ambienteAncestral.valores[simbolo.lexema] = valor;
     }
@@ -61,12 +62,12 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
         );
     }
 
-    obterVariavelEm(distancia: number, nome: any) {
+    obterVariavelEm(distancia: number, nome: string): any {
         const ambienteAncestral = this.pilha[this.pilha.length-distancia].ambiente;
         return ambienteAncestral.valores[nome];
     }
 
-    obterVariavel(simbolo: SimboloInterface) {
+    obterVariavel(simbolo: SimboloInterface): any {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length-i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
@@ -83,7 +84,7 @@ export class PilhaEscoposExecucao implements PilhaInterface<EscopoExecucao> {
     /**
      * Método usado pelo depurador para obter todas as variáveis definidas.
      */
-    obterTodasVariaveis(todasVariaveis: any[] = []) {
+    obterTodasVariaveis(todasVariaveis: any[] = []): any[] {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha.at(-i).ambiente;
             todasVariaveis.push(ambiente.valores)

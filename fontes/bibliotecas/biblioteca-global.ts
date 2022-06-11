@@ -4,10 +4,10 @@ import { ObjetoDeleguaClasse } from "../estruturas/objeto-delegua-classe";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaClasse } from "../estruturas/delegua-classe";
 import { InterpretadorInterface } from "../interfaces";
-import { PilhaEscoposExecucao } from "../interpretador/pilha-escopos-execucao";
+import { PilhaEscoposExecucaoInterface } from "../interfaces/pilha-escopos-execucao-interface";
 
 
-export default function (interpretador: InterpretadorInterface, pilhaEscoposExecucao: PilhaEscoposExecucao) {
+export default function (interpretador: InterpretadorInterface, pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     // Retorna um número aleatório entre 0 e 1.
     pilhaEscoposExecucao.definirVariavel(
         "aleatorio",

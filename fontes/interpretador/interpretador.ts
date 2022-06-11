@@ -48,6 +48,7 @@ import { ImportadorInterface } from '../interfaces/importador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -66,7 +67,7 @@ export class Interpretador
     funcaoDeRetorno: Function = null;
     resultadoInterpretador: Array<String> = [];
     declaracoes: Declaracao[];
-    pilhaEscoposExecucao: PilhaEscoposExecucao;
+    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     constructor(
         importador: ImportadorInterface,

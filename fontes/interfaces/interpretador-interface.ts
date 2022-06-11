@@ -1,13 +1,14 @@
 import { Ambiente } from "../ambiente";
 import { Construto } from "../construtos";
 import { Declaracao } from "../declaracoes";
-import { PilhaEscoposExecucao } from "../interpretador/pilha-escopos-execucao";
+import { PilhaEscoposExecucaoInterface } from "./pilha-escopos-execucao-interface";
+
 import { RetornoInterpretador } from "./retornos/retorno-interpretador";
 
 export interface InterpretadorInterface {
     diretorioBase: any;
     locais: Map<Construto, number>;
-    pilhaEscoposExecucao: PilhaEscoposExecucao;
+    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     visitarExpressaoLiteral(expressao: any): any;
     avaliar(expressao: any): any;
