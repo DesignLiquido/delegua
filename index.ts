@@ -14,7 +14,7 @@ const principal = () => {
         .option(
             '-D, --depurador',
             'Habilita o depurador, permitindo depuração em um ambiente como o VSCode',
-            true
+            false
         )
         .option(
             '-p, --performance',
