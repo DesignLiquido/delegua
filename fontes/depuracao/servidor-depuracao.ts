@@ -17,10 +17,10 @@ export class ServidorDepuracao {
         // Isso é só um exemplo de definição de ponto de parada para testar
         // `Interpretador.executar()`. 
         // Deve ser removido num futuro próximo.
-        (this.instanciaDelegua.interpretador as any).pontosParada.push({
+        /* (this.instanciaDelegua.interpretador as any).pontosParada.push({
             hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
             linha: 4
-        });
+        }); */
         
         this.servidor = net.createServer();
         this.conexoes = {};
@@ -138,7 +138,13 @@ export class ServidorDepuracao {
                     break;
                 case "variaveis":
                     conexao.write("Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n");
-                    conexao.write(JSON.stringify((this.instanciaDelegua.interpretador.pilhaEscoposExecucao as any).obterTodasVariaveis()) + '\n');
+                    const todasVariaveis = interpretadorInterface.pilhaEscoposExecucao.obterTodasVariaveis([])
+                    for (let grupoVariavel of todasVariaveis) {
+                        for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
+                            conexao.write(nomeVariavel + ": " + valor + '\n');
+                        }
+                    }
+                    
                     break;
             }
         }
