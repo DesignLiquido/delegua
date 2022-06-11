@@ -50,7 +50,7 @@ export class ServidorDepuracao {
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
                     (interpretadorInterface as any).pontoDeParadaAtivo = false;
-                    interpretadorInterface.continuarInterpretacaoParcial();
+                    interpretadorInterface.continuarInterpretacao();
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
@@ -63,6 +63,8 @@ export class ServidorDepuracao {
                     break;
                 case "proximo":
                     conexao.write("Recebido comando 'proximo'\n");
+                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.interpretacaoApenasUmaInstrucao();
                     break;
                 case "remover-ponto-parada":
                     conexao.write("Recebido comando 'remover-ponto-parada'\n");
