@@ -21,6 +21,7 @@ export class ServidorDepuracao {
             hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
             linha: 4
         });
+        
         this.servidor = net.createServer();
         this.conexoes = {};
         this.contadorConexoes = 0;
@@ -38,8 +39,25 @@ export class ServidorDepuracao {
             const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
             // process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
             const interpretadorInterface = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
+            const arquivosAbertos = this.instanciaDelegua.arquivosAbertos;
             const conteudoArquivosAbertos = this.instanciaDelegua.conteudoArquivosAbertos;
 
+            const validarPontoParada = (caminhoArquivo: string, linha: number): any => {
+                const hashArquivo = cyrb53(caminhoArquivo);
+                if (!arquivosAbertos.hasOwnProperty(hashArquivo)) {
+                    conexao.write(`[adicionar-ponto-parada]: Arquivo '${caminhoArquivo}' não encontrado\n`);
+                    return { sucesso: false };
+                }
+
+                if (conteudoArquivosAbertos[hashArquivo].length < linha) {
+                    conexao.write(`[adicionar-ponto-parada]: Linha ${linha} não existente em arquivo '${caminhoArquivo}'\n`);
+                    return { sucesso: false };
+                }
+
+                return { sucesso: true, hashArquivo, linha };
+            }
+
+            let validacaoPontoParada: any;
             switch (comando[0]) {
                 case "adentrar-escopo":
                     conexao.write("Recebido comando 'adentrar-escopo'\n");
@@ -49,9 +67,19 @@ export class ServidorDepuracao {
                     break;
                 case "adicionar-ponto-parada":
                     conexao.write("Recebido comando 'adicionar-ponto-parada'\n");
-                    Object.entries(this.instanciaDelegua.arquivosAbertos).forEach(([hashArquivo, caminhoArquivo]) => { 
-                        conexao.write(hashArquivo + ': ' + caminhoArquivo + '\n');
-                    });  
+                    if (comando.length < 3) {
+                        conexao.write(`[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`);
+                        break;
+                    }
+
+                    validacaoPontoParada = validarPontoParada(comando[1], parseInt(comando[2]));
+                    if (validacaoPontoParada.sucesso) {
+                        interpretadorInterface.pontosParada.push({
+                            hashArquivo: validacaoPontoParada.hashArquivo,
+                            linha: validacaoPontoParada.linha
+                        }); 
+                    }
+
                     break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
@@ -67,7 +95,7 @@ export class ServidorDepuracao {
                         const posicaoDeclaracaoAtual: number = 
                             elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
                         let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
-                        
+
                         conexao.write(conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' - ' + 
                             this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + ':' + 
                             declaracaoAtual.linha + '\n');
@@ -85,8 +113,19 @@ export class ServidorDepuracao {
                     break;
                 case "remover-ponto-parada":
                     conexao.write("Recebido comando 'remover-ponto-parada'\n");
-                    // conexao.write("Declaração atual: " + interpretadorInterface.declaracaoAtual + '\n')
-                    // conexao.write("Objeto da declaração atual: " + JSON.stringify((this.instanciaDelegua.interpretador as any).declaracoes[interpretadorInterface.declaracaoAtual]) + '\n')
+                    if (comando.length < 3) {
+                        conexao.write(`[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`);
+                        break;
+                    }
+
+                    validacaoPontoParada = validarPontoParada(comando[1], parseInt(comando[2]));
+                    if (validacaoPontoParada.sucesso) {
+                        interpretadorInterface.pontosParada = interpretadorInterface.pontosParada.filter(
+                            (p) =>
+                                p.hashArquivo !== validacaoPontoParada.hashArquivo &&
+                                p.linha !== validacaoPontoParada.linha
+                        );
+                    }
                     break;
                 case "sair-escopo":
                     conexao.write("Recebido comando 'sair-escopo'\n");
