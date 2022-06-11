@@ -911,42 +911,6 @@ export class Interpretador
     }
 
     /**
-     * Executa um bloco de escopo, adicionando os devidos pragmas à pilha
-     * de execução.
-     * @param declaracoes Um vetor de declarações a serem executadas.
-     * @param ambiente A instância do ambiente (andar do escopo) atual.
-     * @param identificador O identificador do bloco de escopo. Normalmente o nome da
-     *                      função ou método.
-     
-    executarBloco(
-        declaracoes: Declaracao[],
-        ambiente: Ambiente,
-        identificador?: string
-    ) {
-        let anterior = this.ambiente;
-        try {
-            this.ambiente = ambiente;
-            this.pilhaExecucao.push({
-                identificador: identificador || '<Função anônima>',
-                hashArquivo: 0,
-                linha: 0
-            });
-
-            if (declaracoes && declaracoes.length) {
-                for (let i = 0; i < declaracoes.length; i++) {
-                    this.executar(declaracoes[i]);
-                }
-            }
-        } catch (erro: any) {
-            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
-            throw erro;
-        } finally {
-            this.ambiente = anterior;
-            this.pilhaExecucao.pop();
-        }
-    }
-
-    /**
      * Efetivamente executa uma declaração.
      * @param declaracao A declaração a ser executada.
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado

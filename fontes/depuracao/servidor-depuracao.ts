@@ -40,6 +40,9 @@ export class ServidorDepuracao {
             switch (comando[0]) {
                 case "adentrar-escopo":
                     conexao.write("Recebido comando 'adentrar-escopo'\n");
+                    (interpretadorInterface as any).adentrarEscopoAtivo = true;
+                    (interpretadorInterface as any).pontoDeParadaAtivo = false;
+                    interpretadorInterface.interpretacaoApenasUmaInstrucao();
                     break;
                 case "adicionar-ponto-parada":
                     conexao.write("Recebido comando 'adicionar-ponto-parada'\n");

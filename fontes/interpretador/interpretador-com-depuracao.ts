@@ -13,6 +13,7 @@ export class InterpretadorComDepuracao extends Interpretador {
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
     escopoAtual: number;
+    adentrarEscopoAtivo: boolean;
 
     constructor(
         importador: ImportadorInterface,
@@ -26,6 +27,7 @@ export class InterpretadorComDepuracao extends Interpretador {
         this.declaracaoAtual = 0;
         this.pontoDeParadaAtivo = false;
         this.escopoAtual = 0;
+        this.adentrarEscopoAtivo = false;
     }
 
     /**
@@ -33,6 +35,8 @@ export class InterpretadorComDepuracao extends Interpretador {
      * execução do código é retomada pelo depurador), retoma a execução do bloco do ponto em que havia parado.
      * Se bloco de execução ainda não foi instanciado, empilha declarações na pilha de escopos de execução,
      * cria um novo ambiente e executa as declarações empilhadas.
+     * Se depurador comandou uma instrução 'adentrar-escopo', execução do bloco não ocorre, mas
+     * ponteiros de escopo e execução são atualizados.
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
@@ -49,16 +53,17 @@ export class InterpretadorComDepuracao extends Interpretador {
                 proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
             );
             proximoEscopo.declaracaoAtual++;
+
             for (
                 ;
                 !(retornoExecucao instanceof Quebra) &&
-                proximoEscopo.declaracaoAtual <
-                    proximoEscopo.declaracoes.length;
+                proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
                 proximoEscopo.declaracaoAtual++
             ) {
                 this.pontoDeParadaAtivo = this.verificarPontoParada(
                     proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
                 );
+
                 if (this.pontoDeParadaAtivo) {
                     break;
                 }
@@ -80,7 +85,9 @@ export class InterpretadorComDepuracao extends Interpretador {
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             this.escopoAtual++;
 
-            return this.executarUltimoEscopo();
+            if (!this.adentrarEscopoAtivo) {
+                return this.executarUltimoEscopo();
+            }
         }
     }
 
@@ -206,9 +213,10 @@ export class InterpretadorComDepuracao extends Interpretador {
     }
 
     /**
-     * Interpreta apenas uma instrução a partir do ponto de parada ativo.
+     * Interpreta apenas uma instrução a partir do ponto de parada ativo, conforme comando do depurador.
      * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
      * primeiro escopo, subindo até o último elemento executado do último escopo.
+     * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
     interpretacaoApenasUmaInstrucao(escopo: number = 1) {
         const escopoExecucaoAtual = this.pilhaEscoposExecucao.naPosicao(escopo);
@@ -217,7 +225,14 @@ export class InterpretadorComDepuracao extends Interpretador {
             this.interpretacaoApenasUmaInstrucao(escopo + 1);
         } else {
             this.executar(escopoExecucaoAtual.declaracoes[escopoExecucaoAtual.declaracaoAtual]);
-            escopoExecucaoAtual.declaracaoAtual++;
+            if (this.adentrarEscopoAtivo) {
+                // Depurador comandou instrução 'adentrar-escopo'. 
+                // Instrução só foi realmente executada se não abriu novo bloco de escopo.
+                // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
+                this.adentrarEscopoAtivo = false;
+            } else {
+                escopoExecucaoAtual.declaracaoAtual++;
+            }
         }
 
         // Se última instrução do escopo atual foi executada, descartar escopo.
@@ -230,6 +245,19 @@ export class InterpretadorComDepuracao extends Interpretador {
             this.finalizacaoDaExecucao();
         }
     }
+
+    /**
+     * 
+     */
+    /* adentrarEscopo(escopo: number = 1) {
+        const escopoExecucaoAtual = this.pilhaEscoposExecucao.naPosicao(escopo);
+
+        if (escopo < this.escopoAtual) {
+            this.adentrarEscopo(escopo + 1);
+        } else {
+            
+        }
+    } */
 
     /**
      * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
