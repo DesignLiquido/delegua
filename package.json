@@ -10,7 +10,7 @@
     "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
     "testes:delegua:fibonacci": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/fibonacci.egua",
     "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
-    "testes:servidor-depuracao": "ts-node ./src/depuracao/servidor-depuracao.ts",
+    "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
     "testes-unitarios": "jest --coverage",
     "observar-testes-unitarios": "jest --watchAll",
     "release": "release-it"
