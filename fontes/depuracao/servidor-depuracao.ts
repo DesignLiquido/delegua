@@ -3,7 +3,7 @@ import { Declaracao } from '../declaracoes';
 
 import { Delegua } from '../delegua';
 import { InterpretadorComDepuracaoInterface } from '../interfaces';
-import { PilhaEscoposExecucao } from '../interpretador/pilha-escopos-execucao';
+import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import cyrb53 from './cyrb53';
 
 export class ServidorDepuracao {
@@ -88,7 +88,7 @@ export class ServidorDepuracao {
                     break;
                 case "pilha-execucao":
                     conexao.write("Recebido comando 'pilha-execucao'\n");
-                    const pilhaEscoposExecucao: PilhaEscoposExecucao = interpretadorInterface.pilhaEscoposExecucao;
+                    const pilhaEscoposExecucao: PilhaEscoposExecucaoInterface = interpretadorInterface.pilhaEscoposExecucao;
 
                     for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
                         const elementoPilha = pilhaEscoposExecucao.pilha[i];

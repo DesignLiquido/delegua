@@ -57,3 +57,8 @@ Abra outra shell (PowerShell, bash, etc.) e execute:
 ```bash
 nc localhost 7777
 ```
+
+Para desenvolvimento em Windows, caso o Netcat (`nc`) não esteja disponível, pode-se instalá-lo de duas formas:
+
+- [Cygwin](http://ptcomputador.com/Sistemas/windows/228426.html)
+- [Nmap](https://nmap.org/download#windows)

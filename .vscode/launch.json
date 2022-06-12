@@ -167,7 +167,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}\\index.ts",
-                "./testes/exemplos/fibonacci.egua"
+                "./testes/exemplos/fibonacci.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

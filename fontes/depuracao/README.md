@@ -6,17 +6,62 @@ A primeira fonte de inspiração foi [um artigo do Vassili Kaplan](https://www.c
 
 - https://zetcode.com/javascript/socket/
 
-Você pode depurar o depurador usando o VSCode. Ele inicia juntamente com o modo REPL (LAIR). 
+Você pode depurar o depurador usando o VSCode. Para isso, você precisa iniciar um dos exemplos usando o _debug_ do VSCode e adicionar manualmente um ponto de parada (_breakpoint_) no fonte em que deseja parar. 
 
-Uma forma bastante simples de testar o depurador é abrindo uma conexão usando o comando `nc` (Netcat), para qualquer sistema operacional:
+No construtor da classe `ServidorDepuracao` (`fontes\depuracao\servidor-depuracao.ts`), há o seguinte:
+
+```js
+constructor(_instanciaDelegua: Delegua) {
+    this.instanciaDelegua = _instanciaDelegua;
+    // Isso é só um exemplo de definição de ponto de parada para testar
+    // `Interpretador.executar()`. 
+    // Deve ser removido num futuro próximo.
+    /* (this.instanciaDelegua.interpretador as any).pontosParada.push({
+        hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
+        linha: 4
+    }); */
+
+    ...
+}
+```
+
+Descomente o bloco a seguir e atualize as referências (nome do arquivo, em que linha deseja parar). 
+
+```js
+constructor(_instanciaDelegua: Delegua) {
+    this.instanciaDelegua = _instanciaDelegua;
+    // Isso é só um exemplo de definição de ponto de parada para testar
+    // `Interpretador.executar()`. 
+    // Deve ser removido num futuro próximo.
+    (this.instanciaDelegua.interpretador as any).pontosParada.push({
+        hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
+        linha: 4
+    });
+
+    ...
+}
+```
+
+Se tudo estiver correto, ao executar um dos exemplos pelo debug do VSCode (neste caso, o "Importação (Delégua)"), o código irá executar até o ponto de parada e a seguinte mensagem aparecerá em console:
+
+```
+Ponto de parada encontrado.
+```
+
+Isso significa que Delégua está aguardando instruções de algum cliente de depuração para continuar. 
+
+Uma forma bastante simples de usar um cliente de depuração é abrindo uma conexão usando o comando `nc` (Netcat), para qualquer sistema operacional:
 
 ```
 nc localhost 7777
 ```
 
-Isso abrirá um _socket_ entre o [Netcat](https://pt.wikipedia.org/wiki/Netcat) e a linguagem. Uma mensagem como esta irá aparecer.
+Isso abrirá um _socket_ entre o [Netcat](https://pt.wikipedia.org/wiki/Netcat) e a linguagem. 
 
-> Nova conexão de cliente de ::1:49649
+Para desenvolvimento em Windows, caso o Netcat (`nc`) não esteja disponível, pode-se instalá-lo de duas formas:
+
+- [Cygwin](http://ptcomputador.com/Sistemas/windows/228426.html)
+- [Nmap](https://nmap.org/download#windows)
 
 ## Testando comandos
 
