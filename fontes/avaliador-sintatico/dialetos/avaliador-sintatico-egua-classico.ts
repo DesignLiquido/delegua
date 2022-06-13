@@ -372,7 +372,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         return expressao;
     }
-
+adicaoOuSubtracao
     adicionar(): Construto {
         let expressao = this.multiplicar();
 
@@ -390,7 +390,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    bitFill(): Construto {
+    bitFill(): Construto {adicaoOuSubtracao
         let expressao = this.adicionar();
 
         while (
@@ -399,7 +399,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 tiposDeSimbolos.MAIOR_MAIOR
             )
         ) {
-            const operador = this.simboloAnterior();
+            const operador = thisadicaoOuSubtracaonterior();
             const direito = this.adicionar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }

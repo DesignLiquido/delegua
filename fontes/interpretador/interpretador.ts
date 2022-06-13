@@ -102,11 +102,11 @@ export class Interpretador
         this.locais.set(expressao, profundidade);
     }
 
-    visitarExpressaoLiteral(expressao: Literal) {
+    visitarExpressaoLiteral(expressao: Literal): any {
         return expressao.valor;
     }
 
-    avaliar(expressao: Construto) {
+    avaliar(expressao: Construto): any {
         return expressao.aceitar(this);
     }
 
@@ -130,7 +130,7 @@ export class Interpretador
         );
     }
 
-    visitarExpressaoUnaria(expressao: any) {
+    visitarExpressaoUnaria(expressao: any): any {
         const direita = this.avaliar(expressao.direita);
 
         switch (expressao.operador.tipo) {
@@ -212,6 +212,7 @@ export class Interpretador
                 return Number(esquerda) <= Number(direita);
 
             case tiposDeSimbolos.SUBTRACAO:
+            case tiposDeSimbolos.MENOS_IGUAL:
                 this.verificarOperandosNumeros(
                     expressao.operador,
                     esquerda,
@@ -220,6 +221,7 @@ export class Interpretador
                 return Number(esquerda) - Number(direita);
 
             case tiposDeSimbolos.ADICAO:
+            case tiposDeSimbolos.MAIS_IGUAL:
                 if (
                     typeof esquerda === 'number' &&
                     typeof direita === 'number'
