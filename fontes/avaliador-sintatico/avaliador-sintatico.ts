@@ -394,7 +394,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.MULTIPLICACAO,
                 tiposDeSimbolos.MODULO,
                 tiposDeSimbolos.DIVISAO_IGUAL,
-                tiposDeSimbolos.MULTIPLICACAO_IGUAL
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL,
+                tiposDeSimbolos.MODULO_IGUAL
             )
         ) {
             const operador = this.simboloAnterior();
@@ -558,7 +559,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             [tiposDeSimbolos.MAIS_IGUAL, 
                 tiposDeSimbolos.MENOS_IGUAL, 
                 tiposDeSimbolos.MULTIPLICACAO_IGUAL, 
-                tiposDeSimbolos.DIVISAO_IGUAL
+                tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.MODULO_IGUAL
             ].includes(expressao.operador.tipo)) 
         {
             return new Atribuir(this.hashArquivo, expressao.esquerda.simbolo, expressao);

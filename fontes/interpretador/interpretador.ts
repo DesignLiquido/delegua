@@ -250,6 +250,7 @@ export class Interpretador
                 return Number(esquerda) * Number(direita);
 
             case tiposDeSimbolos.MODULO:
+            case tiposDeSimbolos.MODULO_IGUAL:
                 this.verificarOperandosNumeros(
                     expressao.operador,
                     esquerda,

@@ -253,6 +253,7 @@ export class Lexador implements LexadorInterface {
                 this.avancar();
                 break;
             case '-':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
@@ -263,6 +264,7 @@ export class Lexador implements LexadorInterface {
                 
                 break;
             case '+':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
@@ -278,8 +280,18 @@ export class Lexador implements LexadorInterface {
                 break;
             
             case '%':
-                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.MODULO_IGUAL);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                        break;
+                }
+                
                 break;
             case '*':
                 this.inicioSimbolo = this.atual;
