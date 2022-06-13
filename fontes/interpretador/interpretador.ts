@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 import hrtime from 'browser-process-hrtime';
 
-import tiposDeSimbolos from '../lexador/tipos-de-simbolos';
+import tiposDeSimbolos from '../tipos-de-simbolos';
 
 import { Ambiente } from '../ambiente';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -232,6 +232,7 @@ export class Interpretador
                 }
 
             case tiposDeSimbolos.DIVISAO:
+            case tiposDeSimbolos.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(
                     expressao.operador,
                     esquerda,
@@ -240,6 +241,7 @@ export class Interpretador
                 return Number(esquerda) / Number(direita);
 
             case tiposDeSimbolos.MULTIPLICACAO:
+            case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
                 this.verificarOperandosNumeros(
                     expressao.operador,
                     esquerda,

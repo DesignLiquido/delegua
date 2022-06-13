@@ -284,11 +284,18 @@ export class Lexador implements LexadorInterface {
             case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
-                if (this.simboloAtual() === '*') {
-                    this.avancar();
-                    this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                switch (this.simboloAtual()) {
+                    case '*':
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                        break;
+                    case '=':
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                        break;
                 }
 
                 break;
@@ -361,13 +368,22 @@ export class Lexador implements LexadorInterface {
 
             case '/':
                 this.avancar();
-                if (this.simboloAtual() == '/') {
-                    this.avancarParaProximaLinha();
-                } else if (this.simboloAtual() === '*') {
-                    this.encontrarFimComentarioAsterisco();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                switch (this.simboloAtual()) {
+                    case '/':
+                        this.avancarParaProximaLinha();
+                        break;
+                    case '*':
+                        this.encontrarFimComentarioAsterisco();
+                        break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                        break;
                 }
+
                 break;
 
             // Esta sessão ignora espaços em branco na tokenização.

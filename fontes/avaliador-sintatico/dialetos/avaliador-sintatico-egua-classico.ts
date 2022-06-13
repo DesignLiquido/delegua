@@ -1,4 +1,4 @@
-import tiposDeSimbolos from '../../lexador/tipos-de-simbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos';
 
 import {
     AvaliadorSintaticoInterface,
@@ -390,7 +390,7 @@ adicaoOuSubtracao
         return expressao;
     }
 
-    bitFill(): Construto {adicaoOuSubtracao
+    bitFill(): Construto {
         let expressao = this.adicionar();
 
         while (
@@ -399,7 +399,7 @@ adicaoOuSubtracao
                 tiposDeSimbolos.MAIOR_MAIOR
             )
         ) {
-            const operador = thisadicaoOuSubtracaonterior();
+            const operador = this.simboloAnterior();
             const direito = this.adicionar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
