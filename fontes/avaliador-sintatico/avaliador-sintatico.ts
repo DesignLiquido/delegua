@@ -72,9 +72,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.avancarEDevolverAnterior();
 
         while (!this.estaNoFinal()) {
-            if (this.simboloAnterior().tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
+            const tipoSimboloAtual: string = this.simboloAnterior().tipo;
+            if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
-            switch (this.simboloAtual().tipo) {
+            switch (tipoSimboloAtual) {
                 case tiposDeSimbolos.CLASSE:
                 case tiposDeSimbolos.FUNCAO:
                 case tiposDeSimbolos.FUNÇÃO:
@@ -97,17 +98,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return excecao;
     }
 
-    consumir(tipo: any, mensagemDeErro: string): SimboloInterface {
+    consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
 
-    verificarTipoSimboloAtual(tipo: any): boolean {
+    verificarTipoSimboloAtual(tipo: string): boolean {
         if (this.estaNoFinal()) return false;
         return this.simboloAtual().tipo === tipo;
     }
 
-    verificarTipoProximoSimbolo(tipo: any): boolean {
+    verificarTipoProximoSimbolo(tipo: string): boolean {
         if (this.estaNoFinal()) return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
@@ -391,7 +392,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.DIVISAO,
                 tiposDeSimbolos.MULTIPLICACAO,
-                tiposDeSimbolos.MODULO
+                tiposDeSimbolos.MODULO,
+                tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL,
+                tiposDeSimbolos.MODULO_IGUAL
             )
         ) {
             const operador = this.simboloAnterior();
@@ -402,13 +406,20 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return expressao;
     }
 
-    adicionar(): Construto {
+    /**
+     * Se símbolo de operação é `+`, `-`, `+=` ou `-=`, monta objeto `Binario` para
+     * ser avaliado pelo Interpretador.
+     * @returns Um Construto, normalmente um `Binario`, ou `Unario` se houver alguma operação unária para ser avaliada.
+     */
+    adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.ADICAO
+                tiposDeSimbolos.ADICAO,
+                tiposDeSimbolos.MAIS_IGUAL,
+                tiposDeSimbolos.MENOS_IGUAL
             )
         ) {
             const operador = this.simboloAnterior();
@@ -420,7 +431,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     bitFill(): Construto {
-        let expressao = this.adicionar();
+        let expressao = this.adicaoOuSubtracao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -429,7 +440,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.adicionar();
+            const direito = this.adicaoOuSubtracao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -537,13 +548,23 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return expressao;
     }
 
+    /**
+     * Método que resolve atribuições.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     */
     atribuir(): Construto {
         const expressao = this.ou();
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)
-        ) {
+        if (expressao instanceof Binario && 
+            [tiposDeSimbolos.MAIS_IGUAL, 
+                tiposDeSimbolos.MENOS_IGUAL, 
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL, 
+                tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.MODULO_IGUAL
+            ].includes(expressao.operador.tipo)) 
+        {
+            return new Atribuir(this.hashArquivo, expressao.esquerda.simbolo, expressao);
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simboloAnterior();
             const valor = this.atribuir();
 
@@ -976,8 +997,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             // 2. O símbolo anterior estar na mesma linha do identificador atual.
             
             const simboloAnterior = this.simboloAnterior();
-            if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR && 
-                    simboloAnterior.linha === simboloAtual.linha) {
+            if (!!simboloAnterior && 
+                    simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR && 
+                    simboloAnterior.linha === simboloAtual.linha) 
+            {
                 this.erro(this.simboloAtual(), 'Não é permitido ter dois identificadores seguidos na mesma linha.');
             }
         }
@@ -985,16 +1008,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.declaracaoExpressao();
     }
 
+    /**
+     * Caso símbolo atual seja `var`, devolve uma declaração de variável.
+     * @returns Um Construto do tipo Var.
+     */
     declaracaoDeVariavel(): Var {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome de variável.'
         );
         let inicializador = null;
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             inicializador = this.expressao();
         }
 
@@ -1128,7 +1152,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();
-        } catch (erro) {
+        } catch (erro: any) {
+            // TODO: Altíssima chance de ser uma roubada. Considerar retirar mais futuramente.
             this.sincronizar();
             return null;
         }

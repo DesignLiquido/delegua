@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 import * as fs from 'fs';
 
-import tiposDeSimbolos from '../../lexador/tipos-de-simbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos';
 import { Ambiente } from '../../ambiente';
 import { Delegua } from '../../delegua';
 import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';

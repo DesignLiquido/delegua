@@ -4,7 +4,6 @@ import { Construto, Funcao } from '../construtos';
 import {
     Classe,
     Continua,
-    Declaracao,
     Enquanto,
     Escolha,
     Escreva,
@@ -32,8 +31,8 @@ export interface AvaliadorSintaticoInterface {
     sincronizar(): void;
     consumir(tipo: any, mensagemDeErro: string): any;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
-    verificarTipoSimboloAtual(tipo: any): boolean;
-    verificarTipoProximoSimbolo(tipo: any): boolean;
+    verificarTipoSimboloAtual(tipo: string): boolean;
+    verificarTipoProximoSimbolo(tipo: string): boolean;
     simboloAtual(): SimboloInterface;
     simboloAnterior(): SimboloInterface;
     simboloNaPosicao(posicao: number): SimboloInterface;
@@ -46,7 +45,7 @@ export interface AvaliadorSintaticoInterface {
     unario(): Construto;
     exponenciacao(): Construto;
     multiplicar(): Construto;
-    adicionar(): Construto;
+    adicaoOuSubtracao(): Construto;
     bitFill(): Construto;
     bitE(): Construto;
     bitOu(): Construto;

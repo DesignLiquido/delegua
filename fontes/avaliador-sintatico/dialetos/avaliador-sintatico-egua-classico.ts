@@ -1,4 +1,4 @@
-import tiposDeSimbolos from '../../lexador/tipos-de-simbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos';
 
 import {
     AvaliadorSintaticoInterface,
@@ -372,7 +372,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         return expressao;
     }
-
+adicaoOuSubtracao
     adicionar(): Construto {
         let expressao = this.multiplicar();
 

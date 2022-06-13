@@ -7,7 +7,7 @@ import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
 import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador/interpretador';
-import tiposDeSimbolos from './lexador/tipos-de-simbolos';
+import tiposDeSimbolos from './tipos-de-simbolos';
 
 import {
     AvaliadorSintaticoInterface,
