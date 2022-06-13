@@ -392,7 +392,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.DIVISAO,
                 tiposDeSimbolos.MULTIPLICACAO,
-                tiposDeSimbolos.MODULO
+                tiposDeSimbolos.MODULO,
+                tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL
             )
         ) {
             const operador = this.simboloAnterior();
@@ -546,23 +548,22 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     /**
-     * Método que resolve os lexemas:
-     * - `=`
-     * - `+=`
-     * - `-=`
-     * - `*=`
-     * - `/=`
-     * - `%=`
-     * @returns Um construto correspondente ao tipo de atribuição do símbolo atual.
+     * Método que resolve atribuições.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
      */
     atribuir(): Construto {
-        const simboloAtual = this.simboloAtual();
-        const simboloAnterior = this.simboloAnterior();
-        // A linha abaixo resolve `+=`, `-=`, `*=`, `/=` e `%=`, deslocando o símbolo atual e o anterior.
         const expressao = this.ou();
 
-        if (simboloAtual.tipo === tiposDeSimbolos.IGUAL) {
-            this.avancarEDevolverAnterior();
+        if (expressao instanceof Binario && 
+            [tiposDeSimbolos.MAIS_IGUAL, 
+                tiposDeSimbolos.MENOS_IGUAL, 
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL, 
+                tiposDeSimbolos.DIVISAO_IGUAL
+            ].includes(expressao.operador.tipo)) 
+        {
+            return new Atribuir(this.hashArquivo, expressao.esquerda.simbolo, expressao);
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            const igual = this.simboloAnterior();
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
@@ -580,26 +581,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     valor
                 );
             }
-            this.erro(simboloAnterior, 'Tarefa de atribuição inválida');
-        } 
-        
-        if ([tiposDeSimbolos.MAIS_IGUAL, tiposDeSimbolos.MENOS_IGUAL, tiposDeSimbolos.MULTIPLICACAO_IGUAL, tiposDeSimbolos.DIVISAO_IGUAL].includes(simboloAtual.tipo)) {
-            if (expressao instanceof Variavel) {
-                const simbolo = expressao.simbolo;
-                return new Atribuir(this.hashArquivo, simbolo, expressao);
-            } else if (expressao instanceof AcessoMetodo) {
-                const get = expressao;
-                return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, expressao);
-            } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
-                    this.hashArquivo, 
-                    0, 
-                    expressao.entidadeChamada,
-                    expressao.indice,
-                    expressao
-                );
-            }
-            this.erro(simboloAnterior, 'Tarefa de atribuição inválida');
+            this.erro(igual, 'Tarefa de atribuição inválida');
         }
 
         return expressao;
@@ -1024,16 +1006,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.declaracaoExpressao();
     }
 
+    /**
+     * Caso símbolo atual seja `var`, devolve uma declaração de variável.
+     * @returns Um Construto do tipo Var.
+     */
     declaracaoDeVariavel(): Var {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome de variável.'
         );
         let inicializador = null;
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             inicializador = this.expressao();
         }
 
