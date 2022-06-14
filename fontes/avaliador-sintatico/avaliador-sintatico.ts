@@ -244,10 +244,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
         }
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO))
-            return this.corpoDaFuncao('função');
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO))
-            return this.corpoDaFuncao('funcao');
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
@@ -1133,17 +1129,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     declaracao(): any {
         try {
             if (
-                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO) &&
-                this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
+                (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) 
+                || this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO))
+                && this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
-                this.consumir(tiposDeSimbolos.FUNÇÃO, null);
-                return this.funcao('função');
-            }
-            if (
-                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) &&
-                this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
-            ) {
-                this.consumir(tiposDeSimbolos.FUNCAO, null);
+                this.avancarEDevolverAnterior()
                 return this.funcao('funcao');
             }
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL))
