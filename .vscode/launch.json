@@ -197,6 +197,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}\\index.ts",
+                "--depurador",
                 "./testes/exemplos/importacao/importacao-1.egua"
             ],
             "runtimeExecutable": "node",
