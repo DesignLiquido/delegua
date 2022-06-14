@@ -204,10 +204,10 @@ describe('Interpretador', () => {
                 });
             });
 
-            describe.skip('Declaração e chamada de funções', () => {
+            describe('Declaração e chamada de funções', () => {
                 it('Fibonacci', () => {
                     const codigo = [
-                        "funcao fibonacci(n) {",
+                        "função fibonacci(n) {",
                         "    se (n == 0) {",
                         "      retorna(0);",
                         "    }",
