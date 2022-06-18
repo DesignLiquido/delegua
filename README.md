@@ -64,6 +64,7 @@ delegua --dialeto egua
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki). 
 - Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
 
-## Contribuições
+## Contribuições e Comunidade
 
 * Para contribuições, por favor, leia o nosso [Guia de Contribuição](.github/CONTRIBUTING.md) antes de submeter uma Pull Request.
+* Temos um grupo no Discord: https://discord.gg/ZdKaP9M4
