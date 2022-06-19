@@ -166,11 +166,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return new Super(this.hashArquivo, simboloChave, metodo);
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.COLCHETE_ESQUERDO
-            )
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
 
             if (
@@ -181,11 +177,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
             }
 
-            while (
-                !this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.COLCHETE_DIREITO
-                )
-            ) {
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 const valor = this.atribuir();
                 valores.push(valor);
                 if (
@@ -202,25 +194,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
             const chaves = [];
             const valores = [];
 
-            if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.CHAVE_DIREITA
-                )
-            ) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
                 return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), [], []);
             }
 
-            while (
-                !this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.CHAVE_DIREITA
-                )
-            ) {
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
                 let chave = this.atribuir();
                 this.consumir(
                     tiposDeSimbolos.DOIS_PONTOS,
@@ -231,9 +213,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 chaves.push(chave);
                 valores.push(valor);
 
-                if (
-                    this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA
-                ) {
+                if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
                     this.consumir(
                         tiposDeSimbolos.VIRGULA,
                         'Esperado vírgula antes da próxima expressão.'
@@ -244,6 +224,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
         }
 
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO, tiposDeSimbolos.FUNCAO)) 
+            return this.corpoDaFuncao(this.simboloAnterior().lexema);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
@@ -253,8 +235,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
             return new Isto(this.hashArquivo, Number(simboloAtual.linha), this.simboloAnterior());
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
+        if (this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.TEXTO
             )
@@ -263,17 +244,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.hashArquivo, this.simboloAnterior());
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.PARENTESE_ESQUERDO
-            )
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             let expressao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,

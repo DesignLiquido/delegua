@@ -33,5 +33,24 @@ describe('Avaliador sintático', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
         });
+
+        describe('Funções Anônimas', () => {
+            it('Função anônima com mais de 255 parâmetros', () => {
+                let acumulador = "";
+                for (let i = 1; i <= 256; i++) {
+	                acumulador += "a" + i + ", "
+                }
+
+                acumulador = acumulador.substring(0, acumulador.length - 2);
+
+                const funcaoCom256Argumentos = "var f = funcao(" + acumulador + ") {}"
+                const retornoLexador = delegua.lexador.mapear([funcaoCom256Argumentos], -1);
+                const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros[0].message).toBe('Não pode haver mais de 255 parâmetros');
+            })
+        });
     });
 });
