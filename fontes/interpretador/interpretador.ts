@@ -566,7 +566,12 @@ export class Interpretador
             !caminhoTotal.endsWith('.egua') &&
             !caminhoTotal.endsWith('.delegua')
         ) {
-            return carregarBibliotecaNode(caminhoRelativo);
+            try {
+                return carregarBibliotecaNode(caminhoRelativo);
+            } catch (erro: any) {
+                this.erros.push(erro);
+                return null;
+            }
         }
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);

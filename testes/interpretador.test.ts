@@ -84,6 +84,16 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Importar', () => {
+                it('Importar biblioteca externa', () => {
+                    const retornoLexador = delegua.lexador.mapear(["var commander = importar('commander')"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });  
+            });
+
             describe('Operações matemáticas', () => {
                 it('Operações matemáticas - Trivial', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
@@ -268,6 +278,16 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
                 });
+            });
+
+            describe('Importar', () => {
+                it('Importar blblioteca externa que não existe', () => {
+                    const retornoLexador = delegua.lexador.mapear(["var naoexiste = importar('naoexiste')"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                })
             });
         });
     });

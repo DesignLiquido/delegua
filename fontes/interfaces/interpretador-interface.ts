@@ -1,6 +1,6 @@
 import { Ambiente } from "../ambiente";
 import { Construto } from "../construtos";
-import { Declaracao } from "../declaracoes";
+import { Declaracao, Importar } from "../declaracoes";
 import { PilhaEscoposExecucaoInterface } from "./pilha-escopos-execucao-interface";
 
 import { RetornoInterpretador } from "./retornos/retorno-interpretador";
@@ -31,7 +31,7 @@ export interface InterpretadorInterface {
     visitarExpressaoEscolha(declaracao: any): any;
     visitarExpressaoTente(declaracao: any): any;
     visitarExpressaoEnquanto(declaracao: any): any;
-    visitarExpressaoImportar(declaracao: any): any;
+    visitarExpressaoImportar(declaracao: Importar): any;
     visitarExpressaoEscreva(declaracao: any): any;
     executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): void;
     visitarExpressaoBloco(declaracao: any): null;
