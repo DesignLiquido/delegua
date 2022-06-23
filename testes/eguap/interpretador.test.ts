@@ -220,7 +220,6 @@ describe('Interpretador (EguaP)', () => {
                         "    var f1 = fibonacci(n1)",
                         "    var f2 = fibonacci(n2)",
                         "    retorna(f1 + f2)",
-                        "}",
                         "var a = fibonacci(0)",
                         "escreva(a)",
                         "a = fibonacci(1)",
