@@ -6,7 +6,7 @@ describe('Avaliador sintático (EguaP)', () => {
         const delegua = new Delegua('eguap');
 
         it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"], -1);
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo')"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();

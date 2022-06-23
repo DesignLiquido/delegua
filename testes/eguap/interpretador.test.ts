@@ -120,7 +120,13 @@ describe('Interpretador (EguaP)', () => {
 
             describe('Condicionais', () => {
                 it('Condicionais - condição verdadeira', () => {
-                    const retornoLexador = delegua.lexador.mapear(["se (1 < 2) { escreva('Um menor que dois'); } senão { escreva('Nunca será executado'); }"], -1);
+                    const codigo = [
+                        "se (1 < 2):",
+                        "   escreva('Um menor que dois'):",
+                        "senao:",
+                        "   escreva('Nunca será executado')",
+                    ];
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -129,7 +135,13 @@ describe('Interpretador (EguaP)', () => {
                 });
 
                 it('Condicionais - condição falsa', () => {
-                    const retornoLexador = delegua.lexador.mapear(["se (1 > 2) { escreva('Nunca acontece'); } senão { escreva('Um não é maior que dois'); }"], -1);
+                    const codigo = [
+                        "se (1 > 2):",
+                        "   escreva('Nunca acontece'):",
+                        "senão:",
+                        "   escreva('Um não é maior que dois')",
+                    ];
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -158,7 +170,11 @@ describe('Interpretador (EguaP)', () => {
                 });
     
                 it('Laços de repetição - para', () => {
-                    const retornoLexador = delegua.lexador.mapear(["para (var i = 0; i < 10; i = i + 1) { escreva(i); }"], -1);
+                    const codigo = [
+                        "para (var i = 0; i < 10; i = i + 1):",
+                        "   escreva(i)",
+                    ];
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -170,20 +186,16 @@ describe('Interpretador (EguaP)', () => {
             describe('Classes', () => {
                 it('Trivial', () => {
                     const codigo = [
-                        "classe Animal {",
-                        "    correr() {",
-                        "        escreva('Correndo Loucamente');",
-                        "    }",
-                        "}",
-                        "classe Cachorro herda Animal {",
-                        "    latir() {",
-                        "        escreva('Au Au Au Au');",
-                        "    }",
-                        "}",
-                        "var nomeDoCachorro = Cachorro();",
-                        "nomeDoCachorro.correr();",
-                        "nomeDoCachorro.latir();",
-                        "escreva('Classe: OK!');"
+                        "classe Animal:",
+                        "    correr():",
+                        "        escreva('Correndo Loucamente')",
+                        "classe Cachorro herda Animal:",
+                        "    latir():",
+                        "        escreva('Au Au Au Au')",
+                        "var nomeDoCachorro = Cachorro()",
+                        "nomeDoCachorro.correr()",
+                        "nomeDoCachorro.latir()",
+                        "escreva('Classe: OK!')"
                     ];
                     
                     const retornoLexador = delegua.lexador.mapear(codigo, -1);
@@ -196,33 +208,31 @@ describe('Interpretador (EguaP)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
-                it.skip('Fibonacci', () => {
+                it('Fibonacci', () => {
                     const codigo = [
-                        "função fibonacci(n) {",
-                        "    se (n == 0) {",
-                        "      retorna(0);",
-                        "    }",
-                        "    se (n == 1) {",
-                        "      retorna(1);",
-                        "    }",
-                        "    var n1 = n - 1;",
-                        "    var n2 = n - 2;",
-                        "    var f1 = fibonacci(n1);",
-                        "    var f2 = fibonacci(n2);",
-                        "    retorna(f1 + f2);",
+                        "função fibonacci(n):",
+                        "    se (n == 0):",
+                        "       retorna(0)",
+                        "    se (n == 1):",
+                        "       retorna(1)",
+                        "    var n1 = n - 1",
+                        "    var n2 = n - 2",
+                        "    var f1 = fibonacci(n1)",
+                        "    var f2 = fibonacci(n2)",
+                        "    retorna(f1 + f2)",
                         "}",
-                        "var a = fibonacci(0);",
-                        "escreva(a);",
-                        "a = fibonacci(1);",
-                        "escreva(a);",
-                        "a = fibonacci(2);",
-                        "escreva(a);",
-                        "a = fibonacci(3);",
-                        "escreva(a);",
-                        "a = fibonacci(4);",
-                        "escreva(a);",
-                        "a = fibonacci(5);",
-                        "escreva(a);"
+                        "var a = fibonacci(0)",
+                        "escreva(a)",
+                        "a = fibonacci(1)",
+                        "escreva(a)",
+                        "a = fibonacci(2)",
+                        "escreva(a)",
+                        "a = fibonacci(3)",
+                        "escreva(a)",
+                        "a = fibonacci(4)",
+                        "escreva(a)",
+                        "a = fibonacci(5)",
+                        "escreva(a)"
                     ];
                     const retornoLexador = delegua.lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
