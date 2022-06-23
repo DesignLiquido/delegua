@@ -13,6 +13,18 @@ describe('Avaliador sintático (EguaP)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
+        it('Erro - Identação', () => {
+            const codigo = [
+                "classe Cachorro:",
+                "latir():",
+                "escreva('Erro')"
+            ];
+            const retornoLexador = delegua.lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+        });
+
         // it.skip('Falha - Vetor vazio', () => {
         //     expect(() => delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador)).toThrow(TypeError);
         // });
