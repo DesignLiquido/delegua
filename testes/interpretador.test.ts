@@ -281,7 +281,7 @@ describe('Interpretador', () => {
             });
 
             describe('Importar', () => {
-                it('Importar blblioteca externa que não existe', () => {
+                it('Importar biblioteca externa que não existe', () => {
                     const retornoLexador = delegua.lexador.mapear(["var naoexiste = importar('naoexiste')"], -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
