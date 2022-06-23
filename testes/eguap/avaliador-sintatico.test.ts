@@ -13,16 +13,16 @@ describe('Avaliador sintático (EguaP)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        it.skip('Falha - Vetor vazio', () => {
-            expect(() => delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador)).toThrow(TypeError);
-        });
+        // it.skip('Falha - Vetor vazio', () => {
+        //     expect(() => delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador)).toThrow(TypeError);
+        // });
 
-        it.skip('Falha - Undefined', () => {
-            expect(() => delegua.avaliadorSintatico.analisar(undefined)).toThrow(TypeError);
-        });
+        // it.skip('Falha - Undefined', () => {
+        //     expect(() => delegua.avaliadorSintatico.analisar(undefined)).toThrow(TypeError);
+        // });
 
-        it.skip('Falha - Null', () => {
-            expect(() => delegua.avaliadorSintatico.analisar(null)).toThrow(TypeError);
-        });
+        // it.skip('Falha - Null', () => {
+        //     expect(() => delegua.avaliadorSintatico.analisar(null)).toThrow(TypeError);
+        // });
     });
 });
