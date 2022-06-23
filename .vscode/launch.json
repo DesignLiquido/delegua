@@ -54,7 +54,22 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Todos os Testes (Delégua)",
+            "name": "Todos os Testes de Delégua",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}\\index.ts",
+                "--depurador",
+                "./testes/exemplos/index.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Todos os Testes de Égua (Delégua)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -69,7 +84,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Todos os Testes (Égua Clássico)",
+            "name": "Todos os Testes de Égua (Égua Clássico)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",

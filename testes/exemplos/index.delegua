@@ -1,0 +1,92 @@
+escreva('testando aspas simples');
+escreva('ab' + 'cd');
+
+escreva('testando aspas duplas');
+escreva("ab" + "cd");
+
+// Comentários
+
+escreva(1 + 2);
+var x = 1;
+escreva(x);
+var z = "1";
+escreva(z);
+escreva(1 == 1);
+escreva(1 == "1");
+escreva(1 == '1');
+
+// Nulo
+var variavel;
+escreva(variavel);
+var nula = nulo;
+escreva(nula);
+
+// Booleanos
+var variavel1 = verdadeiro;
+var variavel0 = falso;
+escreva(variavel1);
+escreva(variavel0);
+
+var a = 2;
+se (a == 1) {
+  escreva('correspondente 1');
+} senao se (a == 2) {
+  escreva('correspondente 2');
+} senao {
+  escreva('sem valor correspondente');
+}
+
+escolha (2) {
+    caso "1":
+        escreva("correspondente à opção 1");
+    caso 1:
+        escreva("correspondente à opção 2"); 
+    padrao:
+        escreva("Sem opção correspondente");
+}
+
+tente {
+    escreva("sucesso");
+} pegue {
+    escreva("pegue");
+} finalmente {
+    escreva("pronto");
+}
+
+var funcaoParaMapear = função(a) { 
+  retorna a * 2; 
+};
+escreva(mapear([5, 3], funcaoParaMapear));
+
+var numeroAleatorio = aleatorio();
+escreva(numeroAleatorio);
+
+var numeroAleatorio = aleatorioEntre(1,9);
+escreva(numeroAleatorio);
+
+var testeTexto = "111";
+escreva(111 + inteiro(testeTexto));
+
+var array = [1, 2, 3];
+var fn = funcao(valor) {
+  retorna valor * 2;
+};
+escreva(mapear(array, fn));
+
+// Usando classe, construtor e isto
+classe Teste {
+  construtor() {
+    escreva(isto);
+  }
+}
+var teste = Teste();
+
+// Usando herança
+classe Animal {
+  corre() {
+    escreva("correndo");
+  }
+}
+classe Cachorro herda Animal {}
+var thor = Cachorro();
+thor.corre();
