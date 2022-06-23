@@ -1,3 +1,5 @@
+import { Literal } from '../fontes/construtos';
+import { Importar } from '../fontes/declaracoes';
 import { Delegua } from '../fontes/delegua';
 
 describe('Interpretador', () => {
@@ -269,6 +271,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
                 });
             });
+        });
+
+        describe('Importar', () => {
+            it('Importar módulo', () => {
+
+                const importar = new Importar(new Literal(0, 0, './../../testes/importar-modulo/importar'), '')
+                var modulo = delegua.interpretador.visitarExpressaoImportar(importar);
+        
+                expect(modulo.importarFuncaoDelegua).toBeTruthy()
+            });
+
+            // it('Importar módulo que não existe', () => {
+            //     const importar = new Importar(new Literal(0, 0, 'lodash abc'), '')
+
+            //     expect(delegua.interpretador.visitarExpressaoImportar(importar)).toThrow()
+            // });   
         });
     });
 });
