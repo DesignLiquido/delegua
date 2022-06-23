@@ -1,5 +1,3 @@
-import { Literal } from '../fontes/construtos';
-import { Importar } from '../fontes/declaracoes';
 import { Delegua } from '../fontes/delegua';
 
 describe('Interpretador', () => {
@@ -84,6 +82,16 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+            });
+
+            describe('Importar', () => {
+                it('Importar biblioteca externa', () => {
+                    const retornoLexador = delegua.lexador.mapear(["var commander = importar('commander')"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });  
             });
 
             describe('Operações matemáticas', () => {
@@ -271,22 +279,16 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
                 });
             });
-        });
 
-        describe('Importar', () => {
-            it('Importar módulo', () => {
+            describe('Importar', () => {
+                it('Importar blblioteca externa que não existe', () => {
+                    const retornoLexador = delegua.lexador.mapear(["var naoexiste = importar('naoexiste')"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                const importar = new Importar(new Literal(0, 0, './../../testes/importar-modulo/importar'), '')
-                var modulo = delegua.interpretador.visitarExpressaoImportar(importar);
-        
-                expect(modulo.importarFuncaoDelegua).toBeTruthy()
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                })
             });
-
-            // it('Importar módulo que não existe', () => {
-            //     const importar = new Importar(new Literal(0, 0, 'lodash abc'), '')
-
-            //     expect(delegua.interpretador.visitarExpressaoImportar(importar)).toThrow()
-            // });   
         });
     });
 });
