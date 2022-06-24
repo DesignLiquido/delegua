@@ -213,6 +213,12 @@ export class InterpretadorComDepuracao
         }
 
         let retornoExecucao: any;
+        // Primeira execução sempre ocorre, independente de pontos de parada.
+        retornoExecucao = this.executar(
+            primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
+        );
+        primeiroEscopo.declaracaoAtual++;
+        
         for (
             ;
             !(retornoExecucao instanceof Quebra) &&

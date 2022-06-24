@@ -7,6 +7,7 @@ import { RetornoInterpretador } from "./retornos/retorno-interpretador";
 
 export interface InterpretadorInterface {
     diretorioBase: any;
+    funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 

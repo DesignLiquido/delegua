@@ -14,7 +14,9 @@ export class ServidorDepuracao {
 
     constructor(_instanciaDelegua: Delegua) {
         this.instanciaDelegua = _instanciaDelegua;
-        this.instanciaDelegua.funcaoDeRetorno = this.escreverSaidaParaTodosClientes;
+        this.instanciaDelegua.funcaoDeRetorno = this.escreverSaidaParaTodosClientes.bind(this);
+        const interpretador = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
+        interpretador.funcaoDeRetorno = this.escreverSaidaParaTodosClientes.bind(this);
         // Isso é só um exemplo de definição de ponto de parada para testar
         // `Interpretador.executar()`. 
         // Deve ser removido num futuro próximo.
