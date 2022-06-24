@@ -74,7 +74,7 @@ describe('Biblioteca Global', () => {
     });
 
     describe('ordenar()', () => {        
-        it.skip('Sucesso', () => {
+        it('Sucesso', () => {
             const codigo = [
                 "ordenar([5, 12, 10, 1, 4, 25, 33, 9, 7, 6, 2])"
             ];

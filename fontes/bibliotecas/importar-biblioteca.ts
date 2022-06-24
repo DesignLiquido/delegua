@@ -7,7 +7,7 @@ const carregarBiblioteca = function (nomeDaBiblioteca: any, caminhoDaBiblioteca:
 
     try {
         dadosDoModulo = require(caminhoDaBiblioteca);
-    } catch (erro) {
+    } catch (erro: any) {
         throw new ErroEmTempoDeExecucao(nomeDaBiblioteca, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
     }
 
