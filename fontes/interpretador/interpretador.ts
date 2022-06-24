@@ -18,6 +18,7 @@ import {
 import {
     Bloco,
     Classe,
+    Continua,
     Declaracao,
     Enquanto,
     Escolha,
@@ -640,7 +641,7 @@ export class Interpretador
         return null;
     }
 
-    visitarExpressaoContinua(declaracao?: any): ContinuarQuebra {
+    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         return new ContinuarQuebra();
     }
 
@@ -878,7 +879,7 @@ export class Interpretador
         return valores;
     }
 
-    visitarExpressaoSuper(expressao: Super) {
+    visitarExpressaoSuper(expressao: Super): any {
         const distancia = this.locais.get(expressao);
         const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
 
