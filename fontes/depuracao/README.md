@@ -104,6 +104,15 @@ A primeira linha da resposta é reservada para informações sobre a resposta em
 
 `--- pilha-execucao-resposta ---` e `--- fim-pilha-execucao-resposta ---` são marcadores que indicam quando a resposta do comando (que é multilinha) começou e terminou, respectivamente.
 
+### `proximo`
+
+Executa uma instrução e devolve para os clientes de depuração o seguinte:
+
+```
+Recebido comando 'proximo'
+--- proximo-resposta ---
+```
+
 ### `variáveis`
 
 Ao receber o comando, o depurador devolve o nome, o tipo e o valor da variável quando possível.

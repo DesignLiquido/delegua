@@ -125,9 +125,11 @@ export class ServidorDepuracao {
                     conexao.write(linhasResposta);
                     break;
                 case "proximo":
-                    conexao.write("Recebido comando 'proximo'\n");
+                    linhasResposta += "Recebido comando 'proximo'\n";
+                    linhasResposta += '--- proximo-resposta ---\n';
                     interpretadorInterface.pontoDeParadaAtivo = false;
                     interpretadorInterface.interpretacaoApenasUmaInstrucao();
+                    conexao.write(linhasResposta);
                     break;
                 case "remover-ponto-parada":
                     linhasResposta += "Recebido comando 'remover-ponto-parada'\n";
