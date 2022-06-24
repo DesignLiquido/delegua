@@ -14,6 +14,7 @@ export class ServidorDepuracao {
 
     constructor(_instanciaDelegua: Delegua) {
         this.instanciaDelegua = _instanciaDelegua;
+        this.instanciaDelegua.funcaoDeRetorno = this.escreverSaidaParaTodosClientes;
         // Isso é só um exemplo de definição de ponto de parada para testar
         // `Interpretador.executar()`. 
         // Deve ser removido num futuro próximo.
@@ -154,13 +155,16 @@ export class ServidorDepuracao {
                     break;
                 case "variaveis":
                     linhasResposta += "Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n";
-                    const todasVariaveis = interpretadorInterface.pilhaEscoposExecucao.obterTodasVariaveis([])
+                    const todasVariaveis = interpretadorInterface.pilhaEscoposExecucao.obterTodasVariaveis([]);
+
+                    linhasResposta += '--- variaveis-resposta ---\n';
                     for (let grupoVariavel of todasVariaveis) {
                         for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
-                            linhasResposta += nomeVariavel + ": " + valor + '\n';
+                            linhasResposta += nomeVariavel + " :: " + Object.getPrototypeOf(valor).constructor.name + " :: " + valor + '\n';
                         }
                     }
-                    
+
+                    linhasResposta += '--- fim-variaveis-resposta ---\n';
                     conexao.write(linhasResposta);
                     break;
             }
@@ -188,6 +192,12 @@ export class ServidorDepuracao {
         this.servidor.listen(7777);
 
         return this.servidor.address() as net.AddressInfo;
+    }
+
+    escreverSaidaParaTodosClientes(mensagem: string) {
+        Object.keys(this.conexoes).forEach((chave) => {
+            this.conexoes[chave].write('Enviando mensagem de saída\n--- mensagem-saida ---\n' + mensagem + '\n');
+        });
     }
 
     finalizarServidorDepuracao(): void {

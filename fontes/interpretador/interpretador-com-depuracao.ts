@@ -208,6 +208,9 @@ export class InterpretadorComDepuracao
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
         --primeiroEscopo.declaracaoAtual;
+        if (primeiroEscopo.declaracaoAtual < 0) {
+            primeiroEscopo.declaracaoAtual = 0;
+        }
 
         let retornoExecucao: any;
         for (

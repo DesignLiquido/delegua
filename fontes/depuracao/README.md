@@ -103,3 +103,7 @@ escreva('testando aspas simples'); --- D:\\GitHub\\delegua\\testes\\exemplos\\in
 A primeira linha da resposta é reservada para informações sobre a resposta em si. Neste caso, temos simplesmente `Recebido comando 'pilha-execucao'`.
 
 `--- pilha-execucao-resposta ---` e `--- fim-pilha-execucao-resposta ---` são marcadores que indicam quando a resposta do comando (que é multilinha) começou e terminou, respectivamente.
+
+### `variáveis`
+
+Ao receber o comando, o depurador devolve o nome, o tipo e o valor da variável quando possível.
