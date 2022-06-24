@@ -84,3 +84,22 @@ Os comandos implementados até então são:
 adicionar-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
 remover-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
 ```
+
+## Resposta dos comandos
+
+Para cada comando, o _socket_ responde da seguinte forma:
+
+### `pilha-execucao`
+
+Quando há ponto de parada válido, o resultado é algo como:
+
+```
+Recebido comando 'pilha-execucao'
+--- pilha-execucao-resposta ---
+escreva('testando aspas simples'); --- D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua::1
+--- fim-pilha-execucao-resposta ---
+```
+
+A primeira linha da resposta é reservada para informações sobre a resposta em si. Neste caso, temos simplesmente `Recebido comando 'pilha-execucao'`.
+
+`--- pilha-execucao-resposta ---` e `--- fim-pilha-execucao-resposta ---` são marcadores que indicam quando a resposta do comando (que é multilinha) começou e terminou, respectivamente.

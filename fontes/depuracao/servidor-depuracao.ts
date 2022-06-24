@@ -62,6 +62,7 @@ export class ServidorDepuracao {
             }
 
             let validacaoPontoParada: any;
+            let linhasResposta: string = "";
             switch (comando[0]) {
                 case "adentrar-escopo":
                     conexao.write("Recebido comando 'adentrar-escopo'\n");
@@ -91,27 +92,34 @@ export class ServidorDepuracao {
                     interpretadorInterface.continuarInterpretacao();
                     break;
                 case "pilha-execucao":
-                    conexao.write("Recebido comando 'pilha-execucao'\n");
+                    linhasResposta += "Recebido comando 'pilha-execucao'\n";
                     const pilhaEscoposExecucao: PilhaEscoposExecucaoInterface = interpretadorInterface.pilhaEscoposExecucao;
 
+                    linhasResposta += '--- pilha-execucao-resposta ---\n';
                     for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
                         const elementoPilha = pilhaEscoposExecucao.pilha[i];
                         const posicaoDeclaracaoAtual: number = 
                             elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
                         let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
 
-                        conexao.write(conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' - ' + 
-                            this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + ':' + 
-                            declaracaoAtual.linha + '\n');
+                        linhasResposta += conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
+                            this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
+                            declaracaoAtual.linha + '\n';
+                        
                     }
-                    
+
+                    linhasResposta += '--- fim-pilha-execucao-resposta ---\n';
+                    conexao.write(linhasResposta);
+
                     break;
                 case "pontos-parada":
-                    conexao.write("Recebido comando 'pontos-parada'\n");
+                    linhasResposta += "Recebido comando 'pontos-parada'\n";
                     for (let pontoParada of interpretadorInterface.pontosParada) {
-                        conexao.write(this.instanciaDelegua.arquivosAbertos[pontoParada.hashArquivo] + ": " + 
-                            pontoParada.linha + "\n");
+                        linhasResposta += this.instanciaDelegua.arquivosAbertos[pontoParada.hashArquivo] + ": " + 
+                            pontoParada.linha + "\n";
                     }
+
+                    conexao.write(linhasResposta);
                     break;
                 case "proximo":
                     conexao.write("Recebido comando 'proximo'\n");
@@ -119,9 +127,10 @@ export class ServidorDepuracao {
                     interpretadorInterface.interpretacaoApenasUmaInstrucao();
                     break;
                 case "remover-ponto-parada":
-                    conexao.write("Recebido comando 'remover-ponto-parada'\n");
+                    linhasResposta += "Recebido comando 'remover-ponto-parada'\n";
                     if (comando.length < 3) {
-                        conexao.write(`[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`);
+                        linhasResposta += `[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`;
+                        conexao.write(linhasResposta);
                         break;
                     }
 
@@ -144,14 +153,15 @@ export class ServidorDepuracao {
                     conexao.destroy();
                     break;
                 case "variaveis":
-                    conexao.write("Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n");
+                    linhasResposta += "Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n";
                     const todasVariaveis = interpretadorInterface.pilhaEscoposExecucao.obterTodasVariaveis([])
                     for (let grupoVariavel of todasVariaveis) {
                         for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
-                            conexao.write(nomeVariavel + ": " + valor + '\n');
+                            linhasResposta += nomeVariavel + ": " + valor + '\n';
                         }
                     }
                     
+                    conexao.write(linhasResposta);
                     break;
             }
         }
