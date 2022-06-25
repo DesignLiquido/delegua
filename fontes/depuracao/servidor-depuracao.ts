@@ -91,7 +91,13 @@ export class ServidorDepuracao {
                 case "avaliar":
                     comando.shift();
                     const expressaoAvaliar = comando.join(' ');
-
+                    const retornoInterpretacao = this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
+                    linhasResposta += "Recebido comando 'avaliar'\n";
+                    linhasResposta += '--- avaliar-resposta ---\n';
+                    linhasResposta += retornoInterpretacao.resultado + '\n';
+                    linhasResposta += '--- fim-avaliar-resposta ---\n';
+                    conexao.write(linhasResposta);
+                    break;
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
                     interpretadorInterface.pontoDeParadaAtivo = false;

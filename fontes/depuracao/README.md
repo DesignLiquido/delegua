@@ -89,6 +89,28 @@ remover-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
 
 Para cada comando, o _socket_ responde da seguinte forma:
 
+### `avaliar`
+
+Se texto após a palavra `avaliar` for sintaticamente correto e executar normalmente, este comando resolve o resultado da execução da seguinte forma:
+
+**Exemplo**: Avaliando `2 + 2`
+
+```
+Recebido comando 'avaliar'  
+--- avaliar-resposta ---    
+4
+--- fim-avaliar-resposta ---
+```
+
+**Exemplo**: Avaliando `aleatorio()`
+
+```
+Recebido comando 'avaliar'
+--- avaliar-resposta ---
+0.6485481243564946
+--- fim-avaliar-resposta ---
+```
+
 ### `pilha-execucao`
 
 Quando há ponto de parada válido, o resultado é algo como:
