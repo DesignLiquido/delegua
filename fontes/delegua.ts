@@ -37,8 +37,6 @@ import { InterpretadorComDepuracao } from './interpretador/interpretador-com-dep
  * Responsável por avaliar a entrada fornecida, entender o código e executá-lo. 
  */
 export class Delegua implements DeleguaInterface {
-    teveErro: boolean;
-    teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
@@ -60,9 +58,6 @@ export class Delegua implements DeleguaInterface {
     ) {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
-
-        this.teveErro = false;
-        this.teveErroEmTempoDeExecucao = false;
 
         this.dialeto = dialeto;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -139,9 +134,6 @@ export class Delegua implements DeleguaInterface {
         leiaLinha.prompt();
 
         leiaLinha.on('line', (linha) => {
-            this.teveErro = false;
-            this.teveErroEmTempoDeExecucao = false;
-
             const retornoLexador = this.lexador.mapear([linha], -1);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
             const retornoInterpretacao = this.executar({
@@ -181,10 +173,12 @@ export class Delegua implements DeleguaInterface {
         // this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
-        this.executar(retornoImportador);
+        const { erros } = this.executar(retornoImportador);
 
-        if (this.teveErro) process.exit(65);
-        if (this.teveErroEmTempoDeExecucao) process.exit(70);
+        if (erros.lexador.length > 0 || erros.avaliadorSintatico.length > 0) 
+            process.exit(65); // Código para erro de avaliação antes da execução
+        if (erros.interpretador.length > 0) 
+            process.exit(70); // Código com exceções não tratadas
     }
 
     executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
@@ -234,7 +228,6 @@ export class Delegua implements DeleguaInterface {
             );
         else */ 
         console.error(chalk.red(`[Linha: ${linha}]`) +  ` Erro${onde}: ${mensagem}`);
-        this.teveErro = true;
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
@@ -263,7 +256,5 @@ export class Delegua implements DeleguaInterface {
         } else {
             console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
         }
-
-        this.teveErroEmTempoDeExecucao = true;
     }
 }

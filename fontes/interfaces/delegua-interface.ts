@@ -11,8 +11,6 @@ import {
 } from "../interfaces";
 
 export interface DeleguaInterface {
-    teveErro: boolean;
-    teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
