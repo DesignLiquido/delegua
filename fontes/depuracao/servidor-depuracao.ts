@@ -1,7 +1,7 @@
 import * as net from 'net';
 import { Declaracao } from '../declaracoes';
 
-import { DeleguaInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
+import { DeleguaInterface, InterpretadorComDepuracaoInterface, RetornoExecucaoInterface } from '../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import cyrb53 from './cyrb53';
 
@@ -91,10 +91,18 @@ export class ServidorDepuracao {
                 case "avaliar":
                     comando.shift();
                     const expressaoAvaliar = comando.join(' ');
-                    const retornoInterpretacao = this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
+                    let retornoInterpretacao: RetornoExecucaoInterface;
+                    let textoInterpretacao: string[];
+                    try {
+                        retornoInterpretacao = this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
+                        textoInterpretacao = retornoInterpretacao.resultado;
+                    } catch (erro: any) {
+                        textoInterpretacao = [String(erro)];
+                    }
+                    
                     linhasResposta += "Recebido comando 'avaliar'\n";
                     linhasResposta += '--- avaliar-resposta ---\n';
-                    linhasResposta += retornoInterpretacao.resultado + '\n';
+                    linhasResposta += textoInterpretacao.join('\n') + '\n';
                     linhasResposta += '--- fim-avaliar-resposta ---\n';
                     conexao.write(linhasResposta);
                     break;
@@ -173,7 +181,9 @@ export class ServidorDepuracao {
                     linhasResposta += '--- variaveis-resposta ---\n';
                     for (let grupoVariavel of todasVariaveis) {
                         for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
-                            linhasResposta += nomeVariavel + " :: " + Object.getPrototypeOf(valor).constructor.name + " :: " + valor + '\n';
+                            if (!!valor) {
+                                linhasResposta += nomeVariavel + " :: " + Object.getPrototypeOf(valor).constructor.name + " :: " + valor + '\n';
+                            }
                         }
                     }
 

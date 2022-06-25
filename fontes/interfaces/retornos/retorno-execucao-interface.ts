@@ -8,5 +8,5 @@ export interface RetornoExecucaoInterface {
         lexador?: Array<ErroLexador>
         interpretador?: Array<ErroInterpretador>
     }
-    resultado: Array<String>;
+    resultado: Array<string>;
 }
