@@ -79,6 +79,9 @@ export class Lexador implements LexadorInterface {
     }
 
     eFinalDaLinha(): boolean {
+        if(this.codigo.length === this.linha){
+            return true;
+        }
         return this.atual >= this.codigo[this.linha].length;
     }
 
@@ -113,18 +116,6 @@ export class Lexador implements LexadorInterface {
         this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
     }
 
-    proximoIgualA(esperado: any): boolean {
-        if (this.eFinalDaLinha()) {
-            return false;
-        }
-
-        if (this.codigo[this.linha][this.atual + 1] !== esperado) {
-            return false;
-        }
-
-        return true;
-    }
-
     simboloAtual(): string {
         if (this.eFinalDaLinha()) return '\0';
         return this.codigo[this.linha].charAt(this.atual);
@@ -136,7 +127,9 @@ export class Lexador implements LexadorInterface {
     }
 
     proximoSimbolo(): string {
-        if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
+        //TODO: Não foi possível simular no teste unitário
+        //Verificar possíbilidade de exclusão na próxima versão
+        // if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
         return this.codigo[this.linha].charAt(this.atual + 1);
     }
 
@@ -206,7 +199,7 @@ export class Lexador implements LexadorInterface {
     }
 
     encontrarFimComentarioAsterisco(): void {
-        while (!this.eUltimaLinha()) { 
+        while (!this.eFinalDoCodigo()) { 
             this.avancar();
             if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
                 this.avancar();
