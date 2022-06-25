@@ -1,18 +1,17 @@
 import * as net from 'net';
 import { Declaracao } from '../declaracoes';
 
-import { Delegua } from '../delegua';
-import { InterpretadorComDepuracaoInterface } from '../interfaces';
+import { DeleguaInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import cyrb53 from './cyrb53';
 
 export class ServidorDepuracao {
-    instanciaDelegua: Delegua;
+    instanciaDelegua: DeleguaInterface;
     servidor: net.Server;
     conexoes: {[chave: number]: any}
     contadorConexoes: number;
 
-    constructor(_instanciaDelegua: Delegua) {
+    constructor(_instanciaDelegua: DeleguaInterface) {
         this.instanciaDelegua = _instanciaDelegua;
         this.instanciaDelegua.funcaoDeRetorno = this.escreverSaidaParaTodosClientes.bind(this);
         const interpretador = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
@@ -89,6 +88,10 @@ export class ServidorDepuracao {
                     }
 
                     break;
+                case "avaliar":
+                    comando.shift();
+                    const expressaoAvaliar = comando.join(' ');
+
                 case "continuar":
                     conexao.write("Recebido comando 'continuar'\n");
                     interpretadorInterface.pontoDeParadaAtivo = false;

@@ -15,6 +15,8 @@ export interface DeleguaInterface {
     teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
+    conteudoArquivosAbertos: { [identificador: string]: string[] };
+    funcaoDeRetorno: Function;
 
     interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
