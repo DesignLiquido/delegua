@@ -133,13 +133,8 @@ export class Delegua implements DeleguaInterface {
 
         leiaLinha.prompt();
 
-        leiaLinha.on('line', (linha) => {
-            const retornoLexador = this.lexador.mapear([linha], -1);
-            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-            const retornoInterpretacao = this.executar({
-                retornoLexador,
-                retornoAvaliadorSintatico
-            } as RetornoImportador, true);
+        leiaLinha.on('line', (linha: string) => {
+            const retornoInterpretacao = this.executarUmaLinha(linha);
             const resultado = retornoInterpretacao.resultado[0];
             if (resultado !== undefined) {
                 this.funcaoDeRetorno(resultado);
@@ -147,6 +142,20 @@ export class Delegua implements DeleguaInterface {
             
             leiaLinha.prompt();
         });
+    }
+
+    /**
+     * Executa uma linha. Usado pelo modo LAIR e pelo servidor de depuração, quando recebe um comando 'avaliar'.
+     * @param linha A linha a ser avaliada.
+     * @returns O resultado da execução, com os retornos e respectivos erros, se houverem.
+     */
+    executarUmaLinha(linha: string): RetornoExecucaoInterface {
+        const retornoLexador = this.lexador.mapear([linha], -1);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        return this.executar({
+            retornoLexador,
+            retornoAvaliadorSintatico
+        } as RetornoImportador, true);
     }
 
     /**
