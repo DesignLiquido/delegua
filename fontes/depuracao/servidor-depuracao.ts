@@ -116,20 +116,24 @@ export class ServidorDepuracao {
                     const pilhaEscoposExecucao: PilhaEscoposExecucaoInterface = interpretadorInterface.pilhaEscoposExecucao;
 
                     linhasResposta += '--- pilha-execucao-resposta ---\n';
-                    for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
-                        const elementoPilha = pilhaEscoposExecucao.pilha[i];
-                        const posicaoDeclaracaoAtual: number = 
-                            elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
-                        let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
-
-                        linhasResposta += conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
-                            this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
-                            declaracaoAtual.linha + '\n';
-                        
-                    }
-
-                    linhasResposta += '--- fim-pilha-execucao-resposta ---\n';
-                    conexao.write(linhasResposta);
+                    try {
+                        for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
+                            const elementoPilha = pilhaEscoposExecucao.pilha[i];
+                            const posicaoDeclaracaoAtual: number = 
+                                elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
+                            let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
+    
+                            linhasResposta += conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
+                                this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
+                                declaracaoAtual.linha + '\n';
+                            
+                        }
+    
+                        linhasResposta += '--- fim-pilha-execucao-resposta ---\n';
+                        conexao.write(linhasResposta);
+                    } catch (erro: any) {
+                        conexao.write(erro + '\n');
+                    }                    
 
                     break;
                 case "pontos-parada":

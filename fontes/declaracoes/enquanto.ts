@@ -7,7 +7,7 @@ export class Enquanto extends Declaracao {
     corpo: any;
 
     constructor(condicao: Construto, corpo: any) {
-        super(condicao.linha, 0);
+        super(condicao.linha, condicao.hashArquivo);
         this.condicao = condicao;
         this.corpo = corpo;
     }
