@@ -14,7 +14,6 @@ export interface LexadorInterface {
     eFinalDoCodigo(): boolean;
     avancar(): void;
     adicionarSimbolo(tipo: any, literal: any): void;
-    proximoIgualA(esperado: any): boolean;
     simboloAtual(): string;
     proximoSimbolo(): string;
     simboloAnterior(): string;
