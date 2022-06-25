@@ -34,6 +34,14 @@ describe('Avaliador sintático', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
         });
 
+        it('Falha - Não é permitido ter dois identificadores seguidos na mesma linha', () => {
+            const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo') identificador1 identificador2"], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+            expect(retornoAvaliadorSintatico.erros[0].message).toBe('Não é permitido ter dois identificadores seguidos na mesma linha.');
+        });
+
         describe('Funções Anônimas', () => {
             it('Função anônima com mais de 255 parâmetros', () => {
                 let acumulador = "";

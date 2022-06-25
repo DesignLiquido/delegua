@@ -13,7 +13,7 @@ describe('Avaliador sintático (EguaP)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        it('Erro - Identação', () => {
+        it('Falha - Identação', () => {
             const codigo = [
                 "classe Cachorro:",
                 "latir():",

@@ -124,10 +124,6 @@ export class LexadorEguaP implements LexadorInterface {
         this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
     }
 
-    proximoIgualA(esperado: any): boolean {
-        throw new Error("Method not implemented.");
-    }
-
     simboloAtual(): string {
         if (this.eFinalDaLinha()) return '\0';
         if (this.linha > this.codigo.length - 1) return '\0';
