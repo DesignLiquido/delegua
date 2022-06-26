@@ -50,7 +50,6 @@ import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
-import { Simbolo } from '../lexador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -156,7 +155,7 @@ export class Interpretador
     }
 
     verificarOperandosNumeros(
-        simbolo: Simbolo,
+        simbolo: any,
         direita: any,
         esquerda: any
     ): void {
