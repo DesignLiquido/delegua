@@ -155,20 +155,26 @@ export class Interpretador
     }
 
     verificarOperandosNumeros(
-        simbolo: any,
+        operador: any,
         direita: any,
         esquerda: any
     ): void {
-        try {
-            if (typeof direita === 'number' && typeof esquerda === 'number') return;
-            throw new ErroEmTempoDeExecucao(
-                simbolo,
-                'Operandos precisam ser números.',
-                simbolo.linha
-            );
-        } catch (error: any) {
-            this.erros.push(error)
-        }
+        if (typeof direita === 'number' && typeof esquerda === 'number') return;
+        throw new ErroEmTempoDeExecucao(
+            operador,
+            'Operandos precisam ser números.',
+            operador.linha
+        );
+        // try {
+        //     if (typeof direita === 'number' && typeof esquerda === 'number') return;
+        //     throw new ErroEmTempoDeExecucao(
+        //         simbolo,
+        //         'Operandos precisam ser números.',
+        //         simbolo.linha
+        //     );
+        // } catch (error: any) {
+        //     this.erros.push(error)
+        // }
     }
 
     visitarExpressaoBinaria(expressao: any) {

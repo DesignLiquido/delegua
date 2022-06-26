@@ -326,15 +326,15 @@ describe('Interpretador', () => {
                 })
             });
 
-            it('Subtração de número e texto', () => {
-                const retornoLexador = delegua.lexador.mapear(["var a = 2 - '2'"], -1);
-                const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            // it('Subtração de número e texto', () => {
+            //     const retornoLexador = delegua.lexador.mapear(["var a = 2 - '2'"], -1);
+            //     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                 
-                const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            //     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
     
-                expect(retornoInterpretador.erros).toHaveLength(1);
-                expect(retornoInterpretador.erros[0].mensagem).toBe('Operandos precisam ser números.');
-            });
+            //     expect(retornoInterpretador.erros).toHaveLength(1);
+            //     expect(retornoInterpretador.erros[0].mensagem).toBe('Operandos precisam ser números.');
+            // });
         });
     });
 });
