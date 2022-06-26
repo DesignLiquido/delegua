@@ -36,6 +36,15 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Concatenação', () => {
+                    const retornoLexador = delegua.lexador.mapear(["var a = 1 + '1'"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Acesso a variáveis e objetos', () => {
@@ -146,6 +155,33 @@ describe('Interpretador', () => {
 
                 it('Condicionais - condição falsa', () => {
                     const retornoLexador = delegua.lexador.mapear(["se (1 > 2) { escreva('Nunca acontece') } senão { escreva('Um não é maior que dois') }"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Condicionais - condição menor igual', () => {
+                    const retornoLexador = delegua.lexador.mapear(["se (1 <= 2) { escreva('Um é menor e igual a dois') } senão { escreva('Nunca será executado') }"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Condicionais - condição maior igual', () => {
+                    const retornoLexador = delegua.lexador.mapear(["se (2 >= 1) { escreva('Dois é maior ou igual a um') } senão { escreva('Nunca será executado') }"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Condicionais - condição diferente', () => {
+                    const retornoLexador = delegua.lexador.mapear(["se (2 != 1) { escreva('Dois é diferente de um') } senão { escreva('Nunca será executado') }"], -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -288,6 +324,16 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 })
+            });
+
+            it('Subtração de número e texto', () => {
+                const retornoLexador = delegua.lexador.mapear(["var a = 2 - '2'"], -1);
+                const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                
+                const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].mensagem).toBe('Operandos precisam ser números.');
             });
         });
     });

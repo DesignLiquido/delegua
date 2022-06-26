@@ -50,6 +50,7 @@ import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { Simbolo } from '../lexador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -155,16 +156,20 @@ export class Interpretador
     }
 
     verificarOperandosNumeros(
-        operador: any,
+        simbolo: Simbolo,
         direita: any,
         esquerda: any
     ): void {
-        if (typeof direita === 'number' && typeof esquerda === 'number') return;
-        throw new ErroEmTempoDeExecucao(
-            operador,
-            'Operandos precisam ser números.',
-            operador.linha
-        );
+        try {
+            if (typeof direita === 'number' && typeof esquerda === 'number') return;
+            throw new ErroEmTempoDeExecucao(
+                simbolo,
+                'Operandos precisam ser números.',
+                simbolo.linha
+            );
+        } catch (error: any) {
+            this.erros.push(error)
+        }
     }
 
     visitarExpressaoBinaria(expressao: any) {
