@@ -37,7 +37,8 @@ export class Importador implements ImportadorInterface {
 
     importar(caminhoRelativoArquivo: string): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-        const hashArquivo = cyrb53(caminhoRelativoArquivo);
+        const caminhoAbsolutoArquivo = caminho.resolve(caminhoRelativoArquivo);
+        const hashArquivo = cyrb53(caminhoAbsolutoArquivo.toLowerCase());
 
         if (!fs.existsSync(nomeArquivo)) {
             // TODO: Terminar.

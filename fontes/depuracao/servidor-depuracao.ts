@@ -38,7 +38,7 @@ export class ServidorDepuracao {
     }
 
     validarPontoParada = (caminhoArquivo: string, linha: number, conexao: net.Socket): any => {
-        const hashArquivo = cyrb53(caminhoArquivo);
+        const hashArquivo = cyrb53(caminhoArquivo.toLowerCase());
         if (!this.instanciaDelegua.arquivosAbertos.hasOwnProperty(hashArquivo)) {
             conexao.write(`[adicionar-ponto-parada]: Arquivo '${caminhoArquivo}' não encontrado\n`);
             return { sucesso: false };
