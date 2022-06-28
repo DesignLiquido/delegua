@@ -204,10 +204,10 @@ export class InterpretadorComDepuracao
      * Diferentemente de `executarUltimoEscopo`, este método descarta apenas um escopo (o que foi chamado).
      * @see executarBloco
      */
-    continuarInterpretacao() {
+    continuarInterpretacao(): void {
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
-        --primeiroEscopo.declaracaoAtual;
+
         if (primeiroEscopo.declaracaoAtual < 0) {
             primeiroEscopo.declaracaoAtual = 0;
         }
@@ -237,7 +237,9 @@ export class InterpretadorComDepuracao
             );
         }
 
-        this.pilhaEscoposExecucao.removerUltimo();
+        if (primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length) {
+            this.pilhaEscoposExecucao.removerUltimo();
+        }
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {
             this.finalizacaoDaExecucao();

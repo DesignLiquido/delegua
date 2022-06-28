@@ -97,9 +97,14 @@ export class ServidorDepuracao {
     }
 
     comandoContinuar = (conexao: net.Socket): any => {
-        conexao.write("Recebido comando 'continuar'\n");
+        let linhasResposta: string = "";
+
+        linhasResposta += "Recebido comando 'continuar'\n";
         this.interpretador.pontoDeParadaAtivo = false;
         this.interpretador.continuarInterpretacao();
+
+        linhasResposta += '--- continuar-resposta ---\n';
+        conexao.write(linhasResposta);
     }
 
     comandoPilhaExecucao = (conexao: net.Socket): any => {
@@ -144,7 +149,7 @@ export class ServidorDepuracao {
         linhasResposta += "Recebido comando 'proximo'\n";
         linhasResposta += '--- proximo-resposta ---\n';
         this.interpretador.pontoDeParadaAtivo = false;
-        this.interpretador.interpretacaoApenasUmaInstrucao(); 
+        this.interpretador.interpretacaoApenasUmaInstrucao();
         conexao.write(linhasResposta);
     }
 
