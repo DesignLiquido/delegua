@@ -31,6 +31,7 @@ const principal = () => {
     analisadorArgumentos.parse();
     const opcoes = analisadorArgumentos.opts();
 
+    console.log('Opções:', opcoes);
     const delegua = new Delegua(opcoes.dialeto, opcoes.performance, opcoes.depurador);
 
     if (!nomeArquivo) {

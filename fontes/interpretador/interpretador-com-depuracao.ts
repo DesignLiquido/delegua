@@ -342,7 +342,7 @@ export class InterpretadorComDepuracao
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
 
-        this.executarUltimoEscopo(manterAmbiente);
+        // this.executarUltimoEscopo(manterAmbiente);
 
         const retorno = {
             erros: this.erros,

@@ -4,18 +4,20 @@ import { Declaracao } from '../declaracoes';
 import { DeleguaInterface, InterpretadorComDepuracaoInterface, RetornoExecucaoInterface } from '../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import cyrb53 from './cyrb53';
+import { PontoParada } from './ponto-parada';
 
 export class ServidorDepuracao {
     instanciaDelegua: DeleguaInterface;
     servidor: net.Server;
     conexoes: {[chave: number]: any}
     contadorConexoes: number;
+    interpretador: InterpretadorComDepuracaoInterface;
 
     constructor(_instanciaDelegua: DeleguaInterface) {
         this.instanciaDelegua = _instanciaDelegua;
         this.instanciaDelegua.funcaoDeRetorno = this.escreverSaidaParaTodosClientes.bind(this);
-        const interpretador = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
-        interpretador.funcaoDeRetorno = this.escreverSaidaParaTodosClientes.bind(this);
+        this.interpretador = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
+        this.interpretador.funcaoDeRetorno = this.escreverSaidaParaTodosClientes.bind(this);
         // Isso é só um exemplo de definição de ponto de parada para testar
         // `Interpretador.executar()`. 
         // Deve ser removido num futuro próximo.
@@ -23,15 +25,170 @@ export class ServidorDepuracao {
             hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
             linha: 4
         }); */
-        (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface).pontosParada.push({
-            hashArquivo: cyrb53('./testes/exemplos/index.delegua'),
+        /* (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface).pontosParada.push({
+            // hashArquivo: cyrb53('./testes/exemplos/index.delegua'),
+            hashArquivo: cyrb53("D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua"),
             linha: 1
-        });
+        }); */
         
         this.servidor = net.createServer();
         this.conexoes = {};
         this.contadorConexoes = 0;
         this.operarConexao.bind(this);
+    }
+
+    validarPontoParada = (caminhoArquivo: string, linha: number, conexao: net.Socket): any => {
+        const hashArquivo = cyrb53(caminhoArquivo);
+        if (!this.instanciaDelegua.arquivosAbertos.hasOwnProperty(hashArquivo)) {
+            conexao.write(`[adicionar-ponto-parada]: Arquivo '${caminhoArquivo}' não encontrado\n`);
+            return { sucesso: false };
+        }
+
+        if (this.instanciaDelegua.conteudoArquivosAbertos[hashArquivo].length < linha) {
+            conexao.write(`[adicionar-ponto-parada]: Linha ${linha} não existente em arquivo '${caminhoArquivo}'\n`);
+            return { sucesso: false };
+        }
+
+        return { sucesso: true, hashArquivo, linha };
+    }
+
+    comandoAdentrarEscopo = (conexao: net.Socket): any => {
+        conexao.write("Recebido comando 'adentrar-escopo'\n");
+        this.interpretador.adentrarEscopoAtivo = true;
+        this.interpretador.pontoDeParadaAtivo = false;
+        this.interpretador.interpretacaoApenasUmaInstrucao();
+    }
+
+    comandoAdicionarPontoParada = (comando: string[], conexao: net.Socket): any => {
+        conexao.write("Recebido comando 'adicionar-ponto-parada'\n");
+        if (comando.length < 3) {
+            conexao.write(`[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`);
+            return;
+        }
+
+        let validacaoPontoParada: any = this.validarPontoParada(comando[1], parseInt(comando[2]), conexao);
+        if (validacaoPontoParada.sucesso) {
+            this.interpretador.pontosParada.push({
+                hashArquivo: validacaoPontoParada.hashArquivo,
+                linha: validacaoPontoParada.linha
+            }); 
+        }
+    }
+
+    comandoAvaliar = (comando: string[], conexao: net.Socket): any => {
+        let linhasResposta: string = "";
+
+        comando.shift();
+        const expressaoAvaliar = comando.join(' ');
+        let retornoInterpretacao: RetornoExecucaoInterface;
+        let textoInterpretacao: string[];
+        try {
+            retornoInterpretacao = this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
+            textoInterpretacao = retornoInterpretacao.resultado;
+        } catch (erro: any) {
+            textoInterpretacao = [String(erro)];
+        }
+        
+        linhasResposta += "Recebido comando 'avaliar'\n";
+        linhasResposta += '--- avaliar-resposta ---\n';
+        linhasResposta += textoInterpretacao.join('\n') + '\n';
+        linhasResposta += '--- fim-avaliar-resposta ---\n';
+        conexao.write(linhasResposta);
+    }
+
+    comandoContinuar = (conexao: net.Socket): any => {
+        conexao.write("Recebido comando 'continuar'\n");
+        this.interpretador.pontoDeParadaAtivo = false;
+        this.interpretador.continuarInterpretacao();
+    }
+
+    comandoPilhaExecucao = (conexao: net.Socket): any => {
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'pilha-execucao'\n";
+        const pilhaEscoposExecucao: PilhaEscoposExecucaoInterface = this.interpretador.pilhaEscoposExecucao;
+
+        linhasResposta += '--- pilha-execucao-resposta ---\n';
+        try {
+            for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
+                const elementoPilha = pilhaEscoposExecucao.pilha[i];
+                const posicaoDeclaracaoAtual: number = 
+                    elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
+                let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
+
+                linhasResposta += this.instanciaDelegua.conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
+                    this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
+                    declaracaoAtual.linha + '\n';
+                
+            }
+
+            linhasResposta += '--- fim-pilha-execucao-resposta ---\n';
+            conexao.write(linhasResposta);
+        } catch (erro: any) {
+            conexao.write(erro + '\n');
+        }
+    }
+
+    comandoPontosParada = (conexao: net.Socket): any => {
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'pontos-parada'\n";
+        for (let pontoParada of this.interpretador.pontosParada) {
+            linhasResposta += this.instanciaDelegua.arquivosAbertos[pontoParada.hashArquivo] + ": " + 
+                pontoParada.linha + "\n";
+        }
+
+        conexao.write(linhasResposta);
+    }
+
+    comandoProximo = (conexao: net.Socket): any => {
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'proximo'\n";
+        linhasResposta += '--- proximo-resposta ---\n';
+        this.interpretador.pontoDeParadaAtivo = false;
+        this.interpretador.interpretacaoApenasUmaInstrucao(); 
+        conexao.write(linhasResposta);
+    }
+
+    comandoRemoverPontoParada = (comando: string[], conexao: net.Socket): any => {
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'remover-ponto-parada'\n";
+        if (comando.length < 3) {
+            linhasResposta += `[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`;
+            conexao.write(linhasResposta);
+            return;
+        }
+
+        let validacaoPontoParada: any = this.validarPontoParada(comando[1], parseInt(comando[2]), conexao);
+        if (validacaoPontoParada.sucesso) {
+            this.interpretador.pontosParada = this.interpretador.pontosParada.filter(
+                (p: PontoParada) =>
+                    p.hashArquivo !== validacaoPontoParada.hashArquivo &&
+                    p.linha !== validacaoPontoParada.linha
+            );
+        }
+    }
+
+    comandoSairEscopo = (conexao: net.Socket): any => {
+        conexao.write("Recebido comando 'sair-escopo'\n");
+        this.interpretador.pontoDeParadaAtivo = false;
+        this.interpretador.proximoESair();
+    }
+
+    comandoVariaveis = (conexao: net.Socket): any => {
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n";
+        const todasVariaveis = this.interpretador.pilhaEscoposExecucao.obterTodasVariaveis([]);
+
+        linhasResposta += '--- variaveis-resposta ---\n';
+        for (let grupoVariavel of todasVariaveis) {
+            for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
+                if (!!valor) {
+                    linhasResposta += nomeVariavel + " :: " + Object.getPrototypeOf(valor).constructor.name + " :: " + valor + '\n';
+                }
+            }
+        }
+
+        linhasResposta += '--- fim-variaveis-resposta ---\n';
+        conexao.write(linhasResposta);
     }
 
     operarConexao = (conexao: net.Socket) => {
@@ -41,164 +198,52 @@ export class ServidorDepuracao {
         conexao.setEncoding('utf8');
         this.conexoes[this.contadorConexoes++] = conexao;
 
+        // Aqui, dados pode ter uma série de comandos, sendo um por linha.
         const aoReceberDados: any = (dados: Buffer) => {
-            const comando: string[] = String(dados).replace(/\r?\n|\r/g, "").split(' ');
+            const comando: string[] = String(dados).split('\n');
             process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
             const interpretadorInterface = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
-            const arquivosAbertos = this.instanciaDelegua.arquivosAbertos;
-            const conteudoArquivosAbertos = this.instanciaDelegua.conteudoArquivosAbertos;
 
-            const validarPontoParada = (caminhoArquivo: string, linha: number): any => {
-                const hashArquivo = cyrb53(caminhoArquivo);
-                if (!arquivosAbertos.hasOwnProperty(hashArquivo)) {
-                    conexao.write(`[adicionar-ponto-parada]: Arquivo '${caminhoArquivo}' não encontrado\n`);
-                    return { sucesso: false };
-                }
-
-                if (conteudoArquivosAbertos[hashArquivo].length < linha) {
-                    conexao.write(`[adicionar-ponto-parada]: Linha ${linha} não existente em arquivo '${caminhoArquivo}'\n`);
-                    return { sucesso: false };
-                }
-
-                return { sucesso: true, hashArquivo, linha };
-            }
-
-            let validacaoPontoParada: any;
-            let linhasResposta: string = "";
             switch (comando[0]) {
                 case "adentrar-escopo":
-                    conexao.write("Recebido comando 'adentrar-escopo'\n");
-                    interpretadorInterface.adentrarEscopoAtivo = true;
-                    interpretadorInterface.pontoDeParadaAtivo = false;
-                    interpretadorInterface.interpretacaoApenasUmaInstrucao();
+                    this.comandoAdentrarEscopo(conexao);
                     break;
                 case "adicionar-ponto-parada":
-                    conexao.write("Recebido comando 'adicionar-ponto-parada'\n");
-                    if (comando.length < 3) {
-                        conexao.write(`[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`);
-                        break;
-                    }
-
-                    validacaoPontoParada = validarPontoParada(comando[1], parseInt(comando[2]));
-                    if (validacaoPontoParada.sucesso) {
-                        interpretadorInterface.pontosParada.push({
-                            hashArquivo: validacaoPontoParada.hashArquivo,
-                            linha: validacaoPontoParada.linha
-                        }); 
-                    }
-
+                    this.comandoAdicionarPontoParada(comando, conexao);
                     break;
                 case "avaliar":
-                    comando.shift();
-                    const expressaoAvaliar = comando.join(' ');
-                    let retornoInterpretacao: RetornoExecucaoInterface;
-                    let textoInterpretacao: string[];
-                    try {
-                        retornoInterpretacao = this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
-                        textoInterpretacao = retornoInterpretacao.resultado;
-                    } catch (erro: any) {
-                        textoInterpretacao = [String(erro)];
-                    }
-                    
-                    linhasResposta += "Recebido comando 'avaliar'\n";
-                    linhasResposta += '--- avaliar-resposta ---\n';
-                    linhasResposta += textoInterpretacao.join('\n') + '\n';
-                    linhasResposta += '--- fim-avaliar-resposta ---\n';
-                    conexao.write(linhasResposta);
+                    this.comandoAvaliar(comando, conexao);
                     break;
                 case "continuar":
-                    conexao.write("Recebido comando 'continuar'\n");
-                    interpretadorInterface.pontoDeParadaAtivo = false;
-                    interpretadorInterface.continuarInterpretacao();
+                    this.comandoContinuar(conexao);
                     break;
                 case "pilha-execucao":
-                    linhasResposta += "Recebido comando 'pilha-execucao'\n";
-                    const pilhaEscoposExecucao: PilhaEscoposExecucaoInterface = interpretadorInterface.pilhaEscoposExecucao;
-
-                    linhasResposta += '--- pilha-execucao-resposta ---\n';
-                    try {
-                        for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
-                            const elementoPilha = pilhaEscoposExecucao.pilha[i];
-                            const posicaoDeclaracaoAtual: number = 
-                                elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
-                            let declaracaoAtual: Declaracao = elementoPilha.declaracoes[posicaoDeclaracaoAtual];
-    
-                            linhasResposta += conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
-                                this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
-                                declaracaoAtual.linha + '\n';
-                            
-                        }
-    
-                        linhasResposta += '--- fim-pilha-execucao-resposta ---\n';
-                        conexao.write(linhasResposta);
-                    } catch (erro: any) {
-                        conexao.write(erro + '\n');
-                    }                    
-
+                    this.comandoPilhaExecucao(conexao);
                     break;
                 case "pontos-parada":
-                    linhasResposta += "Recebido comando 'pontos-parada'\n";
-                    for (let pontoParada of interpretadorInterface.pontosParada) {
-                        linhasResposta += this.instanciaDelegua.arquivosAbertos[pontoParada.hashArquivo] + ": " + 
-                            pontoParada.linha + "\n";
-                    }
-
-                    conexao.write(linhasResposta);
+                    this.comandoPontosParada(conexao);
                     break;
                 case "proximo":
-                    linhasResposta += "Recebido comando 'proximo'\n";
-                    linhasResposta += '--- proximo-resposta ---\n';
-                    interpretadorInterface.pontoDeParadaAtivo = false;
-                    interpretadorInterface.interpretacaoApenasUmaInstrucao();
-                    conexao.write(linhasResposta);
+                    this.comandoProximo(conexao);
                     break;
                 case "remover-ponto-parada":
-                    linhasResposta += "Recebido comando 'remover-ponto-parada'\n";
-                    if (comando.length < 3) {
-                        linhasResposta += `[adicionar-ponto-parada]: Formato: adicionar-ponto-parada /caminho/do/arquivo.egua 1\n`;
-                        conexao.write(linhasResposta);
-                        break;
-                    }
-
-                    validacaoPontoParada = validarPontoParada(comando[1], parseInt(comando[2]));
-                    if (validacaoPontoParada.sucesso) {
-                        interpretadorInterface.pontosParada = interpretadorInterface.pontosParada.filter(
-                            (p) =>
-                                p.hashArquivo !== validacaoPontoParada.hashArquivo &&
-                                p.linha !== validacaoPontoParada.linha
-                        );
-                    }
+                    this.comandoRemoverPontoParada(comando, conexao);
                     break;
                 case "sair-escopo":
-                    conexao.write("Recebido comando 'sair-escopo'\n");
-                    interpretadorInterface.pontoDeParadaAtivo = false;
-                    interpretadorInterface.proximoESair();
+                    this.comandoSairEscopo(conexao);
                     break;
                 case "tchau":
                     conexao.write("Recebido comando 'tchau'. Conexão será encerrada\n");
                     conexao.destroy();
-                    break;
+                    return;
                 case "variaveis":
-                    linhasResposta += "Recebido comando 'variaveis'. Enviando variáveis do escopo atual\n";
-                    const todasVariaveis = interpretadorInterface.pilhaEscoposExecucao.obterTodasVariaveis([]);
-
-                    linhasResposta += '--- variaveis-resposta ---\n';
-                    for (let grupoVariavel of todasVariaveis) {
-                        for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
-                            if (!!valor) {
-                                linhasResposta += nomeVariavel + " :: " + Object.getPrototypeOf(valor).constructor.name + " :: " + valor + '\n';
-                            }
-                        }
-                    }
-
-                    linhasResposta += '--- fim-variaveis-resposta ---\n';
-                    conexao.write(linhasResposta);
+                    this.comandoVariaveis(conexao);
                     break;
             }
         }
 
         const aoFecharConexao = () => {
-            process.stdout.write('\n[Depurador] Conexão de ' + enderecoRemoto + ' fechada\ndelegua> ');  
+            process.stdout.write('\n[Depurador] Conexão de ' + enderecoRemoto + ' fechada\ndelegua> ');
         }
 
         const aoObterErro = (erro: Error) => {
@@ -217,6 +262,7 @@ export class ServidorDepuracao {
         this.servidor.on('connection', this.operarConexao.bind(this));
 
         this.servidor.listen(7777);
+        process.stdout.write('\n[Depurador] Servidor de depuração iniciado na porta 7777');  
 
         return this.servidor.address() as net.AddressInfo;
     }
@@ -229,6 +275,7 @@ export class ServidorDepuracao {
 
     finalizarServidorDepuracao(): void {
         Object.keys(this.conexoes).forEach((chave) => {
+            this.conexoes[chave].write('--- finalizando ---\n');
             this.conexoes[chave].destroy();
         });
 
