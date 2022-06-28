@@ -191,6 +191,10 @@ export class ServidorDepuracao {
         conexao.write(linhasResposta);
     }
 
+    /**
+     * Função que descreve como conexão com clientes de depuração deve ser operada.
+     * @param conexao Instância de conexão, tipo net.Socket.
+     */
     operarConexao = (conexao: net.Socket) => {
         const enderecoRemoto = conexao.remoteAddress + ':' + conexao.remotePort;
         process.stdout.write('\n[Depurador] Nova conexão de cliente de ' + enderecoRemoto + '\ndelegua> ');
@@ -200,45 +204,46 @@ export class ServidorDepuracao {
 
         // Aqui, dados pode ter uma série de comandos, sendo um por linha.
         const aoReceberDados: any = (dados: Buffer) => {
-            const comando: string[] = String(dados).split('\n');
-            process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comando + '\ndelegua> ');
-            const interpretadorInterface = (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface);
-
-            switch (comando[0]) {
-                case "adentrar-escopo":
-                    this.comandoAdentrarEscopo(conexao);
-                    break;
-                case "adicionar-ponto-parada":
-                    this.comandoAdicionarPontoParada(comando, conexao);
-                    break;
-                case "avaliar":
-                    this.comandoAvaliar(comando, conexao);
-                    break;
-                case "continuar":
-                    this.comandoContinuar(conexao);
-                    break;
-                case "pilha-execucao":
-                    this.comandoPilhaExecucao(conexao);
-                    break;
-                case "pontos-parada":
-                    this.comandoPontosParada(conexao);
-                    break;
-                case "proximo":
-                    this.comandoProximo(conexao);
-                    break;
-                case "remover-ponto-parada":
-                    this.comandoRemoverPontoParada(comando, conexao);
-                    break;
-                case "sair-escopo":
-                    this.comandoSairEscopo(conexao);
-                    break;
-                case "tchau":
-                    conexao.write("Recebido comando 'tchau'. Conexão será encerrada\n");
-                    conexao.destroy();
-                    return;
-                case "variaveis":
-                    this.comandoVariaveis(conexao);
-                    break;
+            const comandos: string[] = String(dados).split('\n');
+            process.stdout.write('\n[Depurador] Dados da conexão vindos de ' + enderecoRemoto + ': ' + comandos + '\ndelegua> ');
+            for (let comando of comandos) {
+                const partesComando: string[] = comando.split(' ');
+                switch (partesComando[0]) {
+                    case "adentrar-escopo":
+                        this.comandoAdentrarEscopo(conexao);
+                        break;
+                    case "adicionar-ponto-parada":
+                        this.comandoAdicionarPontoParada(partesComando, conexao);
+                        break;
+                    case "avaliar":
+                        this.comandoAvaliar(partesComando, conexao);
+                        break;
+                    case "continuar":
+                        this.comandoContinuar(conexao);
+                        break;
+                    case "pilha-execucao":
+                        this.comandoPilhaExecucao(conexao);
+                        break;
+                    case "pontos-parada":
+                        this.comandoPontosParada(conexao);
+                        break;
+                    case "proximo":
+                        this.comandoProximo(conexao);
+                        break;
+                    case "remover-ponto-parada":
+                        this.comandoRemoverPontoParada(partesComando, conexao);
+                        break;
+                    case "sair-escopo":
+                        this.comandoSairEscopo(conexao);
+                        break;
+                    case "tchau":
+                        conexao.write("Recebido comando 'tchau'. Conexão será encerrada\n");
+                        conexao.destroy();
+                        return;
+                    case "variaveis":
+                        this.comandoVariaveis(conexao);
+                        break;
+                }
             }
         }
 
