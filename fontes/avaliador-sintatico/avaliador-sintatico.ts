@@ -68,29 +68,30 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.performance = performance;
     }
 
-    sincronizar() {
-        this.avancarEDevolverAnterior();
+    // Verificar possibilidade de remover na próxima versão, visto que não foi possível realizar testes com esse método.
+    // sincronizar() {
+    //     this.avancarEDevolverAnterior();
 
-        while (!this.estaNoFinal()) {
-            const tipoSimboloAtual: string = this.simboloAnterior().tipo;
-            if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
+    //     while (!this.estaNoFinal()) {
+    //         const tipoSimboloAtual: string = this.simboloAnterior().tipo;
+    //         if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
-            switch (tipoSimboloAtual) {
-                case tiposDeSimbolos.CLASSE:
-                case tiposDeSimbolos.FUNCAO:
-                case tiposDeSimbolos.FUNÇÃO:
-                case tiposDeSimbolos.VARIAVEL:
-                case tiposDeSimbolos.PARA:
-                case tiposDeSimbolos.SE:
-                case tiposDeSimbolos.ENQUANTO:
-                case tiposDeSimbolos.ESCREVA:
-                case tiposDeSimbolos.RETORNA:
-                    return;
-            }
+    //         switch (tipoSimboloAtual) {
+    //             case tiposDeSimbolos.CLASSE:
+    //             case tiposDeSimbolos.FUNCAO:
+    //             case tiposDeSimbolos.FUNÇÃO:
+    //             case tiposDeSimbolos.VARIAVEL:
+    //             case tiposDeSimbolos.PARA:
+    //             case tiposDeSimbolos.SE:
+    //             case tiposDeSimbolos.ENQUANTO:
+    //             case tiposDeSimbolos.ESCREVA:
+    //             case tiposDeSimbolos.RETORNA:
+    //                 return;
+    //         }
 
-            this.avancarEDevolverAnterior();
-        }
-    }
+    //         this.avancarEDevolverAnterior();
+    //     }
+    // }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
@@ -580,12 +581,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Escreva(simbolo);
     }
 
-    declaracaoExpressao(): any {
+    declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
         return new Expressao(expressao);
     }
 
-    blocoEscopo(): any {
+    blocoEscopo(): any[] {
         const declaracoes = [];
 
         while (
@@ -722,7 +723,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoSustar(): any {
+    declaracaoSustar(): Sustar {
         if (this.ciclos < 1) {
             this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
@@ -1122,7 +1123,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return this.resolverDeclaracao();
         } catch (erro: any) {
             // TODO: Altíssima chance de ser uma roubada. Considerar retirar mais futuramente.
-            this.sincronizar();
+            // this.sincronizar();
             return null;
         }
     }
