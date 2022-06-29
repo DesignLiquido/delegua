@@ -21,12 +21,7 @@ export class ServidorDepuracao {
         // Isso é só um exemplo de definição de ponto de parada para testar
         // `Interpretador.executar()`. 
         // Deve ser removido num futuro próximo.
-        /* (this.instanciaDelegua.interpretador as any).pontosParada.push({
-            hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
-            linha: 4
-        }); */
         /* (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface).pontosParada.push({
-            // hashArquivo: cyrb53('./testes/exemplos/index.delegua'),
             hashArquivo: cyrb53("D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua"),
             linha: 1
         }); */
