@@ -32,7 +32,6 @@ export class InterpretadorComDepuracao
     implements InterpretadorComDepuracaoInterface 
 {
     pontosParada: PontoParada[];
-    // declaracaoAtual: number;
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
     escopoAtual: number;
@@ -47,7 +46,6 @@ export class InterpretadorComDepuracao
         super(importador, resolvedor, diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
-        // this.declaracaoAtual = 0;
         this.pontoDeParadaAtivo = false;
         this.escopoAtual = 0;
         this.adentrarEscopoAtivo = false;
@@ -121,7 +119,7 @@ export class InterpretadorComDepuracao
      */
     verificarPontoParada(declaracao: Declaracao): boolean {
         const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
-            (p) =>
+            (p: PontoParada) =>
                 p.hashArquivo === declaracao.hashArquivo &&
                 p.linha === declaracao.linha
         );
@@ -204,12 +202,17 @@ export class InterpretadorComDepuracao
      * Diferentemente de `executarUltimoEscopo`, este método descarta apenas um escopo (o que foi chamado).
      * @see executarBloco
      */
-    continuarInterpretacao() {
+    continuarInterpretacao(): void {
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
-        --primeiroEscopo.declaracaoAtual;
 
         let retornoExecucao: any;
+        // Primeira execução sempre ocorre, independente de pontos de parada.
+        retornoExecucao = this.executar(
+            primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
+        );
+        primeiroEscopo.declaracaoAtual++;
+        
         for (
             ;
             !(retornoExecucao instanceof Quebra) &&
@@ -228,7 +231,9 @@ export class InterpretadorComDepuracao
             );
         }
 
-        this.pilhaEscoposExecucao.removerUltimo();
+        if (primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length) {
+            this.pilhaEscoposExecucao.removerUltimo();
+        }
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {
             this.finalizacaoDaExecucao();
@@ -315,6 +320,8 @@ export class InterpretadorComDepuracao
      * ponto de parada ou não.
      * Diferentemente da interpretação tradicional, não possui indicadores
      * de performance porque eles não fazem sentido aqui.
+     * Até então essa função não executa imediatamente, porque a depuração é
+     * controlada pelo servidor de depuração.
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
@@ -332,8 +339,6 @@ export class InterpretadorComDepuracao
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
-
-        this.executarUltimoEscopo(manterAmbiente);
 
         const retorno = {
             erros: this.erros,

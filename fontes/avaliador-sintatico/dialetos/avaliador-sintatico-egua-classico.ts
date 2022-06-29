@@ -588,7 +588,6 @@ adicaoOuSubtracao
     }
 
     declaracaoSe(): any {
-        const simboloSe = this.simboloAnterior();
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' após 'se'."
@@ -626,7 +625,7 @@ adicaoOuSubtracao
             caminhoSenao = this.resolverDeclaracao();
         }
 
-        return new Se(Number(simboloSe.linha), condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
+        return new Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
     }
 
     declaracaoEnquanto(): any {
@@ -894,7 +893,7 @@ adicaoOuSubtracao
             finallyBlock = this.blocoEscopo();
         }
 
-        return new Tente(tryBlock, catchBlock, elseBlock, finallyBlock);
+        return new Tente(0, 0, tryBlock, catchBlock, elseBlock, finallyBlock);
     }
 
     declaracaoFazer(): any {
@@ -919,7 +918,7 @@ adicaoOuSubtracao
                 "Esperado ')' após declaração do 'enquanto'."
             );
 
-            return new Fazer(caminhoFazer, condicaoEnquanto);
+            return new Fazer(0, 0, caminhoFazer, condicaoEnquanto);
         } finally {
             this.ciclos -= 1;
         }
@@ -947,7 +946,7 @@ adicaoOuSubtracao
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA))
             return this.declaracaoEscreva();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
-            return new Bloco(this.blocoEscopo());
+            return new Bloco(0, 0, this.blocoEscopo());
 
         return this.declaracaoExpressao();
     }

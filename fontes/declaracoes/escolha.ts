@@ -7,8 +7,8 @@ export class Escolha extends Declaracao {
     caminhos: any;
     caminhoPadrao: any;
 
-    constructor(condicao: any, caminhos: any, caminhoPadrao: any) {
-        super(condicao.linha, 0);
+    constructor(condicao: Construto, caminhos: any, caminhoPadrao: any) {
+        super(condicao.linha, condicao.hashArquivo);
         this.condicao = condicao;
         this.caminhos = caminhos;
         this.caminhoPadrao = caminhoPadrao;

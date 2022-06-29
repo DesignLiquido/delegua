@@ -34,6 +34,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     Delegua: Delegua;
 
     diretorioBase: any;
+    funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
@@ -44,6 +45,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     ) {
         this.Delegua = Delegua;
         this.diretorioBase = diretorioBase;
+        this.funcaoDeRetorno = console.log;
 
         this.locais = new Map();
         this.erros = [];

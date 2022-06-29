@@ -84,3 +84,57 @@ Os comandos implementados até então são:
 adicionar-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
 remover-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
 ```
+
+## Resposta dos comandos
+
+Para cada comando, o _socket_ responde da seguinte forma:
+
+### `avaliar`
+
+Se texto após a palavra `avaliar` for sintaticamente correto e executar normalmente, este comando resolve o resultado da execução da seguinte forma:
+
+**Exemplo**: Avaliando `2 + 2`
+
+```
+Recebido comando 'avaliar'  
+--- avaliar-resposta ---    
+4
+--- fim-avaliar-resposta ---
+```
+
+**Exemplo**: Avaliando `aleatorio()`
+
+```
+Recebido comando 'avaliar'
+--- avaliar-resposta ---
+0.6485481243564946
+--- fim-avaliar-resposta ---
+```
+
+### `pilha-execucao`
+
+Quando há ponto de parada válido, o resultado é algo como:
+
+```
+Recebido comando 'pilha-execucao'
+--- pilha-execucao-resposta ---
+escreva('testando aspas simples'); --- D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua::1
+--- fim-pilha-execucao-resposta ---
+```
+
+A primeira linha da resposta é reservada para informações sobre a resposta em si. Neste caso, temos simplesmente `Recebido comando 'pilha-execucao'`.
+
+`--- pilha-execucao-resposta ---` e `--- fim-pilha-execucao-resposta ---` são marcadores que indicam quando a resposta do comando (que é multilinha) começou e terminou, respectivamente.
+
+### `proximo`
+
+Executa uma instrução e devolve para os clientes de depuração o seguinte:
+
+```
+Recebido comando 'proximo'
+--- proximo-resposta ---
+```
+
+### `variáveis`
+
+Ao receber o comando, o depurador devolve o nome, o tipo e o valor da variável quando possível.

@@ -9,6 +9,7 @@ import { SimboloInterface } from "./simbolo-interface";
 
 export interface InterpretadorInterface {
     diretorioBase: any;
+    funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 

@@ -8,8 +8,8 @@ export class Se extends Declaracao {
     caminhosSeSenao: any;
     caminhoSenao: any;
 
-    constructor(linha: number, condicao: any, caminhoEntao: any, caminhosSeSenao: any, caminhoSenao: any) {
-        super(linha, 0);
+    constructor(condicao: any, caminhoEntao: any, caminhosSeSenao: any, caminhoSenao: any) {
+        super(condicao.linha, condicao.hashArquivo);
         this.condicao = condicao;
         this.caminhoEntao = caminhoEntao;
         this.caminhosSeSenao = caminhosSeSenao;

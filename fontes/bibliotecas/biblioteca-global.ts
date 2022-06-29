@@ -167,7 +167,5 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
         })
     );
 
-    pilhaEscoposExecucao.definirVariavel("exports", {});
-
     return pilhaEscoposExecucao;
 };
