@@ -14,10 +14,19 @@ describe('Avaliador sintático', () => {
         });
 
         it('Sucesso - Vetor vazio', () => {
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador);
+            const retornoLexador = delegua.lexador.mapear(["var vetorVazio = []"], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
+
+        it('Sucesso - Dicionário vazio', () => {
+            const retornoLexador = delegua.lexador.mapear(["var dicionarioVazio = {}"], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
         it('Sucesso - Undefined', () => {

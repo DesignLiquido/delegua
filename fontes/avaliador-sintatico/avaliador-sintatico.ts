@@ -68,29 +68,30 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.performance = performance;
     }
 
-    sincronizar() {
-        this.avancarEDevolverAnterior();
+    // Verificar possibilidade de remover na próxima versão, visto que não foi possível realizar testes com esse método.
+    // sincronizar() {
+    //     this.avancarEDevolverAnterior();
 
-        while (!this.estaNoFinal()) {
-            const tipoSimboloAtual: string = this.simboloAnterior().tipo;
-            if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
+    //     while (!this.estaNoFinal()) {
+    //         const tipoSimboloAtual: string = this.simboloAnterior().tipo;
+    //         if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
-            switch (tipoSimboloAtual) {
-                case tiposDeSimbolos.CLASSE:
-                case tiposDeSimbolos.FUNCAO:
-                case tiposDeSimbolos.FUNÇÃO:
-                case tiposDeSimbolos.VARIAVEL:
-                case tiposDeSimbolos.PARA:
-                case tiposDeSimbolos.SE:
-                case tiposDeSimbolos.ENQUANTO:
-                case tiposDeSimbolos.ESCREVA:
-                case tiposDeSimbolos.RETORNA:
-                    return;
-            }
+    //         switch (tipoSimboloAtual) {
+    //             case tiposDeSimbolos.CLASSE:
+    //             case tiposDeSimbolos.FUNCAO:
+    //             case tiposDeSimbolos.FUNÇÃO:
+    //             case tiposDeSimbolos.VARIAVEL:
+    //             case tiposDeSimbolos.PARA:
+    //             case tiposDeSimbolos.SE:
+    //             case tiposDeSimbolos.ENQUANTO:
+    //             case tiposDeSimbolos.ESCREVA:
+    //             case tiposDeSimbolos.RETORNA:
+    //                 return;
+    //         }
 
-            this.avancarEDevolverAnterior();
-        }
-    }
+    //         this.avancarEDevolverAnterior();
+    //     }
+    // }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
@@ -109,7 +110,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     verificarTipoProximoSimbolo(tipo: string): boolean {
-        if (this.estaNoFinal()) return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
@@ -121,19 +121,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.simbolos[this.atual - 1];
     }
 
-    simboloNaPosicao(posicao: number): SimboloInterface {
-        return this.simbolos[this.atual + posicao];
-    }
-
     estaNoFinal(): boolean {
-        const simboloAtual = this.simboloAtual();
-        if (
-            simboloAtual &&
-            simboloAtual.tipo === tiposDeSimbolos.PONTO_E_VIRGULA
-        ) {
-            return true;
-        }
-
         return this.atual === this.simbolos.length;
     }
 
@@ -169,25 +157,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
 
-            if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.COLCHETE_DIREITO
-                )
-            ) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
             }
 
             while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                 const valor = this.atribuir();
                 valores.push(valor);
-                if (
-                    this.simboloAtual().tipo !==
-                    tiposDeSimbolos.COLCHETE_DIREITO
-                ) {
-                    this.consumir(
-                        tiposDeSimbolos.VIRGULA,
-                        'Esperado vírgula antes da próxima expressão.'
-                    );
+                if (this.simboloAtual().tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                    this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                 }
             }
 
@@ -294,29 +272,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         while (true) {
             if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.PARENTESE_ESQUERDO
-                )
-            ) {
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
-            } else if (
-                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)
-            ) {
-                let nome = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome do método após '.'."
-                );
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
+                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
                 expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
-            } else if (
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.COLCHETE_ESQUERDO
-                )
-            ) {
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
-                let simboloFechamento = this.consumir(
-                    tiposDeSimbolos.COLCHETE_DIREITO,
-                    "Esperado ']' após escrita do indice."
-                );
+                const simboloFechamento = this.consumir(tiposDeSimbolos.COLCHETE_DIREITO,"Esperado ']' após escrita do indice.");
                 expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
             } else {
                 break;
@@ -345,9 +308,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     exponenciacao(): Construto {
         let expressao = this.unario();
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simboloAnterior();
             const direito = this.unario();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -580,12 +541,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Escreva(simbolo);
     }
 
-    declaracaoExpressao(): any {
+    declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
         return new Expressao(expressao);
     }
 
-    blocoEscopo(): any {
+    blocoEscopo(): any[] {
         const declaracoes = [];
 
         while (
@@ -722,7 +683,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoSustar(): any {
+    declaracaoSustar(): Sustar {
         if (this.ciclos < 1) {
             this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
@@ -1122,7 +1083,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return this.resolverDeclaracao();
         } catch (erro: any) {
             // TODO: Altíssima chance de ser uma roubada. Considerar retirar mais futuramente.
-            this.sincronizar();
+            // this.sincronizar();
             return null;
         }
     }

@@ -155,15 +155,15 @@ export class Interpretador
     }
 
     verificarOperandosNumeros(
-        operador: any,
+        simbolo: SimboloInterface,
         direita: any,
         esquerda: any
     ): void {
         if (typeof direita === 'number' && typeof esquerda === 'number') return;
         throw new ErroEmTempoDeExecucao(
-            operador,
+            simbolo,
             'Operandos precisam ser números.',
-            operador.linha
+            Number(simbolo.linha)
         );
     }
 

@@ -7,6 +7,7 @@ import {
     Enquanto,
     Escolha,
     Escreva,
+    Expressao,
     Fazer,
     Funcao as FuncaoDeclaracao,
     Importar,
@@ -28,14 +29,13 @@ export interface AvaliadorSintaticoInterface {
     atual: number;
     ciclos: number;
 
-    sincronizar(): void;
+    // sincronizar(): void;
     consumir(tipo: any, mensagemDeErro: string): any;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: string): boolean;
     verificarTipoProximoSimbolo(tipo: string): boolean;
     simboloAtual(): SimboloInterface;
     simboloAnterior(): SimboloInterface;
-    simboloNaPosicao(posicao: number): SimboloInterface;
     estaNoFinal(): boolean;
     avancarEDevolverAnterior(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
@@ -57,8 +57,8 @@ export interface AvaliadorSintaticoInterface {
     atribuir(): Construto;
     expressao(): Construto;
     declaracaoEscreva(): Escreva;
-    declaracaoExpressao(): any;
-    blocoEscopo(): any;
+    declaracaoExpressao(): Expressao;
+    blocoEscopo(): any[];
     declaracaoSe(): Se;
     declaracaoEnquanto(): Enquanto;
     declaracaoPara(): Para;
