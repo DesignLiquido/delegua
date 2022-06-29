@@ -603,7 +603,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     declaracaoSe(): Se {
-        const simboloSe = this.simboloAnterior();
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' após 'se'."
@@ -658,7 +657,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
 
         return new Se(
-            Number(simboloSe.linha),
             condicao,
             caminhoEntao,
             caminhosSeSenao,
@@ -883,6 +881,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     declaracaoTente(): Tente {
+        const simboloTente: SimboloInterface = this.simboloAnterior();
         this.consumir(
             tiposDeSimbolos.DOIS_PONTOS,
             "Esperado ':' após a declaração 'tente'."
@@ -925,10 +924,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             blocoFinalmente = this.blocoEscopo();
         }
 
-        return new Tente(blocoTente, blocoPegue, blocoSenao, blocoFinalmente);
+        return new Tente(simboloTente.hashArquivo, Number(simboloTente.linha), blocoTente, blocoPegue, blocoSenao, blocoFinalmente);
     }
 
     declaracaoFazer(): Fazer {
+        const simboloFazer: SimboloInterface = this.simboloAnterior();
         try {
             this.ciclos += 1;
 
@@ -950,19 +950,13 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 "Esperado ')' após declaração do 'enquanto'."
             );
 
-            return new Fazer(caminhoFazer, condicaoEnquanto);
+            return new Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), caminhoFazer, condicaoEnquanto);
         } finally {
             this.ciclos -= 1;
         }
     }
 
-    resolverDeclaracao() {
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESPACO_INDENTACAO)) {
-            const espacoIndentacao = this.avancarEDevolverAnterior();
-            this.tamanhoIndentacaoAnterior = Number(espacoIndentacao.literal);
-            return null;
-        } */
-            
+    resolverDeclaracao(): any {            
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
@@ -983,9 +977,10 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             return this.declaracaoSe();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA))
             return this.declaracaoEscreva();
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS))
-            return new Bloco(this.blocoEscopo());
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const simboloInicioBloco: SimboloInterface = this.simboloAnterior();
+            return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+        }
 
         return this.declaracaoExpressao();
     }

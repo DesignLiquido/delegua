@@ -5,8 +5,8 @@ export class Fazer extends Declaracao {
     caminhoFazer: any;
     condicaoEnquanto: any;
 
-    constructor(caminhoFazer: any, condicaoEnquanto: any) {
-        super(0, 0);
+    constructor(hashArquivo: number, linha: number, caminhoFazer: any, condicaoEnquanto: any) {
+        super(linha, hashArquivo);
         this.caminhoFazer = caminhoFazer;
         this.condicaoEnquanto = condicaoEnquanto;
     }

@@ -11,10 +11,10 @@ import {
 } from "../interfaces";
 
 export interface DeleguaInterface {
-    teveErro: boolean;
-    teveErroEmTempoDeExecucao: boolean;
     dialeto: string;
     arquivosAbertos: { [identificador: string]: string };
+    conteudoArquivosAbertos: { [identificador: string]: string[] };
+    funcaoDeRetorno: Function;
 
     interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
@@ -25,6 +25,7 @@ export interface DeleguaInterface {
     versao(): string;
     carregarArquivo(caminhoRelativoArquivo: string): void;
     executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface;
+    executarUmaLinha(linha: string): RetornoExecucaoInterface;
     reportar(linha: number, onde: any, mensagem: string): void;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void;
     erroEmTempoDeExecucao(erro: any): void;
