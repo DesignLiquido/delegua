@@ -36,7 +36,6 @@ export interface AvaliadorSintaticoInterface {
     verificarTipoProximoSimbolo(tipo: string): boolean;
     simboloAtual(): SimboloInterface;
     simboloAnterior(): SimboloInterface;
-    simboloNaPosicao(posicao: number): SimboloInterface;
     estaNoFinal(): boolean;
     avancarEDevolverAnterior(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;

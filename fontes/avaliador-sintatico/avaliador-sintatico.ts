@@ -121,10 +121,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.simbolos[this.atual - 1];
     }
 
-    simboloNaPosicao(posicao: number): SimboloInterface {
-        return this.simbolos[this.atual + posicao];
-    }
-
     estaNoFinal(): boolean {
         return this.atual === this.simbolos.length;
     }
