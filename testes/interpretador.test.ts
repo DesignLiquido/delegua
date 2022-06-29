@@ -325,16 +325,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 })
             });
-
-            // it('Subtração de número e texto', () => {
-            //     const retornoLexador = delegua.lexador.mapear(["var a = 2 - '2'"], -1);
-            //     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                
-            //     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-    
-            //     expect(retornoInterpretador.erros).toHaveLength(1);
-            //     expect(retornoInterpretador.erros[0].mensagem).toBe('Operandos precisam ser números.');
-            // });
+            
         });
     });
 });

@@ -165,16 +165,6 @@ export class Interpretador
             'Operandos precisam ser números.',
             Number(simbolo.linha)
         );
-        // try {
-        //     if (typeof direita === 'number' && typeof esquerda === 'number') return;
-        //     throw new ErroEmTempoDeExecucao(
-        //         simbolo,
-        //         'Operandos precisam ser números.',
-        //         simbolo.linha
-        //     );
-        // } catch (error: any) {
-        //     this.erros.push(error)
-        // }
     }
 
     visitarExpressaoBinaria(expressao: any) {

@@ -154,13 +154,6 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
-            it('Sucesso - Teste', () => {
-                const resultado = delegua.lexador.mapear(["var a = 10.5"], -1);
-
-                expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(4);
-            });
-
             it('Sucesso - Se', () => {
                 const resultado = delegua.lexador.mapear(["se (1 == 1) { escreva('Tautologia') }"], -1);
 
