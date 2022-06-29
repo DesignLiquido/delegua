@@ -243,7 +243,7 @@ export class ServidorDepuracao {
                         break;
                     case "tchau":
                         conexao.write("Recebido comando 'tchau'. Conexão será encerrada\n");
-                        conexao.destroy();
+                        this.finalizarServidorDepuracao();
                         return;
                     case "variaveis":
                         this.comandoVariaveis(conexao);
@@ -286,7 +286,7 @@ export class ServidorDepuracao {
     finalizarServidorDepuracao(): void {
         Object.keys(this.conexoes).forEach((chave) => {
             this.conexoes[chave].write('--- finalizando ---\n');
-            this.conexoes[chave].destroy();
+            this.conexoes[chave].end();
         });
 
         this.servidor.close();
