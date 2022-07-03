@@ -252,9 +252,15 @@ export class InterpretadorComDepuracao
         if (escopo < this.escopoAtual) {
             this.interpretacaoApenasUmaInstrucao(escopo + 1);
         } else {
-            this.executar(escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual]);
+            const declaracaoAtual = escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
+            // Blocos de escopo que não sejam de funções adentram 
+            // o escopo ativo por padrão, por isso o teste abaixo.
+            this.adentrarEscopoAtivo = Object.getPrototypeOf(declaracaoAtual).constructor.name !== 'Funcao';
+
+            this.executar(declaracaoAtual);
             if (this.adentrarEscopoAtivo) {
-                // Depurador comandou instrução 'adentrar-escopo'. 
+                // Depurador comandou instrução 'adentrar-escopo', ou bloco de escopo
+                // não é de uma função.
                 // Instrução só foi realmente executada se não abriu novo bloco de escopo.
                 // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
                 this.adentrarEscopoAtivo = false;

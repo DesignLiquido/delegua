@@ -48,10 +48,15 @@ export class ServidorDepuracao {
     }
 
     comandoAdentrarEscopo = (conexao: net.Socket): any => {
-        conexao.write("Recebido comando 'adentrar-escopo'\n");
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'adentrar-escopo'\n";
+        linhasResposta += '--- adentrar-escopo-resposta ---\n';
+
         this.interpretador.adentrarEscopoAtivo = true;
         this.interpretador.pontoDeParadaAtivo = false;
         this.interpretador.interpretacaoApenasUmaInstrucao();
+
+        conexao.write(linhasResposta);
     }
 
     comandoAdicionarPontoParada = (comando: string[], conexao: net.Socket): any => {
