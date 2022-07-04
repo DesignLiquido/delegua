@@ -125,6 +125,7 @@ export class ServidorDepuracao {
 
                 linhasResposta += this.instanciaDelegua.conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
                     this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
+                    declaracaoAtual.assinaturaMetodo + '::' + 
                     declaracaoAtual.linha + '\n';
                 
             }
