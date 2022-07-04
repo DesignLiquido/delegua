@@ -270,7 +270,7 @@ export class InterpretadorComDepuracao
         }
 
         // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual) {
+        if (escopoVisitado.declaracoes.length - 1 <= escopoVisitado.declaracaoAtual) {
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
         }
