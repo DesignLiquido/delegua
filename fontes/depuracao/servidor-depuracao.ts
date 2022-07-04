@@ -114,7 +114,10 @@ export class ServidorDepuracao {
 
         linhasResposta += '--- pilha-execucao-resposta ---\n';
         try {
-            for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
+            for (let i = pilhaEscoposExecucao.pilha.length - 1; 
+                    i > 0; 
+                    i--) 
+            {
                 const elementoPilha = pilhaEscoposExecucao.pilha[i];
                 const posicaoDeclaracaoAtual: number = 
                     elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
