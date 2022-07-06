@@ -2,7 +2,8 @@ import { PontoParada } from "../depuracao";
 import { InterpretadorInterface } from "./interpretador-interface";
 
 export interface InterpretadorComDepuracaoInterface extends InterpretadorInterface {
-    adentrarEscopoAtivo: boolean;
+    comandoAdentrarEscopo: boolean;
+    comandoProximo: boolean;
     pontoDeParadaAtivo: boolean;
     pontosParada: PontoParada[];
 

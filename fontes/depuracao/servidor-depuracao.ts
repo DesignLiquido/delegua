@@ -52,7 +52,7 @@ export class ServidorDepuracao {
         linhasResposta += "Recebido comando 'adentrar-escopo'\n";
         linhasResposta += '--- adentrar-escopo-resposta ---\n';
 
-        this.interpretador.adentrarEscopoAtivo = true;
+        this.interpretador.comandoAdentrarEscopo = true;
         this.interpretador.pontoDeParadaAtivo = false;
         this.interpretador.interpretacaoApenasUmaInstrucao();
 
@@ -152,8 +152,10 @@ export class ServidorDepuracao {
         let linhasResposta: string = "";
         linhasResposta += "Recebido comando 'proximo'\n";
         linhasResposta += '--- proximo-resposta ---\n';
+        this.interpretador.comandoProximo = true;
         this.interpretador.pontoDeParadaAtivo = false;
         this.interpretador.interpretacaoApenasUmaInstrucao();
+        this.interpretador.comandoProximo = false;
         conexao.write(linhasResposta);
     }
 
