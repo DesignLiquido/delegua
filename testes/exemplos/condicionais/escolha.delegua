@@ -1,0 +1,12 @@
+escolha (2) {
+    caso "1":
+        escreva("correspondente à opção 1");
+        escreva("escreva de novo 1");
+    caso 1:
+    caso 2:
+        escreva("correspondente à opção 2"); 
+        escreva("escreva de novo 2");
+        escreva("escreva de novo 3");
+    padrao:
+        escreva("Sem opção correspondente");
+}
