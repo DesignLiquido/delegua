@@ -178,6 +178,10 @@ export class Delegua implements DeleguaInterface {
         }
     }
 
+    /**
+     * Execução por arquivo.
+     * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
+     */
     carregarArquivo(caminhoRelativoArquivo: string): void {
         // this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
 
@@ -190,6 +194,14 @@ export class Delegua implements DeleguaInterface {
             process.exit(70); // Código com exceções não tratadas
     }
 
+    /**
+     * A execução do código de fato.
+     * @param retornoImportador Dados retornados do Importador, como o retorno do Lexador, do Avaliador 
+     *                          Sintático e respectivos erros.
+     * @param manterAmbiente Indicação se ambiente deve ser mantido ou não. Normalmente verdadeiro
+     *                       para LAIR, falso para execução por arquivo.
+     * @returns Um objeto com o resultado da execução.
+     */
     executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
