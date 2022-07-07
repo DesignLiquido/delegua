@@ -48,10 +48,15 @@ export class ServidorDepuracao {
     }
 
     comandoAdentrarEscopo = (conexao: net.Socket): any => {
-        conexao.write("Recebido comando 'adentrar-escopo'\n");
-        this.interpretador.adentrarEscopoAtivo = true;
+        let linhasResposta: string = "";
+        linhasResposta += "Recebido comando 'adentrar-escopo'\n";
+        linhasResposta += '--- adentrar-escopo-resposta ---\n';
+
+        this.interpretador.comandoAdentrarEscopo = true;
         this.interpretador.pontoDeParadaAtivo = false;
         this.interpretador.interpretacaoApenasUmaInstrucao();
+
+        conexao.write(linhasResposta);
     }
 
     comandoAdicionarPontoParada = (comando: string[], conexao: net.Socket): any => {
@@ -109,7 +114,10 @@ export class ServidorDepuracao {
 
         linhasResposta += '--- pilha-execucao-resposta ---\n';
         try {
-            for (let i = 1; i < pilhaEscoposExecucao.pilha.length; i++) {
+            for (let i = pilhaEscoposExecucao.pilha.length - 1; 
+                    i > 0; 
+                    i--) 
+            {
                 const elementoPilha = pilhaEscoposExecucao.pilha[i];
                 const posicaoDeclaracaoAtual: number = 
                     elementoPilha.declaracaoAtual >= elementoPilha.declaracoes.length ? elementoPilha.declaracoes.length - 1 : elementoPilha.declaracaoAtual;
@@ -117,6 +125,7 @@ export class ServidorDepuracao {
 
                 linhasResposta += this.instanciaDelegua.conteudoArquivosAbertos[declaracaoAtual.hashArquivo][declaracaoAtual.linha - 1].trim() + ' --- ' + 
                     this.instanciaDelegua.arquivosAbertos[declaracaoAtual.hashArquivo] + '::' + 
+                    declaracaoAtual.assinaturaMetodo + '::' + 
                     declaracaoAtual.linha + '\n';
                 
             }
@@ -143,8 +152,10 @@ export class ServidorDepuracao {
         let linhasResposta: string = "";
         linhasResposta += "Recebido comando 'proximo'\n";
         linhasResposta += '--- proximo-resposta ---\n';
+        this.interpretador.comandoProximo = true;
         this.interpretador.pontoDeParadaAtivo = false;
         this.interpretador.interpretacaoApenasUmaInstrucao();
+        this.interpretador.comandoProximo = false;
         conexao.write(linhasResposta);
     }
 

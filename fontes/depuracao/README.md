@@ -118,13 +118,21 @@ Quando há ponto de parada válido, o resultado é algo como:
 ```
 Recebido comando 'pilha-execucao'
 --- pilha-execucao-resposta ---
-escreva('testando aspas simples'); --- D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua::1
+escreva('testando aspas simples'); --- D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua::<principal>::1
 --- fim-pilha-execucao-resposta ---
 ```
 
 A primeira linha da resposta é reservada para informações sobre a resposta em si. Neste caso, temos simplesmente `Recebido comando 'pilha-execucao'`.
 
+Cada linha de resposta tem o seguinte formato:
+
+```
+instrução --- caminho-do-arquivo::assinatura-do-método::número-da-linha
+```
+
 `--- pilha-execucao-resposta ---` e `--- fim-pilha-execucao-resposta ---` são marcadores que indicam quando a resposta do comando (que é multilinha) começou e terminou, respectivamente.
+
+A pilha de execução enviada para o cliente de depuração não é a mesma que a pilha de execução real. Isso acontece porque escopos de instruções como `se`, `enquanto`, `para`, etc., não devem ser divididos entre vários elementos. O que na verdade acontece é que apenas o último escopo de cada arquivo e cada assinatura de método é reportado. Se duas instruções estão no mesmo arquivo mas possuem diferentes assinaturas de métodos, ambas serão reportadas.
 
 ### `proximo`
 

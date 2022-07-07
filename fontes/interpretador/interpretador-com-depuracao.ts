@@ -35,7 +35,8 @@ export class InterpretadorComDepuracao
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
     escopoAtual: number;
-    adentrarEscopoAtivo: boolean;
+    comandoAdentrarEscopo: boolean;
+    comandoProximo: boolean;
 
     constructor(
         importador: ImportadorInterface,
@@ -48,7 +49,8 @@ export class InterpretadorComDepuracao
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;
         this.escopoAtual = 0;
-        this.adentrarEscopoAtivo = false;
+        this.comandoAdentrarEscopo = false;
+        this.comandoProximo = false;
     }
 
     /**
@@ -106,7 +108,13 @@ export class InterpretadorComDepuracao
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             this.escopoAtual++;
 
-            if (!this.adentrarEscopoAtivo) {
+            if (this.comandoProximo) {
+                // Quando o comando for 'próximo', não executa.
+                // Aguarda o usuário com a próxima instrução vinda do depurador.
+                return null;
+            }
+
+            if (!this.comandoAdentrarEscopo) {
                 return this.executarUltimoEscopo();
             }
         }
@@ -252,19 +260,25 @@ export class InterpretadorComDepuracao
         if (escopo < this.escopoAtual) {
             this.interpretacaoApenasUmaInstrucao(escopo + 1);
         } else {
-            this.executar(escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual]);
-            if (this.adentrarEscopoAtivo) {
-                // Depurador comandou instrução 'adentrar-escopo'. 
-                // Instrução só foi realmente executada se não abriu novo bloco de escopo.
-                // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
-                this.adentrarEscopoAtivo = false;
-            } else {
-                escopoVisitado.declaracaoAtual++;
-            }
+            const declaracaoAtual = escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
+            this.executar(declaracaoAtual);
+            // Blocos de escopo que não sejam de funções adentram 
+            // o escopo ativo por padrão, por isso o teste abaixo.
+            // this.adentrarEscopoAtivo = Object.getPrototypeOf(declaracaoAtual).constructor.name !== 'Funcao';
+        }
+
+        if (this.comandoAdentrarEscopo) {
+            // Depurador comandou instrução 'adentrar-escopo', ou bloco de escopo
+            // não é de uma função.
+            // Instrução só foi realmente executada se não abriu novo bloco de escopo.
+            // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
+            this.comandoAdentrarEscopo = false;
+        } else {
+            escopoVisitado.declaracaoAtual++;
         }
 
         // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual) {
+        if (escopoVisitado.declaracoes.length - 1 <= escopoVisitado.declaracaoAtual) {
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
         }
