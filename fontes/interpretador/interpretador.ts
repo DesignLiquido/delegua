@@ -497,13 +497,7 @@ export class Interpretador
                         encontrado = true;
 
                         try {
-                            for (
-                                let k = 0;
-                                k < caminho.declaracoes.length;
-                                k++
-                            ) {
-                                this.executar(caminho.declaracoes[k]);
-                            }
+                            this.executarBloco(caminho.declaracoes);
                         } catch (erro: any) {
                             throw erro;
                         }
@@ -512,9 +506,7 @@ export class Interpretador
             }
 
             if (caminhoPadrao !== null && encontrado === false) {
-                for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
-                    this.executar(caminhoPadrao['declaracoes'][i]);
-                }
+                this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
             throw erro;
