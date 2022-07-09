@@ -11,7 +11,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}\\index.ts", "--depurador"],
+            "args": ["${workspaceFolder}\\index.ts"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
