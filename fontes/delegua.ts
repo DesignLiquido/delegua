@@ -154,6 +154,10 @@ export class Delegua implements DeleguaInterface {
     executarUmaLinha(linha: string): RetornoExecucaoInterface {
         const retornoLexador = this.lexador.mapear([linha], -1);
         const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        if (this.afericaoErros({ retornoLexador, retornoAvaliadorSintatico } as RetornoImportador)) {
+            return { resultado: [] } as RetornoExecucaoInterface;
+        }
+
         return this.executar({
             retornoLexador,
             retornoAvaliadorSintatico
