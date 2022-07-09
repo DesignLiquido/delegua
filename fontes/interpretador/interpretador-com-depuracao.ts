@@ -330,12 +330,27 @@ export class InterpretadorComDepuracao
     }
 
     /**
+     * Prepara a pilha de escopos para uma situação de depuração.
+     * Não há execução de código neste caso.
+     * @param declaracoes Um vetor de declarações.
+     */
+    prepararParaDepuracao(declaracoes: Declaracao[]): void {
+        this.declaracoes = declaracoes;
+
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: new Ambiente(),
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        this.escopoAtual++;
+    }
+
+    /**
      * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
      * ponto de parada ou não.
      * Diferentemente da interpretação tradicional, não possui indicadores
      * de performance porque eles não fazem sentido aqui.
-     * Até então essa função não executa imediatamente, porque a depuração é
-     * controlada pelo servidor de depuração.
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
@@ -353,6 +368,8 @@ export class InterpretadorComDepuracao
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
+
+        this.executarUltimoEscopo(manterAmbiente);
 
         const retorno = {
             erros: this.erros,
