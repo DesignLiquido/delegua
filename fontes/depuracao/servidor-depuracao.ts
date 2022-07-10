@@ -9,7 +9,7 @@ import { PontoParada } from './ponto-parada';
 export class ServidorDepuracao {
     instanciaDelegua: DeleguaInterface;
     servidor: net.Server;
-    conexoes: {[chave: number]: any}
+    conexoes: {[chave: number]: any};
     contadorConexoes: number;
     interpretador: InterpretadorComDepuracaoInterface;
 

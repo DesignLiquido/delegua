@@ -13,7 +13,7 @@ const principal = () => {
         )
         .option(
             '-D, --depurador',
-            'Habilita o depurador, permitindo depuração em um ambiente como o VSCode',
+            'Habilita o depurador, permitindo depuração em um ambiente como o VSCode. Sempre desabilitada em modo LAIR.',
             false
         )
         .option(
@@ -31,7 +31,7 @@ const principal = () => {
     analisadorArgumentos.parse();
     const opcoes = analisadorArgumentos.opts();
 
-    const delegua = new Delegua(opcoes.dialeto, opcoes.performance, opcoes.depurador);
+    const delegua = new Delegua(opcoes.dialeto, opcoes.performance, !!nomeArquivo ? opcoes.depurador : false);
 
     if (!nomeArquivo) {
         delegua.iniciarLairDelegua();

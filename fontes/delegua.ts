@@ -47,6 +47,7 @@ export class Delegua implements DeleguaInterface {
     resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
     funcaoDeRetorno: Function;
+    modoDepuracao: Boolean;
 
     servidorDepuracao: ServidorDepuracao;
 
@@ -61,6 +62,7 @@ export class Delegua implements DeleguaInterface {
 
         this.dialeto = dialeto;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
+        this.modoDepuracao = depurador;
 
         switch (this.dialeto) {
             case 'egua':
@@ -131,13 +133,14 @@ export class Delegua implements DeleguaInterface {
             prompt: '\ndelegua> ',
         });
 
-        leiaLinha.prompt();
+        const isto = this;
 
+        leiaLinha.prompt();
         leiaLinha.on('line', (linha: string) => {
-            const retornoInterpretacao = this.executarUmaLinha(linha);
+            const retornoInterpretacao = isto.executarUmaLinha(linha);
             const resultado = retornoInterpretacao.resultado[0];
             if (resultado !== undefined) {
-                this.funcaoDeRetorno(resultado);
+                isto.funcaoDeRetorno(resultado);
             }
             
             leiaLinha.prompt();
@@ -152,6 +155,10 @@ export class Delegua implements DeleguaInterface {
     executarUmaLinha(linha: string): RetornoExecucaoInterface {
         const retornoLexador = this.lexador.mapear([linha], -1);
         const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        if (this.afericaoErros({ retornoLexador, retornoAvaliadorSintatico } as RetornoImportador)) {
+            return { resultado: [] } as RetornoExecucaoInterface;
+        }
+
         return this.executar({
             retornoLexador,
             retornoAvaliadorSintatico
@@ -179,18 +186,53 @@ export class Delegua implements DeleguaInterface {
     }
 
     /**
+     * Verifica erros nas etapas de lexação e avaliação sintática.
+     * @param retornoImportador Um objeto que implementa a interface RetornoImportador.
+     * @returns Verdadeiro se há erros. Falso caso contrário.
+     */
+    afericaoErros(retornoImportador: RetornoImportador): boolean {
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (const erroLexador of retornoImportador.retornoLexador.erros) {
+                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+            }
+            return true;
+        }
+
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
+                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Execução por arquivo.
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
      */
     carregarArquivo(caminhoRelativoArquivo: string): void {
-        // this.nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-
         const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
-        const { erros } = this.executar(retornoImportador);
-
-        if (erros.lexador.length > 0 || erros.avaliadorSintatico.length > 0) 
+        if (this.afericaoErros(retornoImportador)) {
             process.exit(65); // Código para erro de avaliação antes da execução
-        if (erros.interpretador.length > 0) 
+        }
+
+        let errosExecucao: any = {
+            lexador: [],
+            avaliadorSintatico: [],
+            interpretador: []
+        };
+
+        if (this.modoDepuracao) {
+            (this.interpretador as InterpretadorComDepuracaoInterface)
+                .prepararParaDepuracao(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+        } else {
+            const { erros } = this.executar(retornoImportador);
+            errosExecucao = erros;
+        }
+
+        if (errosExecucao.length > 0) 
             process.exit(70); // Código com exceções não tratadas
     }
 
@@ -203,20 +245,6 @@ export class Delegua implements DeleguaInterface {
      * @returns Um objeto com o resultado da execução.
      */
     executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
-        if (retornoImportador.retornoLexador.erros.length > 0) {
-            for (const erroLexador of retornoImportador.retornoLexador.erros) {
-                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
-            }
-            return;
-        }
-
-        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
-                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
-            }
-            return;
-        }
-
         const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
 
         if (retornoInterpretador.erros.length > 0) {
@@ -232,11 +260,7 @@ export class Delegua implements DeleguaInterface {
         }
 
         return {
-            erros: {
-                lexador: retornoImportador.retornoLexador.erros,
-                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
-                interpretador: retornoInterpretador.erros
-            },
+            erros: retornoInterpretador.erros,
             resultado: retornoInterpretador.resultado,
         };
     }
