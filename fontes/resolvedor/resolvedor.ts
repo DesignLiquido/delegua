@@ -298,7 +298,7 @@ export class Resolvedor implements ResolvedorInterface {
     }
 
     visitarExpressaoEscreva(declaracao: Escreva): void {
-        this.resolver(declaracao.expressao);
+        this.resolver(declaracao.argumentos);
     }
 
     visitarExpressaoRetornar(declaracao: any): any {

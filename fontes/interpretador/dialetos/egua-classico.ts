@@ -555,7 +555,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoEscreva(declaracao: Escreva) {
         try {
-            const valor = this.avaliar(declaracao.expressao);
+            const valor = this.avaliar(declaracao.argumentos[0]);
             console.log(this.paraTexto(valor));
             return null;
         } catch (erro: any) {

@@ -536,19 +536,21 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     declaracaoEscreva(): Escreva {
+        const simboloAtual = this.simboloAtual();
+
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const simbolo: any = this.expressao();
+        const argumentos: any[] = this.logicaComumParametros();
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em escreva."
         );
 
-        return new Escreva(simbolo);
+        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
     declaracaoExpressao() {
@@ -1009,6 +1011,42 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
+    logicaComumParametros(): any[] {
+        let parametros = [];
+
+        do {
+            if (parametros.length >= 255) {
+                this.erro(
+                    this.simboloAtual(),
+                    'Não pode haver mais de 255 parâmetros'
+                );
+            }
+
+            let parametro = {};
+
+            if (this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO) {
+                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
+                parametro['tipo'] = 'estrela';
+            } else {
+                parametro['tipo'] = 'padrao';
+            }
+
+            parametro['nome'] = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome do parâmetro.'
+            );
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                parametro['default'] = this.primario();
+            }
+
+            parametros.push(parametro);
+
+            if (parametro['tipo'] === 'estrela') break;
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        return parametros;
+    }
+
     corpoDaFuncao(tipo: any): Funcao {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
@@ -1017,42 +1055,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            do {
-                if (parametros.length >= 255) {
-                    this.erro(
-                        this.simboloAtual(),
-                        'Não pode haver mais de 255 parâmetros'
-                    );
-                }
-
-                let parametro = {};
-
-                if (
-                    this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO
-                ) {
-                    this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                    parametro['tipo'] = 'estrela';
-                } else {
-                    parametro['tipo'] = 'padrao';
-                }
-
-                parametro['nome'] = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    'Esperado nome do parâmetro.'
-                );
-
-                if (
-                    this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)
-                ) {
-                    parametro['padrao'] = this.primario();
-                }
-
-                parametros.push(parametro);
-
-                if (parametro['tipo'] === 'estrela') break;
-            } while (
-                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)
-            );
+            parametros = this.logicaComumParametros();
         }
 
         this.consumir(

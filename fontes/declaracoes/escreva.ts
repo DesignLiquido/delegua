@@ -4,11 +4,11 @@ import { Declaracao } from "./declaracao";
 
 
 export class Escreva extends Declaracao {
-    expressao: Construto;
+    argumentos: Construto[];
 
-    constructor(expressao: Construto) {
-        super(expressao.linha, expressao.hashArquivo);
-        this.expressao = expressao;
+    constructor(linha: number, hashArquivo: number, argumentos: Construto[]) {
+        super(linha, hashArquivo);
+        this.argumentos = argumentos;
     }
 
     aceitar(visitante: ResolvedorInterface | InterpretadorInterface): any {
