@@ -543,7 +543,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const argumentos: any[] = this.logicaComumParametros();
+        const argumentos: any[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
