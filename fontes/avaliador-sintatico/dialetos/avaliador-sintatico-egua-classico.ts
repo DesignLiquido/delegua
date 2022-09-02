@@ -541,6 +541,8 @@ adicaoOuSubtracao
     }
 
     declaracaoEscreva(): any {
+        const simboloAtual = this.simboloAtual();
+
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
@@ -558,7 +560,7 @@ adicaoOuSubtracao
             "Esperado ';' após o valor."
         );
 
-        return new Escreva(valor);
+        return new Escreva(simboloAtual.linha, simboloAtual.hashArquivo, [valor]);
     }
 
     declaracaoExpressao(): any {

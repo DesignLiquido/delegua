@@ -593,7 +593,11 @@ export class Interpretador
 
     visitarExpressaoEscreva(declaracao: Escreva): any {
         try {
-            const valor = this.avaliar(declaracao.expressao);
+            let valor: string = '';
+            for (const argumento of declaracao.argumentos) {
+                valor += `${this.avaliar(argumento)} `;
+            }
+            valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
             this.resultadoInterpretador.push(formatoTexto);
             this.funcaoDeRetorno(formatoTexto);
