@@ -35,17 +35,17 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "inteiro",
         new FuncaoPadrao(1, function (valor: any) {
-            if (!valor) {
+            if (isNaN(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Somente números podem passar para inteiro."
+                    "Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro."
                 );
             }
 
-            if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor)) {
+            if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Somente números podem passar para inteiro."
+                    "Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro."
                 );
             }
 
