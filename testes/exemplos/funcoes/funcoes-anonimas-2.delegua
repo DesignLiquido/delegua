@@ -1,0 +1,9 @@
+funcao funcaoTestaMap(lista) {
+  retorna mapear(
+    lista,
+    funcao(valor) {
+      retorna valor
+    })
+}
+
+escreva(funcaoTestaMap([1, 2, 3, 4]))
