@@ -280,6 +280,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Inteiros (Delégua)",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                // "--depurador",
+                "./testes/exemplos/estruturas-de-dados/inteiros.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Merge Sort (Égua Clássico)",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",

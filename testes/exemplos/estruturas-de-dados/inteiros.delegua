@@ -1,0 +1,59 @@
+var valor1 = inteiro(1)
+
+se (valor1 > 0) {
+  escreva('Este número é positivo!');
+} senao se (valor1 < 0) {
+  escreva('Este número é negativo!');
+} senao {
+  escreva('Zero não é positivo nem negativo');
+}
+
+var valor2 = inteiro(-1)
+
+se (valor2 > 0) {
+  escreva('Este número é positivo!');
+} senao se (valor2 < 0) {
+  escreva('Este número é negativo!');
+} senao {
+  escreva('Zero não é positivo nem negativo!');
+}
+
+var valor3 = inteiro(0)
+
+se (valor3 > 0) {
+  escreva('Este número é positivo!');
+} senao se (valor3 < 0) {
+  escreva('Este número é negativo!');
+} senao {
+  escreva('Zero não é positivo nem negativo');
+}
+
+var valor4 = inteiro("1")
+
+se (valor4 > 0) {
+  escreva('Este número é positivo!');
+} senao se (valor4 < 0) {
+  escreva('Este número é negativo!');
+} senao {
+  escreva('Zero não é positivo nem negativo');
+}
+
+var valor5 = inteiro("-1")
+
+se (valor5 > 0) {
+  escreva('Este número é positivo!');
+} senao se (valor5 < 0) {
+  escreva('Este número é negativo!');
+} senao {
+  escreva('Zero não é positivo nem negativo!');
+}
+
+var valor6 = inteiro("0")
+
+se (valor6 > 0) {
+  escreva('Este número é positivo!');
+} senao se (valor6 < 0) {
+  escreva('Este número é negativo!');
+} senao {
+  escreva('Zero não é positivo nem negativo');
+}
