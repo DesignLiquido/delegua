@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as caminho from 'path';
+import * as sistemaOperacional from 'os';
 
 import cyrb53 from '../depuracao/cyrb53';
 import { ErroEmTempoDeExecucao } from '../excecoes';
@@ -52,7 +53,11 @@ export class Importador implements ImportadorInterface {
         const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
-            .split('\n');
+            .split(sistemaOperacional.EOL);
+
+        for (let linha: number = 0; linha < conteudoDoArquivo.length; linha++) {
+            conteudoDoArquivo[linha] += '\0';
+        }
 
         const retornoLexador = this.lexador.mapear(conteudoDoArquivo, hashArquivo);
         const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);

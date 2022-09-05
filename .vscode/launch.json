@@ -256,7 +256,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}index.ts",
-                "--depurador",
+                // "--depurador",
                 "./testes/exemplos/funcoes/funcoes-anonimas.delegua"
             ],
             "runtimeExecutable": "node",

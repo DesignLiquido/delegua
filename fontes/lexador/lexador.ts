@@ -108,12 +108,12 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    adicionarSimbolo(tipo: any, literal: any = null): void {
+    adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo[this.linha].substring(
             this.inicioSimbolo,
             this.atual
         );
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     simboloAtual(): string {
@@ -127,9 +127,6 @@ export class Lexador implements LexadorInterface {
     }
 
     proximoSimbolo(): string {
-        //TODO: Não foi possível simular no teste unitário
-        //Verificar possíbilidade de exclusão na próxima versão
-        // if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
         return this.codigo[this.linha].charAt(this.atual + 1);
     }
 
