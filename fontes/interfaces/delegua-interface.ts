@@ -5,7 +5,6 @@ import {
     InterpretadorComDepuracaoInterface,
     InterpretadorInterface,
     LexadorInterface,
-    ResolvedorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
 } from "../interfaces";
@@ -19,7 +18,6 @@ export interface DeleguaInterface {
     interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
-    resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
 
     versao(): string;

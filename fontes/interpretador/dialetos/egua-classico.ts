@@ -17,7 +17,7 @@ import { DeleguaModulo } from '../../estruturas/modulo';
 import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
-import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
+import { InterpretadorInterface, SimboloInterface, ResolvedorInterface } from '../../interfaces';
 import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
 import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
@@ -32,6 +32,7 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
  */
 export class InterpretadorEguaClassico implements InterpretadorInterface {
     Delegua: Delegua;
+    resolvedor: ResolvedorInterface;
 
     diretorioBase: any;
     funcaoDeRetorno: Function;
@@ -41,9 +42,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     constructor(
         Delegua: Delegua,
+        resolvedor: ResolvedorInterface,
         diretorioBase: string
     ) {
         this.Delegua = Delegua;
+        this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.funcaoDeRetorno = console.log;
 
@@ -893,7 +896,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
         this.erros = [];
 
-        const retornoResolvedor = this.Delegua.resolvedor.resolver(declaracoes);
+        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
         
         const escopoExecucao: EscopoExecucao = {

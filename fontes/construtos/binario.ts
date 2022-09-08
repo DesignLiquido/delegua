@@ -1,4 +1,4 @@
-import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
+import { InterpretadorInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -29,7 +29,7 @@ export class Binario implements Construto {
         this.direita = direita;
     }
 
-    aceitar(visitante: InterpretadorInterface | ResolvedorInterface) {
+    aceitar(visitante: InterpretadorInterface) {
         return visitante.visitarExpressaoBinaria(this);
     }
 }

@@ -5,7 +5,6 @@ import chalk from 'chalk';
 
 import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
-import { Resolvedor } from './resolvedor';
 import { Interpretador } from './interpretador/interpretador';
 import tiposDeSimbolos from './tipos-de-simbolos';
 
@@ -18,18 +17,18 @@ import {
     RetornoExecucaoInterface,
     SimboloInterface,
 } from './interfaces';
-import { ResolvedorInterface } from './interfaces/resolvedor-interface';
+
 import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/lexador-egua-classico';
 import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
-import { ResolvedorEguaClassico } from './resolvedor/dialetos/egua-classico';
 import { AvaliadorSintaticoEguaClassico } from './avaliador-sintatico/dialetos';
 import { ServidorDepuracao } from './depuracao';
 
 import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
 import { InterpretadorComDepuracao } from './interpretador/interpretador-com-depuracao';
+import { ResolvedorEguaClassico } from './resolvedor/dialetos';
 
 /**  
  * O núcleo da linguagem. 
@@ -44,7 +43,6 @@ export class Delegua implements DeleguaInterface {
     interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
-    resolvedor: ResolvedorInterface;
     importador: ImportadorInterface;
     funcaoDeRetorno: Function;
     modoDepuracao: Boolean;
@@ -70,33 +68,30 @@ export class Delegua implements DeleguaInterface {
                     throw new Error("Dialeto " + this.dialeto + " não suporta depuração.");
                 }
 
-                this.resolvedor = new ResolvedorEguaClassico();
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
                 this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
-                this.interpretador = new InterpretadorEguaClassico(this, process.cwd());
+                this.interpretador = new InterpretadorEguaClassico(this, new ResolvedorEguaClassico(), process.cwd());
                 
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguap':
-                this.resolvedor = new Resolvedor();
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
                 this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
                 this.interpretador = depurador ? 
-                    new InterpretadorComDepuracao(this.importador, this.resolvedor, process.cwd(), funcaoDeRetorno) :
-                    new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, funcaoDeRetorno);
+                    new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno) :
+                    new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
 
                 console.log('Usando dialeto: ÉguaP');
                 break;
             default:
-                this.resolvedor = new Resolvedor();
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
                 this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
                 this.interpretador = depurador ? 
-                    new InterpretadorComDepuracao(this.importador, this.resolvedor, process.cwd(), funcaoDeRetorno) :
-                    new Interpretador(this.importador, this.resolvedor, process.cwd(), performance, funcaoDeRetorno);
+                    new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno) :
+                    new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
                 
                 console.log('Usando dialeto: padrão');
                 break;

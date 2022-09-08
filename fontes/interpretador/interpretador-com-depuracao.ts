@@ -1,7 +1,7 @@
 import { Ambiente } from '../ambiente';
 import { Declaracao } from '../declaracoes';
 import { PontoParada } from '../depuracao';
-import { ImportadorInterface, InterpretadorComDepuracaoInterface, ResolvedorInterface } from '../interfaces';
+import { ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra } from '../quebras';
 import { Interpretador } from './interpretador';
@@ -40,11 +40,10 @@ export class InterpretadorComDepuracao
 
     constructor(
         importador: ImportadorInterface,
-        resolvedor: ResolvedorInterface,
         diretorioBase: string,
         funcaoDeRetorno: Function
     ) {
-        super(importador, resolvedor, diretorioBase, false, funcaoDeRetorno);
+        super(importador, diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;

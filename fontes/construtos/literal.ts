@@ -1,4 +1,4 @@
-import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
+import { InterpretadorInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
@@ -15,7 +15,7 @@ export class Literal implements Construto {
         this.valor = valor;
     }
 
-    aceitar(visitante: ResolvedorInterface | InterpretadorInterface) {
+    aceitar(visitante: InterpretadorInterface) {
         return visitante.visitarExpressaoLiteral(this);
     }
 }
