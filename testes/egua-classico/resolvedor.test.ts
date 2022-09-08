@@ -1,40 +1,39 @@
 import { Delegua } from "../../fontes/delegua";
+import { ResolvedorEguaClassico } from "../../fontes/resolvedor/dialetos";
 
 describe('Resolvedor (Égua Clássico)', () => {
     describe('resolver()', () => {
         const delegua = new Delegua('egua');
+        const resolvedor = new ResolvedorEguaClassico();
 
         it('Sucesso', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-            delegua.resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-            expect(delegua.resolvedor.escopos).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toHaveLength(0);
+            resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
+            expect(resolvedor.escopos).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toHaveLength(0);
         });
 
-        // TODO: Resolver bug.
         it('Sucesso - Vetor vazio', () => {
-            delegua.resolvedor.resolver([]);
-            expect(delegua.resolvedor.escopos).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toHaveLength(0);
+            resolvedor.resolver([]);
+            expect(resolvedor.escopos).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toHaveLength(0);
         });
 
-        // TODO: Resolver bug.
         it('Sucesso - Undefined', () => {
-            delegua.resolvedor.resolver(undefined);
-            expect(delegua.resolvedor.escopos).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toHaveLength(0);
+            resolvedor.resolver(undefined);
+            expect(resolvedor.escopos).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toHaveLength(0);
         });
 
-        // TODO: Resolver bug.
         it('Sucesso - Null', () => {
-            delegua.resolvedor.resolver(null);
-            expect(delegua.resolvedor.escopos).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toBeTruthy();
-            expect(delegua.resolvedor.escopos.pilha).toHaveLength(0);
+            resolvedor.resolver(null);
+            expect(resolvedor.escopos).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toBeTruthy();
+            expect(resolvedor.escopos.pilha).toHaveLength(0);
         });
     });
 });
