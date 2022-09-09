@@ -17,7 +17,7 @@ import { DeleguaModulo } from '../../estruturas/modulo';
 import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
-import { InterpretadorInterface, SimboloInterface, ResolvedorInterface } from '../../interfaces';
+import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../interfaces';
 import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
 import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
@@ -839,9 +839,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const distancia = this.locais.get(expressao);
         const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
 
-        const objeto = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
+        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
 
-        let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
+        let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(
@@ -851,7 +851,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        return metodo.definirInstancia(objeto);
+        return metodo.definirInstancia(objeto.valor);
     }
 
     paraTexto(objeto: any): any {

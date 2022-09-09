@@ -8,3 +8,4 @@ export * from './pilha-interface';
 export * from './resolvedor-interface';
 export * from './retornos/retorno-execucao-interface';
 export * from './simbolo-interface';
+export * from './variavel-interface';

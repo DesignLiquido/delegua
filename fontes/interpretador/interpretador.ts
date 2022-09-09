@@ -13,6 +13,7 @@ import {
 import {
     InterpretadorInterface,
     SimboloInterface,
+    VariavelInterface,
 } from '../interfaces';
 import {
     Bloco,
@@ -866,10 +867,10 @@ export class Interpretador
 
     // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
     visitarExpressaoSuper(expressao: Super): any {
-        const superClasse = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
-        const objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
+        const superClasse: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
+        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
 
-        let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
+        let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(
@@ -879,7 +880,7 @@ export class Interpretador
             );
         }
 
-        return metodo.definirInstancia(objeto);
+        return metodo.definirInstancia(objeto.valor);
     }
 
     paraTexto(objeto: any) {

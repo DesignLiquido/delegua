@@ -1,6 +1,6 @@
 import { DeleguaFuncao } from '../estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { SimboloInterface } from '../interfaces';
+import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
@@ -40,19 +40,22 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     definirVariavel(nomeVariavel: string, valor: any) {
-        this.pilha[this.pilha.length-1].ambiente.valores[nomeVariavel] = valor;
+        // TODO: Como inferir o tipo da variável corretamente?
+        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = { valor, tipo: 'texto' };
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
-        const ambienteAncestral = this.pilha[this.pilha.length-distancia].ambiente;
-        ambienteAncestral.valores[simbolo.lexema] = valor;
+        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
+        // TODO: Como inferir o tipo da variável corretamente?
+        ambienteAncestral.valores[simbolo.lexema] = { valor, tipo: 'texto' };
     }
 
     atribuirVariavel(simbolo: SimboloInterface, valor: any) {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length-i].ambiente;
+            const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
-                ambiente.valores[simbolo.lexema] = valor;
+                // TODO: Como inferir o tipo da variável corretamente?
+                ambiente.valores[simbolo.lexema] = { valor, tipo: 'texto' };
                 return;
             }
         }
@@ -63,12 +66,12 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         );
     }
 
-    obterVariavelEm(distancia: number, nome: string): any {
-        const ambienteAncestral = this.pilha[this.pilha.length-distancia].ambiente;
+    obterVariavelEm(distancia: number, nome: string): VariavelInterface {
+        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         return ambienteAncestral.valores[nome];
     }
 
-    obterVariavel(simbolo: SimboloInterface): any {
+    obterVariavel(simbolo: SimboloInterface): VariavelInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length-i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
@@ -82,9 +85,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         );
     }
 
-    obterVariavelPorNome(nome: string): any {
+    obterVariavelPorNome(nome: string): VariavelInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length-i].ambiente;
+            const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[nome] !== undefined) {
                 return ambiente.valores[nome];
             }
@@ -99,10 +102,12 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     /**
      * Método usado pelo depurador para obter todas as variáveis definidas.
      */
-    obterTodasVariaveis(todasVariaveis: any[] = []): any[] {
+    obterTodasVariaveis(todasVariaveis: VariavelInterface[] = []): VariavelInterface[] {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
-            todasVariaveis.push(ambiente.valores)
+            // TODO: Testar se isso faz sentido.
+            const vetorObjeto: VariavelInterface[] = Object.entries(ambiente).map((chave, valor) => ({ valor: valor, tipo: 'texto' } as VariavelInterface));
+            todasVariaveis.concat(vetorObjeto)
         }
 
         return todasVariaveis;
@@ -114,7 +119,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      */
     obterTodasDeleguaFuncao() {
         const retorno = {};
-        const ambiente = this.pilha[this.pilha.length-1].ambiente;
+        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
             if (corpo instanceof DeleguaFuncao) {
                 retorno[nome] = corpo;
