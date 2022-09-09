@@ -1,4 +1,4 @@
-import { InterpretadorInterface, ResolvedorInterface } from "../interfaces";
+import { InterpretadorInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -19,7 +19,7 @@ export class Agrupamento implements Construto {
         this.expressao = expressao;
     }
 
-    aceitar(visitante: InterpretadorInterface | ResolvedorInterface) {
+    aceitar(visitante: InterpretadorInterface) {
         return visitante.visitarExpressaoAgrupamento(this);
     }
 }

@@ -12,5 +12,6 @@ export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExec
     obterTodasVariaveis(todasVariaveis: any[]): any[];
     obterVariavel(simbolo: SimboloInterface): any;
     obterVariavelEm(distancia: number, nome: string): any;
+    obterVariavelPorNome(nome: string): any;
     obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao };
 }

@@ -1,5 +1,5 @@
 import { Ambiente } from "../ambiente";
-import { Atribuir, Construto, Literal, Super } from "../construtos";
+import { Atribuir, Literal, Super } from "../construtos";
 import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Retorna, Se, Sustar, Tente, Var } from "../declaracoes";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
 import { PilhaEscoposExecucaoInterface } from "./pilha-escopos-execucao-interface";
@@ -10,7 +10,6 @@ import { SimboloInterface } from "./simbolo-interface";
 export interface InterpretadorInterface {
     diretorioBase: any;
     funcaoDeRetorno: Function;
-    locais: Map<Construto, number>;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     visitarExpressaoLiteral(expressao: Literal): any;

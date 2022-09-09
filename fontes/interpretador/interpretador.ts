@@ -12,7 +12,6 @@ import {
 } from '../excecoes';
 import {
     InterpretadorInterface,
-    ResolvedorInterface,
     SimboloInterface,
 } from '../interfaces';
 import {
@@ -59,10 +58,7 @@ export class Interpretador
     implements InterpretadorInterface
 {
     importador: ImportadorInterface;
-    resolvedor: ResolvedorInterface;
-
     diretorioBase: any;
-    locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
@@ -72,19 +68,16 @@ export class Interpretador
 
     constructor(
         importador: ImportadorInterface,
-        resolvedor: ResolvedorInterface,
         diretorioBase: string,
         performance: boolean = false,
         funcaoDeRetorno: Function
     ) {
         this.importador = importador;
-        this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
         
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
-        this.locais = new Map();
         this.erros = [];
         this.declaracoes = [];
         
@@ -97,10 +90,6 @@ export class Interpretador
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
-    }
-
-    resolver(expressao: any, profundidade: number): void {
-        this.locais.set(expressao, profundidade);
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
@@ -875,11 +864,10 @@ export class Interpretador
         return valores;
     }
 
+    // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
     visitarExpressaoSuper(expressao: Super): any {
-        const distancia = this.locais.get(expressao);
-        const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
-
-        const objeto = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
+        const superClasse = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
+        const objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
 
         let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
 
@@ -970,8 +958,6 @@ export class Interpretador
     interpretar(declaracoes: Declaracao[], manterAmbiente: boolean = false): RetornoInterpretador {
         this.erros = [];
 
-        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
-        this.locais = retornoResolvedor.locais;
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,

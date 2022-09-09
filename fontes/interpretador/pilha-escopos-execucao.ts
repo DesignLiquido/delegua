@@ -3,6 +3,7 @@ import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { Simbolo } from '../lexador';
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
@@ -77,7 +78,21 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
         throw new ErroEmTempoDeExecucao(
             simbolo,
-            "Variável não definida '" + simbolo.lexema + "'."
+            "Variável não definida: '" + simbolo.lexema + "'."
+        );
+    }
+
+    obterVariavelPorNome(nome: string): any {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const ambiente = this.pilha[this.pilha.length-i].ambiente;
+            if (ambiente.valores[nome] !== undefined) {
+                return ambiente.valores[nome];
+            }
+        }
+
+        throw new ErroEmTempoDeExecucao(
+            new Simbolo('especial', nome, nome, -1, -1),
+            "Variável não definida: '" + nome + "'."
         );
     }
 
