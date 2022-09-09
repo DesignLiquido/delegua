@@ -4,6 +4,7 @@ import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
+import { inferirTipoVariavel } from './inferenciador';
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
@@ -39,42 +40,20 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha.pop();
     }
 
-    inferirTipoVariavel(variavel: string | number | Array<any> | boolean | null | undefined) {
-        const tipo = typeof variavel;
-        switch (tipo) {
-            case 'string':
-                return "texto";
-            case 'number':
-                return "número";
-            case "bigint":
-                return "longo";
-            case "boolean":
-                return "lógico";
-            case "undefined":
-                return "nulo"
-            case "object":
-                return "dicionário";
-            case "function":
-                return "função";
-            case "symbol":
-                return "símbolo";
-        }
-    }
-
     definirVariavel(nomeVariavel: string, valor: any) {
-        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = { valor, tipo: this.inferirTipoVariavel(valor) };
+        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = { valor, tipo: inferirTipoVariavel(valor) };
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
-        ambienteAncestral.valores[simbolo.lexema] = { valor, tipo: this.inferirTipoVariavel(valor) };
+        ambienteAncestral.valores[simbolo.lexema] = { valor, tipo: inferirTipoVariavel(valor) };
     }
 
     atribuirVariavel(simbolo: SimboloInterface, valor: any) {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
-                ambiente.valores[simbolo.lexema] = { valor, tipo: this.inferirTipoVariavel(valor) };
+                ambiente.valores[simbolo.lexema] = { valor, tipo: inferirTipoVariavel(valor) };
                 return;
             }
         }
