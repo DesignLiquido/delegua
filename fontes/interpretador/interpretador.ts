@@ -41,7 +41,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Atribuir, Construto, Literal, Super } from '../construtos';
+import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
@@ -703,8 +703,9 @@ export class Interpretador
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        const objeto = this.avaliar(expressao.entidadeChamada);
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
+        const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
+        const objeto = variavelObjeto.valor ? variavelObjeto.valor : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {

@@ -19,7 +19,7 @@ import {
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../interfaces';
 import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
-import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
+import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
@@ -664,8 +664,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        const objeto = this.avaliar(expressao.entidadeChamada);
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
+        const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
+        const objeto = variavelObjeto.valor ? variavelObjeto.valor : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {

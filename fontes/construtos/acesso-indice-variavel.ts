@@ -1,3 +1,4 @@
+import { InterpretadorInterface, SimboloInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -9,10 +10,10 @@ export class AcessoIndiceVariavel implements Construto {
     hashArquivo?: number;
 
     entidadeChamada: Construto;
-    simboloFechamento: any;
+    simboloFechamento: SimboloInterface;
     indice: any;
 
-    constructor(hashArquivo: number, entidadeChamada: Construto, indice: any, simboloFechamento: any) {
+    constructor(hashArquivo: number, entidadeChamada: Construto, indice: any, simboloFechamento: SimboloInterface) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         
@@ -21,7 +22,7 @@ export class AcessoIndiceVariavel implements Construto {
         this.simboloFechamento = simboloFechamento;
     }
 
-    aceitar(visitante: any) {
+    aceitar(visitante: InterpretadorInterface) {
         return visitante.visitarExpressaoAcessoIndiceVariavel(this);
     }
 }
