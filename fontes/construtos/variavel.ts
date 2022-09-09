@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from "../interfaces";
+import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
@@ -15,7 +15,7 @@ export class Variavel implements Construto {
         this.simbolo = simbolo;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
+    aceitar(visitante: InterpretadorInterface): VariavelInterface {
         return visitante.visitarExpressaoDeVariavel(this);
     }
 }

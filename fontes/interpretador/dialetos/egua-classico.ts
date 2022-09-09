@@ -67,7 +67,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return expressao.valor;
     }
 
-    avaliar(expressao: Construto) {
+    avaliar(expressao: Construto): VariavelInterface | any {
         return expressao.aceitar(this);
     }
 
@@ -107,14 +107,23 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    eIgual(esquerda: any, direita: any): boolean {
+    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+        if (esquerda.tipo) {
+            if (esquerda.tipo === "nulo" && direita.tipo && direita.tipo === "nulo") return true
+            if (esquerda.tipo === "nulo") return false;
+
+            return esquerda.valor === direita.valor;
+        }
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
 
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+    verificarOperandosNumeros(operador: any, direita: VariavelInterface | any, esquerda: VariavelInterface | any): void {
+        // primeiro supomos que direita e esquerda são VariavelInterface
+        if (direita.tipo && direita.tipo === "número" && esquerda.tipo && esquerda.tipo === "número") return;
+        // se não forem supomos que direita e esquerda podem ser outra coisa
         if (typeof direita === 'number' && typeof esquerda === 'number') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -124,8 +133,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoBinaria(expressao: any) {
-        let esquerda = this.avaliar(expressao.esquerda);
-        let direita = this.avaliar(expressao.direita);
+        let esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
+        let direita: VariavelInterface | any = this.avaliar(expressao.direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -134,7 +143,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Math.pow(esquerda, direita);
+                return Math.pow(esquerda.valor ? esquerda.valor : esquerda, direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MAIOR:
                 this.verificarOperandosNumeros(
@@ -142,7 +151,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) > Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) > Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(
@@ -150,7 +159,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) >= Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) >= Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MENOR:
                 this.verificarOperandosNumeros(
@@ -158,7 +167,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) < Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) < Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(
@@ -166,7 +175,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) <= Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) <= Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.SUBTRACAO:
                 this.verificarOperandosNumeros(
@@ -174,7 +183,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) - Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) - Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.ADICAO:
                 if (
@@ -200,7 +209,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) / Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) / Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.verificarOperandosNumeros(
@@ -208,7 +217,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) * Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) * Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MODULO:
                 this.verificarOperandosNumeros(
@@ -216,7 +225,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) % Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) % Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(
@@ -224,7 +233,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) & Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) & Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(
@@ -232,7 +241,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) ^ Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) ^ Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(
@@ -240,7 +249,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) | Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) | Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(
@@ -248,7 +257,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) << Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) << Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(
@@ -256,7 +265,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) >> Number(direita);
+                return Number(esquerda.valor ? esquerda.valor : esquerda) >> Number(direita.valor ? direita.valor : direita);
 
             case tiposDeSimbolos.DIFERENTE:
                 return !this.eIgual(esquerda, direita);
@@ -335,11 +344,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expressao: any) {
+    procurarVariavel(simbolo: SimboloInterface, expressao: any): VariavelInterface {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
-    visitarExpressaoDeVariavel(expressao: Variavel) {
+    visitarExpressaoDeVariavel(expressao: Variavel): VariavelInterface {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 

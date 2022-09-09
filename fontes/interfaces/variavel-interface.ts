@@ -1,4 +1,4 @@
 export interface VariavelInterface {
     valor: any;
-    tipo: 'texto' | 'número' | 'vetor' | 'dicionário' | 'nulo' | 'lógico'
+    tipo: 'texto' | 'número' | "longo" | 'vetor' | 'dicionário' | 'nulo' | 'lógico'| "função" | "símbolo" | "objeto"
 }
