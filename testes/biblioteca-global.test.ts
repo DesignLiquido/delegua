@@ -71,6 +71,19 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
+
+        it('Falha - Funçao de mapeamento inválida', () => {
+            const codigo = [
+                "var f = 'Sou uma função'",
+                "escreva(mapear([1, 2, 3], f))"
+            ];
+            const retornoLexador = delegua.lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            
+            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
     });
 
     describe('ordenar()', () => {        

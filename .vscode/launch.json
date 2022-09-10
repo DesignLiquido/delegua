@@ -44,7 +44,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "interpretador.test.ts",
+                "interpretador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -60,7 +60,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}index.ts",
-                "--depurador",
+                // "--depurador",
                 "./testes/exemplos/index.delegua"
             ],
             "runtimeExecutable": "node",

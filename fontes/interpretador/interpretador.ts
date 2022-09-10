@@ -13,6 +13,7 @@ import {
 import {
     InterpretadorInterface,
     SimboloInterface,
+    VariavelInterface,
 } from '../interfaces';
 import {
     Bloco,
@@ -40,7 +41,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { Atribuir, Construto, Literal, Super } from '../construtos';
+import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
@@ -49,6 +50,7 @@ import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { inferirTipoVariavel } from './inferenciador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -136,29 +138,45 @@ export class Interpretador
         return null;
     }
 
-    eIgual(esquerda: any, direita: any): boolean {
+    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+        if (esquerda.tipo) {
+            if (esquerda.tipo === "nulo" && direita.tipo && direita.tipo === "nulo") return true
+            if (esquerda.tipo === "nulo") return false;
+
+            return esquerda.valor === direita.valor;
+        }
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
 
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(
-        simbolo: SimboloInterface,
-        direita: any,
-        esquerda: any
-    ): void {
-        if (typeof direita === 'number' && typeof esquerda === 'number') return;
+    /**
+     * Verifica se operandos são números, que podem ser tanto variáveis puras do JavaScript 
+     * (neste caso, `number`), ou podem ser variáveis de Delégua com inferência (`VariavelInterface`).
+     * @param operador O símbolo do operador.
+     * @param direita O operando direito.
+     * @param esquerda O operando esquerdo.
+     * @returns Se ambos os operandos são números ou não.
+     */
+    verificarOperandosNumeros(operador: any, direita: VariavelInterface | any, esquerda: VariavelInterface | any): void {
+        const tipoDireita: string = direita.tipo ? direita.tipo : (typeof direita === 'number' ? 'número' : String(NaN));
+        const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : (typeof esquerda === 'number' ? 'número' : String(NaN));
+        if (tipoDireita === "número" && tipoEsquerda === "número") return;
         throw new ErroEmTempoDeExecucao(
-            simbolo,
-            'Operandos precisam ser números.',
-            Number(simbolo.linha)
+            operador,
+            'Operadores precisam ser números.',
+            operador.linha
         );
     }
 
     visitarExpressaoBinaria(expressao: any) {
-        let esquerda = this.avaliar(expressao.esquerda);
-        let direita = this.avaliar(expressao.direita);
+        const esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
+        const direita: VariavelInterface | any = this.avaliar(expressao.direita);
+        const valorEsquerdo: any = esquerda.valor ? esquerda.valor : esquerda;
+        const valorDireito: any = direita.valor ? direita.valor : direita;
+        const tipoEsquerdo: string = esquerda.tipo ? esquerda.tipo : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita.tipo ? direita.tipo : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -167,7 +185,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Math.pow(esquerda, direita);
+                return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
                 this.verificarOperandosNumeros(
@@ -175,7 +193,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) > Number(direita);
+                return Number(valorEsquerdo) > Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(
@@ -183,7 +201,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) >= Number(direita);
+                return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
                 this.verificarOperandosNumeros(
@@ -191,7 +209,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) < Number(direita);
+                return Number(valorEsquerdo) < Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(
@@ -199,7 +217,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) <= Number(direita);
+                return Number(valorEsquerdo) <= Number(valorDireito);
 
             case tiposDeSimbolos.SUBTRACAO:
             case tiposDeSimbolos.MENOS_IGUAL:
@@ -208,17 +226,17 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) - Number(direita);
+                return Number(valorEsquerdo) - Number(valorDireito);
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
                 if (
-                    typeof esquerda === 'number' &&
-                    typeof direita === 'number'
+                    tipoEsquerdo === 'número' &&
+                    tipoDireito === 'número'
                 ) {
-                    return Number(esquerda) + Number(direita);
+                    return Number(valorEsquerdo) + Number(valorDireito);
                 } else {
-                    return String(esquerda) + String(direita);
+                    return String(valorEsquerdo) + String(valorDireito);
                 }
 
             case tiposDeSimbolos.DIVISAO:
@@ -228,7 +246,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) / Number(direita);
+                return Number(valorEsquerdo) / Number(valorDireito);
 
             case tiposDeSimbolos.MULTIPLICACAO:
             case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
@@ -237,7 +255,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) * Number(direita);
+                return Number(valorEsquerdo) * Number(valorDireito);
 
             case tiposDeSimbolos.MODULO:
             case tiposDeSimbolos.MODULO_IGUAL:
@@ -246,7 +264,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) % Number(direita);
+                return Number(valorEsquerdo) % Number(valorDireito);
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(
@@ -254,7 +272,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) & Number(direita);
+                return Number(valorEsquerdo) & Number(valorDireito);
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(
@@ -262,7 +280,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) ^ Number(direita);
+                return Number(valorEsquerdo) ^ Number(valorDireito);
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(
@@ -270,7 +288,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) | Number(direita);
+                return Number(valorEsquerdo) | Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(
@@ -278,7 +296,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) << Number(direita);
+                return Number(valorEsquerdo) << Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(
@@ -286,7 +304,7 @@ export class Interpretador
                     esquerda,
                     direita
                 );
-                return Number(esquerda) >> Number(direita);
+                return Number(valorEsquerdo) >> Number(valorDireito);
 
             case tiposDeSimbolos.DIFERENTE:
                 return !this.eIgual(esquerda, direita);
@@ -298,8 +316,14 @@ export class Interpretador
         return null;
     }
 
+    /**
+     * Executa uma chamada de função, método ou classe.
+     * @param expressao A expressão chamada.
+     * @returns O resultado da chamada.
+     */
     visitarExpressaoDeChamada(expressao: any) {
-        let entidadeChamada = this.avaliar(expressao.entidadeChamada);
+        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(expressao.entidadeChamada);
+        const entidadeChamada = variavelEntidadeChamada.valor ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
@@ -318,8 +342,8 @@ export class Interpretador
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DeleguaClasse) {
-            parametros = entidadeChamada.metodos.init
-                ? entidadeChamada.metodos.init.declaracao.parametros
+            parametros = entidadeChamada.metodos.inicializacao
+                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -580,15 +604,23 @@ export class Interpretador
         return funcoesChamaveis;
     }
 
+    /**
+     * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou 
+     * alguma função para escrever numa página Web.
+     * @param declaracao A declaração.
+     * @returns Sempre nulo, por convenção de visita.
+     */
     visitarExpressaoEscreva(declaracao: Escreva): any {
         try {
             let valor: string = '';
             for (const argumento of declaracao.argumentos) {
-                valor += `${this.avaliar(argumento)} `;
+                const resultadoAvaliacao = this.avaliar(argumento) || '';
+                valor += `${resultadoAvaliacao.valor ? resultadoAvaliacao.valor : resultadoAvaliacao} `;
             }
             valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
-            this.resultadoInterpretador.push(formatoTexto);
+            // Por enquanto `escreva` não devolve resultado no interpretador.
+            // this.resultadoInterpretador.push(formatoTexto);
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
@@ -679,8 +711,9 @@ export class Interpretador
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        const objeto = this.avaliar(expressao.entidadeChamada);
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
+        const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
+        const objeto = variavelObjeto.valor ? variavelObjeto.valor : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {
@@ -777,10 +810,16 @@ export class Interpretador
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
 
-    visitarExpressaoClasse(declaracao: Classe) {
+    /**
+     * Executa uma declaração de classe.
+     * @param declaracao A declaração de classe.
+     * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
+     */
+    visitarExpressaoClasse(declaracao: Classe): any {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
-            superClasse = this.avaliar(declaracao.superClasse);
+            const variavelSuperClasse: VariavelInterface = this.avaliar(declaracao.superClasse);
+            superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
@@ -810,7 +849,7 @@ export class Interpretador
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
-        const criado = new DeleguaClasse(
+        const deleguaClasse: DeleguaClasse = new DeleguaClasse(
             declaracao.simbolo.lexema,
             superClasse,
             metodos
@@ -821,12 +860,19 @@ export class Interpretador
             this.ambiente = this.ambiente.enclosing;
         } */
 
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, criado);
+        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
         return null;
     }
 
+    /**
+     * Executa um acesso a método, normalmente de um objeto de classe.
+     * @param expressao A expressão de acesso.
+     * @returns O resultado da execução.
+     */
     visitarExpressaoAcessoMetodo(expressao: any) {
-        let objeto = this.avaliar(expressao.objeto);
+        const variavelObjeto: VariavelInterface = this.avaliar(expressao.objeto);
+        const objeto = variavelObjeto?.valor;
+        
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
@@ -866,10 +912,10 @@ export class Interpretador
 
     // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
     visitarExpressaoSuper(expressao: Super): any {
-        const superClasse = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
-        const objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
+        const superClasse: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
+        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
 
-        let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
+        let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(
@@ -879,7 +925,7 @@ export class Interpretador
             );
         }
 
-        return metodo.definirInstancia(objeto);
+        return metodo.definirInstancia(objeto.valor);
     }
 
     paraTexto(objeto: any) {

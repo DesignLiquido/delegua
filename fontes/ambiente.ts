@@ -1,5 +1,7 @@
+import { VariavelInterface } from "./interfaces";
+
 export class Ambiente {
-    valores: any;
+    valores: { [nome: string]: VariavelInterface };
 
     constructor() {
         this.valores = {};

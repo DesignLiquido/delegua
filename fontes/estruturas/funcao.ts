@@ -47,7 +47,7 @@ export class DeleguaFuncao extends Chamavel {
         }
 
         if (this.instancia !== undefined) {
-            ambiente.valores['isto'] = this.instancia;
+            ambiente.valores['isto'] = { valor: this.instancia, tipo: "objeto"};
         }
 
         const retornoBloco: any = interpretador.executarBloco(this.declaracao.corpo, ambiente);

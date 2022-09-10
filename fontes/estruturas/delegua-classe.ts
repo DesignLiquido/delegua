@@ -5,8 +5,8 @@ import { ObjetoDeleguaClasse } from "./objeto-delegua-classe";
 
 export class DeleguaClasse extends Chamavel {
     nome: string;
-    superClasse: any;
-    metodos: any;
+    superClasse: DeleguaClasse;
+    metodos: { [nome: string]: DeleguaFuncao };
 
     constructor(nome?: string, superClasse?: any, metodos?: any) {
         super();

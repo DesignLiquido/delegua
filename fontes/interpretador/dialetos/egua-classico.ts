@@ -17,14 +17,15 @@ import { DeleguaModulo } from '../../estruturas/modulo';
 import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
-import { InterpretadorInterface, SimboloInterface, ResolvedorInterface } from '../../interfaces';
+import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../interfaces';
 import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
-import { Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
+import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../interfaces/escopo-execucao';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
+import { inferirTipoVariavel } from '../inferenciador';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -67,7 +68,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return expressao.valor;
     }
 
-    avaliar(expressao: Construto) {
+    avaliar(expressao: Construto): VariavelInterface | any {
         return expressao.aceitar(this);
     }
 
@@ -107,15 +108,23 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    eIgual(esquerda: any, direita: any): boolean {
+    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+        if (esquerda.tipo) {
+            if (esquerda.tipo === "nulo" && direita.tipo && direita.tipo === "nulo") return true;
+            if (esquerda.tipo === "nulo") return false;
+
+            return esquerda.valor === direita.valor;
+        }
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
 
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
-        if (typeof direita === 'number' && typeof esquerda === 'number') return;
+    verificarOperandosNumeros(operador: any, direita: VariavelInterface | any, esquerda: VariavelInterface | any): void {
+        const tipoDireita: string = direita.tipo ? direita.tipo : (typeof direita === 'number' ? 'número' : String(NaN));
+        const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : (typeof esquerda === 'number' ? 'número' : String(NaN));
+        if (tipoDireita === "número" && tipoEsquerda === "número") return;
         throw new ErroEmTempoDeExecucao(
             operador,
             'Operadores precisam ser números.',
@@ -124,8 +133,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoBinaria(expressao: any) {
-        let esquerda = this.avaliar(expressao.esquerda);
-        let direita = this.avaliar(expressao.direita);
+        const esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
+        const direita: VariavelInterface | any = this.avaliar(expressao.direita);
+        const valorEsquerdo: any = esquerda.valor ? esquerda.valor : esquerda;
+        const valorDireito: any = direita.valor ? direita.valor : direita;
+        const tipoEsquerdo: string = esquerda.tipo ? esquerda.tipo : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita.tipo ? direita.tipo : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -134,7 +147,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Math.pow(esquerda, direita);
+                return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
                 this.verificarOperandosNumeros(
@@ -142,7 +155,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) > Number(direita);
+                return Number(valorEsquerdo) > Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(
@@ -150,7 +163,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) >= Number(direita);
+                return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
                 this.verificarOperandosNumeros(
@@ -158,7 +171,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) < Number(direita);
+                return Number(valorEsquerdo) < Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(
@@ -166,7 +179,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) <= Number(direita);
+                return Number(valorEsquerdo) <= Number(valorDireito);
 
             case tiposDeSimbolos.SUBTRACAO:
                 this.verificarOperandosNumeros(
@@ -174,17 +187,17 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) - Number(direita);
+                return Number(valorEsquerdo) - Number(valorDireito);
 
             case tiposDeSimbolos.ADICAO:
                 if (
-                    typeof esquerda === 'number' &&
-                    typeof direita === 'number'
+                    tipoEsquerdo === 'número' &&
+                    tipoDireito === 'número'
                 ) {
                     return Number(esquerda) + Number(direita);
                 } else if (
-                    typeof esquerda === 'string' &&
-                    typeof direita === 'string'
+                    tipoEsquerdo === 'texto' &&
+                    tipoDireito === 'texto'
                 ) {
                     return String(esquerda) + String(direita);
                 }
@@ -200,7 +213,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) / Number(direita);
+                return Number(valorEsquerdo) / Number(valorDireito);
 
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.verificarOperandosNumeros(
@@ -208,7 +221,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) * Number(direita);
+                return Number(valorEsquerdo) * Number(valorDireito);
 
             case tiposDeSimbolos.MODULO:
                 this.verificarOperandosNumeros(
@@ -216,7 +229,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) % Number(direita);
+                return Number(valorEsquerdo) % Number(valorDireito);
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(
@@ -224,7 +237,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) & Number(direita);
+                return Number(valorEsquerdo) & Number(valorDireito);
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(
@@ -232,7 +245,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) ^ Number(direita);
+                return Number(valorEsquerdo) ^ Number(valorDireito);
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(
@@ -240,7 +253,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) | Number(direita);
+                return Number(valorEsquerdo) | Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(
@@ -248,7 +261,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) << Number(direita);
+                return Number(valorEsquerdo) << Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(
@@ -256,7 +269,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                     esquerda,
                     direita
                 );
-                return Number(esquerda) >> Number(direita);
+                return Number(valorEsquerdo) >> Number(valorDireito);
 
             case tiposDeSimbolos.DIFERENTE:
                 return !this.eIgual(esquerda, direita);
@@ -269,7 +282,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoDeChamada(expressao: any) {
-        let entidadeChamada = this.avaliar(expressao.entidadeChamada);
+        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(expressao.entidadeChamada);
+        const entidadeChamada = variavelEntidadeChamada.valor ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
@@ -288,8 +302,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DeleguaClasse) {
-            parametros = entidadeChamada.metodos.init
-                ? entidadeChamada.metodos.init.declaracao.parametros
+            parametros = entidadeChamada.metodos.inicializacao
+                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -335,11 +349,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expressao: any) {
+    procurarVariavel(simbolo: SimboloInterface, expressao: any): VariavelInterface {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
-    visitarExpressaoDeVariavel(expressao: Variavel) {
+    visitarExpressaoDeVariavel(expressao: Variavel): VariavelInterface {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
@@ -650,8 +664,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        const objeto = this.avaliar(expressao.entidadeChamada);
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
+        const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
+        const objeto = variavelObjeto.valor ? variavelObjeto.valor : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {
@@ -751,7 +766,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoClasse(declaracao: Classe) {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
-            superClasse = this.avaliar(declaracao.superClasse);
+            const variavelSuperClasse: VariavelInterface = this.avaliar(declaracao.superClasse);
+            superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
@@ -781,7 +797,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
-        const criado = new DeleguaClasse(
+        const deleguaClasse = new DeleguaClasse(
             declaracao.simbolo.lexema,
             superClasse,
             metodos
@@ -792,12 +808,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.ambiente = this.ambiente.enclosing;
         } */
 
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, criado);
+        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
         return null;
     }
 
     visitarExpressaoAcessoMetodo(expressao: any) {
-        let objeto = this.avaliar(expressao.objeto);
+        const variavelObjeto: VariavelInterface = this.avaliar(expressao.objeto);
+        const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
         } else if (objeto.constructor === Object) {
@@ -839,9 +856,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const distancia = this.locais.get(expressao);
         const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
 
-        const objeto = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
+        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
 
-        let metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
+        let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(
@@ -851,7 +868,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        return metodo.definirInstancia(objeto);
+        return metodo.definirInstancia(objeto.valor);
     }
 
     paraTexto(objeto: any): any {
