@@ -60,7 +60,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}index.ts",
-                "--depurador",
+                // "--depurador",
                 "./testes/exemplos/index.delegua"
             ],
             "runtimeExecutable": "node",

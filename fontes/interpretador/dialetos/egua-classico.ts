@@ -302,8 +302,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DeleguaClasse) {
-            parametros = entidadeChamada.metodos.init
-                ? entidadeChamada.metodos.init.declaracao.parametros
+            parametros = entidadeChamada.metodos.inicializacao
+                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
                 : [];
         } else {
             parametros = [];

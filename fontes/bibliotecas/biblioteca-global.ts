@@ -20,21 +20,24 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     // Mínimo(inclusivo) - Máximo(exclusivo)
     pilhaEscoposExecucao.definirVariavel(
         "aleatorioEntre",
-        new FuncaoPadrao(1, function (minimo: number, maximo: number) {
-            if (typeof minimo !== 'number' || typeof maximo !== 'number') {
+        new FuncaoPadrao(1, function (minimo: VariavelInterface | number, maximo: VariavelInterface | number) {
+            const valorMinimo = (minimo as VariavelInterface).valor ? (minimo as VariavelInterface).valor : minimo;
+            const valorMaximo = (maximo as VariavelInterface).valor ? (maximo as VariavelInterface).valor : maximo;
+            if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Os dois parâmetros devem ser do tipo número."
                 );
             }
 
-            return Math.floor(Math.random() * (maximo - minimo)) + minimo;
+            return Math.floor(Math.random() * (valorMaximo - valorMinimo)) + valorMinimo;
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         "inteiro",
-        new FuncaoPadrao(1, function (valor: any) {
+        new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
+            const valor = numero.valor ? numero.valor : numero;
             if (isNaN(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -87,11 +90,12 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
 
     pilhaEscoposExecucao.definirVariavel(
         "ordenar",
-        new FuncaoPadrao(1, function (objeto: Array<any>) {
+        new FuncaoPadrao(1, function (vetor: VariavelInterface | Array<any>) {
+            let objeto = (vetor as VariavelInterface).valor ? (vetor as VariavelInterface).valor : vetor;
             if (!Array.isArray(objeto)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Valor Inválido. Objeto inserido não é um vetor."
+                    "Valor inválido. Objeto inserido não é um vetor."
                 );
             }
 
@@ -112,8 +116,8 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
 
     pilhaEscoposExecucao.definirVariavel(
         "real",
-        new FuncaoPadrao(1, function (valorOuVariavel: VariavelInterface | any) {
-            const valor = valorOuVariavel.valor ? valorOuVariavel.valor : valorOuVariavel;
+        new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
+            const valor = numero.valor ? numero.valor : numero;
             if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -127,47 +131,48 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "tamanho",
         new FuncaoPadrao(1, function (objeto: any) {
-            if (!isNaN(objeto)) {
+            const valorObjeto = objeto.valor ? objeto.valor : objeto;
+            if (!isNaN(valorObjeto)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Não é possível encontrar o tamanho de um número."
                 );
             }
 
-            if (objeto instanceof ObjetoDeleguaClasse) {
+            if (valorObjeto instanceof ObjetoDeleguaClasse) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     "Você não pode encontrar o tamanho de uma declaração."
                 );
             }
 
-            if (objeto instanceof DeleguaFuncao) {
-                return objeto.declaracao.parametros.length;
+            if (valorObjeto instanceof DeleguaFuncao) {
+                return valorObjeto.declaracao.parametros.length;
             }
 
-            if (objeto instanceof FuncaoPadrao) {
-                return objeto.valorAridade;
+            if (valorObjeto instanceof FuncaoPadrao) {
+                return valorObjeto.valorAridade;
             }
 
-            if (objeto instanceof DeleguaClasse) {
-                let metodos = objeto.metodos;
+            if (valorObjeto instanceof DeleguaClasse) {
+                let metodos = valorObjeto.metodos;
                 let tamanho = 0;
 
-                if (metodos.init && metodos.init.eInicializador) {
-                    tamanho = metodos.init.declaracao.parametros.length;
+                if (metodos.inicializacao && metodos.inicializacao.eInicializador) {
+                    tamanho = metodos.inicializacao.declaracao.parametros.length;
                 }
 
                 return tamanho;
             }
 
-            return objeto.length;
+            return valorObjeto.length;
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         "texto",
-        new FuncaoPadrao(1, function (valor: any) {
-            return `${valor}`;
+        new FuncaoPadrao(1, function (valorOuVariavel: VariavelInterface | any) {
+            return `${valorOuVariavel.valor ? valorOuVariavel.valor : valorOuVariavel}`;
         })
     );
 

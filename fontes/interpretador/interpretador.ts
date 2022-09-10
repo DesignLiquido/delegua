@@ -342,8 +342,8 @@ export class Interpretador
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DeleguaClasse) {
-            parametros = entidadeChamada.metodos.init
-                ? entidadeChamada.metodos.init.declaracao.parametros
+            parametros = entidadeChamada.metodos.inicializacao
+                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -604,15 +604,23 @@ export class Interpretador
         return funcoesChamaveis;
     }
 
+    /**
+     * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou 
+     * alguma função para escrever numa página Web.
+     * @param declaracao A declaração.
+     * @returns Sempre nulo, por convenção de visita.
+     */
     visitarExpressaoEscreva(declaracao: Escreva): any {
         try {
             let valor: string = '';
             for (const argumento of declaracao.argumentos) {
-                valor += `${this.avaliar(argumento)} `;
+                const resultadoAvaliacao = this.avaliar(argumento) || '';
+                valor += `${resultadoAvaliacao.valor ? resultadoAvaliacao.valor : resultadoAvaliacao} `;
             }
             valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
-            this.resultadoInterpretador.push(formatoTexto);
+            // Por enquanto `escreva` não devolve resultado no interpretador.
+            // this.resultadoInterpretador.push(formatoTexto);
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
