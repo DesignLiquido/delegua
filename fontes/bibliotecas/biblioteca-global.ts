@@ -3,7 +3,7 @@ import { DeleguaFuncao } from "../estruturas/funcao";
 import { ObjetoDeleguaClasse } from "../estruturas/objeto-delegua-classe";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaClasse } from "../estruturas/delegua-classe";
-import { InterpretadorInterface } from "../interfaces";
+import { InterpretadorInterface, VariavelInterface } from "../interfaces";
 import { PilhaEscoposExecucaoInterface } from "../interfaces/pilha-escopos-execucao-interface";
 
 
@@ -55,26 +55,28 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
 
     pilhaEscoposExecucao.definirVariavel(
         "mapear",
-        new FuncaoPadrao(1, function (array: any, callback: any) {
-            if (!Array.isArray(array)) {
+        new FuncaoPadrao(1, function (vetor: VariavelInterface | any, funcaoMapeamento: VariavelInterface | any) {
+            const valorVetor = vetor.valor ? vetor.valor : vetor;
+            const valorFuncaoMapeamento = funcaoMapeamento.valor ? funcaoMapeamento.valor : funcaoMapeamento;
+            if (!Array.isArray(valorVetor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    "Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor."
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
+            if (valorFuncaoMapeamento.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    "Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função."
                 );
             }
 
             let resultados = [];
-            for (let indice = 0; indice < array.length; ++indice) {
+            for (let indice = 0; indice < valorVetor.length; ++indice) {
                 resultados.push(
-                    callback.chamar(
-                        interpretador, [array[indice]]
+                    valorFuncaoMapeamento.chamar(
+                        interpretador, [valorVetor[indice]]
                     )
                 );
             }
@@ -110,12 +112,14 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
 
     pilhaEscoposExecucao.definirVariavel(
         "real",
-        new FuncaoPadrao(1, function (valor: any) {
-            if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor))
+        new FuncaoPadrao(1, function (valorOuVariavel: VariavelInterface | any) {
+            const valor = valorOuVariavel.valor ? valorOuVariavel.valor : valorOuVariavel;
+            if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Somente números podem passar para real."
+                    "Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real."
                 );
+            }
             return parseFloat(valor);
         })
     );
