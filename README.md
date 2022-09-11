@@ -40,7 +40,7 @@ Delégua tem retrocompatibilidade com a linguagem Égua e usa a mesma extensão 
 Com o Node.js instalado, execute o seguinte comando em um prompt de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `bash` em Mac e Linux):
 
 ```
-npm install -g @designliquido/delegua
+npm install -g delegua
 ```
 
 Feito isso, execute o seguinte comando:
@@ -57,6 +57,12 @@ Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ct
 
 ```
 delegua --dialeto egua
+```
+
+Se não quiser instalar as bibliotecas que acompanham Delégua, apenas o núcleo da linguagem pode ser instalado:
+
+```
+npm install -g @designliquido/delegua
 ```
 
 ## Documentação
