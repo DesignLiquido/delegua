@@ -100,7 +100,33 @@ describe('Interpretador', () => {
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                });  
+                });
+
+                describe('Importar bibliotecas delegua', () => {
+                    it('estatística' , () => {
+                        const retornoLexador = delegua.lexador.mapear(["var estatistica = importar('estatística')"], -1);
+                        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                        const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
+
+                    it('física' , () => {
+                        const retornoLexador = delegua.lexador.mapear(["var fisica = importar('física')"], -1);
+                        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                        const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
+
+                    it('matemática' , () => {
+                        const retornoLexador = delegua.lexador.mapear(["var matematica = importar('matemática')"], -1);
+                        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                        const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
+                })
             });
 
             describe('Operações matemáticas', () => {

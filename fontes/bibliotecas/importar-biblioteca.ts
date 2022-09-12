@@ -27,6 +27,30 @@ const carregarBiblioteca = function (nomeDaBiblioteca: any, caminhoDaBiblioteca:
     return novoModulo;
 };
 
+const verificaModulosDelegua = (nome: string): string | boolean => {
+    const modulos = {
+        "estatistica": "@designliquido/delegua-estatistica",
+        "estatística": "@designliquido/delegua-estatistica",
+        "fisica": "@designliquido/delegua-fisica",
+        "física": "@designliquido/delegua-fisica",
+        "matematica": "@designliquido/delegua-matematica",
+        "matemática": "@designliquido/delegua-matematica",
+    }
+
+    if (Object.keys(modulos).includes(nome)) {
+        return modulos[nome].toString();
+    };
+
+    return false
+};
+
 export default function (nome: string) {
-    return carregarBiblioteca(nome, nome);
+    const verificaModulos = verificaModulosDelegua(nome);
+    return (
+        verificaModulos
+        ? (
+            carregarBiblioteca(verificaModulos, verificaModulos)
+        ) : (
+            carregarBiblioteca(nome, nome)
+        ));
 };
