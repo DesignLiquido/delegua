@@ -291,6 +291,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
             // Esta sessão ignora espaços em branco na tokenização
             case ' ':
+            case '\0':
             case '\r':
             case '\t':
                 break;
