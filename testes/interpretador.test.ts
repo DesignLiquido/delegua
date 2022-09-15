@@ -103,29 +103,77 @@ describe('Interpretador', () => {
                 });
 
                 describe('Importar bibliotecas delegua', () => {
-                    it('estatística' , () => {
-                        const retornoLexador = delegua.lexador.mapear(["var estatistica = importar('estatística')"], -1);
-                        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                        const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-    
-                        expect(retornoInterpretador.erros).toHaveLength(0);
-                    });
+                    describe('testa importação da biblioteca de estatística', () => {
+                        beforeEach(() => {
+                            jest.mock('./__mocks__/estatistica.ts');
+                        })
+                        afterAll(() => {
+                            jest.unmock("./__mocks__/estatistica.ts")
+                        })
+                        it('estatística' , () => {
+                            const retornoLexador = delegua.lexador.mapear(["var estatística = importar('estatística')"], -1);
+                            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                            console.log(retornoInterpretador);
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                        });
 
-                    it('física' , () => {
-                        const retornoLexador = delegua.lexador.mapear(["var fisica = importar('física')"], -1);
-                        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                        const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-    
-                        expect(retornoInterpretador.erros).toHaveLength(0);
-                    });
+                        it('estatistica' , () => {
+                            const retornoLexador = delegua.lexador.mapear(["var estatistica = importar('estatistica')"], -1);
+                            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                            console.log(retornoInterpretador);
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                        });
+                    })
 
-                    it('matemática' , () => {
-                        const retornoLexador = delegua.lexador.mapear(["var matematica = importar('matemática')"], -1);
-                        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                        const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-    
-                        expect(retornoInterpretador.erros).toHaveLength(0);
-                    });
+                    describe('testa importação da biblioteca de física', () => {
+                        beforeEach(() => {
+                            jest.mock('./__mocks__/fisica.ts');
+                        })
+                        afterEach(() => {
+                            jest.unmock("./__mocks__/fisica.ts")
+                        })
+                        it('física' , () => {
+                            const retornoLexador = delegua.lexador.mapear(["var física = importar('física')"], -1);
+                            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                        });
+
+                        it('fisica' , () => {
+                            const retornoLexador = delegua.lexador.mapear(["var fisica = importar('fisica')"], -1);
+                            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                        });
+                    })
+
+                    describe('testa importação da biblioteca de matemática', () => {
+                        beforeEach(() => {
+                            jest.mock('./__mocks__/matematica.ts');
+                        })
+                        afterAll(() => {
+                            jest.unmock("./__mocks__/matematica.ts")
+                        })
+                        it('matemática' , () => {
+                            const retornoLexador = delegua.lexador.mapear(["var matemática = importar('matemática')"], -1);
+                            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                        });
+
+                        it('matematica' , () => {
+                            const retornoLexador = delegua.lexador.mapear(["var matematica = importar('matematica')"], -1);
+                            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                            const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                        });
+                    })
                 })
             });
 
