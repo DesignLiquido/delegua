@@ -21,8 +21,8 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "aleatorioEntre",
         new FuncaoPadrao(1, function (minimo: VariavelInterface | number, maximo: VariavelInterface | number) {
-            const valorMinimo = (minimo as VariavelInterface).valor ? (minimo as VariavelInterface).valor : minimo;
-            const valorMaximo = (maximo as VariavelInterface).valor ? (maximo as VariavelInterface).valor : maximo;
+            const valorMinimo = minimo.hasOwnProperty('valor') ? (minimo as VariavelInterface).valor : minimo;
+            const valorMaximo = maximo.hasOwnProperty('valor') ? (maximo as VariavelInterface).valor : maximo;
             if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -37,7 +37,7 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "inteiro",
         new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
-            const valor = numero.valor ? numero.valor : numero;
+            const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
             if (isNaN(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -59,8 +59,8 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "mapear",
         new FuncaoPadrao(1, function (vetor: VariavelInterface | any, funcaoMapeamento: VariavelInterface | any) {
-            const valorVetor = vetor.valor ? vetor.valor : vetor;
-            const valorFuncaoMapeamento = funcaoMapeamento.valor ? funcaoMapeamento.valor : funcaoMapeamento;
+            const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+            const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor') ? funcaoMapeamento.valor : funcaoMapeamento;
             if (!Array.isArray(valorVetor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -91,7 +91,7 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "ordenar",
         new FuncaoPadrao(1, function (vetor: VariavelInterface | Array<any>) {
-            let objeto = (vetor as VariavelInterface).valor ? (vetor as VariavelInterface).valor : vetor;
+            let objeto = vetor.hasOwnProperty('valor') ? (vetor as VariavelInterface).valor : vetor;
             if (!Array.isArray(objeto)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -117,7 +117,7 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "real",
         new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
-            const valor = numero.valor ? numero.valor : numero;
+            const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
             if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -131,7 +131,7 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "tamanho",
         new FuncaoPadrao(1, function (objeto: any) {
-            const valorObjeto = objeto.valor ? objeto.valor : objeto;
+            const valorObjeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
             if (!isNaN(valorObjeto)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -172,7 +172,7 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     pilhaEscoposExecucao.definirVariavel(
         "texto",
         new FuncaoPadrao(1, function (valorOuVariavel: VariavelInterface | any) {
-            return `${valorOuVariavel.valor ? valorOuVariavel.valor : valorOuVariavel}`;
+            return `${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`;
         })
     );
 

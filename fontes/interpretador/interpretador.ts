@@ -170,13 +170,13 @@ export class Interpretador
         );
     }
 
-    visitarExpressaoBinaria(expressao: any) {
+    visitarExpressaoBinaria(expressao: any): any {
         const esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
         const direita: VariavelInterface | any = this.avaliar(expressao.direita);
-        const valorEsquerdo: any = esquerda.valor ? esquerda.valor : esquerda;
-        const valorDireito: any = direita.valor ? direita.valor : direita;
-        const tipoEsquerdo: string = esquerda.tipo ? esquerda.tipo : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.tipo ? direita.tipo : inferirTipoVariavel(direita);
+        const valorEsquerdo: any = esquerda.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+        const valorDireito: any = direita.hasOwnProperty('valor') ? direita.valor : direita;
+        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -307,10 +307,10 @@ export class Interpretador
                 return Number(valorEsquerdo) >> Number(valorDireito);
 
             case tiposDeSimbolos.DIFERENTE:
-                return !this.eIgual(esquerda, direita);
+                return !this.eIgual(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.IGUAL_IGUAL:
-                return this.eIgual(esquerda, direita);
+                return this.eIgual(valorEsquerdo, valorDireito);
         }
 
         return null;
@@ -437,6 +437,12 @@ export class Interpretador
         return this.avaliar(expressao.direita);
     }
 
+    /**
+     * Executa uma expressão Se, que tem uma condição, pode ter um bloco
+     * Senão, e múltiplos blocos Senão-se.
+     * @param declaracao A declaração Se.
+     * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
+     */
     visitarExpressaoSe(declaracao: Se): any {
         if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
             return this.executar(declaracao.caminhoEntao);
@@ -446,13 +452,12 @@ export class Interpretador
             const atual = declaracao.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
-                this.executar(atual.caminho);
-                return null;
+                return this.executar(atual.caminho);
             }
         }
 
         if (declaracao.caminhoSenao !== null) {
-            this.executar(declaracao.caminhoSenao);
+            return this.executar(declaracao.caminhoSenao);
         }
 
         return null;

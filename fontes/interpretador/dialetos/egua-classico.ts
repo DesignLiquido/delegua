@@ -24,7 +24,7 @@ import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpre
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../interfaces/escopo-execucao';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
 
 /**
@@ -132,13 +132,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoBinaria(expressao: any) {
+    visitarExpressaoBinaria(expressao: any): any {
         const esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
         const direita: VariavelInterface | any = this.avaliar(expressao.direita);
-        const valorEsquerdo: any = esquerda.valor ? esquerda.valor : esquerda;
-        const valorDireito: any = direita.valor ? direita.valor : direita;
-        const tipoEsquerdo: string = esquerda.tipo ? esquerda.tipo : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.tipo ? direita.tipo : inferirTipoVariavel(direita);
+        const valorEsquerdo: any = esquerda.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+        const valorDireito: any = direita.hasOwnProperty('valor') ? direita.valor : direita;
+        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -272,10 +272,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 return Number(valorEsquerdo) >> Number(valorDireito);
 
             case tiposDeSimbolos.DIFERENTE:
-                return !this.eIgual(esquerda, direita);
+                return !this.eIgual(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.IGUAL_IGUAL:
-                return this.eIgual(esquerda, direita);
+                return this.eIgual(valorEsquerdo, valorDireito);
         }
 
         return null;
@@ -393,23 +393,21 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.avaliar(expressao.direita);
     }
 
-    visitarExpressaoSe(declaracao: Se) {
+    visitarExpressaoSe(declaracao: Se): any {
         if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-            this.executar(declaracao.caminhoEntao);
-            return null;
+            return this.executar(declaracao.caminhoEntao);
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
-                this.executar(atual.caminho);
-                return null;
+                return this.executar(atual.caminho);
             }
         }
 
         if (declaracao.caminhoSenao !== null) {
-            this.executar(declaracao.caminhoSenao);
+            return this.executar(declaracao.caminhoSenao);
         }
 
         return null;
@@ -596,9 +594,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.executarUltimoEscopo();
     }
 
-    visitarExpressaoBloco(declaracao: any) {
-        this.executarBloco(declaracao.declaracoes);
-        return null;
+    visitarExpressaoBloco(declaracao: any): any {
+        return this.executarBloco(declaracao.declaracoes);
     }
 
     visitarExpressaoVar(declaracao: Var) {
@@ -895,16 +892,27 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(declaracao: Declaracao, mostrarResultado: boolean = false): void {
-        declaracao.aceitar(this);
+    executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
+        return declaracao.aceitar(this);
     }
 
-    executarUltimoEscopo() {
+    /**
+     * Executa o último escopo empilhado no topo na pilha de escopos do Interpretador.
+     * Originalmente, Égua não trabalha com uma pilha de escopos. 
+     * Essa implementação é derivada do Interpretador de Delégua, mas simulando todos os
+     * comportamos do interpretador Égua original.
+     * Interpretador Égua: https://github.com/eguatech/egua/blob/master/src/interpreter.js
+     * @returns O resultado da execução do escopo, se houver.
+     */
+    executarUltimoEscopo(): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
-            for (; ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            let retornoExecucao: any;
+            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
+
+            return retornoExecucao;
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }

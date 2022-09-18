@@ -196,7 +196,7 @@ describe('Interpretador (Égua Clássico)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
-                it.skip('Fibonacci', () => {
+                it('Fibonacci', () => {
                     const codigo = [
                         "função fibonacci(n) {",
                         "    se (n == 0) {",
