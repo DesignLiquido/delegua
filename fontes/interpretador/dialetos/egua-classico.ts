@@ -283,7 +283,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoDeChamada(expressao: any) {
         const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(expressao.entidadeChamada);
-        const entidadeChamada = variavelEntidadeChamada.valor ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
+        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor') ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
@@ -663,7 +663,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
         const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.valor ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {

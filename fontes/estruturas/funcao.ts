@@ -4,14 +4,15 @@ import { Ambiente } from "../ambiente";
 import { InterpretadorInterface } from "../interfaces";
 import { RetornoQuebra } from "../quebras";
 import { ObjetoDeleguaClasse } from "./objeto-delegua-classe";
+import { Funcao } from "../construtos";
 
 export class DeleguaFuncao extends Chamavel {
     nome: string;
-    declaracao: any;
+    declaracao: Funcao;
     eInicializador: boolean;
     instancia: ObjetoDeleguaClasse;
 
-    constructor(nome: string, declaracao: any, instancia: ObjetoDeleguaClasse = undefined, eInicializador = false) {
+    constructor(nome: string, declaracao: Funcao, instancia: ObjetoDeleguaClasse = undefined, eInicializador = false) {
         super();
         this.nome = nome;
         this.declaracao = declaracao;
