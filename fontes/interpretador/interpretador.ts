@@ -51,6 +51,8 @@ import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { inferirTipoVariavel } from './inferenciador';
+import primitivasTexto from '../bibliotecas/primitivas-texto';
+import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -323,7 +325,7 @@ export class Interpretador
      */
     visitarExpressaoDeChamada(expressao: any) {
         const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(expressao.entidadeChamada);
-        const entidadeChamada = variavelEntidadeChamada.valor ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
+        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor') ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
@@ -336,6 +338,10 @@ export class Interpretador
                 'Só pode chamar função ou classe.',
                 expressao.linha
             );
+        }
+
+        if (entidadeChamada instanceof MetodoPrimitiva) {
+            return entidadeChamada.chamar();
         }
 
         let parametros;
@@ -620,7 +626,7 @@ export class Interpretador
             let valor: string = '';
             for (const argumento of declaracao.argumentos) {
                 const resultadoAvaliacao = this.avaliar(argumento) || '';
-                valor += `${resultadoAvaliacao.valor ? resultadoAvaliacao.valor : resultadoAvaliacao} `;
+                valor += `${resultadoAvaliacao.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao} `;
             }
             valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
@@ -718,7 +724,7 @@ export class Interpretador
 
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
         const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.valor ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {
@@ -880,10 +886,23 @@ export class Interpretador
         
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
-        } else if (objeto.constructor === Object) {
+        } 
+        
+        if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
-        } else if (objeto instanceof DeleguaModulo) {
+        } 
+        
+        if (objeto instanceof DeleguaModulo) {
             return objeto.componentes[expressao.simbolo.lexema] || null;
+        }
+
+        switch (variavelObjeto.tipo) {
+            case 'texto':
+                const metodoDePrimitiva: Function = primitivasTexto[expressao.simbolo.lexema];
+                if (metodoDePrimitiva) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitiva, 0);
+                }
+                break;
         }
 
         throw new ErroEmTempoDeExecucao(

@@ -20,7 +20,7 @@ export class AcessoMetodo implements Construto {
         this.simbolo = simbolo;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
+    aceitar(visitante: InterpretadorInterface): any {
         return visitante.visitarExpressaoAcessoMetodo(this);
     }
 }

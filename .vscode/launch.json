@@ -7,7 +7,77 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "REPL (Delégua)",
+            "name": "Delégua > Bhaskara",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "./testes/exemplos/dialetos/egua-classico/bhaskara.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Classes > Construtor",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "./testes/exemplos/classes/construtor-classe.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Escolha",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "./testes/exemplos/condicionais/escolha.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Fibonacci",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "./testes/exemplos/fibonacci.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Primitivas > Texto > Minúsculo",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "./testes/exemplos/primitivas/texto/minusculo.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > REPL",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -18,7 +88,36 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "REPL (Égua Clássico)",
+            "name": "Delégua > Teste de Classe",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "./testes/exemplos/classes/teste-classe.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Todos os Testes de Égua",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "-p",
+                "./testes/exemplos/testes.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Égua Clássico > REPL",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -29,7 +128,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "REPL (ÉguaP)",
+            "name": "ÉguaP > REPL",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -69,22 +168,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Todos os Testes de Égua (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "-p",
-                "./testes/exemplos/testes.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Todos os Testes de Égua (Égua Clássico)",
+            "name": "Égua Clássico > Todos os Testes de Égua",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -100,21 +184,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Teste de Classe (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/classes/teste-classe.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Teste de Classe (Égua Clássico)",
+            "name": "Égua Clássico > Teste de Classe",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -130,21 +200,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Bhaskara (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/dialetos/egua-classico/bhaskara.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Bhaskara (Égua Clássico)",
+            "name": "Égua Clássico > Bhaskara",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -160,7 +216,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Bhaskara (EguaP)",
+            "name": "EguaP > Bhaskara",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -176,35 +232,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Escolha (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/condicionais/escolha.delegua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Fibonacci (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/fibonacci.delegua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Fibonacci (Égua Clássico)",
+            "name": "Égua Clássico > Fibonacci",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -220,21 +248,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Classes > Construtor (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/classes/construtor-classe.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Classes > Construtor (Égua Clássico)",
+            "name": "Égua Clássico > Classes > Construtor",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -250,7 +264,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Funções Anônimas (Delégua)",
+            "name": "Delégua > Funções Anônimas",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -280,7 +294,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Inteiros (Delégua)",
+            "name": "Delégua > Inteiros",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -295,7 +309,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Merge Sort (Égua Clássico)",
+            "name": "Égua Clássico > Merge Sort",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -311,7 +325,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Fila Estática (Égua Clássico)",
+            "name": "Égua Clássico > Fila Estática",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -327,7 +341,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "FizzBuzz (Delégua)",
+            "name": "Delégua > FizzBuzz",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -341,7 +355,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "FizzBuzz (EguaP)",
+            "name": "EguaP > FizzBuzz",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -357,7 +371,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Perception (Égua Clássico)",
+            "name": "Égua Clássico > Perception",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -373,7 +387,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Bloco Enquanto (Delégua)",
+            "name": "Delégua > Bloco Enquanto",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -387,7 +401,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Bloco Fazer ... Enquanto (Delégua)",
+            "name": "Delégua > Bloco Fazer ... Enquanto",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -401,7 +415,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Bloco Para (Delégua)",
+            "name": "Delégua > Bloco Para",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -415,7 +429,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Bloco Se (Delégua)",
+            "name": "Delégua > Bloco Se",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
