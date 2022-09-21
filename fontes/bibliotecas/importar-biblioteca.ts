@@ -2,25 +2,25 @@ import { ErroEmTempoDeExecucao } from "../excecoes";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaModulo } from "../estruturas/modulo";
 
-const carregarBiblioteca = function (nomeDaBiblioteca: any, caminhoDaBiblioteca: any) {
+const carregarBiblioteca = function (nomeDaBiblioteca: string, caminhoDaBiblioteca: any) {
     let dadosDoModulo: any;
 
     try {
         dadosDoModulo = require(caminhoDaBiblioteca);
     } catch (erro: any) {
-        throw new ErroEmTempoDeExecucao(nomeDaBiblioteca, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
+        throw new ErroEmTempoDeExecucao(null, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
     }
 
-    let novoModulo = new DeleguaModulo(nomeDaBiblioteca);
+    const novoModulo = new DeleguaModulo(nomeDaBiblioteca);
 
-    let chaves = Object.keys(dadosDoModulo);
+    const chaves = Object.keys(dadosDoModulo);
     for (let i = 0; i < chaves.length; i++) {
         const moduloAtual = dadosDoModulo[chaves[i]];
 
         if (typeof moduloAtual === "function") {
-            novoModulo[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
+            novoModulo.componentes[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
         } else {
-            novoModulo[chaves[i]] = moduloAtual;
+            novoModulo.componentes[chaves[i]] = moduloAtual;
         }
     }
 
@@ -49,7 +49,7 @@ export default function (nome: string) {
     return (
         verificaModulos
         ? (
-            carregarBiblioteca(verificaModulos, verificaModulos)
+            carregarBiblioteca(String(verificaModulos), verificaModulos)
         ) : (
             carregarBiblioteca(nome, nome)
         ));
