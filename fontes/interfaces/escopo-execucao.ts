@@ -1,8 +1,8 @@
-import { Ambiente } from "../ambiente";
+import { EspacoVariaveis } from "../espaco-variaveis";
 import { Declaracao } from "../declaracoes";
 
 export interface EscopoExecucao {
     declaracoes: Declaracao[];
     declaracaoAtual: number;
-    ambiente: Ambiente;
+    ambiente: EspacoVariaveis;
 }

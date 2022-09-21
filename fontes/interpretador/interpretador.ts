@@ -3,7 +3,7 @@ import hrtime from 'browser-process-hrtime';
 
 import tiposDeSimbolos from '../tipos-de-simbolos';
 
-import { Ambiente } from '../ambiente';
+import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
@@ -89,7 +89,7 @@ export class Interpretador
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new Ambiente()
+            ambiente: new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -645,11 +645,11 @@ export class Interpretador
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): any {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new Ambiente()
+            ambiente: ambiente || new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         return this.executarUltimoEscopo();
@@ -1031,7 +1031,7 @@ export class Interpretador
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new Ambiente()
+            ambiente: new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 

@@ -2,7 +2,7 @@ import * as caminho from 'path';
 import * as fs from 'fs';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos';
-import { Ambiente } from '../../ambiente';
+import { EspacoVariaveis } from '../../espaco-variaveis';
 import { Delegua } from '../../delegua';
 import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';
 import carregarModulo from '../../bibliotecas/importar-biblioteca';
@@ -57,7 +57,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new Ambiente()
+            ambiente: new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -584,11 +584,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): any {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new Ambiente()
+            ambiente: ambiente || new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         return this.executarUltimoEscopo();
@@ -927,7 +927,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new Ambiente()
+            ambiente: new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.executarUltimoEscopo();

@@ -1,5 +1,5 @@
 import { Chamavel } from "./chamavel";
-import { Ambiente } from "../ambiente";
+import { EspacoVariaveis } from "../espaco-variaveis";
 
 import { InterpretadorInterface } from "../interfaces";
 import { RetornoQuebra } from "../quebras";
@@ -30,7 +30,7 @@ export class DeleguaFuncao extends Chamavel {
     }
 
     chamar(interpretador: InterpretadorInterface, argumentos: any): any {
-        let ambiente = new Ambiente();
+        let ambiente = new EspacoVariaveis();
         let parametros = this.declaracao.parametros;
 
         if (parametros && parametros.length) {

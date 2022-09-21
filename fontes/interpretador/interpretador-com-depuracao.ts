@@ -1,4 +1,4 @@
-import { Ambiente } from '../ambiente';
+import { EspacoVariaveis } from '../espaco-variaveis';
 import { Declaracao } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
@@ -62,7 +62,7 @@ export class InterpretadorComDepuracao
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): any {
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): any {
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
             const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(
@@ -102,7 +102,7 @@ export class InterpretadorComDepuracao
             const escopoExecucao: EscopoExecucao = {
                 declaracoes: declaracoes,
                 declaracaoAtual: 0,
-                ambiente: ambiente || new Ambiente(),
+                ambiente: ambiente || new EspacoVariaveis(),
             };
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             this.escopoAtual++;
@@ -339,7 +339,7 @@ export class InterpretadorComDepuracao
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new Ambiente(),
+            ambiente: new EspacoVariaveis(),
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
@@ -363,7 +363,7 @@ export class InterpretadorComDepuracao
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new Ambiente(),
+            ambiente: new EspacoVariaveis(),
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;

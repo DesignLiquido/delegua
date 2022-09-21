@@ -1,6 +1,6 @@
 import { VariavelInterface } from "./interfaces";
 
-export class Ambiente {
+export class EspacoVariaveis {
     valores: { [nome: string]: VariavelInterface };
 
     constructor() {

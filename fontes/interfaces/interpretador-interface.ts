@@ -1,4 +1,4 @@
-import { Ambiente } from "../ambiente";
+import { EspacoVariaveis } from "../espaco-variaveis";
 import { Atribuir, Literal, Super } from "../construtos";
 import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Retorna, Se, Sustar, Tente, Var } from "../declaracoes";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
@@ -35,7 +35,7 @@ export interface InterpretadorInterface {
     visitarExpressaoEnquanto(declaracao: Enquanto): any;
     visitarExpressaoImportar(declaracao: Importar): any;
     visitarExpressaoEscreva(declaracao: Escreva): any;
-    executarBloco(declaracoes: Declaracao[], ambiente?: Ambiente): void;
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): void;
     visitarExpressaoBloco(declaracao: Bloco): null;
     visitarExpressaoVar(declaracao: Var): null;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
