@@ -12,8 +12,7 @@
     "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
     "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
     "testes-unitarios": "jest --coverage",
-    "observar-testes-unitarios": "jest --watchAll",
-    "release": "release-it"
+    "observar-testes-unitarios": "jest --watchAll"
   },
   "repository": {
     "type": "git",
@@ -52,6 +51,7 @@
     "@designliquido/delegua-estatistica": "^0.0.5",
     "@designliquido/delegua-fisica": "^0.0.2",
     "@designliquido/delegua-matematica": "^0.0.2",
+    "@designliquido/delegua-tempo": "^0.0.1",
     "@types/jest": "^29.0.3",
     "@types/node": "^17.0.13",
     "copyfiles": "^2.4.1",

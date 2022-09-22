@@ -35,6 +35,7 @@ const verificaModulosDelegua = (nome: string): string | boolean => {
         "física": "@designliquido/delegua-fisica",
         "matematica": "@designliquido/delegua-matematica",
         "matemática": "@designliquido/delegua-matematica",
+        "tempo": "@designliquido/delegua-tempo",
     }
 
     if (Object.keys(modulos).includes(nome)) {
