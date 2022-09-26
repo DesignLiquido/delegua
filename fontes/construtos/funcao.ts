@@ -1,3 +1,4 @@
+import { InterpretadorInterface, ParametroInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 
@@ -5,10 +6,10 @@ export class Funcao implements Construto {
     linha: number;
     hashArquivo?: number;
 
-    parametros: any[];
+    parametros: ParametroInterface[];
     corpo: any;
 
-    constructor(hashArquivo: number, linha: number, parametros: any[], corpo: any) {
+    constructor(hashArquivo: number, linha: number, parametros: ParametroInterface[], corpo: any) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         
@@ -16,7 +17,7 @@ export class Funcao implements Construto {
         this.corpo = corpo;
     }
 
-    aceitar(visitante: any) {
+    aceitar(visitante: InterpretadorInterface) {
         return visitante.visitarExpressaoDeleguaFuncao(this);
     }
 }
