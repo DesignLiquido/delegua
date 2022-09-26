@@ -1,0 +1,2 @@
+var t = "tudo em minúsculo"
+escreva(t.maiusculo())
