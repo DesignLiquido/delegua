@@ -581,6 +581,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
      * executa as declarações empilhadas.
+     * 
+     * Se o retorno do último bloco foi uma exceção (normalmente um erro em tempo de execução),
+     * atira a exceção daqui. 
+     * Isso é usado, por exemplo, em blocos `tente ... pegue ... finalmente`.
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
@@ -591,7 +595,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: ambiente || new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        return this.executarUltimoEscopo();
+        const retornoUltimoEscopo: any = this.executarUltimoEscopo();
+        if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
+            throw retornoUltimoEscopo;
+        }
+        return retornoUltimoEscopo;
     }
 
     visitarExpressaoBloco(declaracao: any): any {
@@ -899,6 +907,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do Interpretador.
      * Originalmente, Égua não trabalha com uma pilha de escopos. 
+     * 
+     * O tratamento das exceções é feito de acordo com o bloco chamador. 
+     * Por exemplo, em `tente ... pegue ... finalmente`, a exceção é capturada e tratada.
+     * Em outros blocos, pode ser desejável ter o erro em tela.
+     * 
      * Essa implementação é derivada do Interpretador de Delégua, mas simulando todos os
      * comportamos do interpretador Égua original.
      * Interpretador Égua: https://github.com/eguatech/egua/blob/master/src/interpreter.js
@@ -914,7 +927,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             return retornoExecucao;
         } catch (erro: any) {
-            this.erros.push(erro);
+            return erro;
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }
