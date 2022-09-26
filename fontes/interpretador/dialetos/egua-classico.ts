@@ -913,6 +913,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
 
             return retornoExecucao;
+        } catch (erro: any) {
+            this.erros.push(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }

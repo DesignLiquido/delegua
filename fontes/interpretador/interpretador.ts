@@ -12,6 +12,7 @@ import {
 } from '../excecoes';
 import {
     InterpretadorInterface,
+    ParametroInterface,
     SimboloInterface,
     VariavelInterface,
 } from '../interfaces';
@@ -53,6 +54,7 @@ import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execu
 import { inferirTipoVariavel } from './inferenciador';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
+import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -341,10 +343,15 @@ export class Interpretador
         }
 
         if (entidadeChamada instanceof MetodoPrimitiva) {
-            return entidadeChamada.chamar();
+            const argumentosResolvidos: any[] = [];
+            for (let argumento of expressao.argumentos) {
+                let valorResolvido: any = this.avaliar(argumento);
+                argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido);
+            }
+            return entidadeChamada.chamar(argumentosResolvidos);
         }
 
-        let parametros;
+        let parametros: ParametroInterface[];
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DeleguaClasse) {
@@ -365,7 +372,7 @@ export class Interpretador
             if (
                 parametros &&
                 parametros.length > 0 &&
-                parametros[parametros.length - 1]['tipo'] === 'estrela'
+                parametros[parametros.length - 1].tipo === 'estrela'
             ) {
                 let novosArgumentos = argumentos.slice(
                     0,
@@ -898,9 +905,15 @@ export class Interpretador
 
         switch (variavelObjeto.tipo) {
             case 'texto':
-                const metodoDePrimitiva: Function = primitivasTexto[expressao.simbolo.lexema];
-                if (metodoDePrimitiva) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitiva, 0);
+                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
+                if (metodoDePrimitivaTexto) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                }
+                break;
+            case 'vetor':
+                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
+                if (metodoDePrimitivaVetor) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
                 }
                 break;
         }
@@ -1007,6 +1020,8 @@ export class Interpretador
             }
             
             return retornoExecucao;
+        } catch (erro: any) {
+            this.erros.push(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {
