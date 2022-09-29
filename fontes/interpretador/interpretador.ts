@@ -12,6 +12,7 @@ import {
 } from '../excecoes';
 import {
     InterpretadorInterface,
+    ParametroInterface,
     SimboloInterface,
     VariavelInterface,
 } from '../interfaces';
@@ -53,6 +54,7 @@ import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execu
 import { inferirTipoVariavel } from './inferenciador';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
+import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
@@ -341,10 +343,15 @@ export class Interpretador
         }
 
         if (entidadeChamada instanceof MetodoPrimitiva) {
-            return entidadeChamada.chamar();
+            const argumentosResolvidos: any[] = [];
+            for (let argumento of expressao.argumentos) {
+                let valorResolvido: any = this.avaliar(argumento);
+                argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido);
+            }
+            return entidadeChamada.chamar(argumentosResolvidos);
         }
 
-        let parametros;
+        let parametros: ParametroInterface[];
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DeleguaClasse) {
@@ -365,7 +372,7 @@ export class Interpretador
             if (
                 parametros &&
                 parametros.length > 0 &&
-                parametros[parametros.length - 1]['tipo'] === 'estrela'
+                parametros[parametros.length - 1].tipo === 'estrela'
             ) {
                 let novosArgumentos = argumentos.slice(
                     0,
@@ -642,6 +649,9 @@ export class Interpretador
     /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
      * executa as declarações empilhadas.
+     * Se o retorno do último bloco foi uma exceção (normalmente um erro em tempo de execução),
+     * atira a exceção daqui. 
+     * Isso é usado, por exemplo, em blocos tente ... pegue ... finalmente.
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
@@ -652,7 +662,11 @@ export class Interpretador
             ambiente: ambiente || new EspacoVariaveis()
         }
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        return this.executarUltimoEscopo();
+        const retornoUltimoEscopo: any = this.executarUltimoEscopo();
+        if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
+            throw retornoUltimoEscopo;
+        }
+        return retornoUltimoEscopo;
     }
 
     visitarExpressaoBloco(declaracao: Bloco): any {
@@ -898,9 +912,15 @@ export class Interpretador
 
         switch (variavelObjeto.tipo) {
             case 'texto':
-                const metodoDePrimitiva: Function = primitivasTexto[expressao.simbolo.lexema];
-                if (metodoDePrimitiva) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitiva, 0);
+                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
+                if (metodoDePrimitivaTexto) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                }
+                break;
+            case 'vetor':
+                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
+                if (metodoDePrimitivaVetor) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
                 }
                 break;
         }
@@ -995,6 +1015,11 @@ export class Interpretador
 
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
+     * Esse método pega exceções, mas apenas as devolve. 
+     * 
+     * O tratamento das exceções é feito de acordo com o bloco chamador. 
+     * Por exemplo, em `tente ... pegue ... finalmente`, a exceção é capturada e tratada.
+     * Em outros blocos, pode ser desejável ter o erro em tela.
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
@@ -1007,6 +1032,8 @@ export class Interpretador
             }
             
             return retornoExecucao;
+        } catch (erro: any) {
+            return erro;
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {

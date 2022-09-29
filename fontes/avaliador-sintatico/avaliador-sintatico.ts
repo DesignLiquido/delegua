@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../tipos-de-simbolos';
 import hrtime from 'browser-process-hrtime';
-import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
     AtribuicaoSobrescrita,
     Atribuir,
@@ -1206,8 +1206,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
-    logicaComumParametros(): any[] {
-        let parametros = [];
+    logicaComumParametros(): ParametroInterface[] {
+        let parametros: ParametroInterface[] = [];
 
         do {
             if (parametros.length >= 255) {
@@ -1217,27 +1217,27 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 );
             }
 
-            let parametro = {};
+            let parametro: Partial<ParametroInterface> = {};
 
             if (this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro['tipo'] = 'estrela';
+                parametro.tipo = 'estrela';
             } else {
-                parametro['tipo'] = 'padrao';
+                parametro.tipo = 'padrao';
             }
 
-            parametro['nome'] = this.consumir(
+            parametro.nome = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome do parâmetro.'
             );
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro['default'] = this.primario();
+                parametro.valorPadrao = this.primario();
             }
 
-            parametros.push(parametro);
+            parametros.push(parametro as ParametroInterface);
 
-            if (parametro['tipo'] === 'estrela') break;
+            if (parametro.tipo === 'estrela') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }
