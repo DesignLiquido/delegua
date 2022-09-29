@@ -133,9 +133,9 @@ export class Delegua implements DeleguaInterface {
         leiaLinha.prompt();
         leiaLinha.on('line', (linha: string) => {
             const retornoInterpretacao = isto.executarUmaLinha(linha);
-            const resultado = retornoInterpretacao.resultado[0];
+            const resultado = retornoInterpretacao.resultado;
             if (resultado !== undefined) {
-                isto.funcaoDeRetorno(resultado);
+                isto.funcaoDeRetorno(resultado[0]);
             }
             
             leiaLinha.prompt();

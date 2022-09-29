@@ -1041,7 +1041,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             );
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro['default'] = this.primario();
+                parametro['valorPadrao'] = this.primario();
             }
 
             parametros.push(parametro);
