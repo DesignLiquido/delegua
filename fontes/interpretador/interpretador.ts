@@ -740,11 +740,11 @@ export class Interpretador implements InterpretadorInterface {
             let valor: string = '';
             for (const argumento of declaracao.argumentos) {
                 const resultadoAvaliacao = this.avaliar(argumento) || '';
-                valor += `${
-                    resultadoAvaliacao.hasOwnProperty('valor')
-                        ? resultadoAvaliacao.valor
-                        : resultadoAvaliacao
-                } `;
+                const valorArgumento = resultadoAvaliacao.hasOwnProperty('valor')
+                    ? resultadoAvaliacao.valor
+                    : resultadoAvaliacao;
+                
+                valor += `${JSON.stringify(valorArgumento)} `;
             }
             valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
