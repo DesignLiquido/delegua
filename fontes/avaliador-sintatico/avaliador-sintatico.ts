@@ -1,6 +1,10 @@
 import tiposDeSimbolos from '../tipos-de-simbolos';
 import hrtime from 'browser-process-hrtime';
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
+import {
+    AvaliadorSintaticoInterface,
+    ParametroInterface,
+    SimboloInterface,
+} from '../interfaces';
 import {
     AtribuicaoSobrescrita,
     Atribuir,
@@ -67,31 +71,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.erros = [];
         this.performance = performance;
     }
-
-    // Verificar possibilidade de remover na próxima versão, visto que não foi possível realizar testes com esse método.
-    // sincronizar() {
-    //     this.avancarEDevolverAnterior();
-
-    //     while (!this.estaNoFinal()) {
-    //         const tipoSimboloAtual: string = this.simboloAnterior().tipo;
-    //         if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
-
-    //         switch (tipoSimboloAtual) {
-    //             case tiposDeSimbolos.CLASSE:
-    //             case tiposDeSimbolos.FUNCAO:
-    //             case tiposDeSimbolos.FUNÇÃO:
-    //             case tiposDeSimbolos.VARIAVEL:
-    //             case tiposDeSimbolos.PARA:
-    //             case tiposDeSimbolos.SE:
-    //             case tiposDeSimbolos.ENQUANTO:
-    //             case tiposDeSimbolos.ESCREVA:
-    //             case tiposDeSimbolos.RETORNA:
-    //                 return;
-    //         }
-
-    //         this.avancarEDevolverAnterior();
-    //     }
-    // }
 
     erro(
         simbolo: SimboloInterface,
@@ -723,13 +702,16 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em escreva."
         );
 
-        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new Escreva(
+            Number(simboloAtual.linha),
+            simboloAtual.hashArquivo,
+            argumentos
+        );
     }
 
     declaracaoExpressao(): Expressao {
@@ -1331,9 +1313,37 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             return this.resolverDeclaracao();
         } catch (erro: any) {
-            // TODO: Altíssima chance de ser uma roubada. Considerar retirar mais futuramente.
-            // this.sincronizar();
+            this.sincronizar();
             return null;
+        }
+    }
+
+    /**
+     * Usado quando há erros na avaliação sintática.
+     * Garante que o código não entre em loop infinito.
+     * @returns Sempre retorna `void`.
+     */
+    sincronizar() {
+        this.avancarEDevolverAnterior();
+
+        while (!this.estaNoFinal()) {
+            const tipoSimboloAtual: string = this.simboloAnterior().tipo;
+            if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
+
+            switch (tipoSimboloAtual) {
+                case tiposDeSimbolos.CLASSE:
+                case tiposDeSimbolos.FUNCAO:
+                case tiposDeSimbolos.FUNÇÃO:
+                case tiposDeSimbolos.VARIAVEL:
+                case tiposDeSimbolos.PARA:
+                case tiposDeSimbolos.SE:
+                case tiposDeSimbolos.ENQUANTO:
+                case tiposDeSimbolos.ESCREVA:
+                case tiposDeSimbolos.RETORNA:
+                    return;
+            }
+
+            this.avancarEDevolverAnterior();
         }
     }
 
