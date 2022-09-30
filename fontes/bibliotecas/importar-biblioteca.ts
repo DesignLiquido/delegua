@@ -1,8 +1,28 @@
+import * as processoFilho from 'child_process';
+import * as caminho from 'path';
+
 import { ErroEmTempoDeExecucao } from "../excecoes";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaModulo } from "../estruturas/modulo";
 
-const carregarBiblioteca = function (nomeDaBiblioteca: string, caminhoDaBiblioteca: any) {
+const carregarBibliotecaDelegua = (nome: string) => {
+    let dadosDoModulo: any;
+
+    try {
+        dadosDoModulo = require(nome);
+    } catch (erro: any) {
+        // Biblioteca não existe localmente. Tentar importação global
+        try {
+            dadosDoModulo = importarPacoteDeleguaCompleto(nome);
+        } catch (erro2: any) {
+            throw new ErroEmTempoDeExecucao(null, `Biblioteca ${nome} não encontrada para importação.`);
+        }
+    }
+
+    return modularizarBiblioteca(dadosDoModulo, nome);
+}
+
+const carregarBiblioteca = (nomeDaBiblioteca: string, caminhoDaBiblioteca: any) => {
     let dadosDoModulo: any;
 
     try {
@@ -11,7 +31,11 @@ const carregarBiblioteca = function (nomeDaBiblioteca: string, caminhoDaBibliote
         throw new ErroEmTempoDeExecucao(null, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
     }
 
-    const novoModulo = new DeleguaModulo(nomeDaBiblioteca);
+    return modularizarBiblioteca(dadosDoModulo, nomeDaBiblioteca);
+};
+
+const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
+    const novoModulo = new DeleguaModulo(nome);
 
     const chaves = Object.keys(dadosDoModulo);
     for (let i = 0; i < chaves.length; i++) {
@@ -25,7 +49,13 @@ const carregarBiblioteca = function (nomeDaBiblioteca: string, caminhoDaBibliote
     }
 
     return novoModulo;
-};
+}
+
+const importarPacoteDeleguaCompleto = (nome: string) => {
+    const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    const global = processoFilho.spawnSync( npm, ['root', '--location=global']); 
+    return require(caminho.join((global.output[1] as any).toString().trim(), `/delegua/node_modules/${nome}`));
+}
 
 const verificaModulosDelegua = (nome: string): string | boolean => {
     const modulos = {
@@ -46,11 +76,11 @@ const verificaModulosDelegua = (nome: string): string | boolean => {
 };
 
 export default function (nome: string) {
-    const verificaModulos = verificaModulosDelegua(nome);
+    const nomeBibliotecaResolvido: string | boolean = verificaModulosDelegua(nome);
     return (
-        verificaModulos
+        nomeBibliotecaResolvido
         ? (
-            carregarBiblioteca(String(verificaModulos), verificaModulos)
+            carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
         ) : (
             carregarBiblioteca(nome, nome)
         ));

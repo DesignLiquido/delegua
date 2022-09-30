@@ -65,7 +65,7 @@ import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
+ * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
  * e de fato executa a lógica de programação descrita no código.
  */
 export class Interpretador implements InterpretadorInterface {
