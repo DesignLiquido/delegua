@@ -45,6 +45,18 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Template Literals', () => {
+                    const retornoLexador = delegua.lexador.mapear([
+                        "var comidaFavorita = 'strogonoff'",
+                        'escreva("Minha comida favorita é ${comidaFavorita}")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Acesso a variáveis e objetos', () => {
