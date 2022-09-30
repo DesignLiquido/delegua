@@ -7,9 +7,7 @@ import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
-import {
-    ErroEmTempoDeExecucao,
-} from '../excecoes';
+import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
     InterpretadorInterface,
     ParametroInterface,
@@ -42,14 +40,24 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
 } from '../estruturas';
-import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super } from '../construtos';
+import {
+    AcessoIndiceVariavel,
+    Atribuir,
+    Construto,
+    Literal,
+    Super,
+} from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { ImportadorInterface } from '../interfaces/importador-interface';
-// import { PontoParada, PragmaExecucao } from '../depuracao';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
-import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import {
+    ContinuarQuebra,
+    Quebra,
+    RetornoQuebra,
+    SustarQuebra,
+} from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { inferirTipoVariavel } from './inferenciador';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
@@ -60,9 +68,7 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
-export class Interpretador
-    implements InterpretadorInterface
-{
+export class Interpretador implements InterpretadorInterface {
     importador: ImportadorInterface;
     diretorioBase: any;
     erros: ErroInterpretador[];
@@ -71,7 +77,7 @@ export class Interpretador
     resultadoInterpretador: Array<String> = [];
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
-    regexInterpolacao = /\$\{(\w[\w]+)\}/g;
+    regexInterpolacao = /\$\{([a-z_][\w]*)\}/ig;
 
     constructor(
         importador: ImportadorInterface,
@@ -82,18 +88,18 @@ export class Interpretador
         this.importador = importador;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
-        
+
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
         this.erros = [];
         this.declaracoes = [];
-        
+
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis()
-        }
+            ambiente: new EspacoVariaveis(),
+        };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
@@ -107,53 +113,51 @@ export class Interpretador
      */
     retirarInterpolacao(texto: string, variaveis: any[]): string {
         const valoresVariaveis = variaveis.map((v) => ({
-            valorResolvido: this.pilhaEscoposExecucao
-                .obterVariavelPorNome(v.variavel),
-            variavel: v.variavel
+            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(
+                v.variavel
+            ),
+            variavel: v.variavel,
         }));
 
         let textoFinal = texto;
 
         valoresVariaveis.forEach((elemento) => {
-            const valorFinal = elemento.valorResolvido
-                .hasOwnProperty('valor') 
-                ? elemento.valorResolvido.valor 
+            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
+                ? elemento.valorResolvido.valor
                 : elemento.valorResolvido;
 
-            textoFinal = textoFinal
-                .replace(
-                    "${" + elemento.variavel + "}", valorFinal
-                    );
+            textoFinal = textoFinal.replace(
+                '${' + elemento.variavel + '}',
+                valorFinal
+            );
         });
 
         return textoFinal;
-        }
-    
+    }
+
     /**
      * Busca variáveis interpoladas.
      * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
      * @returns Uma lista de variáveis interpoladas.
      */
     buscarVariaveisInterpolacao(textoOriginal: string): any[] {
-        const regexInterpolacao = /\$\{(\w[\w]+)\}/g;
+        const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        const variaveis = textoOriginal.match(regexInterpolacao);
-
-        return variaveis.map((s) => ({
-            variavel: s
-                .replace(/[\$\{\}]*/g, ""),
-            valor: this.pilhaEscoposExecucao
-                .obterVariavelPorNome(s.replace(/[\$\{\}]*/g, "")),
-        }));
+        return variaveis.map((s) => {
+            const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
+            return {
+                variavel: nomeVariavel,
+                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel)
+            }
+        });
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
-        if(this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = this
-                .buscarVariaveisInterpolacao(expressao.valor);
+        if (this.regexInterpolacao.test(expressao.valor)) {
+            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
 
-            return this.retirarInterpolacao(expressao.valor, variaveis)
-            }
+            return this.retirarInterpolacao(expressao.valor, variaveis);
+        }
 
         return expressao.valor;
     }
@@ -198,10 +202,18 @@ export class Interpretador
         return null;
     }
 
-    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+    eIgual(
+        esquerda: VariavelInterface | any,
+        direita: VariavelInterface | any
+    ): boolean {
         if (esquerda.tipo) {
-            if (esquerda.tipo === "nulo" && direita.tipo && direita.tipo === "nulo") return true
-            if (esquerda.tipo === "nulo") return false;
+            if (
+                esquerda.tipo === 'nulo' &&
+                direita.tipo &&
+                direita.tipo === 'nulo'
+            )
+                return true;
+            if (esquerda.tipo === 'nulo') return false;
 
             return esquerda.valor === direita.valor;
         }
@@ -212,17 +224,29 @@ export class Interpretador
     }
 
     /**
-     * Verifica se operandos são números, que podem ser tanto variáveis puras do JavaScript 
+     * Verifica se operandos são números, que podem ser tanto variáveis puras do JavaScript
      * (neste caso, `number`), ou podem ser variáveis de Delégua com inferência (`VariavelInterface`).
      * @param operador O símbolo do operador.
      * @param direita O operando direito.
      * @param esquerda O operando esquerdo.
      * @returns Se ambos os operandos são números ou não.
      */
-    verificarOperandosNumeros(operador: any, direita: VariavelInterface | any, esquerda: VariavelInterface | any): void {
-        const tipoDireita: string = direita.tipo ? direita.tipo : (typeof direita === 'number' ? 'número' : String(NaN));
-        const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : (typeof esquerda === 'number' ? 'número' : String(NaN));
-        if (tipoDireita === "número" && tipoEsquerda === "número") return;
+    verificarOperandosNumeros(
+        operador: any,
+        direita: VariavelInterface | any,
+        esquerda: VariavelInterface | any
+    ): void {
+        const tipoDireita: string = direita.tipo
+            ? direita.tipo
+            : typeof direita === 'number'
+            ? 'número'
+            : String(NaN);
+        const tipoEsquerda: string = esquerda.tipo
+            ? esquerda.tipo
+            : typeof esquerda === 'number'
+            ? 'número'
+            : String(NaN);
+        if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
             'Operadores precisam ser números.',
@@ -231,12 +255,24 @@ export class Interpretador
     }
 
     visitarExpressaoBinaria(expressao: any): any {
-        const esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
-        const direita: VariavelInterface | any = this.avaliar(expressao.direita);
-        const valorEsquerdo: any = esquerda.hasOwnProperty('valor') ? esquerda.valor : esquerda;
-        const valorDireito: any = direita.hasOwnProperty('valor') ? direita.valor : direita;
-        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+        const esquerda: VariavelInterface | any = this.avaliar(
+            expressao.esquerda
+        );
+        const direita: VariavelInterface | any = this.avaliar(
+            expressao.direita
+        );
+        const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+            ? esquerda.valor
+            : esquerda;
+        const valorDireito: any = direita.hasOwnProperty('valor')
+            ? direita.valor
+            : direita;
+        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+            ? esquerda.tipo
+            : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita.hasOwnProperty('tipo')
+            ? direita.tipo
+            : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -290,10 +326,7 @@ export class Interpretador
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
-                if (
-                    tipoEsquerdo === 'número' &&
-                    tipoDireito === 'número'
-                ) {
+                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 } else {
                     return String(valorEsquerdo) + String(valorDireito);
@@ -382,8 +415,12 @@ export class Interpretador
      * @returns O resultado da chamada.
      */
     visitarExpressaoDeChamada(expressao: any) {
-        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(expressao.entidadeChamada);
-        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor') ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
+        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(
+            expressao.entidadeChamada
+        );
+        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
+            ? variavelEntidadeChamada.valor
+            : variavelEntidadeChamada;
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
@@ -402,7 +439,11 @@ export class Interpretador
             const argumentosResolvidos: any[] = [];
             for (let argumento of expressao.argumentos) {
                 let valorResolvido: any = this.avaliar(argumento);
-                argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido);
+                argumentosResolvidos.push(
+                    valorResolvido.hasOwnProperty('valor')
+                        ? valorResolvido.valor
+                        : valorResolvido
+                );
             }
             return entidadeChamada.chamar(argumentosResolvidos);
         }
@@ -539,7 +580,10 @@ export class Interpretador
 
         let retornoExecucao: any;
         while (!(retornoExecucao instanceof Quebra)) {
-            if (declaracao.condicao !== null && !this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+            if (
+                declaracao.condicao !== null &&
+                !this.eVerdadeiro(this.avaliar(declaracao.condicao))
+            ) {
                 break;
             }
 
@@ -564,7 +608,10 @@ export class Interpretador
             } catch (erro: any) {
                 throw erro;
             }
-        } while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
+        } while (
+            !(retornoExecucao instanceof Quebra) &&
+            this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto))
+        );
     }
 
     visitarExpressaoEscolha(declaracao: Escolha): any {
@@ -626,7 +673,10 @@ export class Interpretador
 
     visitarExpressaoEnquanto(declaracao: Enquanto): any {
         let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+        while (
+            !(retornoExecucao instanceof Quebra) &&
+            this.eVerdadeiro(this.avaliar(declaracao.condicao))
+        ) {
             try {
                 retornoExecucao = this.executar(declaracao.corpo);
             } catch (erro) {
@@ -656,10 +706,12 @@ export class Interpretador
 
         const conteudoImportacao = this.importador.importar(caminhoRelativo);
         const retornoInterpretador = this.interpretar(
-            conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true
+            conteudoImportacao.retornoAvaliadorSintatico.declaracoes,
+            true
         );
 
-        let funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+        let funcoesChamaveis =
+            this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
@@ -668,8 +720,7 @@ export class Interpretador
 
             let chaves = Object.keys(funcoesChamaveis);
             for (let i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] =
-                    funcoesChamaveis[chaves[i]];
+                novoModulo.componentes[chaves[i]] = funcoesChamaveis[chaves[i]];
             }
 
             return novoModulo;
@@ -679,7 +730,7 @@ export class Interpretador
     }
 
     /**
-     * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou 
+     * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
      * alguma função para escrever numa página Web.
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
@@ -689,7 +740,11 @@ export class Interpretador
             let valor: string = '';
             for (const argumento of declaracao.argumentos) {
                 const resultadoAvaliacao = this.avaliar(argumento) || '';
-                valor += `${resultadoAvaliacao.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao} `;
+                valor += `${
+                    resultadoAvaliacao.hasOwnProperty('valor')
+                        ? resultadoAvaliacao.valor
+                        : resultadoAvaliacao
+                } `;
             }
             valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
@@ -703,10 +758,10 @@ export class Interpretador
     }
 
     /**
-     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
      * executa as declarações empilhadas.
      * Se o retorno do último bloco foi uma exceção (normalmente um erro em tempo de execução),
-     * atira a exceção daqui. 
+     * atira a exceção daqui.
      * Isso é usado, por exemplo, em blocos tente ... pegue ... finalmente.
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
@@ -715,8 +770,8 @@ export class Interpretador
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new EspacoVariaveis()
-        }
+            ambiente: ambiente || new EspacoVariaveis(),
+        };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = this.executarUltimoEscopo();
         if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
@@ -735,7 +790,10 @@ export class Interpretador
             valor = this.avaliar(declaracao.inicializador);
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valor);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            valor
+        );
         return null;
     }
 
@@ -792,9 +850,15 @@ export class Interpretador
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
-        const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+    visitarExpressaoAcessoIndiceVariavel(
+        expressao: AcessoIndiceVariavel | any
+    ) {
+        const variavelObjeto: VariavelInterface = this.avaliar(
+            expressao.entidadeChamada
+        );
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {
@@ -888,7 +952,10 @@ export class Interpretador
             declaracao.simbolo.lexema,
             declaracao.funcao
         );
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            funcao
+        );
     }
 
     /**
@@ -899,7 +966,9 @@ export class Interpretador
     visitarExpressaoClasse(declaracao: Classe): any {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
-            const variavelSuperClasse: VariavelInterface = this.avaliar(declaracao.superClasse);
+            const variavelSuperClasse: VariavelInterface = this.avaliar(
+                declaracao.superClasse
+            );
             superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
@@ -910,7 +979,10 @@ export class Interpretador
             }
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            null
+        );
 
         if (declaracao.superClasse !== null) {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
@@ -941,7 +1013,10 @@ export class Interpretador
             this.ambiente = this.ambiente.enclosing;
         } */
 
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
+        this.pilhaEscoposExecucao.atribuirVariavel(
+            declaracao.simbolo,
+            deleguaClasse
+        );
         return null;
     }
 
@@ -951,30 +1026,34 @@ export class Interpretador
      * @returns O resultado da execução.
      */
     visitarExpressaoAcessoMetodo(expressao: any) {
-        const variavelObjeto: VariavelInterface = this.avaliar(expressao.objeto);
+        const variavelObjeto: VariavelInterface = this.avaliar(
+            expressao.objeto
+        );
         const objeto = variavelObjeto?.valor;
-        
+
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
-        } 
-        
+        }
+
         if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
-        } 
-        
+        }
+
         if (objeto instanceof DeleguaModulo) {
             return objeto.componentes[expressao.simbolo.lexema] || null;
         }
 
         switch (variavelObjeto.tipo) {
             case 'texto':
-                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
+                const metodoDePrimitivaTexto: Function =
+                    primitivasTexto[expressao.simbolo.lexema];
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
                 }
                 break;
             case 'vetor':
-                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
+                const metodoDePrimitivaVetor: Function =
+                    primitivasVetor[expressao.simbolo.lexema];
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
                 }
@@ -1012,8 +1091,10 @@ export class Interpretador
 
     // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
     visitarExpressaoSuper(expressao: Super): any {
-        const superClasse: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
-        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
+        const superClasse: VariavelInterface =
+            this.pilhaEscoposExecucao.obterVariavelPorNome('super');
+        const objeto: VariavelInterface =
+            this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
 
         let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
 
@@ -1045,7 +1126,7 @@ export class Interpretador
         if (Array.isArray(objeto)) return objeto;
 
         if (typeof objeto === 'object') return JSON.stringify(objeto);
-        if (objeto === undefined) { 
+        if (objeto === undefined) {
             return 'nulo';
         }
 
@@ -1071,9 +1152,9 @@ export class Interpretador
 
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
-     * Esse método pega exceções, mas apenas as devolve. 
-     * 
-     * O tratamento das exceções é feito de acordo com o bloco chamador. 
+     * Esse método pega exceções, mas apenas as devolve.
+     *
+     * O tratamento das exceções é feito de acordo com o bloco chamador.
      * Por exemplo, em `tente ... pegue ... finalmente`, a exceção é capturada e tratada.
      * Em outros blocos, pode ser desejável ter o erro em tela.
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
@@ -1083,10 +1164,17 @@ export class Interpretador
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
-            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            for (
+                ;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                ultimoEscopo.declaracaoAtual++
+            ) {
+                retornoExecucao = this.executar(
+                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                );
             }
-            
+
             return retornoExecucao;
         } catch (erro: any) {
             return erro;
@@ -1094,28 +1182,33 @@ export class Interpretador
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, 
-                    ultimoEscopo.ambiente.valores);
+                escopoAnterior.ambiente.valores = Object.assign(
+                    escopoAnterior.ambiente.valores,
+                    ultimoEscopo.ambiente.valores
+                );
             }
         }
     }
 
     /**
      * Interpretação sem depurador, com medição de performance.
-     * Método que efetivamente inicia o processo de interpretação. 
+     * Método que efetivamente inicia o processo de interpretação.
      * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
-     * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado 
+     * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado
      *                       pelo modo REPL (LEIA).
      * @returns Um objeto com o resultado da interpretação.
      */
-    interpretar(declaracoes: Declaracao[], manterAmbiente: boolean = false): RetornoInterpretador {
+    interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente: boolean = false
+    ): RetornoInterpretador {
         this.erros = [];
 
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis()
-        }
+            ambiente: new EspacoVariaveis(),
+        };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         const inicioInterpretacao: [number, number] = hrtime();
