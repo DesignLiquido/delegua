@@ -1,0 +1,5 @@
+var lista = [1, 2, 3, 4, 5, 6]
+var lista2 = ["Ser", "ou", "não", "ser"]
+
+escreva(lista.inclui(5))
+escreva(lista2.inclui("ser"))
