@@ -71,6 +71,7 @@ export class Interpretador
     resultadoInterpretador: Array<String> = [];
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+    regexInterpolacao = /\$\{(\w[\w]+)\}/g;
 
     constructor(
         importador: ImportadorInterface,
@@ -98,7 +99,62 @@ export class Interpretador
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
+    /**
+     * Retira a interpolação de um texto.
+     * @param {texto} texto O texto
+     * @param {any[]} variaveis A lista de variaveis interpoladas
+     * @returns O texto com o valor das variaveis.
+     */
+    retirarInterpolacao(texto: string, variaveis: any[]): string {
+        const valoresVariaveis = variaveis.map((v) => ({
+            valorResolvido: this.pilhaEscoposExecucao
+                .obterVariavelPorNome(v.variavel),
+            variavel: v.variavel
+        }));
+
+        let textoFinal = texto;
+
+        valoresVariaveis.forEach((elemento) => {
+            const valorFinal = elemento.valorResolvido
+                .hasOwnProperty('valor') 
+                ? elemento.valorResolvido.valor 
+                : elemento.valorResolvido;
+
+            textoFinal = textoFinal
+                .replace(
+                    "${" + elemento.variavel + "}", valorFinal
+                    );
+        });
+
+        return textoFinal;
+        }
+    
+    /**
+     * Busca variáveis interpoladas.
+     * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
+     * @returns Uma lista de variáveis interpoladas.
+     */
+    buscarVariaveisInterpolacao(textoOriginal: string): any[] {
+        const regexInterpolacao = /\$\{(\w[\w]+)\}/g;
+
+        const variaveis = textoOriginal.match(regexInterpolacao);
+
+        return variaveis.map((s) => ({
+            variavel: s
+                .replace(/[\$\{\}]*/g, ""),
+            valor: this.pilhaEscoposExecucao
+                .obterVariavelPorNome(s.replace(/[\$\{\}]*/g, "")),
+        }));
+    }
+
     visitarExpressaoLiteral(expressao: Literal): any {
+        if(this.regexInterpolacao.test(expressao.valor)) {
+            const variaveis = this
+                .buscarVariaveisInterpolacao(expressao.valor);
+
+            return this.retirarInterpolacao(expressao.valor, variaveis)
+            }
+
         return expressao.valor;
     }
 
