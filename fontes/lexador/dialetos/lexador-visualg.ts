@@ -9,7 +9,26 @@ import { Simbolo } from "../simbolo";
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
 
     analisarNumero(): void {
-        throw new Error("Method not implemented.");
+        while (this.eDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
+            this.avancar();
+
+            while (this.eDigito(this.simboloAtual())) {
+                this.avancar();
+            }
+        }
+
+        const numeroCompleto = this.codigo.substring(
+            this.inicioSimbolo,
+            this.atual
+        );
+        this.adicionarSimbolo(
+            tiposDeSimbolos.NUMERO,
+            parseFloat(numeroCompleto)
+        );
     }
     
     analisarTexto(delimitador: string): void {
@@ -38,10 +57,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
         const tipo: string =
             codigo in palavrasReservadas
                 ? palavrasReservadas[codigo]
@@ -81,6 +97,8 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 break;
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
+                this.avancar();
+                break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere))

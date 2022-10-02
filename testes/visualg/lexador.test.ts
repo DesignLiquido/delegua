@@ -36,8 +36,11 @@ describe('Lexador (VisuAlg)', () => {
                 expect(resultado.simbolos).toHaveLength(8);
                 expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
+                        expect.objectContaining({ tipo: tiposDeSimbolos.ALGORITMO }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.FIMALGORITMO }),
                         expect.objectContaining({ tipo: tiposDeSimbolos.IDENTIFICADOR }),
-                        expect.objectContaining({ tipo: tiposDeSimbolos.QUEBRA_LINHA })
+                        expect.objectContaining({ tipo: tiposDeSimbolos.QUEBRA_LINHA }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.VAR })
                     ])
                 );
             });
