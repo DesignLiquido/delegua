@@ -3,9 +3,9 @@ import { RetornoLexador } from "../interfaces/retornos";
 import { ErroLexador } from "./erro-lexador";
 import { Simbolo } from "./simbolo";
 
-export abstract class LexadorBase implements LexadorInterface {
+export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
     simbolos: SimboloInterface[];
-    codigo: string[];
+    codigo: string;
     inicioSimbolo: number;
     atual: number;
     linha: number;
@@ -65,10 +65,7 @@ export abstract class LexadorBase implements LexadorInterface {
     }
 
     eFinalDoCodigo(): boolean {
-        if (this.codigo.length === this.linha) {
-            return true;
-        }
-        return this.atual >= this.codigo[this.linha].length;
+        return this.atual >= this.codigo.length;
     }
 
     eFinalDaLinha(): boolean {
@@ -87,13 +84,9 @@ export abstract class LexadorBase implements LexadorInterface {
         return this.linha >= this.codigo.length - 1;
     }
     
-    avancar(): void {
+    avancar(): string {
         this.atual += 1;
-
-        if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
-            this.linha++;
-            this.atual = 0;
-        }
+        return this.codigo[this.atual - 1];
     }
 
     adicionarSimbolo(tipo: any, literal: any): void {
@@ -113,16 +106,17 @@ export abstract class LexadorBase implements LexadorInterface {
     }
 
     simboloAtual(): string {
-        if (this.eFinalDaLinha()) return '\0';
-        return this.codigo[this.linha].charAt(this.atual);
+        if (this.eFinalDoCodigo()) return '\0';
+        return this.codigo.charAt(this.atual);
     }
 
     proximoSimbolo(): string {
-        return this.codigo[this.linha].charAt(this.atual + 1);
+        if (this.atual + 1 >= this.codigo.length) return '\0';
+        return this.codigo.charAt(this.atual + 1);
     }
 
     simboloAnterior(): string {
-        return this.codigo[this.linha].charAt(this.atual - 1);
+        return this.codigo.charAt(this.atual - 1);
     }
 
     abstract analisarTexto(delimitador: string): void;

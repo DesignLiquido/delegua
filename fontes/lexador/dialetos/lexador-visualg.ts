@@ -1,12 +1,12 @@
 import { RetornoLexador } from "../../interfaces/retornos";
-import { LexadorBase } from "../lexador-base";
+import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
 import { ErroLexador } from "../erro-lexador";
 
 import tiposDeSimbolos from "../../tipos-de-simbolos/visualg";
 import palavrasReservadas from "./palavras-reservadas/visualg";
 import { Simbolo } from "../simbolo";
 
-export class LexadorVisuAlg extends LexadorBase {
+export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
 
     analisarNumero(): void {
         throw new Error("Method not implemented.");
@@ -79,6 +79,8 @@ export class LexadorVisuAlg extends LexadorBase {
             case ';':
                 this.avancar();
                 break;
+            case '\n':
+                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere))
@@ -94,14 +96,16 @@ export class LexadorVisuAlg extends LexadorBase {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 1;
 
-        this.codigo = codigo || [''];
+        // Em VisuAlg, quebras de linha são relevantes na avaliação sintática. 
+        // Portanto, o Lexador precisa trabalhar com uma linha só.
+        this.codigo = codigo.join('\n') || '';
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
