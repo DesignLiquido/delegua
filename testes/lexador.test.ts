@@ -1,5 +1,5 @@
 import { Delegua } from '../fontes/delegua';
-import tiposDeSimbolos from '../fontes/tipos-de-simbolos';
+import tiposDeSimbolos from '../fontes/tipos-de-simbolos/delegua';
 
 describe('Lexador', () => {
     describe('mapear()', () => {

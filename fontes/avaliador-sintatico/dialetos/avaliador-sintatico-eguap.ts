@@ -45,7 +45,7 @@ import {
     SimboloInterface,
 } from '../../interfaces';
 import { Pragma } from '../../lexador/dialetos/pragma';
-import tiposDeSimbolos from '../../lexador/dialetos/tipos-de-simbolos-eguap';
+import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';

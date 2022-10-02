@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 import hrtime from 'browser-process-hrtime';
 
-import tiposDeSimbolos from '../tipos-de-simbolos';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';

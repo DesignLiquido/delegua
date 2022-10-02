@@ -1,4 +1,4 @@
-import tiposDeSimbolos from "../tipos-de-simbolos";
+import tiposDeSimbolos from "../tipos-de-simbolos/delegua";
 
 export default {    
     e: tiposDeSimbolos.E,

@@ -1,6 +1,6 @@
 import hrtime from 'browser-process-hrtime';
 import { LexadorInterface, SimboloInterface } from "../interfaces";
-import tiposDeSimbolos from "../tipos-de-simbolos";
+import tiposDeSimbolos from "../tipos-de-simbolos/delegua";
 import { ErroLexador } from "./erro-lexador";
 import palavrasReservadas from './palavras-reservadas';
 import { RetornoLexador } from "../interfaces/retornos/retorno-lexador";

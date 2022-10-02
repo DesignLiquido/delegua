@@ -1,4 +1,4 @@
-import tiposDeSimbolos from '../tipos-de-simbolos';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import hrtime from 'browser-process-hrtime';
 import {
     AvaliadorSintaticoInterface,
