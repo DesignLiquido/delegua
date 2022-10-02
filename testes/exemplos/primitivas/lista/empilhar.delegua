@@ -1,0 +1,6 @@
+var lista = ["Ser", "ou", "não", "ser"]
+
+escreva(lista.empilhar(1));
+escreva(lista.empilhar("1"));
+escreva(lista.empilhar([]);
+escreva(lista.empilhar({}));
