@@ -34,8 +34,6 @@ export interface AvaliadorSintaticoInterface {
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: string): boolean;
     verificarTipoProximoSimbolo(tipo: string): boolean;
-    simboloAtual(): SimboloInterface;
-    simboloAnterior(): SimboloInterface;
     estaNoFinal(): boolean;
     avancarEDevolverAnterior(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
