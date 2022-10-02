@@ -1,0 +1,3 @@
+var lista = ["Ser", "ou", "não", "ser"]
+
+escreva(lista.removerPrimeiro());
