@@ -29,6 +29,7 @@ import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
 import { InterpretadorComDepuracao } from './interpretador/interpretador-com-depuracao';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos';
+import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
 
 /**  
  * O núcleo da linguagem. 
@@ -84,6 +85,9 @@ export class Delegua implements DeleguaInterface {
                     new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
 
                 console.log('Usando dialeto: ÉguaP');
+                break;
+            case 'visualg':
+                this.lexador = new LexadorVisuAlg();
                 break;
             default:
                 this.lexador = new Lexador(performance);
