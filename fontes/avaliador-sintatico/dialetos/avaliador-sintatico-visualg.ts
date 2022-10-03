@@ -127,7 +127,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         // this.validarSegmentoFimAlgoritmo();
 
         return { 
-            declaracoes: declaracoes,
+            declaracoes: declaracoes.filter(d => d),
             erros: this.erros
         } as RetornoAvaliadorSintatico;
     }

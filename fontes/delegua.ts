@@ -90,6 +90,8 @@ export class Delegua implements DeleguaInterface {
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
                 this.avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
+                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
                 break;
             default:
                 this.lexador = new Lexador(performance);
