@@ -2,6 +2,9 @@ import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/reto
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
+import { Escreva } from '../../declaracoes';
+import { Construto, Literal } from '../../construtos';
+import { SimboloInterface } from '../../interfaces';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     
@@ -45,9 +48,52 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.atual === this.simbolos.length;
     }
 
+    atribuir(): Construto {
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NUMERO,
+                tiposDeSimbolos.CARACTERE
+            )
+        ) {
+            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
+            return new Literal(
+                -1,
+                Number(simboloAnterior.linha),
+                simboloAnterior.literal
+            );
+        }
+    }
+
+    declaracaoEscreva(): Escreva {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' antes dos valores em escreva."
+        );
+
+        const valor = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após os valores em escreva."
+        );
+
+        return new Escreva(
+            Number(simboloAtual.linha),
+            -1,
+            [valor]
+        );
+    }
+
     declaracao(): any {
-        while (!this.estaNoFinal()) {
-            this.avancarEDevolverAnterior();
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.QUEBRA_LINHA:
+                this.avancarEDevolverAnterior();
+                return null;
+            case tiposDeSimbolos.ESCREVA:
+                return this.declaracaoEscreva();
         }
     }
 
@@ -74,11 +120,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.validarSegmentoVar();
         this.validarSegmentoInicio();
 
-        while (!this.estaNoFinal()) {
+        while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIMALGORITMO) {
             declaracoes.push(this.declaracao());
         }
         
-        this.validarSegmentoFimAlgoritmo();
+        // this.validarSegmentoFimAlgoritmo();
 
         return { 
             declaracoes: declaracoes,

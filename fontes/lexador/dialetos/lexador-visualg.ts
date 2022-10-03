@@ -45,7 +45,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             return;
         }
 
-        const valor = this.codigo[this.linha].substring(
+        const valor = this.codigo.substring(
             this.inicioSimbolo + 1,
             this.atual
         );
@@ -85,6 +85,14 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         const caractere = this.simboloAtual();
 
         switch (caractere) {
+            case '(':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.avancar();
+                break;
+            case ')':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
+                break;
             // Esta sessão ignora espaços em branco na tokenização.
             // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
             case ' ':
@@ -99,7 +107,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
                 this.avancar();
                 break;
-                
+
             case '"':
                 this.avancar();
                 this.analisarTexto('"');

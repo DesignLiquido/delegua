@@ -2,7 +2,11 @@ import { Delegua } from "../../fontes/delegua";
 
 describe('Avaliador sintático (VisuAlg)', () => {
     describe('analisar()', () => {
-        const delegua = new Delegua('visualg');
+        let delegua: Delegua;
+
+        beforeEach(() => {
+            delegua = new Delegua('visualg');
+        });
 
         it('Sucesso - Olá Mundo', () => {
             const retornoLexador = delegua.lexador.mapear([

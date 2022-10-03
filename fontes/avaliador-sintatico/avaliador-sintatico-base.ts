@@ -136,17 +136,13 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    atribuir(): Construto {
-        throw new Error('Method not implemented.');
-    }
+    abstract atribuir(): Construto;
 
     expressao(): Construto {
-        throw new Error('Method not implemented.');
+        return this.atribuir();
     }
 
-    declaracaoEscreva(): Escreva {
-        throw new Error('Method not implemented.');
-    }
+    abstract declaracaoEscreva(): Escreva;
 
     declaracaoExpressao(): Expressao {
         throw new Error('Method not implemented.');

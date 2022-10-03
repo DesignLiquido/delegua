@@ -4,6 +4,7 @@ export default {
     algoritmo: tiposDeSimbolos.ALGORITMO,
     ate: tiposDeSimbolos.ATE,
     de: tiposDeSimbolos.DE,
+    escreva: tiposDeSimbolos.ESCREVA,
     faca: tiposDeSimbolos.FACA,
     fimalgoritmo: tiposDeSimbolos.FIMALGORITMO,
     fimpara: tiposDeSimbolos.FIMPARA,
