@@ -216,9 +216,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    declaracao() {
-        throw new Error('Method not implemented.');
-    }
+    abstract declaracao(): any;
 
     abstract analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;
 }

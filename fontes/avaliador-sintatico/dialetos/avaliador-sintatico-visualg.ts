@@ -1,23 +1,54 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
-
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     
-    validarSegmentoAlgoritmo() {
+    validarSegmentoAlgoritmo(): void {
+        this.consumir(tiposDeSimbolos.ALGORITMO, 
+            "Esperada expressão 'algoritmo' para inicializar programa.");
 
+        this.consumir(tiposDeSimbolos.CARACTERE, 
+            "Esperad cadeia de caracteres após palavra-chave 'algoritmo'.");
+
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 
+            "Esperado quebra de linha após definição do segmento 'algoritmo'.");
     }
 
-    validarSegmentoVar() {
-
+    /**
+     * Validação do segmento de declaração de variáveis (opcional).
+     * @returns Sempre retorna `void`.
+     */
+    validarSegmentoVar(): void {
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.VAR)) {
+            return;
+        }
     }
 
-    validarSegmentoInicio() {
-
+    validarSegmentoInicio(): void {
+        this.consumir(tiposDeSimbolos.INICIO, 
+            "Esperada expressão 'inicio' para marcar escopo do programa propriamente dito.");
     }
 
-    validarSegmentoFimAlgoritmo() {
+    validarSegmentoFimAlgoritmo(): void {
+        const simboloAnterior = this.simbolos[this.atual - 1];
+        if (simboloAnterior.tipo !== tiposDeSimbolos.FIMALGORITMO) {
+            throw this.erro(
+                simboloAnterior, 
+                "Esperada expressão 'fimalgoritmo' para finalizar escopo do programa."
+            );
+        }
+    }
 
+    estaNoFinal(): boolean {
+        return this.atual === this.simbolos.length;
+    }
+
+    declaracao(): any {
+        while (!this.estaNoFinal()) {
+            this.avancarEDevolverAnterior();
+        }
     }
 
     /**

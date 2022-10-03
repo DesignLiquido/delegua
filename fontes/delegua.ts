@@ -30,6 +30,7 @@ import { Importador, RetornoImportador } from './importador';
 import { InterpretadorComDepuracao } from './interpretador/interpretador-com-depuracao';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos';
 import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
+import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 
 /**  
  * O núcleo da linguagem. 
@@ -88,6 +89,7 @@ export class Delegua implements DeleguaInterface {
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
+                this.avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
                 break;
             default:
                 this.lexador = new Lexador(performance);

@@ -58,12 +58,11 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         }
 
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
-        const tipo: string =
-            codigo in palavrasReservadas
-                ? palavrasReservadas[codigo]
-                : tiposDeSimbolos.IDENTIFICADOR;
-
-        this.adicionarSimbolo(tipo);
+        if (codigo in palavrasReservadas) {
+            this.adicionarSimbolo(palavrasReservadas[codigo]);
+        } else {
+            this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
+        }
     }
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
@@ -95,8 +94,20 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             case ';':
                 this.avancar();
                 break;
+
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
+                this.avancar();
+                break;
+                
+            case '"':
+                this.avancar();
+                this.analisarTexto('"');
+                this.avancar();
+                break;
+            case "'":
+                this.avancar();
+                this.analisarTexto("'");
                 this.avancar();
                 break;
             default:

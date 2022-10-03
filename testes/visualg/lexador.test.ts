@@ -66,7 +66,5 @@ describe('Lexador (VisuAlg)', () => {
                 ); */
             });
         });
-
-        
     });
 });
