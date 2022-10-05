@@ -160,9 +160,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    declaracaoPara(): Para {
-        throw new Error('Method not implemented.');
-    }
+    abstract declaracaoPara(): Para;
 
     declaracaoSustar(): Sustar {
         throw new Error('Method not implemented.');

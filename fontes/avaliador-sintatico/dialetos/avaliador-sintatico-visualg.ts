@@ -2,7 +2,7 @@ import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/reto
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
-import { Escreva } from '../../declaracoes';
+import { Escreva, Para } from '../../declaracoes';
 import { Construto, Literal } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
 
@@ -32,16 +32,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     validarSegmentoInicio(): void {
         this.consumir(tiposDeSimbolos.INICIO, 
             "Esperada expressão 'inicio' para marcar escopo do programa propriamente dito.");
-    }
-
-    validarSegmentoFimAlgoritmo(): void {
-        const simboloAnterior = this.simbolos[this.atual - 1];
-        if (simboloAnterior.tipo !== tiposDeSimbolos.FIMALGORITMO) {
-            throw this.erro(
-                simboloAnterior, 
-                "Esperada expressão 'fimalgoritmo' para finalizar escopo do programa."
-            );
-        }
     }
 
     estaNoFinal(): boolean {
@@ -86,14 +76,34 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
+    declaracaoPara(): Para {
+        const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
+
+        this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.DE,
+            "Esperado palavra reservada 'de' após variáve de controle de 'para'."
+        );
+
+        return null;
+        // TODO: Como fazer inicializador e condição para este caso?
+        // return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+    }
+
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.ESCREVA:
+                return this.declaracaoEscreva();
+            case tiposDeSimbolos.PARA:
+                return this.declaracaoPara();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
-            case tiposDeSimbolos.ESCREVA:
-                return this.declaracaoEscreva();
         }
     }
 
@@ -104,9 +114,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * - O segundo símbolo é `var`, que pode ser seguido por uma série de 
      * declarações de variáveis e finalizado por uma quebra de linha.
      * - O terceiro símbolo é `inicio`, seguido por uma quebra de linha. 
-     * - O último símbolo deve ser `fimalgoritmo`.
-     * @param retornoLexador 
-     * @param hashArquivo 
+     * - O último símbolo deve ser `fimalgoritmo`, que também é usado para 
+     * definir quando não existem mais construtos a serem adicionados.
+     * @param retornoLexador Os símbolos entendidos pelo Lexador.
+     * @param hashArquivo Obrigatório por interface mas não usado aqui.
      */
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
         this.erros = [];
@@ -123,8 +134,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIMALGORITMO) {
             declaracoes.push(this.declaracao());
         }
-        
-        // this.validarSegmentoFimAlgoritmo();
 
         return { 
             declaracoes: declaracoes.filter(d => d),

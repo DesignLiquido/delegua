@@ -143,7 +143,8 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "interpretador.test.ts",
+                // "interpretador.test.ts",
+                "visualg",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -436,6 +437,22 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}index.ts",
                 "./testes/exemplos/condicionais/se.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "VisuAlg > Olá Mundo",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "--dialeto",
+                "visualg",
+                "./testes/exemplos/dialetos/visualg/ola-mundo.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
