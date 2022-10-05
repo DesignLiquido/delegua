@@ -89,6 +89,130 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
     );
 
     pilhaEscoposExecucao.definirVariavel(
+        "todosEmCondicao",
+        new FuncaoPadrao(1, function (vetor: VariavelInterface | any, funcaoCondicional: VariavelInterface | any) {
+            const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+            const valorFuncaoCondicional = funcaoCondicional.hasOwnProperty('valor') ? funcaoCondicional.valor : funcaoCondicional;
+            if (!Array.isArray(valorVetor)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor."
+                );
+            }
+
+            if (valorFuncaoCondicional.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função."
+                );
+            }
+
+            for (let indice = 0; indice < valorVetor.length; ++indice) {
+                if (!valorFuncaoCondicional.chamar(
+                    interpretador, [valorVetor[indice]]
+                )) false;
+
+            }
+            return true;
+        })
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        "filtrarPor",
+        new FuncaoPadrao(1, function (vetor: VariavelInterface | any, funcaoFiltragem: VariavelInterface | any) {
+            const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+            const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+            if (!Array.isArray(valorVetor)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor."
+                );
+            }
+
+            if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função."
+                );
+            }
+
+            let resultados = [];
+            for (let indice = 0; indice < valorVetor.length; ++indice) {
+                valorFuncaoFiltragem.chamar(
+                    interpretador, [valorVetor[indice]]
+                ) && resultados.push(
+                    valorFuncaoFiltragem.chamar(
+                        interpretador, [valorVetor[indice]]
+                    )
+                );
+            }
+
+            return resultados;
+        })
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        "primeiroEmCondicao",
+        new FuncaoPadrao(1, function (vetor: VariavelInterface | any, funcaoFiltragem: VariavelInterface | any) {
+            const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+            const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+            if (!Array.isArray(valorVetor)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor."
+                );
+            }
+
+            if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função."
+                );
+            }
+
+            let resultados = [];
+            for (let indice = 0; indice < valorVetor.length; ++indice) {
+                valorFuncaoFiltragem.chamar(
+                    interpretador, [valorVetor[indice]]
+                ) && resultados.push(
+                    valorFuncaoFiltragem.chamar(
+                        interpretador, [valorVetor[indice]]
+                    )
+                );
+            }
+
+            return resultados[0];
+        })
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        "paraCada",
+        new FuncaoPadrao(1, function (vetor: VariavelInterface | any, funcaoFiltragem: VariavelInterface | any) {
+            const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+            const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+            if (!Array.isArray(valorVetor)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor."
+                );
+            }
+
+            if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    "Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função."
+                );
+            }
+
+            for (let indice = 0; indice < valorVetor.length; ++indice) {
+                valorFuncaoFiltragem.chamar(
+                    interpretador, [valorVetor[indice]]
+                );
+            }
+        })
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
         "ordenar",
         new FuncaoPadrao(1, function (vetor: VariavelInterface | Array<any>) {
             let objeto = vetor.hasOwnProperty('valor') ? (vetor as VariavelInterface).valor : vetor;
