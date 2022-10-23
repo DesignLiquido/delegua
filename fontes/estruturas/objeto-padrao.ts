@@ -1,3 +1,6 @@
+/**
+ * Um objeto padrão é uma instância de uma Classe Padrão (JavaScript).
+ */
 export class ObjetoPadrao {
     classePadrao: string;
 

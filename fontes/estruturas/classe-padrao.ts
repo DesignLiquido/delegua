@@ -1,6 +1,9 @@
 import { Chamavel } from "./chamavel";
 import { ObjetoPadrao } from "./objeto-padrao";
 
+/**
+ * Classe de importação de classes de bibliotecas do JavaScript. 
+ */
 export class ClassePadrao extends Chamavel {
     nome: string;
     funcaoDeClasse: Function;
@@ -27,7 +30,8 @@ export class ClassePadrao extends Chamavel {
 
     /**
      * Para o caso de uma classe padrão, chamá-la na verdade é
-     * invocar o método `constructor` do `prototype`.
+     * invocar o construtor e adicionar no corpo de propriedades
+     * os métodos implementados para a classe original.
      * @param argumentos 
      * @param simbolo 
      */
