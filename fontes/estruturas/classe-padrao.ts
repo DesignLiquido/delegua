@@ -1,12 +1,15 @@
 import { Chamavel } from "./chamavel";
+import { ObjetoPadrao } from "./objeto-padrao";
 
 export class ClassePadrao extends Chamavel {
     nome: string;
+    funcaoDeClasse: Function;
     metodos: { [nome: string]: any };
 
-    constructor(nome?: string) {
+    constructor(nome: string, funcaoDeClasse: Function) {
         super();
         this.nome = nome;
+        this.funcaoDeClasse = funcaoDeClasse;
         this.metodos = {};
     }
 
@@ -28,10 +31,10 @@ export class ClassePadrao extends Chamavel {
      * @param argumentos 
      * @param simbolo 
      */
-    chamar(argumentos: any[], simbolo: any): void {
-        const construtor = this.metodos['construtor'];
-        if (construtor) {
-            construtor.apply(this, argumentos);
-        }
+    chamar(argumentos: any[], simbolo: any): any {
+        let novoObjeto: ObjetoPadrao = new ObjetoPadrao(this.nome);
+        this.funcaoDeClasse.apply(novoObjeto, argumentos);
+        Object.assign(novoObjeto, this.metodos);
+        return novoObjeto;
     }
 }

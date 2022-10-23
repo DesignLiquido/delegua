@@ -49,11 +49,11 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
             // a "function" é uma classe.
             // Caso contrário, é uma função (`FuncaoPadrao`).
             if (moduloAtual.prototype && moduloAtual.prototype.constructor && typeof moduloAtual.prototype.constructor === "function") {
-                const classePadrao = new ClassePadrao(chaves[i]);
+                const classePadrao = new ClassePadrao(chaves[i], moduloAtual);
                 for (const [nome, corpoMetodo] of Object.entries(moduloAtual.prototype)) {
                     classePadrao.metodos[nome] = corpoMetodo;
                 }
-                classePadrao.metodos['construtor'] = moduloAtual.prototype.constructor;
+
                 novoModulo.componentes[chaves[i]] = classePadrao;
             } else {
                 novoModulo.componentes[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
