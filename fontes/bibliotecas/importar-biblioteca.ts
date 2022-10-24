@@ -45,10 +45,10 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
         if (typeof moduloAtual === "function") {
             // Por definição, funções tradicionais e classes são identificadas em JavaScript como "functions".
             // A forma de diferenciar é verificando a propriedade `prototype`.
-            // Se dentro dessa propriedade temos outra chamada `constructor`, podemos dizer que 
-            // a "function" é uma classe.
+            // Se dentro dessa propriedade temos outras propriedades cujo tipo também seja `function`, 
+            // podemos dizer que a "function" é uma classe.
             // Caso contrário, é uma função (`FuncaoPadrao`).
-            if (moduloAtual.prototype && moduloAtual.prototype.constructor && typeof moduloAtual.prototype.constructor === "function") {
+            if (Object.entries(moduloAtual.prototype).some((f: [string, any]) => typeof f[1] === "function")) {
                 const classePadrao = new ClassePadrao(chaves[i], moduloAtual);
                 for (const [nome, corpoMetodo] of Object.entries(moduloAtual.prototype)) {
                     classePadrao.metodos[nome] = corpoMetodo;
