@@ -39,6 +39,7 @@ import {
     ObjetoDeleguaClasse,
     DeleguaModulo,
     FuncaoPadrao,
+    ObjetoPadrao,
 } from '../estruturas';
 import {
     AcessoIndiceVariavel,
@@ -503,12 +504,12 @@ export class Interpretador implements InterpretadorInterface {
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expressao: any): any {
+    procurarVariavel(simbolo: SimboloInterface): any {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
     visitarExpressaoDeVariavel(expressao: any): any {
-        return this.procurarVariavel(expressao.simbolo, expressao);
+        return this.procurarVariavel(expressao.simbolo);
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao): any {
@@ -1067,8 +1068,8 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoIsto(expressao: any) {
-        return this.procurarVariavel(expressao.palavraChave, expressao);
+    visitarExpressaoIsto(expressao: any): any {
+        return this.procurarVariavel(expressao.palavraChave);
     }
 
     visitarExpressaoDicionario(expressao: any) {
@@ -1125,6 +1126,7 @@ export class Interpretador implements InterpretadorInterface {
 
         if (Array.isArray(objeto)) return objeto;
 
+        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
         if (objeto === undefined) {
             return 'nulo';
