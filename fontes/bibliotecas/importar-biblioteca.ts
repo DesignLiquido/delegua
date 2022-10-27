@@ -4,6 +4,7 @@ import * as caminho from 'path';
 import { ErroEmTempoDeExecucao } from "../excecoes";
 import { FuncaoPadrao } from "../estruturas/funcao-padrao";
 import { DeleguaModulo } from "../estruturas/modulo";
+import { ClassePadrao } from '../estruturas/classe-padrao';
 
 const carregarBibliotecaDelegua = (nome: string) => {
     let dadosDoModulo: any;
@@ -42,7 +43,21 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
         const moduloAtual = dadosDoModulo[chaves[i]];
 
         if (typeof moduloAtual === "function") {
-            novoModulo.componentes[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
+            // Por definição, funções tradicionais e classes são identificadas em JavaScript como "functions".
+            // A forma de diferenciar é verificando a propriedade `prototype`.
+            // Se dentro dessa propriedade temos outras propriedades cujo tipo também seja `function`, 
+            // podemos dizer que a "function" é uma classe.
+            // Caso contrário, é uma função (`FuncaoPadrao`).
+            if (Object.entries(moduloAtual.prototype).some((f: [string, any]) => typeof f[1] === "function")) {
+                const classePadrao = new ClassePadrao(chaves[i], moduloAtual);
+                for (const [nome, corpoMetodo] of Object.entries(moduloAtual.prototype)) {
+                    classePadrao.metodos[nome] = corpoMetodo;
+                }
+
+                novoModulo.componentes[chaves[i]] = classePadrao;
+            } else {
+                novoModulo.componentes[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
+            }
         } else {
             novoModulo.componentes[chaves[i]] = moduloAtual;
         }

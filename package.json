@@ -1,10 +1,11 @@
 {
   "name": "@designliquido/delegua",
-  "version": "0.6.6",
+  "version": "0.7.3",
   "description": "Linguagem de programação simples e moderna usando português",
   "main": "index.ts",
   "scripts": {
     "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
+    "lair": "ts-node index.ts",
     "publicar-npm": "npm publish ./dist --access public",
     "testes": "./bin/delegua-ts testes/exemplos/testes.egua",
     "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",

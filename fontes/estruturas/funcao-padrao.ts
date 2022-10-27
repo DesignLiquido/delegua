@@ -1,5 +1,8 @@
 import { Chamavel } from "./chamavel";
 
+/**
+ * Uma `FuncaoPadrao` normalmente é uma função em JavaScript.
+ */
 export class FuncaoPadrao extends Chamavel {
     valorAridade: number;
     funcao: Function;
