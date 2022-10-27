@@ -10,5 +10,6 @@ export default {
     fimalgoritmo: tiposDeSimbolos.FIMALGORITMO,
     fimpara: tiposDeSimbolos.FIMPARA,
     inicio: tiposDeSimbolos.INICIO,
+    para: tiposDeSimbolos.PARA,
     var: tiposDeSimbolos.VAR
 }

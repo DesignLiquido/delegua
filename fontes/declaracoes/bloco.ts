@@ -3,9 +3,9 @@ import { Declaracao } from "./declaracao";
 
 
 export class Bloco extends Declaracao {
-    declaracoes: any;
+    declaracoes: any[];
 
-    constructor(hashArquivo: number, linha: number, declaracoes: any) {
+    constructor(hashArquivo: number, linha: number, declaracoes: any[]) {
         super(linha, hashArquivo);
         this.declaracoes = declaracoes;
     }

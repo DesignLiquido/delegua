@@ -93,6 +93,19 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
                 break;
+            case ":":
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
+                break;
+            case '<':
+                this.avancar();
+                if (this.simboloAtual() === '-') {
+                    this.adicionarSimbolo(tiposDeSimbolos.SETA_ATRIBUICAO);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+                break;
             // Esta sessão ignora espaços em branco na tokenização.
             // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
             case ' ':

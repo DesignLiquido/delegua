@@ -2,9 +2,10 @@ import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/reto
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
-import { Escreva, Para } from '../../declaracoes';
-import { Construto, Literal } from '../../construtos';
+import { Bloco, Escreva, Para } from '../../declaracoes';
+import { Atribuir, Binario, Construto, Literal, Variavel } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
+import { Simbolo } from '../../lexador';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     
@@ -27,6 +28,23 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.VAR)) {
             return;
         }
+
+        this.avancarEDevolverAnterior(); // Var
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
+            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+                "Esperado nome de variável.");
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, 
+                "Esperado dois-pontos após nome de variável.");
+
+            if (!this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.INTEIRO
+            )) {
+                throw this.erro(this.simbolos[this.atual], 'Tipo de variável não conhecido.');
+            }
+
+            this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 
+                "Esperado quebra de linha após declaração de variável.");
+        }
     }
 
     validarSegmentoInicio(): void {
@@ -38,7 +56,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.atual === this.simbolos.length;
     }
 
-    atribuir(): Construto {
+    primario(): Construto {
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
+        ) {
+            return new Variavel(-1, this.simbolos[this.atual - 1]);
+        }
+
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NUMERO,
@@ -52,6 +76,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 simboloAnterior.literal
             );
         }
+    }
+
+    /**
+     * Método que resolve atribuições.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     */
+    atribuir(): Construto {
+        const expressao = this.primario();
+        return expressao;
     }
 
     declaracaoEscreva(): Escreva {
@@ -77,9 +110,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     declaracaoPara(): Para {
-        const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
+        const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
 
-        this.consumir(
+        const variavelIteracao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado identificador de variável após 'para'."
         );
@@ -89,9 +122,50 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado palavra reservada 'de' após variáve de controle de 'para'."
         );
 
-        return null;
-        // TODO: Como fazer inicializador e condição para este caso?
-        // return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+        const numeroInicio = this.consumir(
+            tiposDeSimbolos.NUMERO,
+            "Esperado literal ou variável após 'de' em declaração 'para'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.ATE,
+            "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'."
+        );
+
+        const numeroFim = this.consumir(
+            tiposDeSimbolos.NUMERO,
+            "Esperado literal ou variável após 'de' em declaração 'para'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.FACA,
+            "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após palavra reservada 'faca' do laço de repetição 'para'."
+        );
+
+        let declaracoesBlocoPara = []
+        let simboloAtualBlocoPara: SimboloInterface = this.avancarEDevolverAnterior();
+        while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIMPARA) {
+            simboloAtualBlocoPara = this.avancarEDevolverAnterior();
+            declaracoesBlocoPara.push(this.declaracao());
+        }
+        
+        const corpo = new Bloco(-1, Number(simboloPara.linha) + 1, declaracoesBlocoPara.filter(d => d));
+
+        return new Para(-1, 
+            Number(simboloPara.linha), 
+            new Atribuir(-1, variavelIteracao, numeroInicio), 
+            new Binario(-1, 
+                variavelIteracao, 
+                new Simbolo(tiposDeSimbolos.SETA_ATRIBUICAO, "", "", Number(simboloPara.linha), -1), 
+                numeroFim
+            ), 
+            1, 
+            corpo);
     }
 
     declaracao(): any {
@@ -99,6 +173,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.IDENTIFICADOR:
+                this.avancarEDevolverAnterior();
+                return new Variavel(-1, this.simbolos[this.atual - 1]);
             case tiposDeSimbolos.PARA:
                 return this.declaracaoPara();
             case tiposDeSimbolos.QUEBRA_LINHA:

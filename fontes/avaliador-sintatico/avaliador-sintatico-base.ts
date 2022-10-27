@@ -59,7 +59,7 @@ export abstract class AvaliadorSintaticoBase
         return this.atual === this.simbolos.length;
     }
 
-    avancarEDevolverAnterior() {
+    avancarEDevolverAnterior(): SimboloInterface {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simbolos[this.atual - 1];
     }
@@ -76,9 +76,7 @@ export abstract class AvaliadorSintaticoBase
         return false;
     }
 
-    primario(): Construto {
-        throw new Error('Method not implemented.');
-    }
+    abstract primario(): Construto;
 
     finalizarChamada(entidadeChamada: Construto): Construto {
         throw new Error('Method not implemented.');
