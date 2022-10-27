@@ -172,9 +172,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    declaracaoEscolha(): Escolha {
-        throw new Error('Method not implemented.');
-    }
+    abstract declaracaoEscolha(): Escolha;
 
     declaracaoImportar(): Importar {
         throw new Error('Method not implemented.');

@@ -1,6 +1,6 @@
 import { EspacoVariaveis } from "../espaco-variaveis";
 import { Atribuir, Literal, Super } from "../construtos";
-import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Retorna, Se, Sustar, Tente, Var } from "../declaracoes";
+import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Leia, Para, Retorna, Se, Sustar, Tente, Var } from "../declaracoes";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
 import { PilhaEscoposExecucaoInterface } from "./pilha-escopos-execucao-interface";
 
@@ -26,6 +26,7 @@ export interface InterpretadorInterface {
     procurarVariavel(nome: SimboloInterface, expressao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     visitarDeclaracaoDeExpressao(declaracao: Expressao): any;
+    visitarExpressaoLeia(expressao: Leia): any;
     visitarExpressaoLogica(expressao: any): any;
     visitarExpressaoSe(declaracao: Se): any;
     visitarExpressaoPara(declaracao: Para): any;

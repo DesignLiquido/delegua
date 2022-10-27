@@ -44,7 +44,7 @@ describe('Lexador (VisuAlg)', () => {
                         expect.objectContaining({ tipo: tiposDeSimbolos.INICIO }),
                         expect.objectContaining({ tipo: tiposDeSimbolos.QUEBRA_LINHA }),
                         // expect.objectContaining({ tipo: tiposDeSimbolos.ESCREVA }),
-                        expect.objectContaining({ tipo: tiposDeSimbolos.FIMALGORITMO })
+                        expect.objectContaining({ tipo: tiposDeSimbolos.FIM_ALGORITMO })
                     ])
                 );
             });

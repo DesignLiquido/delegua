@@ -26,6 +26,7 @@ import {
     Fazer,
     Funcao,
     Importar,
+    Leia,
     Para,
     Retorna,
     Se,
@@ -104,6 +105,15 @@ export class Interpretador implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    /**
+     * Execução da leitura de valores da entrada configurada no
+     * início da aplicação.
+     * @param expressao 
+     */
+    visitarExpressaoLeia(expressao: Leia) {
+        throw new Error('Método não implementado.');
     }
 
     /**

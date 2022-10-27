@@ -36,5 +36,27 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
+
+        it('Sucesso - Escolha', () => {
+            const retornoLexador = delegua.lexador.mapear([
+                'algoritmo "Times"',
+                'var time: caractere',
+                'inicio',
+                'escreva ("Entre com o nome de um time de futebol: ")',
+                'leia (time)',
+                'escolha time',
+                '    caso "Flamengo", "Fluminense", "Vasco", "Botafogo"',
+                '        escreval ("É um time carioca.")',
+                '    caso "São Paulo", "Palmeiras", "Santos", "Corínthians"',
+                '        escreval ("É um time paulista.")',
+                '    outrocaso',
+                '        escreval ("É de outro estado.")',
+                'fimescolha',
+                'fimalgoritmo'
+            ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+        });
     });
 });
