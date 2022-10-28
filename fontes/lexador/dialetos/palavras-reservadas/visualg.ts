@@ -6,14 +6,17 @@ export default {
     caractere: tiposDeSimbolos.CARACTERE,
     caso: tiposDeSimbolos.CASO,
     de: tiposDeSimbolos.DE,
+    escolha: tiposDeSimbolos.ESCOLHA,
     escreva: tiposDeSimbolos.ESCREVA,
     escreval: tiposDeSimbolos.ESCREVA_LINHA,
-    inteiro: tiposDeSimbolos.INTEIRO,
     faca: tiposDeSimbolos.FACA,
     fimalgoritmo: tiposDeSimbolos.FIM_ALGORITMO,
+    fimescolha: tiposDeSimbolos.FIM_ESCOLHA,
     fimpara: tiposDeSimbolos.FIM_PARA,
     inicio: tiposDeSimbolos.INICIO,
+    inteiro: tiposDeSimbolos.INTEIRO,
     leia: tiposDeSimbolos.LEIA,
+    outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
     var: tiposDeSimbolos.VAR
 }

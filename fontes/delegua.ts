@@ -42,7 +42,7 @@ export class Delegua implements DeleguaInterface {
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
 
-    interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
+    interpretador: InterpretadorInterface;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     importador: ImportadorInterface;

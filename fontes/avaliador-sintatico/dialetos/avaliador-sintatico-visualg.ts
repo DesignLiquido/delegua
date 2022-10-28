@@ -37,7 +37,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 "Esperado dois-pontos após nome de variável.");
 
             if (!this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.INTEIRO
+                tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE
             )) {
                 throw this.erro(this.simbolos[this.atual], 'Tipo de variável não conhecido.');
             }
@@ -98,21 +98,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return literais;
     }
 
-    /* logicaDeclaracaoEscolha(): any {
+    logicaDeclaracaoEscolha(): any {
         const declaracoes = [];
         do {
             declaracoes.push(this.declaracao());
+            this.consumir(
+                tiposDeSimbolos.QUEBRA_LINHA,
+                "Esperado quebra de linha após declaração em condição 'caso'."
+            );
         } while (
-            ![tiposDeSimbolos.FIM_ESCOLHA, tiposDeSimbolos.OUTRO_CASO].includes(simboloAtualBlocoCaso.tipo)
-            this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
-            !this.verificarTipoSimboloAtual(
-                tiposDeSimbolos.PADRAO
-            ) &&
-            !this.verificarTipoSimboloAtual(
-                tiposDeSimbolos.CHAVE_DIREITA
-            )
+            ![tiposDeSimbolos.FIM_ESCOLHA, tiposDeSimbolos.OUTRO_CASO].includes(this.simbolos[this.atual].tipo)
         );
-    } */
+    }
 
     declaracaoEscolha(): Escolha {
         const simboloAtual = this.avancarEDevolverAnterior();
@@ -126,13 +123,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         while (![tiposDeSimbolos.FIM_ESCOLHA, tiposDeSimbolos.OUTRO_CASO].includes(simboloAtualBlocoCaso.tipo)) {
             let caminhoCondicoes = this.logicaCasosEscolha();
             // declaracoesBlocoPara.push(this.declaracao());
-            
-            this.consumir(
-                tiposDeSimbolos.QUEBRA_LINHA,
-                "Esperado quebra de linha após declaração em condição 'caso'."
-            );
-
-            
 
             caminhos.push({
                 condicoes: caminhoCondicoes,
@@ -156,8 +146,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             };
         }
 
-        // Bloco opcional outrocaso
-
         return new Escolha(null, null, null);
     }
 
@@ -169,11 +157,16 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const valor = this.expressao();
+        const valor = this.declaracao();
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em escreva."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'."
         );
 
         return new Escreva(
@@ -184,6 +177,25 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     declaracaoLeia(): Leia {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' antes dos valores em leia."
+        );
+
+        const valor = this.declaracao();
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após os valores em leia."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após fechamento de parênteses pós instrução 'leia'."
+        );
+
         return null;
     }
 
@@ -255,12 +267,21 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.IDENTIFICADOR:
-                this.avancarEDevolverAnterior();
-                return new Variavel(-1, this.simbolos[this.atual - 1]);
+            case tiposDeSimbolos.NUMERO:
+            case tiposDeSimbolos.CARACTERE:
+                return this.primario();
+            case tiposDeSimbolos.LEIA:
+                return this.declaracaoLeia();
             case tiposDeSimbolos.PARA:
                 return this.declaracaoPara();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
+                return null;
+            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+            case tiposDeSimbolos.PARENTESE_DIREITO:
+                throw new Error('Não deveria estar caindo aqui.')
+            default:
+                // TODO: Remover
                 return null;
         }
     }
