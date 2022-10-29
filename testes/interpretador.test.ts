@@ -126,7 +126,7 @@ describe('Interpretador', () => {
                             const retornoLexador = delegua.lexador.mapear(["var estatística = importar('estatística')"], -1);
                             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                            console.log(retornoInterpretador);
+                            
                             expect(retornoInterpretador.erros).toHaveLength(0);
                         });
 
@@ -134,7 +134,7 @@ describe('Interpretador', () => {
                             const retornoLexador = delegua.lexador.mapear(["var estatistica = importar('estatistica')"], -1);
                             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                            console.log(retornoInterpretador);
+                            
                             expect(retornoInterpretador.erros).toHaveLength(0);
                         });
                     })
@@ -208,7 +208,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                }); 
+                });
 
                 it('Operações lógicas - e', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro e falso)"], -1);

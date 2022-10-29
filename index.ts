@@ -41,4 +41,3 @@ const principal = () => {
 };
 
 principal();
-// console.log((process as any)._getActiveHandles());
