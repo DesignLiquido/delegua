@@ -744,10 +744,6 @@ export class Interpretador implements InterpretadorInterface {
                 valor = resultadoAvaliacao?.hasOwnProperty('valor')
                     ? resultadoAvaliacao.valor
                     : resultadoAvaliacao;
-                
-                //Por hora não vejo motivo de manter essa lógica, visto que o método `paraTexto` deve ser o responsável em formatar o valor e devolver o resultado
-                //valor += `${JSON.stringify(valor)} `;
-                //valor = valor.trim();
             }
             const formatoTexto = this.paraTexto(valor);
             // Por enquanto `escreva` não devolve resultado no interpretador.
