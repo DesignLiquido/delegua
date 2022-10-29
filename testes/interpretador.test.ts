@@ -276,10 +276,10 @@ describe('Interpretador', () => {
                 it('Escolha', () => {
                     const codigo = [
                         "escolha (1) {",
-                            "caso '1':",
-                                "escreva('correspondente à opção '1'');",
                             "caso 1:",
                                 "escreva('correspondente à opção 1');",
+                            "caso 2:",
+                                "escreva('correspondente à opção 2');",
                             "padrao:",
                                 "escreva('Sem opção correspondente');",
                         "}"
