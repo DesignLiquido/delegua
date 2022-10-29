@@ -103,6 +103,24 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('verdadeiro', () => {
+                    const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro)"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('falso', () => {
+                    const retornoLexador = delegua.lexador.mapear(["escreva(falso)"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Importar', () => {
@@ -126,7 +144,7 @@ describe('Interpretador', () => {
                             const retornoLexador = delegua.lexador.mapear(["var estatística = importar('estatística')"], -1);
                             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                            
+
                             expect(retornoInterpretador.erros).toHaveLength(0);
                         });
 
@@ -134,7 +152,7 @@ describe('Interpretador', () => {
                             const retornoLexador = delegua.lexador.mapear(["var estatistica = importar('estatistica')"], -1);
                             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                            
+
                             expect(retornoInterpretador.erros).toHaveLength(0);
                         });
                     })
