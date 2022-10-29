@@ -1112,6 +1112,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     paraTexto(objeto: any) {
+        if(objeto === undefined) return '';
         if (objeto === null) return 'nulo';
         if (typeof objeto === 'boolean') {
             return objeto ? 'verdadeiro' : 'falso';
