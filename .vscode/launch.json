@@ -83,7 +83,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/primitivas/lista/fatiar.delegua"
+                "./testes/exemplos/primitivas/lista/inclui.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
