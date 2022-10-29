@@ -272,6 +272,71 @@ describe('Interpretador', () => {
                 }); 
             });
 
+            describe('Tente - Pegue - Finalmente', () => {
+                it('Tente', () => {
+                    const codigo = [
+                        "tente {",
+                            "escreva('sucesso');",
+                        "} pegue {",
+                            "escreva('pegue');",
+                        "} finalmente {",
+                            "escreva('pronto');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Tente com senão', () => {
+                    const codigo = [
+                        "tente {",
+                            "se 1 != 1 {",
+                                "escreva('sucesso');",
+                            "}",
+                            "senao {",
+                                "escreva('é diferente');",
+                            "}",
+                        "} pegue {",
+                            "escreva('pegue');",
+                        "} finalmente {",
+                            "escreva('pronto');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Pegue', () => {
+                    const codigo = [
+                        "tente {",
+                            "1 > '1';",
+                            "escreva('sucesso');",
+                        "} pegue {",
+                            "escreva('captura');",
+                        "} finalmente {",
+                            "escreva('pronto');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            }),
+
             describe('Condicionais', () => {
                 it('Condicionais - condição verdadeira', () => {
                     const retornoLexador = delegua.lexador.mapear(["se (1 < 2) { escreva('Um menor que dois') } senão { escreva('Nunca será executado') }"], -1);
