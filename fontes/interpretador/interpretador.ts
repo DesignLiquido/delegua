@@ -741,7 +741,7 @@ export class Interpretador implements InterpretadorInterface {
             let valor: any;
             for (const argumento of declaracao.argumentos) {
                 const resultadoAvaliacao = this.avaliar(argumento);
-                valor = resultadoAvaliacao.hasOwnProperty('valor')
+                valor = resultadoAvaliacao?.hasOwnProperty('valor')
                     ? resultadoAvaliacao.valor
                     : resultadoAvaliacao;
                 
