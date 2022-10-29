@@ -1108,8 +1108,8 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     paraTexto(objeto: any) {
-        if(objeto === undefined) return '';
-        if (objeto === null) return 'nulo';
+
+        if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') {
             return objeto ? 'verdadeiro' : 'falso';
         }
@@ -1126,9 +1126,6 @@ export class Interpretador implements InterpretadorInterface {
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
-        if (objeto === undefined) {
-            return 'nulo';
-        }
 
         return objeto.toString();
     }
