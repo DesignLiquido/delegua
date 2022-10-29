@@ -1,0 +1,4 @@
+var lista = ["Ser", "ou", "não", "ser"]
+
+escreva(lista.fatiar(2));
+escreva(lista.fatiar(1, 2));

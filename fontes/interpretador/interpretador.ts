@@ -738,16 +738,17 @@ export class Interpretador implements InterpretadorInterface {
      */
     visitarExpressaoEscreva(declaracao: Escreva): any {
         try {
-            let valor: string = '';
+            let valor: any;
             for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = this.avaliar(argumento) || '';
-                const valorArgumento = resultadoAvaliacao.hasOwnProperty('valor')
+                const resultadoAvaliacao = this.avaliar(argumento);
+                valor = resultadoAvaliacao.hasOwnProperty('valor')
                     ? resultadoAvaliacao.valor
                     : resultadoAvaliacao;
                 
-                valor += `${JSON.stringify(valorArgumento)} `;
+                //Por hora não vejo motivo de manter essa lógica, visto que o método `paraTexto` deve ser o responsável em formatar o valor e devolver o resultado
+                //valor += `${JSON.stringify(valor)} `;
+                //valor = valor.trim();
             }
-            valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
