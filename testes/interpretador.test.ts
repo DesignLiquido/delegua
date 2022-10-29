@@ -220,6 +220,18 @@ describe('Interpretador', () => {
                 })
             });
 
+            describe('Delegua com parametro de performance', () => {
+                it('performance', () => {
+                    const deleguaPerformance = new Delegua('delegua', true)
+                    const retornoLexador = deleguaPerformance.lexador.mapear(["escreva(1 + 1)"], -1);
+                    const retornoAvaliadorSintatico = deleguaPerformance.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = deleguaPerformance.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            });
+
             describe('Operações matemáticas', () => {
                 it('Operações matemáticas - Trivial', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
