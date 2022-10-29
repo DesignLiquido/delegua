@@ -272,6 +272,28 @@ describe('Interpretador', () => {
                 }); 
             });
 
+            describe('Escolha - Caso', () => {
+                it('Escolha', () => {
+                    const codigo = [
+                        "escolha (1) {",
+                            "caso '1':",
+                                "escreva('correspondente à opção '1'');",
+                            "caso 1:",
+                                "escreva('correspondente à opção 1');",
+                            "padrao:",
+                                "escreva('Sem opção correspondente');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            })
+
             describe('Tente - Pegue - Finalmente', () => {
                 it('Tente', () => {
                     const codigo = [
