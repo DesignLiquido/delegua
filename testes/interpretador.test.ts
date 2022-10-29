@@ -103,6 +103,37 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('verdadeiro', () => {
+                    const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro)"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('falso', () => {
+                    const retornoLexador = delegua.lexador.mapear(["escreva(falso)"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('interpolação de texto', () => {
+                    const codigo = [
+                        'var minha_variavel = "Strogonoff"',
+                        'escreva("Eu gosto de ${minha_variavel}")'
+                    ]
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Importar', () => {
@@ -126,7 +157,7 @@ describe('Interpretador', () => {
                             const retornoLexador = delegua.lexador.mapear(["var estatística = importar('estatística')"], -1);
                             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                            console.log(retornoInterpretador);
+
                             expect(retornoInterpretador.erros).toHaveLength(0);
                         });
 
@@ -134,7 +165,7 @@ describe('Interpretador', () => {
                             const retornoLexador = delegua.lexador.mapear(["var estatistica = importar('estatistica')"], -1);
                             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                            console.log(retornoInterpretador);
+
                             expect(retornoInterpretador.erros).toHaveLength(0);
                         });
                     })
@@ -189,6 +220,18 @@ describe('Interpretador', () => {
                 })
             });
 
+            describe('Delegua com parametro de performance', () => {
+                it('performance', () => {
+                    const deleguaPerformance = new Delegua('delegua', true)
+                    const retornoLexador = deleguaPerformance.lexador.mapear(["escreva(1 + 1)"], -1);
+                    const retornoAvaliadorSintatico = deleguaPerformance.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = deleguaPerformance.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            });
+
             describe('Operações matemáticas', () => {
                 it('Operações matemáticas - Trivial', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
@@ -208,7 +251,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                }); 
+                });
 
                 it('Operações lógicas - e', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro e falso)"], -1);
@@ -228,6 +271,93 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 }); 
             });
+
+            describe('Escolha - Caso', () => {
+                it('Escolha', () => {
+                    const codigo = [
+                        "escolha (1) {",
+                            "caso 1:",
+                                "escreva('correspondente à opção 1');",
+                            "caso 2:",
+                                "escreva('correspondente à opção 2');",
+                            "padrao:",
+                                "escreva('Sem opção correspondente');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            })
+
+            describe('Tente - Pegue - Finalmente', () => {
+                it('Tente', () => {
+                    const codigo = [
+                        "tente {",
+                            "escreva('sucesso');",
+                        "} pegue {",
+                            "escreva('pegue');",
+                        "} finalmente {",
+                            "escreva('pronto');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Tente com senão', () => {
+                    const codigo = [
+                        "tente {",
+                            "se 1 != 1 {",
+                                "escreva('sucesso');",
+                            "}",
+                            "senao {",
+                                "escreva('é diferente');",
+                            "}",
+                        "} pegue {",
+                            "escreva('pegue');",
+                        "} finalmente {",
+                            "escreva('pronto');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Pegue', () => {
+                    const codigo = [
+                        "tente {",
+                            "1 > '1';",
+                            "escreva('sucesso');",
+                        "} pegue {",
+                            "escreva('captura');",
+                        "} finalmente {",
+                            "escreva('pronto');",
+                        "}"
+                    ];
+                    
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            }),
 
             describe('Condicionais', () => {
                 it('Condicionais - condição verdadeira', () => {

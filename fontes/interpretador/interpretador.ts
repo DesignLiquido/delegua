@@ -738,16 +738,13 @@ export class Interpretador implements InterpretadorInterface {
      */
     visitarExpressaoEscreva(declaracao: Escreva): any {
         try {
-            let valor: string = '';
+            let valor: any;
             for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = this.avaliar(argumento) || '';
-                const valorArgumento = resultadoAvaliacao.hasOwnProperty('valor')
+                const resultadoAvaliacao = this.avaliar(argumento);
+                valor = resultadoAvaliacao?.hasOwnProperty('valor')
                     ? resultadoAvaliacao.valor
                     : resultadoAvaliacao;
-                
-                valor += `${JSON.stringify(valorArgumento)} `;
             }
-            valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
@@ -1111,7 +1108,8 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     paraTexto(objeto: any) {
-        if (objeto === null) return 'nulo';
+
+        if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') {
             return objeto ? 'verdadeiro' : 'falso';
         }
@@ -1128,9 +1126,6 @@ export class Interpretador implements InterpretadorInterface {
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
-        if (objeto === undefined) {
-            return 'nulo';
-        }
 
         return objeto.toString();
     }

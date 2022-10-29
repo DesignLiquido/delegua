@@ -3,3 +3,4 @@ var lista2 = ["Ser", "ou", "não", "ser"]
 
 escreva(lista.inclui(5))
 escreva(lista2.inclui("ser"))
+escreva(lista2.inclui("abc"))

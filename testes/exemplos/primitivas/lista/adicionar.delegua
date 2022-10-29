@@ -1,0 +1,6 @@
+var lista = ["Ser", "ou", "não", "ser"]
+
+escreva(lista.adicionar(1));
+escreva(lista.adicionar("1"));
+escreva(lista.adicionar([]));
+escreva(lista.adicionar({}));
