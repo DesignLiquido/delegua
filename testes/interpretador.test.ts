@@ -256,7 +256,16 @@ describe('Interpretador', () => {
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                }); 
+                });
+
+                it('Operações lógicas - negação', () => {
+                    const retornoLexador = delegua.lexador.mapear(["!verdadeiro"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
 
                 it('Operações lógicas - em', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(2 em [1, 2, 3])"], -1);
@@ -265,7 +274,70 @@ describe('Interpretador', () => {
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                }); 
+                });
+
+                it('Operações lógicas - bit a bit não', () => {
+                    const retornoLexador = delegua.lexador.mapear(["~1"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operações lógicas - menor menor', () => {
+                    const retornoLexador = delegua.lexador.mapear(["1 << 2"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operações lógicas - maior maior', () => {
+                    const retornoLexador = delegua.lexador.mapear(["2 >> 1"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operações lógicas - bit ou', () => {
+                    const retornoLexador = delegua.lexador.mapear(["1 | 2"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operações lógicas - bit e', () => {
+                    const retornoLexador = delegua.lexador.mapear(["1 & 1"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operações lógicas - bit xor', () => {
+                    const retornoLexador = delegua.lexador.mapear(["1 ^ 2"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operações lógicas - bit xor', () => {
+                    const retornoLexador = delegua.lexador.mapear(["1 erro? 2"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Escolha - Caso', () => {
