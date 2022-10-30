@@ -237,6 +237,15 @@ describe('Interpretador', () => {
         
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Operações matemáticas - Subtração', () => {
+                    const retornoLexador = delegua.lexador.mapear(["-1"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Operações lógicas', () => {
@@ -323,15 +332,6 @@ describe('Interpretador', () => {
 
                 it('Operações lógicas - bit xor', () => {
                     const retornoLexador = delegua.lexador.mapear(["1 ^ 2"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    
-                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-        
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
-                it('Operações lógicas - bit xor', () => {
-                    const retornoLexador = delegua.lexador.mapear(["1 erro? 2"], -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
