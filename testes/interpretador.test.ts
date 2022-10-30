@@ -46,7 +46,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Template Literals', () => {
+                it('Interpolação de Texto', () => {
                     const retornoLexador = delegua.lexador.mapear([
                         "var comidaFavorita = 'strogonoff'",
                         'escreva("Minha comida favorita é ${comidaFavorita}")'
@@ -115,19 +115,6 @@ describe('Interpretador', () => {
 
                 it('falso', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(falso)"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    
-                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-        
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
-                it('interpolação de texto', () => {
-                    const codigo = [
-                        'var minha_variavel = "Strogonoff"',
-                        'escreva("Eu gosto de ${minha_variavel}")'
-                    ]
-                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     
                     const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
