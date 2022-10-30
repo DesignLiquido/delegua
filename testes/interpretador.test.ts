@@ -104,6 +104,15 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('nulo igual a nulo', () => {
+                    const retornoLexador = delegua.lexador.mapear(["escreva(nulo == nulo)"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    
+                    const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('verdadeiro', () => {
                     const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro)"], -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
