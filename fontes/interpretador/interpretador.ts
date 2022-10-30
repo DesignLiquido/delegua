@@ -207,6 +207,8 @@ export class Interpretador implements InterpretadorInterface {
         esquerda: VariavelInterface | any,
         direita: VariavelInterface | any
     ): boolean {
+        if (esquerda === null && direita === null) return true;
+        if (esquerda === null) return false;
         if (esquerda.tipo) {
             if (
                 esquerda.tipo === 'nulo' &&
@@ -218,8 +220,6 @@ export class Interpretador implements InterpretadorInterface {
 
             return esquerda.valor === direita.valor;
         }
-        if (esquerda === null && direita === null) return true;
-        if (esquerda === null) return false;
 
         return esquerda === direita;
     }
@@ -262,16 +262,16 @@ export class Interpretador implements InterpretadorInterface {
         const direita: VariavelInterface | any = this.avaliar(
             expressao.direita
         );
-        const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+        const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
             ? esquerda.valor
             : esquerda;
-        const valorDireito: any = direita.hasOwnProperty('valor')
+        const valorDireito: any = direita?.hasOwnProperty('valor')
             ? direita.valor
             : direita;
-        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
             ? esquerda.tipo
             : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.hasOwnProperty('tipo')
+        const tipoDireito: string = direita?.hasOwnProperty('tipo')
             ? direita.tipo
             : inferirTipoVariavel(direita);
 
