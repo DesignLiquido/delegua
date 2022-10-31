@@ -497,6 +497,11 @@ export class Interpretador implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
+    /**
+     * Execução de uma expressão de atribuição.
+     * @param expressao A expressão.
+     * @returns O valor atribuído.
+     */
     visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
         const valor = this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
@@ -782,15 +787,20 @@ export class Interpretador implements InterpretadorInterface {
         return this.executarBloco(declaracao.declaracoes);
     }
 
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
     visitarExpressaoVar(declaracao: Var): any {
-        let valor = null;
+        let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valor = this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = this.avaliar(declaracao.inicializador);
         }
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
-            valor
+            valorOuOutraVariavel.hasOwnProperty('valor') ? valorOuOutraVariavel.valor : valorOuOutraVariavel
         );
         return null;
     }
