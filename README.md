@@ -17,13 +17,21 @@
     <img src="https://img.shields.io/github/license/Designliquido/delegua" />
     <br>
   </p>
+  
+  <p align="center">
+    Acompanhe a Design Líquido nas redes sociais:<br />
+    <a href="https://twitter.com/designliquido" target="_blank"> <img src="https://img.shields.io/badge/-Twitter-1ca0f1?style=flat&labelColor=1ca0f1&logo=twitter&logoColor=white&link=Twitter" /></a>
+    <a href="https://www.instagram.com/design.liquido" target="_blank"><img src="https://img.shields.io/badge/-Instagram-c13584?style=flat&labelColor=c13584&logo=instagram&logoColor=white" /></a>
+    <a href="https://www.youtube.com/channel/UCJRn3B7r0aex6LCaOyrQtZQ" target="_blank"><img src="https://img.shields.io/badge/-YouTube-ff0000?style=flat-square&labelColor=ff0000&logo=youtube&logoColor=white" /></a>
+    <a href="https://www.linkedin.com/company/design-liquido" target="_blank"><img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat&logo=Linkedin&logoColor=white" /></a>
+  </p>
 </p>
 
 ## Introdução
 
 Delégua é uma variação da linguagem Égua, usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
 
-Delégua tem retrocompatibilidade com a linguagem Égua e usa a mesma extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
+Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
 
 ## Características
 
@@ -72,5 +80,6 @@ npm install -g @designliquido/delegua
 
 ## Contribuições e Comunidade
 
-* Para contribuições, por favor, leia o nosso [Guia de Contribuição](.github/CONTRIBUTING.md) antes de submeter uma Pull Request.
+* Para contribuições, por favor, leia o nosso [Guia de Contribuição](.github/CONTRIBUTING.md) antes de submeter uma _Pull Request_.
+* [Veja nossas discussões atuais](https://github.com/DesignLiquido/delegua/discussions).
 * [Temos um grupo no Discord](https://discord.gg/4tBxWSSbdV).

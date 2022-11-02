@@ -610,13 +610,21 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.executarBloco(declaracao.declaracoes);
     }
 
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
     visitarExpressaoVar(declaracao: Var) {
-        let valor = null;
+        let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valor = this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = this.avaliar(declaracao.inicializador);
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valor);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema, 
+            valorOuOutraVariavel.hasOwnProperty('valor') ? valorOuOutraVariavel.valor : valorOuOutraVariavel
+        );
         return null;
     }
 

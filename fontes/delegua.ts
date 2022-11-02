@@ -115,7 +115,7 @@ export class Delegua implements DeleguaInterface {
             const manifesto = caminho.resolve('package.json');
             return (
                 JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' }))
-                    .version || '0.6'
+                    .version || '0.7'
             );
         } catch (error: any) {
             return '0.6 (desenvolvimento)';
@@ -140,9 +140,8 @@ export class Delegua implements DeleguaInterface {
 
         leiaLinha.prompt();
         leiaLinha.on('line', (linha: string) => {
-            const retornoInterpretacao = isto.executarUmaLinha(linha);
-            const resultado = retornoInterpretacao.resultado;
-            if (resultado !== undefined) {
+            const { resultado } = isto.executarUmaLinha(linha);
+            if (resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
             

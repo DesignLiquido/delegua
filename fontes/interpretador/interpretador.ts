@@ -217,6 +217,8 @@ export class Interpretador implements InterpretadorInterface {
         esquerda: VariavelInterface | any,
         direita: VariavelInterface | any
     ): boolean {
+        if (esquerda === null && direita === null) return true;
+        if (esquerda === null) return false;
         if (esquerda.tipo) {
             if (
                 esquerda.tipo === 'nulo' &&
@@ -228,8 +230,6 @@ export class Interpretador implements InterpretadorInterface {
 
             return esquerda.valor === direita.valor;
         }
-        if (esquerda === null && direita === null) return true;
-        if (esquerda === null) return false;
 
         return esquerda === direita;
     }
@@ -272,16 +272,16 @@ export class Interpretador implements InterpretadorInterface {
         const direita: VariavelInterface | any = this.avaliar(
             expressao.direita
         );
-        const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+        const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
             ? esquerda.valor
             : esquerda;
-        const valorDireito: any = direita.hasOwnProperty('valor')
+        const valorDireito: any = direita?.hasOwnProperty('valor')
             ? direita.valor
             : direita;
-        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
             ? esquerda.tipo
             : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.hasOwnProperty('tipo')
+        const tipoDireito: string = direita?.hasOwnProperty('tipo')
             ? direita.tipo
             : inferirTipoVariavel(direita);
 
@@ -507,6 +507,11 @@ export class Interpretador implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
+    /**
+     * Execução de uma expressão de atribuição.
+     * @param expressao A expressão.
+     * @returns O valor atribuído.
+     */
     visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
         const valor = this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
@@ -748,16 +753,13 @@ export class Interpretador implements InterpretadorInterface {
      */
     visitarExpressaoEscreva(declaracao: Escreva): any {
         try {
-            let valor: string = '';
+            let valor: any;
             for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = this.avaliar(argumento) || '';
-                const valorArgumento = resultadoAvaliacao.hasOwnProperty('valor')
+                const resultadoAvaliacao = this.avaliar(argumento);
+                valor = resultadoAvaliacao?.hasOwnProperty('valor')
                     ? resultadoAvaliacao.valor
                     : resultadoAvaliacao;
-                
-                valor += `${JSON.stringify(valorArgumento)} `;
             }
-            valor = valor.trim();
             const formatoTexto = this.paraTexto(valor);
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
@@ -795,15 +797,20 @@ export class Interpretador implements InterpretadorInterface {
         return this.executarBloco(declaracao.declaracoes);
     }
 
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
     visitarExpressaoVar(declaracao: Var): any {
-        let valor = null;
+        let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valor = this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = this.avaliar(declaracao.inicializador);
         }
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
-            valor
+            valorOuOutraVariavel.hasOwnProperty('valor') ? valorOuOutraVariavel.valor : valorOuOutraVariavel
         );
         return null;
     }
@@ -1121,7 +1128,8 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     paraTexto(objeto: any) {
-        if (objeto === null) return 'nulo';
+
+        if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') {
             return objeto ? 'verdadeiro' : 'falso';
         }
@@ -1138,9 +1146,6 @@ export class Interpretador implements InterpretadorInterface {
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
-        if (objeto === undefined) {
-            return 'nulo';
-        }
 
         return objeto.toString();
     }
