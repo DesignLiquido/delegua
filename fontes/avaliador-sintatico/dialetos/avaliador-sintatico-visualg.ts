@@ -253,11 +253,16 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
 
         let declaracoesBlocoPara = []
-        let simboloAtualBlocoPara: SimboloInterface = this.avancarEDevolverAnterior();
+        let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM_PARA) {
             declaracoesBlocoPara.push(this.declaracao());
             simboloAtualBlocoPara = this.avancarEDevolverAnterior();
         }
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após palavra reservada 'fimpara'."
+        );
         
         const corpo = new Bloco(-1, Number(simboloPara.linha) + 1, declaracoesBlocoPara.filter(d => d));
 
