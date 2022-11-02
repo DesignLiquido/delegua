@@ -631,7 +631,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoEscolha(declaracao: Escolha): any {
-        let condicaoEscolha = this.avaliar(declaracao.condicao);
+        let condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
         let caminhos = declaracao.caminhos;
         let caminhoPadrao = declaracao.caminhoPadrao;
 
