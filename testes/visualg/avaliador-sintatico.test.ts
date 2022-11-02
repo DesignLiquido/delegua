@@ -21,20 +21,22 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        it('Sucesso - Para', () => {
+        it('Sucesso - Enquanto', () => {
             const retornoLexador = delegua.lexador.mapear([
-                "algoritmo 'Numeros de 1 a 10'",
-                "var j: inteiro",
-                "inicio",
-                "    para j de 1 ate 10 faca",
-                "        escreva (j)",
-                "    fimpara",
-                "fimalgoritmo"
+                'algoritmo "Números de 1 a 10 (com enquanto...faca)"',
+                'var j: inteiro',
+                'inicio',
+                'j <- 1',
+                'enquanto j <= 10 faca',
+                '   escreva (j)',
+                '   j <- j + 1',
+                'fimenquanto',
+                'fimalgoritmo'
             ], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
         it('Sucesso - Escolha', () => {
@@ -57,6 +59,22 @@ describe('Avaliador sintático (VisuAlg)', () => {
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
+        });
+
+        it('Sucesso - Para', () => {
+            const retornoLexador = delegua.lexador.mapear([
+                "algoritmo 'Numeros de 1 a 10'",
+                "var j: inteiro",
+                "inicio",
+                "    para j de 1 ate 10 faca",
+                "        escreva (j)",
+                "    fimpara",
+                "fimalgoritmo"
+            ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
     });
 });

@@ -1,4 +1,4 @@
-import { Construto, Funcao } from '../construtos';
+import { Binario, Construto, Funcao } from '../construtos';
 import {
     Escreva,
     Expressao,
@@ -23,6 +23,13 @@ import {
 } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
+import tiposDeSimbolos from '../tipos-de-simbolos/comum';
+
+/**
+ * O Avaliador Sintático Base é uma tentativa de mapear métodos em comum
+ * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
+ * de tipos de símbolos comuns entre todos os dialetos.
+ */
 export abstract class AvaliadorSintaticoBase
     implements AvaliadorSintaticoInterface
 {
@@ -115,7 +122,27 @@ export abstract class AvaliadorSintaticoBase
     }
 
     comparar(): Construto {
-        throw new Error('Method not implemented.');
+        let expressao = this.primario();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.MAIOR,
+                tiposDeSimbolos.MAIOR_IGUAL,
+                tiposDeSimbolos.MENOR,
+                tiposDeSimbolos.MENOR_IGUAL
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.primario();
+            expressao = new Binario(
+                -1,
+                expressao,
+                operador,
+                direito
+            );
+        }
+
+        return expressao;
     }
 
     comparacaoIgualdade(): Construto {
@@ -154,9 +181,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    declaracaoEnquanto(): Enquanto {
-        throw new Error('Method not implemented.');
-    }
+    abstract declaracaoEnquanto(): Enquanto;
 
     abstract declaracaoPara(): Para;
 

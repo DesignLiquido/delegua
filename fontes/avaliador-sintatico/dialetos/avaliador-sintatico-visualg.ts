@@ -1,14 +1,13 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-
-import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
-import { Bloco, Escolha, Escreva, Leia, Para } from '../../declaracoes';
+import { Bloco, Enquanto, Escolha, Escreva, Leia, Para } from '../../declaracoes';
 import { Atribuir, Binario, Construto, Literal, Variavel } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../../lexador';
 
-export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
-    
+import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
+
+export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {    
     validarSegmentoAlgoritmo(): void {
         this.consumir(tiposDeSimbolos.ALGORITMO, 
             "Esperada expressão 'algoritmo' para inicializar programa.");
@@ -83,7 +82,20 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
      */
     atribuir(): Construto {
-        const expressao = this.primario();
+        const expressao = this.comparar();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)) {
+            const igual = this.simbolos[this.atual - 1];
+            const valor = this.atribuir();
+
+            if (expressao instanceof Variavel) {
+                const simbolo = expressao.simbolo;
+                return new Atribuir(-1, simbolo, valor);
+            } 
+
+            this.erro(igual, 'Tarefa de atribuição inválida');
+        }
+
         return expressao;
     }
 
@@ -99,20 +111,44 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return literais;
     }
 
-    logicaDeclaracaoEscolha(): any {
+    declaracaoEnquanto(): Enquanto {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        const condicao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.FACA,
+            "Esperado paravra reservada 'faca' após condicional de declaracão 'enquanto'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado que bra de linha após paravra reservada 'faca' em declaracão 'enquanto'."
+        );
+
         const declaracoes = [];
         do {
             declaracoes.push(this.declaracao());
         } while (
-            ![tiposDeSimbolos.CASO, tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(this.simbolos[this.atual].tipo)
+            ![tiposDeSimbolos.FIM_ENQUANTO].includes(this.simbolos[this.atual].tipo)
         );
+
+        this.consumir(
+            tiposDeSimbolos.FIM_ENQUANTO,
+            "Esperado palavra-chave 'fimenquanto' para fechamento de declaração 'enquanto'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após palavra-chave 'fimenquanto'."
+        );
+
+        return new Enquanto(condicao, declaracoes);
     }
 
     declaracaoEscolha(): Escolha {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        /* const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
-            "Esperado identificador após expressão 'escolha'."); */
         const identificador = this.primario();
 
         // Blocos de caso
@@ -124,7 +160,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.QUEBRA_LINHA,
                 "Esperado quebra de linha após último valor de declaração 'caso'."
             );
-            const declaracoes = this.logicaDeclaracaoEscolha();
+
+            const declaracoes = [];
+            do {
+                declaracoes.push(this.declaracao());
+            } while (
+                ![tiposDeSimbolos.CASO, tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(this.simbolos[this.atual].tipo)
+            );
 
             caminhos.push({
                 condicoes: caminhoCondicoes,
@@ -282,28 +324,25 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.ENQUANTO:
+                return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCOLHA:
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
             case tiposDeSimbolos.ESCREVA_LINHA:
                 return this.declaracaoEscreva();
-            case tiposDeSimbolos.IDENTIFICADOR:
-            case tiposDeSimbolos.NUMERO:
-            case tiposDeSimbolos.CARACTERE:
-                return this.primario();
             case tiposDeSimbolos.LEIA:
                 return this.declaracaoLeia();
             case tiposDeSimbolos.PARA:
                 return this.declaracaoPara();
-            case tiposDeSimbolos.QUEBRA_LINHA:
-                this.avancarEDevolverAnterior();
-                return null;
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
             case tiposDeSimbolos.PARENTESE_DIREITO:
                 throw new Error('Não deveria estar caindo aqui.')
-            default:
-                // TODO: Remover
+            case tiposDeSimbolos.QUEBRA_LINHA:
+                this.avancarEDevolverAnterior();
                 return null;
+            default:
+                return this.atribuir();
         }
     }
 
