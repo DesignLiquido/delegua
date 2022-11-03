@@ -69,8 +69,8 @@ export interface AvaliadorSintaticoInterface {
     declaracaoFazer(): Fazer;
     resolverDeclaracao(): any;
     declaracaoDeVariavel(): Var;
-    funcao(tipo: any): FuncaoDeclaracao;
-    corpoDaFuncao(tipo: any): Funcao;
+    funcao(tipo: string): FuncaoDeclaracao;
+    corpoDaFuncao(tipo: string): Funcao;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;

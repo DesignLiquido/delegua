@@ -52,12 +52,17 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         this.adicionarSimbolo(tiposDeSimbolos.CARACTERE, valor);
     }
 
+    /**
+     * Identificação de palavra-chave. 
+     * Palavras-chaves em VisuAlg não são sensíveis a tamanho de caixa
+     * (caracteres maiúsculos e minúsculos são equivalentes).
+     */
     identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
         }
 
-        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
         if (codigo in palavrasReservadas) {
             this.adicionarSimbolo(palavrasReservadas[codigo]);
         } else {

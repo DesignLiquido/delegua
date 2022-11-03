@@ -173,9 +173,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    blocoEscopo(): any[] {
-        throw new Error('Method not implemented.');
-    }
+    abstract blocoEscopo(): any[];
 
     declaracaoSe(): Se {
         throw new Error('Method not implemented.');
@@ -218,12 +216,16 @@ export abstract class AvaliadorSintaticoBase
     }
 
     funcao(tipo: any): FuncaoDeclaracao {
-        throw new Error('Method not implemented.');
+        const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
+
+        const nomeFuncao: SimboloInterface = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            `Esperado nome ${tipo}.`
+        );
+        return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    corpoDaFuncao(tipo: any): Funcao {
-        throw new Error('Method not implemented.');
-    }
+    abstract corpoDaFuncao(tipo: any): Funcao;
 
     declaracaoDeClasse(): Classe {
         throw new Error('Method not implemented.');

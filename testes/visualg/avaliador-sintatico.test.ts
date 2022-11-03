@@ -61,6 +61,32 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
         });
 
+        it.only('Sucesso - Função', () => {
+            const retornoLexador = delegua.lexador.mapear([
+                'Algoritmo "exemplo-funcoes"',
+                'Var',
+                '   n: inteiro',
+                '   m: inteiro',
+                '   res: inteiro',
+                'Inicio',
+                '   funcao soma: inteiro',
+                '   var aux: inteiro',
+                '   inicio',
+                '      aux <- n + m',
+                '      retorne aux',
+                '   fimfuncao',
+                '   n <- 4',
+                '   m <- -9',
+                '   res <- soma',
+                '   escreva(res)',
+                'Fimalgoritmo'
+            ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(5);
+        });
+
         it('Sucesso - Para', () => {
             const retornoLexador = delegua.lexador.mapear([
                 'algoritmo "Numeros de 1 a 10"',

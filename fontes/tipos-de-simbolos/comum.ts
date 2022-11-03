@@ -1,4 +1,5 @@
 export default {
+    IDENTIFICADOR: "IDENTIFICADOR",
     MAIOR: "MAIOR",
     MAIOR_IGUAL: "MAIOR_IGUAL",
     MENOR: "MENOR",
