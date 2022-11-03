@@ -1,13 +1,13 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Enquanto, Escolha, Escreva, Leia, Para } from '../../declaracoes';
+import { Bloco, Enquanto, Escolha, Escreva, Fazer, Leia, Para } from '../../declaracoes';
 import { Atribuir, Binario, Construto, Literal, Variavel } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../../lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg' 
 
-export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {    
+export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {  
     validarSegmentoAlgoritmo(): void {
         this.consumir(tiposDeSimbolos.ALGORITMO, 
             "Esperada expressão 'algoritmo' para inicializar programa.");
@@ -118,12 +118,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(
             tiposDeSimbolos.FACA,
-            "Esperado paravra reservada 'faca' após condicional de declaracão 'enquanto'."
+            "Esperado paravra reservada 'faca' após condição de continuidade em declaracão 'enquanto'."
         );
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado que bra de linha após paravra reservada 'faca' em declaracão 'enquanto'."
+            "Esperado quebra de linha após palavra reservada 'faca' em declaracão 'enquanto'."
         );
 
         const declaracoes = [];
@@ -233,6 +233,40 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
+    /**
+     * Execução de declaração "repita".
+     * @returns Um construto do tipo Fazer
+     */
+    declaracaoFazer(): Fazer {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após instrução 'repita'."
+        );
+
+        const declaracoes = [];
+        do {
+            declaracoes.push(this.declaracao());
+        } while (
+            ![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo)
+        );
+
+        this.consumir(
+            tiposDeSimbolos.ATE,
+            "Esperado palavra-chave 'ate' após declaração de bloco em instrução 'repita'."
+        );
+
+        const condicao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após condição de continuidade em instrução 'repita'."
+        );
+
+        return new Fazer(-1, -1, declaracoes, condicao);
+    }  
+
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
@@ -341,6 +375,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
+            case tiposDeSimbolos.REPITA:
+                return this.declaracaoFazer();
             default:
                 return this.atribuir();
         }

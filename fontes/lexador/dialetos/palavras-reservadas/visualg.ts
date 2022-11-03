@@ -20,5 +20,6 @@ export default {
     leia: tiposDeSimbolos.LEIA,
     outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
+    repita: tiposDeSimbolos.REPITA,
     var: tiposDeSimbolos.VAR
 }

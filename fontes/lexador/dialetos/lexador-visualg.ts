@@ -102,8 +102,20 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 if (this.simboloAtual() === '-') {
                     this.adicionarSimbolo(tiposDeSimbolos.SETA_ATRIBUICAO);
                     this.avancar();
+                } else if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                    this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+                break;
+            case '>':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
                 break;
             case ',':

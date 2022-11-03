@@ -10,10 +10,10 @@ describe('Avaliador sintático (VisuAlg)', () => {
 
         it('Sucesso - Olá Mundo', () => {
             const retornoLexador = delegua.lexador.mapear([
-                "algoritmo 'olá-mundo'",
-                "inicio",
-                "escreva('Olá mundo')",
-                "fimalgoritmo"
+                'algoritmo "olá-mundo"',
+                'inicio',
+                'escreva("Olá mundo")',
+                'fimalgoritmo'
             ], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
@@ -63,18 +63,36 @@ describe('Avaliador sintático (VisuAlg)', () => {
 
         it('Sucesso - Para', () => {
             const retornoLexador = delegua.lexador.mapear([
-                "algoritmo 'Numeros de 1 a 10'",
-                "var j: inteiro",
-                "inicio",
-                "    para j de 1 ate 10 faca",
-                "        escreva (j)",
-                "    fimpara",
-                "fimalgoritmo"
+                'algoritmo "Numeros de 1 a 10"',
+                'var j: inteiro',
+                'inicio',
+                '    para j de 1 ate 10 faca',
+                '        escreva (j)',
+                '    fimpara',
+                'fimalgoritmo'
             ], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
+
+        it('Sucesso - Repita', () => {
+            const retornoLexador = delegua.lexador.mapear([
+                'algoritmo "Números de 1 a 10 (com repita)"',
+                'var j: inteiro',
+                'inicio',
+                'j <- 1',
+                'repita',
+                '   escreva (j)',
+                '   j <- j + 1',
+                'ate j > 10',
+                'fimalgoritmo'
+            ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
     });
 });

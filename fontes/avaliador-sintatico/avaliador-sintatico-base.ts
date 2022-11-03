@@ -207,9 +207,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Method not implemented.');
     }
 
-    declaracaoFazer(): Fazer {
-        throw new Error('Method not implemented.');
-    }
+    abstract declaracaoFazer(): Fazer;
 
     resolverDeclaracao() {
         throw new Error('Method not implemented.');
