@@ -85,7 +85,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
      */
     atribuir(): Construto {
-        const expressao = this.comparar();
+        const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)) {
             const igual = this.simbolos[this.atual - 1];
@@ -117,6 +117,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado palavra-chave 'fimfuncao' após o bloco."
         );
         return declaracoes;
+    }
+
+    chamar(): Construto {
+        throw new Error('Method not implemented.');
     }
 
     corpoDaFuncao(tipo: any): Funcao {

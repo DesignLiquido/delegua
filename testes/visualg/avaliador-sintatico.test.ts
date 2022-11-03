@@ -61,7 +61,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
         });
 
-        it.only('Sucesso - Função', () => {
+        it('Sucesso - Função', () => {
             const retornoLexador = delegua.lexador.mapear([
                 'Algoritmo "exemplo-funcoes"',
                 'Var',

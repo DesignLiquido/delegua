@@ -86,6 +86,11 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         );
     }
 
+    avancarParaProximaLinha(): void {
+        this.linha++;
+        this.atual = 0;
+    }
+
     analisarToken(): void {
         const caractere = this.simboloAtual();
 
@@ -104,15 +109,24 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 break;
             case '<':
                 this.avancar();
-                if (this.simboloAtual() === '-') {
-                    this.adicionarSimbolo(tiposDeSimbolos.SETA_ATRIBUICAO);
-                    this.avancar();
-                } else if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                switch (this.simboloAtual()) {
+                    case '-':
+                        this.adicionarSimbolo(tiposDeSimbolos.SETA_ATRIBUICAO);
+                        this.avancar();
+                        break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                        this.avancar();
+                        break;
+                    case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                        break;
                 }
+
                 break;
             case '>':
                 this.avancar();
@@ -123,9 +137,41 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
                 break;
+            case '=':
+                this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                this.avancar();
+                break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.avancar();
+                break;
+            case '-':
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.avancar();
+                break;
+            case '+':
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.avancar();
+                break;
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.avancar();
+                break;
+            case '*':
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                this.avancar();
+                break;
+            case '/':
+                this.avancar();
+                switch (this.simboloAtual()) {
+                    case '/':
+                        this.avancarParaProximaLinha();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                        break;
+                }
+
                 break;
             // Esta sessão ignora espaços em branco na tokenização.
             // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.

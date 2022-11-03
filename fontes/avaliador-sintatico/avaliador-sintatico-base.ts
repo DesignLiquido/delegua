@@ -1,4 +1,4 @@
-import { Binario, Construto, Funcao } from '../construtos';
+import { Binario, Construto, Funcao, Logico, Unario } from '../construtos';
 import {
     Escreva,
     Expressao,
@@ -86,43 +86,89 @@ export abstract class AvaliadorSintaticoBase
     abstract primario(): Construto;
 
     finalizarChamada(entidadeChamada: Construto): Construto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
-    chamar() {
-        throw new Error('Method not implemented.');
-    }
+    abstract chamar(): Construto;
 
     unario(): Construto {
-        throw new Error('Method not implemented.');
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.SUBTRACAO
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            return new Unario(-1, operador, direito);
+        }
+
+        return this.chamar();
     }
 
     exponenciacao(): Construto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     multiplicar(): Construto {
-        throw new Error('Method not implemented.');
+        let expressao = this.unario();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIVISAO,
+                tiposDeSimbolos.MULTIPLICACAO,
+                tiposDeSimbolos.MODULO
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            expressao = new Binario(
+                -1,
+                expressao,
+                operador,
+                direito
+            );
+        }
+
+        return expressao;
     }
 
     adicaoOuSubtracao(): Construto {
-        throw new Error('Method not implemented.');
+        let expressao = this.multiplicar();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.SUBTRACAO,
+                tiposDeSimbolos.ADICAO
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.multiplicar();
+            expressao = new Binario(
+                -1,
+                expressao,
+                operador,
+                direito
+            );
+        }
+
+        return expressao;
     }
 
     bitFill(): Construto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     bitE(): Construto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     bitOu(): Construto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     comparar(): Construto {
-        let expressao = this.primario();
+        let expressao = this.adicaoOuSubtracao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -133,7 +179,7 @@ export abstract class AvaliadorSintaticoBase
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.primario();
+            const direito = this.adicaoOuSubtracao();
             expressao = new Binario(
                 -1,
                 expressao,
@@ -146,21 +192,68 @@ export abstract class AvaliadorSintaticoBase
     }
 
     comparacaoIgualdade(): Construto {
-        throw new Error('Method not implemented.');
+        let expressao = this.comparar();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIFERENTE,
+                tiposDeSimbolos.IGUAL
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.comparar();
+            expressao = new Binario(
+                -1,
+                expressao,
+                operador,
+                direito
+            );
+        }
+
+        return expressao;
     }
 
     em(): Construto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     e(): Construto {
-        throw new Error('Method not implemented.');
+        let expressao = this.comparacaoIgualdade();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.comparacaoIgualdade();
+            expressao = new Logico(
+                -1,
+                expressao,
+                operador,
+                direito
+            );
+        }
+
+        return expressao;
     }
 
     ou(): Construto {
-        throw new Error('Method not implemented.');
+        let expressao = this.e();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.e();
+            expressao = new Logico(
+                -1,
+                expressao,
+                operador,
+                direito
+            );
+        }
+
+        return expressao;
     }
 
+    /**
+     * `atribuir()` deve chamar `ou()` na implementação.
+     */
     abstract atribuir(): Construto;
 
     expressao(): Construto {
@@ -170,13 +263,13 @@ export abstract class AvaliadorSintaticoBase
     abstract declaracaoEscreva(): Escreva;
 
     declaracaoExpressao(): Expressao {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     abstract blocoEscopo(): any[];
 
     declaracaoSe(): Se {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     abstract declaracaoEnquanto(): Enquanto;
@@ -184,35 +277,35 @@ export abstract class AvaliadorSintaticoBase
     abstract declaracaoPara(): Para;
 
     declaracaoSustar(): Sustar {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoContinua(): Continua {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoRetorna(): Retorna {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     abstract declaracaoEscolha(): Escolha;
 
     declaracaoImportar(): Importar {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoTente(): Tente {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     abstract declaracaoFazer(): Fazer;
 
     resolverDeclaracao() {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoDeVariavel(): Var {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     funcao(tipo: any): FuncaoDeclaracao {
@@ -228,7 +321,7 @@ export abstract class AvaliadorSintaticoBase
     abstract corpoDaFuncao(tipo: any): Funcao;
 
     declaracaoDeClasse(): Classe {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     abstract declaracao(): any;
