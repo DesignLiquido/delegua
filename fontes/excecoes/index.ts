@@ -1,1 +1,1 @@
-export * from "./erro-em-tempo-de-execucao";
+export * from './erro-em-tempo-de-execucao';

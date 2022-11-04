@@ -1,4 +1,4 @@
-import tiposDeSimbolos from "../../../tipos-de-simbolos/visualg";
+import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 
 export default {
     algoritmo: tiposDeSimbolos.ALGORITMO,
@@ -23,5 +23,5 @@ export default {
     outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
     repita: tiposDeSimbolos.REPITA,
-    var: tiposDeSimbolos.VAR
-}
+    var: tiposDeSimbolos.VAR,
+};

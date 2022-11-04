@@ -77,15 +77,15 @@ export class Interpretador implements InterpretadorInterface {
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
-    resultadoInterpretador: Array<String> = [];
+    resultadoInterpretador: Array<string> = [];
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
-    regexInterpolacao = /\$\{([a-z_][\w]*)\}/ig;
+    regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
 
     constructor(
         importador: ImportadorInterface,
         diretorioBase: string,
-        performance: boolean = false,
+        performance = false,
         funcaoDeRetorno: Function
     ) {
         this.importador = importador;
@@ -111,7 +111,7 @@ export class Interpretador implements InterpretadorInterface {
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
-     * @param expressao 
+     * @param expressao
      */
     visitarExpressaoLeia(expressao: Leia) {
         throw new Error('Método não implementado.');
@@ -159,8 +159,10 @@ export class Interpretador implements InterpretadorInterface {
             const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
             return {
                 variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel)
-            }
+                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(
+                    nomeVariavel
+                ),
+            };
         });
     }
 
@@ -447,8 +449,8 @@ export class Interpretador implements InterpretadorInterface {
 
         if (entidadeChamada instanceof MetodoPrimitiva) {
             const argumentosResolvidos: any[] = [];
-            for (let argumento of expressao.argumentos) {
-                let valorResolvido: any = this.avaliar(argumento);
+            for (const argumento of expressao.argumentos) {
+                const valorResolvido: any = this.avaliar(argumento);
                 argumentosResolvidos.push(
                     valorResolvido.hasOwnProperty('valor')
                         ? valorResolvido.valor
@@ -471,7 +473,7 @@ export class Interpretador implements InterpretadorInterface {
 
         // Completar os parâmetros não preenchidos com nulos.
         if (argumentos.length < entidadeChamada.aridade()) {
-            let diferenca = entidadeChamada.aridade() - argumentos.length;
+            const diferenca = entidadeChamada.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
                 argumentos.push(null);
             }
@@ -481,7 +483,7 @@ export class Interpretador implements InterpretadorInterface {
                 parametros.length > 0 &&
                 parametros[parametros.length - 1].tipo === 'estrela'
             ) {
-                let novosArgumentos = argumentos.slice(
+                const novosArgumentos = argumentos.slice(
                     0,
                     parametros.length - 1
                 );
@@ -531,10 +533,10 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoLogica(expressao: any): any {
-        let esquerda = this.avaliar(expressao.esquerda);
+        const esquerda = this.avaliar(expressao.esquerda);
 
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
-            let direita = this.avaliar(expressao.direita);
+            const direita = this.avaliar(expressao.direita);
 
             if (Array.isArray(direita) || typeof direita === 'string') {
                 return direita.includes(esquerda);
@@ -630,14 +632,14 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoEscolha(declaracao: Escolha): any {
-        let condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
-        let caminhos = declaracao.caminhos;
-        let caminhoPadrao = declaracao.caminhoPadrao;
+        const condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
+        const caminhos = declaracao.caminhos;
+        const caminhoPadrao = declaracao.caminhoPadrao;
 
         let encontrado = false;
         try {
             for (let i = 0; i < caminhos.length; i++) {
-                let caminho = caminhos[i];
+                const caminho = caminhos[i];
 
                 for (let j = 0; j < caminho.condicoes.length; j++) {
                     if (
@@ -725,15 +727,15 @@ export class Interpretador implements InterpretadorInterface {
             true
         );
 
-        let funcoesChamaveis =
+        const funcoesChamaveis =
             this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
         if (eDicionario(funcoesChamaveis)) {
-            let novoModulo = new DeleguaModulo();
+            const novoModulo = new DeleguaModulo();
 
-            let chaves = Object.keys(funcoesChamaveis);
+            const chaves = Object.keys(funcoesChamaveis);
             for (let i = 0; i < chaves.length; i++) {
                 novoModulo.componentes[chaves[i]] = funcoesChamaveis[chaves[i]];
             }
@@ -809,7 +811,9 @@ export class Interpretador implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
-            valorOuOutraVariavel.hasOwnProperty('valor') ? valorOuOutraVariavel.valor : valorOuOutraVariavel
+            valorOuOutraVariavel.hasOwnProperty('valor')
+                ? valorOuOutraVariavel.valor
+                : valorOuOutraVariavel
         );
         return null;
     }
@@ -834,9 +838,9 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
-        let objeto = this.avaliar(expressao.objeto);
+        const objeto = this.avaliar(expressao.objeto);
         let indice = this.avaliar(expressao.indice);
-        let valor = this.avaliar(expressao.valor);
+        const valor = this.avaliar(expressao.valor);
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -1005,11 +1009,11 @@ export class Interpretador implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        let metodos = {};
-        let definirMetodos = declaracao.metodos;
+        const metodos = {};
+        const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
-            let metodoAtual = definirMetodos[i];
-            let eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+            const metodoAtual = definirMetodos[i];
+            const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
                 metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
@@ -1089,7 +1093,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoDicionario(expressao: any) {
-        let dicionario = {};
+        const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             dicionario[this.avaliar(expressao.chaves[i])] = this.avaliar(
                 expressao.valores[i]
@@ -1099,7 +1103,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoVetor(expressao: any) {
-        let valores = [];
+        const valores = [];
         for (let i = 0; i < expressao.valores.length; i++) {
             valores.push(this.avaliar(expressao.valores[i]));
         }
@@ -1113,7 +1117,9 @@ export class Interpretador implements InterpretadorInterface {
         const objeto: VariavelInterface =
             this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
 
-        let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
+        const metodo = superClasse.valor.encontrarMetodo(
+            expressao.metodo.lexema
+        );
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(
@@ -1127,7 +1133,6 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     paraTexto(objeto: any) {
-
         if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') {
             return objeto ? 'verdadeiro' : 'falso';
@@ -1143,7 +1148,8 @@ export class Interpretador implements InterpretadorInterface {
 
         if (Array.isArray(objeto)) return objeto;
 
-        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (objeto.valor instanceof ObjetoPadrao)
+            return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
 
         return objeto.toString();
@@ -1155,7 +1161,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
      */
-    executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
+    executar(declaracao: Declaracao, mostrarResultado = false): any {
         const resultado: any = declaracao.aceitar(this);
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
@@ -1176,7 +1182,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    executarUltimoEscopo(manterAmbiente: boolean = false): any {
+    executarUltimoEscopo(manterAmbiente = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
@@ -1216,7 +1222,7 @@ export class Interpretador implements InterpretadorInterface {
      */
     interpretar(
         declaracoes: Declaracao[],
-        manterAmbiente: boolean = false
+        manterAmbiente = false
     ): RetornoInterpretador {
         this.erros = [];
 

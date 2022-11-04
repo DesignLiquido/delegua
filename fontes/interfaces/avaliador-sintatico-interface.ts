@@ -31,7 +31,10 @@ export interface AvaliadorSintaticoInterface {
 
     // sincronizar(): void;
     consumir(tipo: any, mensagemDeErro: string): any;
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string
+    ): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: string): boolean;
     verificarTipoProximoSimbolo(tipo: string): boolean;
     estaNoFinal(): boolean;
@@ -73,5 +76,8 @@ export interface AvaliadorSintaticoInterface {
     corpoDaFuncao(tipo: string): Funcao;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
-    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;
+    analisar(
+        retornoLexador: RetornoLexador,
+        hashArquivo?: number
+    ): RetornoAvaliadorSintatico;
 }

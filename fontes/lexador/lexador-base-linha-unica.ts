@@ -1,7 +1,7 @@
-import { LexadorInterface, SimboloInterface } from "../interfaces";
-import { RetornoLexador } from "../interfaces/retornos";
-import { ErroLexador } from "./erro-lexador";
-import { Simbolo } from "./simbolo";
+import { LexadorInterface, SimboloInterface } from '../interfaces';
+import { RetornoLexador } from '../interfaces/retornos';
+import { ErroLexador } from './erro-lexador';
+import { Simbolo } from './simbolo';
 
 export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
     simbolos: SimboloInterface[];
@@ -80,10 +80,10 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
      * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
      */
-     eUltimaLinha(): boolean {
+    eUltimaLinha(): boolean {
         return this.linha >= this.codigo.length - 1;
     }
-    
+
     avancar(): string {
         this.atual += 1;
         return this.codigo[this.atual - 1];
@@ -95,13 +95,7 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
             this.atual
         );
         this.simbolos.push(
-            new Simbolo(
-                tipo,
-                literal || texto,
-                literal,
-                this.linha + 1,
-                -1
-            )
+            new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1)
         );
     }
 

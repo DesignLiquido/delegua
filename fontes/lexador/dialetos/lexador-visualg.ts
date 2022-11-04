@@ -1,13 +1,12 @@
-import { RetornoLexador } from "../../interfaces/retornos";
-import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
-import { ErroLexador } from "../erro-lexador";
+import { RetornoLexador } from '../../interfaces/retornos';
+import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
+import { ErroLexador } from '../erro-lexador';
 
-import tiposDeSimbolos from "../../tipos-de-simbolos/visualg";
-import palavrasReservadas from "./palavras-reservadas/visualg";
-import { Simbolo } from "../simbolo";
+import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
+import palavrasReservadas from './palavras-reservadas/visualg';
+import { Simbolo } from '../simbolo';
 
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
-
     analisarNumero(): void {
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
@@ -30,7 +29,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             parseFloat(numeroCompleto)
         );
     }
-    
+
     analisarTexto(delimitador: string): void {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
@@ -45,15 +44,12 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             return;
         }
 
-        const valor = this.codigo.substring(
-            this.inicioSimbolo + 1,
-            this.atual
-        );
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
         this.adicionarSimbolo(tiposDeSimbolos.CARACTERE, valor);
     }
 
     /**
-     * Identificação de palavra-chave. 
+     * Identificação de palavra-chave.
      * Palavras-chaves em VisuAlg não são sensíveis a tamanho de caixa
      * (caracteres maiúsculos e minúsculos são equivalentes).
      */
@@ -62,7 +58,9 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
+        const codigo = this.codigo
+            .substring(this.inicioSimbolo, this.atual)
+            .toLowerCase();
         if (codigo in palavrasReservadas) {
             this.adicionarSimbolo(palavrasReservadas[codigo]);
         } else {
@@ -76,13 +74,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.atual
         );
         this.simbolos.push(
-            new Simbolo(
-                tipo,
-                literal || texto,
-                literal,
-                this.linha + 1,
-                -1
-            )
+            new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1)
         );
     }
 
@@ -103,7 +95,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
                 break;
-            case ":":
+            case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
                 break;
@@ -213,14 +205,14 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
+    mapear(codigo: string[], hashArquivo = -1): RetornoLexador {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 1;
 
-        // Em VisuAlg, quebras de linha são relevantes na avaliação sintática. 
+        // Em VisuAlg, quebras de linha são relevantes na avaliação sintática.
         // Portanto, o Lexador precisa trabalhar com uma linha só.
         this.codigo = codigo.join('\n') || '';
 
@@ -229,9 +221,9 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.analisarToken();
         }
 
-        return { 
+        return {
             simbolos: this.simbolos,
-            erros: this.erros
+            erros: this.erros,
         } as RetornoLexador;
     }
 }

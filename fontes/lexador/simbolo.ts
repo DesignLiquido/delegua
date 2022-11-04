@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../interfaces";
+import { SimboloInterface } from '../interfaces';
 
 export class Simbolo implements SimboloInterface {
     lexema: string;
@@ -7,7 +7,13 @@ export class Simbolo implements SimboloInterface {
     linha: number;
     hashArquivo: number;
 
-    constructor(tipo: string, lexema: string, literal: any, linha: number, hashArquivo: number) {
+    constructor(
+        tipo: string,
+        lexema: string,
+        literal: any,
+        linha: number,
+        hashArquivo: number
+    ) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
@@ -16,6 +22,6 @@ export class Simbolo implements SimboloInterface {
     }
 
     paraTexto(): string {
-        return this.tipo + " " + this.lexema + " " + this.literal;
+        return this.tipo + ' ' + this.lexema + ' ' + this.literal;
     }
 }

@@ -1,6 +1,5 @@
-import { Literal } from "../construtos";
-import { Declaracao } from "./declaracao";
-
+import { Literal } from '../construtos';
+import { Declaracao } from './declaracao';
 
 export class Importar extends Declaracao {
     caminho: Literal;

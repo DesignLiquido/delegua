@@ -1,9 +1,9 @@
 import * as processoFilho from 'child_process';
 import * as caminho from 'path';
 
-import { ErroEmTempoDeExecucao } from "../excecoes";
-import { FuncaoPadrao } from "../estruturas/funcao-padrao";
-import { DeleguaModulo } from "../estruturas/modulo";
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { FuncaoPadrao } from '../estruturas/funcao-padrao';
+import { DeleguaModulo } from '../estruturas/modulo';
 import { ClassePadrao } from '../estruturas/classe-padrao';
 
 const carregarBibliotecaDelegua = (nome: string) => {
@@ -16,20 +16,29 @@ const carregarBibliotecaDelegua = (nome: string) => {
         try {
             dadosDoModulo = importarPacoteDeleguaCompleto(nome);
         } catch (erro2: any) {
-            throw new ErroEmTempoDeExecucao(null, `Biblioteca ${nome} não encontrada para importação.`);
+            throw new ErroEmTempoDeExecucao(
+                null,
+                `Biblioteca ${nome} não encontrada para importação.`
+            );
         }
     }
 
     return modularizarBiblioteca(dadosDoModulo, nome);
-}
+};
 
-const carregarBiblioteca = (nomeDaBiblioteca: string, caminhoDaBiblioteca: any) => {
+const carregarBiblioteca = (
+    nomeDaBiblioteca: string,
+    caminhoDaBiblioteca: any
+) => {
     let dadosDoModulo: any;
 
     try {
         dadosDoModulo = require(caminhoDaBiblioteca);
     } catch (erro: any) {
-        throw new ErroEmTempoDeExecucao(null, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
+        throw new ErroEmTempoDeExecucao(
+            null,
+            `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`
+        );
     }
 
     return modularizarBiblioteca(dadosDoModulo, nomeDaBiblioteca);
@@ -42,21 +51,30 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
     for (let i = 0; i < chaves.length; i++) {
         const moduloAtual = dadosDoModulo[chaves[i]];
 
-        if (typeof moduloAtual === "function") {
+        if (typeof moduloAtual === 'function') {
             // Por definição, funções tradicionais e classes são identificadas em JavaScript como "functions".
             // A forma de diferenciar é verificando a propriedade `prototype`.
-            // Se dentro dessa propriedade temos outras propriedades cujo tipo também seja `function`, 
+            // Se dentro dessa propriedade temos outras propriedades cujo tipo também seja `function`,
             // podemos dizer que a "function" é uma classe.
             // Caso contrário, é uma função (`FuncaoPadrao`).
-            if (Object.entries(moduloAtual.prototype).some((f: [string, any]) => typeof f[1] === "function")) {
+            if (
+                Object.entries(moduloAtual.prototype).some(
+                    (f: [string, any]) => typeof f[1] === 'function'
+                )
+            ) {
                 const classePadrao = new ClassePadrao(chaves[i], moduloAtual);
-                for (const [nome, corpoMetodo] of Object.entries(moduloAtual.prototype)) {
+                for (const [nome, corpoMetodo] of Object.entries(
+                    moduloAtual.prototype
+                )) {
                     classePadrao.metodos[nome] = corpoMetodo;
                 }
 
                 novoModulo.componentes[chaves[i]] = classePadrao;
             } else {
-                novoModulo.componentes[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
+                novoModulo.componentes[chaves[i]] = new FuncaoPadrao(
+                    moduloAtual.length,
+                    moduloAtual
+                );
             }
         } else {
             novoModulo.componentes[chaves[i]] = moduloAtual;
@@ -64,39 +82,39 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
     }
 
     return novoModulo;
-}
+};
 
 const importarPacoteDeleguaCompleto = (nome: string) => {
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const global = processoFilho.spawnSync( npm, ['root', '--location=global']); 
-    return require(caminho.join((global.output[1] as any).toString().trim(), `/delegua/node_modules/${nome}`));
-}
+    const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
+    return require(caminho.join(
+        (global.output[1] as any).toString().trim(),
+        `/delegua/node_modules/${nome}`
+    ));
+};
 
 const verificaModulosDelegua = (nome: string): string | boolean => {
     const modulos = {
-        "estatistica": "@designliquido/delegua-estatistica",
-        "estatística": "@designliquido/delegua-estatistica",
-        "fisica": "@designliquido/delegua-fisica",
-        "física": "@designliquido/delegua-fisica",
-        "matematica": "@designliquido/delegua-matematica",
-        "matemática": "@designliquido/delegua-matematica",
-        "tempo": "@designliquido/delegua-tempo",
-    }
+        estatistica: '@designliquido/delegua-estatistica',
+        estatística: '@designliquido/delegua-estatistica',
+        fisica: '@designliquido/delegua-fisica',
+        física: '@designliquido/delegua-fisica',
+        matematica: '@designliquido/delegua-matematica',
+        matemática: '@designliquido/delegua-matematica',
+        tempo: '@designliquido/delegua-tempo',
+    };
 
     if (Object.keys(modulos).includes(nome)) {
         return modulos[nome].toString();
-    };
+    }
 
-    return false
+    return false;
 };
 
 export default function (nome: string) {
-    const nomeBibliotecaResolvido: string | boolean = verificaModulosDelegua(nome);
-    return (
-        nomeBibliotecaResolvido
-        ? (
-            carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
-        ) : (
-            carregarBiblioteca(nome, nome)
-        ));
-};
+    const nomeBibliotecaResolvido: string | boolean =
+        verificaModulosDelegua(nome);
+    return nomeBibliotecaResolvido
+        ? carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
+        : carregarBiblioteca(nome, nome);
+}

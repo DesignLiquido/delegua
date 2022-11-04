@@ -1,5 +1,5 @@
-import { Construto } from "../construtos";
-import { ErroResolvedor } from "./erro-resolvedor";
+import { Construto } from '../construtos';
+import { ErroResolvedor } from './erro-resolvedor';
 
 export interface RetornoResolvedor {
     erros: ErroResolvedor[];

@@ -1,5 +1,4 @@
-import { Construto } from "./construto";
-
+import { Construto } from './construto';
 
 export class AtribuicaoSobrescrita implements Construto {
     linha: number;
@@ -9,10 +8,16 @@ export class AtribuicaoSobrescrita implements Construto {
     valor: any;
     indice: any;
 
-    constructor(hashArquivo: number, linha: number, objeto: any, indice: any, valor: any) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        objeto: any,
+        indice: any,
+        valor: any
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
-        
+
         this.objeto = objeto;
         this.indice = indice;
         this.valor = valor;

@@ -1,5 +1,5 @@
-import { RetornoLexador } from "./retornos/retorno-lexador";
-import { SimboloInterface } from "./simbolo-interface";
+import { RetornoLexador } from './retornos/retorno-lexador';
+import { SimboloInterface } from './simbolo-interface';
 
 export interface LexadorInterface {
     simbolos: SimboloInterface[];

@@ -1,6 +1,6 @@
-import tiposDeSimbolos from "../tipos-de-simbolos/delegua";
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
-export default {    
+export default {
     e: tiposDeSimbolos.E,
     em: tiposDeSimbolos.EM,
     classe: tiposDeSimbolos.CLASSE,

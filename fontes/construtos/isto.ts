@@ -1,5 +1,4 @@
-import { Construto } from "./construto";
-
+import { Construto } from './construto';
 
 export class Isto implements Construto {
     linha: number;
@@ -10,7 +9,7 @@ export class Isto implements Construto {
     constructor(hashArquivo: number, linha: number, palavraChave?: any) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
-        
+
         this.palavraChave = palavraChave;
     }
 

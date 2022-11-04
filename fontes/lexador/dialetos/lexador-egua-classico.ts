@@ -114,7 +114,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         return this.codigo.charAt(this.atual - 1);
     }
 
-    analisarTexto(texto: string = '"') {
+    analisarTexto(texto = '"') {
         while (this.simboloAtual() !== texto && !this.eFinalDoCodigo()) {
             if (this.simboloAtual() === '\n') this.linha = +1;
             this.avancar();
@@ -124,7 +124,7 @@ export class LexadorEguaClassico implements LexadorInterface {
             this.erros.push({
                 linha: this.linha,
                 caractere: this.simboloAnterior(),
-                mensagem: 'Texto não finalizado.'
+                mensagem: 'Texto não finalizado.',
             } as ErroLexador);
             return;
         }
@@ -317,7 +317,7 @@ export class LexadorEguaClassico implements LexadorInterface {
                     this.erros.push({
                         linha: this.linha,
                         caractere: caractere,
-                        mensagem: 'Caractere inesperado.'
+                        mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
         }
     }
@@ -341,9 +341,9 @@ export class LexadorEguaClassico implements LexadorInterface {
             new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha, -1)
         );
 
-        return { 
+        return {
             simbolos: this.simbolos,
-            erros: this.erros
+            erros: this.erros,
         } as RetornoLexador;
     }
 }

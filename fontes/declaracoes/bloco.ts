@@ -1,6 +1,5 @@
-import { InterpretadorInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
-
+import { InterpretadorInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class Bloco extends Declaracao {
     declaracoes: any[];

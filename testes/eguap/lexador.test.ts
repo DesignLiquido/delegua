@@ -1,4 +1,4 @@
-import { Delegua } from "../../fontes/delegua";
+import { Delegua } from '../../fontes/delegua';
 
 describe('Lexador (EguaP)', () => {
     describe('mapear()', () => {
@@ -13,7 +13,10 @@ describe('Lexador (EguaP)', () => {
             });
 
             it('Sucesso - Olá mundo', () => {
-                const resultado = delegua.lexador.mapear(["escreva('Olá mundo')"], -1);
+                const resultado = delegua.lexador.mapear(
+                    ["escreva('Olá mundo')"],
+                    -1
+                );
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(4);
@@ -22,7 +25,7 @@ describe('Lexador (EguaP)', () => {
                         expect.objectContaining({ tipo: 'ESCREVA' }),
                         expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
                         expect.objectContaining({ tipo: 'TEXTO' }),
-                        expect.objectContaining({ tipo: 'PARENTESE_DIREITO' })
+                        expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
                     ])
                 );
             });
@@ -42,7 +45,10 @@ describe('Lexador (EguaP)', () => {
             });
 
             it('Sucesso - Atribução de variável e Operação Matemática (diferença, multiplicação e módulo)', () => {
-                const resultado = delegua.lexador.mapear(['var numero = 1 * 2 - 3 % 4'], -1);
+                const resultado = delegua.lexador.mapear(
+                    ['var numero = 1 * 2 - 3 % 4'],
+                    -1
+                );
 
                 expect(resultado).toBeTruthy();
             });
@@ -50,7 +56,10 @@ describe('Lexador (EguaP)', () => {
 
         describe('Cenários de falha', () => {
             it('Falha léxica - texto sem fim', () => {
-                const resultado = delegua.lexador.mapear(['"texto sem fim'], -1);
+                const resultado = delegua.lexador.mapear(
+                    ['"texto sem fim'],
+                    -1
+                );
                 expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(1);
             });
