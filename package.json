@@ -1,70 +1,75 @@
 {
-  "name": "@designliquido/delegua",
-  "version": "0.7.6",
-  "description": "Linguagem de programação simples e moderna usando português",
-  "main": "index.ts",
-  "scripts": {
-    "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
-    "lair": "ts-node index.ts",
-    "publicar-npm": "npm publish ./dist --access public",
-    "testes": "./bin/delegua-ts testes/exemplos/testes.egua",
-    "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
-    "testes:delegua:fibonacci": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/fibonacci.egua",
-    "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
-    "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
-    "testes-unitarios": "jest --coverage",
-    "observar-testes-unitarios": "jest --watchAll"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DesignLiquido/delegua.git"
-  },
-  "bin": {
-    "delegua": "./bin/delegua"
-  },
-  "keywords": [
-    "egua",
-    "eguap",
-    "delegua"
-  ],
-  "author": "Leonel Sanches da Silva",
-  "contributors": [
-    {
-      "name": "Leonel Sanches da Silva",
-      "url": "https://www.linkedin.com/in/leonelsanchesdasilva/"
+    "name": "@designliquido/delegua",
+    "version": "0.7.6",
+    "description": "Linguagem de programação simples e moderna usando português",
+    "main": "index.ts",
+    "scripts": {
+        "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
+        "lair": "ts-node index.ts",
+        "publicar-npm": "npm publish ./dist --access public",
+        "testes": "./bin/delegua-ts testes/exemplos/testes.egua",
+        "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
+        "testes:delegua:fibonacci": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/fibonacci.egua",
+        "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
+        "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
+        "testes-unitarios": "jest --coverage",
+        "observar-testes-unitarios": "jest --watchAll",
+        "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll"
     },
-    {
-      "name": "Samuel Renan Gonçalves Vaz",
-      "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/"
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/DesignLiquido/delegua.git"
     },
-    {
-      "name": "Alessandro Fuhr de Mello",
-      "url": "https://github.com/AlessandroFMello"
+    "bin": {
+        "delegua": "./bin/delegua"
+    },
+    "keywords": [
+        "egua",
+        "eguap",
+        "delegua"
+    ],
+    "author": "Leonel Sanches da Silva",
+    "contributors": [
+        {
+            "name": "Leonel Sanches da Silva",
+            "url": "https://www.linkedin.com/in/leonelsanchesdasilva/"
+        },
+        {
+            "name": "Samuel Renan Gonçalves Vaz",
+            "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/"
+        },
+        {
+            "name": "Alessandro Fuhr de Mello",
+            "url": "https://github.com/AlessandroFMello"
+        },
+        {
+            "name": "Italo Brito Brandão",
+            "url": "https://github.com/ItaloCobains"
+        }
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/DesignLiquido/delegua/issues"
+    },
+    "homepage": "https://github.com/DesignLiquido/delegua#readme",
+    "devDependencies": {
+        "@babel/preset-env": "^7.12.1",
+        "@designliquido/delegua-estatistica": "^0.0.5",
+        "@designliquido/delegua-fisica": "^0.0.2",
+        "@designliquido/delegua-matematica": "^0.0.2",
+        "@designliquido/delegua-tempo": "^0.0.1",
+        "@types/jest": "^29.0.3",
+        "@types/node": "^17.0.13",
+        "copyfiles": "^2.4.1",
+        "jest": "^29.0.3",
+        "release-it": "^14.14.2",
+        "ts-jest": "^29.0.1",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.6.3"
+    },
+    "dependencies": {
+        "browser-process-hrtime": "^1.0.0",
+        "chalk": "4.1.2",
+        "commander": "^8.3.0"
     }
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/DesignLiquido/delegua/issues"
-  },
-  "homepage": "https://github.com/DesignLiquido/delegua#readme",
-  "devDependencies": {
-    "@babel/preset-env": "^7.12.1",
-    "@designliquido/delegua-estatistica": "^0.0.5",
-    "@designliquido/delegua-fisica": "^0.0.2",
-    "@designliquido/delegua-matematica": "^0.0.2",
-    "@designliquido/delegua-tempo": "^0.0.1",
-    "@types/jest": "^29.0.3",
-    "@types/node": "^17.0.13",
-    "copyfiles": "^2.4.1",
-    "jest": "^29.0.3",
-    "release-it": "^14.14.2",
-    "ts-jest": "^29.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.6.3"
-  },
-  "dependencies": {
-    "browser-process-hrtime": "^1.0.0",
-    "chalk": "4.1.2",
-    "commander": "^8.3.0"
-  }
 }

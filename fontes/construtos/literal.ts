@@ -1,6 +1,5 @@
-import { InterpretadorInterface } from "../interfaces";
-import { Construto } from "./construto";
-
+import { InterpretadorInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class Literal implements Construto {
     linha: number;
@@ -11,7 +10,7 @@ export class Literal implements Construto {
     constructor(hashArquivo: number, linha: number, valor: any) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
-        
+
         this.valor = valor;
     }
 

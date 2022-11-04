@@ -15,6 +15,7 @@ import {
     Var,
     Funcao as FuncaoDeclaracao,
     Classe,
+    Declaracao,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {
@@ -38,7 +39,7 @@ export abstract class AvaliadorSintaticoBase
     atual: number;
     ciclos: number;
 
-    consumir(tipo: any, mensagemDeErro: string) {
+    consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo))
             return this.avancarEDevolverAnterior();
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);
@@ -71,7 +72,7 @@ export abstract class AvaliadorSintaticoBase
         return this.simbolos[this.atual - 1];
     }
 
-    verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean {
+    verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
@@ -122,12 +123,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -144,12 +140,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -180,12 +171,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.adicaoOuSubtracao();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -202,12 +188,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -223,12 +204,7 @@ export abstract class AvaliadorSintaticoBase
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparacaoIgualdade();
-            expressao = new Logico(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Logico(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -240,12 +216,7 @@ export abstract class AvaliadorSintaticoBase
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.e();
-            expressao = new Logico(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Logico(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -266,7 +237,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    abstract blocoEscopo(): any[];
+    abstract blocoEscopo(): Declaracao[];
 
     declaracaoSe(): Se {
         throw new Error('Método não implementado.');
@@ -308,7 +279,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    funcao(tipo: any): FuncaoDeclaracao {
+    funcao(tipo: string): FuncaoDeclaracao {
         const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
 
         const nomeFuncao: SimboloInterface = this.consumir(
@@ -318,13 +289,16 @@ export abstract class AvaliadorSintaticoBase
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    abstract corpoDaFuncao(tipo: any): Funcao;
+    abstract corpoDaFuncao(tipo: string): Funcao;
 
     declaracaoDeClasse(): Classe {
         throw new Error('Método não implementado.');
     }
 
-    abstract declaracao(): any;
+    abstract declaracao(): Declaracao;
 
-    abstract analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;
+    abstract analisar(
+        retornoLexador: RetornoLexador,
+        hashArquivo?: number
+    ): RetornoAvaliadorSintatico;
 }
