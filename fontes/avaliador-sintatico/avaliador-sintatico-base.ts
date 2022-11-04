@@ -15,6 +15,7 @@ import {
     Var,
     Funcao as FuncaoDeclaracao,
     Classe,
+    Declaracao,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {
@@ -236,7 +237,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    abstract blocoEscopo(): any[]; // Não entendi isso aqui, tenho que verificar como e a regra de negocio dessa linha para tipar esse retorno
+    abstract blocoEscopo(): Declaracao[];
 
     declaracaoSe(): Se {
         throw new Error('Método não implementado.');
@@ -294,7 +295,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    abstract declaracao(): any; // Não entendi isso aqui, tenho que verificar como e a regra de negocio dessa linha para tipar esse retorno
+    abstract declaracao(): Declaracao;
 
     abstract analisar(
         retornoLexador: RetornoLexador,
