@@ -46,11 +46,7 @@ import {
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import {
-    RetornaPrimario,
-    RetornoDeclaracao,
-    RetornoResolverDeclaracao,
-} from '../../tipos/avaliador-sintatico-classico-returno-tipo';
+import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -154,7 +150,7 @@ export class AvaliadorSintaticoEguaClassico
         return false;
     }
 
-    primario(): RetornaPrimario {
+    primario(): RetornoPrimario {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
@@ -280,7 +276,7 @@ export class AvaliadorSintaticoEguaClassico
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: RetornaPrimario): Chamada {
+    finalizarChamada(entidadeChamada: RetornoPrimario): Chamada {
         const argumentos = [];
         if (
             !this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)

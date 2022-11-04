@@ -9,7 +9,7 @@
         "prettier"
     ],
     "rules": {
-        "prettier/prettier": 2,
+        "prettier/prettier": "off",
         "no-constant-condition": "off",
         "no-useless-catch": "off",
         "eslint-disable-next-line": "off",
