@@ -34,14 +34,12 @@ export interface AvaliadorSintaticoInterface {
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: string): boolean;
     verificarTipoProximoSimbolo(tipo: string): boolean;
-    simboloAtual(): SimboloInterface;
-    simboloAnterior(): SimboloInterface;
     estaNoFinal(): boolean;
     avancarEDevolverAnterior(): any;
     verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean;
     primario(): any;
     finalizarChamada(entidadeChamada: Construto): Construto;
-    chamar(): any;
+    chamar(): Construto;
     unario(): Construto;
     exponenciacao(): Construto;
     multiplicar(): Construto;
@@ -71,8 +69,8 @@ export interface AvaliadorSintaticoInterface {
     declaracaoFazer(): Fazer;
     resolverDeclaracao(): any;
     declaracaoDeVariavel(): Var;
-    funcao(tipo: any): FuncaoDeclaracao;
-    corpoDaFuncao(tipo: any): Funcao;
+    funcao(tipo: string): FuncaoDeclaracao;
+    corpoDaFuncao(tipo: string): Funcao;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;

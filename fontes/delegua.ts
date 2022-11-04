@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
 import { Interpretador } from './interpretador/interpretador';
-import tiposDeSimbolos from './tipos-de-simbolos';
+import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 
 import {
     AvaliadorSintaticoInterface,
@@ -29,6 +29,8 @@ import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
 import { InterpretadorComDepuracao } from './interpretador/interpretador-com-depuracao';
 import { ResolvedorEguaClassico } from './resolvedor/dialetos';
+import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
+import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 
 /**  
  * O núcleo da linguagem. 
@@ -40,7 +42,7 @@ export class Delegua implements DeleguaInterface {
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
 
-    interpretador: InterpretadorInterface | InterpretadorComDepuracaoInterface;
+    interpretador: InterpretadorInterface;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     importador: ImportadorInterface;
@@ -85,6 +87,12 @@ export class Delegua implements DeleguaInterface {
 
                 console.log('Usando dialeto: ÉguaP');
                 break;
+            case 'visualg':
+                this.lexador = new LexadorVisuAlg();
+                this.avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
+                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
+                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                break;
             default:
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
@@ -110,7 +118,7 @@ export class Delegua implements DeleguaInterface {
                     .version || '0.7'
             );
         } catch (error: any) {
-            return '0.6 (desenvolvimento)';
+            return '0.7 (desenvolvimento)';
         }
     }
 

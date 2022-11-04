@@ -3,7 +3,7 @@ import { SimboloInterface } from "./simbolo-interface";
 
 export interface LexadorInterface {
     simbolos: SimboloInterface[];
-    codigo: string[];
+    codigo: string | string[];
     inicioSimbolo: number;
     atual: number;
     linha: number;
@@ -12,7 +12,7 @@ export interface LexadorInterface {
     eAlfabeto(caractere: string): boolean;
     eAlfabetoOuDigito(caractere: string): boolean;
     eFinalDoCodigo(): boolean;
-    avancar(): void;
+    avancar(): string | void;
     adicionarSimbolo(tipo: any, literal: any): void;
     simboloAtual(): string;
     proximoSimbolo(): string;

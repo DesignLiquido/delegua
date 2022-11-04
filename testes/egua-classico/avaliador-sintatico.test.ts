@@ -3,7 +3,11 @@ import { RetornoLexador } from "../../fontes/interfaces/retornos/retorno-lexador
 
 describe('Avaliador sintático (Égua Clássico)', () => {
     describe('analisar()', () => {
-        const delegua = new Delegua('egua');
+        let delegua: Delegua;
+
+        beforeEach(() => {
+            delegua = new Delegua('egua');
+        });
 
         it('Sucesso - Olá Mundo', () => {
             const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo');"], -1);

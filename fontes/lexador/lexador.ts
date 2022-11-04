@@ -1,9 +1,9 @@
 import hrtime from 'browser-process-hrtime';
-import { LexadorInterface, SimboloInterface } from "../interfaces";
-import tiposDeSimbolos from "../tipos-de-simbolos";
-import { ErroLexador } from "./erro-lexador";
+import { LexadorInterface, SimboloInterface } from '../interfaces';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
+import { ErroLexador } from './erro-lexador';
 import palavrasReservadas from './palavras-reservadas';
-import { RetornoLexador } from "../interfaces/retornos/retorno-lexador";
+import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { Simbolo } from './simbolo';
 
 /**
@@ -79,7 +79,7 @@ export class Lexador implements LexadorInterface {
     }
 
     eFinalDaLinha(): boolean {
-        if(this.codigo.length === this.linha){
+        if (this.codigo.length === this.linha) {
             return true;
         }
         return this.atual >= this.codigo[this.linha].length;
@@ -95,8 +95,10 @@ export class Lexador implements LexadorInterface {
     }
 
     eFinalDoCodigo(): boolean {
-        return this.eUltimaLinha() && 
-            this.codigo[this.codigo.length - 1].length <= this.atual;
+        return (
+            this.eUltimaLinha() &&
+            this.codigo[this.codigo.length - 1].length <= this.atual
+        );
     }
 
     avancar(): void {
@@ -113,7 +115,15 @@ export class Lexador implements LexadorInterface {
             this.inicioSimbolo,
             this.atual
         );
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(
+                tipo,
+                literal || texto,
+                literal,
+                this.linha + 1,
+                this.hashArquivo
+            )
+        );
     }
 
     simboloAtual(): string {
@@ -143,7 +153,7 @@ export class Lexador implements LexadorInterface {
             this.erros.push({
                 linha: this.linha + 1,
                 caractere: this.simboloAnterior(),
-                mensagem: 'Texto não finalizado.'
+                mensagem: 'Texto não finalizado.',
             } as ErroLexador);
             return;
         }
@@ -196,7 +206,7 @@ export class Lexador implements LexadorInterface {
     }
 
     encontrarFimComentarioAsterisco(): void {
-        while (!this.eFinalDoCodigo()) { 
+        while (!this.eFinalDoCodigo()) {
             this.avancar();
             if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
                 this.avancar();
@@ -251,7 +261,7 @@ export class Lexador implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 }
-                
+
                 break;
             case '+':
                 this.inicioSimbolo = this.atual;
@@ -262,13 +272,13 @@ export class Lexador implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 }
-                
+
                 break;
             case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
                 break;
-            
+
             case '%':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
@@ -281,7 +291,7 @@ export class Lexador implements LexadorInterface {
                         this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                         break;
                 }
-                
+
                 break;
             case '*':
                 this.inicioSimbolo = this.atual;
@@ -293,7 +303,9 @@ export class Lexador implements LexadorInterface {
                         break;
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
+                        this.adicionarSimbolo(
+                            tiposDeSimbolos.MULTIPLICACAO_IGUAL
+                        );
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
@@ -309,7 +321,7 @@ export class Lexador implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
                 }
-                
+
                 break;
             case '=':
                 this.avancar();
@@ -319,7 +331,7 @@ export class Lexador implements LexadorInterface {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
                 }
-                
+
                 break;
 
             case '&':
@@ -418,7 +430,7 @@ export class Lexador implements LexadorInterface {
                     this.erros.push({
                         linha: this.linha + 1,
                         caractere: caractere,
-                        mensagem: 'Caractere inesperado.'
+                        mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
                     this.avancar();
                 }
@@ -443,12 +455,16 @@ export class Lexador implements LexadorInterface {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
+            console.log(
+                `[Lexador] Tempo para mapeamento: ${
+                    deltaMapeamento[0] * 1e9 + deltaMapeamento[1]
+                }ns`
+            );
         }
-        
-        return { 
+
+        return {
             simbolos: this.simbolos,
-            erros: this.erros
+            erros: this.erros,
         } as RetornoLexador;
     }
 }

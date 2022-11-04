@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 import * as fs from 'fs';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import { EspacoVariaveis } from '../../espaco-variaveis';
 import { Delegua } from '../../delegua';
 import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';
@@ -18,7 +18,7 @@ import {
     ErroEmTempoDeExecucao,
 } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../interfaces';
-import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Para, Se, Tente, Var } from '../../declaracoes';
+import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Leia, Para, Se, Tente, Var } from '../../declaracoes';
 import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
 import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
@@ -62,6 +62,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoLeia(expressao: Leia) {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoLiteral(expressao: Literal) {
@@ -448,7 +452,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoEscolha(declaracao: Escolha) {
-        let condicaoEscolha = this.avaliar(declaracao.condicao);
+        let condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
         let caminhos = declaracao.caminhos;
         let caminhoPadrao = declaracao.caminhoPadrao;
 

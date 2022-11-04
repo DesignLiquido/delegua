@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 import hrtime from 'browser-process-hrtime';
 
-import tiposDeSimbolos from '../tipos-de-simbolos';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -26,6 +26,7 @@ import {
     Fazer,
     Funcao,
     Importar,
+    Leia,
     Para,
     Retorna,
     Se,
@@ -47,6 +48,7 @@ import {
     Construto,
     Literal,
     Super,
+    Variavel,
 } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
@@ -104,6 +106,15 @@ export class Interpretador implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    /**
+     * Execução da leitura de valores da entrada configurada no
+     * início da aplicação.
+     * @param expressao 
+     */
+    visitarExpressaoLeia(expressao: Leia) {
+        throw new Error('Método não implementado.');
     }
 
     /**
@@ -513,7 +524,7 @@ export class Interpretador implements InterpretadorInterface {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
-    visitarExpressaoDeVariavel(expressao: any): any {
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
         return this.procurarVariavel(expressao.simbolo);
     }
 
@@ -621,7 +632,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     visitarExpressaoEscolha(declaracao: Escolha): any {
-        let condicaoEscolha = this.avaliar(declaracao.condicao);
+        let condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
         let caminhos = declaracao.caminhos;
         let caminhoPadrao = declaracao.caminhoPadrao;
 

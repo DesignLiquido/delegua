@@ -1,5 +1,5 @@
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
-import tiposDeSimbolos from '../../tipos-de-simbolos';
+import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import { Simbolo } from '../simbolo';
 import palavrasReservadas from '../palavras-reservadas';
 import { ErroLexador } from '../erro-lexador';

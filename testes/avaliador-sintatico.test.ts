@@ -1,5 +1,4 @@
 import { Delegua } from "../fontes/delegua";
-import { RetornoLexador } from "../fontes/interfaces/retornos/retorno-lexador";
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {

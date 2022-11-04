@@ -8,6 +8,7 @@ export * from './expressao';
 export * from './fazer';
 export * from './funcao';
 export * from './importar';
+export * from './leia';
 export * from './para';
 export * from './sustar';
 export * from './retorna';
