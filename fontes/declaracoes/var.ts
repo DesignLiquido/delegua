@@ -1,12 +1,13 @@
+import { Construto } from "../construtos";
 import { InterpretadorInterface, SimboloInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 
 export class Var extends Declaracao {
     simbolo: SimboloInterface;
-    inicializador: any;
+    inicializador: Construto;
 
-    constructor(simbolo: SimboloInterface, inicializador: any) {
+    constructor(simbolo: SimboloInterface, inicializador: Construto) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.inicializador = inicializador;

@@ -118,7 +118,7 @@ export class Delegua implements DeleguaInterface {
                     .version || '0.7'
             );
         } catch (error: any) {
-            return '0.6 (desenvolvimento)';
+            return '0.7 (desenvolvimento)';
         }
     }
 

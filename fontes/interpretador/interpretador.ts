@@ -48,6 +48,7 @@ import {
     Construto,
     Literal,
     Super,
+    Variavel,
 } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
@@ -523,7 +524,7 @@ export class Interpretador implements InterpretadorInterface {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
-    visitarExpressaoDeVariavel(expressao: any): any {
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
         return this.procurarVariavel(expressao.simbolo);
     }
 

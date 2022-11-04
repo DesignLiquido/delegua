@@ -1,6 +1,6 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Enquanto, Escolha, Escreva, Fazer, Leia, Para } from '../../declaracoes';
+import { Bloco, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Var } from '../../declaracoes';
 import { Atribuir, Binario, Construto, Funcao, Literal, Variavel } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../../lexador';
@@ -21,19 +21,20 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
     /**
      * Validação do segmento de declaração de variáveis (opcional).
-     * @returns Sempre retorna `void`.
+     * @returns Vetor de Construtos para inicialização de variáveis.
      */
-    validarSegmentoVar(): void {
+    validarSegmentoVar(): Construto[] {
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.VAR)) {
-            return;
+            return [];
         }
 
+        const inicializacoes = [];
         this.avancarEDevolverAnterior(); // Var
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+            const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
                 "Esperado nome de variável.");
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, 
                 "Esperado dois-pontos após nome de variável.");
@@ -44,9 +45,23 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 throw this.erro(this.simbolos[this.atual], 'Tipo de variável não conhecido.');
             }
 
+            const tipoVariavel = this.simbolos[this.atual - 1].tipo;
+
             this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 
                 "Esperado quebra de linha após declaração de variável.");
+
+            // Se chegou até aqui, variável é válida.
+            switch (tipoVariavel) {
+                case tiposDeSimbolos.INTEIRO:
+                    inicializacoes.push(new Var(identificador, new Literal(-1, -1, 0)));
+                    break;
+                case tiposDeSimbolos.CARACTERE:
+                    inicializacoes.push(new Var(identificador, new Literal(-1, -1, "")));
+                    break;
+            }
         }
+
+        return inicializacoes;
     }
 
     validarSegmentoInicio(algoritmoOuFuncao: string): void {
@@ -120,7 +135,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     chamar(): Construto {
-        throw new Error('Method not implemented.');
+        return this.primario();
     }
 
     corpoDaFuncao(tipo: any): Funcao {
@@ -395,13 +410,20 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         return new Para(-1, 
             Number(simboloPara.linha), 
-            new Atribuir(-1, variavelIteracao, numeroInicio), 
+            new Atribuir(-1, variavelIteracao, new Literal(-1, -1, numeroInicio.literal)), 
             new Binario(-1, 
-                variavelIteracao, 
-                new Simbolo(tiposDeSimbolos.SETA_ATRIBUICAO, "", "", Number(simboloPara.linha), -1), 
-                numeroFim
+                new Variavel(-1, variavelIteracao), 
+                new Simbolo(tiposDeSimbolos.MENOR, "", "", Number(simboloPara.linha), -1), 
+                new Literal(-1, -1, numeroFim.literal)
             ), 
-            1, 
+            new Atribuir(-1, 
+                variavelIteracao, 
+                new Binario(-1, 
+                    new Variavel(-1, variavelIteracao), 
+                    new Simbolo(tiposDeSimbolos.ADICAO, '', null, -1, -1), 
+                    new Literal(-1, -1, 1)
+                )
+            ), 
             corpo
         );
     }
@@ -454,9 +476,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.simbolos = retornoLexador?.simbolos || [];
 
-        const declaracoes = [];
+        let declaracoes = [];
         this.validarSegmentoAlgoritmo();
-        this.validarSegmentoVar();
+        declaracoes = declaracoes.concat(this.validarSegmentoVar());
         this.validarSegmentoInicio('algoritmo');
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
