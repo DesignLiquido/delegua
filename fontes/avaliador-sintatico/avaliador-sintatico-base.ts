@@ -38,7 +38,7 @@ export abstract class AvaliadorSintaticoBase
     atual: number;
     ciclos: number;
 
-    consumir(tipo: any, mensagemDeErro: string) {
+    consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo))
             return this.avancarEDevolverAnterior();
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);
@@ -71,7 +71,7 @@ export abstract class AvaliadorSintaticoBase
         return this.simbolos[this.atual - 1];
     }
 
-    verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean {
+    verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
@@ -122,12 +122,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -144,12 +139,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -180,12 +170,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.adicaoOuSubtracao();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -202,12 +187,7 @@ export abstract class AvaliadorSintaticoBase
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
-            expressao = new Binario(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Binario(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -223,12 +203,7 @@ export abstract class AvaliadorSintaticoBase
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparacaoIgualdade();
-            expressao = new Logico(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Logico(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -240,12 +215,7 @@ export abstract class AvaliadorSintaticoBase
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.e();
-            expressao = new Logico(
-                -1,
-                expressao,
-                operador,
-                direito
-            );
+            expressao = new Logico(-1, expressao, operador, direito);
         }
 
         return expressao;
@@ -326,5 +296,8 @@ export abstract class AvaliadorSintaticoBase
 
     abstract declaracao(): any;
 
-    abstract analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;
+    abstract analisar(
+        retornoLexador: RetornoLexador,
+        hashArquivo?: number
+    ): RetornoAvaliadorSintatico;
 }
