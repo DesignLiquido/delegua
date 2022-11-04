@@ -46,6 +46,7 @@ import {
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornaPrimario } from '../../types/avaliador-sintatico-egua-classico-returno-type';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -100,18 +101,18 @@ export class AvaliadorSintaticoEguaClassico
         return excecao;
     }
 
-    consumir(tipo: string, mensagemDeErro: string): any {
+    consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo))
             return this.avancarEDevolverAnterior();
         else throw this.erro(this.simboloAtual(), mensagemDeErro);
     }
 
-    verificarTipoSimboloAtual(tipo: any): boolean {
+    verificarTipoSimboloAtual(tipo: string): boolean {
         if (this.estaNoFinal()) return false;
         return this.simboloAtual().tipo === tipo;
     }
 
-    verificarTipoProximoSimbolo(tipo: any): boolean {
+    verificarTipoProximoSimbolo(tipo: string): boolean {
         if (this.estaNoFinal()) return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
@@ -124,7 +125,7 @@ export class AvaliadorSintaticoEguaClassico
         return this.simbolos[this.atual - 1];
     }
 
-    simboloNaPosicao(posicao: number): any {
+    simboloNaPosicao(posicao: number): SimboloInterface {
         return this.simbolos[this.atual + posicao];
     }
 
@@ -132,12 +133,12 @@ export class AvaliadorSintaticoEguaClassico
         return this.simboloAtual().tipo === tiposDeSimbolos.EOF;
     }
 
-    avancarEDevolverAnterior(): any {
+    avancarEDevolverAnterior(): SimboloInterface {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simboloAnterior();
     }
 
-    verificarSeSimboloAtualEIgualA(...argumentos: any[]): boolean {
+    verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
@@ -149,7 +150,7 @@ export class AvaliadorSintaticoEguaClassico
         return false;
     }
 
-    primario(): any {
+    primario(): RetornaPrimario {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
