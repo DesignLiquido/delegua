@@ -46,7 +46,11 @@ import {
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { RetornaPrimario } from '../../tipos/avaliador-sintatico-egua-classico-returno-tipo';
+import {
+    RetornaPrimario,
+    RetornoDeclaracao,
+    RetornoResolverDeclaracao,
+} from '../../tipos/avaliador-sintatico-egua-classico-returno-tipo';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -625,7 +629,7 @@ export class AvaliadorSintaticoEguaClassico
         return this.atribuir();
     }
 
-    declaracaoEscreva(): any {
+    declaracaoEscreva(): Escreva {
         const simboloAtual = this.simboloAtual();
 
         this.consumir(
@@ -652,7 +656,7 @@ export class AvaliadorSintaticoEguaClassico
         );
     }
 
-    declaracaoExpressao(): any {
+    declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
         this.consumir(
             tiposDeSimbolos.PONTO_E_VIRGULA,
@@ -661,8 +665,8 @@ export class AvaliadorSintaticoEguaClassico
         return new Expressao(expressao);
     }
 
-    blocoEscopo(): any {
-        const declaracoes = [];
+    blocoEscopo(): RetornoDeclaracao[] {
+        const declaracoes: Array<RetornoDeclaracao> = [];
 
         while (
             !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
@@ -678,7 +682,7 @@ export class AvaliadorSintaticoEguaClassico
         return declaracoes;
     }
 
-    declaracaoSe(): any {
+    declaracaoSe(): Se {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' após 'se'."
@@ -719,7 +723,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
     }
 
-    declaracaoEnquanto(): any {
+    declaracaoEnquanto(): Enquanto {
         try {
             this.ciclos += 1;
 
@@ -740,7 +744,7 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    declaracaoPara(): any {
+    declaracaoPara(): Para {
         try {
             const simboloPara: SimboloInterface = this.simboloAnterior();
             this.ciclos += 1;
@@ -806,7 +810,7 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    declaracaoSustar(): any {
+    declaracaoSustar(): Sustar {
         if (this.ciclos < 1) {
             this.erro(
                 this.simboloAnterior(),
@@ -821,7 +825,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Sustar(this.simboloAtual());
     }
 
-    declaracaoContinua(): any {
+    declaracaoContinua(): Continua {
         if (this.ciclos < 1) {
             this.erro(
                 this.simboloAnterior(),
@@ -836,7 +840,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Continua(this.simboloAtual());
     }
 
-    declaracaoRetorna(): any {
+    declaracaoRetorna(): Retorna {
         const palavraChave = this.simboloAnterior();
         let valor = null;
 
@@ -851,7 +855,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Retorna(palavraChave, valor);
     }
 
-    declaracaoEscolha(): any {
+    declaracaoEscolha(): Escolha {
         try {
             this.ciclos += 1;
 
@@ -956,7 +960,7 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    declaracaoImportar(): any {
+    declaracaoImportar(): Importar {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' após declaração."
@@ -978,7 +982,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Importar(caminho as Literal, simboloFechamento);
     }
 
-    declaracaoTente(): any {
+    declaracaoTente(): Tente {
         this.consumir(
             tiposDeSimbolos.CHAVE_ESQUERDA,
             "Esperado '{' após a declaração 'tente'."
@@ -1019,7 +1023,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Tente(0, 0, tryBlock, catchBlock, elseBlock, finallyBlock);
     }
 
-    declaracaoFazer(): any {
+    declaracaoFazer(): Fazer {
         try {
             this.ciclos += 1;
 
@@ -1047,7 +1051,7 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    resolverDeclaracao() {
+    resolverDeclaracao(): RetornoResolverDeclaracao {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
@@ -1074,7 +1078,7 @@ export class AvaliadorSintaticoEguaClassico
         return this.declaracaoExpressao();
     }
 
-    declaracaoDeVariavel(): any {
+    declaracaoDeVariavel(): Var {
         const nome = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome de variável.'
@@ -1092,7 +1096,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Var(nome, inicializador);
     }
 
-    funcao(kind: any): any {
+    funcao(kind: string): FuncaoDeclaracao {
         const nome = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             `Esperado nome ${kind}.`
@@ -1100,7 +1104,7 @@ export class AvaliadorSintaticoEguaClassico
         return new FuncaoDeclaracao(nome, this.corpoDaFuncao(kind));
     }
 
-    corpoDaFuncao(kind: any): any {
+    corpoDaFuncao(kind: string): Funcao {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${kind}.`
@@ -1162,7 +1166,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Funcao(this.hashArquivo, 0, parametros, corpo);
     }
 
-    declaracaoDeClasse(): any {
+    declaracaoDeClasse(): Classe {
         const nome = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
@@ -1200,7 +1204,7 @@ export class AvaliadorSintaticoEguaClassico
         return new Classe(nome, superClasse, metodos);
     }
 
-    declaracao(): any {
+    declaracao(): RetornoDeclaracao {
         try {
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO) &&
