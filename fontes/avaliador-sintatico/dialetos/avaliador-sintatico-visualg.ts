@@ -5,6 +5,7 @@ import {
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import {
     Bloco,
+    Declaracao,
     Enquanto,
     Escolha,
     Escreva,
@@ -502,7 +503,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracao(): any {
+    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         // Refatorar isso no futuro.
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
