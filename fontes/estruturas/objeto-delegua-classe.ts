@@ -1,6 +1,6 @@
-import { ErroEmTempoDeExecucao } from "../excecoes";
-import { SimboloInterface } from "../interfaces";
-import { DeleguaClasse } from "./delegua-classe";
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { SimboloInterface } from '../interfaces';
+import { DeleguaClasse } from './delegua-classe';
 
 export class ObjetoDeleguaClasse {
     classe: DeleguaClasse;
@@ -16,10 +16,13 @@ export class ObjetoDeleguaClasse {
             return this.campos[simbolo.lexema];
         }
 
-        let metodo = this.classe.encontrarMetodo(simbolo.lexema);
+        const metodo = this.classe.encontrarMetodo(simbolo.lexema);
         if (metodo) return metodo.definirInstancia(this);
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Método indefinido não recuperado.");
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            'Método indefinido não recuperado.'
+        );
     }
 
     set(simbolo: SimboloInterface, valor: any): void {
@@ -27,6 +30,6 @@ export class ObjetoDeleguaClasse {
     }
 
     toString(): string {
-        return "<Objeto " + this.classe.nome + ">";
+        return '<Objeto ' + this.classe.nome + '>';
     }
 }

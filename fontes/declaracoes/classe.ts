@@ -1,6 +1,5 @@
-import { SimboloInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
-
+import { SimboloInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class Classe extends Declaracao {
     simbolo: SimboloInterface;

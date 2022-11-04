@@ -68,7 +68,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     ciclos: number;
     performance: boolean;
 
-    constructor(performance: boolean = false) {
+    constructor(performance = false) {
         this.hashArquivo = 0;
         this.atual = 0;
         this.ciclos = 0;
@@ -209,12 +209,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     tiposDeSimbolos.CHAVE_DIREITA
                 )
             ) {
-                let chave = this.atribuir();
+                const chave = this.atribuir();
                 this.consumir(
                     tiposDeSimbolos.DOIS_PONTOS,
                     "Esperado ':' entre chave e valor."
                 );
-                let valor = this.atribuir();
+                const valor = this.atribuir();
 
                 chaves.push(chave);
                 valores.push(valor);
@@ -299,7 +299,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.PARENTESE_ESQUERDO
             )
         ) {
-            let expressao = this.expressao();
+            const expressao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após a expressão."
@@ -769,7 +769,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 "Esperado '(' após 'senaose' ou 'senãose'."
             );
-            let condicaoSeSenao = this.expressao();
+            const condicaoSeSenao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após codição do 'senaose' ou 'senãose'."
@@ -938,7 +938,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let caminhoCondicoes = [this.expressao()];
+                    const caminhoCondicoes = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -1037,7 +1037,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             "Esperado '{' após a declaração 'tente'."
         );
 
-        let blocoTente = this.blocoEscopo();
+        const blocoTente = this.blocoEscopo();
 
         let blocoPegue = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
@@ -1199,7 +1199,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     logicaComumParametros(): ParametroInterface[] {
-        let parametros: ParametroInterface[] = [];
+        const parametros: ParametroInterface[] = [];
 
         do {
             if (parametros.length >= 255) {
@@ -1209,7 +1209,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 );
             }
 
-            let parametro: Partial<ParametroInterface> = {};
+            const parametro: Partial<ParametroInterface> = {};
 
             if (
                 this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO

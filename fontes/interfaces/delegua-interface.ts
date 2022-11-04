@@ -1,5 +1,5 @@
-import { RetornoImportador } from "../importador";
-import { 
+import { RetornoImportador } from '../importador';
+import {
     AvaliadorSintaticoInterface,
     ImportadorInterface,
     InterpretadorComDepuracaoInterface,
@@ -7,7 +7,7 @@ import {
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
-} from "../interfaces";
+} from '../interfaces';
 
 export interface DeleguaInterface {
     dialeto: string;

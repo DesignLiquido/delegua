@@ -101,7 +101,7 @@ export default function (
                 );
             }
 
-            let resultados = [];
+            const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 resultados.push(
                     valorFuncaoMapeamento.chamar(interpretador, [
@@ -180,7 +180,7 @@ export default function (
                 );
             }
 
-            let resultados = [];
+            const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
@@ -222,7 +222,7 @@ export default function (
                 );
             }
 
-            let resultados = [];
+            const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
@@ -275,7 +275,7 @@ export default function (
     pilhaEscoposExecucao.definirVariavel(
         'ordenar',
         new FuncaoPadrao(1, function (vetor: VariavelInterface | Array<any>) {
-            let objeto = vetor.hasOwnProperty('valor')
+            const objeto = vetor.hasOwnProperty('valor')
                 ? (vetor as VariavelInterface).valor
                 : vetor;
             if (!Array.isArray(objeto)) {
@@ -286,10 +286,10 @@ export default function (
             }
 
             let trocado: boolean;
-            let tamanho = objeto.length;
+            const tamanho = objeto.length;
             do {
                 trocado = false;
-                for (var i = 0; i < tamanho - 1; i++) {
+                for (let i = 0; i < tamanho - 1; i++) {
                     if (objeto[i] > objeto[i + 1]) {
                         [objeto[i], objeto[i + 1]] = [objeto[i + 1], objeto[i]];
                         trocado = true;
@@ -345,7 +345,7 @@ export default function (
             }
 
             if (valorObjeto instanceof DeleguaClasse) {
-                let metodos = valorObjeto.metodos;
+                const metodos = valorObjeto.metodos;
                 let tamanho = 0;
 
                 if (

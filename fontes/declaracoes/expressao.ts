@@ -1,7 +1,6 @@
-import { Construto } from "../construtos";
-import { InterpretadorInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
-
+import { Construto } from '../construtos';
+import { InterpretadorInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class Expressao extends Declaracao {
     expressao: Construto;

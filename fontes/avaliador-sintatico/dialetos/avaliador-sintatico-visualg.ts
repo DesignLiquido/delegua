@@ -255,7 +255,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     logicaCasosEscolha(): any {
-        let literais = [];
+        const literais = [];
         let simboloAtualCaso: SimboloInterface =
             this.avancarEDevolverAnterior();
         while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
@@ -281,7 +281,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 simboloAtualBlocoCaso.tipo
             )
         ) {
-            let caminhoCondicoes = this.logicaCasosEscolha();
+            const caminhoCondicoes = this.logicaCasosEscolha();
             this.consumir(
                 tiposDeSimbolos.QUEBRA_LINHA,
                 "Esperado quebra de linha após último valor de declaração 'caso'."
@@ -451,7 +451,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado quebra de linha após palavra reservada 'faca' do laço de repetição 'para'."
         );
 
-        let declaracoesBlocoPara = [];
+        const declaracoesBlocoPara = [];
         let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM_PARA) {
             declaracoesBlocoPara.push(this.declaracao());

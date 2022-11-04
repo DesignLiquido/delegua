@@ -6,14 +6,14 @@ import cyrb53 from '../depuracao/cyrb53';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { AvaliadorSintaticoInterface, LexadorInterface } from '../interfaces';
 
-import { ImportadorInterface } from "../interfaces/importador-interface";
+import { ImportadorInterface } from '../interfaces/importador-interface';
 import { RetornoImportador } from './retorno-importador';
 
 /**
- * O Importador é responsável por manusear arquivos. Coordena as fases de lexação, avaliação sintática, 
- * cataloga informações do arquivo no núcleo da linguagem (através das referências `arquivosAbertos` e 
+ * O Importador é responsável por manusear arquivos. Coordena as fases de lexação, avaliação sintática,
+ * cataloga informações do arquivo no núcleo da linguagem (através das referências `arquivosAbertos` e
  * `conteudoArquivosAbertos`) e aponta erros caso ocorram.
- * 
+ *
  */
 export class Importador implements ImportadorInterface {
     lexador: LexadorInterface;
@@ -23,12 +23,12 @@ export class Importador implements ImportadorInterface {
     depuracao: boolean;
 
     constructor(
-        lexador: LexadorInterface, 
-        avaliadorSintatico: AvaliadorSintaticoInterface, 
+        lexador: LexadorInterface,
+        avaliadorSintatico: AvaliadorSintaticoInterface,
         arquivosAbertos: { [identificador: string]: string },
         conteudoArquivosAbertos: { [identificador: string]: string[] },
-        depuracao: boolean) 
-    {
+        depuracao: boolean
+    ) {
         this.lexador = lexador;
         this.avaliadorSintatico = avaliadorSintatico;
         this.arquivosAbertos = arquivosAbertos;
@@ -55,23 +55,31 @@ export class Importador implements ImportadorInterface {
             .toString()
             .split(sistemaOperacional.EOL);
 
-        for (let linha: number = 0; linha < conteudoDoArquivo.length; linha++) {
+        for (let linha = 0; linha < conteudoDoArquivo.length; linha++) {
             conteudoDoArquivo[linha] += '\0';
         }
 
-        const retornoLexador = this.lexador.mapear(conteudoDoArquivo, hashArquivo);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
-        this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
+        const retornoLexador = this.lexador.mapear(
+            conteudoDoArquivo,
+            hashArquivo
+        );
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
+            retornoLexador,
+            hashArquivo
+        );
+        this.arquivosAbertos[hashArquivo] = caminho.resolve(
+            caminhoRelativoArquivo
+        );
 
         if (this.depuracao) {
             this.conteudoArquivosAbertos[hashArquivo] = conteudoDoArquivo;
         }
-        
+
         return {
             nomeArquivo,
             hashArquivo,
             retornoLexador,
-            retornoAvaliadorSintatico
+            retornoAvaliadorSintatico,
         } as RetornoImportador;
     }
 }

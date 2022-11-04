@@ -213,12 +213,12 @@ export class AvaliadorSintaticoEguaClassico
                     tiposDeSimbolos.CHAVE_DIREITA
                 )
             ) {
-                let chave = this.atribuir();
+                const chave = this.atribuir();
                 this.consumir(
                     tiposDeSimbolos.DOIS_PONTOS,
                     "Esperado ':' entre chave e valor."
                 );
-                let valor = this.atribuir();
+                const valor = this.atribuir();
 
                 chaves.push(chave);
                 valores.push(valor);
@@ -266,7 +266,7 @@ export class AvaliadorSintaticoEguaClassico
                 tiposDeSimbolos.PARENTESE_ESQUERDO
             )
         ) {
-            let expressao = this.expressao();
+            const expressao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' após a expressão."
@@ -324,7 +324,7 @@ export class AvaliadorSintaticoEguaClassico
             } else if (
                 this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)
             ) {
-                let nome = this.consumir(
+                const nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
@@ -335,7 +335,7 @@ export class AvaliadorSintaticoEguaClassico
                 )
             ) {
                 const indice = this.expressao();
-                let simboloFechamento = this.consumir(
+                const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
@@ -701,7 +701,7 @@ export class AvaliadorSintaticoEguaClassico
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 "Esperado '(' após 'senãose'."
             );
-            let condicaoSeSenao = this.expressao();
+            const condicaoSeSenao = this.expressao();
             this.consumir(
                 tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado ')' apóes codição do 'senãose."
@@ -884,7 +884,7 @@ export class AvaliadorSintaticoEguaClassico
                 !this.estaNoFinal()
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    let caminhoCondicoes = [this.expressao()];
+                    const caminhoCondicoes = [this.expressao()];
                     this.consumir(
                         tiposDeSimbolos.DOIS_PONTOS,
                         "Esperado ':' após o 'caso'."
@@ -968,7 +968,7 @@ export class AvaliadorSintaticoEguaClassico
 
         const caminho = this.expressao();
 
-        let simboloFechamento = this.consumir(
+        const simboloFechamento = this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após declaração."
         );
@@ -988,7 +988,7 @@ export class AvaliadorSintaticoEguaClassico
             "Esperado '{' após a declaração 'tente'."
         );
 
-        let tryBlock = this.blocoEscopo();
+        const tryBlock = this.blocoEscopo();
 
         let catchBlock = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
@@ -1110,7 +1110,7 @@ export class AvaliadorSintaticoEguaClassico
             `Esperado '(' após o nome ${kind}.`
         );
 
-        let parametros = [];
+        const parametros = [];
         if (
             !this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)
         ) {
@@ -1122,7 +1122,7 @@ export class AvaliadorSintaticoEguaClassico
                     );
                 }
 
-                let parametro = {};
+                const parametro = {};
 
                 if (
                     this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO

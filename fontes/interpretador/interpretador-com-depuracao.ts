@@ -1,7 +1,10 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { Declaracao } from '../declaracoes';
 import { PontoParada } from '../depuracao';
-import { ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
+import {
+    ImportadorInterface,
+    InterpretadorComDepuracaoInterface,
+} from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra } from '../quebras';
 import { Interpretador } from './interpretador';
@@ -10,26 +13,26 @@ import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretad
 /**
  * Implementação do Interpretador com suporte a depuração.
  * Herda o Interpretador padrão de Delégua e implementa métodos a mais, que são
- * usados pelo servidor de depuração. 
- * Alguns métodos do Interpretador original, como `executarBloco` e `interpretar`, 
+ * usados pelo servidor de depuração.
+ * Alguns métodos do Interpretador original, como `executarBloco` e `interpretar`,
  * são reimplementados aqui.
- * 
- * A separação entre `Interpretador` e `InterpretadorComDepuracao` se faz 
- * necessária por uma série de motivos. 
- * O primeiro deles é o desempenho. A depuração torna o desempenho do 
+ *
+ * A separação entre `Interpretador` e `InterpretadorComDepuracao` se faz
+ * necessária por uma série de motivos.
+ * O primeiro deles é o desempenho. A depuração torna o desempenho do
  * Interpretador com depuração inferior ao Interpretador original pelas
  * várias verificações de controle que precisam ser feitas para a
- * funcionalidade do suporte a depuração, como verificar pontos de parada, 
- * estados da pilha de execução e variáveis. 
- * O segundo deles é manter o Interpretador original tão simples quanto possível. 
- * Uma implementação mais simples normalmente é mais robusta. 
+ * funcionalidade do suporte a depuração, como verificar pontos de parada,
+ * estados da pilha de execução e variáveis.
+ * O segundo deles é manter o Interpretador original tão simples quanto possível.
+ * Uma implementação mais simples normalmente é mais robusta.
  * O terceiro deles é o uso de memória. O Interpretador original não possui
- * uma série de variáveis implementadas aqui, o que o torna mais econômico em 
+ * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao 
+export class InterpretadorComDepuracao
     extends Interpretador
-    implements InterpretadorComDepuracaoInterface 
+    implements InterpretadorComDepuracaoInterface
 {
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
@@ -79,7 +82,8 @@ export class InterpretadorComDepuracao
             for (
                 ;
                 !(retornoExecucao instanceof Quebra) &&
-                proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
+                proximoEscopo.declaracaoAtual <
+                    proximoEscopo.declaracoes.length;
                 proximoEscopo.declaracaoAtual++
             ) {
                 this.pontoDeParadaAtivo = this.verificarPontoParada(
@@ -151,8 +155,8 @@ export class InterpretadorComDepuracao
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
     executarUltimoEscopo(
-        manterAmbiente: boolean = false,
-        naoVerificarPrimeiraExecucao: boolean = false
+        manterAmbiente = false,
+        naoVerificarPrimeiraExecucao = false
     ): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
 
@@ -219,7 +223,7 @@ export class InterpretadorComDepuracao
             primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
         );
         primeiroEscopo.declaracaoAtual++;
-        
+
         for (
             ;
             !(retornoExecucao instanceof Quebra) &&
@@ -238,7 +242,9 @@ export class InterpretadorComDepuracao
             );
         }
 
-        if (primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length) {
+        if (
+            primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length
+        ) {
             this.pilhaEscoposExecucao.removerUltimo();
         }
 
@@ -253,15 +259,16 @@ export class InterpretadorComDepuracao
      * primeiro escopo, subindo até o último elemento executado do último escopo.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    interpretacaoApenasUmaInstrucao(escopo: number = 1) {
+    interpretacaoApenasUmaInstrucao(escopo = 1) {
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual) {
             this.interpretacaoApenasUmaInstrucao(escopo + 1);
         } else {
-            const declaracaoAtual = escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
+            const declaracaoAtual =
+                escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
             this.executar(declaracaoAtual);
-            // Blocos de escopo que não sejam de funções adentram 
+            // Blocos de escopo que não sejam de funções adentram
             // o escopo ativo por padrão, por isso o teste abaixo.
             // this.adentrarEscopoAtivo = Object.getPrototypeOf(declaracaoAtual).constructor.name !== 'Funcao';
         }
@@ -277,7 +284,10 @@ export class InterpretadorComDepuracao
         }
 
         // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (escopoVisitado.declaracoes.length - 1 <= escopoVisitado.declaracaoAtual) {
+        if (
+            escopoVisitado.declaracoes.length - 1 <=
+            escopoVisitado.declaracaoAtual
+        ) {
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
         }
@@ -289,10 +299,10 @@ export class InterpretadorComDepuracao
 
     /**
      * Interpreta restante do bloco de execução em que o ponto de parada está, conforme comando do depurador.
-     * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados. 
+     * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    proximoESair(escopo: number = 1) {
+    proximoESair(escopo = 1) {
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual - 1) {
@@ -318,7 +328,9 @@ export class InterpretadorComDepuracao
         }
 
         // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual) {
+        if (
+            escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual
+        ) {
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
         }
@@ -355,7 +367,7 @@ export class InterpretadorComDepuracao
      */
     interpretar(
         declaracoes: Declaracao[],
-        manterAmbiente: boolean = false
+        manterAmbiente = false
     ): RetornoInterpretador {
         this.erros = [];
         this.declaracoes = declaracoes;

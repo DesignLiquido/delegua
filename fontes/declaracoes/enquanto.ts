@@ -1,6 +1,5 @@
-import { Construto } from "../construtos";
-import { Declaracao } from "./declaracao";
-
+import { Construto } from '../construtos';
+import { Declaracao } from './declaracao';
 
 export class Enquanto extends Declaracao {
     condicao: Construto;

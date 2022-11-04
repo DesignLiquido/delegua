@@ -11,9 +11,9 @@ export class ObjetoPadrao {
     paraTexto(): string {
         let retornoTexto = `<objeto-padrão da classe ${this.classePadrao}>\n`;
         for (const [nome, valor] of Object.entries(this)) {
-            retornoTexto += `    - ${nome}: ${valor}\n`
+            retornoTexto += `    - ${nome}: ${valor}\n`;
         }
-        retornoTexto += `</objeto-padrão>`
+        retornoTexto += `</objeto-padrão>`;
         return retornoTexto;
     }
 }

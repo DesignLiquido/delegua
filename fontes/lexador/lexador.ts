@@ -22,7 +22,7 @@ export class Lexador implements LexadorInterface {
     linha: number;
     performance: boolean;
 
-    constructor(performance: boolean = false) {
+    constructor(performance = false) {
         this.performance = performance;
 
         this.simbolos = [];
@@ -144,7 +144,7 @@ export class Lexador implements LexadorInterface {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
 
-    analisarTexto(delimitador: string = '"'): void {
+    analisarTexto(delimitador = '"'): void {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }

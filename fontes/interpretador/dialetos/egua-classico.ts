@@ -14,17 +14,47 @@ import { DeleguaFuncao } from '../../estruturas/funcao';
 import { ObjetoDeleguaClasse } from '../../estruturas/objeto-delegua-classe';
 import { DeleguaModulo } from '../../estruturas/modulo';
 
+import { ErroEmTempoDeExecucao } from '../../excecoes';
 import {
-    ErroEmTempoDeExecucao,
-} from '../../excecoes';
-import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../interfaces';
-import { Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Leia, Para, Se, Tente, Var } from '../../declaracoes';
-import { AcessoIndiceVariavel, Atribuir, Construto, Literal, Super, Variavel } from '../../construtos';
+    InterpretadorInterface,
+    SimboloInterface,
+    ResolvedorInterface,
+    VariavelInterface,
+} from '../../interfaces';
+import {
+    Classe,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    Expressao,
+    Fazer,
+    Funcao,
+    Importar,
+    Leia,
+    Para,
+    Se,
+    Tente,
+    Var,
+} from '../../declaracoes';
+import {
+    AcessoIndiceVariavel,
+    Atribuir,
+    Construto,
+    Literal,
+    Super,
+    Variavel,
+} from '../../construtos';
 import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
 import { ErroInterpretador } from '../erro-interpretador';
 import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../interfaces/escopo-execucao';
-import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../quebras';
+import {
+    ContinuarQuebra,
+    Quebra,
+    RetornoQuebra,
+    SustarQuebra,
+} from '../../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
 
 /**
@@ -57,8 +87,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis()
-        }
+            ambiente: new EspacoVariaveis(),
+        };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
@@ -112,10 +142,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+    eIgual(
+        esquerda: VariavelInterface | any,
+        direita: VariavelInterface | any
+    ): boolean {
         if (esquerda.tipo) {
-            if (esquerda.tipo === "nulo" && direita.tipo && direita.tipo === "nulo") return true;
-            if (esquerda.tipo === "nulo") return false;
+            if (
+                esquerda.tipo === 'nulo' &&
+                direita.tipo &&
+                direita.tipo === 'nulo'
+            )
+                return true;
+            if (esquerda.tipo === 'nulo') return false;
 
             return esquerda.valor === direita.valor;
         }
@@ -125,10 +163,22 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return esquerda === direita;
     }
 
-    verificarOperandosNumeros(operador: any, direita: VariavelInterface | any, esquerda: VariavelInterface | any): void {
-        const tipoDireita: string = direita.tipo ? direita.tipo : (typeof direita === 'number' ? 'número' : String(NaN));
-        const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : (typeof esquerda === 'number' ? 'número' : String(NaN));
-        if (tipoDireita === "número" && tipoEsquerda === "número") return;
+    verificarOperandosNumeros(
+        operador: any,
+        direita: VariavelInterface | any,
+        esquerda: VariavelInterface | any
+    ): void {
+        const tipoDireita: string = direita.tipo
+            ? direita.tipo
+            : typeof direita === 'number'
+            ? 'número'
+            : String(NaN);
+        const tipoEsquerda: string = esquerda.tipo
+            ? esquerda.tipo
+            : typeof esquerda === 'number'
+            ? 'número'
+            : String(NaN);
+        if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
             'Operadores precisam ser números.',
@@ -137,12 +187,24 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoBinaria(expressao: any): any {
-        const esquerda: VariavelInterface | any = this.avaliar(expressao.esquerda);
-        const direita: VariavelInterface | any = this.avaliar(expressao.direita);
-        const valorEsquerdo: any = esquerda.hasOwnProperty('valor') ? esquerda.valor : esquerda;
-        const valorDireito: any = direita.hasOwnProperty('valor') ? direita.valor : direita;
-        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+        const esquerda: VariavelInterface | any = this.avaliar(
+            expressao.esquerda
+        );
+        const direita: VariavelInterface | any = this.avaliar(
+            expressao.direita
+        );
+        const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+            ? esquerda.valor
+            : esquerda;
+        const valorDireito: any = direita.hasOwnProperty('valor')
+            ? direita.valor
+            : direita;
+        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+            ? esquerda.tipo
+            : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita.hasOwnProperty('tipo')
+            ? direita.tipo
+            : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -194,10 +256,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 return Number(valorEsquerdo) - Number(valorDireito);
 
             case tiposDeSimbolos.ADICAO:
-                if (
-                    tipoEsquerdo === 'número' &&
-                    tipoDireito === 'número'
-                ) {
+                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
                     return Number(esquerda) + Number(direita);
                 } else if (
                     tipoEsquerdo === 'texto' &&
@@ -286,8 +345,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoDeChamada(expressao: any) {
-        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(expressao.entidadeChamada);
-        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor') ? variavelEntidadeChamada.valor : variavelEntidadeChamada;
+        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(
+            expressao.entidadeChamada
+        );
+        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
+            ? variavelEntidadeChamada.valor
+            : variavelEntidadeChamada;
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
@@ -315,7 +378,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         // Isso aqui completa os parâmetros não preenchidos com nulos.
         if (argumentos.length < entidadeChamada.aridade()) {
-            let diferenca = entidadeChamada.aridade() - argumentos.length;
+            const diferenca = entidadeChamada.aridade() - argumentos.length;
             for (let i = 0; i < diferenca; i++) {
                 argumentos.push(null);
             }
@@ -325,7 +388,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 parametros.length > 0 &&
                 parametros[parametros.length - 1]['tipo'] === 'estrela'
             ) {
-                let novosArgumentos = argumentos.slice(
+                const novosArgumentos = argumentos.slice(
                     0,
                     parametros.length - 1
                 );
@@ -353,7 +416,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface, expressao: any): VariavelInterface {
+    procurarVariavel(
+        simbolo: SimboloInterface,
+        expressao: any
+    ): VariavelInterface {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
@@ -366,10 +432,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoLogica(expressao: any) {
-        let esquerda = this.avaliar(expressao.esquerda);
+        const esquerda = this.avaliar(expressao.esquerda);
 
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
-            let direita = this.avaliar(expressao.direita);
+            const direita = this.avaliar(expressao.direita);
 
             if (Array.isArray(direita) || typeof direita === 'string') {
                 return direita.includes(esquerda);
@@ -452,14 +518,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoEscolha(declaracao: Escolha) {
-        let condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
-        let caminhos = declaracao.caminhos;
-        let caminhoPadrao = declaracao.caminhoPadrao;
+        const condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
+        const caminhos = declaracao.caminhos;
+        const caminhoPadrao = declaracao.caminhoPadrao;
 
         let encontrado = false;
         try {
             for (let i = 0; i < caminhos.length; i++) {
-                let caminho = caminhos[i];
+                const caminho = caminhos[i];
 
                 for (let j = 0; j < caminho.condicoes.length; j++) {
                     if (
@@ -468,7 +534,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                         encontrado = true;
 
                         try {
-                            for (let k = 0; k < caminho.declaracoes.length; k++) {
+                            for (
+                                let k = 0;
+                                k < caminho.declaracoes.length;
+                                k++
+                            ) {
                                 this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
@@ -554,14 +624,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         delegua.executar(dados);
 
-        let exportar = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+        const exportar = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
         const eDicionario = (objeto: any) => objeto.constructor === Object;
 
         if (eDicionario(exportar)) {
-            let novoModulo = new DeleguaModulo();
+            const novoModulo = new DeleguaModulo();
 
-            let chaves = Object.keys(exportar);
+            const chaves = Object.keys(exportar);
             for (let i = 0; i < chaves.length; i++) {
                 novoModulo[chaves[i]] = exportar[chaves[i]];
             }
@@ -583,11 +653,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     /**
-     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e 
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
      * executa as declarações empilhadas.
-     * 
+     *
      * Se o retorno do último bloco foi uma exceção (normalmente um erro em tempo de execução),
-     * atira a exceção daqui. 
+     * atira a exceção daqui.
      * Isso é usado, por exemplo, em blocos `tente ... pegue ... finalmente`.
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
@@ -596,8 +666,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new EspacoVariaveis()
-        }
+            ambiente: ambiente || new EspacoVariaveis(),
+        };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = this.executarUltimoEscopo();
         if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
@@ -622,8 +692,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         this.pilhaEscoposExecucao.definirVariavel(
-            declaracao.simbolo.lexema, 
-            valorOuOutraVariavel.hasOwnProperty('valor') ? valorOuOutraVariavel.valor : valorOuOutraVariavel
+            declaracao.simbolo.lexema,
+            valorOuOutraVariavel.hasOwnProperty('valor')
+                ? valorOuOutraVariavel.valor
+                : valorOuOutraVariavel
         );
         return null;
     }
@@ -648,9 +720,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
-        let objeto = this.avaliar(expressao.objeto);
+        const objeto = this.avaliar(expressao.objeto);
         let indice = this.avaliar(expressao.indice);
-        let valor = this.avaliar(expressao.valor);
+        const valor = this.avaliar(expressao.valor);
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -681,9 +753,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
-        const variavelObjeto: VariavelInterface = this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+    visitarExpressaoAcessoIndiceVariavel(
+        expressao: AcessoIndiceVariavel | any
+    ) {
+        const variavelObjeto: VariavelInterface = this.avaliar(
+            expressao.entidadeChamada
+        );
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
         if (Array.isArray(objeto)) {
@@ -777,13 +855,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             declaracao.simbolo.lexema,
             declaracao.funcao
         );
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            funcao
+        );
     }
 
     visitarExpressaoClasse(declaracao: Classe) {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
-            const variavelSuperClasse: VariavelInterface = this.avaliar(declaracao.superClasse);
+            const variavelSuperClasse: VariavelInterface = this.avaliar(
+                declaracao.superClasse
+            );
             superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
@@ -794,17 +877,20 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            null
+        );
 
         if (declaracao.superClasse !== null) {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        let metodos = {};
-        let definirMetodos = declaracao.metodos;
+        const metodos = {};
+        const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
-            let metodoAtual = definirMetodos[i];
-            let eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+            const metodoAtual = definirMetodos[i];
+            const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
             const funcao = new DeleguaFuncao(
                 metodoAtual.simbolo.lexema,
                 metodoAtual.funcao,
@@ -825,12 +911,17 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.ambiente = this.ambiente.enclosing;
         } */
 
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
+        this.pilhaEscoposExecucao.atribuirVariavel(
+            declaracao.simbolo,
+            deleguaClasse
+        );
         return null;
     }
 
     visitarExpressaoAcessoMetodo(expressao: any) {
-        const variavelObjeto: VariavelInterface = this.avaliar(expressao.objeto);
+        const variavelObjeto: VariavelInterface = this.avaliar(
+            expressao.objeto
+        );
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
@@ -852,7 +943,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoDicionario(expressao: any) {
-        let dicionario = {};
+        const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             dicionario[this.avaliar(expressao.chaves[i])] = this.avaliar(
                 expressao.valores[i]
@@ -862,7 +953,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoVetor(expressao: any) {
-        let valores = [];
+        const valores = [];
         for (let i = 0; i < expressao.valores.length; i++) {
             valores.push(this.avaliar(expressao.valores[i]));
         }
@@ -871,11 +962,17 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoSuper(expressao: Super) {
         const distancia = this.locais.get(expressao);
-        const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
+        const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(
+            distancia,
+            'super'
+        );
 
-        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
+        const objeto: VariavelInterface =
+            this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
 
-        let metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
+        const metodo = superClasse.valor.encontrarMetodo(
+            expressao.metodo.lexema
+        );
 
         if (metodo === undefined) {
             throw new ErroEmTempoDeExecucao(
@@ -905,25 +1002,25 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (Array.isArray(objeto)) return objeto;
 
         if (typeof objeto === 'object') return JSON.stringify(objeto);
-        if (objeto === undefined) { 
+        if (objeto === undefined) {
             return 'nulo';
         }
 
         return objeto.toString();
     }
 
-    executar(declaracao: Declaracao, mostrarResultado: boolean = false): any {
+    executar(declaracao: Declaracao, mostrarResultado = false): any {
         return declaracao.aceitar(this);
     }
 
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do Interpretador.
-     * Originalmente, Égua não trabalha com uma pilha de escopos. 
-     * 
-     * O tratamento das exceções é feito de acordo com o bloco chamador. 
+     * Originalmente, Égua não trabalha com uma pilha de escopos.
+     *
+     * O tratamento das exceções é feito de acordo com o bloco chamador.
      * Por exemplo, em `tente ... pegue ... finalmente`, a exceção é capturada e tratada.
      * Em outros blocos, pode ser desejável ter o erro em tela.
-     * 
+     *
      * Essa implementação é derivada do Interpretador de Delégua, mas simulando todos os
      * comportamos do interpretador Égua original.
      * Interpretador Égua: https://github.com/eguatech/egua/blob/master/src/interpreter.js
@@ -933,8 +1030,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
-            for (; !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            for (
+                ;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                ultimoEscopo.declaracaoAtual++
+            ) {
+                retornoExecucao = this.executar(
+                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                );
             }
 
             return retornoExecucao;
@@ -950,17 +1054,17 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         const retornoResolvedor = this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
-        
+
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis()
-        }
+            ambiente: new EspacoVariaveis(),
+        };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.executarUltimoEscopo();
 
         return {
-            erros: this.erros
+            erros: this.erros,
         } as RetornoInterpretador;
     }
 }

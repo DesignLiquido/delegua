@@ -1,4 +1,4 @@
-import { ErroInterpretador } from "../../interpretador";
+import { ErroInterpretador } from '../../interpretador';
 
 export interface RetornoExecucaoInterface {
     erros: Array<ErroInterpretador>;

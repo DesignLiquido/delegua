@@ -31,7 +31,11 @@ const principal = () => {
     analisadorArgumentos.parse();
     const opcoes = analisadorArgumentos.opts();
 
-    const delegua = new Delegua(opcoes.dialeto, opcoes.performance, !!nomeArquivo ? opcoes.depurador : false);
+    const delegua = new Delegua(
+        opcoes.dialeto,
+        opcoes.performance,
+        nomeArquivo ? opcoes.depurador : false
+    );
 
     if (!nomeArquivo) {
         delegua.iniciarLairDelegua();

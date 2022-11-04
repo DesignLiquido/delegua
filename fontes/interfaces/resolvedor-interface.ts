@@ -1,8 +1,8 @@
-import { Construto } from "../construtos";
-import { ErroResolvedor } from "../resolvedor/erro-resolvedor";
-import { PilhaEscopos } from "../resolvedor/pilha-escopos";
-import { RetornoResolvedor } from "../resolvedor/retorno-resolvedor";
-import { SimboloInterface } from "./simbolo-interface";
+import { Construto } from '../construtos';
+import { ErroResolvedor } from '../resolvedor/erro-resolvedor';
+import { PilhaEscopos } from '../resolvedor/pilha-escopos';
+import { RetornoResolvedor } from '../resolvedor/retorno-resolvedor';
+import { SimboloInterface } from './simbolo-interface';
 
 export interface ResolvedorInterface {
     erros: ErroResolvedor[];

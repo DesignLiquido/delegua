@@ -1,13 +1,13 @@
-import { Chamavel } from "./chamavel";
+import { Chamavel } from './chamavel';
 
 /**
  * Classe de método de primitiva.
- * Exemplos: 
- * 
+ * Exemplos:
+ *
  * - `v.inclui(1)` (`v` é um vetor)
  * - `t.minusculo()` (`t` é um texto)
- * 
- * A aridade é sempre a quantidade de argumentos do método menos um porque o 
+ *
+ * A aridade é sempre a quantidade de argumentos do método menos um porque o
  * primeiro parâmetro é sempre a referência para a primitiva.
  */
 export class MetodoPrimitiva extends Chamavel {

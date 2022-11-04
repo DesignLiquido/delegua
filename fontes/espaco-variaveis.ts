@@ -1,4 +1,4 @@
-import { VariavelInterface } from "./interfaces";
+import { VariavelInterface } from './interfaces';
 
 export class EspacoVariaveis {
     valores: { [nome: string]: VariavelInterface };
@@ -6,4 +6,4 @@ export class EspacoVariaveis {
     constructor() {
         this.valores = {};
     }
-};
+}

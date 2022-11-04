@@ -1,5 +1,4 @@
-import { Construto } from "./construto";
-
+import { Construto } from './construto';
 
 export class Logico implements Construto {
     linha: number;
@@ -9,10 +8,15 @@ export class Logico implements Construto {
     operador: any;
     direita: any;
 
-    constructor(hashArquivo: number, esquerda: any, operador: any, direita: any) {
+    constructor(
+        hashArquivo: number,
+        esquerda: any,
+        operador: any,
+        direita: any
+    ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
-        
+
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;

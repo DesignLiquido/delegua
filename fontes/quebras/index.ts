@@ -1,6 +1,4 @@
-export class Quebra {
-
-}
+export class Quebra {}
 
 export class RetornoQuebra extends Quebra {
     valor: any;
@@ -11,10 +9,6 @@ export class RetornoQuebra extends Quebra {
     }
 }
 
-export class SustarQuebra extends Quebra {
+export class SustarQuebra extends Quebra {}
 
-}
-
-export class ContinuarQuebra extends Quebra {
-    
-}
+export class ContinuarQuebra extends Quebra {}

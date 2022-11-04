@@ -6,6 +6,6 @@ export class Chamavel {
     }
 
     chamar(interpretador?: any, argumentos?: any, simbolo?: any): any {
-        throw new Error("Este método não deveria ser chamado.");
+        throw new Error('Este método não deveria ser chamado.');
     }
 }

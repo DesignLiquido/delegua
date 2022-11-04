@@ -1,4 +1,4 @@
-import { Chamavel } from "./chamavel";
+import { Chamavel } from './chamavel';
 
 /**
  * Uma `FuncaoPadrao` normalmente é uma função em JavaScript.
@@ -20,6 +20,6 @@ export class FuncaoPadrao extends Chamavel {
     }
 
     paraTexto(): string {
-        return "<função>";
+        return '<função>';
     }
 }

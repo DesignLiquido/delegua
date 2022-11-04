@@ -1,22 +1,22 @@
 import hrtime from 'browser-process-hrtime';
 
-import { LexadorInterface, SimboloInterface } from "../../interfaces";
-import tiposDeSimbolos from "../../tipos-de-simbolos/eguap";
-import { Simbolo } from "../simbolo";
-import palavrasReservadas from "../palavras-reservadas";
-import { ErroLexador } from "../erro-lexador";
-import { RetornoLexador } from "../../interfaces/retornos/retorno-lexador";
-import { Pragma } from "./pragma";
+import { LexadorInterface, SimboloInterface } from '../../interfaces';
+import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
+import { Simbolo } from '../simbolo';
+import palavrasReservadas from '../palavras-reservadas';
+import { ErroLexador } from '../erro-lexador';
+import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { Pragma } from './pragma';
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- * 
- * Este lexador é diferente dos demais, porque também produz uma estrutura de dados de pragmas, que explica, 
- * por exemplo quantos espaços há na frente de cada linha. Assim como a linguagem Python, os blocos de 
- * escopo são definidos pelo número de espaços à frente do código. 
+ *
+ * Este lexador é diferente dos demais, porque também produz uma estrutura de dados de pragmas, que explica,
+ * por exemplo quantos espaços há na frente de cada linha. Assim como a linguagem Python, os blocos de
+ * escopo são definidos pelo número de espaços à frente do código.
  */
 export class LexadorEguaP implements LexadorInterface {
     codigo: string[];
@@ -30,7 +30,7 @@ export class LexadorEguaP implements LexadorInterface {
     linha: number;
     performance: boolean;
 
-    constructor(performance: boolean = false) {
+    constructor(performance = false) {
         this.performance = performance;
 
         this.simbolos = [];
@@ -101,8 +101,10 @@ export class LexadorEguaP implements LexadorInterface {
 
     eFinalDoCodigo(): boolean {
         if (this.linha > this.codigo.length - 1) return true;
-        return this.linha == this.codigo.length - 1 &&
-            this.codigo[this.codigo.length - 1].length <= this.atual;
+        return (
+            this.linha == this.codigo.length - 1 &&
+            this.codigo[this.codigo.length - 1].length <= this.atual
+        );
     }
 
     avancar(): void {
@@ -121,7 +123,9 @@ export class LexadorEguaP implements LexadorInterface {
             this.inicioSimbolo,
             this.atual
         );
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo)
+        );
     }
 
     simboloAtual(): string {
@@ -139,7 +143,7 @@ export class LexadorEguaP implements LexadorInterface {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
 
-    analisarTexto(delimitador: string = '"'): void {
+    analisarTexto(delimitador = '"'): void {
         const linhaPrimeiroCaracter: number = this.linha;
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
@@ -149,7 +153,7 @@ export class LexadorEguaP implements LexadorInterface {
             this.erros.push({
                 linha: this.linha + 1,
                 caractere: this.simboloAnterior(),
-                mensagem: 'Texto não finalizado.'
+                mensagem: 'Texto não finalizado.',
             } as ErroLexador);
             return;
         }
@@ -161,9 +165,9 @@ export class LexadorEguaP implements LexadorInterface {
 
         this.simbolos.push(
             new Simbolo(
-                tiposDeSimbolos.TEXTO, 
-                textoCompleto, 
-                textoCompleto, 
+                tiposDeSimbolos.TEXTO,
+                textoCompleto,
+                textoCompleto,
                 linhaPrimeiroCaracter + 1,
                 this.hashArquivo
             )
@@ -172,7 +176,10 @@ export class LexadorEguaP implements LexadorInterface {
 
     analisarNumero(): void {
         const linhaPrimeiroDigito: number = this.linha;
-        while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
+        while (
+            this.eDigito(this.simboloAtual()) &&
+            this.linha === linhaPrimeiroDigito
+        ) {
             this.avancar();
         }
 
@@ -197,13 +204,13 @@ export class LexadorEguaP implements LexadorInterface {
                 this.atual
             );
         }
-        
+
         this.simbolos.push(
             new Simbolo(
-                tiposDeSimbolos.NUMERO, 
-                numeroCompleto, 
-                parseFloat(numeroCompleto), 
-                linhaPrimeiroDigito + 1, 
+                tiposDeSimbolos.NUMERO,
+                numeroCompleto,
+                parseFloat(numeroCompleto),
+                linhaPrimeiroDigito + 1,
                 this.hashArquivo
             )
         );
@@ -211,13 +218,17 @@ export class LexadorEguaP implements LexadorInterface {
 
     identificarPalavraChave(): void {
         const linhaPrimeiroCaracter: number = this.linha;
-        while (this.eAlfabetoOuDigito(this.simboloAtual()) && this.linha === linhaPrimeiroCaracter) {
+        while (
+            this.eAlfabetoOuDigito(this.simboloAtual()) &&
+            this.linha === linhaPrimeiroCaracter
+        ) {
             this.avancar();
         }
 
         let textoPalavraChave: string;
         if (linhaPrimeiroCaracter < this.linha) {
-            const linhaPalavraChave: string = this.codigo[linhaPrimeiroCaracter];
+            const linhaPalavraChave: string =
+                this.codigo[linhaPrimeiroCaracter];
             textoPalavraChave = linhaPalavraChave.substring(
                 this.inicioSimbolo,
                 linhaPalavraChave.length
@@ -236,10 +247,10 @@ export class LexadorEguaP implements LexadorInterface {
 
         this.simbolos.push(
             new Simbolo(
-                tipo, 
-                textoPalavraChave, 
-                null, 
-                linhaPrimeiroCaracter + 1, 
+                tipo,
+                textoPalavraChave,
+                null,
+                linhaPrimeiroCaracter + 1,
                 this.hashArquivo
             )
         );
@@ -247,12 +258,18 @@ export class LexadorEguaP implements LexadorInterface {
 
     analisarIndentacao(): void {
         let espacos = 0;
-        while (['\t', ' '].includes(this.simboloAtual()) && !this.eFinalDoCodigo()) {
+        while (
+            ['\t', ' '].includes(this.simboloAtual()) &&
+            !this.eFinalDoCodigo()
+        ) {
             espacos++;
             this.avancar();
         }
 
-        this.pragmas[this.linha + 1] = { linha: this.linha + 1, espacosIndentacao: espacos };
+        this.pragmas[this.linha + 1] = {
+            linha: this.linha + 1,
+            espacosIndentacao: espacos,
+        };
     }
 
     avancarParaProximaLinha(): void {
@@ -444,7 +461,7 @@ export class LexadorEguaP implements LexadorInterface {
                     this.erros.push({
                         linha: this.linha + 1,
                         caractere: caractere,
-                        mensagem: 'Caractere inesperado.'
+                        mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
                     this.avancar();
                 }
@@ -473,13 +490,17 @@ export class LexadorEguaP implements LexadorInterface {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
+            console.log(
+                `[Lexador] Tempo para mapeamento: ${
+                    deltaMapeamento[0] * 1e9 + deltaMapeamento[1]
+                }ns`
+            );
         }
 
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-            pragmas: this.pragmas
+            pragmas: this.pragmas,
         } as RetornoLexador;
     }
 }

@@ -14,10 +14,8 @@ export function inferirTipoVariavel(
         case 'undefined':
             return 'nulo';
         case 'object':
-            if (Array.isArray(variavel))
-                return 'vetor';
-            if (variavel === null)
-                return 'nulo'
+            if (Array.isArray(variavel)) return 'vetor';
+            if (variavel === null) return 'nulo';
             return 'dicionário';
         case 'function':
             return 'função';

@@ -1,6 +1,6 @@
-import { Construto } from "../construtos";
-import { InterpretadorInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
+import { Construto } from '../construtos';
+import { InterpretadorInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 /**
  * Declaração que pede a leitura de uma informação da entrada
