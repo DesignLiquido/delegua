@@ -168,10 +168,10 @@ export class Delegua implements DeleguaInterface {
             const manifesto = caminho.resolve('package.json');
             return (
                 JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' }))
-                    .version || '0.7'
+                    .version || '0.8'
             );
         } catch (error: any) {
-            return '0.7 (desenvolvimento)';
+            return '0.8 (desenvolvimento)';
         }
     }
 
@@ -183,7 +183,7 @@ export class Delegua implements DeleguaInterface {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
-        const leiaLinha = readline.createInterface({
+        const interfaceLeitura = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
             prompt: '\ndelegua> ',
@@ -191,14 +191,14 @@ export class Delegua implements DeleguaInterface {
 
         const isto = this;
 
-        leiaLinha.prompt();
-        leiaLinha.on('line', (linha: string) => {
+        interfaceLeitura.prompt();
+        interfaceLeitura.on('line', (linha: string) => {
             const { resultado } = isto.executarUmaLinha(linha);
             if (resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
 
-            leiaLinha.prompt();
+            interfaceLeitura.prompt();
         });
     }
 
