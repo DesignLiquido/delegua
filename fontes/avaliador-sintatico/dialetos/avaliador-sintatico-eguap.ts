@@ -49,7 +49,10 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornaPrimario } from '../../tipos/avaliador-sintatico-egua-e-eguap-classico-returno-tipo';
+import {
+    RetornaPrimario,
+    RetornoDeclaracao,
+} from '../../tipos/avaliador-sintatico-egua-e-eguap-classico-returno-tipo';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -326,8 +329,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         );
     }
 
-    chamar(): any {
-        let expressao: any = this.primario();
+    chamar(): Construto | RetornaPrimario {
+        let expressao: RetornaPrimario | Construto = this.primario();
 
         while (true) {
             if (
@@ -656,7 +659,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const argumentos: any[] = [];
+        const argumentos: Array<Construto> = [];
 
         do {
             argumentos.push(this.expressao());
@@ -1265,7 +1268,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
      * ou uma expressão.
      * @returns Objeto do tipo `Declaracao`.
      */
-    declaracao(): any {
+    declaracao(): RetornoDeclaracao {
         try {
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
@@ -1281,7 +1284,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();
-        } catch (erro: any) {
+        } catch (erro) {
             this.sincronizar();
             return null;
         }
@@ -1303,7 +1306,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.declaracao() as Declaracao);
         }
 
         if (this.performance) {
