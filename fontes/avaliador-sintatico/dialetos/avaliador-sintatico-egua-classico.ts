@@ -50,7 +50,7 @@ import {
     RetornaPrimario,
     RetornoDeclaracao,
     RetornoResolverDeclaracao,
-} from '../../tipos/avaliador-sintatico-egua-classico-returno-tipo';
+} from '../../tipos/avaliador-sintatico-egua-e-eguap-classico-returno-tipo';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
