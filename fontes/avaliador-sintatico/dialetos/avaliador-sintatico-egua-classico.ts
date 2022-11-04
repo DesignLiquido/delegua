@@ -276,7 +276,7 @@ export class AvaliadorSintaticoEguaClassico
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: any): any {
+    finalizarChamada(entidadeChamada: RetornaPrimario): Chamada {
         const argumentos = [];
         if (
             !this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)
@@ -621,7 +621,7 @@ export class AvaliadorSintaticoEguaClassico
         return expressao;
     }
 
-    expressao(): any {
+    expressao(): Construto {
         return this.atribuir();
     }
 
@@ -969,7 +969,9 @@ export class AvaliadorSintaticoEguaClassico
             "Esperado ')' após declaração."
         );
 
-        return new Importar(caminho, simboloFechamento);
+        caminho.valor = null;
+
+        return new Importar(caminho as Literal, simboloFechamento);
     }
 
     declaracaoTente(): any {
