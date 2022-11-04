@@ -7,9 +7,9 @@ export class Declaracao {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         // TODO: Por ora, todos os testes são feitos num script só.
-        // Quando iniciarem os testes em múltiplos arquivos e módulos, 
+        // Quando iniciarem os testes em múltiplos arquivos e módulos,
         // pensar numa forma melhor de preencher isso.
-        this.assinaturaMetodo = "<principal>";
+        this.assinaturaMetodo = '<principal>';
     }
 
     aceitar(visitante: any): any {

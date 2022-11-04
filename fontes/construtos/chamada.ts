@@ -1,6 +1,5 @@
-import { InterpretadorInterface } from "../interfaces";
-import { Construto } from "./construto";
-
+import { InterpretadorInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class Chamada implements Construto {
     linha: number;
@@ -10,7 +9,12 @@ export class Chamada implements Construto {
     argumentos: any;
     parentese: any;
 
-    constructor(hashArquivo: number, entidadeChamada: Construto, parentese: any, argumentos: any) {
+    constructor(
+        hashArquivo: number,
+        entidadeChamada: Construto,
+        parentese: any,
+        argumentos: any
+    ) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
 

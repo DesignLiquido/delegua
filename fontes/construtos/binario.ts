@@ -1,10 +1,10 @@
-import { InterpretadorInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { InterpretadorInterface } from '../interfaces';
+import { Construto } from './construto';
 
 /**
- * Binário é uma estrutura com um operador e dois operandos: esquerda e direita. 
+ * Binário é uma estrutura com um operador e dois operandos: esquerda e direita.
  * Implementa as seguintes operações:
- * 
+ *
  * - `+` (Adição) e `+=` (Adição com Atribuição)
  * - `-` (Subtração) e `-=` (Subtração com Atribuição)
  * - `*` (Multiplicação) e `*=` (Multiplicação com Atribuição)
@@ -20,10 +20,15 @@ export class Binario implements Construto {
     operador: any;
     direita: any;
 
-    constructor(hashArquivo: number, esquerda: any, operador: any, direita: any) {
+    constructor(
+        hashArquivo: number,
+        esquerda: any,
+        operador: any,
+        direita: any
+    ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
-        
+
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;

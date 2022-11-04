@@ -58,7 +58,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
 
     declarar(simbolo: SimboloInterface): void {
         if (this.escopos.eVazio()) return;
-        let escopo = this.escopos.topoDaPilha();
+        const escopo = this.escopos.topoDaPilha();
         if (escopo.hasOwnProperty(simbolo.lexema)) {
             const erro = new ErroResolvedor(
                 simbolo,
@@ -66,7 +66,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
             );
             this.erros.push(erro);
         }
-        
+
         escopo[simbolo.lexema] = false;
     }
 
@@ -125,11 +125,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
     }
 
     resolverFuncao(funcao: any, funcType: any): void {
-        let enclosingFunc = this.funcaoAtual;
+        const enclosingFunc = this.funcaoAtual;
         this.funcaoAtual = funcType;
 
         this.inicioDoEscopo();
-        let parametros = funcao.parametros;
+        const parametros = funcao.parametros;
 
         if (parametros && parametros.length > 0) {
             for (let i = 0; i < parametros.length; i++) {
@@ -169,7 +169,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoClasse(declaracao: any): any {
-        let enclosingClass = this.classeAtual;
+        const enclosingClass = this.classeAtual;
         this.classeAtual = TipoClasse.CLASSE;
 
         this.declarar(declaracao.simbolo);
@@ -199,7 +199,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
         this.inicioDoEscopo();
         this.escopos.topoDaPilha()['isto'] = true;
 
-        let metodos = declaracao.metodos;
+        const metodos = declaracao.metodos;
         for (let i = 0; i < metodos.length; i++) {
             let declaracao = TipoFuncao.METODO;
 
@@ -292,11 +292,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
     }
 
     visitarExpressaoEscolha(declaracao: any): void {
-        let enclosingType = this.cicloAtual;
+        const enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
-        let caminhos = declaracao.caminhos;
-        let caminhoPadrao = declaracao.caminhoPadrao;
+        const caminhos = declaracao.caminhos;
+        const caminhoPadrao = declaracao.caminhoPadrao;
 
         for (let i = 0; i < caminhos.length; i++) {
             this.resolver(caminhos[i]['declaracoes']);
@@ -324,7 +324,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
             this.resolver(declaracao.incrementar);
         }
 
-        let enclosingType = this.cicloAtual;
+        const enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ENQUANTO;
         this.resolver(declaracao.corpo);
         this.cicloAtual = enclosingType;
@@ -335,7 +335,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
     visitarExpressaoFazer(declaracao: any): any {
         this.resolver(declaracao.condicaoEnquanto);
 
-        let enclosingType = this.cicloAtual;
+        const enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.FAZER;
         this.resolver(declaracao.caminhoFazer);
         this.cicloAtual = enclosingType;
@@ -351,7 +351,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
     visitarExpressaoDeChamada(expressao: any): any {
         this.resolver(expressao.entidadeChamada);
 
-        let argumentos = expressao.argumentos;
+        const argumentos = expressao.argumentos;
         for (let i = 0; i < argumentos.length; i++) {
             this.resolver(argumentos[i]);
         }
@@ -430,7 +430,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    resolver(declaracoes: Construto | Declaracao | Declaracao[]): RetornoResolvedor {
+    resolver(
+        declaracoes: Construto | Declaracao | Declaracao[]
+    ): RetornoResolvedor {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
@@ -443,7 +445,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
 
         return {
             erros: this.erros,
-            locais: this.locais
+            locais: this.locais,
         } as RetornoResolvedor;
     }
 }

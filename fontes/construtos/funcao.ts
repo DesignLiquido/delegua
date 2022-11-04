@@ -1,6 +1,5 @@
-import { InterpretadorInterface, ParametroInterface } from "../interfaces";
-import { Construto } from "./construto";
-
+import { InterpretadorInterface, ParametroInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class Funcao implements Construto {
     linha: number;
@@ -9,10 +8,15 @@ export class Funcao implements Construto {
     parametros: ParametroInterface[];
     corpo: any;
 
-    constructor(hashArquivo: number, linha: number, parametros: ParametroInterface[], corpo: any) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        parametros: ParametroInterface[],
+        corpo: any
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
-        
+
         this.parametros = parametros;
         this.corpo = corpo;
     }

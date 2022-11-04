@@ -1,6 +1,9 @@
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../interfaces";
-import { Construto } from "./construto";
-
+import {
+    InterpretadorInterface,
+    SimboloInterface,
+    VariavelInterface,
+} from '../interfaces';
+import { Construto } from './construto';
 
 export class Variavel implements Construto {
     linha: number;
@@ -11,7 +14,7 @@ export class Variavel implements Construto {
     constructor(hashArquivo: number, simbolo: SimboloInterface) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
-        
+
         this.simbolo = simbolo;
     }
 

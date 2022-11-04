@@ -1,6 +1,5 @@
-import { InterpretadorInterface, SimboloInterface } from "../interfaces";
-import { Construto } from "./construto";
-
+import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class Atribuir implements Construto {
     linha: number;

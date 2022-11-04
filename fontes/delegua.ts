@@ -47,14 +47,14 @@ export class Delegua implements DeleguaInterface {
     avaliadorSintatico: AvaliadorSintaticoInterface;
     importador: ImportadorInterface;
     funcaoDeRetorno: Function;
-    modoDepuracao: Boolean;
+    modoDepuracao: boolean;
 
     servidorDepuracao: ServidorDepuracao;
 
     constructor(
-        dialeto: string = 'delegua',
-        performance: boolean = false,
-        depurador: boolean = false,
+        dialeto = 'delegua',
+        performance = false,
+        depurador = false,
         funcaoDeRetorno: Function = null
     ) {
         this.arquivosAbertos = {};
@@ -323,7 +323,7 @@ export class Delegua implements DeleguaInterface {
      */
     executar(
         retornoImportador: RetornoImportador,
-        manterAmbiente: boolean = false
+        manterAmbiente = false
     ): RetornoExecucaoInterface {
         const retornoInterpretador = this.interpretador.interpretar(
             retornoImportador.retornoAvaliadorSintatico.declaracoes,

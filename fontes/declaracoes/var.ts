@@ -1,7 +1,6 @@
-import { Construto } from "../construtos";
-import { InterpretadorInterface, SimboloInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
-
+import { Construto } from '../construtos';
+import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class Var extends Declaracao {
     simbolo: SimboloInterface;

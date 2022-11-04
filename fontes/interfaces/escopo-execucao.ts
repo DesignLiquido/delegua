@@ -1,5 +1,5 @@
-import { EspacoVariaveis } from "../espaco-variaveis";
-import { Declaracao } from "../declaracoes";
+import { EspacoVariaveis } from '../espaco-variaveis';
+import { Declaracao } from '../declaracoes';
 
 export interface EscopoExecucao {
     declaracoes: Declaracao[];

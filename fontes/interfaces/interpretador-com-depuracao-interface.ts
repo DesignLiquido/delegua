@@ -1,8 +1,9 @@
-import { Declaracao } from "../declaracoes";
-import { PontoParada } from "../depuracao";
-import { InterpretadorInterface } from "./interpretador-interface";
+import { Declaracao } from '../declaracoes';
+import { PontoParada } from '../depuracao';
+import { InterpretadorInterface } from './interpretador-interface';
 
-export interface InterpretadorComDepuracaoInterface extends InterpretadorInterface {
+export interface InterpretadorComDepuracaoInterface
+    extends InterpretadorInterface {
     comandoAdentrarEscopo: boolean;
     comandoProximo: boolean;
     pontoDeParadaAtivo: boolean;

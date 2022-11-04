@@ -1,11 +1,11 @@
-import { Chamavel } from "./chamavel";
+import { Chamavel } from './chamavel';
 
 export class DeleguaModulo {
     nome: string;
-    componentes: { [nome: string]: Chamavel }
+    componentes: { [nome: string]: Chamavel };
 
     constructor(nome?: string) {
-        this.nome = nome || "";
+        this.nome = nome || '';
         this.componentes = {};
     }
 

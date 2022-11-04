@@ -1,1 +1,1 @@
-export * from './egua-classico'
+export * from './egua-classico';
