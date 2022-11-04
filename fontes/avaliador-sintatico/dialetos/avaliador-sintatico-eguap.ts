@@ -52,7 +52,8 @@ import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-ava
 import {
     RetornaPrimario,
     RetornoDeclaracao,
-} from '../../tipos/avaliador-sintatico-egua-e-eguap-classico-returno-tipo';
+    RetornoResolverDeclaracao,
+} from '../../tipos/avaliador-sintatico-classico-returno-tipo';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -819,7 +820,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 "Esperado '(' após 'para'."
             );
 
-            let inicializador: any;
+            let inicializador: Var | Expressao;
             if (
                 this.verificarSeSimboloAtualEIgualA(
                     tiposDeSimbolos.PONTO_E_VIRGULA
@@ -865,7 +866,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 incrementar,
                 corpo
             );
-        } catch (erro: any) {
+        } catch (erro) {
             throw erro;
         } finally {
             this.ciclos -= 1;
@@ -1105,7 +1106,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
     }
 
-    resolverDeclaracao(): any {
+    resolverDeclaracao(): RetornoResolverDeclaracao {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
@@ -1157,7 +1158,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new Var(simbolo, inicializador);
     }
 
-    funcao(tipo: any): FuncaoDeclaracao {
+    funcao(tipo: string): FuncaoDeclaracao {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             `Esperado nome ${tipo}.`
@@ -1165,8 +1166,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
-    logicaComumParametros(): any[] {
-        let parametros = [];
+    logicaComumParametros(): Array<object> {
+        let parametros: Array<object> = [];
 
         do {
             if (parametros.length >= 255) {
@@ -1201,7 +1202,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return parametros;
     }
 
-    corpoDaFuncao(tipo: any): Funcao {
+    corpoDaFuncao(tipo: string): Funcao {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${tipo}.`
