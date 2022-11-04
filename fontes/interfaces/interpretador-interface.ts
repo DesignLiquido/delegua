@@ -1,11 +1,30 @@
-import { EspacoVariaveis } from "../espaco-variaveis";
-import { Atribuir, Literal, Super } from "../construtos";
-import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Funcao, Importar, Leia, Para, Retorna, Se, Sustar, Tente, Var } from "../declaracoes";
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
-import { PilhaEscoposExecucaoInterface } from "./pilha-escopos-execucao-interface";
+import { EspacoVariaveis } from '../espaco-variaveis';
+import { Atribuir, Literal, Super } from '../construtos';
+import {
+    Bloco,
+    Classe,
+    Continua,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    Expressao,
+    Fazer,
+    Funcao,
+    Importar,
+    Leia,
+    Para,
+    Retorna,
+    Se,
+    Sustar,
+    Tente,
+    Var,
+} from '../declaracoes';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
-import { RetornoInterpretador } from "./retornos/retorno-interpretador";
-import { SimboloInterface } from "./simbolo-interface";
+import { RetornoInterpretador } from './retornos/retorno-interpretador';
+import { SimboloInterface } from './simbolo-interface';
 
 export interface InterpretadorInterface {
     diretorioBase: any;
@@ -55,5 +74,8 @@ export interface InterpretadorInterface {
     visitarExpressaoSuper(expressao: Super): any;
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado: boolean): any;
-    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): RetornoInterpretador;
+    interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente?: boolean
+    ): RetornoInterpretador;
 }

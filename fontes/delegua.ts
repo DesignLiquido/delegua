@@ -32,10 +32,10 @@ import { ResolvedorEguaClassico } from './resolvedor/dialetos';
 import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
 import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 
-/**  
- * O núcleo da linguagem. 
- * 
- * Responsável por avaliar a entrada fornecida, entender o código e executá-lo. 
+/**
+ * O núcleo da linguagem.
+ *
+ * Responsável por avaliar a entrada fornecida, entender o código e executá-lo.
  */
 export class Delegua implements DeleguaInterface {
     dialeto: string;
@@ -67,40 +67,93 @@ export class Delegua implements DeleguaInterface {
         switch (this.dialeto) {
             case 'egua':
                 if (depurador) {
-                    throw new Error("Dialeto " + this.dialeto + " não suporta depuração.");
+                    throw new Error(
+                        'Dialeto ' + this.dialeto + ' não suporta depuração.'
+                    );
                 }
 
                 this.lexador = new LexadorEguaClassico();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
-                this.interpretador = new InterpretadorEguaClassico(this, new ResolvedorEguaClassico(), process.cwd());
-                
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = new InterpretadorEguaClassico(
+                    this,
+                    new ResolvedorEguaClassico(),
+                    process.cwd()
+                );
+
                 console.log('Usando dialeto: Égua');
                 break;
             case 'eguap':
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
-                this.interpretador = depurador ? 
-                    new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno) :
-                    new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = depurador
+                    ? new InterpretadorComDepuracao(
+                          this.importador,
+                          process.cwd(),
+                          funcaoDeRetorno
+                      )
+                    : new Interpretador(
+                          this.importador,
+                          process.cwd(),
+                          performance,
+                          funcaoDeRetorno
+                      );
 
                 console.log('Usando dialeto: ÉguaP');
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
                 this.avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
-                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = new Interpretador(
+                    this.importador,
+                    process.cwd(),
+                    false,
+                    console.log
+                );
                 break;
             default:
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
-                this.importador = new Importador(this.lexador, this.avaliadorSintatico, this.arquivosAbertos, this.conteudoArquivosAbertos, depurador);
-                this.interpretador = depurador ? 
-                    new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno) :
-                    new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
-                
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = depurador
+                    ? new InterpretadorComDepuracao(
+                          this.importador,
+                          process.cwd(),
+                          funcaoDeRetorno
+                      )
+                    : new Interpretador(
+                          this.importador,
+                          process.cwd(),
+                          performance,
+                          funcaoDeRetorno
+                      );
+
                 console.log('Usando dialeto: padrão');
                 break;
         }
@@ -123,7 +176,7 @@ export class Delegua implements DeleguaInterface {
     }
 
     /**
-     * LAIR (Leia-Avalie-Imprima-Repita) é o modo em que Delégua executa em modo console, 
+     * LAIR (Leia-Avalie-Imprima-Repita) é o modo em que Delégua executa em modo console,
      * ou seja, esperando como entrada linhas de código fornecidas pelo usuário.
      */
     iniciarLairDelegua(): void {
@@ -144,7 +197,7 @@ export class Delegua implements DeleguaInterface {
             if (resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
-            
+
             leiaLinha.prompt();
         });
     }
@@ -156,15 +209,24 @@ export class Delegua implements DeleguaInterface {
      */
     executarUmaLinha(linha: string): RetornoExecucaoInterface {
         const retornoLexador = this.lexador.mapear([linha], -1);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-        if (this.afericaoErros({ retornoLexador, retornoAvaliadorSintatico } as RetornoImportador)) {
+        const retornoAvaliadorSintatico =
+            this.avaliadorSintatico.analisar(retornoLexador);
+        if (
+            this.afericaoErros({
+                retornoLexador,
+                retornoAvaliadorSintatico,
+            } as RetornoImportador)
+        ) {
             return { resultado: [] } as RetornoExecucaoInterface;
         }
 
-        return this.executar({
-            retornoLexador,
-            retornoAvaliadorSintatico
-        } as RetornoImportador, true);
+        return this.executar(
+            {
+                retornoLexador,
+                retornoAvaliadorSintatico,
+            } as RetornoImportador,
+            true
+        );
     }
 
     /**
@@ -173,11 +235,12 @@ export class Delegua implements DeleguaInterface {
     iniciarDepuracao(): void {
         this.servidorDepuracao = new ServidorDepuracao(this);
         this.servidorDepuracao.iniciarServidorDepuracao();
-        (this.interpretador as any).finalizacaoDaExecucao = this.finalizarDepuracao.bind(this);
+        (this.interpretador as any).finalizacaoDaExecucao =
+            this.finalizarDepuracao.bind(this);
     }
 
     /**
-     * Pede ao servidor de depuração que finalize a execução. 
+     * Pede ao servidor de depuração que finalize a execução.
      * Se não for feito, o servidor de depuração mantém um _stream_ aberto e nunca finaliza.
      * Mais informações: https://stackoverflow.com/a/47456805/1314276
      */
@@ -195,14 +258,22 @@ export class Delegua implements DeleguaInterface {
     afericaoErros(retornoImportador: RetornoImportador): boolean {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
-                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+                this.reportar(
+                    erroLexador.linha,
+                    ` no '${erroLexador.caractere}'`,
+                    erroLexador.mensagem
+                );
             }
             return true;
         }
 
         if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
-                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+            for (const erroAvaliadorSintatico of retornoImportador
+                .retornoAvaliadorSintatico.erros) {
+                this.erro(
+                    erroAvaliadorSintatico.simbolo,
+                    erroAvaliadorSintatico.message
+                );
             }
             return true;
         }
@@ -215,7 +286,9 @@ export class Delegua implements DeleguaInterface {
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
      */
     carregarArquivo(caminhoRelativoArquivo: string): void {
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
+        const retornoImportador = this.importador.importar(
+            caminhoRelativoArquivo
+        );
         if (this.afericaoErros(retornoImportador)) {
             process.exit(65); // Código para erro de avaliação antes da execução
         }
@@ -223,31 +296,39 @@ export class Delegua implements DeleguaInterface {
         let errosExecucao: any = {
             lexador: [],
             avaliadorSintatico: [],
-            interpretador: []
+            interpretador: [],
         };
 
         if (this.modoDepuracao) {
-            (this.interpretador as InterpretadorComDepuracaoInterface)
-                .prepararParaDepuracao(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+            (
+                this.interpretador as InterpretadorComDepuracaoInterface
+            ).prepararParaDepuracao(
+                retornoImportador.retornoAvaliadorSintatico.declaracoes
+            );
         } else {
             const { erros } = this.executar(retornoImportador);
             errosExecucao = erros;
         }
 
-        if (errosExecucao.length > 0) 
-            process.exit(70); // Código com exceções não tratadas
+        if (errosExecucao.length > 0) process.exit(70); // Código com exceções não tratadas
     }
 
     /**
      * A execução do código de fato.
-     * @param retornoImportador Dados retornados do Importador, como o retorno do Lexador, do Avaliador 
+     * @param retornoImportador Dados retornados do Importador, como o retorno do Lexador, do Avaliador
      *                          Sintático e respectivos erros.
      * @param manterAmbiente Indicação se ambiente deve ser mantido ou não. Normalmente verdadeiro
      *                       para LAIR, falso para execução por arquivo.
      * @returns Um objeto com o resultado da execução.
      */
-    executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
-        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
+    executar(
+        retornoImportador: RetornoImportador,
+        manterAmbiente: boolean = false
+    ): RetornoExecucaoInterface {
+        const retornoInterpretador = this.interpretador.interpretar(
+            retornoImportador.retornoAvaliadorSintatico.declaracoes,
+            manterAmbiente
+        );
 
         if (retornoInterpretador.erros.length > 0) {
             for (const erroInterpretador of retornoInterpretador.erros) {
@@ -255,8 +336,14 @@ export class Delegua implements DeleguaInterface {
                     this.erroEmTempoDeExecucao(erroInterpretador);
                 } else {
                     const erroEmJavaScript: any = erroInterpretador as any;
-                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
-                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
+                    console.error(
+                        chalk.red(`Erro em JavaScript: `) +
+                            `${erroEmJavaScript.message}`
+                    );
+                    console.error(
+                        chalk.red(`Pilha de execução: `) +
+                            `${erroEmJavaScript.stack}`
+                    );
                 }
             }
         }
@@ -273,8 +360,10 @@ export class Delegua implements DeleguaInterface {
             console.error(
                 chalk.red(`[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}]`) + ` Erro${onde}: ${mensagem}`
             );
-        else */ 
-        console.error(chalk.red(`[Linha: ${linha}]`) +  ` Erro${onde}: ${mensagem}`);
+        else */
+        console.error(
+            chalk.red(`[Linha: ${linha}]`) + ` Erro${onde}: ${mensagem}`
+        );
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
@@ -298,10 +387,14 @@ export class Delegua implements DeleguaInterface {
                 );
             else */
             console.error(
-                chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
+                chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) +
+                    ` ${erro.mensagem}`
             );
         } else {
-            console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
+            console.error(
+                chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) +
+                    ` ${erro.mensagem}`
+            );
         }
     }
 }
