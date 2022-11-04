@@ -417,8 +417,6 @@ export class Interpretador implements InterpretadorInterface {
             case tiposDeSimbolos.IGUAL_IGUAL:
                 return this.eIgual(valorEsquerdo, valorDireito);
         }
-
-        return null;
     }
 
     /**
