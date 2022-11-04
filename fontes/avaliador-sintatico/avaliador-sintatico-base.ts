@@ -236,7 +236,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    abstract blocoEscopo(): any[];
+    abstract blocoEscopo(): any[]; // Não entendi isso aqui, tenho que verificar como e a regra de negocio dessa linha para tipar esse retorno
 
     declaracaoSe(): Se {
         throw new Error('Método não implementado.');
@@ -278,7 +278,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    funcao(tipo: any): FuncaoDeclaracao {
+    funcao(tipo: string): FuncaoDeclaracao {
         const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
 
         const nomeFuncao: SimboloInterface = this.consumir(
@@ -288,13 +288,13 @@ export abstract class AvaliadorSintaticoBase
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    abstract corpoDaFuncao(tipo: any): Funcao;
+    abstract corpoDaFuncao(tipo: string): Funcao;
 
     declaracaoDeClasse(): Classe {
         throw new Error('Método não implementado.');
     }
 
-    abstract declaracao(): any;
+    abstract declaracao(): any; // Não entendi isso aqui, tenho que verificar como e a regra de negocio dessa linha para tipar esse retorno
 
     abstract analisar(
         retornoLexador: RetornoLexador,
