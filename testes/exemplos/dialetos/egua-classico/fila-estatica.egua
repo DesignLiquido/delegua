@@ -13,24 +13,24 @@ função desenfileirar(){
     escreva("Fila Vazia") ;
   } senão {
     para (i = 0; i <= indexFinal; i=i+1){
-      
+
       se(i+1 == indexFinal){
         indexFinal = indexFinal - 1;
         escreva("Valor retirado com sucesso.");
-        
+
       } senão {
         filaEstatica[i] = filaEstatica[i+1];
       }
-    }    
+    }
   }
 }
 
 função mostrar_fila () {
   se(indexInicial == indexFinal){
     escreva("Fila Vazia");
-  } senão {  
+  } senão {
     para (var i = 0; i < indexFinal; i = i + 1){
-      escreva("index "+texto(i)); 
+      escreva("index "+texto(i));
       escreva(texto(filaEstatica[i]));
     }
   }

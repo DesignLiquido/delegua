@@ -2,7 +2,7 @@ funcao fibonacci(n) {
   se (n == 0) {
     retorna(0);
   }
-    
+
   se (n == 1) {
     retorna(1);
   }

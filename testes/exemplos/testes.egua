@@ -106,7 +106,7 @@ funcao tFacaEnquanto(){
   fazer {
     a = a + 1
   } enquanto(a<5);
-  
+
   se (a == 5)
     retorna("Faça - Enquanto: OK!")
   senao {
@@ -120,8 +120,8 @@ funcao tCasoEscolha(){
   escreva("Iniciando Teste: Caso - Escolha")
   escreva("--------------------------------")
   escolha(1){
-    caso 1: 
-    retorna("Caso - Escolha: OK!")  
+    caso 1:
+    retorna("Caso - Escolha: OK!")
     caso 2:
     retorna("Caso - Escolha: ERRO!")
   }
@@ -137,7 +137,7 @@ funcao tTentePegue(){
   } pegue {
   escreva("Tente - Pegue: OK!")
   } finalmente {
-  retorna(" ")  
+  retorna(" ")
   }
 }
 
@@ -161,7 +161,7 @@ funcao tClasse(){
   nomeDoCachorro.latir()
   escreva("Classe: OK!")
   } pegue {
-  escreva("Classe: ERRO!")  
+  escreva("Classe: ERRO!")
   } finalmente {
   retorna(" ")
   }
@@ -173,8 +173,8 @@ escreva("Teste terminado com " + texto(erros) + " erro(s)!")
 escreva("--------------------------------")
 
 /* Teste com comentário de asterisco na mesma linha */
-/* 
-  Teste com comentário 
+/*
+  Teste com comentário
   de várias linhas
 */
 
@@ -205,7 +205,7 @@ var p = [2,6,7,10,20]
 
 // funcao tfun1R(){
 //   var fun1R = m.fun1R(2,3)
-  
+
 //   se (fun1R != nula)
 //         escreva (fun1R)
 //       senao {
@@ -216,7 +216,7 @@ var p = [2,6,7,10,20]
 
 // funcao tfun2R(){
 //   var fun2R = m.fun2R(2,-4,3)
-  
+
 //   se (fun2R != nula)
 //     escreva (fun2R)
 //   senao {
@@ -227,7 +227,7 @@ var p = [2,6,7,10,20]
 
 // funcao taprox(){
 //   var aprox = m.aprox(1,10)
-  
+
 //   se (aprox != nula)
 //         escreva (aprox)
 //   senao {
@@ -240,7 +240,7 @@ var p = [2,6,7,10,20]
 
 // funcao tsen(){
 //   var sen = m.sen(60)
-  
+
 //   se (sen != nula)
 //         escreva (sen)
 //       senao {
@@ -251,7 +251,7 @@ var p = [2,6,7,10,20]
 
 // funcao tcos(){
 //   var cos = m.cos(60)
-  
+
 //   se (cos != nula)
 //         escreva (cos)
 //       senao {
@@ -317,7 +317,7 @@ var p = [2,6,7,10,20]
 
 // funcao tlog(){
 //   var log = m.log(10)
-  
+
 //   se (log != nula)
 //     escreva(log)
 //   senao {
@@ -328,7 +328,7 @@ var p = [2,6,7,10,20]
 
 // funcao tpotencia(){
 //   var pot = m.potencia(2,3)
-  
+
 //   se (pot != nula)
 //     escreva(pot)
 //   senao {
@@ -383,7 +383,7 @@ var p = [2,6,7,10,20]
 
 // funcao tacel(){
 //   var acel= m.aceleracao(30,0,60,0)
-  
+
 //   se (acel != nula)
 //     escreva(acel)
 //   senao {
@@ -421,7 +421,7 @@ var p = [2,6,7,10,20]
 //   var modaDois = m.moda(j)
 //   var k = [1,2,3,4,5]
 //   var modaTres = m.moda(k)
-  
+
 //   se (modaUm[0] == 2)
 //     escreva(modaUm)
 //   senao {

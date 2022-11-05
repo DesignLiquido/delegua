@@ -40,7 +40,7 @@ escolha (2) {
     caso "1":
         escreva("correspondente à opção 1");
     caso 1:
-        escreva("correspondente à opção 2"); 
+        escreva("correspondente à opção 2");
     padrao:
         escreva("Sem opção correspondente");
 }
@@ -53,8 +53,8 @@ tente {
     escreva("pronto");
 }
 
-var funcaoParaMapear = função(a) { 
-  retorna a * 2; 
+var funcaoParaMapear = função(a) {
+  retorna a * 2;
 };
 escreva(mapear([5, 3], funcaoParaMapear));
 

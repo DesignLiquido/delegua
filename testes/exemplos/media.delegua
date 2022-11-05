@@ -6,4 +6,5 @@ para (var i = 0; i < tamanhoLista; i = i + 1) {
     valorTotal = valorTotal + lista[i]
 }
 
-escreva("Média: " + (valorTotal / tamanhoLista))
+escreva("Média: ")
+escreva(valorTotal / tamanhoLista)
