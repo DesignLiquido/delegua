@@ -53,7 +53,8 @@ export class Importador implements ImportadorInterface {
         const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
-            .split(sistemaOperacional.EOL);
+            .replace(sistemaOperacional.EOL, '\n')
+            .split('\n');
 
         for (let linha = 0; linha < conteudoDoArquivo.length; linha++) {
             conteudoDoArquivo[linha] += '\0';

@@ -764,8 +764,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             : variavelObjeto;
 
         let indice = this.avaliar(expressao.indice);
+        const valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
-            if (!Number.isInteger(indice)) {
+            if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Somente inteiros podem ser usados para indexar um vetor.',
