@@ -11,6 +11,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         // mais não ha nenhum prefixo para criar variavel
         // nessa linguagem
         // acho q terei que pegar essa verificação com base no '='
+        // Em tese considerando que seja [ FRANGO FR = 'a'; ]
+        // new Variavel receberia no simbolo o valor de FR
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             return new Variavel(-1, this.simbolos[this.atual - 1]);
         }
