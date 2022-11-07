@@ -32,7 +32,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         }
     }
     chamar(): Construto {
-        throw new Error('Method not implemented.');
+        return this.primario();
     }
     atribuir(): Construto {
         throw new Error('Method not implemented.');

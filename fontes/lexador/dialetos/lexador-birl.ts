@@ -5,16 +5,10 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { Simbolo } from '../simbolo';
 import { parse } from 'path';
 import palavrasReservadas from '../palavras-reservadas';
+import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 
-export class LexadorBirl implements LexadorInterface {
-    simbolos: SimboloInterface[];
-    codigo: string | string[];
-    inicioSimbolo: number;
-    atual: number;
-    linha: number;
-    erros: ErroLexador[];
-
-    proximoIgualA(esperado: string) {
+export class LexadorBirl extends LexadorBaseLinhaUnica {
+    proximoIgualA(esperado: string): boolean {
         if (this.eFinalDoCodigo()) {
             return false;
         }
@@ -27,109 +21,50 @@ export class LexadorBirl implements LexadorInterface {
         return true;
     }
 
-    eDigito(caractere: string): boolean {
-        return caractere >= '0' && caractere <= '9';
-    }
-    eAlfabeto(caractere: string): boolean {
-        const acentuacoes = [
-            'á',
-            'Á',
-            'ã',
-            'Ã',
-            'â',
-            'Â',
-            'à',
-            'À',
-            'é',
-            'É',
-            'ê',
-            'Ê',
-            'í',
-            'Í',
-            'ó',
-            'Ó',
-            'õ',
-            'Õ',
-            'ô',
-            'Ô',
-            'ú',
-            'Ú',
-            'ç',
-            'Ç',
-            '_',
-        ];
-        return (
-            (caractere >= 'a' && caractere <= 'z') ||
-            (caractere >= 'A' && caractere <= 'Z') ||
-            acentuacoes.includes(caractere)
-        );
-    }
-    eAlfabetoOuDigito(caractere: string): boolean {
-        return this.eDigito(caractere) || this.eAlfabeto(caractere);
-    }
-    eFinalDoCodigo(): boolean {
-        return this.atual >= this.codigo.length;
-    }
-    avancar(): string | void {
-        this.atual += 1;
-        return this.codigo[this.atual - 1];
-    }
-    adicionarSimbolo(tipo: string, literal?: any): void {
-        const texto = (this.codigo as string).substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha, -1));
-    }
-    simboloAtual(): string {
-        if (this.eFinalDoCodigo()) return '\0';
-        return (this.codigo as string).charAt(this.atual);
-    }
-    proximoSimbolo(): string {
-        if (this.atual + 1 >= this.codigo.length) return '\0';
-        return (this.codigo as string).charAt(this.atual + 1);
-    }
-    simboloAnterior(): string {
-        return (this.codigo as string).charAt(this.atual - 1);
-    }
-    analisarTexto(texto: string): void {
-        while (this.simboloAtual() !== texto && !this.eFinalDoCodigo()) {
-            if (this.simboloAtual() === '\n') this.linha = +1;
+    analisarTexto(delimitador: string): void {
+        // corre o array codigo ate encontrar o delimitador
+        // setando na o endereço dele na this.atual
+        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
 
+        // se for o final do codigo gera um erro e faz o push no array de erros
         if (this.eFinalDoCodigo()) {
             this.erros.push({
-                linha: this.linha,
+                linha: this.linha + 1,
                 caractere: this.simboloAnterior(),
-                mensagem: 'Texto não finalizado',
+                mensagem: 'Caractere não finalizado',
             } as ErroLexador);
             return;
         }
 
-        this.avancar();
-
-        const valor = (this.codigo as string).substring(this.inicioSimbolo + 1, this.atual - 1);
+        // caso o delimitador seja encontrado
+        // faz a tratativa e adiciona no array de simbolos junto com o tipo dele.
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
         this.adicionarSimbolo(tiposDeSimbolos.FR, valor);
     }
     analisarNumero(): void {
+        // trata numero
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
-
+        // trata numero flutuante
         if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
             this.avancar();
+
             while (this.eDigito(this.simboloAtual())) {
                 this.avancar();
             }
         }
-
-        const numeroCompleto = (this.codigo as string).substring(this.inicioSimbolo, this.atual);
-
-        this.adicionarSimbolo(tiposDeSimbolos.M2, parseInt(numeroCompleto));
+        // faz a tratativa e salva nos simbolos
+        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
+        this.adicionarSimbolo(tiposDeSimbolos.T, parseFloat(numeroCompleto));
     }
     identificarPalavraChave(): void {
-        throw new Error('Not Implementation');
+        throw new Error('Method not implemented.');
     }
     analisarToken(): void {
-        const caractere = this.avancar();
+        const caractere = this.simboloAtual();
 
         switch (caractere) {
             case '(':
@@ -166,7 +101,24 @@ export class LexadorBirl implements LexadorInterface {
                     } as ErroLexador);
         }
     }
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
-        throw new Error('Method not implemented.');
+    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
+        this.erros = [];
+        this.simbolos = [];
+        this.inicioSimbolo = 0;
+        this.atual = 0;
+        this.linha = 1;
+
+        // Trabalhar com apenas 1 linha
+        this.codigo = codigo.join('\n') || '';
+
+        while (!this.eFinalDoCodigo()) {
+            this.inicioSimbolo = this.atual;
+            this.analisarToken();
+        }
+
+        return {
+            simbolos: this.simbolos,
+            erros: this.erros,
+        } as RetornoLexador;
     }
 }
