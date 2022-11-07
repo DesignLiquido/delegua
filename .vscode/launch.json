@@ -7,6 +7,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Birl > Teste",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+                "--dialeto",
+                "birl",
+                "./testes/exemplos/birl/teste1.birl"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Bhaskara",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -25,10 +41,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/classes/construtor-classe.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/classes/construtor-classe.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -39,10 +52,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/condicionais/escolha.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/condicionais/escolha.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -53,10 +63,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/fibonacci.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/fibonacci.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -67,10 +74,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/media.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/media.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -95,10 +99,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/primitivas/lista/inclui.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/primitivas/lista/inclui.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -120,10 +121,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/classes/teste-classe.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/classes/teste-classe.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -134,11 +132,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "-p",
-                "./testes/exemplos/testes.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "-p", "./testes/exemplos/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -176,7 +170,7 @@
                 "--runInBand"
             ],
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
+            "internalConsoleOptions": "neverOpen"
         },
         {
             "type": "node",
@@ -373,10 +367,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/fizzbuzz.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/fizzbuzz.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -461,10 +452,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/condicionais/se.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}index.ts", "./testes/exemplos/condicionais/se.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },

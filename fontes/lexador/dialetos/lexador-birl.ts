@@ -61,7 +61,16 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         this.adicionarSimbolo(tiposDeSimbolos.T, parseFloat(numeroCompleto));
     }
     identificarPalavraChave(): void {
-        throw new Error('Method not implemented.');
+        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
+        if (codigo in palavrasReservadas) {
+            this.adicionarSimbolo(palavrasReservadas[codigo]);
+        } else {
+            this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW, codigo);
+        }
     }
     analisarToken(): void {
         const caractere = this.simboloAtual();
@@ -101,6 +110,19 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                     } as ErroLexador);
         }
     }
+
+    analisaLinha(): void {
+        while (this.simboloAtual() !== '\n') {
+            this.avancar();
+        }
+
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
+        switch (valor) {
+            case 'HORA DO SHOW':
+                this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW, valor);
+        }
+    }
+
     mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
         this.erros = [];
         this.simbolos = [];
@@ -113,7 +135,8 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
-            this.analisarToken();
+
+            // this.analisarToken(); // Meu erro ta acontecendo aqui pois a funcao analisar o token por meio da posição do atual ou seja ela pega apenas um char e eu preciso de um frase;
         }
 
         return {

@@ -18,10 +18,7 @@ import {
     Declaracao,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
-import {
-    RetornoLexador,
-    RetornoAvaliadorSintatico,
-} from '../interfaces/retornos';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/comum';
@@ -31,24 +28,18 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase
-    implements AvaliadorSintaticoInterface
-{
+export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     atual: number;
-    ciclos: number;
+    blocos: number;
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
-        if (this.verificarTipoSimboloAtual(tipo))
-            return this.avancarEDevolverAnterior();
+        if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);
     }
 
-    erro(
-        simbolo: SimboloInterface,
-        mensagemDeErro: string
-    ): ErroAvaliadorSintatico {
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
         this.erros.push(excecao);
         return excecao;
@@ -93,12 +84,7 @@ export abstract class AvaliadorSintaticoBase
     abstract chamar(): Construto;
 
     unario(): Construto {
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.SUBTRACAO
-            )
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new Unario(-1, operador, direito);
@@ -132,12 +118,7 @@ export abstract class AvaliadorSintaticoBase
     adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.ADICAO
-            )
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -180,12 +161,7 @@ export abstract class AvaliadorSintaticoBase
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.DIFERENTE,
-                tiposDeSimbolos.IGUAL
-            )
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -282,10 +258,7 @@ export abstract class AvaliadorSintaticoBase
     funcao(tipo: string): FuncaoDeclaracao {
         const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
 
-        const nomeFuncao: SimboloInterface = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR,
-            `Esperado nome ${tipo}.`
-        );
+        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
@@ -297,8 +270,5 @@ export abstract class AvaliadorSintaticoBase
 
     abstract declaracao(): Declaracao;
 
-    abstract analisar(
-        retornoLexador: RetornoLexador,
-        hashArquivo?: number
-    ): RetornoAvaliadorSintatico;
+    abstract analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;
 }

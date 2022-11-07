@@ -4,8 +4,19 @@ import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/reto
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { SimboloInterface } from '../../interfaces';
+import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
+    validarSegmentoHoraDoShow(): void {
+        this.consumir(tiposDeSimbolos.HORA_DO_SHOW, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
+        this.blocos += 1;
+    }
+
+    validarSegmentoBirlFinal(): void {
+        this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechamento do programa');
+        this.blocos -= 1;
+    }
+
     primario(): Construto {
         // Creio q isso e para fazer a criação de variaveis
         // mais não ha nenhum prefixo para criar variavel
@@ -64,6 +75,25 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Method not implemented.');
     }
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
-        throw new Error('Method not implemented.');
+        this.blocos = 0;
+
+        // 1 validação
+        if (this.blocos > 0) {
+            throw new ErroAvaliadorSintatico(
+                null,
+                'Quantidade de blocos abertos não corresponde com a quantidade de blocos fechados'
+            );
+        }
+
+        const declaracoes = [];
+
+        this.validarSegmentoHoraDoShow();
+
+        this.validarSegmentoBirlFinal();
+
+        return {
+            declaracoes: declaracoes.filter((d) => d),
+            erros: this.erros,
+        } as RetornoAvaliadorSintatico;
     }
 }
