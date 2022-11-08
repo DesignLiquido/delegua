@@ -12,10 +12,10 @@ describe('Lexador Birl', () => {
         expect(resultado).toBeTruthy();
         expect(resultado.simbolos).toHaveLength(0);
     });
-    it.only('Programa vazio', () => {
-        const resultado = delegua.lexador.mapear(['HORA DO SHOW'], -1);
+    it('Programa vazio', () => {
+        const resultado = delegua.lexador.mapear(['HORA DO SHOW \n '], -1);
 
         expect(resultado).toBeTruthy();
-        expect(resultado.simbolos).toHaveLength(2);
+        expect(resultado.simbolos).toHaveLength(1);
     });
 });

@@ -116,7 +116,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
     analisaPalavraChave(): void {
         // Problemas aqui entra em um loop infinito.
         while (this.simboloAtual() !== '\n') {
-            console.log(this.simboloAtual());
             this.avancar();
         }
 
@@ -130,7 +129,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             default:
-                console.log('default');
                 break;
         }
     }
