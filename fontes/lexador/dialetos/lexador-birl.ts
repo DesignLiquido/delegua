@@ -157,8 +157,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             this.analisarToken(); // Meu erro ta acontecendo aqui pois a funcao analisar o token por meio da posição do atual ou seja ela pega apenas um char e eu preciso de um frase;
         }
 
-        console.log({ simbolos: this.simbolos, erros: this.erros });
-
         return {
             simbolos: this.simbolos,
             erros: this.erros,
