@@ -98,20 +98,22 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             case '\0':
             case '\r':
             case '\t':
+                this.avancar();
                 break;
             default:
-                if (this.eDigito(caractere as string)) this.analisarNumero();
-                else if (this.eAlfabeto(caractere as string)) this.identificarPalavraChave();
-                else
-                    this.erros.push({
-                        linha: this.linha,
-                        caractere: caractere,
-                        mensagem: 'Caractere inesperado.',
-                    } as ErroLexador);
+                this.analisaPalavraChave();
+            // if (this.eDigito(caractere as string)) this.analisarNumero();
+            // else if (this.eAlfabeto(caractere as string)) this.identificarPalavraChave();
+            // else
+            //     this.erros.push({
+            //         linha: this.linha,
+            //         caractere: caractere,
+            //         mensagem: 'Caractere inesperado.',
+            //     } as ErroLexador);
         }
     }
 
-    analisaLinha(): void {
+    analisaPalavraChave(): void {
         // Problemas aqui entra em um loop infinito.
         while (this.simboloAtual() !== '\n') {
             console.log(this.simboloAtual());
@@ -120,12 +122,15 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
         const valor = this.codigo.substring(this.inicioSimbolo, this.atual - 1);
         switch (valor) {
-            case ' ':
-                this.avancar();
-                break;
+            // case ' ':
+            //     this.avancar();
+            //     break;
             case 'HORA DO SHOW':
                 this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW, valor);
                 this.avancar();
+                break;
+            default:
+                console.log('default');
                 break;
         }
     }
@@ -147,12 +152,9 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         this.codigo = codigo.join('\n') || '';
 
         while (!this.eFinalDoCodigo()) {
-            this.formataCodigo();
-            console.log(this.atual);
+            // this.formataCodigo();
             this.inicioSimbolo = this.atual;
-            this.analisaLinha();
-
-            // this.analisarToken(); // Meu erro ta acontecendo aqui pois a funcao analisar o token por meio da posição do atual ou seja ela pega apenas um char e eu preciso de um frase;
+            this.analisarToken(); // Meu erro ta acontecendo aqui pois a funcao analisar o token por meio da posição do atual ou seja ela pega apenas um char e eu preciso de um frase;
         }
 
         console.log({ simbolos: this.simbolos, erros: this.erros });
