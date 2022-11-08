@@ -6,7 +6,7 @@ describe('Lexador Birl', () => {
     beforeEach(() => {
         delegua = new Delegua('birl');
     });
-    it('Arquivo vazio.', () => {
+    it.only('Arquivo vazio.', () => {
         const resultado = delegua.lexador.mapear([''], -1);
 
         expect(resultado).toBeTruthy();
