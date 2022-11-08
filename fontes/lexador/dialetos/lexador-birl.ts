@@ -112,32 +112,50 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
     }
 
     analisaLinha(): void {
+        // Problemas aqui entra em um loop infinito.
         while (this.simboloAtual() !== '\n') {
+            console.log(this.simboloAtual());
             this.avancar();
         }
 
-        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
+        const valor = this.codigo.substring(this.inicioSimbolo, this.atual - 1);
         switch (valor) {
+            case ' ':
+                this.avancar();
+                break;
             case 'HORA DO SHOW':
                 this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW, valor);
+                this.avancar();
+                break;
+        }
+    }
+
+    formataCodigo(): void {
+        if (this.codigo[this.codigo.length] == '\n') {
+            this.codigo = this.codigo.slice(0, -1);
         }
     }
 
     mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
-        this.erros = [];
-        this.simbolos = [];
-        this.inicioSimbolo = 0;
-        this.atual = 0;
-        this.linha = 1;
+        // this.erros = [];
+        // this.simbolos = [];
+        // this.inicioSimbolo = 0;
+        // this.atual = 0;
+        // this.linha = 1;
 
         // Trabalhar com apenas 1 linha
         this.codigo = codigo.join('\n') || '';
 
         while (!this.eFinalDoCodigo()) {
+            this.formataCodigo();
+            console.log(this.atual);
             this.inicioSimbolo = this.atual;
+            this.analisaLinha();
 
             // this.analisarToken(); // Meu erro ta acontecendo aqui pois a funcao analisar o token por meio da posição do atual ou seja ela pega apenas um char e eu preciso de um frase;
         }
+
+        console.log({ simbolos: this.simbolos, erros: this.erros });
 
         return {
             simbolos: this.simbolos,

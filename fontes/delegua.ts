@@ -108,11 +108,19 @@ export class Delegua implements DeleguaInterface {
                 );
                 this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
                 break;
-            // case 'birl':
-            //     this.lexador = new LexadorBirl();
-            //     this.avaliadorSintatico = new AvaliadorSintaticoBirl();
-            //     this.importador = null;
-            //     this.interpretador = null;
+            case 'birl':
+                this.lexador = new LexadorBirl();
+                this.avaliadorSintatico = new AvaliadorSintaticoBirl();
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                console.log('Usando dialeto: birl');
+                break;
             default:
                 this.lexador = new Lexador(performance);
                 this.avaliadorSintatico = new AvaliadorSintatico(performance);
