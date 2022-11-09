@@ -16,15 +16,15 @@ export class Binario implements Construto {
     linha: number;
     hashArquivo?: number;
 
-    esquerda: Construto;
+    esquerda: any;
     operador: SimboloInterface;
-    direita: Construto;
+    direita: any;
 
     constructor(
         hashArquivo: number,
-        esquerda: Construto,
+        esquerda: any,
         operador: SimboloInterface,
-        direita: Construto
+        direita: any
     ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;

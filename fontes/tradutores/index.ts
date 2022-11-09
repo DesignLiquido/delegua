@@ -52,7 +52,8 @@ export class TradutorJavaScript implements TradutorInterface {
         }
 
         resultado += ') ';
-        resultado += this.traduzirDeclaracaoBloco(declaracaoSe.caminhoEntao);
+        resultado += this.dicionarioDeclaracoes[
+            declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
         return resultado;
     }

@@ -1,17 +1,16 @@
 import { Construto } from '../construtos';
 import { InterpretadorInterface } from '../interfaces';
-import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
 export class Se extends Declaracao {
     condicao: Construto;
-    caminhoEntao: Bloco;
+    caminhoEntao: Declaracao;
     caminhosSeSenao: any[];
     caminhoSenao: any;
 
     constructor(
         condicao: Construto,
-        caminhoEntao: Bloco,
+        caminhoEntao: Declaracao,
         caminhosSeSenao: any[],
         caminhoSenao: any
     ) {

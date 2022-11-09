@@ -1,8 +1,6 @@
-import { Binario, Literal, Variavel } from "../../construtos";
-import { Bloco, Se } from "../../declaracoes";
+import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 
-const dicionarioSimbolos = {
-    'IGUAL_IGUAL': '=='
-}
+const dicionarioSimbolos = {};
+dicionarioSimbolos[tiposDeSimbolos.IGUAL_IGUAL] = '==';
 
 export { dicionarioSimbolos }

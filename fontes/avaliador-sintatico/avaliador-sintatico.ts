@@ -656,7 +656,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         ) {
             return new Atribuir(
                 this.hashArquivo,
-                expressao.esquerda.simbolo,
+                (expressao.esquerda as Variavel).simbolo,
                 expressao
             );
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {

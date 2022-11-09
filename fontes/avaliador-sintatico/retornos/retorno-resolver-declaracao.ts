@@ -1,23 +1,20 @@
 import {
     Bloco,
-    Classe,
     Continua,
     Enquanto,
     Escolha,
     Escreva,
     Expressao,
     Fazer,
-    Importar,
     Para,
     Retorna,
     Se,
     Sustar,
     Tente,
-    Var,
 } from '../../declaracoes';
 
 export type RetornoResolverDeclaracao =
-    | Escreva
+    Escreva
     | Expressao
     | Se
     | Enquanto
