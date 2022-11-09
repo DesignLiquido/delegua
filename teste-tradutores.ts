@@ -1,5 +1,5 @@
 import { Binario, Literal, Variavel } from "./fontes/construtos";
-import { Bloco, Se } from "./fontes/declaracoes";
+import { Bloco, Escreva, Se } from "./fontes/declaracoes";
 import { Simbolo } from "./fontes/lexador";
 import { TradutorJavaScript } from "./fontes/tradutores";
 
@@ -11,7 +11,9 @@ const se = new Se(
         new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, "a", null, 1, -1)),
         new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, "", null, 1, -1),
         new Literal(-1, 1, 1)),
-    new Bloco(-1, 1, []),
+    new Bloco(-1, 1, [
+        new Escreva(2, -1, [new Literal(-1, 1, 10)])
+    ]),
     null,
     null
 );
