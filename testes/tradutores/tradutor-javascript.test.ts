@@ -37,6 +37,25 @@ describe("Tradutor Delégua -> JavaScript", () => {
             delegua = new Delegua('delegua');
         });
 
+        it("função -> function", () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    "funcao minhaFuncao(teste) {",
+                    "    escreva(teste)",
+                    "}"
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico =
+                delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/function/i);
+            expect(resultado).toMatch(/minhaFuncao/i);
+            expect(resultado).toMatch(/console\.log\(teste\)/i);
+        })
+
         it("se -> if, código", () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
