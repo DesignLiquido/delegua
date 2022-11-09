@@ -10,10 +10,6 @@ export class TradutorJavaScript implements TradutorInterface {
 
         for (const declaracao of declaracoes) {
             resultado += `${dicionarioDeleguaJavascript[declaracao.constructor.name](declaracao)} \n`
-            /* for (const modificador of declaracao.modificadores) {
-                resultado += this.traduzirModificador(modificador);
-            } */
-            resultado += `}\n`
         }
 
         return resultado;
