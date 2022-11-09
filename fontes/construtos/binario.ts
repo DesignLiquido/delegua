@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
 /**
@@ -16,15 +16,15 @@ export class Binario implements Construto {
     linha: number;
     hashArquivo?: number;
 
-    esquerda: any;
-    operador: any;
-    direita: any;
+    esquerda: Construto;
+    operador: SimboloInterface;
+    direita: Construto;
 
     constructor(
         hashArquivo: number,
-        esquerda: any,
-        operador: any,
-        direita: any
+        esquerda: Construto,
+        operador: SimboloInterface,
+        direita: Construto
     ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
