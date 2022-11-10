@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Vetor implements Construto {
@@ -13,7 +14,7 @@ export class Vetor implements Construto {
         this.valores = valores;
     }
 
-    aceitar(visitante: any) {
-        return visitante.visitarExpressaoVetor(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoVetor(this));
     }
 }

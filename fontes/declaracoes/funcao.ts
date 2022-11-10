@@ -11,7 +11,7 @@ export class Funcao extends Declaracao {
         this.funcao = funcao;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoFuncao(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoFuncao(this));
     }
 }

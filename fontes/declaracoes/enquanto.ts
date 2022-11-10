@@ -1,4 +1,5 @@
 import { Construto } from '../construtos';
+import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Enquanto extends Declaracao {
@@ -11,7 +12,7 @@ export class Enquanto extends Declaracao {
         this.corpo = corpo;
     }
 
-    aceitar(visitante: any): any {
-        return visitante.visitarExpressaoEnquanto(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoEnquanto(this));
     }
 }

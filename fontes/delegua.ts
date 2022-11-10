@@ -65,7 +65,7 @@ export class Delegua implements DeleguaInterface {
         this.modoDepuracao = depurador;
 
         switch (this.dialeto) {
-            case 'egua':
+            /* case 'egua':
                 if (depurador) {
                     throw new Error(
                         'Dialeto ' + this.dialeto + ' não suporta depuração.'
@@ -88,7 +88,7 @@ export class Delegua implements DeleguaInterface {
                 );
 
                 this.funcaoDeRetorno('Usando dialeto: Égua');
-                break;
+                break; */
             case 'eguap':
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
@@ -192,8 +192,8 @@ export class Delegua implements DeleguaInterface {
         const isto = this;
 
         interfaceLeitura.prompt();
-        interfaceLeitura.on('line', (linha: string) => {
-            const { resultado } = isto.executarUmaLinha(linha);
+        interfaceLeitura.on('line', async (linha: string) => {
+            const { resultado } = await isto.executarUmaLinha(linha);
             if (resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
@@ -207,7 +207,7 @@ export class Delegua implements DeleguaInterface {
      * @param linha A linha a ser avaliada.
      * @returns O resultado da execução, com os retornos e respectivos erros, se houverem.
      */
-    executarUmaLinha(linha: string): RetornoExecucaoInterface {
+    async executarUmaLinha(linha: string): Promise<RetornoExecucaoInterface> {
         const retornoLexador = this.lexador.mapear([linha], -1);
         const retornoAvaliadorSintatico =
             this.avaliadorSintatico.analisar(retornoLexador);
@@ -220,7 +220,7 @@ export class Delegua implements DeleguaInterface {
             return { resultado: [] } as RetornoExecucaoInterface;
         }
 
-        return this.executar(
+        return await this.executar(
             {
                 retornoLexador,
                 retornoAvaliadorSintatico,
@@ -285,7 +285,7 @@ export class Delegua implements DeleguaInterface {
      * Execução por arquivo.
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
      */
-    carregarArquivo(caminhoRelativoArquivo: string): void {
+    async carregarArquivo(caminhoRelativoArquivo: string): Promise<any> {
         const retornoImportador = this.importador.importar(
             caminhoRelativoArquivo
         );
@@ -306,7 +306,7 @@ export class Delegua implements DeleguaInterface {
                 retornoImportador.retornoAvaliadorSintatico.declaracoes
             );
         } else {
-            const { erros } = this.executar(retornoImportador);
+            const { erros } = await this.executar(retornoImportador);
             errosExecucao = erros;
         }
 
@@ -322,11 +322,11 @@ export class Delegua implements DeleguaInterface {
      *                       para LAIR, falso para execução por arquivo.
      * @returns Um objeto com o resultado da execução.
      */
-    executar(
+    async executar(
         retornoImportador: RetornoImportador,
         manterAmbiente = false
-    ): RetornoExecucaoInterface {
-        const retornoInterpretador = this.interpretador.interpretar(
+    ): Promise<RetornoExecucaoInterface> {
+        const retornoInterpretador = await this.interpretador.interpretar(
             retornoImportador.retornoAvaliadorSintatico.declaracoes,
             manterAmbiente
         );

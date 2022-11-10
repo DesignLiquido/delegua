@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Para extends Declaracao {
@@ -21,7 +22,7 @@ export class Para extends Declaracao {
         this.corpo = corpo;
     }
 
-    aceitar(visitante: any): any {
-        return visitante.visitarExpressaoPara(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoPara(this));
     }
 }

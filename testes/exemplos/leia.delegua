@@ -1,2 +1,2 @@
-var teste = leia('Um teste')
-escreva('Resultado: ')
+var teste = leia('Digite qualquer coisa:')
+escreva('Resultado: ' + teste)

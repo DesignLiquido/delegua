@@ -21,7 +21,7 @@ export class Funcao implements Construto {
         this.corpo = corpo;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
-        return visitante.visitarExpressaoDeleguaFuncao(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoDeleguaFuncao(this));
     }
 }

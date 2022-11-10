@@ -365,10 +365,10 @@ export class InterpretadorComDepuracao
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    interpretar(
+    async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente = false
-    ): RetornoInterpretador {
+    ): Promise<RetornoInterpretador> {
         this.erros = [];
         this.declaracoes = declaracoes;
 
@@ -380,7 +380,7 @@ export class InterpretadorComDepuracao
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
 
-        this.executarUltimoEscopo(manterAmbiente);
+        await this.executarUltimoEscopo(manterAmbiente);
 
         const retorno = {
             erros: this.erros,

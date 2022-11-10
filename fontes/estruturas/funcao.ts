@@ -34,7 +34,7 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    chamar(interpretador: InterpretadorInterface, argumentos: any): any {
+    async chamar(interpretador: InterpretadorInterface, argumentos: any): Promise<any> {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros;
 
@@ -61,7 +61,7 @@ export class DeleguaFuncao extends Chamavel {
             };
         }
 
-        const retornoBloco: any = interpretador.executarBloco(
+        const retornoBloco: any = await interpretador.executarBloco(
             this.declaracao.corpo,
             ambiente
         );

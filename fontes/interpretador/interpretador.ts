@@ -67,7 +67,6 @@ import { inferirTipoVariavel } from './inferenciador';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import { Abortable } from 'events';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -120,15 +119,16 @@ export class Interpretador implements InterpretadorInterface {
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
-     * @param expressao
+     * @param expressao Expressão do tipo Leia
      * @returns Promise com o resultado da leitura.
      */
-    visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        return new Promise<string>(resolucao => {
-            this.interfaceDeEntrada.question('Teste', (resposta) => {
+    async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        const mensagem = "Mensagem de teste";
+        return new Promise(resolucao =>
+            this.interfaceDeEntrada.question(mensagem, resposta => {
                 resolucao(resposta);
             })
-        });
+        );
     }
 
     /**
@@ -190,12 +190,12 @@ export class Interpretador implements InterpretadorInterface {
         return expressao.valor;
     }
 
-    avaliar(expressao: Construto): any {
-        return expressao.aceitar(this);
+    async avaliar(expressao: Construto): Promise<any> {
+        return await expressao.aceitar(this);
     }
 
-    visitarExpressaoAgrupamento(expressao: any) {
-        return this.avaliar(expressao.expressao);
+    async visitarExpressaoAgrupamento(expressao: any): Promise<any> {
+        return await this.avaliar(expressao.expressao);
     }
 
     eVerdadeiro(objeto: any): boolean {
@@ -214,8 +214,8 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoUnaria(expressao: any): any {
-        const direita = this.avaliar(expressao.direita);
+    async visitarExpressaoUnaria(expressao: any): Promise<any> {
+        const direita = await this.avaliar(expressao.direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
@@ -282,11 +282,11 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoBinaria(expressao: any): any {
-        const esquerda: VariavelInterface | any = this.avaliar(
+    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+        const esquerda: VariavelInterface | any = await this.avaliar(
             expressao.esquerda
         );
-        const direita: VariavelInterface | any = this.avaliar(
+        const direita: VariavelInterface | any = await this.avaliar(
             expressao.direita
         );
         const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
@@ -440,86 +440,90 @@ export class Interpretador implements InterpretadorInterface {
      * @param expressao A expressão chamada.
      * @returns O resultado da chamada.
      */
-    visitarExpressaoDeChamada(expressao: any) {
-        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(
-            expressao.entidadeChamada
-        );
-        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
-            ? variavelEntidadeChamada.valor
-            : variavelEntidadeChamada;
-
-        let argumentos = [];
-        for (let i = 0; i < expressao.argumentos.length; i++) {
-            argumentos.push(this.avaliar(expressao.argumentos[i]));
-        }
-
-        if (!(entidadeChamada instanceof Chamavel)) {
-            throw new ErroEmTempoDeExecucao(
-                expressao.parentese,
-                'Só pode chamar função ou classe.',
-                expressao.linha
+    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
+        try {
+            const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
+                expressao.entidadeChamada
             );
-        }
+            const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
+                ? variavelEntidadeChamada.valor
+                : variavelEntidadeChamada;
 
-        if (entidadeChamada instanceof MetodoPrimitiva) {
-            const argumentosResolvidos: any[] = [];
-            for (const argumento of expressao.argumentos) {
-                const valorResolvido: any = this.avaliar(argumento);
-                argumentosResolvidos.push(
-                    valorResolvido.hasOwnProperty('valor')
-                        ? valorResolvido.valor
-                        : valorResolvido
+            let argumentos = [];
+            for (let i = 0; i < expressao.argumentos.length; i++) {
+                argumentos.push(await this.avaliar(expressao.argumentos[i]));
+            }
+
+            if (!(entidadeChamada instanceof Chamavel)) {
+                throw new ErroEmTempoDeExecucao(
+                    expressao.parentese,
+                    'Só pode chamar função ou classe.',
+                    expressao.linha
                 );
             }
-            return entidadeChamada.chamar(argumentosResolvidos);
-        }
 
-        let parametros: ParametroInterface[];
-        if (entidadeChamada instanceof DeleguaFuncao) {
-            parametros = entidadeChamada.declaracao.parametros;
-        } else if (entidadeChamada instanceof DeleguaClasse) {
-            parametros = entidadeChamada.metodos.inicializacao
-                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
-                : [];
-        } else {
-            parametros = [];
-        }
-
-        // Completar os parâmetros não preenchidos com nulos.
-        if (argumentos.length < entidadeChamada.aridade()) {
-            const diferenca = entidadeChamada.aridade() - argumentos.length;
-            for (let i = 0; i < diferenca; i++) {
-                argumentos.push(null);
+            if (entidadeChamada instanceof MetodoPrimitiva) {
+                const argumentosResolvidos: any[] = [];
+                for (const argumento of expressao.argumentos) {
+                    const valorResolvido: any = await this.avaliar(argumento);
+                    argumentosResolvidos.push(
+                        valorResolvido.hasOwnProperty('valor')
+                            ? valorResolvido.valor
+                            : valorResolvido
+                    );
+                }
+                return entidadeChamada.chamar(argumentosResolvidos);
             }
-        } else {
-            if (
-                parametros &&
-                parametros.length > 0 &&
-                parametros[parametros.length - 1].tipo === 'estrela'
-            ) {
-                const novosArgumentos = argumentos.slice(
-                    0,
-                    parametros.length - 1
-                );
-                novosArgumentos.push(
-                    argumentos.slice(parametros.length - 1, argumentos.length)
-                );
-                argumentos = novosArgumentos;
-            }
-        }
 
-        if (entidadeChamada instanceof FuncaoPadrao) {
-            try {
-                return entidadeChamada.chamar(
-                    argumentos,
-                    expressao.entidadeChamada.nome
-                );
-            } catch (erro: any) {
-                this.erros.push(erro);
+            let parametros: ParametroInterface[];
+            if (entidadeChamada instanceof DeleguaFuncao) {
+                parametros = entidadeChamada.declaracao.parametros;
+            } else if (entidadeChamada instanceof DeleguaClasse) {
+                parametros = entidadeChamada.metodos.inicializacao
+                    ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+                    : [];
+            } else {
+                parametros = [];
             }
-        }
 
-        return entidadeChamada.chamar(this, argumentos);
+            // Completar os parâmetros não preenchidos com nulos.
+            if (argumentos.length < entidadeChamada.aridade()) {
+                const diferenca = entidadeChamada.aridade() - argumentos.length;
+                for (let i = 0; i < diferenca; i++) {
+                    argumentos.push(null);
+                }
+            } else {
+                if (
+                    parametros &&
+                    parametros.length > 0 &&
+                    parametros[parametros.length - 1].tipo === 'estrela'
+                ) {
+                    const novosArgumentos = argumentos.slice(
+                        0,
+                        parametros.length - 1
+                    );
+                    novosArgumentos.push(
+                        argumentos.slice(parametros.length - 1, argumentos.length)
+                    );
+                    argumentos = novosArgumentos;
+                }
+            }
+
+            if (entidadeChamada instanceof FuncaoPadrao) {
+                try {
+                    return entidadeChamada.chamar(
+                        argumentos,
+                        expressao.entidadeChamada.nome
+                    );
+                } catch (erro: any) {
+                    this.erros.push(erro);
+                }
+            }
+
+            return entidadeChamada.chamar(this, argumentos);
+        } catch (erro: any) {
+            console.log(erro)
+        }
     }
 
     /**
@@ -527,8 +531,8 @@ export class Interpretador implements InterpretadorInterface {
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
-    visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
-        const valor = this.avaliar(expressao.valor);
+    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        const valor = await this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
@@ -542,15 +546,15 @@ export class Interpretador implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: Expressao): any {
-        return this.avaliar(declaracao.expressao);
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
+        return await this.avaliar(declaracao.expressao);
     }
 
-    visitarExpressaoLogica(expressao: any): any {
-        const esquerda = this.avaliar(expressao.esquerda);
+    async visitarExpressaoLogica(expressao: any): Promise<any> {
+        const esquerda = await this.avaliar(expressao.esquerda);
 
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
-            const direita = this.avaliar(expressao.direita);
+            const direita = await this.avaliar(expressao.direita);
 
             if (Array.isArray(direita) || typeof direita === 'string') {
                 return direita.includes(esquerda);
@@ -575,7 +579,7 @@ export class Interpretador implements InterpretadorInterface {
             if (!this.eVerdadeiro(esquerda)) return esquerda;
         }
 
-        return this.avaliar(expressao.direita);
+        return await this.avaliar(expressao.direita);
     }
 
     /**
@@ -584,69 +588,69 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração Se.
      * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
      */
-    visitarExpressaoSe(declaracao: Se): any {
-        if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-            return this.executar(declaracao.caminhoEntao);
+    async visitarExpressaoSe(declaracao: Se): Promise<any> {
+        if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            return await this.executar(declaracao.caminhoEntao);
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
-            if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
-                return this.executar(atual.caminho);
+            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
+                return await this.executar(atual.caminho);
             }
         }
 
         if (declaracao.caminhoSenao !== null) {
-            return this.executar(declaracao.caminhoSenao);
+            return await this.executar(declaracao.caminhoSenao);
         }
 
         return null;
     }
 
-    visitarExpressaoPara(declaracao: Para): any {
+    async visitarExpressaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-            this.avaliar(declaracao.inicializador);
+            await this.avaliar(declaracao.inicializador);
         }
 
         let retornoExecucao: any;
         while (!(retornoExecucao instanceof Quebra)) {
             if (
                 declaracao.condicao !== null &&
-                !this.eVerdadeiro(this.avaliar(declaracao.condicao))
+                !this.eVerdadeiro(await this.avaliar(declaracao.condicao))
             ) {
                 break;
             }
 
             try {
-                retornoExecucao = this.executar(declaracao.corpo);
+                retornoExecucao = await this.executar(declaracao.corpo);
             } catch (erro: any) {
                 throw erro;
             }
 
             if (declaracao.incrementar !== null) {
-                this.avaliar(declaracao.incrementar);
+                await this.avaliar(declaracao.incrementar);
             }
         }
         return null;
     }
 
-    visitarExpressaoFazer(declaracao: Fazer): any {
+    async visitarExpressaoFazer(declaracao: Fazer): Promise<any> {
         let retornoExecucao: any;
         do {
             try {
-                retornoExecucao = this.executar(declaracao.caminhoFazer);
+                retornoExecucao = await this.executar(declaracao.caminhoFazer);
             } catch (erro: any) {
                 throw erro;
             }
         } while (
             !(retornoExecucao instanceof Quebra) &&
-            this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto))
+            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
         );
     }
 
-    visitarExpressaoEscolha(declaracao: Escolha): any {
-        const condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
+    async visitarExpressaoEscolha(declaracao: Escolha): Promise<any> {
+        const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
 
@@ -657,7 +661,7 @@ export class Interpretador implements InterpretadorInterface {
 
                 for (let j = 0; j < caminho.condicoes.length; j++) {
                     if (
-                        this.avaliar(caminho.condicoes[j]) === condicaoEscolha
+                        await this.avaliar(caminho.condicoes[j]) === condicaoEscolha
                     ) {
                         encontrado = true;
 
@@ -702,14 +706,14 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoEnquanto(declaracao: Enquanto): any {
+    async visitarExpressaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: any;
         while (
             !(retornoExecucao instanceof Quebra) &&
-            this.eVerdadeiro(this.avaliar(declaracao.condicao))
+            this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
             try {
-                retornoExecucao = this.executar(declaracao.corpo);
+                retornoExecucao = await this.executar(declaracao.corpo);
             } catch (erro) {
                 throw erro;
             }
@@ -718,8 +722,8 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoImportar(declaracao: Importar): any {
-        const caminhoRelativo = this.avaliar(declaracao.caminho);
+    async visitarExpressaoImportar(declaracao: Importar): Promise<any> {
+        const caminhoRelativo = await this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
@@ -766,11 +770,11 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    visitarExpressaoEscreva(declaracao: Escreva): any {
+    async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
         try {
             let valor: any;
             for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = this.avaliar(argumento);
+                const resultadoAvaliacao = await this.avaliar(argumento);
                 valor = resultadoAvaliacao?.hasOwnProperty('valor')
                     ? resultadoAvaliacao.valor
                     : resultadoAvaliacao;
@@ -794,14 +798,14 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): any {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: ambiente || new EspacoVariaveis(),
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        const retornoUltimoEscopo: any = this.executarUltimoEscopo();
+        const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
         if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
             throw retornoUltimoEscopo;
         }
@@ -817,30 +821,18 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração Var
      * @returns Sempre retorna nulo.
      */
-    visitarExpressaoVar(declaracao: Var): any {
+    async visitarExpressaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
 
-        if (valorOuOutraVariavel instanceof Promise) {
-            valorOuOutraVariavel.then(resposta => {
-                this.pilhaEscoposExecucao.definirVariavel(
-                    declaracao.simbolo.lexema,
-                    resposta.hasOwnProperty('valor')
-                        ? resposta.valor
-                        : resposta
-                );
-            })
-        } else {
-            this.pilhaEscoposExecucao.definirVariavel(
-                declaracao.simbolo.lexema,
-                valorOuOutraVariavel.hasOwnProperty('valor')
-                    ? valorOuOutraVariavel.valor
-                    : valorOuOutraVariavel
-            );
-        }
-
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            valorOuOutraVariavel.hasOwnProperty('valor')
+                ? valorOuOutraVariavel.valor
+                : valorOuOutraVariavel
+        );
 
         return null;
     }
@@ -853,9 +845,9 @@ export class Interpretador implements InterpretadorInterface {
         return new SustarQuebra();
     }
 
-    visitarExpressaoRetornar(declaracao: Retorna): RetornoQuebra {
+    async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         let valor = null;
-        if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
+        if (declaracao.valor != null) valor = await this.avaliar(declaracao.valor);
 
         return new RetornoQuebra(valor);
     }
@@ -864,10 +856,16 @@ export class Interpretador implements InterpretadorInterface {
         return new DeleguaFuncao(null, expressao);
     }
 
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
-        const objeto = this.avaliar(expressao.objeto);
-        let indice = this.avaliar(expressao.indice);
-        const valor = this.avaliar(expressao.valor);
+    async visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+        const promises = await Promise.all([
+            this.avaliar(expressao.objeto),
+            this.avaliar(expressao.indice),
+            this.avaliar(expressao.valor)
+        ]);
+
+        const objeto = promises[0];
+        let indice = promises[1];
+        const valor = promises[2];
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -898,17 +896,15 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(
-        expressao: AcessoIndiceVariavel | any
-    ) {
-        const variavelObjeto: VariavelInterface = this.avaliar(
+    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
+        const variavelObjeto: VariavelInterface = await this.avaliar(
             expressao.entidadeChamada
         );
         const objeto = variavelObjeto.hasOwnProperty('valor')
             ? variavelObjeto.valor
             : variavelObjeto;
 
-        const indice = this.avaliar(expressao.indice);
+        const indice = await this.avaliar(expressao.indice);
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
@@ -973,8 +969,8 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDefinir(expressao: any) {
-        const objeto = this.avaliar(expressao.objeto);
+    async visitarExpressaoDefinir(expressao: any): Promise<any> {
+        const objeto = await this.avaliar(expressao.objeto);
 
         if (
             !(objeto instanceof ObjetoDeleguaClasse) &&
@@ -987,7 +983,7 @@ export class Interpretador implements InterpretadorInterface {
             );
         }
 
-        const valor = this.avaliar(expressao.valor);
+        const valor = await this.avaliar(expressao.valor);
         if (objeto instanceof ObjetoDeleguaClasse) {
             objeto.set(expressao.nome, valor);
             return valor;
@@ -1012,10 +1008,10 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração de classe.
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
-    visitarExpressaoClasse(declaracao: Classe): any {
+    async visitarExpressaoClasse(declaracao: Classe): Promise<any> {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
-            const variavelSuperClasse: VariavelInterface = this.avaliar(
+            const variavelSuperClasse: VariavelInterface = await this.avaliar(
                 declaracao.superClasse
             );
             superClasse = variavelSuperClasse.valor;
@@ -1074,8 +1070,8 @@ export class Interpretador implements InterpretadorInterface {
      * @param expressao A expressão de acesso.
      * @returns O resultado da execução.
      */
-    visitarExpressaoAcessoMetodo(expressao: any) {
-        const variavelObjeto: VariavelInterface = this.avaliar(
+    async visitarExpressaoAcessoMetodo(expressao: any): Promise<any> {
+        const variavelObjeto: VariavelInterface = await this.avaliar(
             expressao.objeto
         );
         const objeto = variavelObjeto?.valor;
@@ -1120,20 +1116,23 @@ export class Interpretador implements InterpretadorInterface {
         return this.procurarVariavel(expressao.palavraChave);
     }
 
-    visitarExpressaoDicionario(expressao: any) {
+    async visitarExpressaoDicionario(expressao: any): Promise<any> {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            dicionario[this.avaliar(expressao.chaves[i])] = this.avaliar(
-                expressao.valores[i]
-            );
+            const promises = await Promise.all([
+                this.avaliar(expressao.chaves[i]),
+                this.avaliar(expressao.valores[i])
+            ]);
+
+            dicionario[promises[0]] = promises[1];
         }
         return dicionario;
     }
 
-    visitarExpressaoVetor(expressao: any) {
+    async visitarExpressaoVetor(expressao: any): Promise<any> {
         const valores = [];
         for (let i = 0; i < expressao.valores.length; i++) {
-            valores.push(this.avaliar(expressao.valores[i]));
+            valores.push(await this.avaliar(expressao.valores[i]));
         }
         return valores;
     }
@@ -1189,8 +1188,8 @@ export class Interpretador implements InterpretadorInterface {
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
      */
-    executar(declaracao: Declaracao, mostrarResultado = false): any {
-        const resultado: any = declaracao.aceitar(this);
+    async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+        const resultado: any = await declaracao.aceitar(this);
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
@@ -1210,7 +1209,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    executarUltimoEscopo(manterAmbiente = false): any {
+    async executarUltimoEscopo(manterAmbiente = false): Promise<any> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
@@ -1220,7 +1219,7 @@ export class Interpretador implements InterpretadorInterface {
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = this.executar(
+                retornoExecucao = await this.executar(
                     ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
                 );
             }
@@ -1248,10 +1247,10 @@ export class Interpretador implements InterpretadorInterface {
      *                       pelo modo REPL (LEIA).
      * @returns Um objeto com o resultado da interpretação.
      */
-    interpretar(
+    async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente = false
-    ): RetornoInterpretador {
+    ): Promise<RetornoInterpretador> {
         this.erros = [];
 
         const escopoExecucao: EscopoExecucao = {
@@ -1263,7 +1262,7 @@ export class Interpretador implements InterpretadorInterface {
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {
-            const retornoOuErro = this.executarUltimoEscopo(manterAmbiente);
+            const retornoOuErro = await this.executarUltimoEscopo(manterAmbiente);
             if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
                 this.erros.push(retornoOuErro);
             }

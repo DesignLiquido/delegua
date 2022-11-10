@@ -45,7 +45,7 @@ export interface InterpretadorInterface {
     procurarVariavel(nome: SimboloInterface, expressao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     visitarDeclaracaoDeExpressao(declaracao: Expressao): any;
-    visitarExpressaoLeia(expressao: Leia): Promise<any>;
+    visitarExpressaoLeia(expressao: Leia): any;
     visitarExpressaoLogica(expressao: any): any;
     visitarExpressaoSe(declaracao: Se): any;
     visitarExpressaoPara(declaracao: Para): any;
@@ -55,12 +55,12 @@ export interface InterpretadorInterface {
     visitarExpressaoEnquanto(declaracao: Enquanto): any;
     visitarExpressaoImportar(declaracao: Importar): any;
     visitarExpressaoEscreva(declaracao: Escreva): any;
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): void;
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any>;
     visitarExpressaoBloco(declaracao: Bloco): null;
-    visitarExpressaoVar(declaracao: Var): null;
+    visitarExpressaoVar(declaracao: Var): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
-    visitarExpressaoRetornar(declaracao: Retorna): RetornoQuebra;
+    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
     visitarExpressaoDeleguaFuncao(expressao: any): any;
     visitarExpressaoAtribuicaoSobrescrita(expressao: any): void;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
@@ -77,6 +77,6 @@ export interface InterpretadorInterface {
     interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): RetornoInterpretador;
+    ): Promise<RetornoInterpretador>;
     finalizacao(): void;
 }

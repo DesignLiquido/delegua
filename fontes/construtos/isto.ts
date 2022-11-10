@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Isto implements Construto {
@@ -13,7 +14,7 @@ export class Isto implements Construto {
         this.palavraChave = palavraChave;
     }
 
-    aceitar(visitante: any) {
-        return visitante.visitarExpressaoIsto(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoIsto(this));
     }
 }

@@ -23,7 +23,7 @@ export class Chamada implements Construto {
         this.argumentos = argumentos;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
-        return visitante.visitarExpressaoDeChamada(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoDeChamada(this));
     }
 }

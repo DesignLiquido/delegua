@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Unario implements Construto {
@@ -15,7 +16,7 @@ export class Unario implements Construto {
         this.direita = direita;
     }
 
-    aceitar(visitante: any) {
-        return visitante.visitarExpressaoUnaria(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoUnaria(this));
     }
 }
