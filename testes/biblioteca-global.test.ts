@@ -39,17 +39,17 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        it('Falha - Não inteiro', () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro('Oi'))"], -1);
+        it('Sucesso - Nulo', () => {
+            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(nulo))"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        it.skip('Falha - Nulo', () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(nulo))"], -1);
+        it('Falha - Não inteiro', () => {
+            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro('Oi'))"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const retornoInterpretador = delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
