@@ -94,7 +94,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             case ';':
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 break;
-            case ' ':
+            // case ' ':
             case '\0':
             case '\r':
             case '\t':
@@ -125,17 +125,44 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             //     this.avancar();
             //     break;
             case 'HORA DO SHOW':
-                this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW, valor);
+                this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW);
+                this.avancar();
+                break;
+            case 'BIRL':
+                this.adicionarSimbolo(tiposDeSimbolos.BIRL);
                 this.avancar();
                 break;
             default:
+                this.avancar();
                 break;
         }
     }
 
+    InjetaUmItemDentroDaLista(item: string, posicao: number): string[] {
+        let codigoComeco: string[];
+        let codigoPosPosição: string[];
+
+        for (let i in this.codigo as any) {
+            if (Number(i) === posicao) {
+                let iterador: number = Number(i);
+                while (iterador <= this.codigo.length) {
+                    codigoPosPosição.push(this.codigo[iterador]);
+                    iterador += 1;
+                }
+                break;
+            }
+            codigoComeco.push(this.codigo[i]);
+        }
+
+        return [...codigoComeco, ...codigoPosPosição];
+    }
+
     formataCodigo(): void {
-        if (this.codigo[this.codigo.length] == '\n') {
-            this.codigo = this.codigo.slice(0, -1);
+        let codigo: string;
+        for (const i in this.codigo as any) {
+            if (this.codigo[i] == 'BIRL') {
+                this.codigo;
+            }
         }
     }
 
@@ -148,6 +175,10 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
         // Trabalhar com apenas 1 linha
         this.codigo = codigo.join('\n') || '';
+
+        this.codigo += '\n';
+
+        // this.formataCodigo();
 
         while (!this.eFinalDoCodigo()) {
             // this.formataCodigo();

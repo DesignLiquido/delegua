@@ -8,7 +8,7 @@ describe('Avaliador sintático Birl', () => {
             delegua = new Delegua('birl');
         });
 
-        it('Sucesso - Hello, World! Porra!', () => {
+        it.skip('Sucesso - Hello, World! Porra!', () => {
             const retornoLexador = delegua.lexador.mapear(
                 ['HORA DO SHOW', 'CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', 'BORA CUMPADE 0;', 'BIRL'],
                 -1

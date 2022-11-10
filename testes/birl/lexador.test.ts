@@ -6,16 +6,16 @@ describe('Lexador Birl', () => {
     beforeEach(() => {
         delegua = new Delegua('birl');
     });
-    it.only('Arquivo vazio.', () => {
+    it('Arquivo vazio.', () => {
         const resultado = delegua.lexador.mapear([''], -1);
 
         expect(resultado).toBeTruthy();
         expect(resultado.simbolos).toHaveLength(0);
     });
     it('Programa vazio', () => {
-        const resultado = delegua.lexador.mapear(['HORA DO SHOW \n '], -1);
+        const resultado = delegua.lexador.mapear(['HORA DO SHOW \n', 'BIRL \n'], -1);
 
         expect(resultado).toBeTruthy();
-        expect(resultado.simbolos).toHaveLength(1);
+        expect(resultado.simbolos).toHaveLength(2);
     });
 });
