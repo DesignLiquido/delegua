@@ -1,4 +1,5 @@
 import * as caminho from 'path';
+import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -66,6 +67,7 @@ import { inferirTipoVariavel } from './inferenciador';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import { Abortable } from 'events';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -77,6 +79,7 @@ export class Interpretador implements InterpretadorInterface {
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
+    interfaceDeEntrada: readline.Interface = null;
     resultadoInterpretador: Array<string> = [];
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
@@ -86,13 +89,19 @@ export class Interpretador implements InterpretadorInterface {
         importador: ImportadorInterface,
         diretorioBase: string,
         performance = false,
-        funcaoDeRetorno: Function
+        funcaoDeRetorno: Function = null
     ) {
         this.importador = importador;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
+
+        this.interfaceDeEntrada = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+            prompt: '\n> ',
+        });
 
         this.erros = [];
         this.declaracoes = [];
@@ -112,9 +121,14 @@ export class Interpretador implements InterpretadorInterface {
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
      * @param expressao
+     * @returns Promise com o resultado da leitura.
      */
-    visitarExpressaoLeia(expressao: Leia) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        return new Promise<string>(resolucao => {
+            this.interfaceDeEntrada.question('Teste', (resposta) => {
+                resolucao(resposta);
+            })
+        });
     }
 
     /**
@@ -809,12 +823,25 @@ export class Interpretador implements InterpretadorInterface {
             valorOuOutraVariavel = this.avaliar(declaracao.inicializador);
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(
-            declaracao.simbolo.lexema,
-            valorOuOutraVariavel.hasOwnProperty('valor')
-                ? valorOuOutraVariavel.valor
-                : valorOuOutraVariavel
-        );
+        if (valorOuOutraVariavel instanceof Promise) {
+            valorOuOutraVariavel.then(resposta => {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    declaracao.simbolo.lexema,
+                    resposta.hasOwnProperty('valor')
+                        ? resposta.valor
+                        : resposta
+                );
+            })
+        } else {
+            this.pilhaEscoposExecucao.definirVariavel(
+                declaracao.simbolo.lexema,
+                valorOuOutraVariavel.hasOwnProperty('valor')
+                    ? valorOuOutraVariavel.valor
+                    : valorOuOutraVariavel
+            );
+        }
+
+
         return null;
     }
 
@@ -1236,7 +1263,10 @@ export class Interpretador implements InterpretadorInterface {
 
         const inicioInterpretacao: [number, number] = hrtime();
         try {
-            this.executarUltimoEscopo(manterAmbiente);
+            const retornoOuErro = this.executarUltimoEscopo(manterAmbiente);
+            if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
+                this.erros.push(retornoOuErro);
+            }
         } finally {
             if (this.performance) {
                 const deltaInterpretacao: [number, number] =
@@ -1256,5 +1286,13 @@ export class Interpretador implements InterpretadorInterface {
             this.resultadoInterpretador = [];
             return retorno;
         }
+    }
+
+    /**
+     * Procedimento de finalização de execução, normalmente solicitado pelo
+     * núcleo da linguagem.
+     */
+    finalizacao(): void {
+        this.interfaceDeEntrada.close();
     }
 }

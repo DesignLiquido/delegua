@@ -15,6 +15,6 @@ export class Leia extends Declaracao {
     }
 
     aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoLeia(this);
+        return visitante.visitarExpressaoLeia(this).then((resposta: string) => resposta);
     }
 }

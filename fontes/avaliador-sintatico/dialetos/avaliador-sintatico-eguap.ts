@@ -38,6 +38,7 @@ import {
     Expressao,
     Bloco,
     Sustar,
+    Leia,
 } from '../../declaracoes';
 
 import {
@@ -677,6 +678,10 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     declaracaoExpressao() {
         const expressao = this.expressao();
         return new Expressao(expressao);
+    }
+
+    declaracaoLeia(): Leia {
+        return new Leia(-1, -1, []);
     }
 
     blocoEscopo() {

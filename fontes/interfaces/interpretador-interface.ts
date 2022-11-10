@@ -45,7 +45,7 @@ export interface InterpretadorInterface {
     procurarVariavel(nome: SimboloInterface, expressao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     visitarDeclaracaoDeExpressao(declaracao: Expressao): any;
-    visitarExpressaoLeia(expressao: Leia): any;
+    visitarExpressaoLeia(expressao: Leia): Promise<any>;
     visitarExpressaoLogica(expressao: any): any;
     visitarExpressaoSe(declaracao: Se): any;
     visitarExpressaoPara(declaracao: Para): any;
@@ -78,4 +78,5 @@ export interface InterpretadorInterface {
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
     ): RetornoInterpretador;
+    finalizacao(): void;
 }

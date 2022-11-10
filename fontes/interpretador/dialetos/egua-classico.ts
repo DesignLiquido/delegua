@@ -94,7 +94,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
-    visitarExpressaoLeia(expressao: Leia) {
+    visitarExpressaoLeia(expressao: Leia): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -1067,5 +1067,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return {
             erros: this.erros,
         } as RetornoInterpretador;
+    }
+
+    finalizacao(): void {
+        this.funcaoDeRetorno();
     }
 }

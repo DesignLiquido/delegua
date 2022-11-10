@@ -87,7 +87,7 @@ export class Delegua implements DeleguaInterface {
                     process.cwd()
                 );
 
-                console.log('Usando dialeto: Égua');
+                this.funcaoDeRetorno('Usando dialeto: Égua');
                 break;
             case 'eguap':
                 this.lexador = new LexadorEguaP();
@@ -112,7 +112,7 @@ export class Delegua implements DeleguaInterface {
                           funcaoDeRetorno
                       );
 
-                console.log('Usando dialeto: ÉguaP');
+                this.funcaoDeRetorno('Usando dialeto: ÉguaP');
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
@@ -154,7 +154,7 @@ export class Delegua implements DeleguaInterface {
                           funcaoDeRetorno
                       );
 
-                console.log('Usando dialeto: padrão');
+                this.funcaoDeRetorno('Usando dialeto: padrão');
                 break;
         }
 
@@ -310,6 +310,7 @@ export class Delegua implements DeleguaInterface {
             errosExecucao = erros;
         }
 
+        this.interpretador.finalizacao();
         if (errosExecucao.length > 0) process.exit(70); // Código com exceções não tratadas
     }
 
