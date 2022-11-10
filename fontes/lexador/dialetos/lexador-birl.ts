@@ -113,6 +113,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
     }
 
+    pegaParamentroDaFuncao(): string {
+        // verificar se tem o ( nos 2 proximos this.atual
+        // se n tiver estourar um erro
+        // se tiver
+        return '';
+    }
+
     analisaPalavraChave(): void {
         // Problemas aqui entra em um loop infinito.
         while (this.simboloAtual() !== '\n') {
@@ -130,6 +137,11 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 break;
             case 'BIRL':
                 this.adicionarSimbolo(tiposDeSimbolos.BIRL);
+                this.avancar();
+                break;
+            case 'CE QUER VER ESSA PORRA?':
+                this.pegaParamentroDaFuncao();
+                this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA);
                 this.avancar();
                 break;
             default:
@@ -157,14 +169,14 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         return [...codigoComeco, ...codigoPosPosição];
     }
 
-    formataCodigo(): void {
-        let codigo: string;
-        for (const i in this.codigo as any) {
-            if (this.codigo[i] == 'BIRL') {
-                this.codigo;
-            }
-        }
-    }
+    // formataCodigo(): void {
+    //     let codigo: string;
+    //     for (const i in this.codigo as any) {
+    //         if (this.codigo[i] == 'BIRL') {
+    //             this.codigo;
+    //         }
+    //     }
+    // }
 
     mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
         // this.erros = [];
