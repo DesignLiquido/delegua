@@ -2,11 +2,11 @@ função bhaskara(a,b,c){
   //A variável "d" vai simbolizar o Delta.
   //"a", "b", e "c" irão representar os coeficientes da equação.
   var d = b**2;
-        var f = 4*a*c; 
+        var f = 4*a*c;
   d = d-f;
   escreva("O valor de Delta é: " + texto(d));
   d = d**0.5;
-  
+
   //Encontrando os valores de X1 e X2.
   var x1 = -b+d;
   x1 = x1/2*a;

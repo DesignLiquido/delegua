@@ -1,4 +1,4 @@
-var funcaoParaMapear = função(a) { 
-  retorna a * 2; 
+var funcaoParaMapear = função(a) {
+  retorna a * 2;
 };
 escreva(mapear([5, 3], funcaoParaMapear));

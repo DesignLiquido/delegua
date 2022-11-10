@@ -90,8 +90,8 @@ função tCasoEscolha(){
   escreva("Iniciando Teste: Caso - Escolha");
   escreva("--------------------");
   escolha(1){
-    caso 1: 
-    retorna("Caso - Escolha: OK!");  
+    caso 1:
+    retorna("Caso - Escolha: OK!");
     caso 2:
     retorna("Caso - Escolha: ERRO!");
   }
@@ -107,7 +107,7 @@ função tTentePegue(){
   } pegue {
   escreva("Tente - Pegue: OK!");
   } finalmente {
-  retorna(" ");  
+  retorna(" ");
   }
 }
 
@@ -131,7 +131,7 @@ função tClasse(){
   nomeDoCachorro.latir();
   escreva("Classe: OK!");
   } pegue {
-  escreva("Classe: ERRO!");  
+  escreva("Classe: ERRO!");
   } finalmente {
   retorna(" ");
   }
@@ -171,7 +171,7 @@ var nula = 0;
 
 // função tfun1R(){
 //   var fun1R = m.fun1R(2,3);
-  
+
 //   se (fun1R != nula)
 //         escreva (fun1R);
 //       senão {
@@ -182,7 +182,7 @@ var nula = 0;
 
 // função tfun2R(){
 //   var fun2R = m.fun2R(2,-4,3);
-  
+
 //   se (fun2R != nula)
 //     escreva (fun2R);
 //   senão {
@@ -193,7 +193,7 @@ var nula = 0;
 
 // função taprox(){
 //   var aprox = m.aprox(1,10);
-  
+
 //   se (aprox != nula)
 //         escreva (aprox);
 //   senão {
@@ -206,7 +206,7 @@ var nula = 0;
 
 // função tsen(){
 //   var sen = m.sen(60);
-  
+
 //   se (sen != nula)
 //         escreva (sen);
 //       senão {
@@ -217,7 +217,7 @@ var nula = 0;
 
 // função tcos(){
 //   var cos = m.cos(60);
-  
+
 //   se (cos != nula)
 //         escreva (cos);
 //       senão {
@@ -283,7 +283,7 @@ var nula = 0;
 
 // função tlog(){
 //   var log = m.log(10);
-  
+
 //   se (log != nula)
 //     escreva(log);
 //   senão {
@@ -294,7 +294,7 @@ var nula = 0;
 
 // função tpotencia(){
 //   var pot = m.potencia(2,3);
-  
+
 //   se (pot != nula)
 //     escreva(pot);
 //   senão {
@@ -349,7 +349,7 @@ var nula = 0;
 
 // função tacel(){
 //   var acel= m.aceleracao(30,0,60,0);
-  
+
 //   se (acel != nula)
 //     escreva(acel);
 //   senão {
@@ -387,7 +387,7 @@ var nula = 0;
 //   var modaDois = m.moda(j);
 //   var k = [1,2,3,4,5];
 //   var modaTres = m.moda(k);
-  
+
 //   se (modaUm[0] == 2)
 //     escreva(modaUm);
 //   senão {

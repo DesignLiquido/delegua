@@ -52,6 +52,7 @@ export default function (
     pilhaEscoposExecucao.definirVariavel(
         'inteiro',
         new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
+            if (numero === null || numero === undefined) return 0;
             const valor = numero.hasOwnProperty('valor')
                 ? numero.valor
                 : numero;

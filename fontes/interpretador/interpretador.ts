@@ -881,9 +881,10 @@ export class Interpretador implements InterpretadorInterface {
             ? variavelObjeto.valor
             : variavelObjeto;
 
-        let indice = this.avaliar(expressao.indice);
+        const indice = this.avaliar(expressao.indice);
+        let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
-            if (!Number.isInteger(indice)) {
+            if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Somente inteiros podem ser usados para indexar um vetor.',
@@ -891,20 +892,20 @@ export class Interpretador implements InterpretadorInterface {
                 );
             }
 
-            if (indice < 0 && objeto.length !== 0) {
-                while (indice < 0) {
-                    indice += objeto.length;
+            if (valorIndice < 0 && objeto.length !== 0) {
+                while (valorIndice < 0) {
+                    valorIndice += objeto.length;
                 }
             }
 
-            if (indice >= objeto.length) {
+            if (valorIndice >= objeto.length) {
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Índice do vetor fora do intervalo.',
                     expressao.linha
                 );
             }
-            return objeto[indice];
+            return objeto[valorIndice];
         } else if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
@@ -912,9 +913,9 @@ export class Interpretador implements InterpretadorInterface {
             objeto instanceof DeleguaClasse ||
             objeto instanceof DeleguaModulo
         ) {
-            return objeto[indice] || null;
+            return objeto[valorIndice] || null;
         } else if (typeof objeto === 'string') {
-            if (!Number.isInteger(indice)) {
+            if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Somente inteiros podem ser usados para indexar um vetor.',
@@ -922,20 +923,20 @@ export class Interpretador implements InterpretadorInterface {
                 );
             }
 
-            if (indice < 0 && objeto.length !== 0) {
-                while (indice < 0) {
-                    indice += objeto.length;
+            if (valorIndice < 0 && objeto.length !== 0) {
+                while (valorIndice < 0) {
+                    valorIndice += objeto.length;
                 }
             }
 
-            if (indice >= objeto.length) {
+            if (valorIndice >= objeto.length) {
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Índice fora do tamanho.',
                     expressao.linha
                 );
             }
-            return objeto.charAt(indice);
+            return objeto.charAt(valorIndice);
         } else {
             throw new ErroEmTempoDeExecucao(
                 expressao.entidadeChamada.nome,

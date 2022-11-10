@@ -16,12 +16,12 @@ enquanto(erro!=0){
   } senão {
     resultadoEsperado = 0;
   }
-  
+
   var somatoria = pesoInicial1 * entrada1;
   somatoria = pesoInicial2 * entrada2 + somatoria;
-  
+
   var resultado;
-  
+
   se(somatoria < 1){
     resultado = 0;
   } senão{
@@ -29,9 +29,9 @@ enquanto(erro!=0){
       resultado = 1;
     }
   }
-  
+
   escreva("resultado: " + texto(resultado));
-  
+
   erro = resultadoEsperado - resultado;
 
   escreva("p1: " + texto(pesoInicial1));

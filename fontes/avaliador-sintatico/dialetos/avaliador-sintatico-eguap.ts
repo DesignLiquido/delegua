@@ -49,11 +49,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import {
-    RetornaPrimario,
-    RetornoDeclaracao,
-    RetornoResolverDeclaracao,
-} from '../../tipos/avaliador-sintatico-classico-returno-tipo';
+import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -160,7 +156,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return false;
     }
 
-    primario(): RetornaPrimario {
+    primario(): RetornoPrimario {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
@@ -330,8 +326,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         );
     }
 
-    chamar(): Construto | RetornaPrimario {
-        let expressao: RetornaPrimario | Construto = this.primario();
+    chamar(): Construto | RetornoPrimario {
+        let expressao: RetornoPrimario | Construto = this.primario();
 
         while (true) {
             if (

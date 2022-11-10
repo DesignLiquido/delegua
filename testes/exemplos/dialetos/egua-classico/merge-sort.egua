@@ -8,7 +8,7 @@ escreva ("Vetor: Posição[2]:"+texto(vetor1[2]));
 escreva ("Vetor: Posição[3]:"+texto(vetor1[3]));
 para (i=0; i<3; i=i+1){
   se (vetor1[i]>vetor1[i+1]){
-    
+
     escreva ("Vetor "+texto(i));
     aux = vetor1[i];
     vetor1[i] = vetor1[i+1];
@@ -44,7 +44,7 @@ se (vetor2[0]<vetor3[0] e vetor2[1]<vetor3[1]){
   vetor4[3]=vetor3[1];
   }
 }
-    
+
 para (a=0; a<4; a=a+1){
   escreva ("vetor4("+texto(vetor4[a])+")");
 }
