@@ -59,14 +59,14 @@ export default function (
                 ? numero.valor
                 : numero;
             if (isNaN(valor)) {
-                Promise.reject(new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'
                 ));
             }
 
             if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
-                Promise.reject(new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.'
                 ));
@@ -318,7 +318,7 @@ export default function (
                 ? (vetor as VariavelInterface).valor
                 : vetor;
             if (!Array.isArray(objeto)) {
-                Promise.reject(new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor inválido. Objeto inserido não é um vetor.'
                 ));
