@@ -117,20 +117,36 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         // verificar se tem o ( nos 2 proximos this.atual
         // se n tiver estourar um erro
         // se tiver
-        return '';
+
+        let cache: number;
+
+        for (let i = 1; i <= 2; i++) {
+            if (this.codigo[this.atual + i] == '(') {
+                if (this.codigo[this.atual + i + 1] === "'" || this.codigo[this.atual + i + 1] === '"') {
+                    cache = this.codigo[this.atual + i + 1].length;
+                    while (this.codigo[this.atual + i + 1]) {
+                        // loop infinito
+                        this.avancar();
+                        if (this.codigo[this.atual + i + 1] === "'" || this.codigo[this.atual + i + 1] === '"') {
+                            const value = this.codigo.substring(cache, this.atual + i + 1);
+                            return value;
+                        }
+                    }
+                }
+            }
+        }
+
+        // retornar um erro
+        throw new Error('Erro ao tentar pegar os paramentros da função, provavelmente você não colocou o "(".');
     }
 
     analisaPalavraChave(): void {
-        // Problemas aqui entra em um loop infinito.
         while (this.simboloAtual() !== '\n') {
             this.avancar();
         }
 
         const valor = this.codigo.substring(this.inicioSimbolo, this.atual - 1);
         switch (valor) {
-            // case ' ':
-            //     this.avancar();
-            //     break;
             case 'HORA DO SHOW':
                 this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW);
                 this.avancar();
@@ -150,6 +166,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
     }
 
+    // essa funcao não esta sendo usanda por enquanto
     InjetaUmItemDentroDaLista(item: string, posicao: number): string[] {
         let codigoComeco: string[];
         let codigoPosPosição: string[];
@@ -169,15 +186,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         return [...codigoComeco, ...codigoPosPosição];
     }
 
-    // formataCodigo(): void {
-    //     let codigo: string;
-    //     for (const i in this.codigo as any) {
-    //         if (this.codigo[i] == 'BIRL') {
-    //             this.codigo;
-    //         }
-    //     }
-    // }
-
     mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
         // this.erros = [];
         // this.simbolos = [];
@@ -185,17 +193,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         // this.atual = 0;
         // this.linha = 1;
 
-        // Trabalhar com apenas 1 linha
         this.codigo = codigo.join('\n') || '';
 
         this.codigo += '\n';
 
-        // this.formataCodigo();
-
         while (!this.eFinalDoCodigo()) {
-            // this.formataCodigo();
             this.inicioSimbolo = this.atual;
-            this.analisarToken(); // Meu erro ta acontecendo aqui pois a funcao analisar o token por meio da posição do atual ou seja ela pega apenas um char e eu preciso de um frase;
+            this.analisarToken();
         }
 
         return {
