@@ -113,7 +113,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
     }
 
-    pegaParamentroDaFuncao(): string {
+    pegaParamentroDaFuncao(): string | void {
         // verificar se tem o ( nos 2 proximos this.atual
         // se n tiver estourar um erro
         // se tiver
@@ -137,7 +137,12 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
 
         // retornar um erro
-        throw new Error('Erro ao tentar pegar os paramentros da função, provavelmente você não colocou o "(".');
+        this.erros.push({
+            linha: this.linha,
+            caractere: this.simboloAnterior(),
+            mensagem: 'Erro ao tentar pegar os paramentros.',
+        } as ErroLexador);
+        return;
     }
 
     analisaPalavraChave(): void {
