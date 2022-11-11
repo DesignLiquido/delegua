@@ -65,7 +65,7 @@ export class Delegua implements DeleguaInterface {
         this.modoDepuracao = depurador;
 
         switch (this.dialeto) {
-            /* case 'egua':
+            case 'egua':
                 if (depurador) {
                     throw new Error(
                         'Dialeto ' + this.dialeto + ' não suporta depuração.'
@@ -88,7 +88,7 @@ export class Delegua implements DeleguaInterface {
                 );
 
                 this.funcaoDeRetorno('Usando dialeto: Égua');
-                break; */
+                break;
             case 'eguap':
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();

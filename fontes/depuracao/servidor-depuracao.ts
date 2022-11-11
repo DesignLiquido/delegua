@@ -104,7 +104,7 @@ export class ServidorDepuracao {
         }
     };
 
-    comandoAvaliar = (comando: string[], conexao: net.Socket): any => {
+    comandoAvaliar = async (comando: string[], conexao: net.Socket): Promise<any> => {
         let linhasResposta = '';
 
         comando.shift();
@@ -113,7 +113,7 @@ export class ServidorDepuracao {
         let textoInterpretacao: string[];
         try {
             retornoInterpretacao =
-                this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
+                await this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
             textoInterpretacao = retornoInterpretacao.resultado;
         } catch (erro: any) {
             textoInterpretacao = [String(erro)];

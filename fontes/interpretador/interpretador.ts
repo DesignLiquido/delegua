@@ -123,7 +123,7 @@ export class Interpretador implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = "Mensagem de teste";
+        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '';
         return new Promise(resolucao =>
             this.interfaceDeEntrada.question(mensagem, resposta => {
                 resolucao(resposta);

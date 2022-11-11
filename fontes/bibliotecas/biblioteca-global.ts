@@ -76,7 +76,7 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'mapear',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoMapeamento: VariavelInterface | any
         ) {
@@ -105,7 +105,7 @@ export default function (
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 resultados.push(
-                    valorFuncaoMapeamento.chamar(interpretador, [
+                    await valorFuncaoMapeamento.chamar(interpretador, [
                         valorVetor[indice],
                     ])
                 );
@@ -117,10 +117,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'todosEmCondicao',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoCondicional: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
+                );
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -145,7 +151,7 @@ export default function (
 
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 if (
-                    !valorFuncaoCondicional.chamar(interpretador, [
+                    !await valorFuncaoCondicional.chamar(interpretador, [
                         valorVetor[indice],
                     ])
                 )
@@ -157,10 +163,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'filtrarPor',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoFiltragem: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
+                );
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -183,11 +195,11 @@ export default function (
 
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                valorFuncaoFiltragem.chamar(interpretador, [
+                await valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
                 ]) &&
                     resultados.push(
-                        valorFuncaoFiltragem.chamar(interpretador, [
+                        await valorFuncaoFiltragem.chamar(interpretador, [
                             valorVetor[indice],
                         ])
                     );
@@ -199,10 +211,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'primeiroEmCondicao',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoFiltragem: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
+                );
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -225,11 +243,11 @@ export default function (
 
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                valorFuncaoFiltragem.chamar(interpretador, [
+                await valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
                 ]) &&
                     resultados.push(
-                        valorFuncaoFiltragem.chamar(interpretador, [
+                        await valorFuncaoFiltragem.chamar(interpretador, [
                             valorVetor[indice],
                         ])
                     );
@@ -241,10 +259,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'paraCada',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoFiltragem: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
+                );
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -266,7 +290,7 @@ export default function (
             }
 
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                valorFuncaoFiltragem.chamar(interpretador, [
+                await valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
                 ]);
             }
@@ -276,6 +300,12 @@ export default function (
     pilhaEscoposExecucao.definirVariavel(
         'ordenar',
         new FuncaoPadrao(1, function (vetor: VariavelInterface | Array<any>) {
+            if (vetor === null || vetor === undefined)
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
+                );
+
             const objeto = vetor.hasOwnProperty('valor')
                 ? (vetor as VariavelInterface).valor
                 : vetor;

@@ -56,7 +56,7 @@ export interface InterpretadorInterface {
     visitarExpressaoImportar(declaracao: Importar): any;
     visitarExpressaoEscreva(declaracao: Escreva): any;
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any>;
-    visitarExpressaoBloco(declaracao: Bloco): null;
+    visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
     visitarExpressaoVar(declaracao: Var): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
