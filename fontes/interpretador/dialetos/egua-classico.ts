@@ -117,8 +117,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return true;
     }
 
-    verificarOperandoNumero(operador: any, operand: any): void {
-        if (typeof operand === 'number') return;
+    verificarOperandoNumero(operador: any, operando: any): void {
+        if (typeof operando === 'number' || operando.tipo === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
             'Operador precisa ser um número.',
@@ -128,15 +128,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarExpressaoUnaria(expr: any) {
         const direita = await this.avaliar(expr.direita);
+        const valor: any = direita.hasOwnProperty('valor') ?
+            direita.valor :
+            direita;
 
         switch (expr.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandoNumero(expr.operador, direita);
-                return -direita;
+                this.verificarOperandoNumero(expr.operador, valor);
+                return -valor;
             case tiposDeSimbolos.NEGACAO:
-                return !this.eVerdadeiro(direita);
+                return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
-                return ~direita;
+                return ~valor;
         }
 
         return null;

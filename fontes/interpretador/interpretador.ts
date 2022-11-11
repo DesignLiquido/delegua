@@ -205,26 +205,29 @@ export class Interpretador implements InterpretadorInterface {
         return true;
     }
 
-    verificarOperandoNumero(operador: any, operando: any): void {
-        if (typeof operando === 'number') return;
+    verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
+        if (typeof operando === 'number' || operando.tipo === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
             'Operando precisa ser um número.',
-            operador.linha
+            Number(operador.linha)
         );
     }
 
     async visitarExpressaoUnaria(expressao: any): Promise<any> {
         const direita = await this.avaliar(expressao.direita);
+        const valor: any = direita.hasOwnProperty('valor') ?
+            direita.valor :
+            direita;
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandoNumero(expressao.operador, direita);
-                return -direita;
+                this.verificarOperandoNumero(expressao.operador, valor);
+                return -valor;
             case tiposDeSimbolos.NEGACAO:
-                return !this.eVerdadeiro(direita);
+                return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
-                return ~direita;
+                return ~valor;
         }
 
         return null;
