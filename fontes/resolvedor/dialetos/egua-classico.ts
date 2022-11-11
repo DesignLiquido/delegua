@@ -47,6 +47,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;
+    interfaceEntradaSaida: any = null;
 
     constructor() {
         this.erros = [];
