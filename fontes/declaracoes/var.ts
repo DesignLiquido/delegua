@@ -12,7 +12,7 @@ export class Var extends Declaracao {
         this.inicializador = inicializador;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoVar(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoVar(this));
     }
 }

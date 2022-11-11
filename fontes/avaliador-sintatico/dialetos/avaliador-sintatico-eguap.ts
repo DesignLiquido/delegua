@@ -38,6 +38,7 @@ import {
     Expressao,
     Bloco,
     Sustar,
+    Leia,
 } from '../../declaracoes';
 
 import {
@@ -645,6 +646,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     expressao(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA))
+            return this.declaracaoLeia();
         return this.atribuir();
     }
 
@@ -677,6 +680,28 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     declaracaoExpressao() {
         const expressao = this.expressao();
         return new Expressao(expressao);
+    }
+
+    declaracaoLeia(): Leia {
+        const simboloAtual = this.simbolos[this.atual];
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' antes dos valores em leia."
+        );
+
+        const argumentos: Construto[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após os valores em leia."
+        );
+
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
     blocoEscopo() {

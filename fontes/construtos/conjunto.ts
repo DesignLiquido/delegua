@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Conjunto implements Construto {
@@ -23,7 +24,7 @@ export class Conjunto implements Construto {
         this.valor = valor;
     }
 
-    aceitar(visitante: any) {
-        return visitante.visitarExpressaoDefinir(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoDefinir(this));
     }
 }

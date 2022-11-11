@@ -11,6 +11,7 @@ import {
     Fazer,
     Funcao as FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
     Retorna,
     Se,
@@ -56,13 +57,14 @@ export interface AvaliadorSintaticoInterface {
     e(): Construto;
     ou(): Construto;
     atribuir(): Construto;
+    blocoEscopo(): any[];
     expressao(): Construto;
+    declaracaoEnquanto(): Enquanto;
     declaracaoEscreva(): Escreva;
     declaracaoExpressao(): Expressao;
-    blocoEscopo(): any[];
-    declaracaoSe(): Se;
-    declaracaoEnquanto(): Enquanto;
+    declaracaoLeia(): Leia;
     declaracaoPara(): Para;
+    declaracaoSe(): Se;
     declaracaoSustar(): Sustar;
     declaracaoContinua(): Continua;
     declaracaoRetorna(): Retorna;

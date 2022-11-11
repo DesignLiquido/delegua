@@ -1,4 +1,5 @@
 import { Construto } from '../construtos';
+import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**
@@ -20,7 +21,7 @@ export class Escolha extends Declaracao {
         this.caminhoPadrao = caminhoPadrao;
     }
 
-    aceitar(visitante: any): any {
-        return visitante.visitarExpressaoEscolha(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoEscolha(this));
     }
 }

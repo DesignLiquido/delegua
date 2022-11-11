@@ -94,7 +94,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
-    visitarExpressaoLeia(expressao: Leia) {
+    visitarExpressaoLeia(expressao: Leia): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -117,8 +117,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return true;
     }
 
-    verificarOperandoNumero(operador: any, operand: any): void {
-        if (typeof operand === 'number') return;
+    verificarOperandoNumero(operador: any, operando: any): void {
+        if (typeof operando === 'number' || operando.tipo === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
             'Operador precisa ser um número.',
@@ -126,17 +126,20 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoUnaria(expr: any) {
-        const direita = this.avaliar(expr.direita);
+    async visitarExpressaoUnaria(expr: any) {
+        const direita = await this.avaliar(expr.direita);
+        const valor: any = direita.hasOwnProperty('valor') ?
+            direita.valor :
+            direita;
 
         switch (expr.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandoNumero(expr.operador, direita);
-                return -direita;
+                this.verificarOperandoNumero(expr.operador, valor);
+                return -valor;
             case tiposDeSimbolos.NEGACAO:
-                return !this.eVerdadeiro(direita);
+                return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
-                return ~direita;
+                return ~valor;
         }
 
         return null;
@@ -186,166 +189,170 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoBinaria(expressao: any): any {
-        const esquerda: VariavelInterface | any = this.avaliar(
-            expressao.esquerda
-        );
-        const direita: VariavelInterface | any = this.avaliar(
-            expressao.direita
-        );
-        const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
-            ? esquerda.valor
-            : esquerda;
-        const valorDireito: any = direita.hasOwnProperty('valor')
-            ? direita.valor
-            : direita;
-        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
-            ? esquerda.tipo
-            : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.hasOwnProperty('tipo')
-            ? direita.tipo
-            : inferirTipoVariavel(direita);
+    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+        try {
+            const esquerda: VariavelInterface | any = await this.avaliar(
+                expressao.esquerda
+            );
+            const direita: VariavelInterface | any = await this.avaliar(
+                expressao.direita
+            );
+            const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+                ? esquerda.valor
+                : esquerda;
+            const valorDireito: any = direita.hasOwnProperty('valor')
+                ? direita.valor
+                : direita;
+            const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+                ? esquerda.tipo
+                : inferirTipoVariavel(esquerda);
+            const tipoDireito: string = direita.hasOwnProperty('tipo')
+                ? direita.tipo
+                : inferirTipoVariavel(direita);
 
-        switch (expressao.operador.tipo) {
-            case tiposDeSimbolos.EXPONENCIACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Math.pow(valorEsquerdo, valorDireito);
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.EXPONENCIACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Math.pow(valorEsquerdo, valorDireito);
 
-            case tiposDeSimbolos.MAIOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) > Number(valorDireito);
+                case tiposDeSimbolos.MAIOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) > Number(valorDireito);
 
-            case tiposDeSimbolos.MAIOR_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) >= Number(valorDireito);
+                case tiposDeSimbolos.MAIOR_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) >= Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) < Number(valorDireito);
+                case tiposDeSimbolos.MENOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) < Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) <= Number(valorDireito);
+                case tiposDeSimbolos.MENOR_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) <= Number(valorDireito);
 
-            case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) - Number(valorDireito);
+                case tiposDeSimbolos.SUBTRACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) - Number(valorDireito);
 
-            case tiposDeSimbolos.ADICAO:
-                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                    return Number(esquerda) + Number(direita);
-                } else if (
-                    tipoEsquerdo === 'texto' &&
-                    tipoDireito === 'texto'
-                ) {
-                    return String(esquerda) + String(direita);
-                }
+                case tiposDeSimbolos.ADICAO:
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(esquerda) + Number(direita);
+                    } else if (
+                        tipoEsquerdo === 'texto' &&
+                        tipoDireito === 'texto'
+                    ) {
+                        return String(esquerda) + String(direita);
+                    }
 
-                throw new ErroEmTempoDeExecucao(
-                    expressao.operador,
-                    'Operadores precisam ser dois números ou duas strings.'
-                );
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Operadores precisam ser dois números ou duas strings.'
+                    );
 
-            case tiposDeSimbolos.DIVISAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) / Number(valorDireito);
+                case tiposDeSimbolos.DIVISAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) / Number(valorDireito);
 
-            case tiposDeSimbolos.MULTIPLICACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) * Number(valorDireito);
+                case tiposDeSimbolos.MULTIPLICACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) * Number(valorDireito);
 
-            case tiposDeSimbolos.MODULO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) % Number(valorDireito);
+                case tiposDeSimbolos.MODULO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) % Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_AND:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) & Number(valorDireito);
+                case tiposDeSimbolos.BIT_AND:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) & Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_XOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) ^ Number(valorDireito);
+                case tiposDeSimbolos.BIT_XOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) ^ Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_OR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) | Number(valorDireito);
+                case tiposDeSimbolos.BIT_OR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) | Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR_MENOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) << Number(valorDireito);
+                case tiposDeSimbolos.MENOR_MENOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) << Number(valorDireito);
 
-            case tiposDeSimbolos.MAIOR_MAIOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) >> Number(valorDireito);
+                case tiposDeSimbolos.MAIOR_MAIOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) >> Number(valorDireito);
 
-            case tiposDeSimbolos.DIFERENTE:
-                return !this.eIgual(valorEsquerdo, valorDireito);
+                case tiposDeSimbolos.DIFERENTE:
+                    return !this.eIgual(valorEsquerdo, valorDireito);
 
-            case tiposDeSimbolos.IGUAL_IGUAL:
-                return this.eIgual(valorEsquerdo, valorDireito);
+                case tiposDeSimbolos.IGUAL_IGUAL:
+                    return this.eIgual(valorEsquerdo, valorDireito);
+            }
+
+            return null;
+        } catch (erro: any) {
+            return Promise.reject(erro);
         }
-
-        return null;
     }
 
-    visitarExpressaoDeChamada(expressao: any) {
-        const variavelEntidadeChamada: VariavelInterface | any = this.avaliar(
+    async visitarExpressaoDeChamada(expressao: any) {
+        const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
             expressao.entidadeChamada
         );
         const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
@@ -354,7 +361,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         let argumentos = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
-            argumentos.push(this.avaliar(expressao.argumentos[i]));
+            argumentos.push(await this.avaliar(expressao.argumentos[i]));
         }
 
         if (!(entidadeChamada instanceof Chamavel)) {
@@ -409,8 +416,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return entidadeChamada.chamar(this, argumentos);
     }
 
-    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        const valor = this.avaliar(expressao.valor);
+    async visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+        const valor = await this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
@@ -427,15 +434,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo, expressao);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        return this.avaliar(declaracao.expressao);
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
+        return await this.avaliar(declaracao.expressao);
     }
 
-    visitarExpressaoLogica(expressao: any) {
-        const esquerda = this.avaliar(expressao.esquerda);
+    async visitarExpressaoLogica(expressao: any) {
+        const esquerda = await this.avaliar(expressao.esquerda);
 
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
-            const direita = this.avaliar(expressao.direita);
+            const direita = await this.avaliar(expressao.direita);
 
             if (Array.isArray(direita) || typeof direita === 'string') {
                 return direita.includes(esquerda);
@@ -460,65 +467,65 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             if (!this.eVerdadeiro(esquerda)) return esquerda;
         }
 
-        return this.avaliar(expressao.direita);
+        return await this.avaliar(expressao.direita);
     }
 
-    visitarExpressaoSe(declaracao: Se): any {
-        if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-            return this.executar(declaracao.caminhoEntao);
+    async visitarExpressaoSe(declaracao: Se): Promise<any> {
+        if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            return await this.executar(declaracao.caminhoEntao);
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
-            if (this.eVerdadeiro(this.avaliar(atual.condicao))) {
-                return this.executar(atual.caminho);
+            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
+                return await this.executar(atual.caminho);
             }
         }
 
         if (declaracao.caminhoSenao !== null) {
-            return this.executar(declaracao.caminhoSenao);
+            return await this.executar(declaracao.caminhoSenao);
         }
 
         return null;
     }
 
-    visitarExpressaoPara(declaracao: Para) {
+    async visitarExpressaoPara(declaracao: Para) {
         if (declaracao.inicializador !== null) {
-            this.avaliar(declaracao.inicializador);
+            await this.avaliar(declaracao.inicializador);
         }
         while (true) {
             if (declaracao.condicao !== null) {
-                if (!this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+                if (!this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     break;
                 }
             }
 
             try {
-                this.executar(declaracao.corpo);
+                await this.executar(declaracao.corpo);
             } catch (erro: any) {
                 throw erro;
             }
 
             if (declaracao.incrementar !== null) {
-                this.avaliar(declaracao.incrementar);
+                await this.avaliar(declaracao.incrementar);
             }
         }
         return null;
     }
 
-    visitarExpressaoFazer(declaracao: Fazer) {
+    async visitarExpressaoFazer(declaracao: Fazer): Promise<any> {
         do {
             try {
-                this.executar(declaracao.caminhoFazer);
+                await this.executar(declaracao.caminhoFazer);
             } catch (erro) {
                 throw erro;
             }
-        } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
+        } while (this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
     }
 
-    visitarExpressaoEscolha(declaracao: Escolha) {
-        const condicaoEscolha = this.avaliar(declaracao.identificadorOuLiteral);
+    async visitarExpressaoEscolha(declaracao: Escolha) {
+        const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
 
@@ -529,7 +536,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
                 for (let j = 0; j < caminho.condicoes.length; j++) {
                     if (
-                        this.avaliar(caminho.condicoes[j]) === condicaoEscolha
+                        await this.avaliar(caminho.condicoes[j]) === condicaoEscolha
                     ) {
                         encontrado = true;
 
@@ -539,7 +546,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                                 k < caminho.declaracoes.length;
                                 k++
                             ) {
-                                this.executar(caminho.declaracoes[k]);
+                                await this.executar(caminho.declaracoes[k]);
                             }
                         } catch (erro: any) {
                             throw erro;
@@ -550,7 +557,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             if (caminhoPadrao !== null && encontrado === false) {
                 for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
-                    this.executar(caminhoPadrao['declaracoes'][i]);
+                    await this.executar(caminhoPadrao['declaracoes'][i]);
                 }
             }
         } catch (erro: any) {
@@ -558,34 +565,34 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoTente(declaracao: Tente): any {
+    async visitarExpressaoTente(declaracao: Tente): Promise<any> {
         try {
             let sucesso = true;
             try {
-                this.executarBloco(declaracao.caminhoTente);
+                await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    this.executarBloco(declaracao.caminhoPegue);
+                    await this.executarBloco(declaracao.caminhoPegue);
                 } else {
                     this.erros.push(erro);
                 }
             }
 
             if (sucesso && declaracao.caminhoSenao !== null) {
-                this.executarBloco(declaracao.caminhoSenao);
+                await this.executarBloco(declaracao.caminhoSenao);
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                this.executarBloco(declaracao.caminhoFinalmente);
+                await this.executarBloco(declaracao.caminhoFinalmente);
         }
     }
 
-    visitarExpressaoEnquanto(declaracao: Enquanto) {
-        while (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+    async visitarExpressaoEnquanto(declaracao: Enquanto) {
+        while (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
-                this.executar(declaracao.corpo);
+                await this.executar(declaracao.corpo);
             } catch (erro) {
                 throw erro;
             }
@@ -594,8 +601,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoImportar(declaracao: Importar) {
-        const caminhoRelativo = this.avaliar(declaracao.caminho);
+    async visitarExpressaoImportar(declaracao: Importar) {
+        const caminhoRelativo = await this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         // const nomeArquivo = caminho.basename(caminhoTotal);
 
@@ -642,9 +649,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return exportar;
     }
 
-    visitarExpressaoEscreva(declaracao: Escreva) {
+    async visitarExpressaoEscreva(declaracao: Escreva) {
         try {
-            const valor = this.avaliar(declaracao.argumentos[0]);
+            const valor = await this.avaliar(declaracao.argumentos[0]);
             console.log(this.paraTexto(valor));
             return null;
         } catch (erro: any) {
@@ -662,22 +669,22 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): any {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: ambiente || new EspacoVariaveis(),
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        const retornoUltimoEscopo: any = this.executarUltimoEscopo();
+        const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
         if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
             throw retornoUltimoEscopo;
         }
         return retornoUltimoEscopo;
     }
 
-    visitarExpressaoBloco(declaracao: any): any {
-        return this.executarBloco(declaracao.declaracoes);
+    async visitarExpressaoBloco(declaracao: any): Promise<any> {
+        return await this.executarBloco(declaracao.declaracoes);
     }
 
     /**
@@ -685,10 +692,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * @param declaracao A declaração Var
      * @returns Sempre retorna nulo.
      */
-    visitarExpressaoVar(declaracao: Var) {
+     async visitarExpressaoVar(declaracao: Var) {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
 
         this.pilhaEscoposExecucao.definirVariavel(
@@ -708,9 +715,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return new SustarQuebra();
     }
 
-    visitarExpressaoRetornar(declaracao: any): RetornoQuebra {
+    async visitarExpressaoRetornar(declaracao: any): Promise<RetornoQuebra> {
         let valor = null;
-        if (declaracao.valor != null) valor = this.avaliar(declaracao.valor);
+        if (declaracao.valor != null) valor = await this.avaliar(declaracao.valor);
 
         return new RetornoQuebra(valor);
     }
@@ -719,10 +726,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return new DeleguaFuncao(null, expressao);
     }
 
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
-        const objeto = this.avaliar(expressao.objeto);
-        let indice = this.avaliar(expressao.indice);
-        const valor = this.avaliar(expressao.valor);
+    async visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
+        const objeto = await this.avaliar(expressao.objeto);
+        let indice = await this.avaliar(expressao.indice);
+        const valor = await this.avaliar(expressao.valor);
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -753,17 +760,17 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoAcessoIndiceVariavel(
+    async visitarExpressaoAcessoIndiceVariavel(
         expressao: AcessoIndiceVariavel | any
     ) {
-        const variavelObjeto: VariavelInterface = this.avaliar(
+        const variavelObjeto: VariavelInterface = await this.avaliar(
             expressao.entidadeChamada
         );
         const objeto = variavelObjeto.hasOwnProperty('valor')
             ? variavelObjeto.valor
             : variavelObjeto;
 
-        let indice = this.avaliar(expressao.indice);
+        let indice = await this.avaliar(expressao.indice);
         const valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
@@ -828,8 +835,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDefinir(expressao: any) {
-        const objeto = this.avaliar(expressao.objeto);
+    async visitarExpressaoDefinir(expressao: any) {
+        const objeto = await this.avaliar(expressao.objeto);
 
         if (
             !(objeto instanceof ObjetoDeleguaClasse) &&
@@ -842,7 +849,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        const valor = this.avaliar(expressao.valor);
+        const valor = await this.avaliar(expressao.valor);
         if (objeto instanceof ObjetoDeleguaClasse) {
             objeto.set(expressao.nome, valor);
             return valor;
@@ -862,10 +869,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoClasse(declaracao: Classe) {
+    async visitarExpressaoClasse(declaracao: Classe) {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
-            const variavelSuperClasse: VariavelInterface = this.avaliar(
+            const variavelSuperClasse: VariavelInterface = await this.avaliar(
                 declaracao.superClasse
             );
             superClasse = variavelSuperClasse.valor;
@@ -919,8 +926,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: any) {
-        const variavelObjeto: VariavelInterface = this.avaliar(
+    async visitarExpressaoAcessoMetodo(expressao: any) {
+        const variavelObjeto: VariavelInterface = await this.avaliar(
             expressao.objeto
         );
         const objeto = variavelObjeto?.valor;
@@ -943,20 +950,20 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.procurarVariavel(expressao.palavraChave, expressao);
     }
 
-    visitarExpressaoDicionario(expressao: any) {
+    async visitarExpressaoDicionario(expressao: any) {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            dicionario[this.avaliar(expressao.chaves[i])] = this.avaliar(
+            dicionario[await this.avaliar(expressao.chaves[i])] = await this.avaliar(
                 expressao.valores[i]
             );
         }
         return dicionario;
     }
 
-    visitarExpressaoVetor(expressao: any) {
+    async visitarExpressaoVetor(expressao: any) {
         const valores = [];
         for (let i = 0; i < expressao.valores.length; i++) {
-            valores.push(this.avaliar(expressao.valores[i]));
+            valores.push(await this.avaliar(expressao.valores[i]));
         }
         return valores;
     }
@@ -1010,8 +1017,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return objeto.toString();
     }
 
-    executar(declaracao: Declaracao, mostrarResultado = false): any {
-        return declaracao.aceitar(this);
+    async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+        return await declaracao.aceitar(this);
     }
 
     /**
@@ -1027,7 +1034,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * Interpretador Égua: https://github.com/eguatech/egua/blob/master/src/interpreter.js
      * @returns O resultado da execução do escopo, se houver.
      */
-    executarUltimoEscopo(): any {
+    async executarUltimoEscopo(): Promise<any> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao: any;
@@ -1037,7 +1044,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = this.executar(
+                retornoExecucao = await this.executar(
                     ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
                 );
             }
@@ -1050,7 +1057,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    interpretar(declaracoes: Declaracao[]): RetornoInterpretador {
+    async interpretar(declaracoes: Declaracao[]): Promise<RetornoInterpretador> {
         this.erros = [];
 
         const retornoResolvedor = this.resolvedor.resolver(declaracoes);
@@ -1062,10 +1069,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        this.executarUltimoEscopo();
+        await this.executarUltimoEscopo();
 
         return {
             erros: this.erros,
         } as RetornoInterpretador;
+    }
+
+    finalizacao(): void {
+        this.funcaoDeRetorno();
     }
 }

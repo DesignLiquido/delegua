@@ -43,6 +43,7 @@ import {
     Se,
     Tente,
     Var,
+    Leia,
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
@@ -67,6 +68,10 @@ export class AvaliadorSintaticoEguaClassico
 
         this.atual = 0;
         this.ciclos = 0;
+    }
+
+    declaracaoLeia(): Leia {
+        throw new Error('Método não implementado.');
     }
 
     sincronizar(): void {

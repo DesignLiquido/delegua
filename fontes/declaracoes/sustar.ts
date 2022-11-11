@@ -6,7 +6,7 @@ export class Sustar extends Declaracao {
         super(Number(simbolo.linha), simbolo.hashArquivo);
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoSustar(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoSustar(this));
     }
 }

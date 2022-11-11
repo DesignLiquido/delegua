@@ -27,7 +27,7 @@ export class AcessoIndiceVariavel implements Construto {
         this.simboloFechamento = simboloFechamento;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
-        return visitante.visitarExpressaoAcessoIndiceVariavel(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoAcessoIndiceVariavel(this));
     }
 }

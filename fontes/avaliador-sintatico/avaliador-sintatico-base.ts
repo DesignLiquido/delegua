@@ -16,6 +16,7 @@ import {
     Funcao as FuncaoDeclaracao,
     Classe,
     Declaracao,
+    Leia,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import {
@@ -82,6 +83,10 @@ export abstract class AvaliadorSintaticoBase
         }
 
         return false;
+    }
+
+    declaracaoLeia(): Leia {
+        throw new Error('Method not implemented.');
     }
 
     abstract primario(): Construto;

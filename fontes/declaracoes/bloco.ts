@@ -9,7 +9,7 @@ export class Bloco extends Declaracao {
         this.declaracoes = declaracoes;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoBloco(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoBloco(this));
     }
 }

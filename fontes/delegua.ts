@@ -87,7 +87,7 @@ export class Delegua implements DeleguaInterface {
                     process.cwd()
                 );
 
-                console.log('Usando dialeto: Égua');
+                this.funcaoDeRetorno('Usando dialeto: Égua');
                 break;
             case 'eguap':
                 this.lexador = new LexadorEguaP();
@@ -112,7 +112,7 @@ export class Delegua implements DeleguaInterface {
                           funcaoDeRetorno
                       );
 
-                console.log('Usando dialeto: ÉguaP');
+                this.funcaoDeRetorno('Usando dialeto: ÉguaP');
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
@@ -154,7 +154,7 @@ export class Delegua implements DeleguaInterface {
                           funcaoDeRetorno
                       );
 
-                console.log('Usando dialeto: padrão');
+                this.funcaoDeRetorno('Usando dialeto: padrão');
                 break;
         }
 
@@ -183,7 +183,7 @@ export class Delegua implements DeleguaInterface {
         console.log(`Console da Linguagem Delégua v${this.versao()}`);
         console.log('Pressione Ctrl + C para sair');
 
-        const leiaLinha = readline.createInterface({
+        const interfaceLeitura = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
             prompt: '\ndelegua> ',
@@ -191,14 +191,14 @@ export class Delegua implements DeleguaInterface {
 
         const isto = this;
 
-        leiaLinha.prompt();
-        leiaLinha.on('line', (linha: string) => {
-            const { resultado } = isto.executarUmaLinha(linha);
+        interfaceLeitura.prompt();
+        interfaceLeitura.on('line', async (linha: string) => {
+            const { resultado } = await isto.executarUmaLinha(linha);
             if (resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
 
-            leiaLinha.prompt();
+            interfaceLeitura.prompt();
         });
     }
 
@@ -207,7 +207,7 @@ export class Delegua implements DeleguaInterface {
      * @param linha A linha a ser avaliada.
      * @returns O resultado da execução, com os retornos e respectivos erros, se houverem.
      */
-    executarUmaLinha(linha: string): RetornoExecucaoInterface {
+    async executarUmaLinha(linha: string): Promise<RetornoExecucaoInterface> {
         const retornoLexador = this.lexador.mapear([linha], -1);
         const retornoAvaliadorSintatico =
             this.avaliadorSintatico.analisar(retornoLexador);
@@ -220,7 +220,7 @@ export class Delegua implements DeleguaInterface {
             return { resultado: [] } as RetornoExecucaoInterface;
         }
 
-        return this.executar(
+        return await this.executar(
             {
                 retornoLexador,
                 retornoAvaliadorSintatico,
@@ -285,7 +285,7 @@ export class Delegua implements DeleguaInterface {
      * Execução por arquivo.
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
      */
-    carregarArquivo(caminhoRelativoArquivo: string): void {
+    async carregarArquivo(caminhoRelativoArquivo: string): Promise<any> {
         const retornoImportador = this.importador.importar(
             caminhoRelativoArquivo
         );
@@ -306,10 +306,11 @@ export class Delegua implements DeleguaInterface {
                 retornoImportador.retornoAvaliadorSintatico.declaracoes
             );
         } else {
-            const { erros } = this.executar(retornoImportador);
+            const { erros } = await this.executar(retornoImportador);
             errosExecucao = erros;
         }
 
+        this.interpretador.finalizacao();
         if (errosExecucao.length > 0) process.exit(70); // Código com exceções não tratadas
     }
 
@@ -321,11 +322,11 @@ export class Delegua implements DeleguaInterface {
      *                       para LAIR, falso para execução por arquivo.
      * @returns Um objeto com o resultado da execução.
      */
-    executar(
+    async executar(
         retornoImportador: RetornoImportador,
         manterAmbiente = false
-    ): RetornoExecucaoInterface {
-        const retornoInterpretador = this.interpretador.interpretar(
+    ): Promise<RetornoExecucaoInterface> {
+        const retornoInterpretador = await this.interpretador.interpretar(
             retornoImportador.retornoAvaliadorSintatico.declaracoes,
             manterAmbiente
         );

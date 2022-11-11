@@ -46,6 +46,7 @@ import {
     Se,
     Tente,
     Var,
+    Leia,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -691,6 +692,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     expressao(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA))
+            return this.declaracaoLeia();
         return this.atribuir();
     }
 
@@ -723,6 +726,28 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
         return new Expressao(expressao);
+    }
+
+    declaracaoLeia(): Leia {
+        const simboloAtual = this.simbolos[this.atual];
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' antes dos valores em leia."
+        );
+
+        const argumentos: Construto[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após os valores em leia."
+        );
+
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
     blocoEscopo(): Array<RetornoDeclaracao> {
@@ -1136,6 +1161,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return this.declaracaoSe();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA))
             return this.declaracaoEscreva();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA))
+            return this.declaracaoLeia();
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)
         ) {
