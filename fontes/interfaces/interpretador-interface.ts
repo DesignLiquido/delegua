@@ -79,5 +79,4 @@ export interface InterpretadorInterface {
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
     ): Promise<RetornoInterpretador>;
-    finalizacao(): void;
 }

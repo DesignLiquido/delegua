@@ -312,7 +312,6 @@ export class Delegua implements DeleguaInterface {
             errosExecucao = erros;
         }
 
-        this.interpretador.finalizacao();
         if (errosExecucao.length > 0) process.exit(70); // Código com exceções não tratadas
     }
 

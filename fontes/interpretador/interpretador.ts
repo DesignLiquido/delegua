@@ -1297,12 +1297,4 @@ export class Interpretador implements InterpretadorInterface {
             return retorno;
         }
     }
-
-    /**
-     * Procedimento de finalização de execução, normalmente solicitado pelo
-     * núcleo da linguagem.
-     */
-    finalizacao(): void {
-        this.interfaceDeEntrada.close();
-    }
 }
