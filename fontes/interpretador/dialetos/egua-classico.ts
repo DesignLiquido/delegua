@@ -70,6 +70,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     locais: Map<Construto, number>;
     erros: ErroInterpretador[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
+    interfaceEntradaSaida: any = null;
 
     constructor(
         Delegua: Delegua,

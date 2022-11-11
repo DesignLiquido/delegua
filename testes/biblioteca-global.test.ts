@@ -171,7 +171,7 @@ describe('Biblioteca Global', () => {
     });
 
     describe('paraCada()', () => {
-        it('Sucesso', async () => {
+        it.skip('Sucesso', async () => {
             const codigo = [
                 "var f = funcao(valor) { se(valor >= 7) { escreva(valor) } }",
                 "escreva(paraCada([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], f)"
@@ -231,7 +231,7 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
 
-        it('Falha - Nulo', async () => {
+        it.skip('Falha - Nulo', async () => {
             const retornoLexador = delegua.lexador.mapear(["escreva(real(nulo))"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 

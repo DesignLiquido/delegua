@@ -191,6 +191,8 @@ export class Delegua implements DeleguaInterface {
 
         const isto = this;
 
+        this.interpretador.interfaceEntradaSaida = interfaceLeitura;
+
         interfaceLeitura.prompt();
         interfaceLeitura.on('line', async (linha: string) => {
             const { resultado } = await isto.executarUmaLinha(linha);

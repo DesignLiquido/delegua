@@ -30,6 +30,7 @@ export interface InterpretadorInterface {
     diretorioBase: any;
     funcaoDeRetorno: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+    interfaceEntradaSaida: any;
 
     visitarExpressaoLiteral(expressao: Literal): any;
     avaliar(expressao: any): any;

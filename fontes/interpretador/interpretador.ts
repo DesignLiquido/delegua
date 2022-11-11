@@ -82,6 +82,8 @@ export class Interpretador implements InterpretadorInterface {
     resultadoInterpretador: Array<string> = [];
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+    interfaceEntradaSaida: any = null;
+
     regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
 
     constructor(
@@ -96,11 +98,11 @@ export class Interpretador implements InterpretadorInterface {
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
-        this.interfaceDeEntrada = readline.createInterface({
+        /* this.interfaceDeEntrada = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
             prompt: '\n> ',
-        });
+        }); */
 
         this.erros = [];
         this.declaracoes = [];
@@ -125,7 +127,7 @@ export class Interpretador implements InterpretadorInterface {
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
         const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '';
         return new Promise(resolucao =>
-            this.interfaceDeEntrada.question(mensagem, resposta => {
+            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
                 resolucao(resposta);
             })
         );
