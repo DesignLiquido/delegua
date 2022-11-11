@@ -1270,6 +1270,8 @@ export class Interpretador implements InterpretadorInterface {
             if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
                 this.erros.push(retornoOuErro);
             }
+        } catch (erro: any) {
+            this.erros.push(erro);
         } finally {
             if (this.performance) {
                 const deltaInterpretacao: [number, number] =
