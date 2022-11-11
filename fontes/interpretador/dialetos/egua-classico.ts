@@ -187,161 +187,165 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoBinaria(expressao: any): Promise<any> {
-        const esquerda: VariavelInterface | any = await this.avaliar(
-            expressao.esquerda
-        );
-        const direita: VariavelInterface | any = await this.avaliar(
-            expressao.direita
-        );
-        const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
-            ? esquerda.valor
-            : esquerda;
-        const valorDireito: any = direita.hasOwnProperty('valor')
-            ? direita.valor
-            : direita;
-        const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
-            ? esquerda.tipo
-            : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita.hasOwnProperty('tipo')
-            ? direita.tipo
-            : inferirTipoVariavel(direita);
+        try {
+            const esquerda: VariavelInterface | any = await this.avaliar(
+                expressao.esquerda
+            );
+            const direita: VariavelInterface | any = await this.avaliar(
+                expressao.direita
+            );
+            const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+                ? esquerda.valor
+                : esquerda;
+            const valorDireito: any = direita.hasOwnProperty('valor')
+                ? direita.valor
+                : direita;
+            const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+                ? esquerda.tipo
+                : inferirTipoVariavel(esquerda);
+            const tipoDireito: string = direita.hasOwnProperty('tipo')
+                ? direita.tipo
+                : inferirTipoVariavel(direita);
 
-        switch (expressao.operador.tipo) {
-            case tiposDeSimbolos.EXPONENCIACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Math.pow(valorEsquerdo, valorDireito);
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.EXPONENCIACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Math.pow(valorEsquerdo, valorDireito);
 
-            case tiposDeSimbolos.MAIOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) > Number(valorDireito);
+                case tiposDeSimbolos.MAIOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) > Number(valorDireito);
 
-            case tiposDeSimbolos.MAIOR_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) >= Number(valorDireito);
+                case tiposDeSimbolos.MAIOR_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) >= Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) < Number(valorDireito);
+                case tiposDeSimbolos.MENOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) < Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) <= Number(valorDireito);
+                case tiposDeSimbolos.MENOR_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) <= Number(valorDireito);
 
-            case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) - Number(valorDireito);
+                case tiposDeSimbolos.SUBTRACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) - Number(valorDireito);
 
-            case tiposDeSimbolos.ADICAO:
-                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                    return Number(esquerda) + Number(direita);
-                } else if (
-                    tipoEsquerdo === 'texto' &&
-                    tipoDireito === 'texto'
-                ) {
-                    return String(esquerda) + String(direita);
-                }
+                case tiposDeSimbolos.ADICAO:
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(esquerda) + Number(direita);
+                    } else if (
+                        tipoEsquerdo === 'texto' &&
+                        tipoDireito === 'texto'
+                    ) {
+                        return String(esquerda) + String(direita);
+                    }
 
-                throw new ErroEmTempoDeExecucao(
-                    expressao.operador,
-                    'Operadores precisam ser dois números ou duas strings.'
-                );
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Operadores precisam ser dois números ou duas strings.'
+                    );
 
-            case tiposDeSimbolos.DIVISAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) / Number(valorDireito);
+                case tiposDeSimbolos.DIVISAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) / Number(valorDireito);
 
-            case tiposDeSimbolos.MULTIPLICACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) * Number(valorDireito);
+                case tiposDeSimbolos.MULTIPLICACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) * Number(valorDireito);
 
-            case tiposDeSimbolos.MODULO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) % Number(valorDireito);
+                case tiposDeSimbolos.MODULO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) % Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_AND:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) & Number(valorDireito);
+                case tiposDeSimbolos.BIT_AND:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) & Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_XOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) ^ Number(valorDireito);
+                case tiposDeSimbolos.BIT_XOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) ^ Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_OR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) | Number(valorDireito);
+                case tiposDeSimbolos.BIT_OR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) | Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR_MENOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) << Number(valorDireito);
+                case tiposDeSimbolos.MENOR_MENOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) << Number(valorDireito);
 
-            case tiposDeSimbolos.MAIOR_MAIOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) >> Number(valorDireito);
+                case tiposDeSimbolos.MAIOR_MAIOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) >> Number(valorDireito);
 
-            case tiposDeSimbolos.DIFERENTE:
-                return !this.eIgual(valorEsquerdo, valorDireito);
+                case tiposDeSimbolos.DIFERENTE:
+                    return !this.eIgual(valorEsquerdo, valorDireito);
 
-            case tiposDeSimbolos.IGUAL_IGUAL:
-                return this.eIgual(valorEsquerdo, valorDireito);
+                case tiposDeSimbolos.IGUAL_IGUAL:
+                    return this.eIgual(valorEsquerdo, valorDireito);
+            }
+
+            return null;
+        } catch (erro: any) {
+            return Promise.reject(erro);
         }
-
-        return null;
     }
 
     async visitarExpressaoDeChamada(expressao: any) {

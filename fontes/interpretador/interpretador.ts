@@ -283,155 +283,159 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     async visitarExpressaoBinaria(expressao: any): Promise<any> {
-        const esquerda: VariavelInterface | any = await this.avaliar(
-            expressao.esquerda
-        );
-        const direita: VariavelInterface | any = await this.avaliar(
-            expressao.direita
-        );
-        const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
-            ? esquerda.valor
-            : esquerda;
-        const valorDireito: any = direita?.hasOwnProperty('valor')
-            ? direita.valor
-            : direita;
-        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
-            ? esquerda.tipo
-            : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita?.hasOwnProperty('tipo')
-            ? direita.tipo
-            : inferirTipoVariavel(direita);
+        try {
+            const esquerda: VariavelInterface | any = await this.avaliar(
+                expressao.esquerda
+            );
+            const direita: VariavelInterface | any = await this.avaliar(
+                expressao.direita
+            );
+            const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
+                ? esquerda.valor
+                : esquerda;
+            const valorDireito: any = direita?.hasOwnProperty('valor')
+                ? direita.valor
+                : direita;
+            const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
+                ? esquerda.tipo
+                : inferirTipoVariavel(esquerda);
+            const tipoDireito: string = direita?.hasOwnProperty('tipo')
+                ? direita.tipo
+                : inferirTipoVariavel(direita);
 
-        switch (expressao.operador.tipo) {
-            case tiposDeSimbolos.EXPONENCIACAO:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Math.pow(valorEsquerdo, valorDireito);
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.EXPONENCIACAO:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Math.pow(valorEsquerdo, valorDireito);
 
-            case tiposDeSimbolos.MAIOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) > Number(valorDireito);
+                case tiposDeSimbolos.MAIOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) > Number(valorDireito);
 
-            case tiposDeSimbolos.MAIOR_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) >= Number(valorDireito);
+                case tiposDeSimbolos.MAIOR_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) >= Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) < Number(valorDireito);
+                case tiposDeSimbolos.MENOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) < Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) <= Number(valorDireito);
+                case tiposDeSimbolos.MENOR_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) <= Number(valorDireito);
 
-            case tiposDeSimbolos.SUBTRACAO:
-            case tiposDeSimbolos.MENOS_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) - Number(valorDireito);
+                case tiposDeSimbolos.SUBTRACAO:
+                case tiposDeSimbolos.MENOS_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) - Number(valorDireito);
 
-            case tiposDeSimbolos.ADICAO:
-            case tiposDeSimbolos.MAIS_IGUAL:
-                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                    return Number(valorEsquerdo) + Number(valorDireito);
-                } else {
-                    return String(valorEsquerdo) + String(valorDireito);
-                }
+                case tiposDeSimbolos.ADICAO:
+                case tiposDeSimbolos.MAIS_IGUAL:
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(valorEsquerdo) + Number(valorDireito);
+                    } else {
+                        return String(valorEsquerdo) + String(valorDireito);
+                    }
 
-            case tiposDeSimbolos.DIVISAO:
-            case tiposDeSimbolos.DIVISAO_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) / Number(valorDireito);
+                case tiposDeSimbolos.DIVISAO:
+                case tiposDeSimbolos.DIVISAO_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) / Number(valorDireito);
 
-            case tiposDeSimbolos.MULTIPLICACAO:
-            case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) * Number(valorDireito);
+                case tiposDeSimbolos.MULTIPLICACAO:
+                case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) * Number(valorDireito);
 
-            case tiposDeSimbolos.MODULO:
-            case tiposDeSimbolos.MODULO_IGUAL:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) % Number(valorDireito);
+                case tiposDeSimbolos.MODULO:
+                case tiposDeSimbolos.MODULO_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) % Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_AND:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) & Number(valorDireito);
+                case tiposDeSimbolos.BIT_AND:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) & Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_XOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) ^ Number(valorDireito);
+                case tiposDeSimbolos.BIT_XOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) ^ Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_OR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) | Number(valorDireito);
+                case tiposDeSimbolos.BIT_OR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) | Number(valorDireito);
 
-            case tiposDeSimbolos.MENOR_MENOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) << Number(valorDireito);
+                case tiposDeSimbolos.MENOR_MENOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) << Number(valorDireito);
 
-            case tiposDeSimbolos.MAIOR_MAIOR:
-                this.verificarOperandosNumeros(
-                    expressao.operador,
-                    esquerda,
-                    direita
-                );
-                return Number(valorEsquerdo) >> Number(valorDireito);
+                case tiposDeSimbolos.MAIOR_MAIOR:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Number(valorEsquerdo) >> Number(valorDireito);
 
-            case tiposDeSimbolos.DIFERENTE:
-                return !this.eIgual(valorEsquerdo, valorDireito);
+                case tiposDeSimbolos.DIFERENTE:
+                    return !this.eIgual(valorEsquerdo, valorDireito);
 
-            case tiposDeSimbolos.IGUAL_IGUAL:
-                return this.eIgual(valorEsquerdo, valorDireito);
+                case tiposDeSimbolos.IGUAL_IGUAL:
+                    return this.eIgual(valorEsquerdo, valorDireito);
+            }
+        } catch (erro: any) {
+            return Promise.reject(erro);
         }
     }
 
@@ -666,7 +670,7 @@ export class Interpretador implements InterpretadorInterface {
                         encontrado = true;
 
                         try {
-                            this.executarBloco(caminho.declaracoes);
+                            await this.executarBloco(caminho.declaracoes);
                         } catch (erro: any) {
                             throw erro;
                         }
@@ -675,34 +679,34 @@ export class Interpretador implements InterpretadorInterface {
             }
 
             if (caminhoPadrao !== null && encontrado === false) {
-                this.executarBloco(caminhoPadrao.declaracoes);
+                await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
             throw erro;
         }
     }
 
-    visitarExpressaoTente(declaracao: Tente): any {
+    async visitarExpressaoTente(declaracao: Tente): Promise<any> {
         try {
             let sucesso = true;
             try {
-                this.executarBloco(declaracao.caminhoTente);
+                await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    this.executarBloco(declaracao.caminhoPegue);
+                    await this.executarBloco(declaracao.caminhoPegue);
                 } else {
                     this.erros.push(erro);
                 }
             }
 
             if (sucesso && declaracao.caminhoSenao !== null) {
-                this.executarBloco(declaracao.caminhoSenao);
+                await this.executarBloco(declaracao.caminhoSenao);
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                this.executarBloco(declaracao.caminhoFinalmente);
+                await this.executarBloco(declaracao.caminhoFinalmente);
         }
     }
 
@@ -812,8 +816,8 @@ export class Interpretador implements InterpretadorInterface {
         return retornoUltimoEscopo;
     }
 
-    visitarExpressaoBloco(declaracao: Bloco): any {
-        return this.executarBloco(declaracao.declaracoes);
+    async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
+        return await this.executarBloco(declaracao.declaracoes);
     }
 
     /**
@@ -1226,7 +1230,7 @@ export class Interpretador implements InterpretadorInterface {
 
             return retornoExecucao;
         } catch (erro: any) {
-            return erro;
+            return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {

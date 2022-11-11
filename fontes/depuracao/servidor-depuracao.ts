@@ -67,14 +67,14 @@ export class ServidorDepuracao {
         return { sucesso: true, hashArquivo, linha };
     };
 
-    comandoAdentrarEscopo = (conexao: net.Socket): any => {
+    comandoAdentrarEscopo = async (conexao: net.Socket): Promise<any> => {
         let linhasResposta = '';
         linhasResposta += "Recebido comando 'adentrar-escopo'\n";
         linhasResposta += '--- adentrar-escopo-resposta ---\n';
 
         this.interpretador.comandoAdentrarEscopo = true;
         this.interpretador.pontoDeParadaAtivo = false;
-        this.interpretador.interpretacaoApenasUmaInstrucao();
+        await this.interpretador.interpretacaoApenasUmaInstrucao();
 
         conexao.write(linhasResposta);
     };
@@ -126,12 +126,12 @@ export class ServidorDepuracao {
         conexao.write(linhasResposta);
     };
 
-    comandoContinuar = (conexao: net.Socket): any => {
+    comandoContinuar = async (conexao: net.Socket): Promise<any> => {
         let linhasResposta = '';
 
         linhasResposta += "Recebido comando 'continuar'\n";
         this.interpretador.pontoDeParadaAtivo = false;
-        this.interpretador.continuarInterpretacao();
+        await this.interpretador.continuarInterpretacao();
 
         linhasResposta += '--- continuar-resposta ---\n';
         conexao.write(linhasResposta);
@@ -191,13 +191,13 @@ export class ServidorDepuracao {
         conexao.write(linhasResposta);
     };
 
-    comandoProximo = (conexao: net.Socket): any => {
+    comandoProximo = async (conexao: net.Socket): Promise<any> => {
         let linhasResposta = '';
         linhasResposta += "Recebido comando 'proximo'\n";
         linhasResposta += '--- proximo-resposta ---\n';
         this.interpretador.comandoProximo = true;
         this.interpretador.pontoDeParadaAtivo = false;
-        this.interpretador.interpretacaoApenasUmaInstrucao();
+        await this.interpretador.interpretacaoApenasUmaInstrucao();
         this.interpretador.comandoProximo = false;
         conexao.write(linhasResposta);
     };

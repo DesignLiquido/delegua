@@ -8,7 +8,7 @@ describe('Interpretador', () => {
             delegua = new Delegua('delegua');
         });
 
-        describe.only('Cenários de sucesso', () => {
+        describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
                 it('Trivial', async () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = 1"], -1);
