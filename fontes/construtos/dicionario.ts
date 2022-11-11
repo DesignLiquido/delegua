@@ -17,6 +17,6 @@ export class Dicionario implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoDicionario(this));
+        return await visitante.visitarExpressaoDicionario(this);
     }
 }

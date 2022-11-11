@@ -20,7 +20,7 @@ a = fibonacci(1);
 escreva(a);
 a = fibonacci(2);
 escreva(a);
-a = fibonacci(3);
+var a = fibonacci(3);
 escreva(a);
 a = fibonacci(4);
 escreva(a);

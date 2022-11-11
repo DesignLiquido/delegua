@@ -10,6 +10,6 @@ export class Bloco extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoBloco(this));
+        return await visitante.visitarExpressaoBloco(this);
     }
 }

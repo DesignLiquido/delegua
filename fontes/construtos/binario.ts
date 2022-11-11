@@ -35,6 +35,6 @@ export class Binario implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoBinaria(this));
+        return await visitante.visitarExpressaoBinaria(this);
     }
 }

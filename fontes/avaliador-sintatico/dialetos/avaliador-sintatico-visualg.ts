@@ -18,7 +18,7 @@ import {
     Atribuir,
     Binario,
     Construto,
-    Funcao,
+    FuncaoConstruto,
     Literal,
     Variavel,
 } from '../../construtos';
@@ -185,7 +185,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.primario();
     }
 
-    corpoDaFuncao(tipo: any): Funcao {
+    corpoDaFuncao(tipo: any): FuncaoConstruto {
         this.consumir(
             tiposDeSimbolos.DOIS_PONTOS,
             'Esperado dois-pontos após nome de função.'
@@ -214,7 +214,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(-1, -1, null, corpo);
+        return new FuncaoConstruto(-1, -1, null, corpo);
     }
 
     declaracaoEnquanto(): Enquanto {

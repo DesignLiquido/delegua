@@ -11,8 +11,8 @@ import {
     Binario,
     Chamada,
     Dicionario,
-    Conjunto,
-    Funcao,
+    DefinirValor,
+    FuncaoConstruto,
     AcessoMetodo as AcessoMetodo,
     Agrupamento,
     Literal,
@@ -38,7 +38,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Importar,
     Para,
     Sustar,
@@ -669,7 +669,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                return new Conjunto(
+                return new DefinirValor(
                     this.hashArquivo,
                     0,
                     get.objeto,
@@ -1260,7 +1260,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return parametros;
     }
 
-    corpoDaFuncao(tipo: string): Funcao {
+    corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
         const parenteseEsquerdo = this.consumir(
@@ -1286,7 +1286,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(
+        return new FuncaoConstruto(
             this.hashArquivo,
             Number(parenteseEsquerdo.linha),
             parametros,

@@ -12,6 +12,6 @@ export class Retorna extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoRetornar(this));
+        return await visitante.visitarExpressaoRetornar(this);
     }
 }

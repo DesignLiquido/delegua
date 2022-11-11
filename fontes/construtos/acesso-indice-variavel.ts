@@ -28,6 +28,6 @@ export class AcessoIndiceVariavel implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoAcessoIndiceVariavel(this));
+        return await visitante.visitarExpressaoAcessoIndiceVariavel(this);
     }
 }

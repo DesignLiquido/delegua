@@ -10,7 +10,7 @@ import carregarModulo from '../../bibliotecas/importar-biblioteca';
 import { Chamavel } from '../../estruturas/chamavel';
 import { FuncaoPadrao } from '../../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../../estruturas/delegua-classe';
-import { DeleguaFuncao } from '../../estruturas/funcao';
+import { DeleguaFuncao } from '../../estruturas/delegua-funcao';
 import { ObjetoDeleguaClasse } from '../../estruturas/objeto-delegua-classe';
 import { DeleguaModulo } from '../../estruturas/modulo';
 
@@ -29,7 +29,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao,
+    FuncaoDeclaracao,
     Importar,
     Leia,
     Para,
@@ -835,7 +835,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    async visitarExpressaoDefinir(expressao: any) {
+    async visitarExpressaoDefinirValor(expressao: any) {
         const objeto = await this.avaliar(expressao.objeto);
 
         if (
@@ -858,7 +858,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoFuncao(declaracao: Funcao) {
+    visitarExpressaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
             declaracao.funcao

@@ -15,6 +15,6 @@ export class Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        throw new Error('Este método não deveria ser chamado.');
+        return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }

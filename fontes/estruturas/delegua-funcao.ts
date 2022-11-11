@@ -4,17 +4,17 @@ import { EspacoVariaveis } from '../espaco-variaveis';
 import { InterpretadorInterface } from '../interfaces';
 import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
-import { Funcao } from '../construtos';
+import { FuncaoConstruto } from '../construtos';
 
 export class DeleguaFuncao extends Chamavel {
     nome: string;
-    declaracao: Funcao;
+    declaracao: FuncaoConstruto;
     eInicializador: boolean;
     instancia: ObjetoDeleguaClasse;
 
     constructor(
         nome: string,
-        declaracao: Funcao,
+        declaracao: FuncaoConstruto,
         instancia: ObjetoDeleguaClasse = undefined,
         eInicializador = false
     ) {

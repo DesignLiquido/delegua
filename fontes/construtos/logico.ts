@@ -24,6 +24,6 @@ export class Logico implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoLogica(this));
+        return await visitante.visitarExpressaoLogica(this);
     }
 }

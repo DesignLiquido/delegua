@@ -1,7 +1,7 @@
 import { InterpretadorInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class Funcao implements Construto {
+export class FuncaoConstruto implements Construto {
     linha: number;
     hashArquivo?: number;
 

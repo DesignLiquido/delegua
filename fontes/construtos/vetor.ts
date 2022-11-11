@@ -15,6 +15,6 @@ export class Vetor implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoVetor(this));
+        return await visitante.visitarExpressaoVetor(this);
     }
 }

@@ -23,6 +23,6 @@ export class Tente extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoTente(this));
+        return await visitante.visitarExpressaoTente(this);
     }
 }

@@ -24,6 +24,6 @@ export class Chamada implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoDeChamada(this));
+        return await visitante.visitarExpressaoDeChamada(this);
     }
 }

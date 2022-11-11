@@ -25,7 +25,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao,
+    FuncaoDeclaracao,
     Importar,
     Leia,
     Para,
@@ -462,11 +462,11 @@ export class Interpretador implements InterpretadorInterface {
             }
 
             if (!(entidadeChamada instanceof Chamavel)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     expressao.parentese,
                     'Só pode chamar função ou classe.',
                     expressao.linha
-                );
+                ));
             }
 
             if (entidadeChamada instanceof MetodoPrimitiva) {
@@ -632,7 +632,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
             } catch (erro: any) {
-                throw erro;
+                return Promise.reject(erro);
             }
 
             if (declaracao.incrementar !== null) {
@@ -648,7 +648,7 @@ export class Interpretador implements InterpretadorInterface {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
             } catch (erro: any) {
-                throw erro;
+                return Promise.reject(erro);
             }
         } while (
             !(retornoExecucao instanceof Quebra) &&
@@ -675,7 +675,7 @@ export class Interpretador implements InterpretadorInterface {
                         try {
                             await this.executarBloco(caminho.declaracoes);
                         } catch (erro: any) {
-                            throw erro;
+                            return Promise.reject(erro);
                         }
                     }
                 }
@@ -814,7 +814,7 @@ export class Interpretador implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
         if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
-            throw retornoUltimoEscopo;
+            return Promise.reject(retornoUltimoEscopo);
         }
         return retornoUltimoEscopo;
     }
@@ -859,7 +859,7 @@ export class Interpretador implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
+    visitarExpressaoDeleguaFuncao(expressao: any): DeleguaFuncao {
         return new DeleguaFuncao(null, expressao);
     }
 
@@ -895,11 +895,11 @@ export class Interpretador implements InterpretadorInterface {
         ) {
             objeto[indice] = valor;
         } else {
-            throw new ErroEmTempoDeExecucao(
+            return Promise.reject(new ErroEmTempoDeExecucao(
                 expressao.objeto.nome,
                 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
                 expressao.linha
-            );
+            ));
         }
     }
 
@@ -915,11 +915,11 @@ export class Interpretador implements InterpretadorInterface {
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Somente inteiros podem ser usados para indexar um vetor.',
                     expressao.linha
-                );
+                ));
             }
 
             if (valorIndice < 0 && objeto.length !== 0) {
@@ -946,11 +946,11 @@ export class Interpretador implements InterpretadorInterface {
             return objeto[valorIndice] || null;
         } else if (typeof objeto === 'string') {
             if (!Number.isInteger(valorIndice)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Somente inteiros podem ser usados para indexar um vetor.',
                     expressao.linha
-                );
+                ));
             }
 
             if (valorIndice < 0 && objeto.length !== 0) {
@@ -960,34 +960,34 @@ export class Interpretador implements InterpretadorInterface {
             }
 
             if (valorIndice >= objeto.length) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Índice fora do tamanho.',
                     expressao.linha
-                );
+                ));
             }
             return objeto.charAt(valorIndice);
         } else {
-            throw new ErroEmTempoDeExecucao(
+            return Promise.reject(new ErroEmTempoDeExecucao(
                 expressao.entidadeChamada.nome,
                 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
                 expressao.linha
-            );
+            ));
         }
     }
 
-    async visitarExpressaoDefinir(expressao: any): Promise<any> {
+    async visitarExpressaoDefinirValor(expressao: any): Promise<any> {
         const objeto = await this.avaliar(expressao.objeto);
 
         if (
             !(objeto instanceof ObjetoDeleguaClasse) &&
             objeto.constructor !== Object
         ) {
-            throw new ErroEmTempoDeExecucao(
+            return Promise.reject(new ErroEmTempoDeExecucao(
                 expressao.objeto.nome,
                 'Somente instâncias e dicionários podem possuir campos.',
                 expressao.linha
-            );
+            ));
         }
 
         const valor = await this.avaliar(expressao.valor);
@@ -999,7 +999,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoFuncao(declaracao: Funcao) {
+    visitarExpressaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
             declaracao.funcao
@@ -1112,11 +1112,11 @@ export class Interpretador implements InterpretadorInterface {
                 break;
         }
 
-        throw new ErroEmTempoDeExecucao(
+        return Promise.reject(new ErroEmTempoDeExecucao(
             expressao.nome,
             'Você só pode acessar métodos do objeto e dicionários.',
             expressao.linha
-        );
+        ));
     }
 
     visitarExpressaoIsto(expressao: any): any {

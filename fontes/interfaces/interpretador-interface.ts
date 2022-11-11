@@ -10,7 +10,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao,
+    FuncaoDeclaracao,
     Importar,
     Leia,
     Para,
@@ -62,10 +62,10 @@ export interface InterpretadorInterface {
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
     visitarExpressaoDeleguaFuncao(expressao: any): any;
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): void;
+    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any>;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
-    visitarExpressaoDefinir(expressao: any): any;
-    visitarExpressaoFuncao(declaracao: Funcao): any;
+    visitarExpressaoDefinirValor(expressao: any): any;
+    visitarExpressaoFuncao(declaracao: FuncaoDeclaracao): any;
     visitarExpressaoClasse(declaracao: Classe): any;
     visitarExpressaoAcessoMetodo(expressao: any): any;
     visitarExpressaoIsto(expressao: any): any;

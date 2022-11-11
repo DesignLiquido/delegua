@@ -25,6 +25,6 @@ export class AcessoMetodo implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoAcessoMetodo(this));
+        return await visitante.visitarExpressaoAcessoMetodo(this);
     }
 }
