@@ -1,6 +1,6 @@
 import { Delegua } from "../../fontes/delegua";
 
-describe('Interpretador (Égua Clássico)', () => {
+describe.skip('Interpretador (Égua Clássico)', () => {
     describe('interpretar()', () => {
         let delegua: Delegua;
 

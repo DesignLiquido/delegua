@@ -25,6 +25,6 @@ export class AtribuicaoSobrescrita implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoAtribuicaoSobrescrita(this));
+        return await visitante.visitarExpressaoAtribuicaoSobrescrita(this);
     }
 }

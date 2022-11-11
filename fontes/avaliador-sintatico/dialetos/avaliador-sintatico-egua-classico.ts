@@ -10,8 +10,8 @@ import {
     Binario,
     Chamada,
     Dicionario,
-    Conjunto,
-    Funcao,
+    DefinirValor,
+    FuncaoConstruto,
     AcessoMetodo,
     Agrupamento,
     Literal,
@@ -35,7 +35,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Importar,
     Para,
     Sustar,
@@ -604,7 +604,7 @@ export class AvaliadorSintaticoEguaClassico
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                return new Conjunto(
+                return new DefinirValor(
                     this.hashArquivo,
                     0,
                     get.objeto,
@@ -1105,7 +1105,7 @@ export class AvaliadorSintaticoEguaClassico
         return new FuncaoDeclaracao(nome, this.corpoDaFuncao(kind));
     }
 
-    corpoDaFuncao(kind: string): Funcao {
+    corpoDaFuncao(kind: string): FuncaoConstruto {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${kind}.`
@@ -1164,7 +1164,7 @@ export class AvaliadorSintaticoEguaClassico
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(this.hashArquivo, 0, parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, 0, parametros, corpo);
     }
 
     declaracaoDeClasse(): Classe {

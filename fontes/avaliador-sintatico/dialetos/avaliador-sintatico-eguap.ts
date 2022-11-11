@@ -8,10 +8,10 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Conjunto,
+    DefinirValor,
     Construto,
     Dicionario,
-    Funcao,
+    FuncaoConstruto,
     Isto,
     Literal,
     Logico,
@@ -32,7 +32,7 @@ import {
     Tente,
     Fazer,
     Var,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Classe,
     Declaracao,
     Expressao,
@@ -623,7 +623,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
-                return new Conjunto(
+                return new DefinirValor(
                     this.hashArquivo,
                     0,
                     expressao.objeto,
@@ -1223,7 +1223,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return parametros;
     }
 
-    corpoDaFuncao(tipo: string): Funcao {
+    corpoDaFuncao(tipo: string): FuncaoConstruto {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${tipo}.`
@@ -1248,7 +1248,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(this.hashArquivo, 0, parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, 0, parametros, corpo);
     }
 
     declaracaoDeClasse(): Classe {

@@ -1,10 +1,10 @@
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { DeleguaFuncao } from '../estruturas/funcao';
 import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../estruturas/delegua-classe';
 import { InterpretadorInterface, VariavelInterface } from '../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { DeleguaFuncao } from '../estruturas';
 
 export default function (
     interpretador: InterpretadorInterface,

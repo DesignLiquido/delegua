@@ -17,6 +17,6 @@ export class Unario implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoUnaria(this));
+        return await visitante.visitarExpressaoUnaria(this);
     }
 }

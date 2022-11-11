@@ -23,6 +23,6 @@ export class Para extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoPara(this));
+        return await visitante.visitarExpressaoPara(this);
     }
 }

@@ -1,7 +1,7 @@
 import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
-export class Funcao extends Declaracao {
+export class FuncaoDeclaracao extends Declaracao {
     simbolo: SimboloInterface;
     funcao: any;
 

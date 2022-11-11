@@ -17,6 +17,6 @@ export class Fazer extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoFazer(this));
+        return await visitante.visitarExpressaoFazer(this);
     }
 }

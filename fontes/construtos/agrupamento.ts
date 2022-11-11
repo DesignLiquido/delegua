@@ -20,6 +20,6 @@ export class Agrupamento implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoAgrupamento(this));
+        return await visitante.visitarExpressaoAgrupamento(this);
     }
 }

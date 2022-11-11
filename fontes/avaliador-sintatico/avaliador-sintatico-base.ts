@@ -1,4 +1,4 @@
-import { Binario, Construto, Funcao, Logico, Unario } from '../construtos';
+import { Binario, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
     Escreva,
     Expressao,
@@ -13,7 +13,7 @@ import {
     Tente,
     Fazer,
     Var,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Classe,
     Declaracao,
     Leia,
@@ -294,7 +294,7 @@ export abstract class AvaliadorSintaticoBase
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    abstract corpoDaFuncao(tipo: string): Funcao;
+    abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
 
     declaracaoDeClasse(): Classe {
         throw new Error('Método não implementado.');

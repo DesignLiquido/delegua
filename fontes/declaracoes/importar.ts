@@ -13,6 +13,6 @@ export class Importar extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoImportar(this));
+        return await visitante.visitarExpressaoImportar(this);
     }
 }

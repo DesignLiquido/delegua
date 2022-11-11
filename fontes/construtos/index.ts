@@ -2,7 +2,7 @@ export * from './atribuicao-sobrescrita';
 export * from './atribuir';
 export * from './binario';
 export * from './chamada';
-export * from './conjunto';
+export * from './definir-valor';
 export * from './dicionario';
 export * from './construto';
 export * from './funcao';

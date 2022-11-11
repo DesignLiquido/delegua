@@ -14,6 +14,6 @@ export class Classe extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoClasse(this));
+        return await visitante.visitarExpressaoClasse(this);
     }
 }

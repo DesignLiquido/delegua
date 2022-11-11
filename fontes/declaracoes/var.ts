@@ -13,6 +13,6 @@ export class Var extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoVar(this));
+        return await visitante.visitarExpressaoVar(this);
     }
 }

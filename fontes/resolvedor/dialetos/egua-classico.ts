@@ -47,6 +47,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;
+    interfaceEntradaSaida: any = null;
 
     constructor() {
         this.erros = [];
@@ -470,7 +471,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoDefinir(expressao?: any): any {
+    visitarExpressaoDefinirValor(expressao?: any): any {
         this.resolver(expressao.valor);
         this.resolver(expressao.objeto);
         return null;
