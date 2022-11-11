@@ -14,16 +14,17 @@ jobs:
       with:
         node-version: '16'
     - name: NPM - Dependências
-      run: | 
+      run: |
         sudo npm install
     - name: Testes da Linguagem
-      run: | 
+      run: |
         sudo chmod +x ./bin/delegua-ts
         sudo npm run testes
         sudo npm run testes:delegua:bhaskara
         sudo npm run testes:delegua:fibonacci
 
   testes-unitarios:
+    if: github.repository == 'desabilitado'
     runs-on: ubuntu-latest
 
     steps:
@@ -32,8 +33,8 @@ jobs:
       with:
         node-version: '16'
     - name: NPM - Dependências
-      run: | 
+      run: |
         sudo npm install
     - name: Testes unitários
-      run: | 
+      run: |
         sudo npm run testes-unitarios
