@@ -24,7 +24,6 @@ jobs:
         sudo npm run testes:delegua:fibonacci
 
   testes-unitarios:
-    if: github.repository == 'desabilitado'
     runs-on: ubuntu-latest
 
     steps:
