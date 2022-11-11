@@ -98,12 +98,6 @@ export class Interpretador implements InterpretadorInterface {
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
-        /* this.interfaceDeEntrada = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout,
-            prompt: '\n> ',
-        }); */
-
         this.erros = [];
         this.declaracoes = [];
 
