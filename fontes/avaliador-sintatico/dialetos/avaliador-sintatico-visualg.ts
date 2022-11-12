@@ -164,6 +164,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    expressao(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA))
+            return this.declaracaoLeia();
+        return this.atribuir();
+    }
+
     blocoEscopo(): any[] {
         const declaracoes = [];
 
@@ -299,8 +305,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             );
 
             caminhos.push({
-                condicoes: caminhoCondicoes,
-                declaracoes,
+                condicoes: caminhoCondicoes.filter((c: any) => c),
+                declaracoes: declaracoes.filter(d => d),
             });
 
             simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
@@ -316,7 +322,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             );
 
             caminhoPadrao = {
-                declaracoes,
+                declaracoes: declaracoes.filter(d => d),
             };
         }
 
@@ -410,7 +416,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado quebra de linha após fechamento de parênteses pós instrução 'leia'."
         );
 
-        return null;
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), []);
     }
 
     declaracaoPara(): Para {
@@ -529,7 +535,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.REPITA:
                 return this.declaracaoFazer();
             default:
-                return this.atribuir();
+                return this.expressao();
         }
     }
 

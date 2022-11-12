@@ -24,6 +24,10 @@ jobs:
         sudo npm run testes:delegua:fibonacci
 
   testes-unitarios:
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +35,13 @@ jobs:
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '16'
-    - name: NPM - Dependências
-      run: |
-        sudo npm install
-    - name: Testes unitários
-      run: |
-        sudo npm run testes-unitarios
+    - uses: ArtiomTr/jest-coverage-report-action@v2
+      id: coverage
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        test-script: yarn testes-unitarios
+        package-manager: yarn
+        output: report-markdown
+    - uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        message: ${{ steps.coverage.outputs.report }}

@@ -1,7 +1,6 @@
 import * as caminho from 'path';
 import * as fs from 'fs';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import { EspacoVariaveis } from '../../espaco-variaveis';
 import { Delegua } from '../../delegua';
 import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';
@@ -56,6 +55,8 @@ import {
     SustarQuebra,
 } from '../../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)

@@ -301,6 +301,14 @@ export class Delegua implements DeleguaInterface {
             interpretador: [],
         };
 
+        const interfaceLeitura = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+            prompt: '\n> ',
+        });
+
+        this.interpretador.interfaceEntradaSaida = interfaceLeitura;
+
         if (this.modoDepuracao) {
             (
                 this.interpretador as InterpretadorComDepuracaoInterface
@@ -312,6 +320,7 @@ export class Delegua implements DeleguaInterface {
             errosExecucao = erros;
         }
 
+        interfaceLeitura.close();
         if (errosExecucao.length > 0) process.exit(70); // Código com exceções não tratadas
     }
 
@@ -357,7 +366,6 @@ export class Delegua implements DeleguaInterface {
     }
 
     reportar(linha: number, onde: any, mensagem: string): void {
-        // TODO: Voltar isso após revisar pragmas de Lexador.
         /* if (this.nomeArquivo)
             console.error(
                 chalk.red(`[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}]`) + ` Erro${onde}: ${mensagem}`
