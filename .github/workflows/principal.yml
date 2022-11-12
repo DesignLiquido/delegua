@@ -37,3 +37,10 @@ jobs:
     - name: Testes unitários
       run: |
         sudo npm run testes-unitarios
+    - uses: ArtiomTr/jest-coverage-report-action@v2
+      id: coverage
+      with:
+        output: report-markdown
+    - uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        message: ${{ steps.coverage.outputs.report }}
