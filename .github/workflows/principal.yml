@@ -35,14 +35,12 @@ jobs:
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '16'
-    - name: NPM - Dependências
-      run: |
-        sudo npm install
     - uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        test-script: sudo npm run testes-unitarios
+        test-script: yarn testes-unitarios
+        package-manager: yarn
         output: report-markdown
     - uses: marocchino/sticky-pull-request-comment@v2
       with:
