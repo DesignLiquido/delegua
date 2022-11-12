@@ -1,6 +1,6 @@
 import { Delegua } from '../fontes/delegua';
 
-describe.skip('Interpretador', () => {
+describe('Interpretador', () => {
     describe('interpretar()', () => {
         let delegua: Delegua;
 
