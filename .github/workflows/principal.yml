@@ -24,6 +24,10 @@ jobs:
         sudo npm run testes:delegua:fibonacci
 
   testes-unitarios:
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
