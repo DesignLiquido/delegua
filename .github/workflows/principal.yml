@@ -34,12 +34,10 @@ jobs:
     - name: NPM - Dependências
       run: |
         sudo npm install
-    - name: Testes unitários
-      run: |
-        sudo npm run testes-unitarios
     - uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage
       with:
+        test-script: sudo npm run testes-unitarios
         output: report-markdown
     - uses: marocchino/sticky-pull-request-comment@v2
       with:

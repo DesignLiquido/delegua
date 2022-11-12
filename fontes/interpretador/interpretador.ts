@@ -187,6 +187,12 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     async avaliar(expressao: Construto): Promise<any> {
+        // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
+        // Por algum motivo o depurador do VSCode não funciona direito aqui
+        // com breakpoint condicional.
+        /* if (expressao === null || expressao === undefined) {
+            console.log('Aqui');
+        } */
         return await expressao.aceitar(this);
     }
 
