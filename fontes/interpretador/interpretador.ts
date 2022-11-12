@@ -2,8 +2,6 @@ import * as caminho from 'path';
 import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
-import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
@@ -64,9 +62,11 @@ import {
 } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { inferirTipoVariavel } from './inferenciador';
-import primitivasTexto from '../bibliotecas/primitivas-texto';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
+
+import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),

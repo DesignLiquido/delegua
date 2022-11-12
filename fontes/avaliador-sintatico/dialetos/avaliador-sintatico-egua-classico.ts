@@ -1,5 +1,3 @@
-import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
-
 import {
     AvaliadorSintaticoInterface,
     SimboloInterface,
@@ -45,9 +43,12 @@ import {
     Var,
     Leia,
 } from '../../declaracoes';
+
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
