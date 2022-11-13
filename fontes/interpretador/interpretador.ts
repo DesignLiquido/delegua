@@ -836,11 +836,16 @@ export class Interpretador implements InterpretadorInterface {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(
-            declaracao.simbolo.lexema,
-            valorOuOutraVariavel.hasOwnProperty('valor')
+        let valorFinal = null;
+        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
                 ? valorOuOutraVariavel.valor
                 : valorOuOutraVariavel
+        }
+
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            valorFinal
         );
 
         return null;
@@ -872,9 +877,12 @@ export class Interpretador implements InterpretadorInterface {
             this.avaliar(expressao.valor)
         ]);
 
-        const objeto = promises[0];
+        let objeto = promises[0];
         let indice = promises[1];
         const valor = promises[2];
+
+        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
+        indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -931,11 +939,11 @@ export class Interpretador implements InterpretadorInterface {
             }
 
             if (valorIndice >= objeto.length) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
                     'Índice do vetor fora do intervalo.',
                     expressao.linha
-                );
+                ));
             }
             return objeto[valorIndice];
         } else if (
