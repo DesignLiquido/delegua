@@ -79,6 +79,9 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA);
                 this.avancar();
                 break;
+            case 'BORA CUMPADE':
+                this.adicionarSimbolo(tiposDeSimbolos.BORA_CUMPADE);
+                this.avancar();
             default:
                 this.avancar();
                 break;
@@ -131,32 +134,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                     } as ErroLexador);
                 this.avancar();
             // this.analisaPalavraChave();
-        }
-    }
-
-    analisaPalavraChave(): void {
-        while (this.simboloAtual() !== '\n') {
-            this.avancar();
-        }
-
-        const valor = this.codigo.substring(this.inicioSimbolo, this.atual - 1).trimStart();
-
-        switch (valor) {
-            case 'HORA DO SHOW':
-                this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW);
-                this.avancar();
-                break;
-            case 'BIRL':
-                this.adicionarSimbolo(tiposDeSimbolos.BIRL);
-                this.avancar();
-                break;
-            case 'CE QUER VER ESSA PORRA?':
-                this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA, valor);
-                this.avancar();
-                break;
-            default:
-                this.avancar();
-                break;
         }
     }
 
