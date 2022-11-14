@@ -56,7 +56,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
     identificarPalavraChave(): void {
         while (this.simboloAtual() !== '\n' && this.simboloAtual() !== '?') {
-            console.log(this.simboloAtual());
             this.avancar();
         }
 
@@ -92,22 +91,30 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         switch (caractere) {
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.avancar();
                 break;
             case ')':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
                 break;
             case '=':
                 this.adicionarSimbolo(this.proximoIgualA('=') ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL);
+                this.avancar();
                 break;
             case "'":
                 this.analisarTexto("'");
+                this.avancar();
                 break;
             case '"':
+                this.avancar();
                 this.analisarTexto('"');
+                this.avancar();
                 break;
             case ';':
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
+                this.avancar();
                 break;
+            case ' ':
             case '\0':
             case '\r':
             case '\t':
