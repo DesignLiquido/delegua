@@ -1,4 +1,4 @@
-import { Delegua } from "../fontes/delegua";
+import { Delegua } from '../fontes/delegua';
 
 describe('Delégua', () => {
     let delegua: Delegua;
@@ -7,12 +7,11 @@ describe('Delégua', () => {
         delegua = new Delegua('delegua');
     });
 
-    describe('Sucesso', () => {        
+    describe('Sucesso', () => {
         it('Obter versão Delégua', () => {
             const versaoDelegua = delegua.versao();
 
             expect(versaoDelegua).toBeTruthy();
         });
     });
-
 });

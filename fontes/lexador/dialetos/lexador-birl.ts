@@ -22,13 +22,10 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
     }
 
     analisarTexto(delimitador: string): void {
-        // corre o array codigo ate encontrar o delimitador
-        // setando na o endereço dele na this.atual
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
 
-        // se for o final do codigo gera um erro e faz o push no array de erros
         if (this.eFinalDoCodigo()) {
             this.erros.push({
                 linha: this.linha + 1,
@@ -38,17 +35,14 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             return;
         }
 
-        // caso o delimitador seja encontrado
-        // faz a tratativa e adiciona no array de simbolos junto com o tipo dele.
         const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
         this.adicionarSimbolo(tiposDeSimbolos.FR, valor);
     }
+
     analisarNumero(): void {
-        // trata numero
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
-        // trata numero flutuante
         if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
             this.avancar();
 
@@ -56,22 +50,42 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
             }
         }
-        // faz a tratativa e salva nos simbolos
         const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
         this.adicionarSimbolo(tiposDeSimbolos.T, parseFloat(numeroCompleto));
     }
+
     identificarPalavraChave(): void {
-        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+        while (this.simboloAtual() !== '\n' && this.simboloAtual() !== '?') {
+            console.log(this.simboloAtual());
             this.avancar();
         }
 
-        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
-        if (codigo in palavrasReservadas) {
-            this.adicionarSimbolo(palavrasReservadas[codigo]);
-        } else {
-            this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW, codigo);
+        const proximo = this.simboloAtual();
+
+        const valor =
+            proximo !== '?'
+                ? this.codigo.substring(this.inicioSimbolo, this.atual - 1).trim()
+                : this.codigo.substring(this.inicioSimbolo, this.atual + 1).trim();
+
+        switch (valor) {
+            case 'HORA DO SHOW':
+                this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW);
+                this.avancar();
+                break;
+            case 'BIRL':
+                this.adicionarSimbolo(tiposDeSimbolos.BIRL);
+                this.avancar();
+                break;
+            case 'CE QUER VER ESSA PORRA?':
+                this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA);
+                this.avancar();
+                break;
+            default:
+                this.avancar();
+                break;
         }
     }
+
     analisarToken(): void {
         const caractere = this.simboloAtual();
 
@@ -94,22 +108,22 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             case ';':
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 break;
-            // case ' ':
             case '\0':
             case '\r':
             case '\t':
                 this.avancar();
                 break;
             default:
-                this.analisaPalavraChave();
-            // if (this.eDigito(caractere as string)) this.analisarNumero();
-            // else if (this.eAlfabeto(caractere as string)) this.identificarPalavraChave();
-            // else
-            //     this.erros.push({
-            //         linha: this.linha,
-            //         caractere: caractere,
-            //         mensagem: 'Caractere inesperado.',
-            //     } as ErroLexador);
+                if (this.eDigito(caractere)) this.analisarNumero();
+                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
+                else
+                    this.erros.push({
+                        linha: this.linha,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.',
+                    } as ErroLexador);
+                this.avancar();
+            // this.analisaPalavraChave();
         }
     }
 
@@ -160,11 +174,11 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
     }
 
     mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
-        // this.erros = [];
-        // this.simbolos = [];
-        // this.inicioSimbolo = 0;
-        // this.atual = 0;
-        // this.linha = 1;
+        this.erros = [];
+        this.simbolos = [];
+        this.inicioSimbolo = 0;
+        this.atual = 0;
+        this.linha = 1;
 
         this.codigo = codigo.join('\n') || '';
 
