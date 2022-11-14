@@ -1,7 +1,7 @@
 import { InterpretadorInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class Funcao implements Construto {
+export class FuncaoConstruto implements Construto {
     linha: number;
     hashArquivo?: number;
 
@@ -21,7 +21,7 @@ export class Funcao implements Construto {
         this.corpo = corpo;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
-        return visitante.visitarExpressaoDeleguaFuncao(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoDeleguaFuncao(this));
     }
 }

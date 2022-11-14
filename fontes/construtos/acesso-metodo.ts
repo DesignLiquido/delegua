@@ -24,7 +24,7 @@ export class AcessoMetodo implements Construto {
         this.simbolo = simbolo;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoAcessoMetodo(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoAcessoMetodo(this);
     }
 }

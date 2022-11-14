@@ -16,7 +16,7 @@ export class Literal implements Construto {
         this.valor = valor;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
-        return visitante.visitarExpressaoLiteral(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoLiteral(this));
     }
 }

@@ -1,6 +1,6 @@
 import { InterpretadorInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
-import { DeleguaFuncao } from './funcao';
+import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 export class DeleguaClasse extends Chamavel {

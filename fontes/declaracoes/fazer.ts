@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Fazer extends Declaracao {
@@ -15,7 +16,7 @@ export class Fazer extends Declaracao {
         this.condicaoEnquanto = condicaoEnquanto;
     }
 
-    aceitar(visitante: any): any {
-        return visitante.visitarExpressaoFazer(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoFazer(this);
     }
 }

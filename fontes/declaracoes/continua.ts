@@ -1,4 +1,4 @@
-import { SimboloInterface } from '../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Continua extends Declaracao {
@@ -6,7 +6,7 @@ export class Continua extends Declaracao {
         super(Number(simbolo.linha), simbolo.hashArquivo);
     }
 
-    aceitar(visitante: any): any {
-        return visitante.visitarExpressaoContinua(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.resolve(visitante.visitarExpressaoContinua(this));
     }
 }

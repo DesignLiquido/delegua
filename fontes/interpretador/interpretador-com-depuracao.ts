@@ -65,7 +65,7 @@ export class InterpretadorComDepuracao
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): any {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
             const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(
@@ -74,7 +74,7 @@ export class InterpretadorComDepuracao
             let retornoExecucao: any;
 
             // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
-            retornoExecucao = this.executar(
+            retornoExecucao = await this.executar(
                 proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
             );
             proximoEscopo.declaracaoAtual++;
@@ -94,7 +94,7 @@ export class InterpretadorComDepuracao
                     break;
                 }
 
-                retornoExecucao = this.executar(
+                retornoExecucao = await this.executar(
                     proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
                 );
             }
@@ -118,7 +118,7 @@ export class InterpretadorComDepuracao
             }
 
             if (!this.comandoAdentrarEscopo) {
-                return this.executarUltimoEscopo();
+                return await this.executarUltimoEscopo();
             }
         }
     }
@@ -154,10 +154,10 @@ export class InterpretadorComDepuracao
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    executarUltimoEscopo(
+    async executarUltimoEscopo(
         manterAmbiente = false,
         naoVerificarPrimeiraExecucao = false
-    ): any {
+    ): Promise<any> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
 
         try {
@@ -179,7 +179,7 @@ export class InterpretadorComDepuracao
                     }
                 }
 
-                retornoExecucao = this.executar(
+                retornoExecucao = await this.executar(
                     ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
                 );
             }
@@ -213,13 +213,13 @@ export class InterpretadorComDepuracao
      * Diferentemente de `executarUltimoEscopo`, este método descarta apenas um escopo (o que foi chamado).
      * @see executarBloco
      */
-    continuarInterpretacao(): void {
+    async continuarInterpretacao(): Promise<any> {
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
 
         let retornoExecucao: any;
         // Primeira execução sempre ocorre, independente de pontos de parada.
-        retornoExecucao = this.executar(
+        retornoExecucao = await this.executar(
             primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
         );
         primeiroEscopo.declaracaoAtual++;
@@ -237,7 +237,7 @@ export class InterpretadorComDepuracao
                 break;
             }
 
-            retornoExecucao = this.executar(
+            retornoExecucao = await this.executar(
                 primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
             );
         }
@@ -259,7 +259,7 @@ export class InterpretadorComDepuracao
      * primeiro escopo, subindo até o último elemento executado do último escopo.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    interpretacaoApenasUmaInstrucao(escopo = 1) {
+    async interpretacaoApenasUmaInstrucao(escopo = 1) {
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual) {
@@ -267,7 +267,7 @@ export class InterpretadorComDepuracao
         } else {
             const declaracaoAtual =
                 escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
-            this.executar(declaracaoAtual);
+            await this.executar(declaracaoAtual);
             // Blocos de escopo que não sejam de funções adentram
             // o escopo ativo por padrão, por isso o teste abaixo.
             // this.adentrarEscopoAtivo = Object.getPrototypeOf(declaracaoAtual).constructor.name !== 'Funcao';
@@ -302,7 +302,7 @@ export class InterpretadorComDepuracao
      * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    proximoESair(escopo = 1) {
+    async proximoESair(escopo = 1) {
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual - 1) {
@@ -317,7 +317,7 @@ export class InterpretadorComDepuracao
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = this.executar(
+                retornoExecucao = await this.executar(
                     ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
                 );
             }
@@ -365,10 +365,10 @@ export class InterpretadorComDepuracao
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    interpretar(
+    async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente = false
-    ): RetornoInterpretador {
+    ): Promise<RetornoInterpretador> {
         this.erros = [];
         this.declaracoes = declaracoes;
 
@@ -380,7 +380,7 @@ export class InterpretadorComDepuracao
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
 
-        this.executarUltimoEscopo(manterAmbiente);
+        await this.executarUltimoEscopo(manterAmbiente);
 
         const retorno = {
             erros: this.erros,

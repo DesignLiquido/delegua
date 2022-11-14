@@ -8,10 +8,10 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Conjunto,
+    DefinirValor,
     Construto,
     Dicionario,
-    Funcao,
+    FuncaoConstruto,
     Isto,
     Literal,
     Logico,
@@ -32,12 +32,13 @@ import {
     Tente,
     Fazer,
     Var,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Classe,
     Declaracao,
     Expressao,
     Bloco,
     Sustar,
+    Leia,
 } from '../../declaracoes';
 
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
@@ -445,7 +446,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
-                return new Conjunto(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
+                return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(
                     this.hashArquivo,
@@ -462,6 +463,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     expressao(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
         return this.atribuir();
     }
 
@@ -484,6 +486,22 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     declaracaoExpressao() {
         const expressao = this.expressao();
         return new Expressao(expressao);
+    }
+
+    declaracaoLeia(): Leia {
+        const simboloAtual = this.simbolos[this.atual];
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
+
+        const argumentos: Construto[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
+
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
     blocoEscopo() {
@@ -852,7 +870,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return parametros;
     }
 
-    corpoDaFuncao(tipo: string): Funcao {
+    corpoDaFuncao(tipo: string): FuncaoConstruto {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${tipo}.`);
 
         let parametros = [];
@@ -866,7 +884,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(this.hashArquivo, 0, parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, 0, parametros, corpo);
     }
 
     declaracaoDeClasse(): Classe {

@@ -1,6 +1,6 @@
 import { ErroAvaliadorSintatico } from '../avaliador-sintatico/erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from './retornos/retorno-avaliador-sintatico';
-import { Construto, Funcao } from '../construtos';
+import { Construto, FuncaoConstruto } from '../construtos';
 import {
     Classe,
     Continua,
@@ -9,8 +9,9 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
     Retorna,
     Se,
@@ -53,13 +54,14 @@ export interface AvaliadorSintaticoInterface {
     e(): Construto;
     ou(): Construto;
     atribuir(): Construto;
+    blocoEscopo(): any[];
     expressao(): Construto;
+    declaracaoEnquanto(): Enquanto;
     declaracaoEscreva(): Escreva;
     declaracaoExpressao(): Expressao;
-    blocoEscopo(): any[];
-    declaracaoSe(): Se;
-    declaracaoEnquanto(): Enquanto;
+    declaracaoLeia(): Leia;
     declaracaoPara(): Para;
+    declaracaoSe(): Se;
     declaracaoSustar(): Sustar;
     declaracaoContinua(): Continua;
     declaracaoRetorna(): Retorna;
@@ -70,7 +72,7 @@ export interface AvaliadorSintaticoInterface {
     resolverDeclaracao(): any;
     declaracaoDeVariavel(): Var;
     funcao(tipo: string): FuncaoDeclaracao;
-    corpoDaFuncao(tipo: string): Funcao;
+    corpoDaFuncao(tipo: string): FuncaoConstruto;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;

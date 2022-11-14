@@ -1,5 +1,3 @@
-import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
-
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
 import {
     AtribuicaoSobrescrita,
@@ -7,8 +5,8 @@ import {
     Binario,
     Chamada,
     Dicionario,
-    Conjunto,
-    Funcao,
+    DefinirValor,
+    FuncaoConstruto,
     AcessoMetodo,
     Agrupamento,
     Literal,
@@ -32,7 +30,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Importar,
     Para,
     Sustar,
@@ -40,10 +38,14 @@ import {
     Se,
     Tente,
     Var,
+    Leia,
 } from '../../declaracoes';
+
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -62,6 +64,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         this.atual = 0;
         this.blocos = 0;
+    }
+
+    declaracaoLeia(): Leia {
+        throw new Error('Método não implementado.');
     }
 
     sincronizar(): void {
@@ -418,7 +424,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+                return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(
                     this.hashArquivo,
@@ -749,7 +755,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return new FuncaoDeclaracao(nome, this.corpoDaFuncao(kind));
     }
 
-    corpoDaFuncao(kind: string): Funcao {
+    corpoDaFuncao(kind: string): FuncaoConstruto {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${kind}.`);
 
         const parametros = [];
@@ -785,7 +791,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(this.hashArquivo, 0, parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, 0, parametros, corpo);
     }
 
     declaracaoDeClasse(): Classe {

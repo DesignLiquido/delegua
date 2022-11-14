@@ -1,4 +1,4 @@
-import { Binario, Construto, Funcao, Logico, Unario } from '../construtos';
+import { Binario, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
     Escreva,
     Expressao,
@@ -13,9 +13,10 @@ import {
     Tente,
     Fazer,
     Var,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Classe,
     Declaracao,
+    Leia,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../interfaces/retornos';
@@ -73,6 +74,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         }
 
         return false;
+    }
+
+    declaracaoLeia(): Leia {
+        throw new Error('Method not implemented.');
     }
 
     abstract primario(): Construto;
@@ -262,7 +267,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    abstract corpoDaFuncao(tipo: string): Funcao;
+    abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
 
     declaracaoDeClasse(): Classe {
         throw new Error('Método não implementado.');

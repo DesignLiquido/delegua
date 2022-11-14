@@ -50,6 +50,6 @@ export interface ResolvedorInterface {
     visitarExpressaoLiteral(expressao?: any): any;
     visitarExpressaoLogica(expressao?: any): any;
     visitarExpressaoUnaria(expressao?: any): any;
-    visitarExpressaoDefinir(expressao?: any): any;
+    visitarExpressaoDefinirValor(expressao?: any): any;
     visitarExpressaoIsto(expressao?: any): any;
 }

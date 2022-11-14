@@ -1,7 +1,7 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Var } from '../../declaracoes';
-import { Atribuir, Binario, Construto, Funcao, Literal, Variavel } from '../../construtos';
+import { Atribuir, Binario, Construto, FuncaoConstruto, Literal, Variavel } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../../lexador';
 
@@ -100,6 +100,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    expressao(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
+        return this.atribuir();
+    }
+
     blocoEscopo(): any[] {
         const declaracoes = [];
 
@@ -115,7 +120,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.primario();
     }
 
-    corpoDaFuncao(tipo: any): Funcao {
+    corpoDaFuncao(tipo: any): FuncaoConstruto {
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
         // Tipo retornado pela função.
@@ -130,7 +135,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(-1, -1, null, corpo);
+        return new FuncaoConstruto(-1, -1, null, corpo);
     }
 
     declaracaoEnquanto(): Enquanto {
@@ -200,8 +205,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             );
 
             caminhos.push({
-                condicoes: caminhoCondicoes,
-                declaracoes,
+                condicoes: caminhoCondicoes.filter((c: any) => c),
+                declaracoes: declaracoes.filter((d) => d),
             });
 
             simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
@@ -215,7 +220,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             } while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_ESCOLHA));
 
             caminhoPadrao = {
-                declaracoes,
+                declaracoes: declaracoes.filter((d) => d),
             };
         }
 
@@ -289,7 +294,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado quebra de linha após fechamento de parênteses pós instrução 'leia'."
         );
 
-        return null;
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), []);
     }
 
     declaracaoPara(): Para {
@@ -392,7 +397,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.REPITA:
                 return this.declaracaoFazer();
             default:
-                return this.atribuir();
+                return this.expressao();
         }
     }
 

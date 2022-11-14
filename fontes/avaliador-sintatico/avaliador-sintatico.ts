@@ -7,8 +7,8 @@ import {
     Binario,
     Chamada,
     Dicionario,
-    Conjunto,
-    Funcao,
+    DefinirValor,
+    FuncaoConstruto,
     AcessoMetodo as AcessoMetodo,
     Agrupamento,
     Literal,
@@ -34,7 +34,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao as FuncaoDeclaracao,
+    FuncaoDeclaracao as FuncaoDeclaracao,
     Importar,
     Para,
     Sustar,
@@ -42,6 +42,7 @@ import {
     Se,
     Tente,
     Var,
+    Leia,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -446,6 +447,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
                 return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+                return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(
                     this.hashArquivo,
@@ -462,6 +464,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     expressao(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
         return this.atribuir();
     }
 
@@ -484,6 +487,22 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
         return new Expressao(expressao);
+    }
+
+    declaracaoLeia(): Leia {
+        const simboloAtual = this.simbolos[this.atual];
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
+
+        const argumentos: Construto[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
+
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
     blocoEscopo(): Array<RetornoDeclaracao> {
@@ -826,7 +845,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return parametros;
     }
 
-    corpoDaFuncao(tipo: string): Funcao {
+    corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
         const parenteseEsquerdo = this.consumir(
