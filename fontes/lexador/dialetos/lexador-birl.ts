@@ -113,44 +113,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
     }
 
-    pegaParamentroDaFuncao(): string | void {
-        // verificar se tem o ( nos 2 proximos this.atual
-        // se n tiver estourar um erro
-        // se tiver
-
-        let cache: number;
-
-        for (let i = 1; i <= 2; i++) {
-            if (this.codigo[this.atual + i] == '(') {
-                if (this.codigo[this.atual + i + 1] === "'" || this.codigo[this.atual + i + 1] === '"') {
-                    cache = this.codigo[this.atual + i + 1].length;
-                    while (this.codigo[this.atual + i + 1]) {
-                        // loop infinito
-                        this.avancar();
-                        if (this.codigo[this.atual + i + 1] === "'" || this.codigo[this.atual + i + 1] === '"') {
-                            const value = this.codigo.substring(cache, this.atual + i + 1);
-                            return value;
-                        }
-                    }
-                }
-            }
-        }
-
-        // retornar um erro
-        this.erros.push({
-            linha: this.linha,
-            caractere: this.simboloAnterior(),
-            mensagem: 'Erro ao tentar pegar os paramentros.',
-        } as ErroLexador);
-        return;
-    }
-
     analisaPalavraChave(): void {
         while (this.simboloAtual() !== '\n') {
             this.avancar();
         }
 
-        const valor = this.codigo.substring(this.inicioSimbolo, this.atual - 1);
+        const valor = this.codigo.substring(this.inicioSimbolo, this.atual - 1).trimStart();
+
         switch (valor) {
             case 'HORA DO SHOW':
                 this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW);
@@ -161,8 +130,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case 'CE QUER VER ESSA PORRA?':
-                this.pegaParamentroDaFuncao();
-                this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA);
+                this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA, valor);
                 this.avancar();
                 break;
             default:
