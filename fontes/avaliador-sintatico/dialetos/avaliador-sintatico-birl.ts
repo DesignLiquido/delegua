@@ -18,31 +18,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        // Creio q isso e para fazer a criação de variaveis
-        // mais não ha nenhum prefixo para criar variavel
-        // nessa linguagem
-        // acho q terei que pegar essa verificação com base no '='
-        // Em tese considerando que seja [ FRANGO FR = 'a'; ]
-        // new Variavel receberia no simbolo o valor de FR
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            return new Variavel(-1, this.simbolos[this.atual - 1]);
-        }
-
-        // não tenho certeza mais isso deve ser pra tipar a variavel criada a cima.
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.FR,
-                tiposDeSimbolos.M1,
-                tiposDeSimbolos.M2,
-                tiposDeSimbolos.M3,
-                tiposDeSimbolos.T,
-                tiposDeSimbolos.TD,
-                tiposDeSimbolos.BF
-            )
-        ) {
-            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(-1, Number(simboloAnterior.linha), simboloAnterior.literal);
-        }
+        throw new Error('Method not implemented');
     }
     chamar(): Construto {
         return this.primario();

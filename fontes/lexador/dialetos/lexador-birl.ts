@@ -36,7 +36,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
 
         const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.FR, valor);
+        this.adicionarSimbolo(tiposDeSimbolos.FRANGO, valor);
     }
 
     analisarNumero(): void {
@@ -51,7 +51,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             }
         }
         const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.T, parseFloat(numeroCompleto));
+        this.adicionarSimbolo(tiposDeSimbolos.TRAPEZIO, parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave(): void {
