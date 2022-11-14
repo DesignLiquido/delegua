@@ -1,4 +1,4 @@
-import { Construto, Funcao, Literal, Variavel } from '../../construtos';
+import { Construto, FuncaoConstruto, Literal, Variavel } from '../../construtos';
 import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -68,7 +68,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     declaracaoFazer(): Fazer {
         throw new Error('Method not implemented.');
     }
-    corpoDaFuncao(tipo: string): Funcao {
+    corpoDaFuncao(tipo: string): FuncaoConstruto {
         throw new Error('Method not implemented.');
     }
     declaracao(): Declaracao {

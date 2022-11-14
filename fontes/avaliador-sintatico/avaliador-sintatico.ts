@@ -446,7 +446,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+                // return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(
@@ -863,7 +863,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const corpo = this.blocoEscopo();
 
-        return new Funcao(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     }
 
     declaracaoDeClasse(): Classe {
