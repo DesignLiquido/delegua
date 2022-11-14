@@ -1,27 +1,7 @@
-import {
-    RetornoLexador,
-    RetornoAvaliadorSintatico,
-} from '../../interfaces/retornos';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import {
-    Bloco,
-    Declaracao,
-    Enquanto,
-    Escolha,
-    Escreva,
-    Fazer,
-    Leia,
-    Para,
-    Var,
-} from '../../declaracoes';
-import {
-    Atribuir,
-    Binario,
-    Construto,
-    FuncaoConstruto,
-    Literal,
-    Variavel,
-} from '../../construtos';
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Var } from '../../declaracoes';
+import { Atribuir, Binario, Construto, FuncaoConstruto, Literal, Variavel } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../../lexador';
 
@@ -29,20 +9,11 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     validarSegmentoAlgoritmo(): void {
-        this.consumir(
-            tiposDeSimbolos.ALGORITMO,
-            "Esperada expressão 'algoritmo' para inicializar programa."
-        );
+        this.consumir(tiposDeSimbolos.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
 
-        this.consumir(
-            tiposDeSimbolos.CARACTERE,
-            "Esperad cadeia de caracteres após palavra-chave 'algoritmo'."
-        );
+        this.consumir(tiposDeSimbolos.CARACTERE, "Esperad cadeia de caracteres após palavra-chave 'algoritmo'.");
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após definição do segmento 'algoritmo'."
-        );
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
     }
 
     /**
@@ -60,45 +31,24 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
-            const identificador = this.consumir(
-                tiposDeSimbolos.IDENTIFICADOR,
-                'Esperado nome de variável.'
-            );
-            this.consumir(
-                tiposDeSimbolos.DOIS_PONTOS,
-                'Esperado dois-pontos após nome de variável.'
-            );
+            const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de variável.');
 
-            if (
-                !this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.INTEIRO,
-                    tiposDeSimbolos.CARACTERE
-                )
-            ) {
-                throw this.erro(
-                    this.simbolos[this.atual],
-                    'Tipo de variável não conhecido.'
-                );
+            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE)) {
+                throw this.erro(this.simbolos[this.atual], 'Tipo de variável não conhecido.');
             }
 
             const tipoVariavel = this.simbolos[this.atual - 1].tipo;
 
-            this.consumir(
-                tiposDeSimbolos.QUEBRA_LINHA,
-                'Esperado quebra de linha após declaração de variável.'
-            );
+            this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 'Esperado quebra de linha após declaração de variável.');
 
             // Se chegou até aqui, variável é válida.
             switch (tipoVariavel) {
                 case tiposDeSimbolos.INTEIRO:
-                    inicializacoes.push(
-                        new Var(identificador, new Literal(-1, -1, 0))
-                    );
+                    inicializacoes.push(new Var(identificador, new Literal(-1, -1, 0)));
                     break;
                 case tiposDeSimbolos.CARACTERE:
-                    inicializacoes.push(
-                        new Var(identificador, new Literal(-1, -1, ''))
-                    );
+                    inicializacoes.push(new Var(identificador, new Literal(-1, -1, '')));
                     break;
             }
         }
@@ -118,25 +68,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(-1, this.simbolos[this.atual - 1]);
         }
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NUMERO,
-                tiposDeSimbolos.CARACTERE
-            )
-        ) {
-            const simboloAnterior: SimboloInterface =
-                this.simbolos[this.atual - 1];
-            return new Literal(
-                -1,
-                Number(simboloAnterior.linha),
-                simboloAnterior.literal
-            );
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.CARACTERE)) {
+            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
+            return new Literal(-1, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
     }
 
@@ -147,9 +85,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     atribuir(): Construto {
         const expressao = this.ou();
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.atribuir();
 
@@ -165,25 +101,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     expressao(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA))
-            return this.declaracaoLeia();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
         return this.atribuir();
     }
 
     blocoEscopo(): any[] {
         const declaracoes = [];
 
-        while (
-            !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_FUNCAO) &&
-            !this.estaNoFinal()
-        ) {
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_FUNCAO) && !this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
 
-        this.consumir(
-            tiposDeSimbolos.FIM_FUNCAO,
-            "Esperado palavra-chave 'fimfuncao' após o bloco."
-        );
+        this.consumir(tiposDeSimbolos.FIM_FUNCAO, "Esperado palavra-chave 'fimfuncao' após o bloco.");
         return declaracoes;
     }
 
@@ -192,28 +121,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     corpoDaFuncao(tipo: any): FuncaoConstruto {
-        this.consumir(
-            tiposDeSimbolos.DOIS_PONTOS,
-            'Esperado dois-pontos após nome de função.'
-        );
+        this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
         // Tipo retornado pela função.
-        if (
-            !this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.INTEIRO,
-                tiposDeSimbolos.CARACTERE
-            )
-        ) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                'Esperado um tipo válido para retorno de função'
-            );
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE)) {
+            throw this.erro(this.simbolos[this.atual], 'Esperado um tipo válido para retorno de função');
         }
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após tipo retornado por 'funcao'."
-        );
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
 
         this.validarSegmentoVar();
         this.validarSegmentoInicio('função');
@@ -241,29 +156,21 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const declaracoes = [];
         do {
             declaracoes.push(this.declaracao());
-        } while (
-            ![tiposDeSimbolos.FIM_ENQUANTO].includes(
-                this.simbolos[this.atual].tipo
-            )
-        );
+        } while (![tiposDeSimbolos.FIM_ENQUANTO].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(
             tiposDeSimbolos.FIM_ENQUANTO,
             "Esperado palavra-chave 'fimenquanto' para fechamento de declaração 'enquanto'."
         );
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após palavra-chave 'fimenquanto'."
-        );
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimenquanto'.");
 
         return new Enquanto(condicao, declaracoes);
     }
 
     logicaCasosEscolha(): any {
         const literais = [];
-        let simboloAtualCaso: SimboloInterface =
-            this.avancarEDevolverAnterior();
+        let simboloAtualCaso: SimboloInterface = this.avancarEDevolverAnterior();
         while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
             literais.push(this.primario());
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA);
@@ -280,13 +187,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         // Blocos de caso
         const caminhos = [];
-        let simboloAtualBlocoCaso: SimboloInterface =
-            this.avancarEDevolverAnterior();
-        while (
-            ![tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(
-                simboloAtualBlocoCaso.tipo
-            )
-        ) {
+        let simboloAtualBlocoCaso: SimboloInterface = this.avancarEDevolverAnterior();
+        while (![tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(simboloAtualBlocoCaso.tipo)) {
             const caminhoCondicoes = this.logicaCasosEscolha();
             this.consumir(
                 tiposDeSimbolos.QUEBRA_LINHA,
@@ -297,16 +199,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             do {
                 declaracoes.push(this.declaracao());
             } while (
-                ![
-                    tiposDeSimbolos.CASO,
-                    tiposDeSimbolos.OUTRO_CASO,
-                    tiposDeSimbolos.FIM_ESCOLHA,
-                ].includes(this.simbolos[this.atual].tipo)
+                ![tiposDeSimbolos.CASO, tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(
+                    this.simbolos[this.atual].tipo
+                )
             );
 
             caminhos.push({
                 condicoes: caminhoCondicoes.filter((c: any) => c),
-                declaracoes: declaracoes.filter(d => d),
+                declaracoes: declaracoes.filter((d) => d),
             });
 
             simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
@@ -317,12 +217,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             const declaracoes = [];
             do {
                 declaracoes.push(this.declaracao());
-            } while (
-                !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_ESCOLHA)
-            );
+            } while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_ESCOLHA));
 
             caminhoPadrao = {
-                declaracoes: declaracoes.filter(d => d),
+                declaracoes: declaracoes.filter((d) => d),
             };
         }
 
@@ -331,10 +229,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado palavra-chave 'fimescolha' para fechamento de declaração 'escolha'."
         );
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após palavra-chave 'fimescolha'."
-        );
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimescolha'.");
 
         return new Escolha(identificador, caminhos, caminhoPadrao);
     }
@@ -342,17 +237,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        this.consumir(
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            "Esperado '(' antes dos valores em escreva."
-        );
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
 
         const valor = this.declaracao();
 
-        this.consumir(
-            tiposDeSimbolos.PARENTESE_DIREITO,
-            "Esperado ')' após os valores em escreva."
-        );
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
@@ -369,17 +258,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoFazer(): Fazer {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após instrução 'repita'."
-        );
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após instrução 'repita'.");
 
         const declaracoes = [];
         do {
             declaracoes.push(this.declaracao());
-        } while (
-            ![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo)
-        );
+        } while (![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(
             tiposDeSimbolos.ATE,
@@ -399,17 +283,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        this.consumir(
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            "Esperado '(' antes dos valores em leia."
-        );
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
 
         const valor = this.declaracao();
 
-        this.consumir(
-            tiposDeSimbolos.PARENTESE_DIREITO,
-            "Esperado ')' após os valores em leia."
-        );
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
@@ -427,10 +305,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado identificador de variável após 'para'."
         );
 
-        this.consumir(
-            tiposDeSimbolos.DE,
-            "Esperado palavra reservada 'de' após variáve de controle de 'para'."
-        );
+        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
 
         const numeroInicio = this.consumir(
             tiposDeSimbolos.NUMERO,
@@ -464,10 +339,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             simboloAtualBlocoPara = this.avancarEDevolverAnterior();
         }
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após palavra reservada 'fimpara'."
-        );
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'fimpara'.");
 
         const corpo = new Bloco(
             -1,
@@ -478,21 +350,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Para(
             -1,
             Number(simboloPara.linha),
-            new Atribuir(
-                -1,
-                variavelIteracao,
-                new Literal(-1, -1, numeroInicio.literal)
-            ),
+            new Atribuir(-1, variavelIteracao, new Literal(-1, -1, numeroInicio.literal)),
             new Binario(
                 -1,
                 new Variavel(-1, variavelIteracao),
-                new Simbolo(
-                    tiposDeSimbolos.MENOR,
-                    '',
-                    '',
-                    Number(simboloPara.linha),
-                    -1
-                ),
+                new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(simboloPara.linha), -1),
                 new Literal(-1, -1, numeroFim.literal)
             ),
             new Atribuir(
@@ -551,13 +413,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @param retornoLexador Os símbolos entendidos pelo Lexador.
      * @param hashArquivo Obrigatório por interface mas não usado aqui.
      */
-    analisar(
-        retornoLexador: RetornoLexador,
-        hashArquivo?: number
-    ): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
         this.erros = [];
         this.atual = 0;
-        this.ciclos = 0;
+        this.blocos = 0;
 
         this.simbolos = retornoLexador?.simbolos || [];
 
@@ -566,10 +425,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         declaracoes = declaracoes.concat(this.validarSegmentoVar());
         this.validarSegmentoInicio('algoritmo');
 
-        while (
-            !this.estaNoFinal() &&
-            this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO
-        ) {
+        while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
             declaracoes.push(this.declaracao());
         }
 
