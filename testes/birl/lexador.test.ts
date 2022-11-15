@@ -12,13 +12,13 @@ describe('Lexador Birl', () => {
         expect(resultado).toBeTruthy();
         expect(resultado.simbolos).toHaveLength(0);
     });
-    it('Programa vazio', () => {
+    it('Programa vazio.', () => {
         const resultado = delegua.lexador.mapear(['HORA DO SHOW \n', 'BIRL \n'], -1);
 
         expect(resultado).toBeTruthy();
         expect(resultado.simbolos).toHaveLength(2);
     });
-    it('Olá mundo', () => {
+    it('Programa Olá mundo simples.', () => {
         const resultado = delegua.lexador.mapear(
             [
                 'HORA DO SHOW \n',
