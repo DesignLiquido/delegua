@@ -18,4 +18,19 @@ describe('Lexador Birl', () => {
         expect(resultado).toBeTruthy();
         expect(resultado.simbolos).toHaveLength(2);
     });
+    it('Olá mundo', () => {
+        const resultado = delegua.lexador.mapear(
+            [
+                'HORA DO SHOW \n',
+                '   CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n"); \n',
+                '   BORA CUMPADE? 0; \n',
+                'BIRL \n',
+            ],
+            -1
+        );
+
+        expect(resultado).toBeTruthy();
+        expect(resultado.simbolos).toHaveLength(9);
+        expect(resultado.erros).toHaveLength(0);
+    });
 });

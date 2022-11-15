@@ -79,7 +79,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA);
                 this.avancar();
                 break;
-            case 'BORA CUMPADE':
+            case 'BORA CUMPADE?':
                 this.adicionarSimbolo(tiposDeSimbolos.BORA_CUMPADE);
                 this.avancar();
             default:
@@ -121,6 +121,8 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             case '\0':
             case '\r':
             case '\t':
+            case '\n':
+            case '':
                 this.avancar();
                 break;
             default:
@@ -133,11 +135,9 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                         mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
                 this.avancar();
-            // this.analisaPalavraChave();
         }
     }
 
-    // essa funcao não esta sendo usanda por enquanto
     InjetaUmItemDentroDaLista(item: string, posicao: number): string[] {
         let codigoComeco: string[];
         let codigoPosPosição: string[];
