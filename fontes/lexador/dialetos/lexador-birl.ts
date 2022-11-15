@@ -1,13 +1,14 @@
-import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { RetornoLexador } from '../../interfaces/retornos';
 import { ErroLexador } from '../erro-lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
-import { Simbolo } from '../simbolo';
-import { parse } from 'path';
-import palavrasReservadas from '../palavras-reservadas';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
+import { Simbolo } from '../simbolo';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
+    adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
+        this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, -1));
+    }
+
     proximoIgualA(esperado: string): boolean {
         if (this.eFinalDoCodigo()) {
             return false;
@@ -36,7 +37,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
 
         const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
+        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor, valor);
     }
 
     analisarNumero(): void {
@@ -51,7 +52,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             }
         }
         const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
+        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, numeroCompleto, parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave(): void {
@@ -82,6 +83,19 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             case 'BORA CUMPADE?':
                 this.adicionarSimbolo(tiposDeSimbolos.BORA_CUMPADE);
                 this.avancar();
+                break;
+            case 'QUE QUE CE QUER MONSTRAO?':
+                this.adicionarSimbolo(tiposDeSimbolos.QUE_QUE_CE_QUER_MONSTRAO);
+                this.avancar();
+                break;
+            case 'ELE QUE A GENTE QUER?':
+                this.adicionarSimbolo(tiposDeSimbolos.ELE_QUE_A_GENTE_QUER);
+                this.avancar();
+                break;
+            case 'NAO VAI DAR NAO':
+                this.adicionarSimbolo(tiposDeSimbolos.NAO_VAI_DAR_NAO);
+                this.avancar();
+                break;
             default:
                 this.avancar();
                 break;
@@ -93,15 +107,20 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
         switch (caractere) {
             case '(':
-                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '(', null);
                 this.avancar();
                 break;
             case ')':
-                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO, ')', null);
                 this.avancar();
                 break;
             case '=':
-                this.adicionarSimbolo(this.proximoIgualA('=') ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL);
+                const bool = this.proximoIgualA('=') ? true : false;
+                this.adicionarSimbolo(
+                    bool ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL,
+                    bool ? '==' : '=',
+                    null
+                );
                 this.avancar();
                 break;
             case "'":
@@ -114,11 +133,14 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case ';':
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA, ';', null);
+                this.avancar();
+                break;
+            case '\0':
+                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, '\0', null);
                 this.avancar();
                 break;
             case ' ':
-            case '\0':
             case '\r':
             case '\t':
             case '\n':
