@@ -2,8 +2,13 @@ import { RetornoLexador } from '../../interfaces/retornos';
 import { ErroLexador } from '../erro-lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
+import { Simbolo } from '../simbolo';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
+    adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
+        this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, -1));
+    }
+
     proximoIgualA(esperado: string): boolean {
         if (this.eFinalDoCodigo()) {
             return false;
@@ -32,7 +37,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
 
         const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
+        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, '', valor);
     }
 
     analisarNumero(): void {
@@ -47,7 +52,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             }
         }
         const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
+        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, '', parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave(): void {
