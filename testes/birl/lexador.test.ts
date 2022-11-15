@@ -30,7 +30,7 @@ describe('Lexador Birl', () => {
         );
 
         expect(resultado).toBeTruthy();
-        expect(resultado.simbolos).toHaveLength(11);
+        expect(resultado.simbolos).toHaveLength(9);
         expect(resultado.erros).toHaveLength(0);
     });
 });
