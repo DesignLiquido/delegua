@@ -1,10 +1,6 @@
-import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { RetornoLexador } from '../../interfaces/retornos';
 import { ErroLexador } from '../erro-lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
-import { Simbolo } from '../simbolo';
-import { parse } from 'path';
-import palavrasReservadas from '../palavras-reservadas';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
@@ -82,6 +78,15 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             case 'BORA CUMPADE?':
                 this.adicionarSimbolo(tiposDeSimbolos.BORA_CUMPADE);
                 this.avancar();
+            case 'QUE QUE CE QUER MONSTRAO?':
+                this.adicionarSimbolo(tiposDeSimbolos.QUE_QUE_CE_QUER_MONSTRAO);
+                this.avancar();
+            case 'ELE QUE A GENTE QUER?':
+                this.adicionarSimbolo(tiposDeSimbolos.ELE_QUE_A_GENTE_QUER);
+                this.avancar();
+            case 'NAO VAI DAR NAO':
+                this.adicionarSimbolo(tiposDeSimbolos.NAO_VAI_DAR_NAO);
+                this.avancar();
             default:
                 this.avancar();
                 break;
@@ -117,8 +122,11 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 this.avancar();
                 break;
-            case ' ':
             case '\0':
+                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
+                this.avancar();
+                break;
+            case ' ':
             case '\r':
             case '\t':
             case '\n':
