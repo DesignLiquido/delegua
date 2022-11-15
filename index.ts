@@ -1,3 +1,5 @@
+export * from './fontes/delegua';
+
 import { Delegua } from './fontes/delegua';
 import { Command } from 'commander';
 
