@@ -6,13 +6,13 @@ export class FuncaoConstruto implements Construto {
     hashArquivo?: number;
 
     parametros: ParametroInterface[];
-    corpo: any;
+    corpo: any[];
 
     constructor(
         hashArquivo: number,
         linha: number,
         parametros: ParametroInterface[],
-        corpo: any
+        corpo: any[]
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
