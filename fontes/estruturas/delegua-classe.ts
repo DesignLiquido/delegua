@@ -31,14 +31,14 @@ export class DeleguaClasse extends Chamavel {
         return `<classe ${this.nome}>`;
     }
 
-    aridade(): any {
+    aridade(): number {
         const inicializador = this.encontrarMetodo('construtor');
         return inicializador ? inicializador.aridade() : 0;
     }
 
     chamar(
         interpretador: InterpretadorInterface,
-        argumentos: any
+        argumentos: any[]
     ): ObjetoDeleguaClasse {
         const instancia = new ObjetoDeleguaClasse(this);
 

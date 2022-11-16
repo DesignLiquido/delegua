@@ -1002,7 +1002,7 @@ export class Interpretador implements InterpretadorInterface {
 
         const valor = await this.avaliar(expressao.valor);
         if (objeto instanceof ObjetoDeleguaClasse) {
-            objeto.set(expressao.nome, valor);
+            objeto.definir(expressao.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
             objeto[expressao.simbolo.lexema] = valor;
@@ -1094,7 +1094,7 @@ export class Interpretador implements InterpretadorInterface {
         const objeto = variavelObjeto?.valor;
 
         if (objeto instanceof ObjetoDeleguaClasse) {
-            return objeto.get(expressao.simbolo) || null;
+            return objeto.obter(expressao.simbolo) || null;
         }
 
         if (objeto.constructor === Object) {
