@@ -163,7 +163,10 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/classes/teste-classe.egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/classes/teste-classe.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },

@@ -987,7 +987,10 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     async visitarExpressaoDefinirValor(expressao: any): Promise<any> {
-        const objeto = await this.avaliar(expressao.objeto);
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         if (
             !(objeto instanceof ObjetoDeleguaClasse) &&
@@ -1091,7 +1094,9 @@ export class Interpretador implements InterpretadorInterface {
         const variavelObjeto: VariavelInterface = await this.avaliar(
             expressao.objeto
         );
-        const objeto = variavelObjeto?.valor;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.obter(expressao.simbolo) || null;
