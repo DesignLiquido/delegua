@@ -95,6 +95,14 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
                 break;
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.avancar();
+                break;
             case ':':
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
@@ -135,6 +143,10 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.avancar();
+                break;
+            case '.':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
                 this.avancar();
                 break;
             case '-':

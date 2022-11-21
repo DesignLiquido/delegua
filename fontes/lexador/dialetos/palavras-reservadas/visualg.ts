@@ -11,6 +11,7 @@ export default {
     escreva: tiposDeSimbolos.ESCREVA,
     escreval: tiposDeSimbolos.ESCREVA_LINHA,
     faca: tiposDeSimbolos.FACA,
+    falso: tiposDeSimbolos.FALSO,
     fimalgoritmo: tiposDeSimbolos.FIM_ALGORITMO,
     fimenquanto: tiposDeSimbolos.FIM_ENQUANTO,
     fimescolha: tiposDeSimbolos.FIM_ESCOLHA,
@@ -20,8 +21,12 @@ export default {
     inicio: tiposDeSimbolos.INICIO,
     inteiro: tiposDeSimbolos.INTEIRO,
     leia: tiposDeSimbolos.LEIA,
+    logico: tiposDeSimbolos.LOGICO,
     outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
+    real: tiposDeSimbolos.REAL,
     repita: tiposDeSimbolos.REPITA,
     var: tiposDeSimbolos.VAR,
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+    vetor: tiposDeSimbolos.VETOR
 };
