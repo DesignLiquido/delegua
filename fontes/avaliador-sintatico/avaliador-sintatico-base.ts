@@ -1,4 +1,4 @@
-import { Binario, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
+import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
     Escreva,
     Expressao,
@@ -83,7 +83,20 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     abstract primario(): Construto;
 
     finalizarChamada(entidadeChamada: Construto): Construto {
-        throw new Error('Método não implementado.');
+        const argumentos: Array<Construto> = [];
+
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            do {
+                if (argumentos.length >= 255) {
+                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
+                }
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
+
+        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+
+        return new Chamada(-1, entidadeChamada, parenteseDireito, argumentos);
     }
 
     abstract chamar(): Construto;

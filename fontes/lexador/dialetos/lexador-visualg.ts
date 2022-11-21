@@ -74,7 +74,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.atual
         );
         this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1)
+            new Simbolo(tipo, literal || texto, literal, this.linha, -1)
         );
     }
 
@@ -189,17 +189,13 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
 
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
+                this.linha++;
                 this.avancar();
                 break;
 
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
-                this.avancar();
-                break;
-            case "'":
-                this.avancar();
-                this.analisarTexto("'");
                 this.avancar();
                 break;
             default:
