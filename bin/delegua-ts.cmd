@@ -1,1 +1,1 @@
-ts-node.cmd index.ts %*
+ts-node.cmd execucao.ts %*

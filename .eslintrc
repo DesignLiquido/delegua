@@ -24,6 +24,7 @@
         "no-unsafe-finally": "off",
         "no-fallthrough": "off",
         "@typescript-eslint/no-this-alias": "off",
-        "@typescript-eslint/no-inferrable-types": "off"
+        "@typescript-eslint/no-inferrable-types": "off",
+        "prefer-const": "off"
     }
 }
