@@ -1,9 +1,14 @@
-import { Atribuir, Binario, Literal, Variavel } from "../construtos";
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, FuncaoDeclaracao, Para, Se, Var } from "../declaracoes";
+import { Agrupamento, Atribuir, Binario, Literal, Variavel } from "../construtos";
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, FuncaoDeclaracao, Para, Retorna, Se, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
 import { dicionarioSimbolos } from "./dicionarios";
 
 export class TradutorJavaScript implements TradutorInterface {
+
+    traduzirConstrutoAgrupamento(agrupamento: Agrupamento) {
+        // TODO
+        return null;
+    }
 
     traduzirConstrutoAtribuir(atribuir: Atribuir) {
         let resultado = atribuir.simbolo.lexema;
@@ -98,6 +103,17 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna) {
+        let resultado = "return ";
+        const nomeConstrutor = declaracaoRetorna.valor.expressao.constructor.name;
+        if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+            resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna.valor.expressao);
+        } else {
+            resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoRetorna.valor.expressao);
+        }
+        return resultado;
+    }
+
     traduzirDeclaracaoSe(declaracaoSe: Se) {
         let resultado = "if (";
         const condicao = declaracaoSe.condicao as Binario;
@@ -155,7 +171,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Leia': '',
         'Para': this.traduzirDeclaracaoPara.bind(this),
         'Sustar': '',
-        'Retorna': '',
+        'Retorna': this.traduzirDeclaracaoRetorna.bind(this),
         'Se': this.traduzirDeclaracaoSe.bind(this),
         'Tente': '',
         'Var': this.traduzirDeclaracaoVar.bind(this)
