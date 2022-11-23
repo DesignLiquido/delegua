@@ -1,12 +1,13 @@
 import { Binario, Literal, Variavel } from "./fontes/construtos";
 import { Bloco, Escreva, Se } from "./fontes/declaracoes";
-import { Simbolo } from "./fontes/lexador";
+import { Lexador, Simbolo } from "./fontes/lexador";
 import { TradutorJavaScript } from "./fontes/tradutores";
 
 import tiposDeSimbolos from './fontes/tipos-de-simbolos/delegua';
+import { AvaliadorSintatico } from "./fontes/avaliador-sintatico";
 
 const tradutorJs = new TradutorJavaScript();
-const se = new Se(
+/* const se = new Se(
     new Binario(-1,
         new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, "a", null, 1, -1)),
         new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, "", null, 1, -1),
@@ -16,5 +17,9 @@ const se = new Se(
     ]),
     null,
     null
-);
-console.log(tradutorJs.traduzir([se]));
+); */
+const lexador = new Lexador();
+const avaliadorSintatico = new AvaliadorSintatico();
+const resultadoLexador = lexador.mapear(["var a = 'teste'"], -1)
+const resultadoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoLexador, -1);
+console.log(tradutorJs.traduzir(resultadoAvaliadorSintatico.declaracoes));

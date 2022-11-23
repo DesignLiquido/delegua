@@ -1,5 +1,5 @@
 import { Binario, Literal, Variavel } from "../construtos";
-import { Bloco, Declaracao, Escreva, Funcao, Se } from "../declaracoes";
+import { Bloco, Declaracao, Escreva, FuncaoDeclaracao, Se, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
 import { dicionarioSimbolos } from "./dicionarios";
 
@@ -42,7 +42,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoFuncao(declaracaoFuncao: Funcao) {
+    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao) {
         let resultado = "function ";
         resultado += declaracaoFuncao.simbolo.lexema + " (";
 
@@ -81,6 +81,18 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirDeclaracaoVar(declaracaoVar: Var) {
+        let resultado = "let ";
+        resultado += declaracaoVar.simbolo.lexema + " = ";
+        if (declaracaoVar.inicializador instanceof Literal) {
+            resultado += "'" + declaracaoVar.inicializador.valor + "'";
+        } else {
+            resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
+        }
+
+        return resultado;
+    }
+
     dicionarioConstrutos = {
         'Literal': this.traduzirConstrutoLiteral.bind(this),
         'Variavel': this.traduzirConstrutoVariavel.bind(this)
@@ -103,7 +115,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Retorna': '',
         'Se': this.traduzirDeclaracaoSe.bind(this),
         'Tente': '',
-        'Var': ''
+        'Var': this.traduzirDeclaracaoVar.bind(this)
     }
 
     traduzir(declaracoes: Declaracao[]) {
