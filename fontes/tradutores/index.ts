@@ -1,9 +1,21 @@
-import { Binario, Literal, Variavel } from "../construtos";
-import { Bloco, Declaracao, Escreva, FuncaoDeclaracao, Se, Var } from "../declaracoes";
+import { Atribuir, Binario, Literal, Variavel } from "../construtos";
+import { Bloco, Declaracao, Escreva, FuncaoDeclaracao, Para, Se, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
 import { dicionarioSimbolos } from "./dicionarios";
 
 export class TradutorJavaScript implements TradutorInterface {
+
+    traduzirConstrutoAtribuir(atribuir: Atribuir) {
+        let resultado = atribuir.simbolo.lexema;
+        resultado += " = " + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        return resultado;
+    }
+
+    traduzirConstrutoBinario(binario: Binario) {
+        return this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
+            " " + binario.operador.lexema + " " +
+            this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+    }
 
     traduzirConstrutoLiteral(literal: Literal) {
         return literal.valor;
@@ -17,10 +29,12 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = "{\n";
         const indentacao = indentacaoAnterior + 4;
 
-        for (const declaracao of declaracoes) {
-            resultado += " ".repeat(indentacao);
-            resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
-            resultado += "\n";
+        if (typeof declaracoes[Symbol.iterator] === 'function') {
+            for (const declaracao of declaracoes) {
+                resultado += " ".repeat(indentacao);
+                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
+                resultado += "\n";
+            }
         }
 
         resultado += "\n}\n";
@@ -54,6 +68,16 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += ") ";
 
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo, 0);
+        return resultado;
+    }
+
+    traduzirDeclaracaoPara(declaracaoPara: Para) {
+        let resultado = "for (";
+        resultado += this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + "; ";
+        resultado += this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + "; ";
+        resultado += this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ") ";
+
+        resultado += this.logicaComumBlocoEscopo(declaracaoPara.corpo, 0);
         return resultado;
     }
 
@@ -94,6 +118,8 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     dicionarioConstrutos = {
+        'Atribuir': this.traduzirConstrutoAtribuir.bind(this),
+        'Binario': this.traduzirConstrutoBinario.bind(this),
         'Literal': this.traduzirConstrutoLiteral.bind(this),
         'Variavel': this.traduzirConstrutoVariavel.bind(this)
     }
@@ -110,7 +136,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Funcao': this.traduzirDeclaracaoFuncao.bind(this),
         'Importar': '',
         'Leia': '',
-        'Para': '',
+        'Para': this.traduzirDeclaracaoPara.bind(this),
         'Sustar': '',
         'Retorna': '',
         'Se': this.traduzirDeclaracaoSe.bind(this),
