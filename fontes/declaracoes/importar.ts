@@ -1,4 +1,5 @@
 import { Literal } from '../construtos';
+import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Importar extends Declaracao {
@@ -11,7 +12,7 @@ export class Importar extends Declaracao {
         this.simboloFechamento = simboloFechamento;
     }
 
-    aceitar(visitante: any): any {
-        return visitante.visitarExpressaoImportar(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoImportar(this);
     }
 }

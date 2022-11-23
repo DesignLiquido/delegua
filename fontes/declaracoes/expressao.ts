@@ -10,7 +10,7 @@ export class Expressao extends Declaracao {
         this.expressao = expressao;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarDeclaracaoDeExpressao(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarDeclaracaoDeExpressao(this);
     }
 }

@@ -22,8 +22,8 @@ export interface DeleguaInterface {
 
     versao(): string;
     carregarArquivo(caminhoRelativoArquivo: string): void;
-    executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface;
-    executarUmaLinha(linha: string): RetornoExecucaoInterface;
+    executar(retornoImportador: RetornoImportador): Promise<RetornoExecucaoInterface>;
+    executarUmaLinha(linha: string): Promise<RetornoExecucaoInterface>;
     reportar(linha: number, onde: any, mensagem: string): void;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void;
     erroEmTempoDeExecucao(erro: any): void;

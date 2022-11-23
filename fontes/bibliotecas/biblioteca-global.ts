@@ -1,10 +1,10 @@
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { DeleguaFuncao } from '../estruturas/funcao';
 import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../estruturas/delegua-classe';
 import { InterpretadorInterface, VariavelInterface } from '../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { DeleguaFuncao } from '../estruturas';
 
 export default function (
     interpretador: InterpretadorInterface,
@@ -22,7 +22,7 @@ export default function (
     // Mínimo(inclusivo) - Máximo(exclusivo)
     pilhaEscoposExecucao.definirVariavel(
         'aleatorioEntre',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             minimo: VariavelInterface | number,
             maximo: VariavelInterface | number
         ) {
@@ -42,7 +42,7 @@ export default function (
                 );
             }
 
-            return (
+            return Promise.resolve(
                 Math.floor(Math.random() * (valorMaximo - valorMinimo)) +
                 valorMinimo
             );
@@ -51,35 +51,43 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'inteiro',
-        new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
-            if (numero === null || numero === undefined) return 0;
+        new FuncaoPadrao(1, async function (numero: VariavelInterface | any) {
+            if (numero === null || numero === undefined)
+                return Promise.resolve(0);
+
             const valor = numero.hasOwnProperty('valor')
                 ? numero.valor
                 : numero;
             if (isNaN(valor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'
-                );
+                ));
             }
 
             if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.'
-                );
+                ));
             }
 
-            return parseInt(valor);
+            return Promise.resolve(parseInt(valor));
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         'mapear',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoMapeamento: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'
+                ));
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -89,23 +97,23 @@ export default function (
                 ? funcaoMapeamento.valor
                 : funcaoMapeamento;
             if (!Array.isArray(valorVetor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'
-                );
+                ));
             }
 
             if (valorFuncaoMapeamento.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'
-                );
+                ));
             }
 
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 resultados.push(
-                    valorFuncaoMapeamento.chamar(interpretador, [
+                    await valorFuncaoMapeamento.chamar(interpretador, [
                         valorVetor[indice],
                     ])
                 );
@@ -117,10 +125,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'todosEmCondicao',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoCondicional: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
+                ));
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -130,26 +144,26 @@ export default function (
                 ? funcaoCondicional.valor
                 : funcaoCondicional;
             if (!Array.isArray(valorVetor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor.'
-                );
+                ));
             }
 
             if (valorFuncaoCondicional.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.'
-                );
+                ));
             }
 
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 if (
-                    !valorFuncaoCondicional.chamar(interpretador, [
+                    !await valorFuncaoCondicional.chamar(interpretador, [
                         valorVetor[indice],
                     ])
                 )
-                    false;
+                    return false;
             }
             return true;
         })
@@ -157,10 +171,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'filtrarPor',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoFiltragem: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() não pode ser nulo.'
+                ));
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -168,26 +188,26 @@ export default function (
                 ? funcaoFiltragem.valor
                 : funcaoFiltragem;
             if (!Array.isArray(valorVetor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'
-                );
+                ));
             }
 
             if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função.'
-                );
+                ));
             }
 
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                valorFuncaoFiltragem.chamar(interpretador, [
+                await valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
                 ]) &&
                     resultados.push(
-                        valorFuncaoFiltragem.chamar(interpretador, [
+                        await valorFuncaoFiltragem.chamar(interpretador, [
                             valorVetor[indice],
                         ])
                     );
@@ -199,10 +219,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'primeiroEmCondicao',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoFiltragem: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.'
+                ));
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -210,26 +236,26 @@ export default function (
                 ? funcaoFiltragem.valor
                 : funcaoFiltragem;
             if (!Array.isArray(valorVetor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.'
-                );
+                ));
             }
 
             if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função.'
-                );
+                ));
             }
 
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                valorFuncaoFiltragem.chamar(interpretador, [
+                await valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
                 ]) &&
                     resultados.push(
-                        valorFuncaoFiltragem.chamar(interpretador, [
+                        await valorFuncaoFiltragem.chamar(interpretador, [
                             valorVetor[indice],
                         ])
                     );
@@ -241,10 +267,16 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'paraCada',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             vetor: VariavelInterface | any,
             funcaoFiltragem: VariavelInterface | any
         ) {
+            if (vetor === null || vetor === undefined)
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função paraCada() não pode ser nulo.'
+                ));
+
             const valorVetor = vetor.hasOwnProperty('valor')
                 ? vetor.valor
                 : vetor;
@@ -252,21 +284,21 @@ export default function (
                 ? funcaoFiltragem.valor
                 : funcaoFiltragem;
             if (!Array.isArray(valorVetor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'
-                );
+                ));
             }
 
             if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'
-                );
+                ));
             }
 
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                valorFuncaoFiltragem.chamar(interpretador, [
+                await valorFuncaoFiltragem.chamar(interpretador, [
                     valorVetor[indice],
                 ]);
             }
@@ -275,15 +307,21 @@ export default function (
 
     pilhaEscoposExecucao.definirVariavel(
         'ordenar',
-        new FuncaoPadrao(1, function (vetor: VariavelInterface | Array<any>) {
+        new FuncaoPadrao(1, async function (vetor: VariavelInterface | Array<any>) {
+            if (vetor === null || vetor === undefined)
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função ordenar() não pode ser nulo.'
+                );
+
             const objeto = vetor.hasOwnProperty('valor')
                 ? (vetor as VariavelInterface).valor
                 : vetor;
             if (!Array.isArray(objeto)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor inválido. Objeto inserido não é um vetor.'
-                );
+                ));
             }
 
             let trocado: boolean;
@@ -297,52 +335,55 @@ export default function (
                     }
                 }
             } while (trocado);
-            return objeto;
+            return Promise.resolve(objeto);
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         'real',
-        new FuncaoPadrao(1, function (numero: VariavelInterface | any) {
+        new FuncaoPadrao(1, async function (numero: VariavelInterface | any) {
+            if (numero === null || numero === undefined)
+                return Promise.resolve(parseFloat('0'));
+
             const valor = numero.hasOwnProperty('valor')
                 ? numero.valor
                 : numero;
             if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real.'
-                );
+                ));
             }
-            return parseFloat(valor);
+            return Promise.resolve(parseFloat(valor));
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         'tamanho',
-        new FuncaoPadrao(1, function (objeto: any) {
+        new FuncaoPadrao(1, async function (objeto: any) {
             const valorObjeto = objeto.hasOwnProperty('valor')
                 ? objeto.valor
                 : objeto;
             if (!isNaN(valorObjeto)) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Não é possível encontrar o tamanho de um número.'
-                );
+                ));
             }
 
             if (valorObjeto instanceof ObjetoDeleguaClasse) {
-                throw new ErroEmTempoDeExecucao(
+                return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Você não pode encontrar o tamanho de uma declaração.'
-                );
+                ));
             }
 
             if (valorObjeto instanceof DeleguaFuncao) {
-                return valorObjeto.declaracao.parametros.length;
+                return Promise.resolve(valorObjeto.declaracao.parametros.length);
             }
 
             if (valorObjeto instanceof FuncaoPadrao) {
-                return valorObjeto.valorAridade;
+                return Promise.resolve(valorObjeto.valorAridade);
             }
 
             if (valorObjeto instanceof DeleguaClasse) {
@@ -357,23 +398,23 @@ export default function (
                         metodos.inicializacao.declaracao.parametros.length;
                 }
 
-                return tamanho;
+                return Promise.resolve(tamanho);
             }
 
-            return valorObjeto.length;
+            return Promise.resolve(valorObjeto.length);
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         'texto',
-        new FuncaoPadrao(1, function (
+        new FuncaoPadrao(1, async function (
             valorOuVariavel: VariavelInterface | any
         ) {
-            return `${
+            return Promise.resolve(`${
                 valorOuVariavel.hasOwnProperty('valor')
                     ? valorOuVariavel.valor
                     : valorOuVariavel
-            }`;
+            }`);
         })
     );
 

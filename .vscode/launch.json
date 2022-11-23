@@ -7,12 +7,28 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Birl > Teste",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "birl",
+                "./testes/exemplos/birl/teste1.birl"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Bhaskara",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "./testes/exemplos/dialetos/egua-classico/bhaskara.egua"
             ],
             "runtimeExecutable": "node",
@@ -25,10 +41,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/classes/construtor-classe.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/classes/construtor-classe.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -39,10 +52,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/condicionais/escolha.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/escolha.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -53,9 +63,34 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/fibonacci.delegua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Fila estática",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/fibonacci.delegua"
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/fila-estatica.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Leia",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/leia.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -67,9 +102,20 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/media.delegua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Perceptron",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/media.delegua"
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/perceptron.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -82,7 +128,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "./testes/exemplos/primitivas/texto/minusculo.delegua"
             ],
             "runtimeExecutable": "node",
@@ -95,10 +141,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/primitivas/lista/inclui.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/primitivas/lista/inclui.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -109,7 +152,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}index.ts"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -121,8 +164,8 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/classes/teste-classe.egua"
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/classes/teste-classe.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -134,11 +177,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "-p",
-                "./testes/exemplos/testes.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "-p", "./testes/exemplos/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -149,7 +188,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}index.ts", "--dialeto", "egua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -160,7 +199,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}index.ts", "--dialeto", "eguap"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "eguap"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -171,11 +210,26 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "tradutor",
+                // "interpretador.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários > BIRL",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                // "interpretador.test.ts",
+                "birl",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
+            "internalConsoleOptions": "neverOpen"
         },
         {
             "type": "node",
@@ -185,7 +239,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
                 "./testes/exemplos/index.delegua"
             ],
@@ -200,7 +254,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/testes.egua"
@@ -216,7 +270,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/teste-classe.egua"
@@ -232,7 +286,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/bhaskara.egua"
@@ -248,7 +302,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
                 "./testes/exemplos/dialetos/eguap/bhaskara.eguap"
@@ -264,7 +318,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/fibonacci.egua"
@@ -280,7 +334,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/classes/construtor-classe.egua"
@@ -296,7 +350,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
                 "./testes/exemplos/funcoes/funcoes-anonimas.delegua"
             ],
@@ -311,7 +365,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--depurador",
                 "./testes/exemplos/importacao/importacao-1.egua"
             ],
@@ -326,7 +380,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
                 "./testes/exemplos/estruturas-de-dados/inteiros.delegua"
             ],
@@ -341,7 +395,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/merge-sort.egua"
@@ -357,7 +411,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/fila-estatica.egua"
@@ -372,10 +426,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/fizzbuzz.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/fizzbuzz.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -387,7 +438,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
                 "./testes/exemplos/dialetos/eguap/fizzbuzz.eguap"
@@ -403,7 +454,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/dialetos/egua-classico/perceptron.egua"
@@ -419,7 +470,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "./testes/exemplos/estruturas-de-repeticao/enquanto.egua"
             ],
             "runtimeExecutable": "node",
@@ -433,7 +484,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.egua"
             ],
             "runtimeExecutable": "node",
@@ -447,7 +498,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "./testes/exemplos/estruturas-de-repeticao/para.egua"
             ],
             "runtimeExecutable": "node",
@@ -460,10 +511,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
-                "./testes/exemplos/condicionais/se.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/se.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -488,7 +536,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
                 "./testes/exemplos/dialetos/visualg/ola-mundo.alg"
@@ -504,7 +552,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
                 "./testes/exemplos/dialetos/visualg/times.alg"
@@ -520,10 +568,26 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
                 "./testes/exemplos/dialetos/visualg/um-a-10.alg"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "VisuAlg > Variáveis",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "visualg",
+                "./testes/exemplos/dialetos/visualg/variaveis.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

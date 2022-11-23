@@ -2,7 +2,7 @@
     "compilerOptions": {
         "outDir": "dist",
         "module": "commonjs",
-        "target": "ES5",
+        "target": "es2017",
         "rootDir": ".",
         "allowJs": true,
         "sourceMap": true,

@@ -18,7 +18,7 @@ export class Variavel implements Construto {
         this.simbolo = simbolo;
     }
 
-    aceitar(visitante: InterpretadorInterface): VariavelInterface {
-        return visitante.visitarExpressaoDeVariavel(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<VariavelInterface> {
+        return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
     }
 }

@@ -1,3 +1,4 @@
+import { InterpretadorInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class AtribuicaoSobrescrita implements Construto {
@@ -23,7 +24,7 @@ export class AtribuicaoSobrescrita implements Construto {
         this.valor = valor;
     }
 
-    aceitar(visitante: any) {
-        return visitante.visitarExpressaoAtribuicaoSobrescrita(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoAtribuicaoSobrescrita(this);
     }
 }

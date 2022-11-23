@@ -10,7 +10,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    Funcao,
+    FuncaoDeclaracao,
     Importar,
     Leia,
     Para,
@@ -30,6 +30,7 @@ export interface InterpretadorInterface {
     diretorioBase: any;
     funcaoDeRetorno: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+    interfaceEntradaSaida: any;
 
     visitarExpressaoLiteral(expressao: Literal): any;
     avaliar(expressao: any): any;
@@ -55,17 +56,17 @@ export interface InterpretadorInterface {
     visitarExpressaoEnquanto(declaracao: Enquanto): any;
     visitarExpressaoImportar(declaracao: Importar): any;
     visitarExpressaoEscreva(declaracao: Escreva): any;
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): void;
-    visitarExpressaoBloco(declaracao: Bloco): null;
-    visitarExpressaoVar(declaracao: Var): null;
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any>;
+    visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
+    visitarExpressaoVar(declaracao: Var): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
-    visitarExpressaoRetornar(declaracao: Retorna): RetornoQuebra;
+    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
     visitarExpressaoDeleguaFuncao(expressao: any): any;
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): void;
+    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any>;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
-    visitarExpressaoDefinir(expressao: any): any;
-    visitarExpressaoFuncao(declaracao: Funcao): any;
+    visitarExpressaoDefinirValor(expressao: any): any;
+    visitarExpressaoFuncao(declaracao: FuncaoDeclaracao): any;
     visitarExpressaoClasse(declaracao: Classe): any;
     visitarExpressaoAcessoMetodo(expressao: any): any;
     visitarExpressaoIsto(expressao: any): any;
@@ -77,5 +78,5 @@ export interface InterpretadorInterface {
     interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): RetornoInterpretador;
+    ): Promise<RetornoInterpretador>;
 }

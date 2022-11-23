@@ -14,7 +14,7 @@ export class Leia extends Declaracao {
         this.argumentos = argumentos;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoLeia(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoLeia(this);
     }
 }

@@ -22,7 +22,7 @@ export class Tente extends Declaracao {
         this.caminhoFinalmente = caminhoFinalmente;
     }
 
-    aceitar(visitante: InterpretadorInterface): any {
-        return visitante.visitarExpressaoTente(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoTente(this);
     }
 }

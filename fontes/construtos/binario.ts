@@ -34,7 +34,7 @@ export class Binario implements Construto {
         this.direita = direita;
     }
 
-    aceitar(visitante: InterpretadorInterface) {
-        return visitante.visitarExpressaoBinaria(this);
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return await visitante.visitarExpressaoBinaria(this);
     }
 }

@@ -6,6 +6,10 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 import palavrasReservadas from './palavras-reservadas/visualg';
 import { Simbolo } from '../simbolo';
 
+const dicionarioBibliotecaGlobal = {
+    'int': 'inteiro'
+}
+
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
         while (this.eDigito(this.simboloAtual())) {
@@ -62,7 +66,10 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             .substring(this.inicioSimbolo, this.atual)
             .toLowerCase();
         if (codigo in palavrasReservadas) {
-            this.adicionarSimbolo(palavrasReservadas[codigo]);
+            this.adicionarSimbolo(palavrasReservadas[codigo],
+                dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ?
+                    dicionarioBibliotecaGlobal[codigo] :
+                    codigo);
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }
@@ -74,7 +81,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.atual
         );
         this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1)
+            new Simbolo(tipo, literal || texto, literal, this.linha, -1)
         );
     }
 
@@ -93,6 +100,14 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 break;
             case ')':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
+                break;
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
                 this.avancar();
                 break;
             case ':':
@@ -137,6 +152,10 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.avancar();
                 break;
+            case '.':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.avancar();
+                break;
             case '-':
                 this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 this.avancar();
@@ -177,17 +196,13 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
 
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
+                this.linha++;
                 this.avancar();
                 break;
 
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
-                this.avancar();
-                break;
-            case "'":
-                this.avancar();
-                this.analisarTexto("'");
                 this.avancar();
                 break;
             default:

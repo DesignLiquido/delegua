@@ -1,3 +1,5 @@
+import { InterpretadorInterface } from "../interfaces";
+
 export class Declaracao {
     linha: number;
     hashArquivo: number;
@@ -12,7 +14,7 @@ export class Declaracao {
         this.assinaturaMetodo = '<principal>';
     }
 
-    aceitar(visitante: any): any {
-        throw new Error('Este método não deveria ser chamado.');
+    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+        return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }

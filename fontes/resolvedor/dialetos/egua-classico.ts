@@ -1,10 +1,13 @@
 import { ResolvedorInterface } from '../../interfaces/resolvedor-interface';
 import { PilhaEscopos } from '../pilha-escopos';
 import { ErroResolvedor } from '../erro-resolvedor';
-import { SimboloInterface } from '../../interfaces';
-import { Bloco, Declaracao, Expressao, Se } from '../../declaracoes';
+import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
+import { Bloco, Declaracao, Expressao, Leia, Se } from '../../declaracoes';
 import { AcessoMetodo, Construto, Super, Variavel } from '../../construtos';
 import { RetornoResolvedor } from '../retorno-resolvedor';
+import { EspacoVariaveis } from '../../espaco-variaveis';
+import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
+import { RetornoInterpretador } from '../../interpretador';
 
 const TipoFuncao = {
     NENHUM: 'NENHUM',
@@ -30,16 +33,21 @@ const LoopType = {
 /**
  * O Resolvedor (Resolver) é responsável por catalogar todos os identificadores complexos, como por exemplo: funções, classes, variáveis,
  * e delimitar os escopos onde esses identificadores existem.
+ *
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
+ *
+ * Não faz sentido ser implementado nos outros interpretadores pelos outros optarem por uma pilha de execução que
+ * espera importar qualquer coisa a qualquer momento.
  */
-export class ResolvedorEguaClassico implements ResolvedorInterface {
+export class ResolvedorEguaClassico implements ResolvedorInterface, InterpretadorInterface {
     erros: ErroResolvedor[];
     escopos: PilhaEscopos;
     locais: Map<Construto, number>;
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;
+    interfaceEntradaSaida: any = null;
 
     constructor() {
         this.erros = [];
@@ -49,6 +57,57 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    diretorioBase: any;
+    funcaoDeRetorno: Function;
+    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+
+    avaliar(expressao: any) {
+        throw new Error('Método não implementado.');
+    }
+
+    eVerdadeiro(objeto: any): boolean {
+        throw new Error('Método não implementado.');
+    }
+
+    verificarOperandoNumero(operador: any, operand: any): void {
+        throw new Error('Método não implementado.');
+    }
+
+    eIgual(esquerda: any, direita: any): boolean {
+        throw new Error('Método não implementado.');
+    }
+
+    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+        throw new Error('Método não implementado.');
+    }
+    procurarVariavel(nome: SimboloInterface, expressao: any) {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoLeia(expressao: Leia) {
+        throw new Error('Método não implementado.');
+    }
+
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    paraTexto(objeto: any) {
+        throw new Error('Método não implementado.');
+    }
+
+    executar(declaracao: Declaracao, mostrarResultado: boolean) {
+        throw new Error('Método não implementado.');
+    }
+
+    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador> {
+        throw new Error('Método não implementado.');
+    }
+
+    finalizacao(): void {
+        throw new Error('Método não implementado.');
     }
 
     definir(simbolo: SimboloInterface): void {
@@ -412,7 +471,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface {
         return null;
     }
 
-    visitarExpressaoDefinir(expressao?: any): any {
+    visitarExpressaoDefinirValor(expressao?: any): any {
         this.resolver(expressao.valor);
         this.resolver(expressao.objeto);
         return null;

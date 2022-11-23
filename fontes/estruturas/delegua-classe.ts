@@ -1,6 +1,6 @@
 import { InterpretadorInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
-import { DeleguaFuncao } from './funcao';
+import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 export class DeleguaClasse extends Chamavel {
@@ -31,14 +31,14 @@ export class DeleguaClasse extends Chamavel {
         return `<classe ${this.nome}>`;
     }
 
-    aridade(): any {
+    aridade(): number {
         const inicializador = this.encontrarMetodo('construtor');
         return inicializador ? inicializador.aridade() : 0;
     }
 
     chamar(
         interpretador: InterpretadorInterface,
-        argumentos: any
+        argumentos: any[]
     ): ObjetoDeleguaClasse {
         const instancia = new ObjetoDeleguaClasse(this);
 

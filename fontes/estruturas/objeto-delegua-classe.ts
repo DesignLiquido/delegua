@@ -6,12 +6,12 @@ export class ObjetoDeleguaClasse {
     classe: DeleguaClasse;
     campos: any;
 
-    constructor(criarClasse: any) {
-        this.classe = criarClasse;
+    constructor(classe: any) {
+        this.classe = classe;
         this.campos = {};
     }
 
-    get(simbolo: SimboloInterface): any {
+    obter(simbolo: SimboloInterface): any {
         if (this.campos.hasOwnProperty(simbolo.lexema)) {
             return this.campos[simbolo.lexema];
         }
@@ -25,7 +25,7 @@ export class ObjetoDeleguaClasse {
         );
     }
 
-    set(simbolo: SimboloInterface, valor: any): void {
+    definir(simbolo: SimboloInterface, valor: any): void {
         this.campos[simbolo.lexema] = valor;
     }
 

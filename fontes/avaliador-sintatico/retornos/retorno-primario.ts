@@ -3,7 +3,7 @@ import {
     Agrupamento,
     Chamada,
     Dicionario,
-    Funcao,
+    FuncaoConstruto,
     Isto,
     Literal,
     Super,
@@ -23,4 +23,4 @@ export type RetornoPrimario =
     | AcessoIndiceVariavel
     | Chamada
     | Importar
-    | Funcao;
+    | FuncaoConstruto;
