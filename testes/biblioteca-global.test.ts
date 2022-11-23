@@ -31,7 +31,7 @@ describe('Biblioteca Global', () => {
 
     describe('inteiro()', () => {
         it('Sucesso', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(1))"], -1);
+            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(1 + 1))"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);

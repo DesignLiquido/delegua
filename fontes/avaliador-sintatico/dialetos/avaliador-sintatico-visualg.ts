@@ -8,6 +8,7 @@ import {
     AtribuicaoSobrescrita,
     Atribuir,
     Binario,
+    Chamada,
     Construto,
     FuncaoConstruto,
     Literal,
@@ -162,6 +163,21 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.atual === this.simbolos.length;
     }
 
+    metodoBibliotecaGlobal(): Construto {
+        const simboloAnterior = this.simbolos[this.atual - 1];
+
+        switch (simboloAnterior.lexema) {
+            case "int":
+                return new Chamada(-1,
+                    new Variavel(-1,
+                        new Simbolo(tiposDeSimbolos.IDENTIFICADOR, "inteiro", null, Number(simboloAnterior.linha), -1)
+                    ), null, []
+                );
+            default:
+                return null;
+        }
+    }
+
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -170,7 +186,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(-1, Number(simboloAtual.linha), true);
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)) {
             return new Variavel(-1, this.simbolos[this.atual - 1]);
         }
 

@@ -6,6 +6,10 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 import palavrasReservadas from './palavras-reservadas/visualg';
 import { Simbolo } from '../simbolo';
 
+const dicionarioBibliotecaGlobal = {
+    'int': 'inteiro'
+}
+
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
         while (this.eDigito(this.simboloAtual())) {
@@ -62,7 +66,10 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             .substring(this.inicioSimbolo, this.atual)
             .toLowerCase();
         if (codigo in palavrasReservadas) {
-            this.adicionarSimbolo(palavrasReservadas[codigo]);
+            this.adicionarSimbolo(palavrasReservadas[codigo],
+                dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ?
+                    dicionarioBibliotecaGlobal[codigo] :
+                    codigo);
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }
