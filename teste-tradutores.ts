@@ -20,6 +20,6 @@ const tradutorJs = new TradutorJavaScript();
 ); */
 const lexador = new Lexador();
 const avaliadorSintatico = new AvaliadorSintatico();
-const resultadoLexador = lexador.mapear(["para (var i = 1; i <= 10; i = i + 1) {}'"], -1)
+const resultadoLexador = lexador.mapear(["enquanto (i <= 10) { i = i + 1 }'"], -1)
 const resultadoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoLexador, -1);
 console.log(tradutorJs.traduzir(resultadoAvaliadorSintatico.declaracoes));
