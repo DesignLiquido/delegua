@@ -1,6 +1,7 @@
 import { Agrupamento, Atribuir, Binario, Literal, Variavel } from "../construtos";
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, FuncaoDeclaracao, Para, Retorna, Se, Var } from "../declaracoes";
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, FuncaoDeclaracao, Para, Retorna, Se, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
+import { CaminhoEscolha } from "../interfaces/construtos";
 import { dicionarioSimbolos } from "./dicionarios";
 
 export class TradutorJavaScript implements TradutorInterface {
@@ -60,6 +61,32 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = "while (";
         resultado += this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao) + ") ";
         resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
+        return resultado;
+    }
+
+    logicaComumCaminhosEscolha(caminho: CaminhoEscolha, indentacaoAnterior: number = 0) {
+        let resultado = "";
+        const indentacao = indentacaoAnterior + 4;
+        resultado += " ".repeat(indentacao);
+        resultado += "case " + this.dicionarioConstrutos[caminho.condicoes[0].constructor.name](caminho.condicoes[0]) + ":\n";
+        for (let declaracao of caminho.declaracoes) {
+            resultado += " ".repeat(indentacao + 4);
+            if (declaracao.simboloChave.lexema === "retorna") {
+                resultado += "return " + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
+            }
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha) {
+        let resultado = "switch (";
+        resultado += this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](declaracaoEscolha.identificadorOuLiteral) + ") {\n";
+
+        for (let caminho of declaracaoEscolha.caminhos) {
+            resultado += this.logicaComumCaminhosEscolha(caminho);
+        }
+
+        resultado += "}\n"
         return resultado;
     }
 
@@ -151,6 +178,7 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     dicionarioConstrutos = {
+        'Agrupamento': this.traduzirConstrutoAgrupamento.bind(this),
         'Atribuir': this.traduzirConstrutoAtribuir.bind(this),
         'Binario': this.traduzirConstrutoBinario.bind(this),
         'Literal': this.traduzirConstrutoLiteral.bind(this),
@@ -162,7 +190,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Classe': '',
         'Continua': '',
         'Enquanto': this.traduzirDeclaracaoEnquanto.bind(this),
-        'Escolha': '',
+        'Escolha': this.traduzirDeclaracaoEscolha.bind(this),
         'Escreva': this.traduzirDeclaracaoEscreva.bind(this),
         'Expressao': this.traduzirDeclaracaoExpressao.bind(this),
         'Fazer': '',
