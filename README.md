@@ -41,9 +41,12 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Código aberto (open source).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
 
-### Usando como LAIR (Leia-Avalie-Imprima-Repita) em console
+## Instalação
 
-[Você deve ter o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo). 
+Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser: [basta usar nosso editor online clicando aqui](https://designliquido.github.io/delegua-web/).
+
+Se quiser instalar no seu computador, 
+[você deve ter antes o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo). 
 
 Com o Node.js instalado, execute o seguinte comando em um prompt de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `bash` em Mac e Linux):
 
@@ -51,7 +54,9 @@ Com o Node.js instalado, execute o seguinte comando em um prompt de comando (Ter
 npm install -g delegua
 ```
 
-Feito isso, execute o seguinte comando:
+### Usando como LAIR (Leia-Avalie-Imprima-Repita) em console
+
+Feita a instalação no seu ambiente, execute o seguinte comando:
 
 ```
 delegua
@@ -59,13 +64,30 @@ delegua
 
 Você terá um interpretador Delégua que avalia expressões linha a linha. 
 
+Um exemplo de uso é como uma calculadora:
+
+```js
+delegua> 2 + 2
+4
+
+delegua> 2 * 3
+6
+
+delegua> 2 ** 10
+1024
+```
+
 Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ctrl</key> + <key>C</key> (todos os sistemas operacionais).
+
+### Executando arquivos
 
 É possível usar o interpretador com outros dialetos, como Égua. 
 
 ```
 delegua --dialeto egua
 ```
+
+[Veja aqui todos os dialetos suportados](https://github.com/DesignLiquido/delegua/wiki/Dialetos).
 
 Se não quiser instalar as bibliotecas que acompanham Delégua, apenas o núcleo da linguagem pode ser instalado:
 
