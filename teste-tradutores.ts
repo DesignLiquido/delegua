@@ -21,12 +21,7 @@ const tradutorJs = new TradutorJavaScript();
 const lexador = new Lexador();
 const avaliadorSintatico = new AvaliadorSintatico();
 const resultadoLexador = lexador.mapear([
-    "escolha(1) {",
-    "    caso 1:",
-    "    retorna('Caso - Escolha: OK!')",
-    "    caso 2:",
-    "    retorna('Caso - Escolha: ERRO!')",
-    "  }"
+    "fazer { i = i + 1 } enquanto (i < 10)"
 ], -1)
 const resultadoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoLexador, -1);
 console.log(tradutorJs.traduzir(resultadoAvaliadorSintatico.declaracoes));

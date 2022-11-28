@@ -1,5 +1,5 @@
 import { Agrupamento, Atribuir, Binario, Literal, Variavel } from "../construtos";
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, FuncaoDeclaracao, Para, Retorna, Se, Var } from "../declaracoes";
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Para, Retorna, Se, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
 import { CaminhoEscolha } from "../interfaces/construtos";
 import { dicionarioSimbolos } from "./dicionarios";
@@ -105,6 +105,13 @@ export class TradutorJavaScript implements TradutorInterface {
         return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
     }
 
+    traduzirDeclaracaoFazer(declaracaoFazer: Fazer) {
+        let resultado = "do ";
+        resultado += this.dicionarioDeclaracoes[declaracaoFazer.caminhoFazer.constructor.name](declaracaoFazer.caminhoFazer);
+        resultado += "while (" + this.dicionarioConstrutos[declaracaoFazer.condicaoEnquanto.constructor.name](declaracaoFazer.condicaoEnquanto) + ") ";
+        return resultado;
+    }
+
     traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao) {
         let resultado = "function ";
         resultado += declaracaoFuncao.simbolo.lexema + " (";
@@ -193,7 +200,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Escolha': this.traduzirDeclaracaoEscolha.bind(this),
         'Escreva': this.traduzirDeclaracaoEscreva.bind(this),
         'Expressao': this.traduzirDeclaracaoExpressao.bind(this),
-        'Fazer': '',
+        'Fazer': this.traduzirDeclaracaoFazer.bind(this),
         'Funcao': this.traduzirDeclaracaoFuncao.bind(this),
         'Importar': '',
         'Leia': '',
