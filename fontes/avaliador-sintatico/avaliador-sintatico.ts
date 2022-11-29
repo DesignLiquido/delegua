@@ -705,23 +705,30 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const simboloTente: SimboloInterface = this.simbolos[this.atual - 1];
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'tente'.");
 
-        const blocoTente = this.blocoEscopo();
+        const blocoTente: any[] = this.blocoEscopo();
 
-        let blocoPegue = null;
+        let blocoPegue: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                // Caso 1: com parâmetro de erro.
+
+            } else {
+                // Caso 2: sem parâmetro de erro.
+                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            }
+
 
             blocoPegue = this.blocoEscopo();
         }
 
-        let blocoSenao = null;
+        let blocoSenao: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
 
             blocoSenao = this.blocoEscopo();
         }
 
-        let blocoFinalmente = null;
+        let blocoFinalmente: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
 
