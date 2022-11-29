@@ -1,5 +1,5 @@
 import { Agrupamento, Atribuir, Binario, Literal, Variavel } from "../construtos";
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Para, Retorna, Se, Var } from "../declaracoes";
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Para, Retorna, Se, Tente, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
 import { CaminhoEscolha } from "../interfaces/construtos";
 import { dicionarioSimbolos } from "./dicionarios";
@@ -172,6 +172,11 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirDeclaracaoTente(declaracaoTente: Tente) {
+        let resultado = "try ";
+        return resultado;
+    }
+
     traduzirDeclaracaoVar(declaracaoVar: Var) {
         let resultado = "let ";
         resultado += declaracaoVar.simbolo.lexema + " = ";
@@ -208,7 +213,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Sustar': '',
         'Retorna': this.traduzirDeclaracaoRetorna.bind(this),
         'Se': this.traduzirDeclaracaoSe.bind(this),
-        'Tente': '',
+        'Tente': this.traduzirDeclaracaoTente.bind(this),
         'Var': this.traduzirDeclaracaoVar.bind(this)
     }
 

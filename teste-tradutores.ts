@@ -21,7 +21,9 @@ const tradutorJs = new TradutorJavaScript();
 const lexador = new Lexador();
 const avaliadorSintatico = new AvaliadorSintatico();
 const resultadoLexador = lexador.mapear([
-    "fazer { i = i + 1 } enquanto (i < 10)"
+    "tente { i = i + 1 }",
+    "pegue { escreva('erro') }",
+    "finalmente { escreva('Fim!') }"
 ], -1)
 const resultadoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoLexador, -1);
 console.log(tradutorJs.traduzir(resultadoAvaliadorSintatico.declaracoes));
