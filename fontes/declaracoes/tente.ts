@@ -1,9 +1,13 @@
+import { FuncaoConstruto } from '../construtos';
 import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
+/**
+ * Declaração `tente`.
+ */
 export class Tente extends Declaracao {
     caminhoTente: any[];
-    caminhoPegue: any;
+    caminhoPegue: FuncaoConstruto;
     caminhoSenao: any[];
     caminhoFinalmente: any[];
 

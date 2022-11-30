@@ -707,18 +707,16 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const blocoTente: any[] = this.blocoEscopo();
 
-        let blocoPegue: any[] = null;
+        let blocoPegue: FuncaoConstruto = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 // Caso 1: com parâmetro de erro.
-
+                blocoPegue = this.corpoDaFuncao("bloco `pegue`");
             } else {
                 // Caso 2: sem parâmetro de erro.
-                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+                const simboloBlocoPegue = this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+                blocoPegue = new FuncaoConstruto(this.hashArquivo, Number(simboloBlocoPegue.linha), null, this.blocoEscopo());
             }
-
-
-            blocoPegue = this.blocoEscopo();
         }
 
         let blocoSenao: any[] = null;

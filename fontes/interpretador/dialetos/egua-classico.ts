@@ -39,6 +39,7 @@ import {
 import {
     AcessoIndiceVariavel,
     Atribuir,
+    Chamada,
     Construto,
     Literal,
     Super,
@@ -576,7 +577,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    await this.executarBloco(declaracao.caminhoPegue);
+                    // await this.executarBloco(declaracao.caminhoPegue);
+                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, null);
+                    await chamadaPegue.aceitar(this);
                 } else {
                     this.erros.push(erro);
                 }
