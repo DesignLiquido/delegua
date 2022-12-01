@@ -1,19 +1,23 @@
+import { FuncaoConstruto } from '../construtos';
 import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
+/**
+ * Declaração `tente`.
+ */
 export class Tente extends Declaracao {
-    caminhoTente: any;
-    caminhoPegue: any;
-    caminhoSenao: any;
-    caminhoFinalmente: any;
+    caminhoTente: any[];
+    caminhoPegue: FuncaoConstruto;
+    caminhoSenao: any[];
+    caminhoFinalmente: any[];
 
     constructor(
         hashArquivo: number,
         linha: number,
-        caminhoTente: any,
+        caminhoTente: any[],
         caminhoPegue: any,
-        caminhoSenao: any,
-        caminhoFinalmente: any
+        caminhoSenao: any[],
+        caminhoFinalmente: any[]
     ) {
         super(linha, hashArquivo);
         this.caminhoTente = caminhoTente;

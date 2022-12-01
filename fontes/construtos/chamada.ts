@@ -6,14 +6,14 @@ export class Chamada implements Construto {
     hashArquivo?: number;
 
     entidadeChamada: Construto;
-    argumentos: any;
+    argumentos: any[];
     parentese: any;
 
     constructor(
         hashArquivo: number,
         entidadeChamada: Construto,
         parentese: any,
-        argumentos: any
+        argumentos: any[]
     ) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
