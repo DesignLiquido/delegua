@@ -397,10 +397,10 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Tente com senão', async () => {
+                it('Tente com senão', async () => {
                     const codigo = [
                         "tente {",
-                            "se 1 != 1 {",
+                            "se (1 != 1) {",
                                 "escreva('sucesso');",
                             "}",
                             "senao {",
