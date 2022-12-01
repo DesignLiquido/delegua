@@ -382,10 +382,25 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Tente com senão', async () => {
+                it("Tente com Pegue parametrizado", async () => {
+                    const retornoLexador = delegua.lexador.mapear(
+                        ["tente { i = i + 1 } pegue (erro) { escreva(erro) }"],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico =
+                        delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+
+                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Tente com senão', async () => {
                     const codigo = [
                         "tente {",
-                            "se 1 != 1 {",
+                            "se (1 != 1) {",
                                 "escreva('sucesso');",
                             "}",
                             "senao {",
