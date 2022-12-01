@@ -577,8 +577,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    // await this.executarBloco(declaracao.caminhoPegue);
-                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, null);
+                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, []);
                     await chamadaPegue.aceitar(this);
                 } else {
                     this.erros.push(erro);

@@ -705,8 +705,8 @@ export class Interpretador implements InterpretadorInterface {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    // await this.executarBloco(declaracao.caminhoPegue);
-                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, null);
+                    const literalErro = new Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
+                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, [literalErro]);
                     await chamadaPegue.aceitar(this);
                 } else {
                     this.erros.push(erro);
