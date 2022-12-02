@@ -709,23 +709,28 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const simboloTente: SimboloInterface = this.simbolos[this.atual - 1];
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'tente'.");
 
-        const blocoTente = this.blocoEscopo();
+        const blocoTente: any[] = this.blocoEscopo();
 
-        let blocoPegue = null;
+        let blocoPegue: FuncaoConstruto = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
-
-            blocoPegue = this.blocoEscopo();
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                // Caso 1: com parâmetro de erro.
+                blocoPegue = this.corpoDaFuncao("bloco `pegue`");
+            } else {
+                // Caso 2: sem parâmetro de erro.
+                const simboloBlocoPegue = this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+                blocoPegue = new FuncaoConstruto(this.hashArquivo, Number(simboloBlocoPegue.linha), null, this.blocoEscopo());
+            }
         }
 
-        let blocoSenao = null;
+        let blocoSenao: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
 
             blocoSenao = this.blocoEscopo();
         }
 
-        let blocoFinalmente = null;
+        let blocoFinalmente: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
 

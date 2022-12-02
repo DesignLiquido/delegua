@@ -1,8 +1,8 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.9.4",
+    "version": "0.9.6",
     "description": "Linguagem de programação simples e moderna usando português estruturado",
-    "main": "index.ts",
+    "main": "index.js",
     "scripts": {
         "empacotar": "rm -Rf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
         "lair": "ts-node execucao.ts",
@@ -28,7 +28,9 @@
     "keywords": [
         "egua",
         "eguap",
-        "delegua"
+        "delegua",
+        "visualg",
+        "birl"
     ],
     "author": "Leonel Sanches da Silva",
     "contributors": [

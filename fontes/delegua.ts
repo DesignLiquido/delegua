@@ -119,7 +119,7 @@ export class Delegua implements DeleguaInterface {
                     depurador
                 );
                 this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
-                console.log('Usando dialeto: birl');
+                this.funcaoDeRetorno('Usando dialeto: birl');
                 break;
             default:
                 this.lexador = new Lexador(performance);

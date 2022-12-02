@@ -95,5 +95,16 @@ describe('Avaliador sintático', () => {
                 );
             });
         });
+
+        it("Declaração `tente`", () => {
+            const retornoLexador = delegua.lexador.mapear(
+                ["tente { i = i + 1 } pegue (erro) { escreva(erro) }"],
+                -1
+            );
+            const retornoAvaliadorSintatico =
+                delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+        });
     });
 });
