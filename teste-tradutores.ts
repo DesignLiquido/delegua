@@ -21,9 +21,17 @@ const tradutorJs = new TradutorJavaScript();
 const lexador = new Lexador();
 const avaliadorSintatico = new AvaliadorSintatico();
 const resultadoLexador = lexador.mapear([
-    "tente { i = i + 1 }",
-    "pegue { escreva('erro') }",
-    "finalmente { escreva('Fim!') }"
+    "classe Resposta { ",
+    "    enviar(codigo) { ",
+    "        isto.codigo = codigo ",
+    "        retorna(isto) ",
+    "    } ",
+    " ",
+    "    status(statusHttp) { ",
+    "        isto.statusHttp = statusHttp ",
+    "        retorna(isto) ",
+    "    } ",
+    "} "
 ], -1)
 const resultadoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoLexador, -1);
 console.log(tradutorJs.traduzir(resultadoAvaliadorSintatico.declaracoes));

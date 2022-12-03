@@ -1,6 +1,6 @@
 import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
-import { Funcao as FuncaoConstruto } from '../construtos';
+import { FuncaoConstruto } from '../construtos';
 
 export class FuncaoDeclaracao extends Declaracao {
     simbolo: SimboloInterface;
