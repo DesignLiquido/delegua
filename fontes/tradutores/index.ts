@@ -1,9 +1,14 @@
 import { Agrupamento, Atribuir, Binario, DefinirValor, Isto, Literal, Variavel } from "../construtos";
-import { Bloco, Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Para, Retorna, Se, Tente, Var } from "../declaracoes";
+import { Bloco, Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Importar, Para, Retorna, Se, Tente, Var } from "../declaracoes";
 import { TradutorInterface } from "../interfaces";
 import { CaminhoEscolha } from "../interfaces/construtos";
 import { dicionarioSimbolos } from "./dicionarios";
 
+/**
+ * Esse tradutor traduz para JavaScript sem módulos, o que significa que
+ * instruções em Delégua como `leia()` e `importar()` não são suportadas.
+ * O tradutor levantará erro toda vez que essas instruções são encontradas.
+ */
 export class TradutorJavaScript implements TradutorInterface {
 
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento) {
@@ -169,6 +174,14 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirDeclaracaoImportar(declaracaoImportar: Importar) {
+        throw new Error("`importar()` não é suportado por este padrão de JavaScript.");
+    }
+
+    traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
+        throw new Error("`leia()` não é suportado por este padrão de JavaScript.");
+    }
+
     traduzirDeclaracaoPara(declaracaoPara: Para) {
         let resultado = "for (";
         resultado += this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + "; ";
@@ -251,8 +264,8 @@ export class TradutorJavaScript implements TradutorInterface {
         'Expressao': this.traduzirDeclaracaoExpressao.bind(this),
         'Fazer': this.traduzirDeclaracaoFazer.bind(this),
         'Funcao': this.traduzirDeclaracaoFuncao.bind(this),
-        'Importar': '',
-        'Leia': '',
+        'Importar': this.traduzirDeclaracaoImportar.bind(this),
+        'Leia': this.traduzirDeclaracaoLeia.bind(this),
         'Para': this.traduzirDeclaracaoPara.bind(this),
         'Sustar': '',
         'Retorna': this.traduzirDeclaracaoRetorna.bind(this),
