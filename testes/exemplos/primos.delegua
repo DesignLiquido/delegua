@@ -1,0 +1,15 @@
+var mat = importar('matematica')
+
+para (var i = 2; i <= 10000; i = i + 1) {
+    var primo = verdadeiro
+    para (var j = i; j <= mat.raizQuadrada(i); j = j + 1) {
+        se (i % j == 0) {
+            primo = falso
+            sustar
+        }
+    }
+
+    se (primo) {
+        escreva(i)
+    }
+}
