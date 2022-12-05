@@ -769,7 +769,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)) return this.declaracaoSustar();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA, tiposDeSimbolos.SUSTAR)) return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
