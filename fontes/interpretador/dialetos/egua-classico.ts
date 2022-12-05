@@ -358,6 +358,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
             expressao.entidadeChamada
         );
+
+        if (variavelEntidadeChamada === null) {
+            return Promise.reject(new ErroEmTempoDeExecucao(
+                expressao.parentese,
+                'Chamada de função ou método inexistente: ' + String(expressao.entidadeChamada),
+                expressao.linha
+            ));
+        }
+
         const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
             ? variavelEntidadeChamada.valor
             : variavelEntidadeChamada;
@@ -411,7 +420,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
-                argumentos,
+                argumentos.map(a => a.hasOwnProperty('valor') ? a.valor : a),
                 expressao.entidadeChamada.nome
             );
         }
