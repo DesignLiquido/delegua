@@ -489,6 +489,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Expressao(expressao);
     }
 
+    /**
+     * Declaração para comando `leia`, para ler dados de entrada do usuário.
+     * @returns Um objeto da classe `Leia`.
+     */
     declaracaoLeia(): Leia {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -496,9 +500,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const argumentos: Construto[] = [];
 
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_DIREITO) {
+            do {
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
 
@@ -616,7 +622,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const simboloChave = this.simbolos[this.atual - 1];
         let valor = null;
 
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+        if ([tiposDeSimbolos.VARIAVEL,
+            tiposDeSimbolos.ISTO,
+            tiposDeSimbolos.TEXTO,
+            tiposDeSimbolos.NUMERO,
+            tiposDeSimbolos.NULO,
+            tiposDeSimbolos.VERDADEIRO,
+            tiposDeSimbolos.NEGACAO,
+            tiposDeSimbolos.FALSO,
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            tiposDeSimbolos.SUPER
+        ]) {
             valor = this.expressao();
         }
 
