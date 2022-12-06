@@ -204,6 +204,9 @@ export class Interpretador implements InterpretadorInterface {
     eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
+        if (objeto.hasOwnProperty('valor')) {
+            return Boolean(objeto.valor);
+        }
 
         return true;
     }
