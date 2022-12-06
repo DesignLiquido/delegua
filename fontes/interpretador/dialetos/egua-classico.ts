@@ -423,7 +423,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
-                argumentos.map(a => a.hasOwnProperty('valor') ? a.valor : a),
+                argumentos.map(a => a !== null && a.hasOwnProperty('valor') ? a.valor : a),
                 expressao.entidadeChamada.nome
             );
         }
