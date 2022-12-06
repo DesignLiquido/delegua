@@ -31,6 +31,7 @@ export default {
     senao: tiposDeSimbolos.SENAO,
     senão: tiposDeSimbolos.SENÃO,
     super: tiposDeSimbolos.SUPER,
+    sustar: tiposDeSimbolos.SUSTAR,
     tente: tiposDeSimbolos.TENTE,
     var: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO
