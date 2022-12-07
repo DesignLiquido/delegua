@@ -21,17 +21,13 @@ const tradutorJs = new TradutorJavaScript();
 const lexador = new Lexador();
 const avaliadorSintatico = new AvaliadorSintatico();
 const resultadoLexador = lexador.mapear([
-    "classe Resposta { ",
-    "    enviar(codigo) { ",
-    "        isto.codigo = codigo ",
-    "        retorna(isto) ",
+    "para (var i = 1; i <= 10; i = i + 1) { ",
+    "    se (i % 2 == 0) { ",
+    "        continua ",
     "    } ",
-    " ",
-    "    status(statusHttp) { ",
-    "        isto.statusHttp = statusHttp ",
-    "        retorna(isto) ",
-    "    } ",
-    "} "
+    "",
+    "    escreva(i) ",
+    "} ",
 ], -1)
 const resultadoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoLexador, -1);
 console.log(tradutorJs.traduzir(resultadoAvaliadorSintatico.declaracoes));
