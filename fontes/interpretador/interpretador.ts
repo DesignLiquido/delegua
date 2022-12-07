@@ -811,7 +811,6 @@ export class Interpretador implements InterpretadorInterface {
                 formatoTexto += `${this.paraTexto(valor)} `
             }
 
-            // const formatoTexto = this.paraTexto(valor);
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
             this.funcaoDeRetorno(formatoTexto);
