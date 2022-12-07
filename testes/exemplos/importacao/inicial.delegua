@@ -1,0 +1,4 @@
+var funcoesMatematicas = importar('./funcoes.delegua')
+
+var soma = funcoesMatematicas.soma(1, 2)
+escreva(soma)

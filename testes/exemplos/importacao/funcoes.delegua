@@ -1,0 +1,3 @@
+função soma(valor1, valor2){
+    retorna valor1 + valor2;
+}

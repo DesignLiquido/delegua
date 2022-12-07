@@ -16,6 +16,7 @@ import { RetornoImportador } from './retorno-importador';
  *
  */
 export class Importador implements ImportadorInterface {
+    diretorioBase: string = process.cwd();
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     arquivosAbertos: { [identificador: string]: string };
@@ -36,9 +37,13 @@ export class Importador implements ImportadorInterface {
         this.depuracao = depuracao;
     }
 
-    importar(caminhoRelativoArquivo: string): RetornoImportador {
+    importar(caminhoRelativoArquivo: string, importacaoInicial: boolean = false): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
-        const caminhoAbsolutoArquivo = caminho.resolve(caminhoRelativoArquivo);
+        let caminhoAbsolutoArquivo = caminho.resolve(this.diretorioBase, caminhoRelativoArquivo);
+        if (importacaoInicial) {
+            caminhoAbsolutoArquivo = caminho.resolve(caminhoRelativoArquivo);
+        }
+
         const hashArquivo = cyrb53(caminhoAbsolutoArquivo.toLowerCase());
 
         if (!fs.existsSync(nomeArquivo)) {
@@ -50,7 +55,7 @@ export class Importador implements ImportadorInterface {
             ); */
         }
 
-        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoRelativoArquivo);
+        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoAbsolutoArquivo);
         const conteudoDoArquivo: string[] = dadosDoArquivo
             .toString()
             .replace(sistemaOperacional.EOL, '\n')

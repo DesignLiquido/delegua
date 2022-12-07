@@ -136,8 +136,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         const retorno = {};
         const ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
-            if (corpo instanceof DeleguaFuncao) {
-                retorno[nome] = corpo;
+            const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
+            if (corpoValor instanceof DeleguaFuncao) {
+                retorno[nome] = corpoValor;
             }
         }
 

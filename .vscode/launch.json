@@ -99,6 +99,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Delégua > Importação",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                // "--depurador",
+                "./testes/exemplos/importacao/inicial.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Leia",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -353,21 +368,6 @@
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/classes/construtor-classe.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Importação (Delégua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--depurador",
-                "./testes/exemplos/importacao/importacao-1.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
