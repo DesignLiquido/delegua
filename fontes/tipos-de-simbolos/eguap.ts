@@ -60,8 +60,6 @@ export default {
     SE: 'SE',
     SENAO: 'SENAO',
     SENÃO: 'SENÃO',
-    SENAOSE: 'SENAOSE',
-    SENÃOSE: 'SENÃOSE',
     SUPER: 'SUPER',
     SUSTAR: 'SUSTAR',
     TENTE: 'TENTE',
