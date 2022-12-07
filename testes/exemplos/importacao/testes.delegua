@@ -1,0 +1,15 @@
+função testeRetornoNulo(){
+    retorna nulo
+}
+
+função testeSoma(valor1, valor2){
+    retorna valor1 + valor2;
+}
+
+funcao testeEscreva(){
+    escreva('inicio')
+    escreva('> ', 1, 2, 3, '<')
+    escreva(2 + 3)
+    escreva(2 + 3 == 5)
+    escreva('final')
+}
