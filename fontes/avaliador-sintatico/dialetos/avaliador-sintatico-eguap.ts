@@ -558,7 +558,10 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         const caminhoEntao = this.resolverDeclaracao();
 
         const caminhosSeSenao = [];
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
+        // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
+        // funciona do jeito que deveria.
+        // Marcando este código para ser removido em versões futuras.
+        /* while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
             const condicaoSeSenao = this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
@@ -569,7 +572,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                 condicao: condicaoSeSenao,
                 caminho: caminho,
             });
-        }
+        } */
 
         // Se há algum escopo aberto, conferir antes do senão se símbolo
         // atual é um espaço de indentação

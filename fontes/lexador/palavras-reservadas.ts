@@ -26,11 +26,10 @@ export default {
     pegue: tiposDeSimbolos.PEGUE,
     retorna: tiposDeSimbolos.RETORNA,
     se: tiposDeSimbolos.SE,
-    senaose: tiposDeSimbolos.SENAOSE,
-    senãose: tiposDeSimbolos.SENÃOSE,
     senao: tiposDeSimbolos.SENAO,
     senão: tiposDeSimbolos.SENÃO,
     super: tiposDeSimbolos.SUPER,
+    sustar: tiposDeSimbolos.SUSTAR,
     tente: tiposDeSimbolos.TENTE,
     var: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO

@@ -493,6 +493,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Expressao(expressao);
     }
 
+    /**
+     * Declaração para comando `leia`, para ler dados de entrada do usuário.
+     * @returns Um objeto da classe `Leia`.
+     */
     declaracaoLeia(): Leia {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -500,9 +504,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const argumentos: Construto[] = [];
 
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_DIREITO) {
+            do {
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
 
@@ -528,7 +534,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const caminhoEntao = this.resolverDeclaracao();
 
         const caminhosSeSenao = [];
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
+        // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
+        // funciona do jeito que deveria.
+        // Marcando este código para ser removido em versões futuras.
+        /* while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
             const condicaoSeSenao = this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
@@ -539,7 +548,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 condicao: condicaoSeSenao,
                 caminho: caminho,
             });
-        }
+        } */
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
@@ -620,7 +629,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const simboloChave = this.simbolos[this.atual - 1];
         let valor = null;
 
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+        if ([tiposDeSimbolos.VARIAVEL,
+            tiposDeSimbolos.ISTO,
+            tiposDeSimbolos.TEXTO,
+            tiposDeSimbolos.NUMERO,
+            tiposDeSimbolos.NULO,
+            tiposDeSimbolos.VERDADEIRO,
+            tiposDeSimbolos.NEGACAO,
+            tiposDeSimbolos.FALSO,
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            tiposDeSimbolos.SUPER
+        ]) {
             valor = this.expressao();
         }
 
@@ -773,7 +792,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)) return this.declaracaoSustar();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA, tiposDeSimbolos.SUSTAR)) return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();

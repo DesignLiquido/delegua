@@ -1,2 +1,2 @@
-var teste = leia('Digite qualquer coisa:')
+var teste = leia()
 escreva('Resultado: ' + teste)

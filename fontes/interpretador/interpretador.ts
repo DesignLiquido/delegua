@@ -120,7 +120,7 @@ export class Interpretador implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '';
+        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
         return new Promise(resolucao =>
             this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
                 resolucao(resposta);
@@ -204,6 +204,9 @@ export class Interpretador implements InterpretadorInterface {
     eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
+        if (objeto.hasOwnProperty('valor')) {
+            return Boolean(objeto.valor);
+        }
 
         return true;
     }
@@ -455,6 +458,15 @@ export class Interpretador implements InterpretadorInterface {
             const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
                 expressao.entidadeChamada
             );
+
+            if (variavelEntidadeChamada === null) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.parentese,
+                    'Chamada de função ou método inexistente: ' + String(expressao.entidadeChamada),
+                    expressao.linha
+                ));
+            }
+
             const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
                 ? variavelEntidadeChamada.valor
                 : variavelEntidadeChamada;
@@ -522,7 +534,7 @@ export class Interpretador implements InterpretadorInterface {
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
                     return entidadeChamada.chamar(
-                        argumentos,
+                        argumentos.map(a => a !== null && a.hasOwnProperty('valor') ? a.valor : a),
                         expressao.entidadeChamada.nome
                     );
                 } catch (erro: any) {
@@ -755,8 +767,8 @@ export class Interpretador implements InterpretadorInterface {
             }
         }
 
-        const conteudoImportacao = this.importador.importar(caminhoRelativo);
-        const retornoInterpretador = this.interpretar(
+        const conteudoImportacao = this.importador.importar(caminhoRelativo, false);
+        const retornoInterpretador = await this.interpretar(
             conteudoImportacao.retornoAvaliadorSintatico.declaracoes,
             true
         );
@@ -788,14 +800,17 @@ export class Interpretador implements InterpretadorInterface {
      */
     async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
         try {
-            let valor: any;
+            let formatoTexto: string = '';
+
             for (const argumento of declaracao.argumentos) {
                 const resultadoAvaliacao = await this.avaliar(argumento);
-                valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                    ? resultadoAvaliacao.valor
-                    : resultadoAvaliacao;
+                let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                            ? resultadoAvaliacao.valor
+                            : resultadoAvaliacao;
+
+                formatoTexto += `${this.paraTexto(valor)} `
             }
-            const formatoTexto = this.paraTexto(valor);
+
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
             this.funcaoDeRetorno(formatoTexto);
