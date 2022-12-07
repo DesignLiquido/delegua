@@ -291,7 +291,7 @@ export class TradutorJavaScript implements TradutorInterface {
         'Escreva': this.traduzirDeclaracaoEscreva.bind(this),
         'Expressao': this.traduzirDeclaracaoExpressao.bind(this),
         'Fazer': this.traduzirDeclaracaoFazer.bind(this),
-        'Funcao': this.traduzirDeclaracaoFuncao.bind(this),
+        'FuncaoDeclaracao': this.traduzirDeclaracaoFuncao.bind(this),
         'Importar': this.traduzirDeclaracaoImportar.bind(this),
         'Leia': this.traduzirDeclaracaoLeia.bind(this),
         'Para': this.traduzirDeclaracaoPara.bind(this),

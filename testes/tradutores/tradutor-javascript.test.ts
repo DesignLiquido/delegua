@@ -25,7 +25,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
             const resultado = tradutor.traduzir([se]);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/if/i);
-            expect(resultado).toMatch(/a == 1/i);
+            expect(resultado).toMatch(/a === 1/i);
             expect(resultado).toMatch(/console\.log\(10\)/i);
         });
     });
@@ -71,7 +71,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/if/i);
-            expect(resultado).toMatch(/a == 1/i);
+            expect(resultado).toMatch(/a === 1/i);
             expect(resultado).toMatch(/console\.log\(10\)/i);
         });
     });
