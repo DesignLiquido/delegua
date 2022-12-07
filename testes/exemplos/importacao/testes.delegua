@@ -9,6 +9,7 @@ função testeSoma(valor1, valor2){
 funcao testeEscreva(){
     escreva('inicio')
     escreva('> ', 1, 2, 3, '<')
+    escreva('> ', nulo, 1 == 2, '<')
     escreva(2 + 3)
     escreva(2 + 3 == 5)
     escreva(falso)
