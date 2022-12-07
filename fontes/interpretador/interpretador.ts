@@ -800,12 +800,20 @@ export class Interpretador implements InterpretadorInterface {
      */
     async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
         try {
-            let valor: string = '';
-            for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = await this.avaliar(argumento);
-                valor += `${resultadoAvaliacao?.hasOwnProperty('valor')
+            let valor: any | string = '';
+            if(declaracao.argumentos.length === 1){
+                const resultadoAvaliacao = await this.avaliar(declaracao.argumentos[0]);
+                valor = resultadoAvaliacao?.hasOwnProperty('valor')
                 ? resultadoAvaliacao.valor
-                : resultadoAvaliacao} `;
+                : resultadoAvaliacao
+            }
+            else{
+                for (const argumento of declaracao.argumentos) {
+                    const resultadoAvaliacao = await this.avaliar(argumento);
+                    valor += `${resultadoAvaliacao?.hasOwnProperty('valor')
+                    ? resultadoAvaliacao.valor
+                    : resultadoAvaliacao} `;
+                }
             }
             const formatoTexto = this.paraTexto(valor);
             // Por enquanto `escreva` não devolve resultado no interpretador.
