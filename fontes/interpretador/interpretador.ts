@@ -800,7 +800,7 @@ export class Interpretador implements InterpretadorInterface {
      */
     async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
         try {
-            let formatoTexto: any | string = '';
+            let formatoTexto: string = '';
 
             for (const argumento of declaracao.argumentos) {
                 const resultadoAvaliacao = await this.avaliar(argumento);
