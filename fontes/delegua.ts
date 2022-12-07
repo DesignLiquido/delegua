@@ -257,7 +257,14 @@ export class Delegua implements DeleguaInterface {
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
      */
     async carregarArquivo(caminhoRelativoArquivo: string): Promise<any> {
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo);
+        const caminhoAbsolutoPrimeiroArquivo = caminho.resolve(caminhoRelativoArquivo);
+        const novoDiretorioBase = caminho.dirname(caminhoAbsolutoPrimeiroArquivo);
+
+        this.importador.diretorioBase = novoDiretorioBase;
+        this.interpretador.diretorioBase = novoDiretorioBase;
+
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true);
+
         if (this.afericaoErros(retornoImportador)) {
             process.exit(65); // Código para erro de avaliação antes da execução
         }
