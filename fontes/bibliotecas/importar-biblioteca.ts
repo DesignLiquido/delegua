@@ -58,7 +58,7 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
             // podemos dizer que a "function" é uma classe.
             // Caso contrário, é uma função (`FuncaoPadrao`).
             if (
-                Object.entries(moduloAtual.prototype).some(
+                moduloAtual?.prototype && Object.entries(moduloAtual.prototype).some(
                     (f: [string, any]) => typeof f[1] === 'function'
                 )
             ) {
