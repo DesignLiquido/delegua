@@ -1,4 +1,9 @@
-var funcoesMatematicas = importar('./funcoes.delegua')
+var teste = importar('./testes.delegua')
 
-var soma = funcoesMatematicas.soma(1, 2)
-escreva(soma)
+var resultadoRetornoNulo = teste.testeRetornoNulo()
+escreva(resultadoRetornoNulo)
+
+var resultadoSoma = teste.testeSoma(15, 10)
+escreva(resultadoSoma)testeEscreva
+
+teste.testeEscreva()
