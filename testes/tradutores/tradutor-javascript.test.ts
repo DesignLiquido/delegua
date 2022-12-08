@@ -72,7 +72,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/function/i);
             expect(resultado).toMatch(/minhaFuncao/i);
-            expect(resultado).toMatch(/console\.log\(\'teste\'\)/i);
+            expect(resultado).toMatch(/console\.log\(teste\)/i);
         })
 
         it("se -> if, código", () => {
