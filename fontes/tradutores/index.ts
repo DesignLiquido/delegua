@@ -56,9 +56,11 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoBinario(binario: Binario) {
-        return this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
-            " " + this.traduzirSimboloOperador(binario.operador) + " " +
-            this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+        let esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+        let operador = this.traduzirSimboloOperador(binario.operador);
+        let direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+
+        return `${esquerda} ${operador} ${direita}`
     }
 
     traduzirConstrutoDefinirValor(definirValor: DefinirValor) {
@@ -315,6 +317,8 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += declaracaoVar.simbolo.lexema + " = ";
         if (declaracaoVar.inicializador instanceof Literal) {
             resultado += "'" + declaracaoVar.inicializador.valor + "'";
+        } else if(declaracaoVar.inicializador instanceof Binario){
+            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
         } else {
             resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
         }
