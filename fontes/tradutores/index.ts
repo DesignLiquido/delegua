@@ -273,7 +273,12 @@ export class TradutorJavaScript implements TradutorInterface {
             return resultado += this.traduzirConstrutoBinario(declaracaoRetorna?.valor)
         }
         if((declaracaoRetorna?.valor as Literal)?.valor){
-            return resultado += `'${this.traduzirConstrutoLiteral((declaracaoRetorna?.valor as Literal))}'`
+            const valor = this.traduzirConstrutoLiteral(declaracaoRetorna?.valor as Literal)
+            if(typeof valor === 'string')
+                resultado += `'${valor}'`
+            else if(typeof valor === 'number')
+                resultado += valor
+            return resultado;
         }
         if(!nomeConstrutor){
             return resultado += "null";
