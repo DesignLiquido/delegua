@@ -76,6 +76,10 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoLiteral(literal: Literal) {
+        if (typeof literal.valor === 'string' || literal.valor instanceof String) {
+            return `'${literal.valor}'`;
+        }
+
         return literal.valor;
     }
 
