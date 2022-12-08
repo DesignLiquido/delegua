@@ -1,4 +1,4 @@
-import { Agrupamento, Atribuir, Binario, DefinirValor, Isto, Literal, Variavel } from "../construtos";
+import { Agrupamento, Atribuir, Binario, Chamada, DefinirValor, Isto, Literal, Variavel } from "../construtos";
 import { Bloco, Classe, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Importar, Para, Retorna, Se, Tente, Var } from "../declaracoes";
 import { SimboloInterface, TradutorInterface } from "../interfaces";
 import { CaminhoEscolha } from "../interfaces/construtos";
@@ -81,6 +81,21 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirConstrutoVariavel(variavel: Variavel) {
         return variavel.simbolo.lexema;
+    }
+
+    traduzirConstrutoChamada(chamada: Chamada){
+        let resultado = ""
+
+        let entidadeChamada = chamada.entidadeChamada as Variavel;
+        resultado += `${entidadeChamada.simbolo.lexema}(`
+        for (let parametro of chamada.argumentos as Array<Variavel>) {
+            resultado += parametro.simbolo.lexema + ", ";
+        }
+        if(chamada.argumentos.length > 0){
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ')'
+        return resultado;
     }
 
     logicaComumBlocoEscopo(declaracoes: Declaracao[]) {
@@ -195,6 +210,7 @@ export class TradutorJavaScript implements TradutorInterface {
                 resultado += valor + ', '
                 continue;
             }
+
             resultado += valor + ", ";
         }
 
@@ -204,7 +220,7 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao) {
-        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao)
     }
 
     traduzirDeclaracaoFazer(declaracaoFazer: Fazer) {
@@ -302,7 +318,8 @@ export class TradutorJavaScript implements TradutorInterface {
         'DefinirValor': this.traduzirConstrutoDefinirValor.bind(this),
         'Isto': this.traduzirConstrutoIsto.bind(this),
         'Literal': this.traduzirConstrutoLiteral.bind(this),
-        'Variavel': this.traduzirConstrutoVariavel.bind(this)
+        'Variavel': this.traduzirConstrutoVariavel.bind(this),
+        'Chamada': this.traduzirConstrutoChamada.bind(this)
     }
 
     dicionarioDeclaracoes = {
