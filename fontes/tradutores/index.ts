@@ -205,7 +205,10 @@ export class TradutorJavaScript implements TradutorInterface {
             resultado += parametro.nome.lexema + ", ";
         }
 
-        resultado = resultado.slice(0, -2);
+        if(declaracaoFuncao.funcao.parametros.length > 0){
+            resultado = resultado.slice(0, -2);
+        }
+        
         resultado += ") ";
 
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
@@ -232,7 +235,10 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna) {
         let resultado = "return ";
-        const nomeConstrutor = declaracaoRetorna.valor.expressao.constructor.name;
+        const nomeConstrutor = declaracaoRetorna?.valor?.expressao?.constructor?.name;
+        if(!nomeConstrutor){
+            return resultado += "null";
+        }
         if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
             resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna.valor.expressao);
         } else {
