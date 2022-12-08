@@ -176,13 +176,26 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva) {
-        let resultado = "console.log('";
+        let resultado = "console.log(";
         for (const argumento of declaracaoEscreva.argumentos) {
-            resultado += this.dicionarioConstrutos[argumento.constructor.name](argumento) + ", ";
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            if(argumento as Binario){
+                resultado += valor + ", "
+                continue;
+            }
+            if(typeof valor === 'string'){
+                resultado += `'${valor}', `
+                continue;
+            }
+            if(typeof valor === 'number'){
+                resultado += valor + ', '
+                continue;
+            }
+            resultado += valor + ", ";
         }
 
         resultado = resultado.slice(0, -2); // Remover última vírgula
-        resultado += "')"
+        resultado += ")"
         return resultado;
     }
 
