@@ -179,7 +179,7 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = "console.log(";
         for (const argumento of declaracaoEscreva.argumentos) {
             const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            if(argumento as Binario){
+            if(argumento instanceof Binario){
                 resultado += valor + ", "
                 continue;
             }
