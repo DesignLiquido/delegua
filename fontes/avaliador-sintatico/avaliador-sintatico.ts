@@ -436,7 +436,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.MODULO_IGUAL,
             ].includes(expressao.operador.tipo)
         ) {
-            return new Atribuir(this.hashArquivo, expressao.esquerda.simbolo, expressao);
+            return new Atribuir(
+                this.hashArquivo,
+                (expressao.esquerda as Variavel).simbolo,
+                expressao
+            );
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.atribuir();

@@ -1,16 +1,17 @@
+import { Construto } from '../construtos';
 import { InterpretadorInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Se extends Declaracao {
-    condicao: any;
-    caminhoEntao: any;
-    caminhosSeSenao: any;
+    condicao: Construto;
+    caminhoEntao: Declaracao;
+    caminhosSeSenao: any[];
     caminhoSenao: any;
 
     constructor(
-        condicao: any,
-        caminhoEntao: any,
-        caminhosSeSenao: any,
+        condicao: Construto,
+        caminhoEntao: Declaracao,
+        caminhosSeSenao: any[],
         caminhoSenao: any
     ) {
         super(condicao.linha, condicao.hashArquivo);

@@ -1,6 +1,7 @@
 export * from './bloco';
 export * from './classe';
 export * from './continua';
+export * from './declaracao';
 export * from './enquanto';
 export * from './escolha';
 export * from './escreva';
@@ -13,6 +14,5 @@ export * from './para';
 export * from './sustar';
 export * from './retorna';
 export * from './se';
-export * from './declaracao';
 export * from './tente';
 export * from './var';

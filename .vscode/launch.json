@@ -240,7 +240,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "interpretador.test.ts",
+                "tradutor-javascript.test.ts",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
@@ -512,6 +512,19 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/se.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Tradutores > Delégua => JavaScript > Teste",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}teste-tradutores.ts"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },

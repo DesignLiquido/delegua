@@ -1,11 +1,12 @@
 import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
+import { FuncaoConstruto } from '../construtos';
 
 export class FuncaoDeclaracao extends Declaracao {
     simbolo: SimboloInterface;
-    funcao: any;
+    funcao: FuncaoConstruto;
 
-    constructor(simbolo: SimboloInterface, funcao: any) {
+    constructor(simbolo: SimboloInterface, funcao: FuncaoConstruto) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.funcao = funcao;
