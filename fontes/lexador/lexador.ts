@@ -105,7 +105,6 @@ export class Lexador implements LexadorInterface {
 
     avancar(): void {
         this.atual += 1;
-
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
@@ -180,10 +179,17 @@ export class Lexador implements LexadorInterface {
             }
         }
 
-        const numeroCompleto = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
+        let numeroCompleto = '';
+        if(this.atual !== 0){
+            numeroCompleto = this.codigo[this.linha].substring(
+                this.inicioSimbolo,
+                this.atual
+            );
+        } else {
+            numeroCompleto = this.codigo[this.linha - 1].substring(
+                this.inicioSimbolo
+            );
+        }
         this.adicionarSimbolo(
             tiposDeSimbolos.NUMERO,
             parseFloat(numeroCompleto)

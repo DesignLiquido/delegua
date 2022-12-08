@@ -56,9 +56,11 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoBinario(binario: Binario) {
-        return this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
-            " " + this.traduzirSimboloOperador(binario.operador) + " " +
-            this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+        let esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+        let operador = this.traduzirSimboloOperador(binario.operador);
+        let direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+
+        return `${esquerda} ${operador} ${direita}`
     }
 
     traduzirConstrutoDefinirValor(definirValor: DefinirValor) {
@@ -76,10 +78,6 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoLiteral(literal: Literal) {
-        if (typeof literal.valor === 'string' || literal.valor instanceof String) {
-            return `'${literal.valor}'`;
-        }
-
         return literal.valor;
     }
 
@@ -273,6 +271,17 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna) {
         let resultado = "return ";
         const nomeConstrutor = declaracaoRetorna?.valor?.expressao?.constructor?.name;
+        if(declaracaoRetorna?.valor instanceof Binario){
+            return resultado += this.traduzirConstrutoBinario(declaracaoRetorna?.valor)
+        }
+        if((declaracaoRetorna?.valor as Literal)?.valor){
+            const valor = this.traduzirConstrutoLiteral(declaracaoRetorna?.valor as Literal)
+            if(typeof valor === 'string')
+                resultado += `'${valor}'`
+            else if(typeof valor === 'number')
+                resultado += valor
+            return resultado;
+        }
         if(!nomeConstrutor){
             return resultado += "null";
         }
@@ -308,6 +317,8 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += declaracaoVar.simbolo.lexema + " = ";
         if (declaracaoVar.inicializador instanceof Literal) {
             resultado += "'" + declaracaoVar.inicializador.valor + "'";
+        } else if(declaracaoVar.inicializador instanceof Binario){
+            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
         } else {
             resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
         }
@@ -319,11 +330,11 @@ export class TradutorJavaScript implements TradutorInterface {
         'Agrupamento': this.traduzirConstrutoAgrupamento.bind(this),
         'Atribuir': this.traduzirConstrutoAtribuir.bind(this),
         'Binario': this.traduzirConstrutoBinario.bind(this),
+        'Chamada': this.traduzirConstrutoChamada.bind(this),
         'DefinirValor': this.traduzirConstrutoDefinirValor.bind(this),
         'Isto': this.traduzirConstrutoIsto.bind(this),
         'Literal': this.traduzirConstrutoLiteral.bind(this),
-        'Variavel': this.traduzirConstrutoVariavel.bind(this),
-        'Chamada': this.traduzirConstrutoChamada.bind(this)
+        'Variavel': this.traduzirConstrutoVariavel.bind(this)
     }
 
     dicionarioDeclaracoes = {
