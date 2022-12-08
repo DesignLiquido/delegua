@@ -183,6 +183,10 @@ export class TradutorJavaScript implements TradutorInterface {
                 resultado += valor + ", "
                 continue;
             }
+            if(argumento instanceof Variavel){
+                resultado += valor + ", "
+                continue;
+            }
             if(typeof valor === 'string'){
                 resultado += `'${valor}', `
                 continue;

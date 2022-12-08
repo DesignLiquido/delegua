@@ -37,7 +37,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
             delegua = new Delegua('delegua');
         });
 
-        it.skip("função -> function - com parametro", () => {
+        it("função -> function - com parametro", () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     "funcao minhaFuncao(teste) {",
