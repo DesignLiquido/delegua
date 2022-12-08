@@ -105,7 +105,6 @@ export class Lexador implements LexadorInterface {
 
     avancar(): void {
         this.atual += 1;
-        
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
