@@ -17,13 +17,14 @@
     <img src="https://img.shields.io/github/license/Designliquido/delegua" />
     <br>
   </p>
-  
+
   <p align="center">
     Acompanhe a Design Líquido nas redes sociais:<br />
     <a href="https://twitter.com/designliquido" target="_blank"> <img src="https://img.shields.io/badge/-Twitter-1ca0f1?style=flat&labelColor=1ca0f1&logo=twitter&logoColor=white&link=Twitter" /></a>
     <a href="https://www.instagram.com/design.liquido" target="_blank"><img src="https://img.shields.io/badge/-Instagram-c13584?style=flat&labelColor=c13584&logo=instagram&logoColor=white" /></a>
     <a href="https://www.youtube.com/channel/UCJRn3B7r0aex6LCaOyrQtZQ" target="_blank"><img src="https://img.shields.io/badge/-YouTube-ff0000?style=flat-square&labelColor=ff0000&logo=youtube&logoColor=white" /></a>
     <a href="https://www.linkedin.com/company/design-liquido" target="_blank"><img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat&logo=Linkedin&logoColor=white" /></a>
+    <a href="https://www.tiktok.com/@designliquido" target="_blank"><img src="https://img.shields.io/static/v1?style=for-the-badge&message=TikTok&color=black&logo=TikTok&logoColor=white&label=" /></a>
   </p>
 </p>
 
@@ -45,8 +46,8 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 
 Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser: [basta usar nosso editor online clicando aqui](https://designliquido.github.io/delegua-web/).
 
-Se quiser instalar no seu computador, 
-[você deve ter antes o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo). 
+Se quiser instalar no seu computador,
+[você deve ter antes o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo).
 
 Com o Node.js instalado, execute o seguinte comando em um prompt de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `bash` em Mac e Linux):
 
@@ -62,7 +63,7 @@ Feita a instalação no seu ambiente, execute o seguinte comando:
 delegua
 ```
 
-Você terá um interpretador Delégua que avalia expressões linha a linha. 
+Você terá um interpretador Delégua que avalia expressões linha a linha.
 
 Um exemplo de uso é como uma calculadora:
 
@@ -81,7 +82,7 @@ Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ct
 
 ### Executando arquivos
 
-É possível usar o interpretador com outros dialetos, como Égua. 
+É possível usar o interpretador com outros dialetos, como Égua.
 
 ```
 delegua --dialeto egua
@@ -97,7 +98,7 @@ npm install -g @designliquido/delegua
 
 ## Documentação
 
-- [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki). 
+- [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki).
 - Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
 
 ## Contribuições e Comunidade
