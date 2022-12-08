@@ -176,13 +176,13 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva) {
-        let resultado = "console.log(";
+        let resultado = "console.log('";
         for (const argumento of declaracaoEscreva.argumentos) {
             resultado += this.dicionarioConstrutos[argumento.constructor.name](argumento) + ", ";
         }
 
         resultado = resultado.slice(0, -2); // Remover última vírgula
-        resultado += ")"
+        resultado += "')"
         return resultado;
     }
 
@@ -248,9 +248,9 @@ export class TradutorJavaScript implements TradutorInterface {
 
         resultado += condicao;
 
-        resultado += ') ';
-        resultado += this.dicionarioDeclaracoes[
-            declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+        resultado += ') {';
+        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+        resultado += '}'
 
         return resultado;
     }
