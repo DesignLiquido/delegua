@@ -76,10 +76,6 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoLiteral(literal: Literal) {
-        if (typeof literal.valor === 'string' || literal.valor instanceof String) {
-            return `'${literal.valor}'`;
-        }
-
         return literal.valor;
     }
 
@@ -273,6 +269,12 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna) {
         let resultado = "return ";
         const nomeConstrutor = declaracaoRetorna?.valor?.expressao?.constructor?.name;
+        if(declaracaoRetorna?.valor instanceof Binario){
+            return resultado += this.traduzirConstrutoBinario(declaracaoRetorna?.valor)
+        }
+        if((declaracaoRetorna?.valor as Literal)?.valor){
+            return resultado += `'${this.traduzirConstrutoLiteral((declaracaoRetorna?.valor as Literal))}'`
+        }
         if(!nomeConstrutor){
             return resultado += "null";
         }
@@ -319,11 +321,11 @@ export class TradutorJavaScript implements TradutorInterface {
         'Agrupamento': this.traduzirConstrutoAgrupamento.bind(this),
         'Atribuir': this.traduzirConstrutoAtribuir.bind(this),
         'Binario': this.traduzirConstrutoBinario.bind(this),
+        'Chamada': this.traduzirConstrutoChamada.bind(this),
         'DefinirValor': this.traduzirConstrutoDefinirValor.bind(this),
         'Isto': this.traduzirConstrutoIsto.bind(this),
         'Literal': this.traduzirConstrutoLiteral.bind(this),
-        'Variavel': this.traduzirConstrutoVariavel.bind(this),
-        'Chamada': this.traduzirConstrutoChamada.bind(this)
+        'Variavel': this.traduzirConstrutoVariavel.bind(this)
     }
 
     dicionarioDeclaracoes = {
