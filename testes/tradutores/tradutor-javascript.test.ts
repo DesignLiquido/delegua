@@ -40,7 +40,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
         it("função -> function - com parametro", () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
-                    "funcao minhaFuncao(teste) {",
+                    "funcao minhaFuncaoComParametro(teste) {",
                     "    escreva(teste)",
                     "}"
                 ],
@@ -59,7 +59,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
         it("função -> function - sem parametro", () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
-                    "funcao minhaFuncao() {",
+                    "funcao minhaFuncaoSemParametro() {",
                     "    escreva('teste')",
                     "}"
                 ],
@@ -72,7 +72,7 @@ describe("Tradutor Delégua -> JavaScript", () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/function/i);
             expect(resultado).toMatch(/minhaFuncao/i);
-            expect(resultado).toMatch(/console\.log\('teste'\)/i);
+            expect(resultado).toMatch(/console\.log\(\'teste\'\)/i);
         })
 
         it("se -> if, código", () => {
