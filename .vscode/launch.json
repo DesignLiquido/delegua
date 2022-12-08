@@ -523,7 +523,10 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}teste-tradutores.ts"
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "-t",
+                "js",
+                "./testes/exemplos/condicionais/se.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

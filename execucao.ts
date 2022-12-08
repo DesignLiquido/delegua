@@ -21,6 +21,10 @@ const principal = () => {
             'Visualizar indicadores de performance. Desabilitado por padrão',
             false
         )
+        .option(
+            '-t, --traduzir <linguagem>',
+            'Traduz o código do arquivo passado como parâmetro',
+        )
         .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
         .action((arquivos) => {
             if (arquivos.length > 0) {
@@ -34,11 +38,14 @@ const principal = () => {
     const delegua = new Delegua(
         opcoes.dialeto,
         opcoes.performance,
-        nomeArquivo ? opcoes.depurador : false
+        nomeArquivo ? opcoes.depurador : false,
+        opcoes.traduzir
     );
 
     if (!nomeArquivo) {
         delegua.iniciarLairDelegua();
+    } else if (opcoes.traduzir) {
+        delegua.traduzirArquivo(nomeArquivo);
     } else {
         delegua.carregarArquivo(nomeArquivo);
     }

@@ -33,6 +33,7 @@ import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
 import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
+import { TradutorJavaScript } from './tradutores';
 
 /**
  * O núcleo da linguagem.
@@ -48,12 +49,14 @@ export class Delegua implements DeleguaInterface {
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     importador: ImportadorInterface;
+    tradutor: TradutorJavaScript;
+
     funcaoDeRetorno: Function;
     modoDepuracao: boolean;
 
     servidorDepuracao: ServidorDepuracao;
 
-    constructor(dialeto = 'delegua', performance = false, depurador = false, funcaoDeRetorno: Function = null) {
+    constructor(dialeto = 'delegua', performance = false, depurador = false, traduzir = null, funcaoDeRetorno: Function = null) {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
 
@@ -139,6 +142,10 @@ export class Delegua implements DeleguaInterface {
                 break;
         }
 
+        if (traduzir !== null && traduzir !== undefined) {
+            this.tradutor = new TradutorJavaScript();
+        }
+
         if (depurador) {
             this.iniciarDepuracao();
         }
@@ -148,9 +155,9 @@ export class Delegua implements DeleguaInterface {
         try {
             const manifesto = caminho.resolve('package.json');
 
-            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.9';
+            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.10';
         } catch (error: any) {
-            return '0.9 (desenvolvimento)';
+            return '0.10 (desenvolvimento)';
         }
     }
 
@@ -250,6 +257,22 @@ export class Delegua implements DeleguaInterface {
         }
 
         return false;
+    }
+
+    traduzirArquivo(caminhoRelativoArquivo: string): any {
+        const caminhoAbsolutoPrimeiroArquivo = caminho.resolve(caminhoRelativoArquivo);
+        const novoDiretorioBase = caminho.dirname(caminhoAbsolutoPrimeiroArquivo);
+
+        this.importador.diretorioBase = novoDiretorioBase;
+
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true);
+
+        if (this.afericaoErros(retornoImportador)) {
+            process.exit(65); // Código para erro de avaliação antes da tradução
+        }
+
+        const resultado = this.tradutor.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+        this.funcaoDeRetorno(resultado);
     }
 
     /**
