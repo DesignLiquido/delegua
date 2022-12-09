@@ -274,16 +274,15 @@ export class TradutorJavaScript implements TradutorInterface {
         if(declaracaoRetorna?.valor instanceof Binario){
             return resultado += this.traduzirConstrutoBinario(declaracaoRetorna?.valor)
         }
-        if((declaracaoRetorna?.valor as Literal)?.valor){
+        if(declaracaoRetorna?.valor instanceof Literal){
             const valor = this.traduzirConstrutoLiteral(declaracaoRetorna?.valor as Literal)
             if(typeof valor === 'string')
                 resultado += `'${valor}'`
             else if(typeof valor === 'number')
                 resultado += valor
+            else if(valor === null)
+                resultado += 'null'
             return resultado;
-        }
-        if(!nomeConstrutor){
-            return resultado += "null";
         }
         if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
             resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna.valor.expressao);
@@ -300,9 +299,27 @@ export class TradutorJavaScript implements TradutorInterface {
 
         resultado += condicao;
 
-        resultado += ') {';
+        resultado += ')';
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
-        resultado += '}'
+
+        if(declaracaoSe.caminhoSenao !== null){
+            resultado += 'else '
+            const se = declaracaoSe?.caminhoSenao as Se;
+            if(se?.caminhoEntao){
+                resultado += 'if ('
+                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+                resultado += ')'
+                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+
+                if(se?.caminhoSenao){
+                    resultado += 'else '
+                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
+                    return resultado;
+                }
+            }
+
+            resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](declaracaoSe.caminhoSenao);
+        }
 
         return resultado;
     }
