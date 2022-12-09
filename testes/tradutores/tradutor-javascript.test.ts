@@ -156,6 +156,18 @@ describe("Tradutor Delégua -> JavaScript", () => {
             expect(resultado).toMatch(/console\.log\(texto\)/i);
         })
 
+        it('escreva -> console.log com operação lógica', () => {
+            const codigo = [
+                "escreva(1 == 2)"
+            ]
+            const retornoLexador = delegua.lexador.mapear(codigo, -1)
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(1 === 2\)/i);
+        })
+
         it('operadores lógicos', () => {
             const codigo = [
                 "var soma = 1 + 1",
