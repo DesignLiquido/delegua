@@ -49,7 +49,7 @@ const principal = () => {
     if (!nomeArquivo) {
         delegua.iniciarLairDelegua();
     } else if (opcoes.traduzir) {
-        delegua.traduzirArquivo(nomeArquivo, Boolean(opcoes.saida));
+        delegua.traduzirArquivo(nomeArquivo, opcoes.saida);
     } else {
         delegua.carregarArquivo(nomeArquivo);
     }
