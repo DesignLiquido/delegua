@@ -28,6 +28,7 @@ const principal = () => {
         .option(
             '-s, --saida',
             'Gera arquivo de saida ao traduzir arquivo',
+            false
         )
         .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
         .action((arquivos) => {
