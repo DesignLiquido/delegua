@@ -99,9 +99,14 @@ Se não quiser instalar as bibliotecas que acompanham Delégua, apenas o núcleo
 npm install -g @designliquido/delegua
 ```
 
+## Tradução para outras linguagens
+
+Por ora, Delégua traduz para JavaScript simples. [Mais informações aqui](https://github.com/DesignLiquido/delegua/wiki/Tradu%C3%A7%C3%A3o-para-outras-linguagens). 
+
 ## Documentação
 
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki).
+- [A documentação técnica (gerada por TypeDoc) pode ser encontrada aqui](https://designliquido.github.io/delegua/).
 - Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
 
 ## Contribuições e Comunidade
