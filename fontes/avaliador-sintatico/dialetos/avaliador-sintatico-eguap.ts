@@ -305,6 +305,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         while (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.DIVISAO,
+                tiposDeSimbolos.DIVISAO_INTEIRA,
                 tiposDeSimbolos.MULTIPLICACAO,
                 tiposDeSimbolos.MODULO
             )
@@ -320,7 +321,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
+        while (this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.SUBTRACAO, 
+                tiposDeSimbolos.ADICAO
+            )
+        ) {
             const operador = this.simboloAnterior();
             const direito = this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -332,7 +337,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     bitFill(): Construto {
         let expressao = this.adicaoOuSubtracao();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
+        while (this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.MENOR_MENOR, 
+                tiposDeSimbolos.MAIOR_MAIOR
+            )
+        ) {
             const operador = this.simboloAnterior();
             const direito = this.adicaoOuSubtracao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);

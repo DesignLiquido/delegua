@@ -184,6 +184,10 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 }
 
                 break;
+            case '\\':
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
+                this.avancar();
+                break;
             // Esta sessão ignora espaços em branco na tokenização.
             // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
             case ' ':

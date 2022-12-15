@@ -277,11 +277,13 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         while (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.DIVISAO,
-                tiposDeSimbolos.MULTIPLICACAO,
-                tiposDeSimbolos.MODULO,
                 tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.DIVISAO_INTEIRA,
+                tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL,
+                tiposDeSimbolos.MODULO,
+                tiposDeSimbolos.MODULO_IGUAL,
+                tiposDeSimbolos.MULTIPLICACAO,
                 tiposDeSimbolos.MULTIPLICACAO_IGUAL,
-                tiposDeSimbolos.MODULO_IGUAL
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
@@ -433,6 +435,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.MENOS_IGUAL,
                 tiposDeSimbolos.MULTIPLICACAO_IGUAL,
                 tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL,
                 tiposDeSimbolos.MODULO_IGUAL,
             ].includes(expressao.operador.tipo)
         ) {

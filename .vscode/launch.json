@@ -534,6 +534,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "VisuAlg > Divisão Inteira",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "visualg",
+                "./testes/exemplos/dialetos/visualg/divisao-inteira.alg"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "VisuAlg > Olá Mundo",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",

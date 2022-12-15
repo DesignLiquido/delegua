@@ -13,6 +13,7 @@ export default {
     CONTINUA: 'CONTINUA',
     DIFERENTE: 'DIFERENTE',
     DIVISAO: 'DIVISAO',
+    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
     DOIS_PONTOS: 'DOIS_PONTOS',
     E: 'E',
     EM: 'EM',
