@@ -259,7 +259,7 @@ export class Delegua implements DeleguaInterface {
         return false;
     }
 
-    traduzirArquivo(caminhoRelativoArquivo: string): any {
+    traduzirArquivo(caminhoRelativoArquivo: string, gerarArquivoSaida: boolean): any {
         const caminhoAbsolutoPrimeiroArquivo = caminho.resolve(caminhoRelativoArquivo);
         const novoDiretorioBase = caminho.dirname(caminhoAbsolutoPrimeiroArquivo);
 
@@ -272,6 +272,17 @@ export class Delegua implements DeleguaInterface {
         }
 
         const resultado = this.tradutor.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+
+        if(gerarArquivoSaida){
+            ['.delegua', '.egua'].map(extensao => {
+                if(caminhoAbsolutoPrimeiroArquivo.includes(extensao)){
+                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, '.js'), resultado, (erro) => {
+                        if (erro) throw erro;
+                    })
+                }
+            })
+        }
+
         this.funcaoDeRetorno(resultado);
     }
 

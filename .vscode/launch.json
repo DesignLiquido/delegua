@@ -526,6 +526,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "-t",
                 "js",
+                "-s",
                 "./testes/exemplos/condicionais/se.egua"
             ],
             "runtimeExecutable": "node",

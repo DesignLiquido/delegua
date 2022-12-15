@@ -25,6 +25,11 @@ const principal = () => {
             '-t, --traduzir <linguagem>',
             'Traduz o código do arquivo passado como parâmetro',
         )
+        .option(
+            '-s, --saida',
+            'Gera arquivo de saida ao traduzir arquivo',
+            false
+        )
         .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
         .action((arquivos) => {
             if (arquivos.length > 0) {
@@ -45,7 +50,7 @@ const principal = () => {
     if (!nomeArquivo) {
         delegua.iniciarLairDelegua();
     } else if (opcoes.traduzir) {
-        delegua.traduzirArquivo(nomeArquivo);
+        delegua.traduzirArquivo(nomeArquivo, opcoes.saida);
     } else {
         delegua.carregarArquivo(nomeArquivo);
     }
