@@ -346,7 +346,7 @@ export class TradutorJavaScript implements TradutorInterface {
                     return resultado;
                 }
             }
-            
+
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
                 declaracaoSe.caminhoSenao
             );
