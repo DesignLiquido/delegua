@@ -332,7 +332,7 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
         if (declaracaoSe.caminhoSenao !== null) {
-            resultado += 'else ';
+            resultado += '\nelse ';
             const se = declaracaoSe?.caminhoSenao as Se;
             if (se?.caminhoEntao) {
                 resultado += 'if (';
@@ -346,7 +346,7 @@ export class TradutorJavaScript implements TradutorInterface {
                     return resultado;
                 }
             }
-
+            
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
                 declaracaoSe.caminhoSenao
             );
