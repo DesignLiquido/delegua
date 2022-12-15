@@ -379,6 +379,15 @@ export class Interpretador implements InterpretadorInterface {
                     );
                     return Number(valorEsquerdo) / Number(valorDireito);
 
+                case tiposDeSimbolos.DIVISAO_INTEIRA:
+                case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
+                    this.verificarOperandosNumeros(
+                        expressao.operador,
+                        esquerda,
+                        direita
+                    );
+                    return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
+
                 case tiposDeSimbolos.MULTIPLICACAO:
                 case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
                     this.verificarOperandosNumeros(
