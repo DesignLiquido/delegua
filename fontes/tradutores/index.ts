@@ -189,7 +189,7 @@ export class TradutorJavaScript implements TradutorInterface {
             'case ' + this.dicionarioConstrutos[caminho.condicoes[0].constructor.name](caminho.condicoes[0]) + ':\n';
         for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
-            if (declaracao.simboloChave.lexema === 'retorna') {
+            if (declaracao?.simboloChave?.lexema === 'retorna') {
                 resultado += 'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
             }
         }
