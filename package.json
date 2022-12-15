@@ -7,7 +7,7 @@
         "empacotar": "rimraf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
         "gerar-documentacao-tecnica": "typedoc --out docs index.ts",
         "lair": "ts-node execucao.ts",
-        "publicar-docs": "yarn gerar-documentacao-tecnica && gh-pages -d docs",
+        "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
         "testes": "./bin/delegua-ts testes/exemplos/testes.egua",
         "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
