@@ -272,6 +272,15 @@ export class Delegua implements DeleguaInterface {
         }
 
         const resultado = this.tradutor.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+
+        if(['.delegua', '.egua'].map(extensao => {
+            if(caminhoAbsolutoPrimeiroArquivo.includes(extensao)){
+                fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, '.js'), resultado, (erro) => {
+                    if (erro) throw erro;
+                })
+            }
+        }))
+
         this.funcaoDeRetorno(resultado);
     }
 
