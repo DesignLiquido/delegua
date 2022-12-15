@@ -362,8 +362,17 @@ export class LexadorEguaP implements LexadorInterface {
                 break;
 
             case '/':
-                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 this.avancar();
+                switch (this.simboloAtual()) {
+                    case '/':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                        break;
+                }
+
                 break;
 
             case ':':
