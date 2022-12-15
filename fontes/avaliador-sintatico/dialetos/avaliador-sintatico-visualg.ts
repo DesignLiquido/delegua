@@ -3,7 +3,6 @@ import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Var } from '../../declaracoes';
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
     Agrupamento,
     AtribuicaoSobrescrita,
     Atribuir,

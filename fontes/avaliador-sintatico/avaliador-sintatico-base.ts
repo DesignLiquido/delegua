@@ -121,6 +121,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         while (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.DIVISAO,
+                tiposDeSimbolos.DIVISAO_INTEIRA,
                 tiposDeSimbolos.MULTIPLICACAO,
                 tiposDeSimbolos.MODULO
             )
