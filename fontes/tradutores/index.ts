@@ -148,13 +148,15 @@ export class TradutorJavaScript implements TradutorInterface {
     logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao) {
         this.indentacao += 4;
         let resultado = ' '.repeat(this.indentacao);
-        resultado += metodoClasse.simbolo.lexema + '(';
+        resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
 
         for (let parametro of metodoClasse.funcao.parametros) {
             resultado += parametro.nome.lexema + ', ';
         }
+        if(metodoClasse.funcao.parametros.length > 0){
+            resultado = resultado.slice(0, -2);
+        }
 
-        resultado = resultado.slice(0, -2); // Remover última vírgula
         resultado += ') ';
         resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
         resultado += ' '.repeat(this.indentacao) + '\n';
@@ -227,7 +229,7 @@ export class TradutorJavaScript implements TradutorInterface {
             resultado += valor + ', ';
         }
 
-        resultado = resultado.slice(0, -2); // Remover última vírgula
+        resultado = resultado.slice(0, -2);
         resultado += ')';
         return resultado;
     }

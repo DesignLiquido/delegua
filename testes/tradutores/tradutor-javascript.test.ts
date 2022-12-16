@@ -37,7 +37,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
-        it('escolha', () => {
+        it('escolha -> switch/case', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     'escolha (2) {',
@@ -68,6 +68,53 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\('correspondente à opção 2'\)/i);
             expect(resultado).toMatch(/console\.log\('escreva de novo 2'\)/i);
             expect(resultado).toMatch(/console\.log\('escreva de novo 3'\)/i);
+        });
+        
+        it('classe com parametros -> class', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Teste {',
+                        'construtor(valor1) {',
+                            'escreva("começou")',
+                        '}',
+                        'testeFuncao(valor2) {',
+                            'escreva("olá");',
+                            'retorna \'teste\'',
+                        '}',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/export class Teste {/i);
+            expect(resultado).toMatch(/constructor()/i);
+            expect(resultado).toMatch(/console\.log\('começou'\)/i);
+            expect(resultado).toMatch(/testeFuncao\(valor2\)/i);
+            expect(resultado).toMatch(/console\.log\('olá'\)/i);
+            expect(resultado).toMatch(/return 'teste'/i);
+        });
+
+        it('classe sem parametros -> class', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Teste {',
+                        'construtor() {',
+                            'escreva("começou")',
+                        '}',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/export class Teste {/i);
+            expect(resultado).toMatch(/constructor()/i);
+            expect(resultado).toMatch(/console\.log\('começou'\)/i);
         });
 
         it('se -> if, código', () => {
