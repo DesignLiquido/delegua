@@ -198,9 +198,7 @@ export class TradutorJavaScript implements TradutorInterface {
             if (declaracao?.simboloChave?.lexema === 'retorna') {
                 resultado += 'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
             }
-            if(declaracao instanceof Escreva){
-                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n'
-            }
+            resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n'
         }
 
         this.indentacao -= 4;
