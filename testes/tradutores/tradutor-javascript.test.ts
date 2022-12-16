@@ -37,6 +37,187 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('para -> for', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'para (var i = 0; i < 5; i = i + 1) {',
+                        'escreva(i);',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/for (let i = 0; i < 5; i = i + 1) {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
+
+        it('enquanto -> while', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var i = 0;',
+                    'fazer {',
+                        'escreva(i);',
+                        'i = i + 1;',
+                    '} enquanto (i < 5)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let i = 0/i);
+            expect(resultado).toMatch(/do {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+            // expect(resultado).toMatch(/i = i + 1/i);
+            expect(resultado).toMatch(/}/i);
+            expect(resultado).toMatch(/while \(i < 5\)/i);
+        });
+
+        it('enquanto -> do while', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'enquanto (verdadeiro) {',
+                        'escreva("sim");',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/while \(true\) {/i);
+            expect(resultado).toMatch(/console\.log\('sim'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('enquanto -> while', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'enquanto (verdadeiro) {',
+                        'escreva(\'sim\');',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/while (true) {/i);
+            expect(resultado).toMatch(/console\.log\(\'sim\'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('tente - pegue - finalmente -> try - catch - finally', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'tente { ',
+                        '1 > "2";',                      
+                        'escreva("sucesso");',
+                    '}',
+                    // 'pegue {',
+                    //     'escreva("Ocorreu uma exceção.");',
+                    // '} finalmente {',
+                    //     'escreva("Ocorrendo exceção ou não, eu sempre executo");',
+                    // '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/try {/i);
+            expect(resultado).toMatch(/1 > \'2\'/i);
+            expect(resultado).toMatch(/console\.log\('sucesso'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('escolha -> switch/case', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'escolha (2) {',
+                        'caso "1":',
+                            'escreva("correspondente à opção 1");',
+                            'escreva("escreva de novo 1");',
+                        'caso 1:',
+                        'caso 2:',
+                            'escreva("correspondente à opção 2");',
+                            'escreva("escreva de novo 2");',
+                            'escreva("escreva de novo 3");',
+                        'padrao:',
+                            'escreva("Sem opção correspondente");',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/switch \(2\) /i);
+            expect(resultado).toMatch(/case '1':/i);
+            expect(resultado).toMatch(/console\.log\('correspondente à opção 1'\)/i);
+            expect(resultado).toMatch(/console\.log\('escreva de novo 1'\)/i);
+            expect(resultado).toMatch(/case 1:/i);
+            expect(resultado).toMatch(/case 2:/i);
+            expect(resultado).toMatch(/console\.log\('correspondente à opção 2'\)/i);
+            expect(resultado).toMatch(/console\.log\('escreva de novo 2'\)/i);
+            expect(resultado).toMatch(/console\.log\('escreva de novo 3'\)/i);
+        });
+        
+        it('classe com parametros -> class', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Teste {',
+                        'construtor(valor1) {',
+                            'escreva("começou")',
+                        '}',
+                        'testeFuncao(valor2) {',
+                            'escreva("olá");',
+                            'retorna \'teste\'',
+                        '}',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/export class Teste {/i);
+            expect(resultado).toMatch(/constructor()/i);
+            expect(resultado).toMatch(/console\.log\('começou'\)/i);
+            expect(resultado).toMatch(/testeFuncao\(valor2\)/i);
+            expect(resultado).toMatch(/console\.log\('olá'\)/i);
+            expect(resultado).toMatch(/return 'teste'/i);
+        });
+
+        it('classe sem parametros -> class', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Teste {',
+                        'construtor() {',
+                            'escreva("começou")',
+                        '}',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/export class Teste {/i);
+            expect(resultado).toMatch(/constructor()/i);
+            expect(resultado).toMatch(/console\.log\('começou'\)/i);
+        });
+
         it('se -> if, código', () => {
             const retornoLexador = delegua.lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -220,7 +401,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/return null/i);
         });
 
-        it.skip('função com retorno lógico de texto e número -> function', () => {
+        it('função com retorno lógico de texto e número -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == 1 }"];
             const retornoLexador = delegua.lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -244,7 +425,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/return 1 === 1/i);
         });
 
-        it.skip('função com retorno lógico de texto -> function', () => {
+        it('função com retorno lógico de texto -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == '1' }"];
             const retornoLexador = delegua.lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -308,7 +489,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         //TODO: Pulando pois no CI esta quebrando, mas localmente o teste passa normal
         //Alterar a regex do ultimo expect deve resolver
-        it.skip('função -> function - sem parametro', () => {
+        it('função -> function - sem parametro', () => {
             const retornoLexador = delegua.lexador.mapear(
                 ['funcao minhaFuncaoSemParametro() {', "    escreva('teste')", '}'],
                 -1

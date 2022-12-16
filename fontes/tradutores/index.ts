@@ -94,6 +94,8 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoLiteral(literal: Literal) {
+        if(typeof literal.valor === 'string')
+            return `'${literal.valor}'`
         return literal.valor;
     }
 
@@ -146,13 +148,15 @@ export class TradutorJavaScript implements TradutorInterface {
     logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao) {
         this.indentacao += 4;
         let resultado = ' '.repeat(this.indentacao);
-        resultado += metodoClasse.simbolo.lexema + '(';
+        resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
 
         for (let parametro of metodoClasse.funcao.parametros) {
             resultado += parametro.nome.lexema + ', ';
         }
+        if(metodoClasse.funcao.parametros.length > 0){
+            resultado = resultado.slice(0, -2);
+        }
 
-        resultado = resultado.slice(0, -2); // Remover última vírgula
         resultado += ') ';
         resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
         resultado += ' '.repeat(this.indentacao) + '\n';
@@ -185,13 +189,16 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        resultado +=
-            'case ' + this.dicionarioConstrutos[caminho.condicoes[0].constructor.name](caminho.condicoes[0]) + ':\n';
+        for (let condicao of caminho.condicoes){
+            resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+            resultado += ' '.repeat(this.indentacao);
+        }
         for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
             if (declaracao?.simboloChave?.lexema === 'retorna') {
                 resultado += 'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
             }
+            resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n'
         }
 
         this.indentacao -= 4;
@@ -217,27 +224,10 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = 'console.log(';
         for (const argumento of declaracaoEscreva.argumentos) {
             const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            if (argumento instanceof Binario) {
-                resultado += valor + ', ';
-                continue;
-            }
-            if (argumento instanceof Variavel) {
-                resultado += valor + ', ';
-                continue;
-            }
-            if (typeof valor === 'string') {
-                resultado += `'${valor}', `;
-                continue;
-            }
-            if (typeof valor === 'number') {
-                resultado += valor + ', ';
-                continue;
-            }
-
             resultado += valor + ', ';
         }
 
-        resultado = resultado.slice(0, -2); // Remover última vírgula
+        resultado = resultado.slice(0, -2);
         resultado += ')';
         return resultado;
     }
@@ -308,9 +298,7 @@ export class TradutorJavaScript implements TradutorInterface {
         }
         if (declaracaoRetorna?.valor instanceof Literal) {
             const valor = this.traduzirConstrutoLiteral(declaracaoRetorna?.valor as Literal);
-            if (typeof valor === 'string') resultado += `'${valor}'`;
-            else if (typeof valor === 'number') resultado += valor;
-            else if (valor === null) resultado += 'null';
+            resultado += valor
             return resultado;
         }
         if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
@@ -356,7 +344,19 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoTente(declaracaoTente: Tente) {
-        let resultado = 'try ';
+        let resultado = 'try {\n';
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
+
+        for(let condicao of declaracaoTente.caminhoTente){
+            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
+            resultado += ' '.repeat(this.indentacao);
+        }
+        resultado += '}'
+
+        // if(declaracaoTente.caminhoPegue !== null){}
+        // if(declaracaoTente.caminhoFinalmente !== null){}
+
         return resultado;
     }
 
@@ -364,7 +364,9 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema + ' = ';
         if (declaracaoVar.inicializador instanceof Literal) {
-            resultado += "'" + declaracaoVar.inicializador.valor + "'";
+            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                declaracaoVar.inicializador
+            );
         } else if (declaracaoVar.inicializador instanceof Binario) {
             resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
                 declaracaoVar.inicializador
