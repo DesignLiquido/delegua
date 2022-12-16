@@ -99,6 +99,7 @@ const verificaModulosDelegua = (nome: string): string | boolean => {
         estatística: '@designliquido/delegua-estatistica',
         fisica: '@designliquido/delegua-fisica',
         física: '@designliquido/delegua-fisica',
+        json: '@designliquido/delegua-json',
         matematica: '@designliquido/delegua-matematica',
         matemática: '@designliquido/delegua-matematica',
         tempo: '@designliquido/delegua-tempo',

@@ -1035,6 +1035,11 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-fisica/-/delegua-fisica-0.0.2.tgz#182423e733b376b2d2853cbede66af33917f9466"
   integrity sha512-7Sp+Vg7SBy/5M9vH7pXOw4udHIdGWThGxAtAWdBZBO9GzUjJGczfZi6+vJLj/pFfn/345l9ffN3rtSqYgbQM8w==
 
+"@designliquido/delegua-json@^0.0.0":
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-json/-/delegua-json-0.0.0.tgz#0864f84e572694e9b15b9517a08105af04f92c3d"
+  integrity sha512-fwrAyEL/g9vF3w3SWZpWx2FIGc7i3QfY2i6txEWtq3snihdbHfGQejf2P6s1UJIDrRGXpTgP2dUTEpk6QZy9/A==
+
 "@designliquido/delegua-matematica@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
