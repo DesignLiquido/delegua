@@ -220,7 +220,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/return null/i);
         });
 
-        it.skip('função com retorno lógico de texto e número -> function', () => {
+        it('função com retorno lógico de texto e número -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == 1 }"];
             const retornoLexador = delegua.lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -244,7 +244,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/return 1 === 1/i);
         });
 
-        it.skip('função com retorno lógico de texto -> function', () => {
+        it('função com retorno lógico de texto -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == '1' }"];
             const retornoLexador = delegua.lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -308,7 +308,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         //TODO: Pulando pois no CI esta quebrando, mas localmente o teste passa normal
         //Alterar a regex do ultimo expect deve resolver
-        it.skip('função -> function - sem parametro', () => {
+        it('função -> function - sem parametro', () => {
             const retornoLexador = delegua.lexador.mapear(
                 ['funcao minhaFuncaoSemParametro() {', "    escreva('teste')", '}'],
                 -1
