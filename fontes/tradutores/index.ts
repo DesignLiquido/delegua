@@ -366,7 +366,9 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema + ' = ';
         if (declaracaoVar.inicializador instanceof Literal) {
-            resultado += "'" + declaracaoVar.inicializador.valor + "'";
+            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                declaracaoVar.inicializador
+            );
         } else if (declaracaoVar.inicializador instanceof Binario) {
             resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
                 declaracaoVar.inicializador

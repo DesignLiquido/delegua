@@ -37,6 +37,82 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('para -> for', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'para (var i = 0; i < 5; i = i + 1) {',
+                        'escreva(i);',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/for (let i = 0; i < 5; i = i + 1) {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
+
+        it('enquanto -> while', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var i = 0;',
+                    'fazer {',
+                        'escreva(i);',
+                        'i = i + 1;',
+                    '} enquanto (i < 5)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let i = 0/i);
+            expect(resultado).toMatch(/do {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+            // expect(resultado).toMatch(/i = i + 1/i);
+            expect(resultado).toMatch(/}/i);
+            expect(resultado).toMatch(/while \(i < 5\)/i);
+        });
+
+        it('enquanto -> do while', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'enquanto (verdadeiro) {',
+                        'escreva("sim");',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/while \(true\) {/i);
+            expect(resultado).toMatch(/console\.log\('sim'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('enquanto -> while', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'enquanto (verdadeiro) {',
+                        'escreva(\'sim\');',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/while (true) {/i);
+            expect(resultado).toMatch(/console\.log\(\'sim\'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
         it('tente - pegue - finalmente -> try - catch - finally', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
