@@ -346,7 +346,19 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoTente(declaracaoTente: Tente) {
-        let resultado = 'try ';
+        let resultado = 'try {\n';
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
+
+        for(let condicao of declaracaoTente.caminhoTente){
+            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
+            resultado += ' '.repeat(this.indentacao);
+        }
+        resultado += '}'
+
+        // if(declaracaoTente.caminhoPegue !== null){}
+        // if(declaracaoTente.caminhoFinalmente !== null){}
+
         return resultado;
     }
 

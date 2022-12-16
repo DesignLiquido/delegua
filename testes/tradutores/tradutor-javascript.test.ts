@@ -37,6 +37,31 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('tente - pegue - finalmente -> try - catch - finally', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'tente { ',
+                        '1 > "2";',                      
+                        'escreva("sucesso");',
+                    '}',
+                    // 'pegue {',
+                    //     'escreva("Ocorreu uma exceção.");',
+                    // '} finalmente {',
+                    //     'escreva("Ocorrendo exceção ou não, eu sempre executo");',
+                    // '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/try {/i);
+            expect(resultado).toMatch(/1 > \'2\'/i);
+            expect(resultado).toMatch(/console\.log\('sucesso'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
         it('escolha -> switch/case', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
