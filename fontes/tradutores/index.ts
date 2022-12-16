@@ -298,7 +298,6 @@ export class TradutorJavaScript implements TradutorInterface {
         }
         if (declaracaoRetorna?.valor instanceof Literal) {
             const valor = this.traduzirConstrutoLiteral(declaracaoRetorna?.valor as Literal);
-            if (valor === null) resultado += 'null';
             resultado += valor
             return resultado;
         }

@@ -37,6 +37,39 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('escolha', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'escolha (2) {',
+                        'caso "1":',
+                            'escreva("correspondente à opção 1");',
+                            'escreva("escreva de novo 1");',
+                        'caso 1:',
+                        'caso 2:',
+                            'escreva("correspondente à opção 2");',
+                            'escreva("escreva de novo 2");',
+                            'escreva("escreva de novo 3");',
+                        'padrao:',
+                            'escreva("Sem opção correspondente");',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/switch \(2\) /i);
+            expect(resultado).toMatch(/case '1':/i);
+            expect(resultado).toMatch(/console\.log\('correspondente à opção 1'\)/i);
+            expect(resultado).toMatch(/console\.log\('escreva de novo 1'\)/i);
+            expect(resultado).toMatch(/case 1:/i);
+            expect(resultado).toMatch(/case 2:/i);
+            expect(resultado).toMatch(/console\.log\('correspondente à opção 2'\)/i);
+            expect(resultado).toMatch(/console\.log\('escreva de novo 2'\)/i);
+            expect(resultado).toMatch(/console\.log\('escreva de novo 3'\)/i);
+        });
+
         it('se -> if, código', () => {
             const retornoLexador = delegua.lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
