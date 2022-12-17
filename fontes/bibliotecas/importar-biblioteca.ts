@@ -37,7 +37,7 @@ const carregarBiblioteca = (
     } catch (erro: any) {
         throw new ErroEmTempoDeExecucao(
             null,
-            `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`
+            `Biblioteca ${nomeDaBiblioteca} não encontrada para importação. Informações adicionais: ${erro?.message || "(nenhuma)"}`
         );
     }
 
