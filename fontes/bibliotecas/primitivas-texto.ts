@@ -11,4 +11,5 @@ export default {
     dividir: (texto: string, divisor: any, limite: number) => [
         ...texto.split(divisor, limite),
     ],
+    tamanho: (texto: string) => texto.length
 };
