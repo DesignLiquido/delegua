@@ -27,4 +27,5 @@ export default {
         if (index !== -1) vetor.splice(index, 1);
         return vetor;
     },
+    tamanho: (vetor: Array<any>) => vetor.length
 };

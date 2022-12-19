@@ -317,6 +317,7 @@ export default function (
             const objeto = vetor.hasOwnProperty('valor')
                 ? (vetor as VariavelInterface).valor
                 : vetor;
+                
             if (!Array.isArray(objeto)) {
                 return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -364,17 +365,18 @@ export default function (
             const valorObjeto = objeto.hasOwnProperty('valor')
                 ? objeto.valor
                 : objeto;
-            if (!isNaN(valorObjeto)) {
+
+            if (typeof valorObjeto === 'number') {
                 return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    'Não é possível encontrar o tamanho de um número.'
+                    'Função global tamanho() não funciona com números.'
                 ));
             }
 
             if (valorObjeto instanceof ObjetoDeleguaClasse) {
                 return Promise.reject(new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    'Você não pode encontrar o tamanho de uma declaração.'
+                    'Função global tamanho não funciona com objetos complexos.'
                 ));
             }
 
