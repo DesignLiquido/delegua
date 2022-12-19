@@ -42,6 +42,14 @@ import { TradutorJavaScript } from './tradutores';
  */
 export class Delegua implements DeleguaInterface {
     dialeto: string;
+    dialetos: { [identificador: string]: string} = {
+        'birl': 'BIRL',
+        'delegua': 'padrão',
+        'egua': 'Égua',
+        'eguap': 'ÉguaP',
+        'visualg': 'VisuAlg'
+    }
+
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
 
@@ -80,8 +88,6 @@ export class Delegua implements DeleguaInterface {
                     depurador
                 );
                 this.interpretador = new InterpretadorEguaClassico(this, new ResolvedorEguaClassico(), process.cwd());
-
-                this.funcaoDeRetorno('Usando dialeto: Égua');
                 break;
             case 'eguap':
                 this.lexador = new LexadorEguaP();
@@ -96,8 +102,6 @@ export class Delegua implements DeleguaInterface {
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
                     : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
-
-                this.funcaoDeRetorno('Usando dialeto: ÉguaP');
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
@@ -122,7 +126,6 @@ export class Delegua implements DeleguaInterface {
                     depurador
                 );
                 this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
-                this.funcaoDeRetorno('Usando dialeto: birl');
                 break;
             default:
                 this.lexador = new Lexador(performance);
@@ -137,8 +140,6 @@ export class Delegua implements DeleguaInterface {
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
                     : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
-
-                this.funcaoDeRetorno('Usando dialeto: padrão');
                 break;
         }
 
@@ -153,7 +154,7 @@ export class Delegua implements DeleguaInterface {
 
     versao(): string {
         try {
-            const manifesto = caminho.resolve('package.json');
+            const manifesto = caminho.resolve(__dirname, 'package.json');
 
             return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.10';
         } catch (error: any) {
@@ -166,8 +167,9 @@ export class Delegua implements DeleguaInterface {
      * ou seja, esperando como entrada linhas de código fornecidas pelo usuário.
      */
     iniciarLairDelegua(): void {
-        console.log(`Console da Linguagem Delégua v${this.versao()}`);
-        console.log('Pressione Ctrl + C para sair');
+        this.funcaoDeRetorno(`Usando dialeto: ${this.dialetos[this.dialeto]}`);
+        this.funcaoDeRetorno(`Console da Linguagem Delégua v${this.versao()}`);
+        this.funcaoDeRetorno('Pressione Ctrl + C para sair');
 
         const interfaceLeitura = readline.createInterface({
             input: process.stdin,
