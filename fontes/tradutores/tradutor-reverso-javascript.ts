@@ -5,12 +5,16 @@ import { parseScript } from 'esprima';
  */
 export class TradutorReversoJavaScript {
 
-    constructor() {
-
-    }
+    constructor() {}
 
     traduzirDeclaracaoDeVariavel(declaracao: any) {
-        let resultado = `${declaracao.kind} `;
+        let informacoesDaVariavel = declaracao.declarations[0];
+        let resultado = '';
+        if(typeof informacoesDaVariavel.init.value === 'string'){
+            resultado = `var ${informacoesDaVariavel.id.name} = '${informacoesDaVariavel.init.value}'`;
+        }else{
+            resultado = `var ${informacoesDaVariavel.id.name} = ${informacoesDaVariavel.init.value}`;
+        }
         return resultado;
     }
 
@@ -22,13 +26,19 @@ export class TradutorReversoJavaScript {
     }
 
     traduzir() {
-        const programa = 'const answer = 42';
+        let resultado = '';
+        const programa = 'const a = 42\nconst b = \'a\'';
         const declaracoes = parseScript(programa);
 
         for (let declaracao of declaracoes.body) {
-            this.traduzirDeclaracao(declaracao);
-            // console.log(declaracao);
+            resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
         }
-        // return declaracoes;
+        console.log(resultado);
+        return resultado;
     }
 }
+
+//cd ./fontes/tradutores
+//ts-node -T tradutor-reverso-javascript.ts
+var tjs = new TradutorReversoJavaScript();
+tjs.traduzir();
