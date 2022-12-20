@@ -1,5 +1,6 @@
 import * as processoFilho from 'child_process';
 import * as caminho from 'path';
+import fs from 'fs'
 
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
@@ -26,7 +27,7 @@ const carregarBibliotecaDelegua = (nome: string) => {
     return modularizarBiblioteca(dadosDoModulo, nome);
 };
 
-const carregarBiblioteca = (
+const carregarBiblioteca = async (
     nomeDaBiblioteca: string,
     caminhoDaBiblioteca: any
 ) => {
@@ -36,7 +37,7 @@ const carregarBiblioteca = (
         dadosDoModulo = require(caminhoDaBiblioteca);
     } catch (erro: any) {
         try {
-            dadosDoModulo = importarPacoteExternoCompleto(nomeDaBiblioteca);
+            dadosDoModulo = await importarPacoteExternoCompleto(nomeDaBiblioteca);
         } catch (erro2: any) {
             throw new ErroEmTempoDeExecucao(
                 null,
@@ -88,19 +89,30 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
     return novoModulo;
 };
 
-const importarPacoteCaminhoBase = (caminhoRelativo: string): any => {
+const importarPacoteCaminhoBase = async (caminhoRelativo) => {
+    let resultado = null;
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
-    return require(caminho.join(
-        (global.output[1] as any).toString().trim()) + `\\${caminhoRelativo}`);
+
+    const caminhoAbsoluto = caminho.join(
+        (global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\package.json`;
+
+    let arquivoInicio = JSON.parse(fs.readFileSync(caminhoAbsoluto, 'utf-8')).main || 'index.js';
+
+    await import(caminho.join(
+        'file:///' +(global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\${arquivoInicio.replace('./', '')}`).then(resposta => {
+            resultado = resposta;
+        });
+    
+    return resultado;
 }
 
-const importarPacoteDeleguaCompleto = (nome: string): any => {
-    return importarPacoteCaminhoBase(`delegua\\node_modules\\${nome}`);
+const importarPacoteDeleguaCompleto = async (nome: string) => {
+    return await importarPacoteCaminhoBase(`delegua\\node_modules\\${nome}`);
 };
 
-const importarPacoteExternoCompleto = (nome: string): any => {
-    return importarPacoteCaminhoBase(nome);
+const importarPacoteExternoCompleto = async (nome: string) => {
+    return await importarPacoteCaminhoBase(nome);
 };
 
 const verificaModulosDelegua = (nome: string): string | boolean => {
@@ -122,10 +134,10 @@ const verificaModulosDelegua = (nome: string): string | boolean => {
     return false;
 };
 
-export default function (nome: string) {
+export default async function (nome: string) {
     const nomeBibliotecaResolvido: string | boolean =
         verificaModulosDelegua(nome);
     return nomeBibliotecaResolvido
         ? carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
-        : carregarBiblioteca(nome, nome);
+        : await carregarBiblioteca(nome, nome);
 }
