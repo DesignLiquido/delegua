@@ -36,8 +36,7 @@ const carregarBiblioteca = (
         dadosDoModulo = require(caminhoDaBiblioteca);
     } catch (erro: any) {
         try {
-            const caminhoPacoteGlobal = importarPacoteExternoCompleto(nomeDaBiblioteca);
-            dadosDoModulo = require(caminhoPacoteGlobal)
+            dadosDoModulo = importarPacoteExternoCompleto(nomeDaBiblioteca);
         } catch (erro2: any) {
             throw new ErroEmTempoDeExecucao(
                 null,
@@ -89,19 +88,19 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
     return novoModulo;
 };
 
-const importarPacoteCaminhoBase = (): string => {
+const importarPacoteCaminhoBase = (caminhoRelativo: string): any => {
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
-    return caminho.join(
-        (global.output[1] as any).toString().trim());
+    return require(caminho.join(
+        (global.output[1] as any).toString().trim()) + `\\${caminhoRelativo}`);
 }
 
-const importarPacoteDeleguaCompleto = (nome: string) => {
-    return `${importarPacoteCaminhoBase()}\\delegua\\node_modules\\${nome}`;
+const importarPacoteDeleguaCompleto = (nome: string): any => {
+    return importarPacoteCaminhoBase(`delegua\\node_modules\\${nome}`);
 };
 
-const importarPacoteExternoCompleto = (nome: string): string => {
-    return `${importarPacoteCaminhoBase()}\\${nome}`
+const importarPacoteExternoCompleto = (nome: string): any => {
+    return importarPacoteCaminhoBase(nome);
 };
 
 const verificaModulosDelegua = (nome: string): string | boolean => {
