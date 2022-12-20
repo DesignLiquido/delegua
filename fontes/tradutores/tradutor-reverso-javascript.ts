@@ -9,11 +9,11 @@ export class TradutorReversoJavaScript {
 
     traduzirDeclaracaoDeVariavel(declaracao: any) {
         let informacoesDaVariavel = declaracao.declarations[0];
-        let resultado = '';
-        if(typeof informacoesDaVariavel.init.value === 'string'){
-            resultado = `var ${informacoesDaVariavel.id.name} = '${informacoesDaVariavel.init.value}'`;
-        }else{
-            resultado = `var ${informacoesDaVariavel.id.name} = ${informacoesDaVariavel.init.value}`;
+        let resultado = `var ${informacoesDaVariavel.id.name} = `;
+        if (typeof informacoesDaVariavel.init.value === 'string'){
+            resultado += `'${informacoesDaVariavel.init.value}'`;
+        } else {
+            resultado += `${informacoesDaVariavel.init.value}`;
         }
         return resultado;
     }
