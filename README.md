@@ -19,7 +19,7 @@
   </p>
 
   <p align="center">
-    Acompanhe a Design Líquido nas redes sociais:
+    Acompanhe a Design Líquido nas redes sociais: 
   </p>
 
   <p align="center">
