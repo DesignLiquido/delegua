@@ -769,7 +769,7 @@ export class Interpretador implements InterpretadorInterface {
             !caminhoTotal.endsWith('.delegua')
         ) {
             try {
-                return carregarBibliotecaNode(caminhoRelativo);
+                return await carregarBibliotecaNode(caminhoRelativo);
             } catch (erro: any) {
                 this.erros.push(erro);
                 return null;

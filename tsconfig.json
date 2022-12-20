@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "module": "commonjs",
+        "module": "CommonJS",
         "target": "es2017",
         "rootDir": ".",
         "allowJs": true,
