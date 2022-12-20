@@ -1,7 +1,7 @@
 import { Binario, Variavel, Literal } from '../../fontes/construtos';
 import { Se, Bloco, Escreva } from '../../fontes/declaracoes';
 import { Simbolo } from '../../fontes/lexador';
-import { TradutorJavaScript } from '../../fontes/tradutores';
+import { TradutorJavaScript } from '../../fontes/tradutores/tradutor-javascript';
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 import { Delegua } from '../../fontes/delegua';

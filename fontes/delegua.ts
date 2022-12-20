@@ -33,7 +33,7 @@ import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
 import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
-import { TradutorJavaScript } from './tradutores';
+import { TradutorJavaScript } from './tradutores/tradutor-javascript';
 
 /**
  * O núcleo da linguagem.
