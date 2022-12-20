@@ -354,8 +354,23 @@ export class TradutorJavaScript implements TradutorInterface {
         }
         resultado += '}'
 
-        // if(declaracaoTente.caminhoPegue !== null){}
-        // if(declaracaoTente.caminhoFinalmente !== null){}
+        if(declaracaoTente.caminhoPegue !== null){
+            resultado += '\ncatch {\n'
+            resultado += ' '.repeat(this.indentacao);
+            for(let corpo of declaracaoTente.caminhoPegue.corpo){
+                resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
+            }
+            resultado += ' '.repeat(this.indentacao);
+            resultado += '}'
+        }
+        if(declaracaoTente.caminhoFinalmente !== null){
+            resultado += '\nfinally {\n'
+            for(let finalmente of declaracaoTente.caminhoFinalmente){
+                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
+            }
+            resultado += ' '.repeat(this.indentacao);
+            resultado += '}'
+        }
 
         return resultado;
     }

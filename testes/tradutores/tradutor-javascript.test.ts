@@ -120,11 +120,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
                         '1 > "2";',                      
                         'escreva("sucesso");',
                     '}',
-                    // 'pegue {',
-                    //     'escreva("Ocorreu uma exceção.");',
-                    // '} finalmente {',
-                    //     'escreva("Ocorrendo exceção ou não, eu sempre executo");',
-                    // '}',
+                    'pegue {',
+                        'escreva("Ocorreu uma exceção.");',
+                    '} finalmente {',
+                        'escreva("Ocorrendo exceção ou não, eu sempre executo");',
+                    '}',
                 ],
                 -1
             );
@@ -135,6 +135,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/try {/i);
             expect(resultado).toMatch(/1 > \'2\'/i);
             expect(resultado).toMatch(/console\.log\('sucesso'\)/i);
+            expect(resultado).toMatch(/console\.log\('Ocorreu uma exceção.'\)/i);
+            expect(resultado).toMatch(/console\.log\('Ocorrendo exceção ou não, eu sempre executo'\)/i);
             expect(resultado).toMatch(/}/i);
         });
 
