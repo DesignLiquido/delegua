@@ -485,10 +485,10 @@ export class Interpretador implements InterpretadorInterface {
                 argumentos.push(await this.avaliar(expressao.argumentos[i]));
             }
 
-            if (!(entidadeChamada instanceof Chamavel)) {
+            if (entidadeChamada instanceof DeleguaModulo) {
                 return Promise.reject(new ErroEmTempoDeExecucao(
                     expressao.parentese,
-                    'Só pode chamar função ou classe.',
+                    'Entidade chamada é um módulo de Delégua. Provavelmente você quer chamar um de seus componentes?',
                     expressao.linha
                 ));
             }
@@ -517,9 +517,13 @@ export class Interpretador implements InterpretadorInterface {
                 parametros = [];
             }
 
+            const aridade = 
+                entidadeChamada.aridade ? 
+                entidadeChamada.aridade() : entidadeChamada.length;
+
             // Completar os parâmetros não preenchidos com nulos.
-            if (argumentos.length < entidadeChamada.aridade()) {
-                const diferenca = entidadeChamada.aridade() - argumentos.length;
+            if (argumentos.length < aridade) {
+                const diferenca = aridade - argumentos.length;
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push(null);
                 }
@@ -551,7 +555,27 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
 
-            return entidadeChamada.chamar(this, argumentos);
+            if ((entidadeChamada instanceof Chamavel)) {
+                return entidadeChamada.chamar(this, argumentos);
+            }
+
+            // A função chamada pode ser de uma biblioteca JavaScript.
+            // Neste caso apenas testamos se o tipo é uma função.
+            if (typeof entidadeChamada === 'function') {
+                let objeto = null;
+                if (expressao.entidadeChamada.objeto) {
+                    objeto = await this.avaliar(expressao.entidadeChamada.objeto);
+                }
+                return entidadeChamada.apply(
+                    objeto.hasOwnProperty('valor') ? objeto.valor : objeto, 
+                    argumentos);
+            }
+
+            return Promise.reject(new ErroEmTempoDeExecucao(
+                expressao.parentese,
+                'Só pode chamar função ou classe.',
+                expressao.linha
+            ));            
         } catch (erro: any) {
             console.log(erro)
         }
@@ -1133,8 +1157,22 @@ export class Interpretador implements InterpretadorInterface {
             return objeto.obter(expressao.simbolo) || null;
         }
 
+        // TODO: Possivelmente depreciar esta forma. 
+        // Não parece funcionar em momento algum.
         if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
+        }
+
+        // Função tradicional do JavaScript.
+        // Normalmente executa quando uma biblioteca é importada.
+        if (typeof objeto[expressao.simbolo.lexema] === 'function') {
+            return objeto[expressao.simbolo.lexema];
+        }
+
+        // Objeto tradicional do JavaScript.
+        // Normalmente executa quando uma biblioteca é importada.
+        if (typeof objeto[expressao.simbolo.lexema] === 'object') {
+            return objeto[expressao.simbolo.lexema];
         }
 
         if (objeto instanceof DeleguaModulo) {

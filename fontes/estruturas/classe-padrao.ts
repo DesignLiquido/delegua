@@ -6,22 +6,12 @@ import { ObjetoPadrao } from './objeto-padrao';
  */
 export class ClassePadrao extends Chamavel {
     nome: string;
-    funcaoDeClasse: Function;
-    metodos: { [nome: string]: any };
+    funcaoDeClasse: any;
 
-    constructor(nome: string, funcaoDeClasse: Function) {
+    constructor(nome: string, funcaoDeClasse: any) {
         super();
         this.nome = nome;
         this.funcaoDeClasse = funcaoDeClasse;
-        this.metodos = {};
-    }
-
-    encontrarMetodo(nome: string): Function {
-        if (this.metodos.hasOwnProperty(nome)) {
-            return this.metodos[nome];
-        }
-
-        return undefined;
     }
 
     paraTexto(): string {
@@ -29,16 +19,13 @@ export class ClassePadrao extends Chamavel {
     }
 
     /**
-     * Para o caso de uma classe padrão, chamá-la na verdade é
-     * invocar o construtor e adicionar no corpo de propriedades
-     * os métodos implementados para a classe original.
+     * Para o caso de uma classe padrão, instanciá-la é chamá-la
+     * como função tendo a palavra 'new' na frente.
      * @param argumentos
      * @param simbolo
      */
     chamar(argumentos: any[], simbolo: any): any {
-        const novoObjeto: ObjetoPadrao = new ObjetoPadrao(this.nome);
-        this.funcaoDeClasse.apply(novoObjeto, argumentos);
-        Object.assign(novoObjeto, this.metodos);
+        const novoObjeto: any = new this.funcaoDeClasse();
         return novoObjeto;
     }
 }
