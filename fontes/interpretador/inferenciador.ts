@@ -1,3 +1,5 @@
+import { DeleguaModulo } from "../estruturas";
+
 export function inferirTipoVariavel(
     variavel: string | number | Array<any> | boolean | null | undefined
 ) {
@@ -16,6 +18,7 @@ export function inferirTipoVariavel(
         case 'object':
             if (Array.isArray(variavel)) return 'vetor';
             if (variavel === null) return 'nulo';
+            if (variavel.constructor.name === 'DeleguaModulo') return 'módulo';
             return 'dicionário';
         case 'function':
             return 'função';

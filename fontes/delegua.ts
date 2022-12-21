@@ -382,16 +382,8 @@ export class Delegua implements DeleguaInterface {
     }
 
     erroEmTempoDeExecucao(erro: any): void {
-        if (erro && erro.simbolo && erro.simbolo.linha) {
-            // TODO: Voltar isso após revisar pragmas de Interpretador.
-            /* if (this.nomeArquivo)
-                console.error(
-                    chalk.red(`Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`
-                );
-            else */
-            console.error(chalk.red(`Erro: [Linha: ${erro.simbolo.linha}]`) + ` ${erro.mensagem}`);
-        } else {
-            console.error(chalk.red(`Erro: [Linha: ${erro.linha || 0}]`) + ` ${erro.mensagem}`);
-        }
+        const linha = erro?.simbolo?.linha || erro?.linha;
+        const mensagem = erro?.mensagem || erro?.message;
+        console.error(chalk.red(`Erro: [Linha: ${linha}]`) + ` ${mensagem}`);
     }
 }
