@@ -10,5 +10,6 @@ export interface VariavelInterface {
         | 'lógico'
         | 'função'
         | 'símbolo'
-        | 'objeto';
+        | 'objeto'
+        | 'módulo';
 }
