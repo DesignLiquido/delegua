@@ -300,6 +300,7 @@ describe('Interpretador', () => {
 
                     const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
+                    expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(retornoInterpretador.resultado[0]).toBe('falso');
                 });
 
