@@ -757,10 +757,6 @@ export class Interpretador implements InterpretadorInterface {
                     this.erros.push(erro);
                 }
             }
-
-            if (sucesso && declaracao.caminhoSenao !== null) {
-                await this.executarBloco(declaracao.caminhoSenao);
-            }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
                 await this.executarBloco(declaracao.caminhoFinalmente);
@@ -846,7 +842,7 @@ export class Interpretador implements InterpretadorInterface {
 
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
-            this.funcaoDeRetorno(formatoTexto);
+            this.funcaoDeRetorno(formatoTexto.trimEnd());
             return null;
         } catch (erro: any) {
             this.erros.push(erro);

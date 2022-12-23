@@ -36,7 +36,7 @@ export interface InterpretadorInterface {
     avaliar(expressao: any): any;
     visitarExpressaoAgrupamento(expressao: any): any;
     eVerdadeiro(objeto: any): boolean;
-    verificarOperandoNumero(operador: any, operand: any): void;
+    verificarOperandoNumero(operador: any, operando: any): void;
     visitarExpressaoUnaria(expressao: any): any;
     eIgual(esquerda: any, direita: any): boolean;
     verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void;

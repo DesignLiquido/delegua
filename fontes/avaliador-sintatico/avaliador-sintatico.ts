@@ -764,7 +764,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             Number(simboloTente.linha),
             blocoTente,
             blocoPegue,
-            blocoSenao,
+            null,
             blocoFinalmente
         );
     }
@@ -947,7 +947,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         while (!this.estaNoFinal()) {
             const tipoSimboloAtual: string = this.simbolos[this.atual - 1].tipo;
-            if (tipoSimboloAtual === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
             switch (tipoSimboloAtual) {
                 case tiposDeSimbolos.CLASSE:
