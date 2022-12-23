@@ -245,18 +245,6 @@ export class Interpretador implements InterpretadorInterface {
     ): boolean {
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
-        if (esquerda.tipo) {
-            if (
-                esquerda.tipo === 'nulo' &&
-                direita.tipo &&
-                direita.tipo === 'nulo'
-            )
-                return true;
-            if (esquerda.tipo === 'nulo') return false;
-
-            return esquerda.valor === direita.valor;
-        }
-
         return esquerda === direita;
     }
 
@@ -753,8 +741,6 @@ export class Interpretador implements InterpretadorInterface {
                     const literalErro = new Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
                     const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, [literalErro]);
                     await chamadaPegue.aceitar(this);
-                } else {
-                    this.erros.push(erro);
                 }
             }
         } finally {

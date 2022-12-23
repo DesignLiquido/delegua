@@ -294,6 +294,15 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Operações lógicas - nulo e verdadeiro', async () => {
+                    const retornoLexador = delegua.lexador.mapear(["nulo == verdadeiro"], -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.resultado[0]).toBe('falso');
+                });
+
                 it('Operações lógicas - negação', async () => {
                     const retornoLexador = delegua.lexador.mapear(["!verdadeiro"], -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -424,7 +433,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Tente com senão', async () => {
+                it('Tente com senão interno', async () => {
                     const codigo = [
                         "tente {",
                             "se (1 != 1) {",
