@@ -256,8 +256,21 @@ describe('Interpretador', () => {
 
                     const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros).toHaveLength(1);
                     expect(retornoInterpretador.erros[0].mensagem).toBe('Operadores precisam ser números.');
+                });
+
+                it('Operações matemáticas - Divisão de inteiro', async () => {
+                    const codigo = [
+                        "var a = 10 \ 2'",
+                    ];
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(retornoInterpretador.resultado[0]).toBe('2');
                 });
             });
 
