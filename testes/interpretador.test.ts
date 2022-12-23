@@ -549,6 +549,26 @@ describe('Interpretador', () => {
             });
 
             describe('Classes', () => {
+                it('Super Classe precisa ser uma classe', async () => {
+                    const codigo = [
+                        "funcao A(data) { }",
+                        "classe B herda A {",
+                            "construtor(data) {",
+                                "super.data(data);",
+                            "}",
+                        "}",
+                        "var a = B(\"13/12/1981\");"
+                    ];
+
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].mensagem).toBe('SuperClasse precisa ser uma classe.');
+                });
+
                 it('Trivial', async () => {
                     const codigo = [
                         "classe Animal {",
