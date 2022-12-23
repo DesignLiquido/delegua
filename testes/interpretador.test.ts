@@ -246,6 +246,19 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Operações matemáticas - Subtração de número e texto', async () => {
+                    const codigo = [
+                        "var a = 1 - \'2\'",
+                    ];
+                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].mensagem).toBe('Operadores precisam ser números.');
+                });
             });
 
             describe('Operações lógicas', () => {
