@@ -757,10 +757,6 @@ export class Interpretador implements InterpretadorInterface {
                     this.erros.push(erro);
                 }
             }
-
-            if (sucesso && declaracao.caminhoSenao !== null) {
-                await this.executarBloco(declaracao.caminhoSenao);
-            }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
                 await this.executarBloco(declaracao.caminhoFinalmente);

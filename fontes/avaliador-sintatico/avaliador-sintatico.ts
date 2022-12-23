@@ -764,7 +764,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             Number(simboloTente.linha),
             blocoTente,
             blocoPegue,
-            blocoSenao,
+            null,
             blocoFinalmente
         );
     }
