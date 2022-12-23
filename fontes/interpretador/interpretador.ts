@@ -842,7 +842,7 @@ export class Interpretador implements InterpretadorInterface {
 
             // Por enquanto `escreva` não devolve resultado no interpretador.
             // this.resultadoInterpretador.push(formatoTexto);
-            this.funcaoDeRetorno(formatoTexto);
+            this.funcaoDeRetorno(formatoTexto.trimEnd());
             return null;
         } catch (erro: any) {
             this.erros.push(erro);
