@@ -27,6 +27,7 @@ export default {
     IGUAL: 'IGUAL',
     INICIO: 'INICIO',
     INTEIRO: 'INTEIRO',
+    INTERROMPA: 'INTERROMPA',
     LEIA: 'LEIA',
     LOGICO: 'LOGICO',
     MAIOR: 'MAIOR',

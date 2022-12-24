@@ -29,6 +29,7 @@ export default {
     inicio: tiposDeSimbolos.INICIO,
     int: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     inteiro: tiposDeSimbolos.INTEIRO,
+    interrompa: tiposDeSimbolos.INTERROMPA,
     leia: tiposDeSimbolos.LEIA,
     log: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     logn: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
