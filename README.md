@@ -4,16 +4,18 @@
   <h3 align="center">Linguagem Delégua</h3>
 
   <p align="center">
-    Linguagem de programação, derivada da <a href="https://egua.tech/docs/egua" target="_blank">Linguagem Égua</a>
-    <br />
+    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como Portugol VisuAlg e BIRL.</a>
+  </p>
+
+  <p align="center">
     <a href="https://designliquido.github.io/delegua-web/" target="_blank">Página Web com Interpretador Delégua para demonstrações</a>
   </p>
 
   <p align="center">
-    <img src="./coverage/badge-statements.svg" />
-    <img src="./coverage/badge-lines.svg" />
-    <img src="./coverage/badge-functions.svg" />
-    <img src="./coverage/badge-branches.svg" />
+    <img src="./recursos/imagens/badge-statements.svg" />
+    <img src="./recursos/imagens/badge-lines.svg" />
+    <img src="./recursos/imagens/badge-functions.svg" />
+    <img src="./recursos/imagens/badge-branches.svg" />
     <a href="https://github.com/DesignLiquido/delegua/issues" target="_blank">
       <img src="https://img.shields.io/github/issues/Designliquido/delegua" />
     </a>
@@ -49,7 +51,7 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Simples e Completa.** Podendo ser usada por pessoas com ou sem experiência em programação.
 - **Totalmente em Português.** Desenvolvida totalmente em português para quebrar a barreira do inglês.
 - **Grátis.** Sem planos, sem limitações e sem propaganda.
-- **Código aberto (open source).** Todo o código fonte disponível para estudar, modificar e contribuir.
+- **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
 
 ## Instalação
