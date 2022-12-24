@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
 import { Interpretador } from './interpretador/interpretador';
+
 import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 
 import {
@@ -374,10 +375,11 @@ export class Delegua implements DeleguaInterface {
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
-        if (simbolo.tipo === tiposDeSimbolos.EOF) {
-            this.reportar(Number(simbolo.linha), ' no final', mensagemDeErro);
+        const _simbolo = simbolo || { tipo: tiposDeSimbolos.EOF, linha: -1, lexema: '(indefinido)' };
+        if (_simbolo.tipo === tiposDeSimbolos.EOF) {
+            this.reportar(Number(_simbolo.linha), ' no final do código', mensagemDeErro);
         } else {
-            this.reportar(Number(simbolo.linha), ` no '${simbolo.lexema}'`, mensagemDeErro);
+            this.reportar(Number(_simbolo.linha), ` no '${_simbolo.lexema}'`, mensagemDeErro);
         }
     }
 
