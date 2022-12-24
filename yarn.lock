@@ -3889,6 +3889,13 @@ jest-config@^29.3.1:
     slash "^3.0.0"
     strip-json-comments "^3.1.1"
 
+jest-coverage-badges@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/jest-coverage-badges/-/jest-coverage-badges-1.1.2.tgz#a70786b139fd8fb685db732e1e2d916d8a47287e"
+  integrity sha512-44A7i2xR6os8+fWk8ZRM6W4fKiD2jwKOLU9eB3iTIIWACd9RbdvmiCNpQZTOsUBhKvz7aQ/ASFhu5JOEhWUOlg==
+  dependencies:
+    mkdirp "0.5.1"
+
 jest-diff@^29.0.3:
   version "29.0.3"
   resolved "https://registry.yarnpkg.com/jest-diff/-/jest-diff-29.0.3.tgz#41cc02409ad1458ae1bf7684129a3da2856341ac"
@@ -4499,10 +4506,22 @@ minimatch@^5.1.0:
   dependencies:
     brace-expansion "^2.0.1"
 
+minimist@0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
+  integrity sha512-miQKw5Hv4NS1Psg2517mV4e4dYNaO3++hjAvLOAzKqZ61rH8NS1SK+vbfBWZ5PY/Me/bEWhUwqMghEW5Fb9T7Q==
+
 minimist@^1.2.0:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
   integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
+
+mkdirp@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
+  integrity sha512-SknJC52obPfGQPnjIkXbmA6+5H15E+fR+E4iR2oQ3zzCLbd7/ONua69R/Gw7AgkTLsRG+r5fzksYwWe1AgTyWA==
+  dependencies:
+    minimist "0.0.8"
 
 mkdirp@^1.0.4:
   version "1.0.4"
