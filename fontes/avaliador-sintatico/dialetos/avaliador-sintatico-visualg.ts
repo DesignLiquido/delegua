@@ -443,15 +443,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos argumentos em instrução `leia`.");
 
         const valor = this.declaracao();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos em instrução `leia`.");
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após fechamento de parênteses pós instrução 'leia'."
+            "Esperado quebra de linha após fechamento de parênteses pós instrução `leia`."
         );
 
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), []);
