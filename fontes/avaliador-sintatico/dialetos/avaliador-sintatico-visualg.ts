@@ -1,6 +1,6 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Var } from '../../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Sustar, Var } from '../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -428,6 +428,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Fazer(-1, -1, declaracoes, condicao);
     }
 
+    // Em VisuAlg, "sustar" é chamada de "interrompa".
+    private declaracaoInterrompa(): Sustar {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        // TODO: Contar blocos para colocar esta condição de erro.
+        /* if (this.blocos < 1) {
+            this.erro(this.simbolos[this.atual - 1], "'interrompa' deve estar dentro de um laço de repetição.");
+        } */
+
+        return new Sustar(simboloAtual);
+    }
+
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
@@ -532,6 +544,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:
                 return this.funcao('funcao');
+            case tiposDeSimbolos.INTERROMPA:
+                return this.declaracaoInterrompa();
             case tiposDeSimbolos.LEIA:
                 return this.declaracaoLeia();
             case tiposDeSimbolos.PARA:
