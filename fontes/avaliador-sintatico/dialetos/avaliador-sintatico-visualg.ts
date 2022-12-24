@@ -1,6 +1,6 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Sustar, Var } from '../../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Se, Sustar, Var } from '../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -202,6 +202,26 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
     }
 
+    comparacaoIgualdade(): Construto {
+        let expressao = this.comparar();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL)) {
+            // TODO: Este é um caso que o interpretador não deveria ter conhecimento 
+            // do que é um símbolo. 
+            // Em VisuAlg não existe '==', apenas '=', já que o símbolo de atribuição 
+            // é uma seta: '<-'.
+            let operador: SimboloInterface = new Simbolo('IGUAL_IGUAL', '=', null, -1, -1);
+            if (this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.DIFERENTE) {
+                operador = this.simbolos[this.atual - 1];
+            }
+            
+            const direito = this.comparar();
+            expressao = new Binario(-1, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
     /**
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
@@ -210,7 +230,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)) {
-            const igual = this.simbolos[this.atual - 1];
+            const setaAtribuicao = this.simbolos[this.atual - 1];
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
@@ -220,7 +240,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 return new AtribuicaoSobrescrita(-1, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
 
-            this.erro(igual, 'Tarefa de atribuição inválida');
+            this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
         }
 
         return expressao;
@@ -316,7 +336,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Enquanto(condicao, declaracoes);
     }
 
-    logicaCasosEscolha(): any {
+    private logicaCasosEscolha(): any {
         const literais = [];
         let simboloAtualCaso: SimboloInterface = this.avancarEDevolverAnterior();
         while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
@@ -400,7 +420,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Execução de declaração "repita".
+     * Criação de declaração "repita".
      * @returns Um construto do tipo Fazer
      */
     declaracaoFazer(): Fazer {
@@ -425,10 +445,19 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado quebra de linha após condição de continuidade em instrução 'repita'."
         );
 
-        return new Fazer(-1, -1, declaracoes, condicao);
+        return new Fazer(
+            -1, 
+            -1, 
+            new Bloco(-1, -1, declaracoes.filter(d => d)), 
+            condicao
+        );
     }
 
-    // Em VisuAlg, "sustar" é chamada de "interrompa".
+    /**
+     * Criação de declaração "interrompa".
+     * Em VisuAlg, "sustar" é chamada de "interrompa".
+     * @returns Uma declaração do tipo Sustar.
+     */
     private declaracaoInterrompa(): Sustar {
         const simboloAtual = this.avancarEDevolverAnterior();
 
@@ -531,6 +560,42 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
+    declaracaoSe(): Se {
+        const simboloSe: SimboloInterface = this.avancarEDevolverAnterior();
+
+        const condicao = this.expressao();
+
+        this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'entao' em declaração 'se'.");
+
+        const declaracoes = [];
+        do {
+            declaracoes.push(this.declaracao());
+        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
+
+        let caminhoSenao = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+            const declaracoesSenao = [];
+            do {
+                declaracoes.push(this.declaracao());
+            } while (![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
+            caminhoSenao = new Bloco(-1, -1, declaracoesSenao.filter(d => d));
+        }
+
+        this.consumir(
+            tiposDeSimbolos.FIM_SE,
+            "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'."
+        );
+
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimse'.");
+
+        return new Se(
+            condicao, 
+            new Bloco(-1, -1, declaracoes.filter(d => d)), 
+            [], 
+            caminhoSenao);
+    }
+
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         // Refatorar isso no futuro.
         const simboloAtual = this.simbolos[this.atual];
@@ -558,6 +623,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 return null;
             case tiposDeSimbolos.REPITA:
                 return this.declaracaoFazer();
+            case tiposDeSimbolos.SE:
+                return this.declaracaoSe();
             default:
                 return this.expressao();
         }

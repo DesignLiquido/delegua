@@ -59,6 +59,17 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Delégua > Estruturas de Repetição > Fazer ... Enquanto",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Fibonacci",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -591,7 +602,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/um-a-10.alg"
+                "./testes/exemplos/dialetos/visualg/um-a-dez-interrompa.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
