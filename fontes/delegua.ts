@@ -74,6 +74,18 @@ export class Delegua implements DeleguaInterface {
         this.modoDepuracao = depurador;
 
         switch (this.dialeto) {
+            case 'birl':
+                this.lexador = new LexadorBirl();
+                this.avaliadorSintatico = new AvaliadorSintaticoBirl();
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                break;
             case 'egua':
                 if (depurador) {
                     throw new Error('Dialeto ' + this.dialeto + ' não suporta depuração.');
@@ -107,18 +119,6 @@ export class Delegua implements DeleguaInterface {
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
                 this.avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
-                this.importador = new Importador(
-                    this.lexador,
-                    this.avaliadorSintatico,
-                    this.arquivosAbertos,
-                    this.conteudoArquivosAbertos,
-                    depurador
-                );
-                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
-                break;
-            case 'birl':
-                this.lexador = new LexadorBirl();
-                this.avaliadorSintatico = new AvaliadorSintaticoBirl();
                 this.importador = new Importador(
                     this.lexador,
                     this.avaliadorSintatico,

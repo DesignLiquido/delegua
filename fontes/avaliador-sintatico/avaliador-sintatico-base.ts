@@ -234,9 +234,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     abstract blocoEscopo(): Declaracao[];
 
-    declaracaoSe(): Se {
-        throw new Error('Método não implementado.');
-    }
+    abstract declaracaoSe(): Se;
 
     abstract declaracaoEnquanto(): Enquanto;
 

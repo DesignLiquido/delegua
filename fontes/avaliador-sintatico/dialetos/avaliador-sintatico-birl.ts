@@ -1,10 +1,10 @@
-import { Construto, FuncaoConstruto, Literal, Variavel } from '../../construtos';
-import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer } from '../../declaracoes';
+import { Construto, FuncaoConstruto } from '../../construtos';
+import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
-import { SimboloInterface } from '../../interfaces';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     validarSegmentoHoraDoShow(): void {
@@ -20,36 +20,51 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     primario(): Construto {
         throw new Error('Method not implemented');
     }
+
     chamar(): Construto {
         return this.primario();
     }
+
     atribuir(): Construto {
         throw new Error('Method not implemented.');
     }
+
     declaracaoEscreva(): Escreva {
         throw new Error('Method not implemented.');
     }
+
     blocoEscopo(): Declaracao[] {
         throw new Error('Method not implemented.');
     }
+
     declaracaoEnquanto(): Enquanto {
         throw new Error('Method not implemented.');
     }
+
     declaracaoPara(): Para {
         throw new Error('Method not implemented.');
     }
+
     declaracaoEscolha(): Escolha {
         throw new Error('Method not implemented.');
     }
+
     declaracaoFazer(): Fazer {
         throw new Error('Method not implemented.');
     }
+
+    declaracaoSe(): Se {
+        throw new Error('Method not implemented.');
+    }
+
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         throw new Error('Method not implemented.');
     }
+
     declaracao(): Declaracao {
         throw new Error('Method not implemented.');
     }
+
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
         this.blocos = 0;
 
@@ -64,7 +79,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const declaracoes = [];
 
         this.validarSegmentoHoraDoShow();
-
         this.validarSegmentoBirlFinal();
 
         return {
