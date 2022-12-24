@@ -10,12 +10,19 @@
   </p>
 
   <p align="center">
-    <a href="https://github.com/DesignLiquido/delegua/issues" target="_blank"><img src="https://img.shields.io/github/issues/Designliquido/delegua" /></a>
+    <img src="./coverage/badge-statements.svg" />
+    <img src="./coverage/badge-lines.svg" />
+    <img src="./coverage/badge-functions.svg" />
+    <img src="./coverage/badge-branches.svg" />
+    <a href="https://github.com/DesignLiquido/delegua/issues" target="_blank">
+      <img src="https://img.shields.io/github/issues/Designliquido/delegua" />
+    </a>
     <img src="https://img.shields.io/github/stars/Designliquido/delegua" />
     <img src="https://img.shields.io/github/forks/Designliquido/delegua" />
-    <a href="https://www.npmjs.com/package/@designliquido/delegua" target="_blank"><img src="https://img.shields.io/npm/v/@designliquido/delegua" /></a>
+    <a href="https://www.npmjs.com/package/@designliquido/delegua" target="_blank">
+      <img src="https://img.shields.io/npm/v/@designliquido/delegua" />
+    </a>
     <img src="https://img.shields.io/github/license/Designliquido/delegua" />
-    <br>
   </p>
 
   <p align="center">
