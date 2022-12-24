@@ -503,7 +503,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     declaracaoLeia(): Leia {
         const simboloAtual = this.simbolos[this.atual];
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos argumentos em instrução `leia`.");
 
         const argumentos: Construto[] = [];
 
@@ -513,7 +513,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos em instrução `leia`.");
 
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
