@@ -87,7 +87,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(8);
         });
 
-        it.skip('Sucesso - Interrompa', () => {
+        it('Sucesso - Interrompa', () => {
             const retornoLexador = delegua.lexador.mapear([
                 'algoritmo "Números de 1 a 10 (com interrompa)"',
                 'var x: inteiro',
@@ -105,7 +105,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
         it('Sucesso - Para', () => {
