@@ -1,6 +1,6 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Se, Sustar, Var } from '../../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para, Se, Sustar, Var } from '../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -419,6 +419,23 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Escreva(Number(simboloAtual.linha), -1, [valor]);
     }
 
+    declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
+
+        const valor = this.declaracao();
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'."
+        );
+
+        return new EscrevaMesmaLinha(Number(simboloAtual.linha), -1, [valor]);
+    }
+
     /**
      * Criação de declaração "repita".
      * @returns Um construto do tipo Fazer
@@ -605,6 +622,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ESCOLHA:
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
+                return this.declaracaoEscrevaMesmaLinha();
             case tiposDeSimbolos.ESCREVA_LINHA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:

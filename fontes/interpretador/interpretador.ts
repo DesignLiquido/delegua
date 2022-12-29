@@ -21,6 +21,7 @@ import {
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
     Fazer,
     FuncaoDeclaracao,
@@ -805,6 +806,32 @@ export class Interpretador implements InterpretadorInterface {
         }
 
         return funcoesChamaveis;
+    }
+
+    /**
+     * Execução de uma escrita na saída padrão, sem quebras de linha.
+     * Implementada para alguns dialetos, como VisuAlg.
+     * @param declaracao A declaração.
+     * @returns Sempre nulo, por convenção de visita.
+     */
+    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
+        try {
+            let formatoTexto: string = '';
+
+            for (const argumento of declaracao.argumentos) {
+                const resultadoAvaliacao = await this.avaliar(argumento);
+                let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                            ? resultadoAvaliacao.valor
+                            : resultadoAvaliacao;
+
+                formatoTexto += `${this.paraTexto(valor)} `
+            }
+
+            process.stdout.write(formatoTexto.trimEnd());
+            return null;
+        } catch (erro: any) {
+            this.erros.push(erro);
+        }
     }
 
     /**

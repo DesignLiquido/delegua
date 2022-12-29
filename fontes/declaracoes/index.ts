@@ -5,6 +5,7 @@ export * from './declaracao';
 export * from './enquanto';
 export * from './escolha';
 export * from './escreva';
+export * from './escreva-mesma-linha';
 export * from './expressao';
 export * from './fazer';
 export * from './funcao';
