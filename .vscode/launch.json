@@ -95,6 +95,17 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Delégua > FizzBuzz",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/fizzbuzz.egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Funções Anônimas",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -118,6 +129,21 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
                 "./testes/exemplos/importacao/inicial.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Inteiros",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                // "--depurador",
+                "./testes/exemplos/estruturas-de-dados/inteiros.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -259,7 +285,7 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários > BIRL",
+            "name": "BIRL > Testes unitários",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [
@@ -338,22 +364,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bhaskara",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "eguap",
-                "./testes/exemplos/dialetos/eguap/bhaskara.eguap"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Égua Clássico > Fibonacci",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -379,21 +389,6 @@
                 "--dialeto",
                 "egua",
                 "./testes/exemplos/classes/construtor-classe.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Delégua > Inteiros",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                // "--depurador",
-                "./testes/exemplos/estruturas-de-dados/inteiros.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -433,11 +428,16 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Delégua > FizzBuzz",
+            "name": "EguaP > Bhaskara",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/fizzbuzz.egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/bhaskara.eguap"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
