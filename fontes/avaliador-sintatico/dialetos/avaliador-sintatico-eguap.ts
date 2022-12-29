@@ -560,9 +560,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     declaracaoSe(): Se {
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
         const condicao = this.expressao();
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
 
         const caminhoEntao = this.resolverDeclaracao();
 
@@ -601,9 +599,8 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         try {
             this.blocos += 1;
 
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condicional.");
+
             const corpo = this.resolverDeclaracao();
 
             return new Enquanto(condicao, corpo);
@@ -616,8 +613,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         try {
             const simboloPara: SimboloInterface = this.simboloAnterior();
             this.blocos += 1;
-
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'para'.");
 
             let inicializador: Var | Expressao;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
@@ -637,8 +632,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 incrementar = this.expressao();
             }
-
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
 
             const corpo = this.resolverDeclaracao();
 
@@ -769,7 +762,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         let blocoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após a declaração 'pegue'.");
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após a declaração 'senão'.");
 
             blocoSenao = this.blocoEscopo();
         }
