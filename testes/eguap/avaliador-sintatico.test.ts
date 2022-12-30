@@ -26,15 +26,15 @@ describe('Avaliador sintático (EguaP)', () => {
             expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
         });
 
-        // it.skip('Falha - Vetor vazio', () => {
+        // it('Falha - Vetor vazio', () => {
         //     expect(() => delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador)).toThrow(TypeError);
         // });
 
-        // it.skip('Falha - Undefined', () => {
+        // it('Falha - Undefined', () => {
         //     expect(() => delegua.avaliadorSintatico.analisar(undefined)).toThrow(TypeError);
         // });
 
-        // it.skip('Falha - Null', () => {
+        // it('Falha - Null', () => {
         //     expect(() => delegua.avaliadorSintatico.analisar(null)).toThrow(TypeError);
         // });
     });

@@ -171,10 +171,10 @@ describe('Biblioteca Global', () => {
     });
 
     describe('paraCada()', () => {
-        it.skip('Sucesso', async () => {
+        it('Sucesso', async () => {
             const codigo = [
                 "var f = funcao(valor) { se(valor >= 7) { escreva(valor) } }",
-                "escreva(paraCada([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], f)"
+                "escreva(paraCada([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], f))"
             ];
             const retornoLexador = delegua.lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -222,17 +222,17 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        it('Falha - Não inteiro', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(real('Oi'))"], -1);
+        it('Sucesso - Nulo ou Indefinido (resolve para zero)', async () => {
+            const retornoLexador = delegua.lexador.mapear(["escreva(real(nulo))"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        it.skip('Falha - Nulo', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(real(nulo))"], -1);
+        it('Falha - Não inteiro', async () => {
+            const retornoLexador = delegua.lexador.mapear(["escreva(real('Oi'))"], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
