@@ -47,6 +47,7 @@ import {
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao, RetornoResolverDeclaracao } from './retornos';
+import { Simbolo } from '../lexador';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -841,7 +842,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     funcao(tipo: string): FuncaoDeclaracao {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+        let simbolo: SimboloInterface;
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.CONSTRUTOR:
+                simbolo = this.avancarEDevolverAnterior();
+                break;
+            default:
+                simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome de ${tipo}.`);
+                break;
+        }
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 

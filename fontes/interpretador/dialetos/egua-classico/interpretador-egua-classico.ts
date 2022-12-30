@@ -905,7 +905,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
-                    'SuperClasse precisa ser uma classe.',
+                    'Superclasse precisa ser uma classe.',
                     declaracao.linha
                 );
             }
