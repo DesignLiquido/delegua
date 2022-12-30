@@ -35,6 +35,7 @@ import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avalia
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
 import { TradutorJavaScript } from './tradutores/tradutor-javascript';
+import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
 
 /**
  * O núcleo da linguagem.
@@ -126,7 +127,7 @@ export class Delegua implements DeleguaInterface {
                     this.conteudoArquivosAbertos,
                     depurador
                 );
-                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                this.interpretador = new InterpretadorVisuAlg(this.importador, process.cwd(), false, console.log);
                 break;
             default:
                 this.lexador = new Lexador(performance);

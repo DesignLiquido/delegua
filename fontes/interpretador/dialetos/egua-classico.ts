@@ -26,6 +26,7 @@ import {
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
     Fazer,
     FuncaoDeclaracao,
@@ -41,6 +42,7 @@ import {
     Atribuir,
     Chamada,
     Construto,
+    FormatacaoEscrita,
     Literal,
     Super,
     Variavel,
@@ -95,6 +97,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+        throw new Error('Method not implemented.');
+    }
+    
+    visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+        throw new Error('Method not implemented.');
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {

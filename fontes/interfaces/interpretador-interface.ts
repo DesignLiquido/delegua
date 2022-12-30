@@ -26,6 +26,7 @@ import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interfac
 import { RetornoInterpretador } from './retornos/retorno-interpretador';
 import { SimboloInterface } from './simbolo-interface';
 import { EscrevaMesmaLinha } from '../declaracoes/escreva-mesma-linha';
+import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
 
 export interface InterpretadorInterface {
     diretorioBase: any;
@@ -52,6 +53,7 @@ export interface InterpretadorInterface {
     visitarExpressaoSe(declaracao: Se): any;
     visitarExpressaoPara(declaracao: Para): any;
     visitarExpressaoFazer(declaracao: Fazer): any;
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): any;
     visitarExpressaoEscolha(declaracao: Escolha): any;
     visitarExpressaoTente(declaracao: Tente): any;
     visitarExpressaoEnquanto(declaracao: Enquanto): any;
