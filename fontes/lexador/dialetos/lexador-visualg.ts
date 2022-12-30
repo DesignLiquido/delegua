@@ -4,12 +4,15 @@ import { ErroLexador } from '../erro-lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 import palavrasReservadas from './palavras-reservadas/visualg';
-import { Simbolo } from '../simbolo';
 
 const dicionarioBibliotecaGlobal = {
     'int': 'inteiro'
 }
 
+/**
+ * O Lexador do VisuAlg é de linha única porque não possui comentários 
+ * multilinha. 
+ */
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
         while (this.eDigito(this.simboloAtual())) {
@@ -73,21 +76,6 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }
-    }
-
-    adicionarSimbolo(tipo: string, literal: any = null): void {
-        const texto: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
-        this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha, -1)
-        );
-    }
-
-    avancarParaProximaLinha(): void {
-        this.linha++;
-        this.atual = 0;
     }
 
     analisarToken(): void {
@@ -176,7 +164,11 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.avancar();
                 switch (this.simboloAtual()) {
                     case '/':
-                        this.avancarParaProximaLinha();
+                        while (
+                            this.simboloAtual() != '\n' &&
+                            !this.eFinalDoCodigo()
+                        )
+                            this.avancar();
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
@@ -229,7 +221,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
-        this.linha = 1;
+        this.linha = 0;
 
         // Em VisuAlg, quebras de linha são relevantes na avaliação sintática.
         // Portanto, o Lexador precisa trabalhar com uma linha só.

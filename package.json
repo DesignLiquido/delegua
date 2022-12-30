@@ -15,7 +15,7 @@
         "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
         "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
         "testes-unitarios": "jest --coverage",
-        "testes-unitarios:insignias": "yarn testes-unitarios && yarn jest-coverage-badges --output './recursos/imagens'",
+        "testes-unitarios:insignias": "yarn jest-coverage-badges --output './recursos/imagens'",
         "observar-testes-unitarios": "jest --watchAll",
         "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",

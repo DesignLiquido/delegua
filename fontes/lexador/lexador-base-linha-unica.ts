@@ -75,22 +75,13 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
         return this.atual >= this.codigo[this.linha].length;
     }
 
-    /**
-     * Indica se o código está na última linha.
-     * @returns Verdadeiro se contador de linhas está na última linha.
-     *          Falso caso contrário.
-     */
-    eUltimaLinha(): boolean {
-        return this.linha >= this.codigo.length - 1;
-    }
-
     avancar(): string {
         this.atual += 1;
         return this.codigo[this.atual - 1];
     }
 
     adicionarSimbolo(tipo: any, literal?: any): void {
-        const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
         this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1));
     }
 

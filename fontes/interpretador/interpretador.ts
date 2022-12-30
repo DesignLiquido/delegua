@@ -21,6 +21,7 @@ import {
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
     Fazer,
     FuncaoDeclaracao,
@@ -46,6 +47,7 @@ import {
     Atribuir,
     Chamada,
     Construto,
+    FormatacaoEscrita,
     Literal,
     Super,
     Variavel,
@@ -237,6 +239,35 @@ export class Interpretador implements InterpretadorInterface {
         }
 
         return null;
+    }
+
+    async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
+        let resultado = "";
+        const conteudo: VariavelInterface | any = await this.avaliar(
+            declaracao.expressao
+        );
+
+        const valorConteudo: any = conteudo?.hasOwnProperty('valor')
+            ? conteudo.valor
+            : conteudo;
+
+        const tipoConteudo: string = conteudo.hasOwnProperty('tipo')
+            ? conteudo.tipo
+            : typeof conteudo;
+        
+        resultado = valorConteudo;
+        if (['número', 'number'].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
+            resultado = valorConteudo.toLocaleString(
+                'pt', 
+                { maximumFractionDigits: declaracao.casasDecimais }
+            )
+        }
+
+        if (declaracao.espacos > 0) {
+            resultado += ' '.repeat(declaracao.espacos);
+        }
+
+        return resultado;
     }
 
     eIgual(
@@ -807,6 +838,37 @@ export class Interpretador implements InterpretadorInterface {
         return funcoesChamaveis;
     }
 
+    private async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+        let formatoTexto: string = '';
+
+        for (const argumento of argumentos) {
+            const resultadoAvaliacao = await this.avaliar(argumento);
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                        ? resultadoAvaliacao.valor
+                        : resultadoAvaliacao;
+
+            formatoTexto += `${this.paraTexto(valor)} `;
+        }
+
+        return formatoTexto;
+    }
+
+    /**
+     * Execução de uma escrita na saída padrão, sem quebras de linha.
+     * Implementada para alguns dialetos, como VisuAlg.
+     * @param declaracao A declaração.
+     * @returns Sempre nulo, por convenção de visita.
+     */
+    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
+        try {
+            const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
+            process.stdout.write(formatoTexto);
+            return null;
+        } catch (erro: any) {
+            this.erros.push(erro);
+        }
+    }
+
     /**
      * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
      * alguma função para escrever numa página Web.
@@ -815,20 +877,8 @@ export class Interpretador implements InterpretadorInterface {
      */
     async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
         try {
-            let formatoTexto: string = '';
-
-            for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = await this.avaliar(argumento);
-                let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                            ? resultadoAvaliacao.valor
-                            : resultadoAvaliacao;
-
-                formatoTexto += `${this.paraTexto(valor)} `
-            }
-
-            // Por enquanto `escreva` não devolve resultado no interpretador.
-            // this.resultadoInterpretador.push(formatoTexto);
-            this.funcaoDeRetorno(formatoTexto.trimEnd());
+            const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
+            this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
             this.erros.push(erro);
@@ -1246,11 +1296,12 @@ export class Interpretador implements InterpretadorInterface {
             return formato.format(objeto);
         }
 
-        if (Array.isArray(objeto)) return objeto;
-
+        if (Array.isArray(objeto)) 
+            return objeto;
         if (objeto.valor instanceof ObjetoPadrao)
             return objeto.valor.paraTexto();
-        if (typeof objeto === 'object') return JSON.stringify(objeto);
+        if (typeof objeto === 'object') 
+            return JSON.stringify(objeto);
 
         return objeto.toString();
     }

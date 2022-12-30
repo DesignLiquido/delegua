@@ -1,7 +1,7 @@
 import { Construto } from '../construtos';
-import { ErroResolvedor } from '../resolvedor/erro-resolvedor';
-import { PilhaEscopos } from '../resolvedor/pilha-escopos';
-import { RetornoResolvedor } from '../resolvedor/retorno-resolvedor';
+import { ErroResolvedor } from '../interpretador/dialetos/egua-classico/resolvedor/erro-resolvedor';
+import { PilhaEscopos } from '../interpretador/dialetos/egua-classico/resolvedor/pilha-escopos';
+import { RetornoResolvedor } from '../interpretador/dialetos/egua-classico/resolvedor/retorno-resolvedor';
 import { SimboloInterface } from './simbolo-interface';
 
 export interface ResolvedorInterface {

@@ -1,4 +1,4 @@
-import { PilhaInterface } from '../interfaces';
+import { PilhaInterface } from '../../../../interfaces';
 
 export class PilhaEscopos implements PilhaInterface<any> {
     pilha: any[];

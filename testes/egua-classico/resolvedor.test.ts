@@ -1,5 +1,5 @@
 import { Delegua } from '../../fontes/delegua';
-import { ResolvedorEguaClassico } from '../../fontes/resolvedor/dialetos';
+import { ResolvedorEguaClassico } from '../../fontes/interpretador/dialetos/egua-classico/resolvedor/resolvedor';
 
 describe('Resolvedor (Égua Clássico)', () => {
     describe('resolver()', () => {
@@ -21,20 +21,6 @@ describe('Resolvedor (Égua Clássico)', () => {
 
         it('Sucesso - Vetor vazio', () => {
             resolvedor.resolver([]);
-            expect(resolvedor.escopos).toBeTruthy();
-            expect(resolvedor.escopos.pilha).toBeTruthy();
-            expect(resolvedor.escopos.pilha).toHaveLength(0);
-        });
-
-        it('Sucesso - Undefined', () => {
-            resolvedor.resolver(undefined);
-            expect(resolvedor.escopos).toBeTruthy();
-            expect(resolvedor.escopos.pilha).toBeTruthy();
-            expect(resolvedor.escopos.pilha).toHaveLength(0);
-        });
-
-        it('Sucesso - Null', () => {
-            resolvedor.resolver(null);
             expect(resolvedor.escopos).toBeTruthy();
             expect(resolvedor.escopos.pilha).toBeTruthy();
             expect(resolvedor.escopos.pilha).toHaveLength(0);

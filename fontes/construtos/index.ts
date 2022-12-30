@@ -5,6 +5,7 @@ export * from './chamada';
 export * from './definir-valor';
 export * from './dicionario';
 export * from './construto';
+export * from './formatacao-escrita';
 export * from './funcao';
 export * from './acesso-metodo';
 export * from './agrupamento';

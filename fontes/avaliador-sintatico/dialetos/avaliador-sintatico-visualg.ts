@@ -1,6 +1,6 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Fazer, Leia, Para, Se, Sustar, Var } from '../../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para, Se, Sustar, Var } from '../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -9,6 +9,7 @@ import {
     Binario,
     Chamada,
     Construto,
+    FormatacaoEscrita,
     FuncaoConstruto,
     Literal,
     Variavel,
@@ -19,7 +20,7 @@ import { Simbolo } from '../../lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
-    validarSegmentoAlgoritmo(): void {
+    private validarSegmentoAlgoritmo(): void {
         this.consumir(tiposDeSimbolos.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
 
         this.consumir(tiposDeSimbolos.CARACTERE, "Esperad cadeia de caracteres após palavra-chave 'algoritmo'.");
@@ -27,7 +28,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
     }
 
-    criarVetorNDimensional(dimensoes: number[]) {
+    private criarVetorNDimensional(dimensoes: number[]) {
         if (dimensoes.length > 0) {
             const dimensao = dimensoes[0] + 1;
             const resto = dimensoes.slice(1);
@@ -41,7 +42,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
     }
 
-    validarDimensoesVetor(): number[] {
+    private validarDimensoesVetor(): number[] {
         let dimensoes = [];
         do {
             const numeroInicial = this.consumir(tiposDeSimbolos.NUMERO, 'Esperado índice inicial para inicialização de dimensão de vetor.');
@@ -64,7 +65,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * Validação do segmento de declaração de variáveis (opcional).
      * @returns Vetor de Construtos para inicialização de variáveis.
      */
-    validarSegmentoVar(): Construto[] {
+    private validarSegmentoVar(): Construto[] {
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.VAR)) {
             return [];
         }
@@ -151,7 +152,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
-    validarSegmentoInicio(algoritmoOuFuncao: string): void {
+    private validarSegmentoInicio(algoritmoOuFuncao: string): void {
         this.consumir(
             tiposDeSimbolos.INICIO,
             `Esperada expressão 'inicio' para marcar escopo de ${algoritmoOuFuncao}.`
@@ -402,12 +403,28 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Escolha(identificador, caminhos, caminhoPadrao);
     }
 
-    declaracaoEscreva(): Escreva {
-        const simboloAtual = this.avancarEDevolverAnterior();
-
+    private logicaComumEscreva(): FormatacaoEscrita[] {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
+        const argumentos: FormatacaoEscrita[] = [];
 
-        const valor = this.declaracao();
+        do {
+            const valor = this.declaracao();
+            let espacos = 0;
+            let casasDecimais = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                // Espaços
+                const simboloEspacos = this.consumir(tiposDeSimbolos.NUMERO, "Esperado número após sinal de dois-pontos após identificador como argumento.");
+                espacos = Number(simboloEspacos.lexema) - 1;
+            }
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                // Casas decimais
+                const simboloCasasDecimais = this.consumir(tiposDeSimbolos.NUMERO, "Esperado número após segundo sinal de dois-pontos após identificador como argumento.");
+                casasDecimais = Number(simboloCasasDecimais.lexema);
+            }
+
+            argumentos.push(new FormatacaoEscrita(-1, -1, valor, espacos, casasDecimais));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
 
@@ -415,8 +432,24 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             tiposDeSimbolos.QUEBRA_LINHA,
             "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'."
         );
+        
+        return argumentos;
+    }
 
-        return new Escreva(Number(simboloAtual.linha), -1, [valor]);
+    declaracaoEscreva(): Escreva {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        const argumentos = this.logicaComumEscreva();
+
+        return new Escreva(Number(simboloAtual.linha), -1, argumentos);
+    }
+
+    declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        const argumentos = this.logicaComumEscreva();
+
+        return new EscrevaMesmaLinha(Number(simboloAtual.linha), -1, argumentos);
     }
 
     /**
@@ -605,6 +638,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ESCOLHA:
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
+                return this.declaracaoEscrevaMesmaLinha();
             case tiposDeSimbolos.ESCREVA_LINHA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:
@@ -615,7 +649,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 return this.declaracaoLeia();
             case tiposDeSimbolos.PARA:
                 return this.declaracaoPara();
-            case tiposDeSimbolos.PARENTESE_ESQUERDO:
             case tiposDeSimbolos.PARENTESE_DIREITO:
                 throw new Error('Não deveria estar caindo aqui.');
             case tiposDeSimbolos.QUEBRA_LINHA:

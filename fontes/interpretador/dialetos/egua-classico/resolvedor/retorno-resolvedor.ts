@@ -1,4 +1,4 @@
-import { Construto } from '../construtos';
+import { Construto } from '../../../../construtos';
 import { ErroResolvedor } from './erro-resolvedor';
 
 export interface RetornoResolvedor {

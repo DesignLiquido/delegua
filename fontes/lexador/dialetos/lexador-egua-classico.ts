@@ -12,6 +12,9 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
+ * 
+ * Este Lexador implementa o mesmo mecanismo de lexação da linguagem Égua.
+ * https://github.com/eguatech/egua/blob/master/src/lexer.js
  */
 export class LexadorEguaClassico implements LexadorInterface {
     codigo: any;
