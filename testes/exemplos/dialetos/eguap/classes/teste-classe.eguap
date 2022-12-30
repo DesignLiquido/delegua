@@ -1,14 +1,11 @@
-classe Resposta {
-    enviar(codigo) {
+classe Resposta:
+    funcao enviar(codigo):
         isto.codigo = codigo
         retorna(isto)
-    }
 
-    status(statusHttp) {
+    função status(statusHttp):
         isto.statusHttp = statusHttp
         retorna(isto)
-    }
-}
 
 var resp = Resposta()
 escreva(resp.enviar("Ok").status(200))

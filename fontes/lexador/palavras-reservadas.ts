@@ -6,6 +6,7 @@ export default {
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,
     continua: tiposDeSimbolos.CONTINUA,
+    construtor: tiposDeSimbolos.CONSTRUTOR,
     enquanto: tiposDeSimbolos.ENQUANTO,
     escolha: tiposDeSimbolos.ESCOLHA,
     escreva: tiposDeSimbolos.ESCREVA,

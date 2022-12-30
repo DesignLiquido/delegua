@@ -49,6 +49,7 @@ import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-ava
 import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
+import { Simbolo } from '../../lexador';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -155,7 +156,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da SuperClasse.');
+            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
             return new Super(this.hashArquivo, simboloChave, metodo);
         }
 
@@ -837,8 +838,10 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new Var(simbolo, inicializador);
     }
 
-    funcao(tipo: string): FuncaoDeclaracao {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+    funcao(tipo: string, construtor?: boolean): FuncaoDeclaracao {
+        const simbolo: SimboloInterface = !construtor ? 
+            this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`) :
+            new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
@@ -894,15 +897,26 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da SuperClasse.');
+            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
         }
 
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
 
         const metodos = [];
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            metodos.push(this.funcao('método'));
+        while (!this.estaNoFinal() && 
+                this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.CONSTRUTOR, 
+                    tiposDeSimbolos.FUNCAO, 
+                    tiposDeSimbolos.FUNÇÃO)
+            ) 
+        {
+            metodos.push(
+                this.funcao(
+                    'método', 
+                    this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR
+                ), 
+            );
         }
 
         return new Classe(simbolo, superClasse, metodos);
