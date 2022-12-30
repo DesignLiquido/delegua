@@ -19,7 +19,7 @@ import {
     SimboloInterface,
 } from './interfaces';
 
-import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico';
+import { InterpretadorEguaClassico } from './interpretador/dialetos/egua-classico/interpretador-egua-classico';
 import { LexadorEguaClassico } from './lexador/dialetos/lexador-egua-classico';
 import { LexadorEguaP } from './lexador/dialetos/lexador-eguap';
 import { AvaliadorSintaticoEguaP } from './avaliador-sintatico/dialetos/avaliador-sintatico-eguap';
@@ -29,7 +29,6 @@ import { ServidorDepuracao } from './depuracao';
 import { ImportadorInterface } from './interfaces/importador-interface';
 import { Importador, RetornoImportador } from './importador';
 import { InterpretadorComDepuracao } from './interpretador/interpretador-com-depuracao';
-import { ResolvedorEguaClassico } from './resolvedor/dialetos';
 import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
 import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
@@ -101,7 +100,7 @@ export class Delegua implements DeleguaInterface {
                     this.conteudoArquivosAbertos,
                     depurador
                 );
-                this.interpretador = new InterpretadorEguaClassico(this, new ResolvedorEguaClassico(), process.cwd());
+                this.interpretador = new InterpretadorEguaClassico(this, process.cwd());
                 break;
             case 'eguap':
                 this.lexador = new LexadorEguaP();

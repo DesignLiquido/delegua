@@ -1,13 +1,13 @@
-import { ResolvedorInterface } from '../../interfaces/resolvedor-interface';
-import { PilhaEscopos } from '../pilha-escopos';
-import { ErroResolvedor } from '../erro-resolvedor';
-import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
-import { Bloco, Declaracao, Expressao, Leia, Se } from '../../declaracoes';
-import { AcessoMetodo, Construto, Super, Variavel } from '../../construtos';
-import { RetornoResolvedor } from '../retorno-resolvedor';
-import { EspacoVariaveis } from '../../espaco-variaveis';
-import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
-import { RetornoInterpretador } from '../../interpretador';
+import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
+import { PilhaEscopos } from './pilha-escopos';
+import { ErroResolvedor } from './erro-resolvedor';
+import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
+import { Bloco, Declaracao, EscrevaMesmaLinha, Expressao, Leia, Se } from '../../../../declaracoes';
+import { AcessoMetodo, Construto, FormatacaoEscrita, Super, Variavel } from '../../../../construtos';
+import { RetornoResolvedor } from './retorno-resolvedor';
+import { EspacoVariaveis } from '../../../../espaco-variaveis';
+import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
+import { RetornoInterpretador } from '../../../../interfaces/retornos';
 
 const TipoFuncao = {
     NENHUM: 'NENHUM',
@@ -49,6 +49,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     cicloAtual: any;
     interfaceEntradaSaida: any = null;
 
+    diretorioBase: any;
+    funcaoDeRetorno: Function;
+    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+
     constructor() {
         this.erros = [];
         this.escopos = new PilhaEscopos();
@@ -59,9 +63,13 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
-    diretorioBase: any;
-    funcaoDeRetorno: Function;
-    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+        throw new Error('Método não implementado.');
+    }
 
     avaliar(expressao: any) {
         throw new Error('Método não implementado.');
@@ -82,6 +90,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
         throw new Error('Método não implementado.');
     }
+
     procurarVariavel(nome: SimboloInterface, expressao: any) {
         throw new Error('Método não implementado.');
     }

@@ -1,25 +1,25 @@
 import * as caminho from 'path';
-import * as fs from 'fs';
+import * as sistemaArquivos from 'fs';
 
-import { EspacoVariaveis } from '../../espaco-variaveis';
-import { Delegua } from '../../delegua';
-import carregarBibliotecaGlobal from '../../bibliotecas/biblioteca-global';
-import carregarModulo from '../../bibliotecas/importar-biblioteca';
+import { EspacoVariaveis } from '../../../espaco-variaveis';
+import { Delegua } from '../../../delegua';
+import carregarBibliotecaGlobal from '../../../bibliotecas/biblioteca-global';
+import carregarModulo from '../../../bibliotecas/importar-biblioteca';
 
-import { Chamavel } from '../../estruturas/chamavel';
-import { FuncaoPadrao } from '../../estruturas/funcao-padrao';
-import { DeleguaClasse } from '../../estruturas/delegua-classe';
-import { DeleguaFuncao } from '../../estruturas/delegua-funcao';
-import { ObjetoDeleguaClasse } from '../../estruturas/objeto-delegua-classe';
-import { DeleguaModulo } from '../../estruturas/modulo';
+import { Chamavel } from '../../../estruturas/chamavel';
+import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
+import { DeleguaClasse } from '../../../estruturas/delegua-classe';
+import { DeleguaFuncao } from '../../../estruturas/delegua-funcao';
+import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
+import { DeleguaModulo } from '../../../estruturas/modulo';
 
-import { ErroEmTempoDeExecucao } from '../../excecoes';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import {
     InterpretadorInterface,
     SimboloInterface,
     ResolvedorInterface,
     VariavelInterface,
-} from '../../interfaces';
+} from '../../../interfaces';
 import {
     Classe,
     Declaracao,
@@ -36,7 +36,7 @@ import {
     Se,
     Tente,
     Var,
-} from '../../declaracoes';
+} from '../../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Atribuir,
@@ -46,20 +46,21 @@ import {
     Literal,
     Super,
     Variavel,
-} from '../../construtos';
-import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
-import { ErroInterpretador } from '../erro-interpretador';
-import { PilhaEscoposExecucao } from '../pilha-escopos-execucao';
-import { EscopoExecucao } from '../../interfaces/escopo-execucao';
+} from '../../../construtos';
+import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
+import { ErroInterpretador } from '../../erro-interpretador';
+import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
+import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import {
     ContinuarQuebra,
     Quebra,
     RetornoQuebra,
     SustarQuebra,
-} from '../../quebras';
-import { inferirTipoVariavel } from '../inferenciador';
+} from '../../../quebras';
+import { inferirTipoVariavel } from '../../inferenciador';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
+import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -78,11 +79,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     constructor(
         Delegua: Delegua,
-        resolvedor: ResolvedorInterface,
         diretorioBase: string
     ) {
         this.Delegua = Delegua;
-        this.resolvedor = resolvedor;
+        this.resolvedor = new ResolvedorEguaClassico();
         this.diretorioBase = diretorioBase;
         this.funcaoDeRetorno = console.log;
 
@@ -636,7 +636,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (dados) return dados;
 
         try {
-            if (!fs.existsSync(caminhoTotal)) {
+            if (!sistemaArquivos.existsSync(caminhoTotal)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.simboloFechamento,
                     'Não foi possível encontrar arquivo importado.',
@@ -651,7 +651,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        dados = fs.readFileSync(caminhoTotal).toString();
+        dados = sistemaArquivos.readFileSync(caminhoTotal).toString();
 
         const delegua = new Delegua(this.Delegua.dialeto, false);
 
