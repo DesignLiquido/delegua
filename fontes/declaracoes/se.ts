@@ -6,13 +6,13 @@ export class Se extends Declaracao {
     condicao: Construto;
     caminhoEntao: Declaracao;
     caminhosSeSenao: any[];
-    caminhoSenao: any;
+    caminhoSenao: Declaracao;
 
     constructor(
         condicao: Construto,
         caminhoEntao: Declaracao,
         caminhosSeSenao: any[],
-        caminhoSenao: any
+        caminhoSenao: Declaracao
     ) {
         super(condicao.linha, condicao.hashArquivo);
         this.condicao = condicao;

@@ -1,0 +1,8 @@
+var a = 1
+var b = 1
+se a == b:
+    escreva(a, b)
+    escreva("Se - Se não: OK!")
+senao:
+    escreva(a, b)
+    escreva("Se - Se não: ERRO!")

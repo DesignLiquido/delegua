@@ -748,7 +748,7 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
 
-            if (caminhoPadrao !== null && encontrado === false) {
+            if (caminhoPadrao !== null && !encontrado) {
                 await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {

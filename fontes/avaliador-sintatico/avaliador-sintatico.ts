@@ -536,7 +536,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const caminhoEntao = this.resolverDeclaracao();
 
-        const caminhosSeSenao = [];
         // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
         // funciona do jeito que deveria.
         // Marcando este código para ser removido em versões futuras.
@@ -558,7 +557,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             caminhoSenao = this.resolverDeclaracao();
         }
 
-        return new Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
+        return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
     declaracaoEnquanto(): Enquanto {

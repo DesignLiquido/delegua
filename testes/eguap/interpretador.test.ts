@@ -160,7 +160,7 @@ describe('Interpretador (EguaP)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Laços de repetição - fazer ... enquanto', async () => {
+                it('Laços de repetição - fazer ... enquanto', async () => {
                     const retornoLexador = delegua.lexador.mapear(["var a = 0\nfazer:\n    a = a + 1\nenquanto a < 10"], -1);
                     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
@@ -184,7 +184,7 @@ describe('Interpretador (EguaP)', () => {
             });
 
             describe('Classes', () => {
-                it.skip('Trivial', async () => {
+                it('Trivial', async () => {
                     const codigo = [
                         "classe Animal:",
                         "    correr():",

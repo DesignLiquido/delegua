@@ -43,14 +43,15 @@ import {
 
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
 import { Pragma } from '../../lexador/dialetos/pragma';
-import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
 
+import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
+
 /**
- * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  *
@@ -513,7 +514,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
-    blocoEscopo() {
+    blocoEscopo(): any[] {
         const declaracoes = [];
         let simboloAtual = this.simboloAtual();
         const simboloAnterior = this.simboloAnterior();
@@ -559,12 +560,125 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return declaracoes;
     }
 
+    declaracaoEnquanto(): Enquanto {
+        try {
+            this.blocos += 1;
+
+            const condicao = this.expressao();
+
+            const bloco = this.resolverDeclaracao();
+
+            return new Enquanto(condicao, bloco);
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
+    declaracaoEscolha(): Escolha {
+        try {
+            this.blocos += 1;
+
+            const condicao = this.expressao();
+
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'escolha'.");
+
+            const caminhos = [];
+            let caminhoPadrao = null;
+            while (!this.estaNoFinal() && [tiposDeSimbolos.CASO, tiposDeSimbolos.PADRAO].includes(this.simbolos[this.atual].tipo)) {
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                    const caminhoCondicoes = [this.expressao()];
+                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
+
+                    while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
+                        this.consumir(tiposDeSimbolos.CASO, null);
+                        caminhoCondicoes.push(this.expressao());
+                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
+                    }
+
+                    // Como dois-pontos é um símbolo usado para conferir se há um início de bloco, 
+                    // não podemos simplesmente chamar `this.resolverDeclaracao()` porque o dois-pontos já
+                    // foi consumido na verificação.
+                    // Outro problema é que, aparentemente, o Interpretador não espera um Bloco, e sim
+                    // um vetor de Declaracao, o qual obtemos com `this.blocoEscopo()`.
+                    const declaracoes = this.blocoEscopo();
+
+                    caminhos.push({
+                        condicoes: caminhoCondicoes,
+                        declaracoes,
+                    });
+                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)) {
+                    if (caminhoPadrao !== null) {
+                        const excecao = new ErroAvaliadorSintatico(
+                            this.simboloAtual(),
+                            "Você só pode ter um caminho padrão em cada declaração de 'escolha'."
+                        );
+                        this.erros.push(excecao);
+                        throw excecao;
+                    }
+
+                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'padrao'.");
+
+                    // Como dois-pontos é um símbolo usado para conferir se há um início de bloco, 
+                    // não podemos simplesmente chamar `this.resolverDeclaracao()` porque o dois-pontos já
+                    // foi consumido na verificação.
+                    // Outro problema é que, aparentemente, o Interpretador não espera um Bloco, e sim
+                    // um vetor de Declaracao, o qual obtemos com `this.blocoEscopo()`.
+                    const declaracoes = this.blocoEscopo();
+
+                    caminhoPadrao = {
+                        declaracoes,
+                    };
+                }
+            }
+
+            return new Escolha(condicao, caminhos, caminhoPadrao);
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
+    declaracaoPara(): Para {
+        try {
+            const simboloPara: SimboloInterface = this.simboloAnterior();
+            this.blocos += 1;
+
+            let inicializador: Var | Expressao;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+                inicializador = null;
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
+                inicializador = this.declaracaoDeVariavel();
+            } else {
+                inicializador = this.declaracaoExpressao();
+            }
+
+            let condicao = null;
+            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+                condicao = this.expressao();
+            }
+
+            let incrementar = null;
+            if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
+                incrementar = this.expressao();
+            }
+
+            const corpo = this.resolverDeclaracao();
+
+            return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+        } catch (erro) {
+            throw erro;
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
     declaracaoSe(): Se {
         const condicao = this.expressao();
 
-        const caminhoEntao = this.resolverDeclaracao();
+        // this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após condição de declaração 'se'.");
 
-        const caminhosSeSenao = [];
+        const caminhoEntao = this.resolverDeclaracao();
+        // const caminhoEntao = this.blocoEscopo();
+
         // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
         // funciona do jeito que deveria.
         // Marcando este código para ser removido em versões futuras.
@@ -592,55 +706,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             caminhoSenao = this.resolverDeclaracao();
         }
 
-        return new Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
-    }
-
-    declaracaoEnquanto(): Enquanto {
-        try {
-            this.blocos += 1;
-
-            const condicao = this.expressao();
-
-            const corpo = this.resolverDeclaracao();
-
-            return new Enquanto(condicao, corpo);
-        } finally {
-            this.blocos -= 1;
-        }
-    }
-
-    declaracaoPara(): Para {
-        try {
-            const simboloPara: SimboloInterface = this.simboloAnterior();
-            this.blocos += 1;
-
-            let inicializador: Var | Expressao;
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                inicializador = null;
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
-                inicializador = this.declaracaoDeVariavel();
-            } else {
-                inicializador = this.declaracaoExpressao();
-            }
-
-            let condicao = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                condicao = this.expressao();
-            }
-
-            let incrementar = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                incrementar = this.expressao();
-            }
-
-            const corpo = this.resolverDeclaracao();
-
-            return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
-        } catch (erro) {
-            throw erro;
-        } finally {
-            this.blocos -= 1;
-        }
+        return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
     declaracaoSustar() {
@@ -668,73 +734,6 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
 
         return new Retorna(palavraChave, valor);
-    }
-
-    declaracaoEscolha(): Escolha {
-        try {
-            this.blocos += 1;
-
-            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'escolha'.");
-
-            const condicao = this.expressao();
-
-            const caminhos = [];
-            let caminhoPadrao = null;
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    const caminhoCondicoes = [this.expressao()];
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
-
-                    while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
-                        this.consumir(tiposDeSimbolos.CASO, null);
-                        caminhoCondicoes.push(this.expressao());
-                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
-                    }
-
-                    const declaracoes = [];
-                    do {
-                        declaracoes.push(this.resolverDeclaracao());
-                    } while (
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
-                    );
-
-                    caminhos.push({
-                        condicoes: caminhoCondicoes,
-                        declaracoes,
-                    });
-                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)) {
-                    if (caminhoPadrao !== null) {
-                        const excecao = new ErroAvaliadorSintatico(
-                            this.simboloAtual(),
-                            "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
-                        );
-                        this.erros.push(excecao);
-                        throw excecao;
-                    }
-
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'padrao'.");
-
-                    const declaracoes = [];
-                    do {
-                        declaracoes.push(this.resolverDeclaracao());
-                    } while (
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
-                    );
-
-                    caminhoPadrao = {
-                        declaracoes,
-                    };
-                }
-            }
-
-            return new Escolha(condicao, caminhos, caminhoPadrao);
-        } finally {
-            this.blocos -= 1;
-        }
     }
 
     declaracaoImportar(): Importar {
@@ -786,19 +785,17 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
     declaracaoFazer(): Fazer {
         const simboloFazer: SimboloInterface = this.simboloAnterior();
+
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.resolverDeclaracao();
+            const declaracaoOuBlocoFazer = this.resolverDeclaracao();
 
-            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
+            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo da declaração 'fazer'.");
 
             const condicaoEnquanto = this.expressao();
 
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração do 'enquanto'.");
-
-            return new Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), caminhoFazer, condicaoEnquanto);
+            return new Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), declaracaoOuBlocoFazer, condicaoEnquanto);
         } finally {
             this.blocos -= 1;
         }
