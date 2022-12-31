@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Birl > Teste",
+            "name": "Birl > Teste 1",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -19,6 +19,20 @@
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "name": "BIRL > Testes unitários",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                // "interpretador.test.ts",
+                "birl",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         },
         {
             "type": "node",
@@ -37,11 +51,64 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Delégua > Bloco Enquanto",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/estruturas-de-repeticao/enquanto.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Bloco Fazer ... Enquanto",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Bloco Para",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./testes/exemplos/estruturas-de-repeticao/para.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Bloco Se",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/se.delegua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Classes > Construtor",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/classes/construtor-classe.egua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/classes/construtor-classe.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -249,28 +316,6 @@
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Égua Clássico > REPL",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua"],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "ÉguaP > REPL",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "eguap"],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
             "name": "Testes unitários",
             "type": "node",
             "request": "launch",
@@ -285,20 +330,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "BIRL > Testes unitários",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "interpretador.test.ts",
-                "birl",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "type": "node",
             "request": "launch",
             "name": "Todos os Testes de Delégua",
@@ -309,38 +340,6 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
                 "./testes/exemplos/index.delegua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Égua Clássico > Todos os Testes de Égua",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "egua",
-                "./testes/exemplos/dialetos/egua-classico/testes.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Égua Clássico > Teste de Classe",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "egua",
-                "./testes/exemplos/dialetos/egua-classico/teste-classe.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -428,6 +427,65 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Égua Clássico > Perceptron",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./testes/exemplos/dialetos/egua-classico/perceptron.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Égua Clássico > REPL",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Égua Clássico > Todos os Testes de Égua",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./testes/exemplos/dialetos/egua-classico/testes.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Égua Clássico > Teste de Classe",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./testes/exemplos/dialetos/egua-classico/teste-classe.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "EguaP > Bhaskara",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -437,6 +495,118 @@
                 "--dialeto",
                 "eguap",
                 "./testes/exemplos/dialetos/eguap/bhaskara.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Bloco Enquanto",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/estruturas-de-repeticao/enquanto.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Bloco Escolha",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts", 
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/condicionais/escolha.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Bloco Fazer ... Enquanto",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/estruturas-de-repeticao/fazer-enquanto.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Bloco Para",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/estruturas-de-repeticao/para.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Bloco Se",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts", 
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/condicionais/se.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Classes",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/classes/teste-classe.eguap"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EguaP > Classes > Construtor",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/classes/construtor-classe.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -460,15 +630,15 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Égua Clássico > Perception",
+            "name": "EguaP > Média",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "${workspaceFolder}${pathSeparator}execucao.ts", 
                 "--dialeto",
-                "egua",
-                "./testes/exemplos/dialetos/egua-classico/perceptron.egua"
+                "eguap",
+                "./testes/exemplos/dialetos/eguap/media.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -476,53 +646,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Delégua > Bloco Enquanto",
+            "name": "EguaP > REPL",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/enquanto.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Delégua > Bloco Fazer ... Enquanto",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Delégua > Bloco Para",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/para.egua"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Delégua > Bloco Se",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/se.egua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "eguap"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },

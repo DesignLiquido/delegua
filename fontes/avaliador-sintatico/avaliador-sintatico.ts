@@ -47,6 +47,7 @@ import {
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao, RetornoResolverDeclaracao } from './retornos';
+import { Simbolo } from '../lexador';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -124,7 +125,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simbolos[this.atual - 1];
             this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da SuperClasse.');
+            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
             return new Super(this.hashArquivo, simboloChave, metodo);
         }
 
@@ -536,7 +537,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const caminhoEntao = this.resolverDeclaracao();
 
-        const caminhosSeSenao = [];
         // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
         // funciona do jeito que deveria.
         // Marcando este código para ser removido em versões futuras.
@@ -558,7 +558,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             caminhoSenao = this.resolverDeclaracao();
         }
 
-        return new Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
+        return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
     declaracaoEnquanto(): Enquanto {
@@ -842,7 +842,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     funcao(tipo: string): FuncaoDeclaracao {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+        let simbolo: SimboloInterface;
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.CONSTRUTOR:
+                simbolo = this.avancarEDevolverAnterior();
+                break;
+            default:
+                simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome de ${tipo}.`);
+                break;
+        }
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
@@ -902,7 +910,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da SuperClasse.');
+            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
             superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 

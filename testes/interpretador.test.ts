@@ -576,7 +576,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(1);
-                    expect(retornoInterpretador.erros[0].mensagem).toBe('SuperClasse precisa ser uma classe.');
+                    expect(retornoInterpretador.erros[0].mensagem).toBe('Superclasse precisa ser uma classe.');
                 });
 
                 it('Trivial', async () => {

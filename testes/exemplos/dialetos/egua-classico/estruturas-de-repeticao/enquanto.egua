@@ -1,0 +1,11 @@
+var a = 0
+enquanto(a < 5) {
+    a = a + 1
+}
+
+se (a == 5)
+    escreva("Enquanto: OK!")
+senao {
+    escreva("Enquanto: ERRO!")
+}
+escreva(a)

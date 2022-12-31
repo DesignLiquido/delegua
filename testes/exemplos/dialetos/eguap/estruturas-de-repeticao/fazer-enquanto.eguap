@@ -1,0 +1,10 @@
+var a = 0
+fazer:
+    a = a + 1
+    escreva('a', a)
+enquanto a < 5
+
+se a == 5:
+    escreva("Faça - Enquanto: OK!")
+senao:
+    escreva("Faça - Enquanto: ERRO!")

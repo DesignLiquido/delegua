@@ -748,7 +748,7 @@ export class Interpretador implements InterpretadorInterface {
                 }
             }
 
-            if (caminhoPadrao !== null && encontrado === false) {
+            if (caminhoPadrao !== null && !encontrado) {
                 await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
@@ -1125,7 +1125,7 @@ export class Interpretador implements InterpretadorInterface {
             if (!(superClasse instanceof DeleguaClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
-                    'SuperClasse precisa ser uma classe.',
+                    'Superclasse precisa ser uma classe.',
                     declaracao.linha
                 );
             }
