@@ -17,17 +17,9 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('', () => {
-            // const retornoLexador = delegua.lexador.mapear(
-            //     [
-            //         'para (var i = 0; i < 5; i = i + 1) {',
-            //             'escreva(i);',
-            //         '}',
-            //     ],
-            //     -1
-            // );
-            // const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const codigo = 'const a = 42\nconst b = \'a\'\nconst c = 1 === 1\nconst d = 1 === \'1\'\nconst e = \'1\' === \'1\'\nconst f = 1 == 1';
 
-            // const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutor.traduzir(codigo);
             // expect(resultado).toBeTruthy();
             // expect(resultado).toMatch(/console\.log\(i\)/i);
         });

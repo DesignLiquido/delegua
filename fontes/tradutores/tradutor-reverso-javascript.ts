@@ -7,14 +7,39 @@ export class TradutorReversoJavaScript {
 
     constructor() {}
 
+    dicionarioConstrutos = {
+        // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        // Atribuir: this.traduzirConstrutoAtribuir.bind(this),
+        BinaryExpression: this.traduzirConstrutoBinario.bind(this),
+        // Chamada: this.traduzirConstrutoChamada.bind(this),
+        // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        // Isto: this.traduzirConstrutoIsto.bind(this),
+        Literal: this.traduzirConstrutoLiteral.bind(this),
+        // Variavel: this.traduzirConstrutoVariavel.bind(this),
+    };
+
+    traduzirConstrutoLiteral(literal: any){
+        let resultado = '';
+        if (typeof literal.value === 'string')
+            resultado += `'${literal.value}'`;
+        else
+            resultado += `${literal.value}`;
+        
+        return resultado;
+    }
+
+    traduzirConstrutoBinario(binario: any){
+        let resultado = '';
+        let direita = typeof binario.right.value === 'string' ? `'${binario.right.value}'` : binario.right.value;
+        let esquerda = typeof binario.left.value === 'string' ? `'${binario.left.value}'` : binario.left.value;
+        resultado += `${esquerda} ${binario.operator} ${direita}`
+        return resultado;
+    }
+
     traduzirDeclaracaoDeVariavel(declaracao: any) {
         let informacoesDaVariavel = declaracao.declarations[0];
-        let resultado = `var ${informacoesDaVariavel.id.name} = `;
-        if (typeof informacoesDaVariavel.init.value === 'string'){
-            resultado += `'${informacoesDaVariavel.init.value}'`;
-        } else {
-            resultado += `${informacoesDaVariavel.init.value}`;
-        }
+        let resultado = `var ${informacoesDaVariavel.id.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
+
         return resultado;
     }
 
@@ -25,10 +50,9 @@ export class TradutorReversoJavaScript {
         }
     }
 
-    traduzir() {
+    traduzir(codigo) {
         let resultado = '';
-        const programa = 'const a = 42\nconst b = \'a\'';
-        const declaracoes = parseScript(programa);
+        const declaracoes = parseScript(codigo);
 
         for (let declaracao of declaracoes.body) {
             resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
@@ -40,5 +64,5 @@ export class TradutorReversoJavaScript {
 
 //cd ./fontes/tradutores
 //ts-node -T tradutor-reverso-javascript.ts
-var tjs = new TradutorReversoJavaScript();
-tjs.traduzir();
+// var tjs = new TradutorReversoJavaScript();
+// tjs.traduzir();
