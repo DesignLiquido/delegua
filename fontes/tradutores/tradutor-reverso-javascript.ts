@@ -4,10 +4,20 @@ import { parseScript } from 'esprima';
  * Esse tradutor traduz de JavaScript para Delégua
  */
 export class TradutorReversoJavaScript {
+    indentacao: number = 0;
 
     constructor() {}
 
+    traduzirSimboloOperador(operador: any) {
+        switch (operador) {
+            case '==':
+            case '===':
+                return '==';
+        }
+    }
+
     dicionarioConstrutos = {
+        ArrowFunctionExpression: this.traduzirDeclaracaoFuncao.bind(this),
         // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         // Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         BinaryExpression: this.traduzirConstrutoBinario.bind(this),
@@ -17,6 +27,28 @@ export class TradutorReversoJavaScript {
         Literal: this.traduzirConstrutoLiteral.bind(this),
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
+
+    dicionarioDeclaracoes = {
+        ExpressionStatement: this.traduzirExpressaoDeclaracao.bind(this)
+        // traduzirDeclaracaoEscreva
+    }
+
+    traduzirExpressaoDeclaracao(declaracao){
+        let resultado = '';
+        let informacoesExpressao = declaracao.expression.callee
+        if(informacoesExpressao.type === 'MemberExpression'){
+            if(informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log'){
+                for(let argumento of declaracao.expression.arguments){
+                    resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`
+                }
+            }
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoFuncao(funcao: any) {
+        console.log(funcao)
+    }
 
     traduzirConstrutoLiteral(literal: any){
         let resultado = '';
@@ -32,7 +64,7 @@ export class TradutorReversoJavaScript {
         let resultado = '';
         let direita = typeof binario.right.value === 'string' ? `'${binario.right.value}'` : binario.right.value;
         let esquerda = typeof binario.left.value === 'string' ? `'${binario.left.value}'` : binario.left.value;
-        resultado += `${esquerda} ${binario.operator} ${direita}`
+        resultado += `${esquerda} ${this.traduzirSimboloOperador(binario.operator)} ${direita}`
         return resultado;
     }
 
@@ -43,8 +75,50 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    logicaComumBlocoEscopo(declaracoes: any) {
+        let resultado = '{\n';
+        this.indentacao += 4;
+
+        // if (typeof declaracoes[Symbol.iterator] === 'function') {
+            for (const declaracaoOuConstruto of declaracoes.body.body) {
+                resultado += ' '.repeat(this.indentacao);
+                const nomeConstrutor = declaracaoOuConstruto.constructor.name;
+                if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+                    resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
+                } else {
+                    resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
+                }
+
+                resultado += '\n';
+            }
+        // }
+
+        this.indentacao -= 4;
+        resultado += ' '.repeat(this.indentacao) + '}\n';
+        return resultado;
+    }
+
+    traduzirDeclaracaoDeFuncao(declaracao: any) {
+        let resultado = '';
+        resultado += `funcao ${declaracao.id.name}(`
+
+        for(let parametro of declaracao.params){
+            resultado += parametro.name + ', '
+        }
+        if (declaracao.params.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ') '
+        resultado += this.logicaComumBlocoEscopo(declaracao)
+        return resultado;
+    }
+
     traduzirDeclaracao(declaracao: any) {
         switch (declaracao.type) {
+            case 'ExpressionStatement':
+                return this.traduzirExpressaoDeclaracao(declaracao);
+            case 'FunctionDeclaration':
+                return this.traduzirDeclaracaoDeFuncao(declaracao);
             case 'VariableDeclaration':
                 return this.traduzirDeclaracaoDeVariavel(declaracao);
         }
