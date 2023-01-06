@@ -201,10 +201,16 @@ export class Lexador implements LexadorInterface {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(
+        let codigo: string = this.codigo[this.linha].substring(
             this.inicioSimbolo,
             this.atual
         );
+
+        //Resolve problema na identificação do simbolo 'continua'
+        if(!codigo){
+            codigo = this.codigo[this.linha - 1].substring(this.inicioSimbolo)
+        }
+
         const tipo: string =
             codigo in palavrasReservadas
                 ? palavrasReservadas[codigo]
