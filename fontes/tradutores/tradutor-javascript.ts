@@ -61,8 +61,7 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-        // TODO
-        return null;
+        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento)
     }
 
     traduzirConstrutoAtribuir(atribuir: Atribuir): string {
@@ -72,11 +71,21 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoBinario(binario: Binario): string {
-        let esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
-        let operador = this.traduzirSimboloOperador(binario.operador);
-        let direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+        let resultado = ''
+        if(binario.esquerda.constructor.name === 'Agrupamento')
+            resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
+        else
+            resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
 
-        return `${esquerda} ${operador} ${direita}`;
+        let operador = this.traduzirSimboloOperador(binario.operador);
+        resultado += ` ${operador} `
+
+        if(binario.direita.constructor.name === 'Agrupamento')
+            resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
+        else
+            resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+
+        return resultado;
     }
 
     traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
