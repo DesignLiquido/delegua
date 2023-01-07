@@ -8,7 +8,7 @@ export class TradutorReversoJavaScript {
 
     constructor() {}
 
-    traduzirSimboloOperador(operador: any) {
+    traduzirSimboloOperador(operador: any): string {
         switch (operador) {
             case '==':
             case '===':
@@ -33,7 +33,7 @@ export class TradutorReversoJavaScript {
         // traduzirDeclaracaoEscreva
     }
 
-    traduzirExpressaoDeclaracao(declaracao){
+    traduzirExpressaoDeclaracao(declaracao): string {
         let resultado = '';
         let informacoesExpressao = declaracao.expression.callee
         if(informacoesExpressao.type === 'MemberExpression'){
@@ -46,11 +46,12 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirDeclaracaoFuncao(funcao: any) {
+    traduzirDeclaracaoFuncao(funcao: any): string {
         console.log(funcao)
+        return ''
     }
 
-    traduzirConstrutoLiteral(literal: any){
+    traduzirConstrutoLiteral(literal: any): string {
         let resultado = '';
         if (typeof literal.value === 'string')
             resultado += `'${literal.value}'`;
@@ -60,7 +61,7 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirConstrutoBinario(binario: any){
+    traduzirConstrutoBinario(binario: any): string {
         let resultado = '';
         let direita = typeof binario.right.value === 'string' ? `'${binario.right.value}'` : binario.right.value;
         let esquerda = typeof binario.left.value === 'string' ? `'${binario.left.value}'` : binario.left.value;
@@ -68,14 +69,14 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirDeclaracaoDeVariavel(declaracao: any) {
+    traduzirDeclaracaoDeVariavel(declaracao: any): string {
         let informacoesDaVariavel = declaracao.declarations[0];
         let resultado = `var ${informacoesDaVariavel.id.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
 
         return resultado;
     }
 
-    logicaComumBlocoEscopo(declaracoes: any) {
+    logicaComumBlocoEscopo(declaracoes: any): string {
         let resultado = '{\n';
         this.indentacao += 4;
 
@@ -98,7 +99,7 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirDeclaracaoDeFuncao(declaracao: any) {
+    traduzirDeclaracaoDeFuncao(declaracao: any): string {
         let resultado = '';
         resultado += `funcao ${declaracao.id.name}(`
 
@@ -117,9 +118,10 @@ export class TradutorReversoJavaScript {
         let resultado = ''
         
         console.log(declaracao)
+        return ''
     }
 
-    traduzirDeclaracao(declaracao: any) {
+    traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
             case 'ClassDeclaration':
                 return this.traduzirClasseDeclaracao(declaracao);
@@ -132,7 +134,7 @@ export class TradutorReversoJavaScript {
         }
     }
 
-    traduzir(codigo) {
+    traduzir(codigo): string {
         let resultado = '';
         const declaracoes = parseScript(codigo);
 
