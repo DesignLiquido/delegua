@@ -283,10 +283,10 @@ export class Delegua implements DeleguaInterface {
 
         let resultado = null;
         if(!!this.tradutorJavaScript){
-            resultado = this.tradutorJavaScript.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
             if (this.afericaoErros(retornoImportador)) {
                 process.exit(65); // Código para erro de avaliação antes da tradução
             }
+            resultado = this.tradutorJavaScript.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
         }
         else{
             resultado = this.tradutorReversoJavascript.traduzir(retornoImportador.conteudoArquivo.join('\n'))
