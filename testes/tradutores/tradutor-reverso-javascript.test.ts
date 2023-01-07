@@ -29,7 +29,7 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
             expect(resultado).toMatch(/var c = 3/i);
         });
 
-        it('\'function\' com parametro-> funcao com parametro', () => {
+        it('function -> funcao', () => {
             const codigo = `function teste(){console.log(\'Oi\')\nconsole.log(123)}`
 
             const resultado = tradutor.traduzir(codigo);
