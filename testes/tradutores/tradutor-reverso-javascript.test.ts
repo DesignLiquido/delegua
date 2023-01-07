@@ -11,6 +11,16 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('comparacao de valores -> igualdade', () => {
+            const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/escreva\(1 == 2\)/i);
+            expect(resultado).toMatch(/escreva\(1 == '1'\)/i);
+            expect(resultado).toMatch(/escreva\('1' == '1'\)/i);
+        });
+
         it('console.log -> escreva', () => {
             const codigo = `console.log('Oi')`
 
@@ -29,8 +39,8 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
             expect(resultado).toMatch(/var c = 3/i);
         });
 
-        it('function -> funcao', () => {
-            const codigo = `function teste(){console.log(\'Oi\')\nconsole.log(123)}`
+        it('function -> funcao sem parametro', () => {
+            const codigo = `function teste() {console.log(\'Oi\')\nconsole.log(123)}`
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
@@ -39,11 +49,16 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\(123\)/i);
         });
 
-        // it('', () => {
-        //     // const codigo = 'const a = 42\nconst b = \'a\'\nconst c = 1 === 1\nconst d = 1 === \'1\'\nconst e = \'1\' === \'1\'\nconst f = 1 == 1';
-        //     // const codigo = 'const a = () => { console.log(\'Oi\') }';
-        //     // const codigo = 'function abc(parametro1){console.log(\'oi\')\nconsole.log(\'aaaa\')}'
-        //     // const codigo = 'console.log(\'Oi\')'
+        it('function -> funcao com parametro', () => {
+            const codigo = `function teste(a, b, c) {console.log(\'Oi\')}`
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/escreva\('Oi'\)/i);
+        });
+
+        // it('class -> classe', () => {
         //     const codigo = `
         //         class Rectangle {
         //             constructor(height, width, abc) {
