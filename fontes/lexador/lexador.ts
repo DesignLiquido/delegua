@@ -179,17 +179,11 @@ export class Lexador implements LexadorInterface {
             }
         }
 
-        let numeroCompleto = '';
-        if(this.atual !== 0){
-            numeroCompleto = this.codigo[this.linha].substring(
+        let numeroCompleto = this.codigo[this.linha].substring(
                 this.inicioSimbolo,
                 this.atual
             );
-        } else {
-            numeroCompleto = this.codigo[this.linha - 1].substring(
-                this.inicioSimbolo
-            );
-        }
+            
         this.adicionarSimbolo(
             tiposDeSimbolos.NUMERO,
             parseFloat(numeroCompleto)
@@ -201,7 +195,7 @@ export class Lexador implements LexadorInterface {
             this.avancar();
         }
 
-        let codigo: string = this.codigo[this.linha].substring(
+        const codigo: string = this.codigo[this.linha].substring(
             this.inicioSimbolo,
             this.atual
         );
