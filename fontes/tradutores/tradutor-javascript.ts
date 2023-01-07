@@ -189,16 +189,20 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        for (let condicao of caminho.condicoes){
-            resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-            resultado += ' '.repeat(this.indentacao);
-        }
-        for (let declaracao of caminho.declaracoes) {
-            resultado += ' '.repeat(this.indentacao + 4);
-            if (declaracao?.simboloChave?.lexema === 'retorna') {
-                resultado += 'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
+        if(caminho?.condicoes?.length){
+            for (let condicao of caminho.condicoes){
+                resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+                resultado += ' '.repeat(this.indentacao);
             }
-            resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n'
+        }
+        if(caminho?.declaracoes?.length){
+            for (let declaracao of caminho.declaracoes) {
+                resultado += ' '.repeat(this.indentacao + 4);
+                if (declaracao?.simboloChave?.lexema === 'retorna') {
+                    resultado += 'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
+                }
+                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n'
+            }
         }
 
         this.indentacao -= 4;
@@ -214,6 +218,12 @@ export class TradutorJavaScript implements TradutorInterface {
 
         for (let caminho of declaracaoEscolha.caminhos) {
             resultado += this.logicaComumCaminhosEscolha(caminho);
+        }
+
+        if(declaracaoEscolha.caminhoPadrao){
+            resultado += ' '.repeat(4);
+            resultado += 'default:\n'
+            resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
         }
 
         resultado += '}\n';

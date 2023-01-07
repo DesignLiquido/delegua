@@ -330,7 +330,21 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários - Tradutor Reverso",
+            "name": "Testes unitários - Tradutor Delégua para Javascript",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-javascript.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Tradutor Javascript para Delégua",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [

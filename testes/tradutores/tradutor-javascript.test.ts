@@ -211,6 +211,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\('correspondente à opção 2'\)/i);
             expect(resultado).toMatch(/console\.log\('escreva de novo 2'\)/i);
             expect(resultado).toMatch(/console\.log\('escreva de novo 3'\)/i);
+            // expect(resultado).toMatch(/default:'\)/i);
+            expect(resultado).toMatch(/console\.log\('Sem opção correspondente'\)/i);
         });
         
         it('classe com parametros -> class', () => {
