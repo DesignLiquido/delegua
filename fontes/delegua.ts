@@ -155,7 +155,7 @@ export class Delegua implements DeleguaInterface {
                     this.tradutorReversoJavascript = new TradutorReversoJavaScript();
                     break;
                 default:
-                    throw new Error(`Tradução '${traduzir}' não implementado.`)
+                    throw new Error(`Tradutor '${traduzir}' não implementado.`)
             }                
         }
 
