@@ -98,10 +98,6 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirConstrutoIsto(isto: Isto): string {
-        return 'this';
-    }
-
     traduzirConstrutoLiteral(literal: Literal): string {
         if(typeof literal.valor === 'string')
             return `'${literal.valor}'`
@@ -313,21 +309,8 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
         let resultado = 'return ';
-        const nomeConstrutor = declaracaoRetorna?.valor?.expressao?.constructor?.name;
-        if (declaracaoRetorna?.valor instanceof Binario) {
-            return (resultado += this.traduzirConstrutoBinario(declaracaoRetorna?.valor));
-        }
-        if (declaracaoRetorna?.valor instanceof Literal) {
-            const valor = this.traduzirConstrutoLiteral(declaracaoRetorna?.valor as Literal);
-            resultado += valor
-            return resultado;
-        }
-        if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
-            resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna.valor.expressao);
-        } else {
-            resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoRetorna.valor.expressao);
-        }
-        return resultado;
+        const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
+        return resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor);
     }
 
     traduzirDeclaracaoSe(declaracaoSe: Se): string {
@@ -399,23 +382,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema + ' = ';
-        if (declaracaoVar.inicializador instanceof Literal) {
-            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
-        } else if (declaracaoVar.inicializador instanceof Binario) {
-            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
-        } else {
-            const nomeConstrutor = declaracaoVar.inicializador.constructor.name;
-            if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
-                resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoVar.inicializador);
-            } else {
-                resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoVar.inicializador);
-            }
-        }
-
+        resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
         return resultado;
     }
 
@@ -430,7 +397,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
-        Isto: this.traduzirConstrutoIsto.bind(this),
+        Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
