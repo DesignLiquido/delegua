@@ -113,8 +113,16 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirClasseDeclaracao(declaracao: any){
+        let resultado = ''
+        
+        console.log(declaracao)
+    }
+
     traduzirDeclaracao(declaracao: any) {
         switch (declaracao.type) {
+            case 'ClassDeclaration':
+                return this.traduzirClasseDeclaracao(declaracao);
             case 'ExpressionStatement':
                 return this.traduzirExpressaoDeclaracao(declaracao);
             case 'FunctionDeclaration':

@@ -37,6 +37,31 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('isto -> this', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Teste {',
+                        'construtor(abc){',
+                            'isto.valor = abc',
+                        '}',
+                        'mostrarValor(){',
+                            'escreva(isto.valor)',
+                        '}',
+                    '}',
+                    'var teste = Teste(100);',
+                    'teste.mostrarValor()'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/class Teste/i);
+            expect(resultado).toMatch(/constructor\(abc\)/i);
+            expect(resultado).toMatch(/let teste = Teste\(100\)/i);
+        });
+
         it('para/sustar -> for/break', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
@@ -53,6 +78,9 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(/i);
+            expect(resultado).toMatch(/if \(/i);
+            expect(resultado).toMatch(/\(\i === 3\)/i);
             expect(resultado).toMatch(/break/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
         });

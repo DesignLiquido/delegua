@@ -1,4 +1,4 @@
-import { Agrupamento, Atribuir, Binario, Chamada, DefinirValor, Isto, Literal, Variavel } from '../construtos';
+import { AcessoMetodo, Agrupamento, Atribuir, Binario, Chamada, DefinirValor, Isto, Literal, Variavel } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -29,7 +29,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export class TradutorJavaScript implements TradutorInterface {
     indentacao: number = 0;
 
-    traduzirSimboloOperador(operador: SimboloInterface) {
+    traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
             case tiposDeSimbolos.ADICAO:
                 return '+';
@@ -60,18 +60,18 @@ export class TradutorJavaScript implements TradutorInterface {
         }
     }
 
-    traduzirConstrutoAgrupamento(agrupamento: Agrupamento) {
+    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
         // TODO
         return null;
     }
 
-    traduzirConstrutoAtribuir(atribuir: Atribuir) {
+    traduzirConstrutoAtribuir(atribuir: Atribuir): string {
         let resultado = atribuir.simbolo.lexema;
         resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }
 
-    traduzirConstrutoBinario(binario: Binario) {
+    traduzirConstrutoBinario(binario: Binario): string {
         let esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
         let operador = this.traduzirSimboloOperador(binario.operador);
         let direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
@@ -79,7 +79,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return `${esquerda} ${operador} ${direita}`;
     }
 
-    traduzirConstrutoDefinirValor(definirValor: DefinirValor) {
+    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
         let resultado = '';
         if (definirValor.objeto instanceof Isto) {
             resultado = 'this.' + definirValor.nome.lexema + ' = ';
@@ -89,27 +89,27 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirConstrutoIsto(isto: Isto) {
+    traduzirConstrutoIsto(isto: Isto): string {
         return 'this';
     }
 
-    traduzirConstrutoLiteral(literal: Literal) {
+    traduzirConstrutoLiteral(literal: Literal): string {
         if(typeof literal.valor === 'string')
             return `'${literal.valor}'`
         return literal.valor;
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel) {
+    traduzirConstrutoVariavel(variavel: Variavel): string {
         return variavel.simbolo.lexema;
     }
 
-    traduzirConstrutoChamada(chamada: Chamada) {
+    traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
 
         let entidadeChamada = chamada.entidadeChamada as Variavel;
         resultado += `${entidadeChamada.simbolo.lexema}(`;
-        for (let parametro of chamada.argumentos as Array<Variavel>) {
-            resultado += parametro.simbolo.lexema + ', ';
+        for (let parametro of chamada.argumentos) {
+            resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
         }
         if (chamada.argumentos.length > 0) {
             resultado = resultado.slice(0, -2);
@@ -118,7 +118,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    logicaComumBlocoEscopo(declaracoes: Declaracao[]) {
+    logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '{\n';
         this.indentacao += 4;
 
@@ -141,11 +141,11 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoBloco(declaracaoBloco: Bloco) {
+    traduzirDeclaracaoBloco(declaracaoBloco: Bloco): string {
         return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
     }
 
-    logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao) {
+    logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
         this.indentacao += 4;
         let resultado = ' '.repeat(this.indentacao);
         resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
@@ -165,7 +165,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoClasse(declaracaoClasse: Classe) {
+    traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
         let resultado = 'export class ';
         resultado += declaracaoClasse.simbolo.lexema + ' {\n';
 
@@ -177,7 +177,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto) {
+    traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
         let resultado = 'while (';
         resultado +=
             this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao) + ') ';
@@ -185,7 +185,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    logicaComumCaminhosEscolha(caminho: CaminhoEscolha) {
+    logicaComumCaminhosEscolha(caminho: CaminhoEscolha): string {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
@@ -211,7 +211,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha) {
+    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
         let resultado = 'switch (';
         resultado +=
             this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](
@@ -232,7 +232,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva) {
+    traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
         let resultado = 'console.log(';
         for (const argumento of declaracaoEscreva.argumentos) {
             const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
@@ -244,11 +244,11 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao) {
+    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
         return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
     }
 
-    traduzirDeclaracaoFazer(declaracaoFazer: Fazer) {
+    traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {
         let resultado = 'do ';
         resultado += this.dicionarioDeclaracoes[declaracaoFazer.caminhoFazer.constructor.name](
             declaracaoFazer.caminhoFazer
@@ -262,7 +262,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao) {
+    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
         let resultado = 'function ';
         resultado += declaracaoFuncao.simbolo.lexema + ' (';
 
@@ -288,7 +288,7 @@ export class TradutorJavaScript implements TradutorInterface {
         throw new Error('`leia()` não é suportado por este padrão de JavaScript.');
     }
 
-    traduzirDeclaracaoPara(declaracaoPara: Para) {
+    traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
         resultado +=
             this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
@@ -302,7 +302,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna) {
+    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
         let resultado = 'return ';
         const nomeConstrutor = declaracaoRetorna?.valor?.expressao?.constructor?.name;
         if (declaracaoRetorna?.valor instanceof Binario) {
@@ -321,7 +321,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoSe(declaracaoSe: Se) {
+    traduzirDeclaracaoSe(declaracaoSe: Se): string {
         let resultado = 'if (';
 
         const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
@@ -355,7 +355,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoTente(declaracaoTente: Tente) {
+    traduzirDeclaracaoTente(declaracaoTente: Tente): string {
         let resultado = 'try {\n';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
@@ -387,7 +387,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoVar(declaracaoVar: Var) {
+    traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema + ' = ';
         if (declaracaoVar.inicializador instanceof Literal) {
@@ -399,15 +399,23 @@ export class TradutorJavaScript implements TradutorInterface {
                 declaracaoVar.inicializador
             );
         } else {
-            resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
+            const nomeConstrutor = declaracaoVar.inicializador.constructor.name;
+            if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+                resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoVar.inicializador);
+            } else {
+                resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoVar.inicializador);
+            }
         }
 
         return resultado;
     }
 
+    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+        return `this.${acessoMetodo.simbolo.lexema}`;
+    }
+
     dicionarioConstrutos = {
+        AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
@@ -438,7 +446,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Var: this.traduzirDeclaracaoVar.bind(this),
     };
 
-    traduzir(declaracoes: Declaracao[]) {
+    traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
         for (const declaracao of declaracoes) {

@@ -17,10 +17,22 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('', () => {
-            const codigo = 'const a = 42\nconst b = \'a\'\nconst c = 1 === 1\nconst d = 1 === \'1\'\nconst e = \'1\' === \'1\'\nconst f = 1 == 1';
+            // const codigo = 'const a = 42\nconst b = \'a\'\nconst c = 1 === 1\nconst d = 1 === \'1\'\nconst e = \'1\' === \'1\'\nconst f = 1 == 1';
             // const codigo = 'const a = () => { console.log(\'Oi\') }';
             // const codigo = 'function abc(parametro1){console.log(\'oi\')\nconsole.log(\'aaaa\')}'
             // const codigo = 'console.log(\'Oi\')'
+            const codigo = `
+                class Rectangle {
+                    constructor(height, width, abc) {
+                        this.height = height;
+                        this.width = width;
+                    }
+
+                    teste(){
+                        console.log('oi')
+                    }
+                }
+            `
 
             const resultado = tradutor.traduzir(codigo);
             // expect(resultado).toBeTruthy();
