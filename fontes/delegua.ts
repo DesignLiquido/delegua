@@ -33,7 +33,7 @@ import { LexadorVisuAlg } from './lexador/dialetos/lexador-visualg';
 import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avaliador-sintatico-visualg';
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
-import { TradutorJavaScript } from './tradutores/tradutor-javascript';
+import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
 import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
 
 /**
@@ -58,7 +58,8 @@ export class Delegua implements DeleguaInterface {
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
     importador: ImportadorInterface;
-    tradutor: TradutorJavaScript;
+    tradutorJavaScript: TradutorJavaScript;
+    tradutorReversoJavascript: TradutorReversoJavaScript;
 
     funcaoDeRetorno: Function;
     modoDepuracao: boolean;
@@ -144,8 +145,18 @@ export class Delegua implements DeleguaInterface {
                 break;
         }
 
-        if (traduzir !== null && traduzir !== undefined) {
-            this.tradutor = new TradutorJavaScript();
+        if (traduzir) {
+            switch(traduzir){
+                case 'javascript':
+                case 'js':
+                    this.tradutorJavaScript = new TradutorJavaScript();
+                    break;
+                case 'delegua':
+                    this.tradutorReversoJavascript = new TradutorReversoJavaScript();
+                    break;
+                default:
+                    throw new Error(`Tradução '${traduzir}' não implementado.`)
+            }                
         }
 
         if (depurador) {
@@ -268,13 +279,18 @@ export class Delegua implements DeleguaInterface {
 
         this.importador.diretorioBase = novoDiretorioBase;
 
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true);
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true, !!this.tradutorReversoJavascript);
 
-        if (this.afericaoErros(retornoImportador)) {
-            process.exit(65); // Código para erro de avaliação antes da tradução
+        let resultado = null;
+        if(!!this.tradutorJavaScript){
+            resultado = this.tradutorJavaScript.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+            if (this.afericaoErros(retornoImportador)) {
+                process.exit(65); // Código para erro de avaliação antes da tradução
+            }
         }
-
-        const resultado = this.tradutor.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+        else{
+            resultado = this.tradutorReversoJavascript.traduzir(retornoImportador.conteudoArquivo.join('\n'))
+        }
 
         if(gerarArquivoSaida){
             ['.delegua', '.egua'].map(extensao => {
@@ -300,7 +316,7 @@ export class Delegua implements DeleguaInterface {
         this.importador.diretorioBase = novoDiretorioBase;
         this.interpretador.diretorioBase = novoDiretorioBase;
 
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true);
+        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true, false);
 
         if (this.afericaoErros(retornoImportador)) {
             process.exit(65); // Código para erro de avaliação antes da execução

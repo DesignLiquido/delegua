@@ -685,7 +685,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Tradutores > Delégua => JavaScript > Teste",
+            "name": "Tradutores > Delégua > JavaScript > Teste",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -694,7 +694,7 @@
                 "-t",
                 "js",
                 "-s",
-                "./testes/exemplos/condicionais/se.egua"
+                "./testes/exemplos/condicionais/se.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

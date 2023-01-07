@@ -2,6 +2,7 @@ import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avalia
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 
 export interface RetornoImportador {
+    conteudoArquivo: string[];
     nomeArquivo: string;
     hashArquivo: number;
     retornoLexador: RetornoLexador;
