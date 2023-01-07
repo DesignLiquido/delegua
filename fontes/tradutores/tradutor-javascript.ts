@@ -203,6 +203,8 @@ export class TradutorJavaScript implements TradutorInterface {
                 }
                 resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n'
             }
+            resultado += ' '.repeat(this.indentacao + 4);
+            resultado += 'break'+ '\n';
         }
 
         this.indentacao -= 4;
