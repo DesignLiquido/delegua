@@ -439,18 +439,18 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/let soma = 1 + 1/i);
+            expect(resultado).toMatch(/let soma = 1 \+ 1/i);
             expect(resultado).toMatch(/let subtracao = 1 - 1/i);
-            // expect(resultado).toMatch(/let diferente = 1 !== 1/i);
-            // expect(resultado).toMatch(/let igual = 1 === 1/i);
-            // expect(resultado).toMatch(/let divisao = 1 / 1/i);
+            expect(resultado).toMatch(/let diferente = 1 !== 1/i);
+            expect(resultado).toMatch(/let igual = 1 === 1/i);
+            expect(resultado).toMatch(/let divisao = 1 \/ 1/i);
             expect(resultado).toMatch(/let menor = 1 < 1/i);
             expect(resultado).toMatch(/let maior = 1 > 1/i);
-            // expect(resultado).toMatch(/let maiorOuIgual = 1 >= 1/i);
-            // expect(resultado).toMatch(/let menorOuIgual = 1 <= 1/i);
-            // expect(resultado).toMatch(/let multiplicacao = 1 * 1/i);
-            // expect(resultado).toMatch(/let modulo = 1 % 1/i);
-            // expect(resultado).toMatch(/let exponenciacao = 1 ** 1/i);
+            expect(resultado).toMatch(/let maiorOuIgual = 1 >= 1/i);
+            expect(resultado).toMatch(/let menorOuIgual = 1 <= 1/i);
+            expect(resultado).toMatch(/let multiplicacao = 1 \* 1/i);
+            expect(resultado).toMatch(/let modulo = 1 % 1/i);
+            expect(resultado).toMatch(/let exponenciacao = 1 \** 1/i);
             expect(resultado).toMatch(
                 /console\.log\(soma, subtracao, diferente, igual, divisao, menor, maior, maiorOuIgual, menorOuIgual, multiplicacao, modulo, exponenciacao\)/i
             );
