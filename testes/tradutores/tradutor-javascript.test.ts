@@ -117,6 +117,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(/i);
+            expect(resultado).toMatch(/if \(i === 3\)/i);
             expect(resultado).toMatch(/continue/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
         });
@@ -134,8 +136,9 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/for (let i = 0; i < 5; i = i + 1) {/i);
+            expect(resultado).toMatch(/for \(let i = 0; i < 5; i = i \+ 1\) {/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
+            expect(resultado).toMatch(/}/i);
         });
 
         it('enquanto -> while', () => {
@@ -156,7 +159,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/let i = 0/i);
             expect(resultado).toMatch(/do {/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
-            // expect(resultado).toMatch(/i = i + 1/i);
+            expect(resultado).toMatch(/i = i \+ 1/i);
             expect(resultado).toMatch(/}/i);
             expect(resultado).toMatch(/while \(i < 5\)/i);
         });
@@ -174,7 +177,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/while \(true\) {/i);
+            expect(resultado).toMatch(/while \(true\) {/i);
             expect(resultado).toMatch(/console\.log\('sim'\)/i);
             expect(resultado).toMatch(/}/i);
         });
@@ -192,7 +195,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/while (true) {/i);
+            expect(resultado).toMatch(/while \(true\) {/i);
             expect(resultado).toMatch(/console\.log\(\'sim\'\)/i);
             expect(resultado).toMatch(/}/i);
         });
