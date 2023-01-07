@@ -179,11 +179,11 @@ export class Lexador implements LexadorInterface {
             }
         }
 
-        let numeroCompleto = this.codigo[this.linha].substring(
+        const numeroCompleto = this.codigo[this.linha].substring(
                 this.inicioSimbolo,
                 this.atual
             );
-            
+
         this.adicionarSimbolo(
             tiposDeSimbolos.NUMERO,
             parseFloat(numeroCompleto)
