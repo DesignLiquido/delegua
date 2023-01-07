@@ -40,8 +40,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('agrupamento', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
-                    "var a = (2 * 2) + 5 - 1 ** (2 + 3 - 4)",
-                    "escreva(a)"
+                    "var agrupamento = (2 * 2) + 5 - 1 ** (2 + 3 - 4)",
+                    "escreva(agrupamento)"
                 ],
                 -1
             );
@@ -49,8 +49,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/let a = /i);
-            expect(resultado).toMatch(/console\.log\(a\)/i);
+            expect(resultado).toMatch(/let agrupamento = \(2 \* 2\) \+ 5 - 1 \** \(2 \+ 3 - 4\)/i);
+            expect(resultado).toMatch(/console\.log\(agrupamento\)/i);
         });
 
         it('isto -> this', () => {
