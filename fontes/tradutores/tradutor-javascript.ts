@@ -111,8 +111,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
 
-        let entidadeChamada = chamada.entidadeChamada as Variavel;
-        resultado += `${entidadeChamada.simbolo.lexema}(`;
+        resultado += `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}(`;
         for (let parametro of chamada.argumentos) {
             resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
         }
@@ -387,6 +386,10 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+        if(acessoMetodo.objeto instanceof Variavel){
+            let objetoVariavel = acessoMetodo.objeto as Variavel
+            return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`
+        }
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
 

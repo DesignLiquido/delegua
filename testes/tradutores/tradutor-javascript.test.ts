@@ -60,7 +60,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                         'construtor(abc){',
                             'isto.valor = abc',
                         '}',
-                        'mostrarValor(){',
+                        'mostrarValor() {',
                             'escreva(isto.valor)',
                         '}',
                     '}',
@@ -73,9 +73,13 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/class Teste/i);
+            expect(resultado).toMatch(/class Teste {/i);
             expect(resultado).toMatch(/constructor\(abc\)/i);
+            expect(resultado).toMatch(/this.valor = abc/i);
+            expect(resultado).toMatch(/mostrarValor\(\) {/i);
+            expect(resultado).toMatch(/console\.log\(this.valor\)/i);
             expect(resultado).toMatch(/let teste = Teste\(100\)/i);
+            expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
         });
 
         it('para/sustar -> for/break', () => {
