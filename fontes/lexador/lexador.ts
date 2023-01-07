@@ -206,11 +206,6 @@ export class Lexador implements LexadorInterface {
             this.atual
         );
 
-        //Resolve problema na identificação do simbolo 'continua'
-        if(!codigo){
-            codigo = this.codigo[this.linha - 1].substring(this.inicioSimbolo)
-        }
-
         const tipo: string =
             codigo in palavrasReservadas
                 ? palavrasReservadas[codigo]
@@ -482,6 +477,10 @@ export class Lexador implements LexadorInterface {
 
         this.codigo = codigo || [''];
         this.hashArquivo = hashArquivo;
+
+        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
+            this.codigo[iterador] += '\0';
+        }
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
