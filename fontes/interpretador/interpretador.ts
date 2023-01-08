@@ -813,7 +813,7 @@ export class Interpretador implements InterpretadorInterface {
             }
         }
 
-        const conteudoImportacao = this.importador.importar(caminhoRelativo, false);
+        const conteudoImportacao = this.importador.importar(caminhoRelativo, false, false);
         const retornoInterpretador = await this.interpretar(
             conteudoImportacao.retornoAvaliadorSintatico.declaracoes,
             true

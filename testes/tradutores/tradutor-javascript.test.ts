@@ -37,6 +37,96 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('agrupamento', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    "var agrupamento = (2 * 2) + 5 - 1 ** (2 + 3 - 4)",
+                    "escreva(agrupamento)"
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let agrupamento = \(2 \* 2\) \+ 5 - 1 \** \(2 \+ 3 - 4\)/i);
+            expect(resultado).toMatch(/console\.log\(agrupamento\)/i);
+        });
+
+        it('isto -> this', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Teste {',
+                        'construtor(abc){',
+                            'isto.valor = abc',
+                        '}',
+                        'mostrarValor() {',
+                            'escreva(isto.valor)',
+                        '}',
+                    '}',
+                    'var teste = Teste(100);',
+                    'teste.mostrarValor()'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/class Teste {/i);
+            expect(resultado).toMatch(/constructor\(abc\)/i);
+            expect(resultado).toMatch(/this.valor = abc/i);
+            expect(resultado).toMatch(/mostrarValor\(\) {/i);
+            expect(resultado).toMatch(/console\.log\(this.valor\)/i);
+            expect(resultado).toMatch(/let teste = Teste\(100\)/i);
+            expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
+        });
+
+        it('para/sustar -> for/break', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'para (var i = 0; i < 5; i = i + 1) {',
+                        'se(i == 3) {',
+                            'sustar;',
+                        '}',
+                        'escreva(i);',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(/i);
+            expect(resultado).toMatch(/if \(/i);
+            expect(resultado).toMatch(/\(\i === 3\)/i);
+            expect(resultado).toMatch(/break/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
+
+        it('para/continue -> for/continue', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'para (var i = 0; i < 5; i = i + 1) {',
+                        'se(i == 3) {',
+                            'continua',
+                        '}',
+                        'escreva(i);',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(/i);
+            expect(resultado).toMatch(/if \(i === 3\)/i);
+            expect(resultado).toMatch(/continue/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
+
         it('para -> for', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
@@ -50,8 +140,9 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/for (let i = 0; i < 5; i = i + 1) {/i);
+            expect(resultado).toMatch(/for \(let i = 0; i < 5; i = i \+ 1\) {/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
+            expect(resultado).toMatch(/}/i);
         });
 
         it('enquanto -> while', () => {
@@ -72,7 +163,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/let i = 0/i);
             expect(resultado).toMatch(/do {/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
-            // expect(resultado).toMatch(/i = i + 1/i);
+            expect(resultado).toMatch(/i = i \+ 1/i);
             expect(resultado).toMatch(/}/i);
             expect(resultado).toMatch(/while \(i < 5\)/i);
         });
@@ -90,7 +181,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/while \(true\) {/i);
+            expect(resultado).toMatch(/while \(true\) {/i);
             expect(resultado).toMatch(/console\.log\('sim'\)/i);
             expect(resultado).toMatch(/}/i);
         });
@@ -108,7 +199,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/while (true) {/i);
+            expect(resultado).toMatch(/while \(true\) {/i);
             expect(resultado).toMatch(/console\.log\(\'sim\'\)/i);
             expect(resultado).toMatch(/}/i);
         });
@@ -171,6 +262,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\('correspondente à opção 2'\)/i);
             expect(resultado).toMatch(/console\.log\('escreva de novo 2'\)/i);
             expect(resultado).toMatch(/console\.log\('escreva de novo 3'\)/i);
+            // expect(resultado).toMatch(/default:'\)/i);
+            expect(resultado).toMatch(/console\.log\('Sem opção correspondente'\)/i);
         });
         
         it('classe com parametros -> class', () => {
@@ -350,18 +443,18 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/let soma = 1 + 1/i);
+            expect(resultado).toMatch(/let soma = 1 \+ 1/i);
             expect(resultado).toMatch(/let subtracao = 1 - 1/i);
-            // expect(resultado).toMatch(/let diferente = 1 !== 1/i);
-            // expect(resultado).toMatch(/let igual = 1 === 1/i);
-            // expect(resultado).toMatch(/let divisao = 1 / 1/i);
+            expect(resultado).toMatch(/let diferente = 1 !== 1/i);
+            expect(resultado).toMatch(/let igual = 1 === 1/i);
+            expect(resultado).toMatch(/let divisao = 1 \/ 1/i);
             expect(resultado).toMatch(/let menor = 1 < 1/i);
             expect(resultado).toMatch(/let maior = 1 > 1/i);
-            // expect(resultado).toMatch(/let maiorOuIgual = 1 >= 1/i);
-            // expect(resultado).toMatch(/let menorOuIgual = 1 <= 1/i);
-            // expect(resultado).toMatch(/let multiplicacao = 1 * 1/i);
-            // expect(resultado).toMatch(/let modulo = 1 % 1/i);
-            // expect(resultado).toMatch(/let exponenciacao = 1 ** 1/i);
+            expect(resultado).toMatch(/let maiorOuIgual = 1 >= 1/i);
+            expect(resultado).toMatch(/let menorOuIgual = 1 <= 1/i);
+            expect(resultado).toMatch(/let multiplicacao = 1 \* 1/i);
+            expect(resultado).toMatch(/let modulo = 1 % 1/i);
+            expect(resultado).toMatch(/let exponenciacao = 1 \** 1/i);
             expect(resultado).toMatch(
                 /console\.log\(soma, subtracao, diferente, igual, divisao, menor, maior, maiorOuIgual, menorOuIgual, multiplicacao, modulo, exponenciacao\)/i
             );
@@ -489,8 +582,6 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(teste\)/i);
         });
 
-        //TODO: Pulando pois no CI esta quebrando, mas localmente o teste passa normal
-        //Alterar a regex do ultimo expect deve resolver
         it('função -> function - sem parametro', () => {
             const retornoLexador = delegua.lexador.mapear(
                 ['funcao minhaFuncaoSemParametro() {', "    escreva('teste')", '}'],

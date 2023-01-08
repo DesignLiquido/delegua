@@ -330,6 +330,34 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
+            "name": "Testes unitários - Tradutor Delégua para Javascript",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-javascript.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Tradutor Javascript para Delégua",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-reverso-javascript.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Todos os Testes de Delégua",
@@ -657,7 +685,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Tradutores > Delégua => JavaScript > Teste",
+            "name": "Tradutores > Delégua > JavaScript > Teste",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -666,7 +694,7 @@
                 "-t",
                 "js",
                 "-s",
-                "./testes/exemplos/condicionais/se.egua"
+                "./testes/exemplos/condicionais/se.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

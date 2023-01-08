@@ -179,17 +179,11 @@ export class Lexador implements LexadorInterface {
             }
         }
 
-        let numeroCompleto = '';
-        if(this.atual !== 0){
-            numeroCompleto = this.codigo[this.linha].substring(
+        const numeroCompleto = this.codigo[this.linha].substring(
                 this.inicioSimbolo,
                 this.atual
             );
-        } else {
-            numeroCompleto = this.codigo[this.linha - 1].substring(
-                this.inicioSimbolo
-            );
-        }
+
         this.adicionarSimbolo(
             tiposDeSimbolos.NUMERO,
             parseFloat(numeroCompleto)
@@ -205,6 +199,7 @@ export class Lexador implements LexadorInterface {
             this.inicioSimbolo,
             this.atual
         );
+
         const tipo: string =
             codigo in palavrasReservadas
                 ? palavrasReservadas[codigo]
@@ -476,6 +471,10 @@ export class Lexador implements LexadorInterface {
 
         this.codigo = codigo || [''];
         this.hashArquivo = hashArquivo;
+
+        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
+            this.codigo[iterador] += '\0';
+        }
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;

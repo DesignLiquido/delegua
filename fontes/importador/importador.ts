@@ -37,7 +37,7 @@ export class Importador implements ImportadorInterface {
         this.depuracao = depuracao;
     }
 
-    importar(caminhoRelativoArquivo: string, importacaoInicial: boolean = false): RetornoImportador {
+    importar(caminhoRelativoArquivo: string, importacaoInicial: boolean = false, traduzirJavaScriptParaDelegua: boolean = false): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
         let caminhoAbsolutoArquivo = caminho.resolve(this.diretorioBase, caminhoRelativoArquivo);
         if (importacaoInicial) {
@@ -60,6 +60,14 @@ export class Importador implements ImportadorInterface {
             .toString()
             .replace(sistemaOperacional.EOL, '\n')
             .split('\n');
+        
+        if(traduzirJavaScriptParaDelegua){
+            return {
+                conteudoArquivo: conteudoDoArquivo,
+                nomeArquivo,
+                hashArquivo,
+            } as RetornoImportador
+        }
 
         for (let linha = 0; linha < conteudoDoArquivo.length; linha++) {
             conteudoDoArquivo[linha] += '\0';
