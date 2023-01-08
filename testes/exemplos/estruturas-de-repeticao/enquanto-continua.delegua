@@ -1,0 +1,9 @@
+var i = -1
+enquanto (i < 4) {
+    i = i + 1
+    se (i == 3) {
+        continua
+    }
+    
+    escreva(i)
+}
