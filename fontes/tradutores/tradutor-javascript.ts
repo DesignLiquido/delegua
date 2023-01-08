@@ -5,6 +5,7 @@ import {
     Binario,
     Chamada,
     DefinirValor,
+    FuncaoConstruto,
     Isto,
     Literal,
     Variavel,
@@ -178,7 +179,11 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
         let resultado = 'export class ';
-        resultado += declaracaoClasse.simbolo.lexema + ' {\n';
+
+        if(declaracaoClasse.superClasse)
+            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`
+        else
+            resultado += declaracaoClasse.simbolo.lexema + ' {\n';
 
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
@@ -403,6 +408,22 @@ export class TradutorJavaScript implements TradutorInterface {
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
 
+    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto){
+        let resultado = 'function('
+        for (const parametro of funcaoConstruto.parametros) {
+            resultado += parametro.nome.lexema + ', ';
+        }
+
+        if (funcaoConstruto.parametros.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+
+        resultado += ') '
+
+        resultado += this.logicaComumBlocoEscopo(funcaoConstruto.corpo);
+        return resultado;
+    }
+
     dicionarioConstrutos = {
         AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
@@ -410,6 +431,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
