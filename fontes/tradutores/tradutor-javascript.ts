@@ -418,13 +418,9 @@ export class TradutorJavaScript implements TradutorInterface {
             resultado = resultado.slice(0, -2);
         }
 
-        resultado += ') {\n'
+        resultado += ') '
 
-        for(let corpo of funcaoConstruto.corpo){
-            resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n'
-        }
-
-        resultado += '}\n'
+        resultado += this.logicaComumBlocoEscopo(funcaoConstruto.corpo);
         return resultado;
     }
 
