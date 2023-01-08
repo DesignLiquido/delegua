@@ -698,6 +698,9 @@ export class Interpretador implements InterpretadorInterface {
 
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
             } catch (erro: any) {
                 return Promise.reject(erro);
             }
@@ -714,6 +717,9 @@ export class Interpretador implements InterpretadorInterface {
         do {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
             } catch (erro: any) {
                 return Promise.reject(erro);
             }
@@ -788,6 +794,9 @@ export class Interpretador implements InterpretadorInterface {
         ) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
             } catch (erro) {
                 throw erro;
             }

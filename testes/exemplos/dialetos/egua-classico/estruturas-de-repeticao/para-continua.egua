@@ -1,0 +1,7 @@
+para (var i = 0; i < 5; i = i + 1) {
+    se (i == 3) {
+        continua;
+    }
+    
+    escreva(i);
+}
