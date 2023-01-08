@@ -66,7 +66,7 @@ export class Delegua implements DeleguaInterface {
 
     servidorDepuracao: ServidorDepuracao;
 
-    constructor(dialeto = 'delegua', performance = false, depurador = false, traduzir = null, funcaoDeRetorno: Function = null) {
+    constructor(dialeto = 'delegua', performance = false, depurador = false, traduzir: any = null, funcaoDeRetorno: Function = null) {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
 
