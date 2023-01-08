@@ -1,12 +1,14 @@
 import { parseScript } from 'esprima';
 
 /**
- * Esse tradutor traduz de JavaScript para Delégua
+ * Esse tradutor traduz de JavaScript para Delégua.
  */
 export class TradutorReversoJavaScript {
     indentacao: number = 0;
 
-    constructor() {}
+    constructor() {
+        // Qualquer coisa pro ESLint ficar feliz.
+    }
 
     traduzirSimboloOperador(operador: any): string {
         switch (operador) {
@@ -29,17 +31,17 @@ export class TradutorReversoJavaScript {
     };
 
     dicionarioDeclaracoes = {
-        ExpressionStatement: this.traduzirExpressaoDeclaracao.bind(this)
+        ExpressionStatement: this.traduzirExpressaoDeclaracao.bind(this),
         // traduzirDeclaracaoEscreva
-    }
+    };
 
     traduzirExpressaoDeclaracao(declaracao): string {
         let resultado = '';
-        let informacoesExpressao = declaracao.expression.callee
-        if(informacoesExpressao.type === 'MemberExpression'){
-            if(informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log'){
-                for(let argumento of declaracao.expression.arguments){
-                    resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`
+        let informacoesExpressao = declaracao.expression.callee;
+        if (informacoesExpressao.type === 'MemberExpression') {
+            if (informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log') {
+                for (let argumento of declaracao.expression.arguments) {
+                    resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`;
                 }
             }
         }
@@ -47,17 +49,15 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirDeclaracaoFuncao(funcao: any): string {
-        console.log(funcao)
-        return ''
+        console.log(funcao);
+        return '';
     }
 
     traduzirConstrutoLiteral(literal: any): string {
         let resultado = '';
-        if (typeof literal.value === 'string')
-            resultado += `'${literal.value}'`;
-        else
-            resultado += `${literal.value}`;
-        
+        if (typeof literal.value === 'string') resultado += `'${literal.value}'`;
+        else resultado += `${literal.value}`;
+
         return resultado;
     }
 
@@ -65,13 +65,15 @@ export class TradutorReversoJavaScript {
         let resultado = '';
         let direita = typeof binario.right.value === 'string' ? `'${binario.right.value}'` : binario.right.value;
         let esquerda = typeof binario.left.value === 'string' ? `'${binario.left.value}'` : binario.left.value;
-        resultado += `${esquerda} ${this.traduzirSimboloOperador(binario.operator)} ${direita}`
+        resultado += `${esquerda} ${this.traduzirSimboloOperador(binario.operator)} ${direita}`;
         return resultado;
     }
 
     traduzirDeclaracaoDeVariavel(declaracao: any): string {
         let informacoesDaVariavel = declaracao.declarations[0];
-        let resultado = `var ${informacoesDaVariavel.id.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
+        let resultado = `var ${informacoesDaVariavel.id.name} = ${this.dicionarioConstrutos[
+            informacoesDaVariavel.init.type
+        ](informacoesDaVariavel.init)}`;
 
         return resultado;
     }
@@ -81,17 +83,17 @@ export class TradutorReversoJavaScript {
         this.indentacao += 4;
 
         // if (typeof declaracoes[Symbol.iterator] === 'function') {
-            for (const declaracaoOuConstruto of declaracoes.body.body) {
-                resultado += ' '.repeat(this.indentacao);
-                const nomeConstrutor = declaracaoOuConstruto.constructor.name;
-                if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
-                    resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
-                } else {
-                    resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
-                }
-
-                resultado += '\n';
+        for (const declaracaoOuConstruto of declaracoes.body.body) {
+            resultado += ' '.repeat(this.indentacao);
+            const nomeConstrutor = declaracaoOuConstruto.constructor.name;
+            if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+                resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
+            } else {
+                resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
             }
+
+            resultado += '\n';
+        }
         // }
 
         this.indentacao -= 4;
@@ -101,24 +103,24 @@ export class TradutorReversoJavaScript {
 
     traduzirDeclaracaoDeFuncao(declaracao: any): string {
         let resultado = '';
-        resultado += `funcao ${declaracao.id.name}(`
+        resultado += `funcao ${declaracao.id.name}(`;
 
-        for(let parametro of declaracao.params){
-            resultado += parametro.name + ', '
+        for (let parametro of declaracao.params) {
+            resultado += parametro.name + ', ';
         }
         if (declaracao.params.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        resultado += ') '
-        resultado += this.logicaComumBlocoEscopo(declaracao)
+        resultado += ') ';
+        resultado += this.logicaComumBlocoEscopo(declaracao);
         return resultado;
     }
 
-    traduzirClasseDeclaracao(declaracao: any){
-        let resultado = ''
-        
-        console.log(declaracao)
-        return ''
+    traduzirClasseDeclaracao(declaracao: any) {
+        let resultado = '';
+
+        console.log(declaracao);
+        return '';
     }
 
     traduzirDeclaracao(declaracao: any): string {

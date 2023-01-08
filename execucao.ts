@@ -8,7 +8,7 @@ const principal = () => {
     analisadorArgumentos
         .option(
             '-d, --dialeto <dialeto>',
-            'Dialeto a ser usado. Padrão: delegua',
+            'Dialeto a ser usado. Padrão: delegua.',
             'delegua'
         )
         .option(
@@ -18,17 +18,17 @@ const principal = () => {
         )
         .option(
             '-p, --performance',
-            'Visualizar indicadores de performance. Desabilitado por padrão',
+            'Visualizar indicadores de performance. Desabilitado por padrão.',
+            false
+        )
+        .option(
+            '-s, --saida',
+            'Gera arquivo de saida ao traduzir arquivo.',
             false
         )
         .option(
             '-t, --traduzir <linguagem>',
-            'Traduz o código do arquivo passado como parâmetro',
-        )
-        .option(
-            '-s, --saida',
-            'Gera arquivo de saida ao traduzir arquivo',
-            false
+            'Traduz o código do arquivo passado como parâmetro.',
         )
         .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
         .action((arquivos) => {

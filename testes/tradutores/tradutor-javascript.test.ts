@@ -39,10 +39,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('agrupamento', () => {
             const retornoLexador = delegua.lexador.mapear(
-                [
-                    "var agrupamento = (2 * 2) + 5 - 1 ** (2 + 3 - 4)",
-                    "escreva(agrupamento)"
-                ],
+                ['var agrupamento = (2 * 2) + 5 - 1 ** (2 + 3 - 4)', 'escreva(agrupamento)'],
                 -1
             );
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -57,15 +54,15 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     'classe Teste {',
-                        'construtor(abc){',
-                            'isto.valor = abc',
-                        '}',
-                        'mostrarValor() {',
-                            'escreva(isto.valor)',
-                        '}',
+                    'construtor(abc){',
+                    'isto.valor = abc',
+                    '}',
+                    'mostrarValor() {',
+                    'escreva(isto.valor)',
+                    '}',
                     '}',
                     'var teste = Teste(100);',
-                    'teste.mostrarValor()'
+                    'teste.mostrarValor()',
                 ],
                 -1
             );
@@ -84,14 +81,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('para/sustar -> for/break', () => {
             const retornoLexador = delegua.lexador.mapear(
-                [
-                    'para (var i = 0; i < 5; i = i + 1) {',
-                        'se(i == 3) {',
-                            'sustar;',
-                        '}',
-                        'escreva(i);',
-                    '}',
-                ],
+                ['para (var i = 0; i < 5; i = i + 1) {', 'se(i == 3) {', 'sustar;', '}', 'escreva(i);', '}'],
                 -1
             );
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -107,14 +97,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('para/continue -> for/continue', () => {
             const retornoLexador = delegua.lexador.mapear(
-                [
-                    'para (var i = 0; i < 5; i = i + 1) {',
-                        'se(i == 3) {',
-                            'continua',
-                        '}',
-                        'escreva(i);',
-                    '}',
-                ],
+                ['para (var i = 0; i < 5; i = i + 1) {', 'se(i == 3) {', 'continua', '}', 'escreva(i);', '}'],
                 -1
             );
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -129,11 +112,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('para -> for', () => {
             const retornoLexador = delegua.lexador.mapear(
-                [
-                    'para (var i = 0; i < 5; i = i + 1) {',
-                        'escreva(i);',
-                    '}',
-                ],
+                ['para (var i = 0; i < 5; i = i + 1) {', 'escreva(i);', '}'],
                 -1
             );
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -147,13 +126,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('enquanto -> while', () => {
             const retornoLexador = delegua.lexador.mapear(
-                [
-                    'var i = 0;',
-                    'fazer {',
-                        'escreva(i);',
-                        'i = i + 1;',
-                    '} enquanto (i < 5)'
-                ],
+                ['var i = 0;', 'fazer {', 'escreva(i);', 'i = i + 1;', '} enquanto (i < 5)'],
                 -1
             );
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
@@ -169,14 +142,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('enquanto -> do while', () => {
-            const retornoLexador = delegua.lexador.mapear(
-                [
-                    'enquanto (verdadeiro) {',
-                        'escreva("sim");',
-                    '}'
-                ],
-                -1
-            );
+            const retornoLexador = delegua.lexador.mapear(['enquanto (verdadeiro) {', 'escreva("sim");', '}'], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
@@ -187,14 +153,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('enquanto -> while', () => {
-            const retornoLexador = delegua.lexador.mapear(
-                [
-                    'enquanto (verdadeiro) {',
-                        'escreva(\'sim\');',
-                    '}'
-                ],
-                -1
-            );
+            const retornoLexador = delegua.lexador.mapear(['enquanto (verdadeiro) {', "escreva('sim');", '}'], -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
@@ -208,13 +167,13 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     'tente { ',
-                        '1 > "2";',                      
-                        'escreva("sucesso");',
+                    '1 > "2";',
+                    'escreva("sucesso");',
                     '}',
                     'pegue {',
-                        'escreva("Ocorreu uma exceção.");',
+                    'escreva("Ocorreu uma exceção.");',
                     '} finalmente {',
-                        'escreva("Ocorrendo exceção ou não, eu sempre executo");',
+                    'escreva("Ocorrendo exceção ou não, eu sempre executo");',
                     '}',
                 ],
                 -1
@@ -235,17 +194,17 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     'escolha (2) {',
-                        'caso "1":',
-                            'escreva("correspondente à opção 1");',
-                            'escreva("escreva de novo 1");',
-                        'caso 1:',
-                        'caso 2:',
-                            'escreva("correspondente à opção 2");',
-                            'escreva("escreva de novo 2");',
-                            'escreva("escreva de novo 3");',
-                        'padrao:',
-                            'escreva("Sem opção correspondente");',
-                    '}'
+                    'caso "1":',
+                    'escreva("correspondente à opção 1");',
+                    'escreva("escreva de novo 1");',
+                    'caso 1:',
+                    'caso 2:',
+                    'escreva("correspondente à opção 2");',
+                    'escreva("escreva de novo 2");',
+                    'escreva("escreva de novo 3");',
+                    'padrao:',
+                    'escreva("Sem opção correspondente");',
+                    '}',
                 ],
                 -1
             );
@@ -265,19 +224,19 @@ describe('Tradutor Delégua -> JavaScript', () => {
             // expect(resultado).toMatch(/default:'\)/i);
             expect(resultado).toMatch(/console\.log\('Sem opção correspondente'\)/i);
         });
-        
+
         it('classe com parametros -> class', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     'classe Teste {',
-                        'construtor(valor1) {',
-                            'escreva("começou")',
-                        '}',
-                        'testeFuncao(valor2) {',
-                            'escreva("olá");',
-                            'retorna \'teste\'',
-                        '}',
-                    '}'
+                    'construtor(valor1) {',
+                    'escreva("começou")',
+                    '}',
+                    'testeFuncao(valor2) {',
+                    'escreva("olá");',
+                    "retorna 'teste'",
+                    '}',
+                    '}',
                 ],
                 -1
             );
@@ -295,13 +254,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('classe sem parametros -> class', () => {
             const retornoLexador = delegua.lexador.mapear(
-                [
-                    'classe Teste {',
-                        'construtor() {',
-                            'escreva("começou")',
-                        '}',
-                    '}'
-                ],
+                ['classe Teste {', 'construtor() {', 'escreva("começou")', '}', '}'],
                 -1
             );
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);

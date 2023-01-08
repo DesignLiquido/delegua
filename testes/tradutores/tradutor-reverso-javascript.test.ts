@@ -1,7 +1,7 @@
 import { TradutorReversoJavaScript } from '../../fontes/tradutores/tradutor-reverso-javascript';
 import { Delegua } from '../../fontes/delegua';
 
-describe('Tradutor Reverso Javascript -> Delégua', () => {
+describe('Tradutor Reverso JavaScript -> Delégua', () => {
     const tradutor: TradutorReversoJavaScript = new TradutorReversoJavaScript();
 
     describe('Código', () => {
@@ -12,7 +12,7 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('comparacao de valores -> igualdade', () => {
-            const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`
+            const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
@@ -22,7 +22,7 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('console.log -> escreva', () => {
-            const codigo = `console.log('Oi')`
+            const codigo = `console.log('Oi')`;
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
@@ -30,7 +30,7 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('const/let/var -> var', () => {
-            const codigo = `const a = 1\nlet b = 2\nvar c = 3`
+            const codigo = `const a = 1\nlet b = 2\nvar c = 3`;
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
@@ -40,7 +40,7 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('function -> funcao sem parametro', () => {
-            const codigo = `function teste() {console.log(\'Oi\')\nconsole.log(123)}`
+            const codigo = `function teste() {console.log(\'Oi\')\nconsole.log(123)}`;
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
@@ -50,7 +50,7 @@ describe('Tradutor Reverso Javascript -> Delégua', () => {
         });
 
         it('function -> funcao com parametro', () => {
-            const codigo = `function teste(a, b, c) {console.log(\'Oi\')}`
+            const codigo = `function teste(a, b, c) {console.log(\'Oi\')}`;
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();

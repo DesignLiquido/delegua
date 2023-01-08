@@ -43,13 +43,13 @@ import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
  */
 export class Delegua implements DeleguaInterface {
     dialeto: string;
-    dialetos: { [identificador: string]: string} = {
-        'birl': 'BIRL',
-        'delegua': 'padrão',
-        'egua': 'Égua',
-        'eguap': 'ÉguaP',
-        'visualg': 'VisuAlg'
-    }
+    dialetos: { [identificador: string]: string } = {
+        birl: 'BIRL',
+        delegua: 'padrão',
+        egua: 'Égua',
+        eguap: 'ÉguaP',
+        visualg: 'VisuAlg',
+    };
 
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
@@ -66,7 +66,13 @@ export class Delegua implements DeleguaInterface {
 
     servidorDepuracao: ServidorDepuracao;
 
-    constructor(dialeto = 'delegua', performance = false, depurador = false, traduzir: any = null, funcaoDeRetorno: Function = null) {
+    constructor(
+        dialeto = 'delegua',
+        performance = false,
+        depurador = false,
+        traduzir: any = null,
+        funcaoDeRetorno: Function = null
+    ) {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
 
@@ -146,7 +152,7 @@ export class Delegua implements DeleguaInterface {
         }
 
         if (traduzir) {
-            switch(traduzir){
+            switch (traduzir) {
                 case 'javascript':
                 case 'js':
                     this.tradutorJavaScript = new TradutorJavaScript();
@@ -155,8 +161,8 @@ export class Delegua implements DeleguaInterface {
                     this.tradutorReversoJavascript = new TradutorReversoJavaScript();
                     break;
                 default:
-                    throw new Error(`Tradutor '${traduzir}' não implementado.`)
-            }                
+                    throw new Error(`Tradutor '${traduzir}' não implementado.`);
+            }
         }
 
         if (depurador) {
@@ -273,33 +279,44 @@ export class Delegua implements DeleguaInterface {
         return false;
     }
 
+    /**
+     * Realiza a tradução do arquivo passado como parâmetro no comando de execução.
+     * @param caminhoRelativoArquivo O caminho do arquivo.
+     * @param gerarArquivoSaida Se o resultado da tradução deve ser escrito em arquivo. 
+     *                          Se verdadeiro, os arquivos de saída são escritos no mesmo diretório
+     *                          do arquivo passado no primeiro parâmetro.
+     */
     traduzirArquivo(caminhoRelativoArquivo: string, gerarArquivoSaida: boolean): any {
         const caminhoAbsolutoPrimeiroArquivo = caminho.resolve(caminhoRelativoArquivo);
         const novoDiretorioBase = caminho.dirname(caminhoAbsolutoPrimeiroArquivo);
 
         this.importador.diretorioBase = novoDiretorioBase;
 
-        const retornoImportador = this.importador.importar(caminhoRelativoArquivo, true, !!this.tradutorReversoJavascript);
+        const retornoImportador = this.importador.importar(
+            caminhoRelativoArquivo,
+            true,
+            !!this.tradutorReversoJavascript
+        );
 
         let resultado = null;
-        if(!!this.tradutorJavaScript){
+        if (this.tradutorJavaScript !== null && this.tradutorJavaScript !== undefined) {
             if (this.afericaoErros(retornoImportador)) {
                 process.exit(65); // Código para erro de avaliação antes da tradução
             }
+
             resultado = this.tradutorJavaScript.traduzir(retornoImportador.retornoAvaliadorSintatico.declaracoes);
-        }
-        else{
-            resultado = this.tradutorReversoJavascript.traduzir(retornoImportador.conteudoArquivo.join('\n'))
+        } else {
+            resultado = this.tradutorReversoJavascript.traduzir(retornoImportador.conteudoArquivo.join('\n'));
         }
 
-        if(gerarArquivoSaida){
-            ['.delegua', '.egua'].map(extensao => {
-                if(caminhoAbsolutoPrimeiroArquivo.includes(extensao)){
+        if (gerarArquivoSaida) {
+            ['.delegua', '.egua'].map((extensao) => {
+                if (caminhoAbsolutoPrimeiroArquivo.includes(extensao)) {
                     fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, '.js'), resultado, (erro) => {
                         if (erro) throw erro;
-                    })
+                    });
                 }
-            })
+            });
         }
 
         this.funcaoDeRetorno(resultado);
