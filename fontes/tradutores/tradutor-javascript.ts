@@ -5,6 +5,7 @@ import {
     Binario,
     Chamada,
     DefinirValor,
+    FuncaoConstruto,
     Isto,
     Literal,
     Variavel,
@@ -407,6 +408,26 @@ export class TradutorJavaScript implements TradutorInterface {
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
 
+    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto){
+        let resultado = 'function('
+        for (const parametro of funcaoConstruto.parametros) {
+            resultado += parametro.nome.lexema + ', ';
+        }
+
+        if (funcaoConstruto.parametros.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+
+        resultado += ') {\n'
+
+        for(let corpo of funcaoConstruto.corpo){
+            resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n'
+        }
+
+        resultado += '}\n'
+        return resultado;
+    }
+
     dicionarioConstrutos = {
         AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
@@ -414,6 +435,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
