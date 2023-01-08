@@ -277,12 +277,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
                 case tiposDeSimbolos.ADICAO:
                     if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                        return Number(esquerda) + Number(direita);
+                        return Number(valorEsquerdo) + Number(valorDireito);
                     } else if (
                         tipoEsquerdo === 'texto' &&
                         tipoDireito === 'texto'
                     ) {
-                        return String(esquerda) + String(direita);
+                        return String(valorEsquerdo) + String(valorDireito);
                     }
 
                     throw new ErroEmTempoDeExecucao(
@@ -677,7 +677,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarExpressaoEscreva(declaracao: Escreva) {
         try {
-            const valor = await this.avaliar(declaracao.argumentos[0]);
+            const resultadoAvaliacao = await this.avaliar(declaracao.argumentos[0]);
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                        ? resultadoAvaliacao.valor
+                        : resultadoAvaliacao;
             console.log(this.paraTexto(valor));
             return null;
         } catch (erro: any) {
