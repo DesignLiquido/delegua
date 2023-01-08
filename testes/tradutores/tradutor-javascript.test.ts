@@ -37,6 +37,32 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('herda -> extends', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'classe Animal {',
+                    'corre() {',
+                    'escreva("correndo");',
+                    '}',
+                    '}',
+                    'classe Cachorro herda Animal {}',
+                    'var thor = Cachorro();',
+                    'thor.corre();',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/export class Animal {/i);
+            expect(resultado).toMatch(/corre\(\)/i);
+            expect(resultado).toMatch(/console\.log\('correndo'\)/i);
+            expect(resultado).toMatch(/class Cachorro extends Animal {/i);
+            expect(resultado).toMatch(/let thor = Cachorro\(\)/i);
+            expect(resultado).toMatch(/thor.corre\(\)/i);
+        });
+
         it('agrupamento', () => {
             const retornoLexador = delegua.lexador.mapear(
                 ['var agrupamento = (2 * 2) + 5 - 1 ** (2 + 3 - 4)', 'escreva(agrupamento)'],
@@ -70,7 +96,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/class Teste {/i);
+            expect(resultado).toMatch(/export class Teste {/i);
             expect(resultado).toMatch(/constructor\(abc\)/i);
             expect(resultado).toMatch(/this.valor = abc/i);
             expect(resultado).toMatch(/mostrarValor\(\) {/i);

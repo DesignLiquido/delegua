@@ -85,7 +85,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.egua"
+                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

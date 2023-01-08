@@ -178,7 +178,11 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
         let resultado = 'export class ';
-        resultado += declaracaoClasse.simbolo.lexema + ' {\n';
+
+        if(declaracaoClasse.superClasse)
+            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`
+        else
+            resultado += declaracaoClasse.simbolo.lexema + ' {\n';
 
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
