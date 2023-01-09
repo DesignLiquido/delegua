@@ -42,7 +42,7 @@
 
 ## Introdução
 
-Delégua é uma linguagem de programação cujo código começou como uma variação (_fork_) da linguagem Égua, usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
+Delégua é uma linguagem de programação cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.tech), usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
 
 Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
 
@@ -65,7 +65,7 @@ Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, com
 Se quiser instalar no seu computador,
 [você deve ter antes o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo).
 
-Com o Node.js instalado, execute o seguinte comando em um prompt de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `bash` em Mac e Linux):
+Com o Node.js instalado, execute o seguinte comando em um _prompt_ de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `bash` em Mac e Linux):
 
 ```
 npm install -g delegua
