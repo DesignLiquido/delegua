@@ -1,2 +1,2 @@
-var importacao = importar("./testes/exemplos/importacao/importacao-2.egua")
+var importacao = importar("./exemplos/importacao/importacao-2.egua")
 importacao.escreverAlgumaCoisa()

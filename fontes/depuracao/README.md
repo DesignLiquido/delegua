@@ -17,7 +17,7 @@ constructor(_instanciaDelegua: Delegua) {
     // `Interpretador.executar()`. 
     // Deve ser removido num futuro próximo.
     /* (this.instanciaDelegua.interpretador as any).pontosParada.push({
-        hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
+        hashArquivo: cyrb53('./exemplos/importacao/importacao-2.egua'),
         linha: 4
     }); */
 
@@ -34,7 +34,7 @@ constructor(_instanciaDelegua: Delegua) {
     // `Interpretador.executar()`. 
     // Deve ser removido num futuro próximo.
     (this.instanciaDelegua.interpretador as any).pontosParada.push({
-        hashArquivo: cyrb53('./testes/exemplos/importacao/importacao-2.egua'),
+        hashArquivo: cyrb53('./exemplos/importacao/importacao-2.egua'),
         linha: 4
     });
 
@@ -81,8 +81,8 @@ Os comandos implementados até então são:
 `adicionar-ponto-parada` e `remover-ponto-parada` pedem dois argumentos: o caminho do arquivo fonte e a linha em que se deseja adicionar ou renover ponto de parada. Exemplo:
 
 ```
-adicionar-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
-remover-ponto-parada ./testes/exemplos/importacao/importacao-2.egua 5
+adicionar-ponto-parada ./exemplos/importacao/importacao-2.egua 5
+remover-ponto-parada ./exemplos/importacao/importacao-2.egua 5
 ```
 
 ## Resposta dos comandos
