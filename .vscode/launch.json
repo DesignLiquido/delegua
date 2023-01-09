@@ -15,7 +15,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "birl",
-                "./testes/exemplos/birl/teste1.birl"
+                "./exemplos/birl/teste1.birl"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -43,7 +43,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/dialetos/egua-classico/bhaskara.egua"
+                "./exemplos/dialetos/egua-classico/bhaskara.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -57,7 +57,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/enquanto.delegua"
+                "./exemplos/estruturas-de-repeticao/enquanto.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -71,7 +71,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/enquanto-continua.delegua"
+                "./exemplos/estruturas-de-repeticao/enquanto-continua.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -85,7 +85,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"
+                "./exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -99,7 +99,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto-continua.delegua"
+                "./exemplos/estruturas-de-repeticao/fazer-enquanto-continua.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -113,7 +113,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/para.delegua"
+                "./exemplos/estruturas-de-repeticao/para.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -127,7 +127,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/estruturas-de-repeticao/para-continua.delegua"
+                "./exemplos/estruturas-de-repeticao/para-continua.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -139,7 +139,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/se.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/condicionais/se.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -150,7 +150,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/classes/construtor-classe.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/construtor-classe.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -161,7 +161,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/condicionais/escolha.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/condicionais/escolha.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -172,7 +172,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -183,7 +183,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/fibonacci.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fibonacci.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -196,7 +196,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/fila-estatica.delegua"
+                "./exemplos/fila-estatica.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -208,7 +208,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/fizzbuzz.egua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fizzbuzz.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -222,7 +222,7 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
-                "./testes/exemplos/funcoes/funcoes-anonimas.delegua"
+                "./exemplos/funcoes/funcoes-anonimas.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -237,7 +237,7 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
-                "./testes/exemplos/importacao/inicial.delegua"
+                "./exemplos/importacao/inicial.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -252,7 +252,7 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
-                "./testes/exemplos/estruturas-de-dados/inteiros.delegua"
+                "./exemplos/estruturas-de-dados/inteiros.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -266,7 +266,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/leia.delegua"
+                "./exemplos/leia.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -278,7 +278,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/media.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/media.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -291,7 +291,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/perceptron.delegua"
+                "./exemplos/perceptron.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -305,7 +305,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/primitivas/texto/minusculo.delegua"
+                "./exemplos/primitivas/texto/minusculo.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -317,7 +317,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./testes/exemplos/primitivas/lista/inclui.delegua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/primitivas/lista/inclui.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -341,7 +341,7 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./testes/exemplos/classes/teste-classe.delegua"
+                "./exemplos/classes/teste-classe.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -353,7 +353,7 @@
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "-p", "./testes/exemplos/testes.egua"],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "-p", "./exemplos/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
@@ -409,7 +409,7 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 // "--depurador",
-                "./testes/exemplos/index.delegua"
+                "./exemplos/index.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -425,7 +425,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/bhaskara.egua"
+                "./exemplos/dialetos/egua-classico/bhaskara.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -441,7 +441,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/estruturas-de-repeticao/para-continua.egua"
+                "./exemplos/dialetos/egua-classico/estruturas-de-repeticao/para-continua.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -457,7 +457,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/fibonacci.egua"
+                "./exemplos/dialetos/egua-classico/fibonacci.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -473,7 +473,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/classes/construtor-classe.egua"
+                "./exemplos/classes/construtor-classe.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -489,7 +489,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/merge-sort.egua"
+                "./exemplos/dialetos/egua-classico/merge-sort.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -505,7 +505,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/fila-estatica.egua"
+                "./exemplos/dialetos/egua-classico/fila-estatica.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -521,7 +521,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/perceptron.egua"
+                "./exemplos/dialetos/egua-classico/perceptron.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -548,7 +548,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/testes.egua"
+                "./exemplos/dialetos/egua-classico/testes.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -564,7 +564,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./testes/exemplos/dialetos/egua-classico/teste-classe.egua"
+                "./exemplos/dialetos/egua-classico/teste-classe.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -580,7 +580,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/bhaskara.eguap"
+                "./exemplos/dialetos/eguap/bhaskara.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -596,7 +596,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/estruturas-de-repeticao/enquanto.eguap"
+                "./exemplos/dialetos/eguap/estruturas-de-repeticao/enquanto.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -612,7 +612,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts", 
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/condicionais/escolha.eguap"
+                "./exemplos/dialetos/eguap/condicionais/escolha.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -628,7 +628,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/estruturas-de-repeticao/fazer-enquanto.eguap"
+                "./exemplos/dialetos/eguap/estruturas-de-repeticao/fazer-enquanto.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -644,7 +644,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/estruturas-de-repeticao/para.eguap"
+                "./exemplos/dialetos/eguap/estruturas-de-repeticao/para.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -660,7 +660,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts", 
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/condicionais/se.eguap"
+                "./exemplos/dialetos/eguap/condicionais/se.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -676,7 +676,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/classes/teste-classe.eguap"
+                "./exemplos/dialetos/eguap/classes/teste-classe.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -692,7 +692,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/classes/construtor-classe.eguap"
+                "./exemplos/dialetos/eguap/classes/construtor-classe.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -708,7 +708,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/fizzbuzz.eguap"
+                "./exemplos/dialetos/eguap/fizzbuzz.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -724,7 +724,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts", 
                 "--dialeto",
                 "eguap",
-                "./testes/exemplos/dialetos/eguap/media.eguap"
+                "./exemplos/dialetos/eguap/media.eguap"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -752,7 +752,7 @@
                 "-t",
                 "js",
                 "-s",
-                "./testes/exemplos/condicionais/se.delegua"
+                "./exemplos/condicionais/se.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -768,7 +768,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/divisao-inteira.alg"
+                "./exemplos/dialetos/visualg/divisao-inteira.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -784,7 +784,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/exemplos-escreva.alg"
+                "./exemplos/dialetos/visualg/exemplos-escreva.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -800,7 +800,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/ola-mundo.alg"
+                "./exemplos/dialetos/visualg/ola-mundo.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -816,7 +816,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/times.alg"
+                "./exemplos/dialetos/visualg/times.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -832,7 +832,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/um-a-dez-interrompa.alg"
+                "./exemplos/dialetos/visualg/um-a-dez-interrompa.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -848,7 +848,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "visualg",
-                "./testes/exemplos/dialetos/visualg/variaveis.alg"
+                "./exemplos/dialetos/visualg/variaveis.alg"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
