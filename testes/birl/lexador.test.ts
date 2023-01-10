@@ -36,11 +36,11 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(9);
                 expect(resultado.erros).toHaveLength(0);
             });
-            it.skip('Sucesso - Variavel - Atribuição', () => {
+            it('Sucesso - Variavel - Atribuição', () => {
                 const resultado = delegua.lexador.mapear(
                     [
                         'HORA DO SHOW \n',
-                        '  MONSTRO M1 = 1; \n',
+                        '  MONSTRO? M1 = 1; \n',
                         '  M1 = M1 + 1',
                         '  CE QUER VER ESSA PORRA? (M1); \n',
                         '  BORA CUMPADE? 0; \n',
