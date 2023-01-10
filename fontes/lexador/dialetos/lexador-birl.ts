@@ -1,6 +1,6 @@
 import { RetornoLexador } from '../../interfaces/retornos';
-import { ErroLexador } from '../erro-lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
+import { ErroLexador } from '../erro-lexador';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { Simbolo } from '../simbolo';
 
@@ -94,6 +94,10 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 break;
             case 'NAO VAI DAR NAO':
                 this.adicionarSimbolo(tiposDeSimbolos.NAO_VAI_DAR_NAO);
+                this.avancar();
+                break;
+            case 'MONSTRO':
+                this.adicionarSimbolo(tiposDeSimbolos.NUMERO);
                 this.avancar();
                 break;
             default:
