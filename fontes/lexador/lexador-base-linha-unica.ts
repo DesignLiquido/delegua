@@ -10,6 +10,7 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
     atual: number;
     linha: number;
     erros: ErroLexador[];
+    hashArquivo: number;
 
     constructor() {
         this.simbolos = [];
@@ -82,7 +83,7 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface {
 
     adicionarSimbolo(tipo: any, literal?: any): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1));
+        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     simboloAtual(): string {
