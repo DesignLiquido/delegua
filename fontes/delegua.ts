@@ -202,7 +202,7 @@ export class Delegua implements DeleguaInterface {
         interfaceLeitura.prompt();
         interfaceLeitura.on('line', async (linha: string) => {
             const { resultado } = await isto.executarUmaLinha(linha);
-            if (resultado.length) {
+            if (resultado && resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
 

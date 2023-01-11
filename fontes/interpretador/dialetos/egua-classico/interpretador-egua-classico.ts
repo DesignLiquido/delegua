@@ -3,8 +3,6 @@ import * as sistemaArquivos from 'fs';
 
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { Delegua } from '../../../delegua';
-import carregarBibliotecaGlobal from '../../../bibliotecas/biblioteca-global';
-import carregarModulo from '../../../bibliotecas/importar-biblioteca';
 
 import { Chamavel } from '../../../estruturas/chamavel';
 import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
@@ -60,6 +58,9 @@ import {
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
+
+import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classico/biblioteca-global';
+import { carregarModuloPorNome } from '../../../bibliotecas/dialetos/egua-classico';
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
 
 /**
@@ -100,11 +101,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
@@ -632,7 +633,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         // const nomeArquivo = caminho.basename(caminhoTotal);
 
-        let dados: any = carregarModulo(caminhoRelativo);
+        let dados: any = carregarModuloPorNome(caminhoRelativo);
         if (dados) return dados;
 
         try {
