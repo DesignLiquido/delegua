@@ -767,23 +767,24 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao O objeto da declaração.
      */
     async visitarExpressaoTente(declaracao: Tente): Promise<any> {
+        let valorRetorno: any;
         try {
             let sucesso = true;
             try {
-                await this.executarBloco(declaracao.caminhoTente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    const literalErro = new Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
-                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, [literalErro]);
-                    await chamadaPegue.aceitar(this);
+                    valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
                 }
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                await this.executarBloco(declaracao.caminhoFinalmente);
+            valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
         }
+
+        return valorRetorno;
     }
 
     async visitarExpressaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -874,7 +875,12 @@ export class Interpretador implements InterpretadorInterface {
             process.stdout.write(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push(erro);
+            this.erros.push({ 
+                erroInterno: erro, 
+                linha: declaracao.linha, 
+                hashArquivo: 
+                declaracao.hashArquivo 
+            });
         }
     }
 

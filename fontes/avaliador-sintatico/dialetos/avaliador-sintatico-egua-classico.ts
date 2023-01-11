@@ -664,12 +664,6 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         const simboloFechamento = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
 
-        // tive que fazer isso para poder tipar a func expressão
-        // não sei isso e certo provavelmente não.
-        // o parametro valor no tipo literal esta como any
-        // ele esta dificultando a refatoração
-        // alguma ideia de qual tipo ele pode ser ?
-        caminho.valor = null;
         return new Importar(caminho as Literal, simboloFechamento);
     }
 
