@@ -42,7 +42,7 @@ describe('Avaliador sintático', () => {
 
         it('Sucesso - Undefined', () => {
             const retornoAvaliadorSintatico =
-                delegua.avaliadorSintatico.analisar(undefined);
+                delegua.avaliadorSintatico.analisar(undefined as any);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
@@ -50,7 +50,7 @@ describe('Avaliador sintático', () => {
 
         it('Sucesso - Null', () => {
             const retornoAvaliadorSintatico =
-                delegua.avaliadorSintatico.analisar(null);
+                delegua.avaliadorSintatico.analisar(null as any);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
