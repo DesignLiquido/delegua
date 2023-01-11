@@ -524,6 +524,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Égua Clássico > Funções > Retorna sem valor",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./exemplos/dialetos/egua-classico/funcoes/retorna-sem-valor.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Égua Clássico > Perceptron",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -559,7 +575,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "egua",
-                "./exemplos/dialetos/egua-classico/testes.egua"
+                "./exemplos/testes.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
