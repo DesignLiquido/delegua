@@ -3,7 +3,7 @@ import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
-import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
+import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
 import { ErroEmTempoDeExecucao } from '../excecoes';
@@ -112,7 +112,7 @@ export class Interpretador implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
-        carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+        carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
 
     /**

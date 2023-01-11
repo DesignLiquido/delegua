@@ -1,6 +1,6 @@
 import * as processoFilho from 'child_process';
 import * as caminho from 'path';
-import fs from 'fs'
+import * as sistemaArquivos from 'fs'
 
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
@@ -82,7 +82,7 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
     return novoModulo;
 };
 
-const importarPacoteCaminhoBase = async (caminhoRelativo) => {
+const importarPacoteCaminhoBase = async (caminhoRelativo: string) => {
     let resultado = null;
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
@@ -90,7 +90,7 @@ const importarPacoteCaminhoBase = async (caminhoRelativo) => {
     const caminhoAbsoluto = caminho.join(
         (global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\package.json`;
 
-    let arquivoInicio = JSON.parse(fs.readFileSync(caminhoAbsoluto, 'utf-8')).main || 'index.js';
+    let arquivoInicio = JSON.parse(sistemaArquivos.readFileSync(caminhoAbsoluto, 'utf-8')).main || 'index.js';
 
     await import(caminho.join(
         'file:///' +(global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\${arquivoInicio.replace('./', '')}`).then(resposta => {
@@ -108,7 +108,7 @@ const importarPacoteExternoCompleto = async (nome: string) => {
     return await importarPacoteCaminhoBase(nome);
 };
 
-const verificaModulosDelegua = (nome: string): string | boolean => {
+const verificarModulosDelegua = (nome: string): string | boolean => {
     const modulos = {
         estatistica: '@designliquido/delegua-estatistica',
         estatística: '@designliquido/delegua-estatistica',
@@ -129,7 +129,7 @@ const verificaModulosDelegua = (nome: string): string | boolean => {
 
 export default async function (nome: string) {
     const nomeBibliotecaResolvido: string | boolean =
-        verificaModulosDelegua(nome);
+        verificarModulosDelegua(nome);
     return nomeBibliotecaResolvido
         ? carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
         : await carregarBiblioteca(nome, nome);
