@@ -373,9 +373,16 @@ export class TradutorJavaScript implements TradutorInterface {
         if (declaracaoTente.caminhoPegue !== null) {
             resultado += '\ncatch {\n';
             resultado += ' '.repeat(this.indentacao);
-            for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
+            if (Array.isArray(declaracaoTente.caminhoPegue)) {
+                for (let declaracao of declaracaoTente.caminhoPegue) {
+                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                }
+            } else {
+                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
+                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
+                }
             }
+            
             resultado += ' '.repeat(this.indentacao);
             resultado += '}';
         }

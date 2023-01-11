@@ -776,12 +776,22 @@ export class Interpretador implements InterpretadorInterface {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
+                    // `caminhoPegue` aqui pode ser um construto de função (se `pegue` tem parâmetros)
+                    // ou um vetor de `Declaracao` (`pegue` sem parâmetros).
+                    // As execuções, portanto, são diferentes.
+                    if (Array.isArray(declaracao.caminhoPegue)) {
+                        valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
+                    } else {
+                        const literalErro = new Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
+                        const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, [literalErro]);
+                        valorRetorno = await chamadaPegue.aceitar(this);
+                    }
+                    
                 }
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-            valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
         }
 
         return valorRetorno;

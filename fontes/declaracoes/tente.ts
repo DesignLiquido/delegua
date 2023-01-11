@@ -7,7 +7,7 @@ import { Declaracao } from './declaracao';
  */
 export class Tente extends Declaracao {
     caminhoTente: any[];
-    caminhoPegue: any[];
+    caminhoPegue: FuncaoConstruto | Declaracao[];
     caminhoSenao: any[];
     caminhoFinalmente: any[];
 
@@ -15,7 +15,7 @@ export class Tente extends Declaracao {
         hashArquivo: number,
         linha: number,
         caminhoTente: any[],
-        caminhoPegue: any[],
+        caminhoPegue: FuncaoConstruto | Declaracao[],
         caminhoSenao: any[],
         caminhoFinalmente: any[]
     ) {

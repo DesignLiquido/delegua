@@ -601,7 +601,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
+                    valorRetorno = await this.executarBloco(declaracao.caminhoPegue as Declaracao[]);
                 } else {
                     this.erros.push(erro);
                 }
