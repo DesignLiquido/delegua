@@ -166,7 +166,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         esquerda: VariavelInterface | any,
         direita: VariavelInterface | any
     ): boolean {
-        if (esquerda.tipo) {
+        if (esquerda && esquerda.tipo) {
             if (
                 esquerda.tipo === 'nulo' &&
                 direita.tipo &&
@@ -214,16 +214,16 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             const direita: VariavelInterface | any = await this.avaliar(
                 expressao.direita
             );
-            const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+            const valorEsquerdo: any = esquerda && esquerda.hasOwnProperty('valor')
                 ? esquerda.valor
                 : esquerda;
-            const valorDireito: any = direita.hasOwnProperty('valor')
+            const valorDireito: any = direita && direita.hasOwnProperty('valor')
                 ? direita.valor
                 : direita;
-            const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+            const tipoEsquerdo: string = esquerda && esquerda.hasOwnProperty('tipo')
                 ? esquerda.tipo
                 : inferirTipoVariavel(esquerda);
-            const tipoDireito: string = direita.hasOwnProperty('tipo')
+            const tipoDireito: string = direita && direita.hasOwnProperty('tipo')
                 ? direita.tipo
                 : inferirTipoVariavel(direita);
 
@@ -592,28 +592,30 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoTente(declaracao: Tente): Promise<any> {
+        let valorRetorno: any;
         try {
             let sucesso = true;
             try {
-                await this.executarBloco(declaracao.caminhoTente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, []);
-                    await chamadaPegue.aceitar(this);
+                    valorRetorno = await this.executarBloco(declaracao.caminhoPegue as Declaracao[]);
                 } else {
                     this.erros.push(erro);
                 }
             }
 
             if (sucesso && declaracao.caminhoSenao !== null) {
-                await this.executarBloco(declaracao.caminhoSenao);
+                valorRetorno = await this.executarBloco(declaracao.caminhoSenao);
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                await this.executarBloco(declaracao.caminhoFinalmente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
         }
+
+        return valorRetorno;
     }
 
     async visitarExpressaoEnquanto(declaracao: Enquanto) {
@@ -685,7 +687,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             console.log(this.paraTexto(valor));
             return null;
         } catch (erro: any) {
-            this.erros.push(erro);
+            this.erros.push({ 
+                erroInterno: erro, 
+                linha: declaracao.linha, 
+                hashArquivo: 
+                declaracao.hashArquivo 
+            });
         }
     }
 
@@ -730,7 +737,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
-            valorOuOutraVariavel.hasOwnProperty('valor')
+            valorOuOutraVariavel && valorOuOutraVariavel.hasOwnProperty('valor')
                 ? valorOuOutraVariavel.valor
                 : valorOuOutraVariavel
         );
@@ -1081,7 +1088,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             return retornoExecucao;
         } catch (erro: any) {
-            return erro;
+            return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }

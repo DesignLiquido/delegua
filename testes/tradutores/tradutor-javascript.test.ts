@@ -211,13 +211,13 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
                     'tente { ',
-                    '1 > "2";',
-                    'escreva("sucesso");',
+                    '   1 > "2";',
+                    '   escreva("sucesso");',
                     '}',
                     'pegue {',
-                    'escreva("Ocorreu uma exceção.");',
+                    '   escreva("Ocorreu uma exceção.");',
                     '} finalmente {',
-                    'escreva("Ocorrendo exceção ou não, eu sempre executo");',
+                    '   escreva("Ocorrendo exceção ou não, eu sempre executo");',
                     '}',
                 ],
                 -1

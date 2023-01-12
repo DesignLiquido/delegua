@@ -375,7 +375,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "interpretador.test.ts",
+                "tradutor-javascript.test.ts",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
@@ -533,6 +533,22 @@
                 "--dialeto",
                 "egua",
                 "./exemplos/dialetos/egua-classico/funcoes/retorna-sem-valor.egua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Égua Clássico > Biblioteca Matemática > Gerar pontos da abscissa",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./exemplos/dialetos/egua-classico/bibliotecas/matematica/gerar-pontos-abscissa.egua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

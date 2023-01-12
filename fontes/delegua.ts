@@ -35,6 +35,7 @@ import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
 import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
 import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
+import { ErroInterpretador } from './interpretador';
 
 /**
  * O núcleo da linguagem.
@@ -385,9 +386,9 @@ export class Delegua implements DeleguaInterface {
                 if (erroInterpretador.simbolo) {
                     this.erroEmTempoDeExecucao(erroInterpretador);
                 } else {
-                    const erroEmJavaScript: any = erroInterpretador as any;
-                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
-                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
+                    const erroEmJavaScript: any = erroInterpretador as ErroInterpretador;
+                    console.error(chalk.red(`[Linha: ${erroEmJavaScript.linha}] Erro em JavaScript: `) + `${erroEmJavaScript.erroInterno?.message}`);
+                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.erroInterno?.stack}`);
                 }
             }
         }

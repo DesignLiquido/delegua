@@ -1,4 +1,4 @@
-import { DeleguaFuncao, DeleguaModulo } from "../../../estruturas";
+import { DeleguaModulo, FuncaoPadrao } from "../../../estruturas";
 
 const carregarModulo = function (nomeModulo: string, caminhoModulo: string) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -10,7 +10,7 @@ const carregarModulo = function (nomeModulo: string, caminhoModulo: string) {
         let itemAtual = dadosDoModulo[keys[i]];
 
         if (typeof itemAtual === "function") {
-            novoModulo[keys[i]] = new DeleguaFuncao(
+            novoModulo[keys[i]] = new FuncaoPadrao(
                 itemAtual.length,
                 itemAtual
             );
