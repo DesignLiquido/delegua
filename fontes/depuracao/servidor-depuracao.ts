@@ -74,7 +74,7 @@ export class ServidorDepuracao {
 
         this.interpretador.comandoAdentrarEscopo = true;
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.interpretacaoApenasUmaInstrucao();
+        await this.interpretador.interpretarApenasUmaInstrucao();
 
         conexao.write(linhasResposta);
     };
@@ -197,7 +197,7 @@ export class ServidorDepuracao {
         linhasResposta += '--- proximo-resposta ---\n';
         this.interpretador.comandoProximo = true;
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.interpretacaoApenasUmaInstrucao();
+        await this.interpretador.interpretarApenasUmaInstrucao();
         this.interpretador.comandoProximo = false;
         conexao.write(linhasResposta);
     };
