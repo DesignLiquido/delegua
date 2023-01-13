@@ -174,9 +174,8 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts", 
-                "--depurador",
-                // "./exemplos/classes/heranca.delegua"
-                "D:\\Delegua\\vscode\\exemplos\\classes\\heranca.delegua"
+                // "--depurador",
+                "./exemplos/classes/heranca.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -201,9 +200,8 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts", 
-                "--depurador",
-                // "./exemplos/estruturas-de-dados/inteiros.delegua"
-                "D:\\Delegua\\vscode\\exemplos\\estruturas-de-dados\\inteiros.delegua"
+                // "--depurador",
+                "./exemplos/estruturas-de-dados/inteiros.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
@@ -451,9 +449,8 @@
             "console": "integratedTerminal",
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--depurador",
-                // "./exemplos/index.delegua"
-                "D:\\Delegua\\vscode\\exemplos\\index.delegua"
+                // "--depurador",
+                "./exemplos/index.delegua"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
