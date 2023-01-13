@@ -243,18 +243,14 @@ export class ServidorDepuracao {
             this.interpretador.pilhaEscoposExecucao.obterTodasVariaveis([]);
 
         linhasResposta += '--- variaveis-resposta ---\n';
-        for (const grupoVariavel of todasVariaveis) {
-            for (const [nomeVariavel, valor] of Object.entries(grupoVariavel)) {
-                if (valor) {
-                    linhasResposta +=
-                        nomeVariavel +
-                        ' :: ' +
-                        Object.getPrototypeOf(valor).constructor.name +
-                        ' :: ' +
-                        valor +
-                        '\n';
-                }
-            }
+        for (const variavel of todasVariaveis) {
+            linhasResposta +=
+                variavel.nome +
+                ' :: ' +
+                variavel.tipo +
+                ' :: ' +
+                variavel.valor +
+                '\n';
         }
 
         linhasResposta += '--- fim-variaveis-resposta ---\n';

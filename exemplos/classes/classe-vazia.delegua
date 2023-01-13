@@ -1,0 +1,6 @@
+classe Vazia {
+
+}
+
+var va = Vazia()
+escreva(va)
