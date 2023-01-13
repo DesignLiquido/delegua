@@ -6,20 +6,8 @@ import { Simbolo } from '../simbolo';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
-        // Todo: @ItaloCobains - Verificar se o tipo é um número e se o próximo caractere é um espaço
-        if (tipo === tiposDeSimbolos.NUMERO) {
-            this.avancar();
-            if (this.simboloAtual() === ' ') {
-                this.avancar()
-            } 
-
-            while (this.simboloAtual() !== ' ') {
-                this.avancar()
-            }
-
-            const atual = this.simboloAtual()
-            const anterior = this.simboloAnterior()
-            const proximo = this.proximoSimbolo()
+        if(tipo === tiposDeSimbolos.NUMERO) { 
+            
         }
 
         this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, -1));

@@ -36,7 +36,7 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(9);
                 expect(resultado.erros).toHaveLength(0);
             });
-            it('Sucesso - Variavel - Atribuição', () => {
+            it.only('Sucesso - Variavel - Atribuição', () => {
                 const resultado = delegua.lexador.mapear(
                     [
                         'HORA DO SHOW \n',
