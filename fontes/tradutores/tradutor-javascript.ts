@@ -39,6 +39,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  */
 export class TradutorJavaScript implements TradutorInterface {
     indentacao: number = 0;
+    declaracoesDeClasses: Classe[];
 
     traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
@@ -119,7 +120,17 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
 
-        resultado += `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}(`;
+        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
+
+        const instanciaClasse = this.declaracoesDeClasses.some(declaracao => declaracao?.simbolo?.lexema === retorno);
+        if (instanciaClasse) {
+            const classe = this.declaracoesDeClasses.find(declaracao => declaracao?.simbolo?.lexema === retorno);
+            if (classe.simbolo.lexema === retorno)
+                resultado += `new ${retorno}`
+        } else {
+            resultado += retorno
+        }
+        resultado += '(';
         for (let parametro of chamada.argumentos) {
             resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
         }
@@ -471,6 +482,8 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
+
+        this.declaracoesDeClasses = declaracoes.filter(declaracao => declaracao instanceof Classe) as Classe[];
 
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
