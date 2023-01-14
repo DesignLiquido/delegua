@@ -25,4 +25,6 @@ export default {
 
     TEXTO: 'TEXTO',
     NUMERO: 'NUMERO',
+    MONSTRO: 'MONSTRO',
+    IDENTIFICADOR: 'IDENTIFICADOR',
 };

@@ -6,10 +6,6 @@ import { Simbolo } from '../simbolo';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
-        if(tipo === tiposDeSimbolos.NUMERO) { 
-            
-        }
-
         this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, -1));
     }
 
@@ -60,14 +56,15 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
     }
 
     identificarPalavraChave(): void {
-        while (this.simboloAtual() !== '\n' && this.simboloAtual() !== '?') {
+        while (
+            this.simboloAtual() !== '\n' &&
+            this.simboloAtual() !== '?'
+        ) {
             this.avancar();
         }
 
-        const proximo = this.simboloAtual();
 
-        const valor =
-            proximo !== '?'
+        const valor = this.simboloAtual() !== '?'
                 ? this.codigo.substring(this.inicioSimbolo, this.atual - 1).trim()
                 : this.codigo.substring(this.inicioSimbolo, this.atual + 1).trim();
 
@@ -101,7 +98,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case 'MONSTRO?':
-                this.adicionarSimbolo(tiposDeSimbolos.NUMERO);
+                this.adicionarSimbolo(tiposDeSimbolos.MONSTRO);
                 this.avancar();
                 break;
             default:
