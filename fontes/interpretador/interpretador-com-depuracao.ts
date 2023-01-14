@@ -111,12 +111,6 @@ export class InterpretadorComDepuracao
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             this.escopoAtual++;
 
-            if (this.comandoProximo) {
-                // Quando o comando for 'próximo', não executa.
-                // Aguarda o usuário com a próxima instrução vinda do depurador.
-                return null;
-            }
-
             if (!this.comandoAdentrarEscopo) {
                 return await this.executarUltimoEscopo();
             }
@@ -272,6 +266,14 @@ export class InterpretadorComDepuracao
                 numeroEscopoAtual--;
             }
         }
+    }
+
+    /**
+     * Empilha um escopo se for possível.
+     * Se não for, apenas executa a instrução corrente.
+     */
+    async adentrarEscopo(): Promise<any> {
+        throw new Error('Method not implemented.');
     }
 
     /**

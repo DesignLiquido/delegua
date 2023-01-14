@@ -9,6 +9,7 @@ export interface InterpretadorComDepuracaoInterface
     pontoDeParadaAtivo: boolean;
     pontosParada: PontoParada[];
 
+    adentrarEscopo(): Promise<any>;
     interpretarApenasUmaInstrucao(): Promise<any>;
     continuarInterpretacao(): Promise<any>;
     proximoESair(): Promise<any>;
