@@ -8,7 +8,9 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     validarSegmentoHoraDoShow(): void {
-        this.consumir(tiposDeSimbolos.HORA_DO_SHOW, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
+        this.consumir(tiposDeSimbolos.HORA, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
+        this.consumir(tiposDeSimbolos.DO, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
+        this.consumir(tiposDeSimbolos.SHOW, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
         this.blocos += 1;
     }
 

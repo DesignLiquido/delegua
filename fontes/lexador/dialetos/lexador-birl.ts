@@ -1,8 +1,10 @@
 import { RetornoLexador } from '../../interfaces/retornos';
-import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { ErroLexador } from '../erro-lexador';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { Simbolo } from '../simbolo';
+
+import palavrasReservadas from './palavras-reservadas/birl';
+import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
@@ -56,13 +58,27 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
     }
 
     identificarPalavraChave(): void {
-        while (
+        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const codigo: string = this.codigo[this.linha].substring(
+            this.inicioSimbolo,
+            this.atual
+        );
+
+        const tipo: string =
+            codigo in palavrasReservadas
+                ? palavrasReservadas[codigo]
+                : tiposDeSimbolos.IDENTIFICADOR;
+
+        this.adicionarSimbolo(tipo);
+        /* while (
             this.simboloAtual() !== '\n' &&
             this.simboloAtual() !== '?'
         ) {
             this.avancar();
         }
-
 
         const valor = this.simboloAtual() !== '?'
                 ? this.codigo.substring(this.inicioSimbolo, this.atual - 1).trim()
@@ -104,7 +120,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             default:
                 this.avancar();
                 break;
-        }
+        } */
     }
 
     analisarToken(): void {
@@ -120,12 +136,17 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case '=':
-                const bool = this.proximoIgualA('=') ? true : false;
-                this.adicionarSimbolo(
-                    bool ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL,
-                    bool ? '==' : '=',
-                    null
-                );
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                }
+
+                break;
+            case '+':
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 this.avancar();
                 break;
             case "'":
@@ -142,13 +163,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case '\0':
-                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, '\0', null);
+            case '\n':                
+                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
                 this.avancar();
                 break;
             case ' ':
             case '\r':
             case '\t':
-            case '\n':
             case '':
                 this.avancar();
                 break;

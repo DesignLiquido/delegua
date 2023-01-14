@@ -13,14 +13,16 @@ describe('Lexador', () => {
                 const resultado = delegua.lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(1);
             });
+
             it('Programa vazio.', () => {
                 const resultado = delegua.lexador.mapear(['HORA DO SHOW \n', 'BIRL \n'], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(2);
+                expect(resultado.simbolos).toHaveLength(8);
             });
+
             it('Programa Olá mundo simples.', () => {
                 const resultado = delegua.lexador.mapear(
                     [
@@ -33,10 +35,11 @@ describe('Lexador', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(9);
+                expect(resultado.simbolos).toHaveLength(24);
                 expect(resultado.erros).toHaveLength(0);
             });
-            it.only('Sucesso - Variavel - Atribuição', () => {
+
+            it('Sucesso - Variavel - Atribuição', () => {
                 const resultado = delegua.lexador.mapear(
                     [
                         'HORA DO SHOW \n',
@@ -50,7 +53,7 @@ describe('Lexador', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(11);
+                expect(resultado.simbolos).toHaveLength(34);
                 expect(resultado.erros).toHaveLength(0);
             });
         });
