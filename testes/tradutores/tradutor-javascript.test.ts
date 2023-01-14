@@ -77,7 +77,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/corre\(\)/i);
             expect(resultado).toMatch(/console\.log\('correndo'\)/i);
             expect(resultado).toMatch(/class Cachorro extends Animal {/i);
-            // expect(resultado).toMatch(/let thor = new Cachorro\(\)/i);
+            expect(resultado).toMatch(/let thor = new Cachorro\(\)/i);
             expect(resultado).toMatch(/thor.corre\(\)/i);
         });
 
@@ -119,7 +119,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/this.valor = abc/i);
             expect(resultado).toMatch(/mostrarValor\(\) {/i);
             expect(resultado).toMatch(/console\.log\(this.valor\)/i);
-            // expect(resultado).toMatch(/let teste = new Teste\(100\)/i);
+            expect(resultado).toMatch(/let teste = new Teste\(100\)/i);
             expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
         });
 
