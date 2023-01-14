@@ -37,6 +37,20 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('declarando variável não inicializada', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var a;',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let a;/i);
+        });
+
         it('definindo funcao com variavel', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
