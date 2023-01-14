@@ -402,12 +402,12 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema;
         if(!declaracaoVar?.inicializador)
-            resultado += ';'
+            resultado += ';';
         else {
             resultado += ' = ';
             resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
                 declaracaoVar.inicializador
-            )
+            );
         }
         return resultado;
     }
