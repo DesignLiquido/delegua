@@ -617,5 +617,16 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/a === 1/i);
             expect(resultado).toMatch(/console\.log\(10\)/i);
         });
+
+        it('se -> if com operadores lógicos, código', () => {
+            const retornoLexador = delegua.lexador.mapear(['se (a == 1 ou a == 2) {', '    escreva(10)', '}'], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if/i);
+            expect(resultado).toMatch(/a === 1 || a === 2/i);
+            expect(resultado).toMatch(/console\.log\(10\)/i);
+        });
     });
 });
