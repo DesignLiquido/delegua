@@ -478,7 +478,8 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
-        this.declaracoesDeClasses = declaracoes.filter(declaracao => declaracao instanceof Classe) as Classe[]
+        this.declaracoesDeClasses = declaracoes.filter(declaracao => declaracao instanceof Classe) as Classe[];
+        
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         }
