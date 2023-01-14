@@ -308,8 +308,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
         resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
-            '; ';
+            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
         resultado +=
@@ -408,6 +407,7 @@ export class TradutorJavaScript implements TradutorInterface {
             resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
                 declaracaoVar.inicializador
             );
+            resultado += ";"
         }
         return resultado;
     }
