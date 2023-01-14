@@ -8,6 +8,7 @@ import {
     FuncaoConstruto,
     Isto,
     Literal,
+    Logico,
     Variavel,
 } from '../construtos';
 import {
@@ -49,6 +50,8 @@ export class TradutorJavaScript implements TradutorInterface {
                 return '!==';
             case tiposDeSimbolos.DIVISAO:
                 return '/';
+            case tiposDeSimbolos.E:
+                return '&&';
             case tiposDeSimbolos.EXPONENCIACAO:
                 return '**';
             case tiposDeSimbolos.IGUAL:
@@ -67,6 +70,8 @@ export class TradutorJavaScript implements TradutorInterface {
                 return '%';
             case tiposDeSimbolos.MULTIPLICACAO:
                 return '*';
+            case tiposDeSimbolos.OU:
+                return '||';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
         }
@@ -447,6 +452,14 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirConstrutoLogico(logico: Logico){
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita)
+        let operador = this.traduzirSimboloOperador(logico.operador)
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda)
+
+        return `${direita} ${operador} ${esquerda}`;
+    }
+
     dicionarioConstrutos = {
         AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
@@ -457,6 +470,7 @@ export class TradutorJavaScript implements TradutorInterface {
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        Logico: this.traduzirConstrutoLogico.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
 
