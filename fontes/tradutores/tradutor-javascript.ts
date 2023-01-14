@@ -123,9 +123,9 @@ export class TradutorJavaScript implements TradutorInterface {
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
 
         let instanciaClasse = this.declaracoesDeClasses.some(declaracao => declaracao?.simbolo?.lexema === retorno);
-        if(instanciaClasse){
+        if (instanciaClasse) {
             let classe = this.declaracoesDeClasses.find(declaracao => declaracao?.simbolo?.lexema === retorno);
-            if(classe.simbolo.lexema === retorno)
+            if (classe.simbolo.lexema === retorno)
                 resultado += `new ${retorno}`
         } else {
             resultado += retorno
@@ -479,7 +479,7 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = '';
 
         this.declaracoesDeClasses = declaracoes.filter(declaracao => declaracao instanceof Classe) as Classe[];
-        
+
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         }
