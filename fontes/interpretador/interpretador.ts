@@ -949,12 +949,7 @@ export class Interpretador implements InterpretadorInterface {
         return await this.executarBloco(declaracao.declaracoes);
     }
 
-    /**
-     * Executa expressão de definição de variável.
-     * @param declaracao A declaração Var
-     * @returns Sempre retorna nulo.
-     */
-    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+    protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
@@ -966,6 +961,17 @@ export class Interpretador implements InterpretadorInterface {
                 ? valorOuOutraVariavel.valor
                 : valorOuOutraVariavel
         }
+
+        return valorFinal;
+    }
+
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,

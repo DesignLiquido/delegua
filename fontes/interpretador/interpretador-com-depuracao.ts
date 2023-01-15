@@ -97,11 +97,6 @@ export class InterpretadorComDepuracao
         return await super.visitarExpressaoDeChamada(expressao);
     }
 
-    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
-        return await super.visitarDeclaracaoDeAtribuicao(expressao);
-    }
-
     visitarExpressaoDeVariavel(expressao: Variavel): any {
         this.precisaAdentrarBlocoEscopo = false;
         return super.visitarExpressaoDeVariavel(expressao);
@@ -162,9 +157,63 @@ export class InterpretadorComDepuracao
         return await super.visitarExpressaoBloco(declaracao);
     }
 
-    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+    /**
+     * A execução de uma atribuição de variável no interpretador com depuração pode ser em duas etapas.
+     * O desenvolvedor pode inspecionar o lado direito e ir parando a execução usando
+     * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
+     * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
+     * segunda para efetivamente atribuir o valor da variável.
+     * @param expressao 
+     * @returns 
+     */
+    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        if (this.valorRetornoEscopoAnterior !== undefined) {
+            const retornar = this.valorRetornoEscopoAnterior;
+            this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, retornar);
+            
+            this.valorRetornoEscopoAnterior = undefined;
+            return retornar;
+        }
+
         this.precisaAdentrarBlocoEscopo = false;
-        return await super.visitarDeclaracaoVar(declaracao);
+        const valor = await this.avaliar(expressao.valor);
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+
+        return valor;
+    }
+
+    /**
+     * A execução de `var` no interpretador com depuração pode ser em duas etapas.
+     * O desenvolvedor pode inspecionar o lado direito e ir parando a execução usando
+     * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
+     * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
+     * segunda para efetivamente atribuir o valor da variável.
+     * @param declaracao A declaração Var
+     * @returns O valor do resultado resolvido, se a declaração resolveu. 
+     * Nulo ou indefinido em caso contrário.
+     */
+    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        if (this.valorRetornoEscopoAnterior !== undefined) {
+            const retornar = this.valorRetornoEscopoAnterior;
+            this.pilhaEscoposExecucao.definirVariavel(
+                declaracao.simbolo.lexema,
+                retornar
+            );
+            
+            this.valorRetornoEscopoAnterior = undefined;
+            return retornar;
+        }
+
+        this.precisaAdentrarBlocoEscopo = false;
+        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+        if (valorFinal !== null && valorFinal !== undefined) {
+            this.pilhaEscoposExecucao.definirVariavel(
+                declaracao.simbolo.lexema,
+                valorFinal
+            );
+        }
+
+        return valorFinal;
     }
 
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
@@ -477,7 +526,9 @@ export class InterpretadorComDepuracao
             if (retornoExecucao instanceof Quebra) {
                 escopoVisitado.finalizado = true;
                 this.descartarEscoposFinalizadosPorFuncao();
-            } else {
+            // Se a execução não criou escopos, instrução executou completamente.
+            // Contador de declarações pode ser incrementado e escopos finalizados.
+            } else if (this.pilhaEscoposExecucao.pilha.length - 1 === escopo) {
                 escopoVisitado.declaracaoAtual++;
                 this.descartarEscoposFinalizados(escopo);
             }       
