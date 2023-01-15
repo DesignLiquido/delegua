@@ -37,6 +37,26 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('bit a bit', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'escreva(8 | 1)',
+                    'escreva(8 & 1)',
+                    'escreva(8 ^ 1)',
+                    'escreva(~2)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(8 | 1\)/i);
+            expect(resultado).toMatch(/console\.log\(8 & 1\)/i);
+            expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
+            expect(resultado).toMatch(/console\.log\(~2\)/i);
+        });
+
         it('vetor acesso indice -> array/index', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
