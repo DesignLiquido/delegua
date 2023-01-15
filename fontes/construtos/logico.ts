@@ -12,7 +12,7 @@ export class Logico implements Construto {
     constructor(
         hashArquivo: number,
         esquerda: any,
-        operador: any,
+        operador: SimboloInterface,
         direita: any
     ) {
         this.linha = esquerda.linha;

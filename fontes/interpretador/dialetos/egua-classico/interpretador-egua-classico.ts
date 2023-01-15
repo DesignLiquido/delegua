@@ -134,7 +134,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return true;
     }
 
-    verificarOperandoNumero(operador: any, operando: any): void {
+    verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
         if (typeof operando === 'number' || operando.tipo === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -184,7 +184,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     verificarOperandosNumeros(
-        operador: any,
+        operador: SimboloInterface,
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {

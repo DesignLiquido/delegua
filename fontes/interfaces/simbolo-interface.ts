@@ -2,6 +2,6 @@ export interface SimboloInterface {
     lexema: string;
     tipo: string;
     literal: string;
-    linha: string | number;
+    linha: number;
     hashArquivo: number;
 }

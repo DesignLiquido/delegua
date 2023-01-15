@@ -288,7 +288,7 @@ export class Interpretador implements InterpretadorInterface {
      * @returns Se ambos os operandos são números ou não.
      */
     verificarOperandosNumeros(
-        operador: any,
+        operador: SimboloInterface,
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
