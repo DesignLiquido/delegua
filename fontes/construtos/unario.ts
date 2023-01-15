@@ -1,14 +1,14 @@
-import { InterpretadorInterface } from '../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Unario implements Construto {
     linha: number;
     hashArquivo?: number;
 
-    operador: any;
+    operador: SimboloInterface;
     direita: any;
 
-    constructor(hashArquivo: number, operador: any, direita: any) {
+    constructor(hashArquivo: number, operador: SimboloInterface, direita: any) {
         this.linha = operador.linha;
         this.hashArquivo = hashArquivo;
 
