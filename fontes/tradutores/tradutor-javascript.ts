@@ -470,9 +470,7 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = '';
         
         resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '['
-
         resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) + ']'
-
         resultado += ' = '
 
         if(atribuicaoSobrescrita?.valor?.simbolo?.lexema){
@@ -499,7 +497,7 @@ export class TradutorJavaScript implements TradutorInterface {
         }
         
         let resultado = '[';
-        
+
         for(let valor of vetor.valores){
             resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `
         }
