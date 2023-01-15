@@ -536,9 +536,9 @@ export class TradutorJavaScript implements TradutorInterface {
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
-        Unario: this.traduzirConstrutoUnario.bind(this)
     };
 
     dicionarioDeclaracoes = {
