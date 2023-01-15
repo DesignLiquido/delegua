@@ -56,7 +56,7 @@ export class InterpretadorVisuAlg extends Interpretador {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);

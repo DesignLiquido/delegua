@@ -1,14 +1,16 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Declaracao } from '../declaracoes';
+import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Importar, Leia, Para, Retorna, Se, Tente, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import {
     ImportadorInterface,
     InterpretadorComDepuracaoInterface,
 } from '../interfaces';
-import { EscopoExecucao } from '../interfaces/escopo-execucao';
-import { Quebra } from '../quebras';
+import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Interpretador } from './interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
+import { AcessoIndiceVariavel, Agrupamento, Atribuir, Binario, FormatacaoEscrita, Literal, Logico, Unario, Variavel } from '../construtos';
+import { DeleguaFuncao } from '../estruturas';
 
 /**
  * Implementação do Interpretador com suporte a depuração.
@@ -40,6 +42,9 @@ export class InterpretadorComDepuracao
     escopoAtual: number;
     comandoAdentrarEscopo: boolean;
     comandoProximo: boolean;
+    precisaAdentrarBlocoEscopo: boolean;
+    valorRetornoEscopoAnterior: any;
+    proximoEscopo?: TipoEscopoExecucao;
 
     constructor(
         importador: ImportadorInterface,
@@ -53,6 +58,171 @@ export class InterpretadorComDepuracao
         this.escopoAtual = 0;
         this.comandoAdentrarEscopo = false;
         this.comandoProximo = false;
+        this.precisaAdentrarBlocoEscopo = false;
+    }
+
+    async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoLeia(expressao);
+    }
+
+    visitarExpressaoLiteral(expressao: Literal): any {
+        this.precisaAdentrarBlocoEscopo = false;
+        return super.visitarExpressaoLiteral(expressao);
+    }
+
+    async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoAgrupamento(expressao);
+    }
+
+    async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoUnaria(expressao);
+    }
+
+    async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoFormatacaoEscrita(declaracao);
+    }
+
+    async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoBinaria(expressao);
+    }
+
+    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        this.proximoEscopo = 'funcao';
+        return await super.visitarExpressaoDeChamada(expressao);
+    }
+
+    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarDeclaracaoDeAtribuicao(expressao);
+    }
+
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
+        this.precisaAdentrarBlocoEscopo = false;
+        return super.visitarExpressaoDeVariavel(expressao);
+    }
+
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarDeclaracaoDeExpressao(declaracao);
+    }
+
+    async visitarExpressaoLogica(expressao: Logico): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoLogica(expressao);
+    }
+
+    async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarDeclaracaoSe(declaracao);
+    }
+
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarDeclaracaoPara(declaracao);
+    }
+
+    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarDeclaracaoFazer(declaracao);
+    }
+
+    async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarDeclaracaoEscolha(declaracao);
+    }
+
+    async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarDeclaracaoTente(declaracao);
+    }
+
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarDeclaracaoEnquanto(declaracao);
+    }
+
+    async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarDeclaracaoImportar(declaracao);
+    }
+
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarDeclaracaoEscreva(declaracao);
+    }
+
+    async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = true;
+        return await super.visitarExpressaoBloco(declaracao);
+    }
+
+    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarDeclaracaoVar(declaracao);
+    }
+
+    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
+        this.precisaAdentrarBlocoEscopo = false;
+        return super.visitarExpressaoContinua(declaracao);
+    }
+
+    visitarExpressaoSustar(declaracao?: any): SustarQuebra {
+        this.precisaAdentrarBlocoEscopo = false;
+        return super.visitarExpressaoSustar(declaracao);
+    }
+
+    /**
+     * Ao executar um retorno, manter o valor retornado no Interpretador para
+     * uso por linhas que foram executadas com o comando `próximo` do depurador.
+     * @param declaracao Uma declaracao Retorna
+     * @returns O resultado da execução da visita.
+     */
+    async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+        this.precisaAdentrarBlocoEscopo = false;
+        const retorno = await super.visitarExpressaoRetornar(declaracao);
+        this.valorRetornoEscopoAnterior = retorno.valor;
+        return retorno;
+    }
+
+    visitarExpressaoDeleguaFuncao(declaracao: any): DeleguaFuncao {
+        this.precisaAdentrarBlocoEscopo = false;
+        return super.visitarExpressaoDeleguaFuncao(declaracao);
+    }
+
+    async visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoAtribuicaoSobrescrita(expressao);
+    }
+
+    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoAcessoIndiceVariavel(expressao);
+    }
+
+    async visitarExpressaoDefinirValor(expressao: any): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoDefinirValor(expressao);
+    }
+
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        this.precisaAdentrarBlocoEscopo = false;
+        return super.visitarDeclaracaoDefinicaoFuncao(declaracao);
+    }
+
+    async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarDeclaracaoClasse(declaracao);
+    }
+
+    async visitarExpressaoAcessoMetodo(expressao: any): Promise<any> {
+        this.precisaAdentrarBlocoEscopo = false;
+        return await super.visitarExpressaoAcessoMetodo(expressao);
     }
 
     /**
@@ -107,11 +277,14 @@ export class InterpretadorComDepuracao
                 declaracoes: declaracoes,
                 declaracaoAtual: 0,
                 ambiente: ambiente || new EspacoVariaveis(),
+                finalizado: false,
+                tipo: this.proximoEscopo || 'outro'
             };
             this.pilhaEscoposExecucao.empilhar(escopoExecucao);
             this.escopoAtual++;
+            this.proximoEscopo = undefined;
 
-            if (!this.comandoAdentrarEscopo) {
+            if (!this.precisaAdentrarBlocoEscopo) {
                 return await this.executarUltimoEscopo();
             }
         }
@@ -247,24 +420,32 @@ export class InterpretadorComDepuracao
         }
     }
 
-    private descartarEscoposFinalizados(numeroEscopo: number, escopoVisitado: EscopoExecucao) {
+    private descartarEscoposFinalizadosPorFuncao() {
+        let escopo: EscopoExecucao;
+        do {
+            escopo = this.pilhaEscoposExecucao.topoDaPilha();
+            this.pilhaEscoposExecucao.removerUltimo();
+            this.escopoAtual--;
+        }
+        while (escopo.tipo !== 'funcao');
+    }
+
+    private descartarEscoposFinalizados(numeroEscopo: number) {
         // Se última instrução do escopo atual foi executada, e
         // escopos adicionais não foram criados com a última execução,
         // descartar este e todos os escopos abaixo deste que também estejam na última instrução.
-        if (
-            escopoVisitado.declaracoes.length ==
-            escopoVisitado.declaracaoAtual &&
-            numeroEscopo == this.pilhaEscoposExecucao.pilha.length - 1
-        ) {
-            let numeroEscopoAtual = numeroEscopo;
-            while (numeroEscopoAtual > 0) {
-                const escopo = this.pilhaEscoposExecucao.pilha[numeroEscopoAtual];
-                if (escopo.declaracoes.length == escopo.declaracaoAtual) {
-                    this.pilhaEscoposExecucao.removerUltimo();
-                    this.escopoAtual--;
-                }
-                numeroEscopoAtual--;
+        if (numeroEscopo !== this.pilhaEscoposExecucao.pilha.length - 1) {
+            return;
+        }
+            
+        let numeroEscopoAtual = numeroEscopo;
+        while (numeroEscopoAtual > 0) {
+            const escopo = this.pilhaEscoposExecucao.pilha[numeroEscopoAtual];
+            if (escopo.declaracoes.length == escopo.declaracaoAtual || escopo.finalizado) {
+                this.pilhaEscoposExecucao.removerUltimo();
+                this.escopoAtual--;
             }
+            numeroEscopoAtual--;
         }
     }
 
@@ -290,19 +471,16 @@ export class InterpretadorComDepuracao
         } else {
             const declaracaoAtual =
                 escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
-            await this.executar(declaracaoAtual);
+            const retornoExecucao = await this.executar(declaracaoAtual);
 
-            if (this.comandoAdentrarEscopo) {
-                // Depurador comandou instrução 'adentrar-escopo', ou bloco de escopo
-                // não é de uma função.
-                // Instrução só foi realmente executada se não abriu novo bloco de escopo.
-                // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
-                this.comandoAdentrarEscopo = false;
+            // Se o retorno da execução é uma instância de Quebra, o escopo corrente finalizou.
+            if (retornoExecucao instanceof Quebra) {
+                escopoVisitado.finalizado = true;
+                this.descartarEscoposFinalizadosPorFuncao();
             } else {
                 escopoVisitado.declaracaoAtual++;
-            }
-
-            this.descartarEscoposFinalizados(escopo, escopoVisitado);
+                this.descartarEscoposFinalizados(escopo);
+            }       
         }
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {
@@ -365,6 +543,8 @@ export class InterpretadorComDepuracao
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro'
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
@@ -389,6 +569,8 @@ export class InterpretadorComDepuracao
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro'
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;

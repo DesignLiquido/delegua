@@ -44,12 +44,15 @@ import {
 } from '../estruturas';
 import {
     AcessoIndiceVariavel,
+    Agrupamento,
     Atribuir,
     Chamada,
     Construto,
     FormatacaoEscrita,
     Literal,
+    Logico,
     Super,
+    Unario,
     Variavel,
 } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
@@ -109,6 +112,8 @@ export class Interpretador implements InterpretadorInterface {
             declaracoes: [],
             declaracaoAtual: 0,
             ambiente: new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro'
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -136,7 +141,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-    retirarInterpolacao(texto: string, variaveis: any[]): string {
+    private retirarInterpolacao(texto: string, variaveis: any[]): string {
         const valoresVariaveis = variaveis.map((v) => ({
             valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(
                 v.variavel
@@ -165,7 +170,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
      * @returns Uma lista de variáveis interpoladas.
      */
-    buscarVariaveisInterpolacao(textoOriginal: string): any[] {
+    private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
         return variaveis.map((s) => {
@@ -199,11 +204,11 @@ export class Interpretador implements InterpretadorInterface {
         return await expressao.aceitar(this);
     }
 
-    async visitarExpressaoAgrupamento(expressao: any): Promise<any> {
+    async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
         return await this.avaliar(expressao.expressao);
     }
 
-    eVerdadeiro(objeto: any): boolean {
+    protected eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
         if (objeto.hasOwnProperty('valor')) {
@@ -213,7 +218,7 @@ export class Interpretador implements InterpretadorInterface {
         return true;
     }
 
-    verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
+    protected verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
         if (typeof operando === 'number' || operando.tipo === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -222,7 +227,7 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoUnaria(expressao: any): Promise<any> {
+    async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
         const direita = await this.avaliar(expressao.direita);
         const valor: any = direita.hasOwnProperty('valor') ?
             direita.valor :
@@ -270,7 +275,7 @@ export class Interpretador implements InterpretadorInterface {
         return resultado;
     }
 
-    eIgual(
+    protected eIgual(
         esquerda: VariavelInterface | any,
         direita: VariavelInterface | any
     ): boolean {
@@ -287,7 +292,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param esquerda O operando esquerdo.
      * @returns Se ambos os operandos são números ou não.
      */
-    verificarOperandosNumeros(
+    protected verificarOperandosNumeros(
         operador: any,
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
@@ -605,14 +610,14 @@ export class Interpretador implements InterpretadorInterface {
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
-    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
     }
 
-    procurarVariavel(simbolo: SimboloInterface): any {
+    protected procurarVariavel(simbolo: SimboloInterface): any {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     }
 
@@ -624,7 +629,7 @@ export class Interpretador implements InterpretadorInterface {
         return await this.avaliar(declaracao.expressao);
     }
 
-    async visitarExpressaoLogica(expressao: any): Promise<any> {
+    async visitarExpressaoLogica(expressao: Logico): Promise<any> {
         const esquerda = await this.avaliar(expressao.esquerda);
 
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
@@ -662,7 +667,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração Se.
      * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
      */
-    async visitarExpressaoSe(declaracao: Se): Promise<any> {
+    async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
         if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             return await this.executar(declaracao.caminhoEntao);
         }
@@ -682,7 +687,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    async visitarExpressaoPara(declaracao: Para): Promise<any> {
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
             await this.avaliar(declaracao.inicializador);
         }
@@ -712,7 +717,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    async visitarExpressaoFazer(declaracao: Fazer): Promise<any> {
+    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
         let retornoExecucao: any;
         do {
             try {
@@ -729,7 +734,7 @@ export class Interpretador implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoEscolha(declaracao: Escolha): Promise<any> {
+    async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
@@ -766,7 +771,7 @@ export class Interpretador implements InterpretadorInterface {
      * Interpretação de uma declaração `tente`.
      * @param declaracao O objeto da declaração.
      */
-    async visitarExpressaoTente(declaracao: Tente): Promise<any> {
+    async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
         let valorRetorno: any;
         try {
             let sucesso = true;
@@ -797,7 +802,7 @@ export class Interpretador implements InterpretadorInterface {
         return valorRetorno;
     }
 
-    async visitarExpressaoEnquanto(declaracao: Enquanto): Promise<any> {
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: any;
         while (
             !(retornoExecucao instanceof Quebra) &&
@@ -816,7 +821,7 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    async visitarExpressaoImportar(declaracao: Importar): Promise<any> {
+    async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
         const caminhoRelativo = await this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
@@ -900,13 +905,18 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push(erro);
+            this.erros.push({ 
+                erroInterno: erro, 
+                linha: declaracao.linha, 
+                hashArquivo: 
+                declaracao.hashArquivo 
+            });
         }
     }
 
@@ -924,6 +934,8 @@ export class Interpretador implements InterpretadorInterface {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: ambiente || new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro'
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -942,7 +954,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração Var
      * @returns Sempre retorna nulo.
      */
-    async visitarExpressaoVar(declaracao: Var): Promise<any> {
+    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
@@ -978,8 +990,8 @@ export class Interpretador implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any): DeleguaFuncao {
-        return new DeleguaFuncao(null, expressao);
+    visitarExpressaoDeleguaFuncao(declaracao: any): DeleguaFuncao {
+        return new DeleguaFuncao(null, declaracao);
     }
 
     async visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
@@ -1124,7 +1136,7 @@ export class Interpretador implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoFuncao(declaracao: FuncaoDeclaracao) {
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(
             declaracao.simbolo.lexema,
             declaracao.funcao
@@ -1140,7 +1152,7 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao A declaração de classe.
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
-    async visitarExpressaoClasse(declaracao: Classe): Promise<any> {
+    async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
             const variavelSuperClasse: VariavelInterface = await this.avaliar(
@@ -1406,6 +1418,8 @@ export class Interpretador implements InterpretadorInterface {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro'
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
