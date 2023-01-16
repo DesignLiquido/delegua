@@ -11,6 +11,7 @@ import {
     Isto,
     Literal,
     Logico,
+    Unario,
     Variavel,
     Vetor,
 } from '../construtos';
@@ -49,6 +50,14 @@ export class TradutorJavaScript implements TradutorInterface {
         switch (operador.tipo) {
             case tiposDeSimbolos.ADICAO:
                 return '+';
+            case tiposDeSimbolos.BIT_AND:
+                return '&';
+            case tiposDeSimbolos.BIT_OR:
+                return '|';
+            case tiposDeSimbolos.BIT_XOR:
+                return '^';
+            case tiposDeSimbolos.BIT_NOT:
+                return '~';
             case tiposDeSimbolos.DIFERENTE:
                 return '!==';
             case tiposDeSimbolos.DIVISAO:
@@ -510,6 +519,10 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirConstrutoUnario(unario: Unario): string {
+        return this.traduzirSimboloOperador(unario.operador) + unario.direita.valor;
+    }
+
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
@@ -523,8 +536,9 @@ export class TradutorJavaScript implements TradutorInterface {
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
-        Vetor: this.traduzirConstrutoVetor.bind(this)
+        Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes = {
