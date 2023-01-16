@@ -6,6 +6,9 @@ import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
 
+/**
+ * Qualquer função declarada em código é uma DeleguaFuncao.
+ */
 export class DeleguaFuncao extends Chamavel {
     nome: string;
     declaracao: FuncaoConstruto;
