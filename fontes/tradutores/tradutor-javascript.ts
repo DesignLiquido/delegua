@@ -520,7 +520,10 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirConstrutoUnario(unario: Unario): string {
-        return this.traduzirSimboloOperador(unario.operador) + unario.direita.valor;
+        let resultado = '';
+        resultado += this.traduzirSimboloOperador(unario.operador);
+        resultado += unario.direita.valor ?? unario.direita.simbolo.lexema;
+        return resultado;
     }
 
     dicionarioConstrutos = {
