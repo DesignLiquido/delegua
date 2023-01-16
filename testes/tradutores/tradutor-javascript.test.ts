@@ -44,6 +44,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
                     'escreva(8 & 1)',
                     'escreva(8 ^ 1)',
                     'escreva(~2)',
+                    'var a = 3',
+                    'var c = -a + 3'
                 ],
                 -1
             );
@@ -55,6 +57,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(8 & 1\)/i);
             expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
             expect(resultado).toMatch(/console\.log\(~2\)/i);
+            expect(resultado).toMatch(/let a = 3/i);
+            expect(resultado).toMatch(/let c = -a \+ 3/i);
         });
 
         it('vetor acesso indice -> array/index', () => {
