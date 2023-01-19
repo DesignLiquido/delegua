@@ -21,7 +21,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha.length === 0;
     }
 
-    elementos() {
+    elementos(): number {
         return this.pilha.length;
     }
 
@@ -29,12 +29,12 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha[posicao];
     }
 
-    topoDaPilha() {
+    topoDaPilha(): EscopoExecucao {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha[this.pilha.length - 1];
     }
 
-    removerUltimo() {
+    removerUltimo(): EscopoExecucao {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
     }
