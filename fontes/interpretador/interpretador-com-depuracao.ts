@@ -2,6 +2,7 @@ import { EspacoVariaveis } from '../espaco-variaveis';
 import { Bloco, Classe, Continua, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, FuncaoDeclaracao, Importar, Leia, Para, Retorna, Se, Tente, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import {
+    ComandoDepurador,
     ImportadorInterface,
     InterpretadorComDepuracaoInterface,
 } from '../interfaces';
@@ -9,7 +10,7 @@ import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execuca
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Interpretador } from './interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { AcessoIndiceVariavel, Agrupamento, Atribuir, Binario, FormatacaoEscrita, Literal, Logico, Unario, Variavel } from '../construtos';
+import { AcessoIndiceVariavel, Agrupamento, Atribuir, Binario, Chamada, FormatacaoEscrita, Literal, Logico, Unario, Variavel } from '../construtos';
 import { DeleguaFuncao } from '../estruturas';
 
 /**
@@ -40,11 +41,12 @@ export class InterpretadorComDepuracao
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
     escopoAtual: number;
-    comandoAdentrarEscopo: boolean;
-    comandoProximo: boolean;
-    precisaAdentrarBlocoEscopo: boolean;
-    valorRetornoEscopoAnterior: any;
+    comando?: ComandoDepurador;
+
+    executandoChamada: boolean;
     proximoEscopo?: TipoEscopoExecucao;
+    idChamadaAtual?: string;
+    passos: number;
 
     constructor(
         importador: ImportadorInterface,
@@ -56,106 +58,110 @@ export class InterpretadorComDepuracao
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;
         this.escopoAtual = 0;
-        this.comandoAdentrarEscopo = false;
-        this.comandoProximo = false;
-        this.precisaAdentrarBlocoEscopo = false;
+        this.executandoChamada = false;
+        this.passos = 0;
     }
 
-    async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+    /* async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoLeia(expressao);
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return super.visitarExpressaoLiteral(expressao);
     }
 
     async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoAgrupamento(expressao);
     }
 
     async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoUnaria(expressao);
     }
 
     async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoFormatacaoEscrita(declaracao);
     }
 
     async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoBinaria(expressao);
-    }
+    } */
 
-    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+    async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
+        this.idChamadaAtual = expressao.id;
+        this.executandoChamada = true;
         this.proximoEscopo = 'funcao';
-        return await super.visitarExpressaoDeChamada(expressao);
+        const retorno = await super.visitarExpressaoDeChamada(expressao);
+        this.executandoChamada = false;
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        escopoAtual.ambiente.resolucoesChamadas[expressao.id] = retorno;
+        return retorno;
     }
 
-    visitarExpressaoDeVariavel(expressao: Variavel): any {
-        this.precisaAdentrarBlocoEscopo = false;
+    /* visitarExpressaoDeVariavel(expressao: Variavel): any {
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return super.visitarExpressaoDeVariavel(expressao);
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarDeclaracaoDeExpressao(declaracao);
     }
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoLogica(expressao);
     }
 
     async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarDeclaracaoSe(declaracao);
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarDeclaracaoPara(declaracao);
     }
 
     async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarDeclaracaoFazer(declaracao);
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarDeclaracaoEscolha(declaracao);
     }
 
     async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarDeclaracaoTente(declaracao);
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarDeclaracaoEnquanto(declaracao);
     }
 
     async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarDeclaracaoImportar(declaracao);
     }
 
     async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarDeclaracaoEscreva(declaracao);
     }
 
     async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = true;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = true;
         return await super.visitarExpressaoBloco(declaracao);
-    }
+    } */
 
     /**
      * A execução de uma atribuição de variável no interpretador com depuração pode ser em duas etapas.
@@ -167,15 +173,19 @@ export class InterpretadorComDepuracao
      * @returns 
      */
     async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        if (this.valorRetornoEscopoAnterior !== undefined) {
-            const retornar = this.valorRetornoEscopoAnterior;
-            this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, retornar);
-            
-            this.valorRetornoEscopoAnterior = undefined;
-            return retornar;
+        if (expressao.valor instanceof Chamada) {
+            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(expressao.valor.id)) {
+                const retornar = escopoAtual.ambiente.resolucoesChamadas[expressao.valor.id];
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, retornar);
+                
+                delete escopoAtual.ambiente.resolucoesChamadas[expressao.valor.id];
+                escopoAtual.declaracaoAtual++;
+                return retornar;
+            }
         }
 
-        this.precisaAdentrarBlocoEscopo = false;
+        // this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         const valor = await this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
@@ -193,18 +203,22 @@ export class InterpretadorComDepuracao
      * Nulo ou indefinido em caso contrário.
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        if (this.valorRetornoEscopoAnterior !== undefined) {
-            const retornar = this.valorRetornoEscopoAnterior;
-            this.pilhaEscoposExecucao.definirVariavel(
-                declaracao.simbolo.lexema,
-                retornar
-            );
-            
-            this.valorRetornoEscopoAnterior = undefined;
-            return retornar;
+        if (declaracao.inicializador instanceof Chamada) {
+            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(declaracao.inicializador.id)) {
+                const retornar = escopoAtual.ambiente.resolucoesChamadas[declaracao.inicializador.id];
+                this.pilhaEscoposExecucao.definirVariavel(
+                    declaracao.simbolo.lexema,
+                    escopoAtual.ambiente.resolucoesChamadas[declaracao.inicializador.id]
+                );
+
+                delete escopoAtual.ambiente.resolucoesChamadas[declaracao.inicializador.id];
+                escopoAtual.declaracaoAtual++;
+                return retornar;
+            }
         }
 
-        this.precisaAdentrarBlocoEscopo = false;
+        // this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
         if (valorFinal !== null && valorFinal !== undefined) {
             this.pilhaEscoposExecucao.definirVariavel(
@@ -216,15 +230,15 @@ export class InterpretadorComDepuracao
         return valorFinal;
     }
 
-    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        this.precisaAdentrarBlocoEscopo = false;
+    /* visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return super.visitarExpressaoContinua(declaracao);
     }
 
     visitarExpressaoSustar(declaracao?: any): SustarQuebra {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return super.visitarExpressaoSustar(declaracao);
-    }
+    } */
 
     /**
      * Ao executar um retorno, manter o valor retornado no Interpretador para
@@ -233,46 +247,57 @@ export class InterpretadorComDepuracao
      * @returns O resultado da execução da visita.
      */
     async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        this.precisaAdentrarBlocoEscopo = false;
+        // this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         const retorno = await super.visitarExpressaoRetornar(declaracao);
-        this.valorRetornoEscopoAnterior = retorno.valor;
+
+        // O escopo atual é marcado como finalizado, para notificar a
+        // instrução de que deve ser descartado.
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        escopoAtual.finalizado = true;
+        
+        if (this.idChamadaAtual !== undefined) {
+            escopoAtual.ambiente.resolucoesChamadas[this.idChamadaAtual] = 
+                retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
+            this.idChamadaAtual = undefined;
+        }
+
         return retorno;
     }
 
-    visitarExpressaoDeleguaFuncao(declaracao: any): DeleguaFuncao {
-        this.precisaAdentrarBlocoEscopo = false;
+    /* visitarExpressaoDeleguaFuncao(declaracao: any): DeleguaFuncao {
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return super.visitarExpressaoDeleguaFuncao(declaracao);
     }
 
     async visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoAtribuicaoSobrescrita(expressao);
     }
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoAcessoIndiceVariavel(expressao);
     }
 
     async visitarExpressaoDefinirValor(expressao: any): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoDefinirValor(expressao);
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return super.visitarDeclaracaoDefinicaoFuncao(declaracao);
     }
 
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarDeclaracaoClasse(declaracao);
     }
 
     async visitarExpressaoAcessoMetodo(expressao: any): Promise<any> {
-        this.precisaAdentrarBlocoEscopo = false;
+        this.precisaAdentrarBlocoEscopoEmComandoIncremental = false;
         return await super.visitarExpressaoAcessoMetodo(expressao);
-    }
+    } */
 
     /**
      * Se bloco de execução já foi instanciado antes (por exemplo, quando há um ponto de parada e a
@@ -285,6 +310,7 @@ export class InterpretadorComDepuracao
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
     async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+        // Se o escopo atual não é o último.
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
             const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(
@@ -322,20 +348,35 @@ export class InterpretadorComDepuracao
             this.escopoAtual--;
             return retornoExecucao;
         } else {
-            const escopoExecucao: EscopoExecucao = {
-                declaracoes: declaracoes,
-                declaracaoAtual: 0,
-                ambiente: ambiente || new EspacoVariaveis(),
-                finalizado: false,
-                tipo: this.proximoEscopo || 'outro'
-            };
-            this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-            this.escopoAtual++;
+            this.abrirNovoBlocoEscopo(declaracoes, ambiente, this.proximoEscopo || 'outro');
             this.proximoEscopo = undefined;
 
-            if (!this.precisaAdentrarBlocoEscopo) {
+            if (this.comando !== 'adentrarEscopo') {
                 return await this.executarUltimoEscopo();
             }
+
+            // Essa ideia não funciona bem porque o comando 'proximo'
+            // entra em todos os escopos, o que não é a ideia.
+            /* switch (this.comando) {
+                case 'proximo':
+                    // Se o comando 'próximo' requer entrada no próximo escopo
+                    // (escopos de 'se', 'para', 'enquanto', etc.),
+                    // o último escopo é executado inteiro, a não ser que tenha
+                    // um ponto de parada nele. 
+                    // Caso contrário, apenas a primeira instrução do escopo é
+                    // executada.
+                    if (!this.precisaAdentrarBlocoEscopo) {
+                        return await this.executarUltimoEscopo();
+                    } else {
+                        await this.executar(escopoExecucao.declaracoes[escopoExecucao.declaracaoAtual]);
+                    }
+                    
+                    break;
+                case 'adentrarEscopo':
+                    break;
+                default:
+                    return await this.executarUltimoEscopo();
+            } */
         }
     }
 
@@ -344,7 +385,7 @@ export class InterpretadorComDepuracao
      * @param declaracao A declaração a ser executada.
      * @returns True quando execução deve parar. False caso contrário.
      */
-    verificarPontoParada(declaracao: Declaracao): boolean {
+    private verificarPontoParada(declaracao: Declaracao): boolean {
         const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
             (p: PontoParada) =>
                 p.hashArquivo === declaracao.hashArquivo &&
@@ -352,11 +393,67 @@ export class InterpretadorComDepuracao
         );
 
         if (buscaPontoParada.length > 0) {
-            console.log('Ponto de parada encontrado.');
+            console.log(`Ponto de parada encontrado. Linha: ${declaracao.linha}.`);
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * No interpretador com depuração, este método é dividido em dois outros métodos privados:
+     * - `this.executarUmPassoNoEscopo`, que executa apenas uma instrução e nada mais;
+     * - `this.executarUltimoEscopoComandoContinuar`, que é a execução trivial de um escopo inteiro, 
+     *      ou com todas as instruções, ou até encontrar um ponto de parada.
+     * @param manterAmbiente Se verdadeiro, junta elementos do último escopo com o escopo
+     *                       imediatamente abaixo.
+     * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
+     *                                     verificar o ponto de parada na primeira execução.
+     *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
+     * @returns O retorno da execução.
+     */
+    async executarUltimoEscopo(
+        manterAmbiente = false,
+        naoVerificarPrimeiraExecucao = false
+    ): Promise<any> {
+        switch (this.comando) {
+            case 'adentrarEscopo':
+            case 'proximo':
+                if (!this.executandoChamada) {
+                    return this.executarUmPassoNoEscopo();
+                } else {
+                    return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);    
+                }
+            default:
+                return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
+        }
+    }
+
+    private async executarUmPassoNoEscopo() {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        let retornoExecucao: any;
+        if (this.passos > 0) {
+            this.passos--;
+            retornoExecucao = await this.executar(
+                ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+            );
+    
+            ultimoEscopo.declaracaoAtual++
+
+            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
+                const escopoAnterior = this.pilhaEscoposExecucao.removerUltimo();
+                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
+                    escopoAnterior.ambiente.resolucoesChamadas,
+                    ultimoEscopo.ambiente.resolucoesChamadas
+                );
+            }
+    
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
+                this.finalizacaoDaExecucao();
+            }
+        }
+
+        return retornoExecucao;
     }
 
     /**
@@ -370,14 +467,14 @@ export class InterpretadorComDepuracao
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    async executarUltimoEscopo(
+    private async executarUltimoEscopoComandoContinuar(
         manterAmbiente = false,
         naoVerificarPrimeiraExecucao = false
     ): Promise<any> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        let retornoExecucao: any;
 
         try {
-            let retornoExecucao: any;
             for (
                 ;
                 !(retornoExecucao instanceof Quebra) &&
@@ -402,11 +499,16 @@ export class InterpretadorComDepuracao
 
             return retornoExecucao;
         } finally {
-            if (!this.pontoDeParadaAtivo) {
+            if (!this.pontoDeParadaAtivo && this.comando !== 'adentrarEscopo') {
                 this.pilhaEscoposExecucao.removerUltimo();
+                const escopoAnterior =
+                    this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
+                    escopoAnterior.ambiente.resolucoesChamadas,
+                    ultimoEscopo.ambiente.resolucoesChamadas
+                );
+
                 if (manterAmbiente) {
-                    const escopoAnterior =
-                        this.pilhaEscoposExecucao.topoDaPilha();
                     escopoAnterior.ambiente.valores = Object.assign(
                         escopoAnterior.ambiente.valores,
                         ultimoEscopo.ambiente.valores
@@ -429,7 +531,7 @@ export class InterpretadorComDepuracao
      * Diferentemente de `executarUltimoEscopo`, este método descarta apenas um escopo (o que foi chamado).
      * @see executarBloco
      */
-    async continuarInterpretacao(): Promise<any> {
+    async instrucaoContinuarInterpretacao(): Promise<any> {
         this.escopoAtual = 1;
         const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
 
@@ -458,15 +560,21 @@ export class InterpretadorComDepuracao
             );
         }
 
-        if (
-            primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length
-        ) {
+        if (primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length || primeiroEscopo.finalizado) {
             this.pilhaEscoposExecucao.removerUltimo();
         }
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {
             this.finalizacaoDaExecucao();
         }
+    }
+
+    /**
+     * Empilha um escopo se for possível.
+     * Se não for, apenas executa a instrução corrente.
+     */
+    async adentrarEscopo(): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     private descartarEscoposFinalizadosPorFuncao() {
@@ -499,39 +607,31 @@ export class InterpretadorComDepuracao
     }
 
     /**
-     * Empilha um escopo se for possível.
-     * Se não for, apenas executa a instrução corrente.
-     */
-    async adentrarEscopo(): Promise<any> {
-        throw new Error('Method not implemented.');
-    }
-
-    /**
      * Interpreta apenas uma instrução a partir do ponto de parada ativo, conforme comando do depurador.
      * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
      * primeiro escopo, subindo até o último elemento executado do último escopo.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    async interpretarApenasUmaInstrucao(escopo = 1) {
+    async instrucaoPasso(escopo = 1) {
+        this.passos = 1;
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual) {
-            this.interpretarApenasUmaInstrucao(escopo + 1);
+            this.instrucaoPasso(escopo + 1);
         } else {
             const declaracaoAtual =
                 escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
             const retornoExecucao = await this.executar(declaracaoAtual);
 
-            // Se o retorno da execução é uma instância de Quebra, o escopo corrente finalizou.
-            if (retornoExecucao instanceof Quebra) {
-                escopoVisitado.finalizado = true;
-                this.descartarEscoposFinalizadosPorFuncao();
-            // Se a execução não criou escopos, instrução executou completamente.
-            // Contador de declarações pode ser incrementado e escopos finalizados.
-            } else if (this.pilhaEscoposExecucao.pilha.length - 1 === escopo) {
+            if (this.comando === 'adentrarEscopo') {
+                // Depurador comandou instrução 'adentrar-escopo', ou bloco de escopo
+                // não é de uma função.
+                // Instrução só foi realmente executada se não abriu novo bloco de escopo.
+                // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
+                this.comando = undefined;
+            } else {
                 escopoVisitado.declaracaoAtual++;
-                this.descartarEscoposFinalizados(escopo);
-            }       
+            } 
         }
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {
@@ -544,11 +644,11 @@ export class InterpretadorComDepuracao
      * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    async proximoESair(escopo = 1) {
+    async instrucaoProximoESair(escopo = 1) {
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual - 1) {
-            this.proximoESair(escopo + 1);
+            this.instrucaoProximoESair(escopo + 1);
         } else {
             const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
 
@@ -589,21 +689,34 @@ export class InterpretadorComDepuracao
      */
     prepararParaDepuracao(declaracoes: Declaracao[]): void {
         this.declaracoes = declaracoes;
+        this.abrirNovoBlocoEscopo(declaracoes);
+    }
 
+    private abrirNovoBlocoEscopo(declaracoes: Declaracao[], ambiente?: EspacoVariaveis, tipoEscopo: TipoEscopoExecucao = 'outro') {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
-            tipo: 'outro'
+            tipo: tipoEscopo
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
     }
 
     /**
-     * Interpretação utilizada pelo depurador. Pode encerrar ao encontrar um
-     * ponto de parada ou não.
+     * Reimplementando este método aqui porque a execução por depuração não requer 
+     * mostrar o resultado em momento algum, ou lidar com o retorno.
+     * @param declaracao A declaracao a ser executada. 
+     * @param mostrarResultado Sempre falso.
+     * @returns O resultado da execução.
+     */
+    async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+        return await declaracao.aceitar(this);
+    }
+
+    /**
+     * Interpretação utilizada pelo depurador para avaliar valores de variáveis. 
      * Diferentemente da interpretação tradicional, não possui indicadores
      * de performance porque eles não fazem sentido aqui.
      * @param declaracoes Um vetor de declarações.
@@ -616,21 +729,13 @@ export class InterpretadorComDepuracao
         this.erros = [];
         this.declaracoes = declaracoes;
 
-        const escopoExecucao: EscopoExecucao = {
-            declaracoes: declaracoes,
-            declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
-            finalizado: false,
-            tipo: 'outro'
-        };
-        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        this.escopoAtual++;
-
-        await this.executarUltimoEscopo(manterAmbiente);
+        this.abrirNovoBlocoEscopo(declaracoes);
+        const resultado = await super.executarUltimoEscopo(manterAmbiente);
 
         const retorno = {
             erros: this.erros,
-            resultado: this.resultadoInterpretador,
+            // resultado: this.resultadoInterpretador // Removido para simplificar `this.executar()`.
+            resultado: [resultado]
         } as RetornoInterpretador;
 
         this.resultadoInterpretador = [];

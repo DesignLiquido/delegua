@@ -20,18 +20,18 @@ export class Chamada implements Construto {
         this.argumentos = argumentos;
     }
 
-    uuidv4(): string {
+    private uuidv4(): string {
         // Public Domain/MIT
-        let d = new Date().getTime(); //Timestamp
-        let d2 = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0; //Time in microseconds since page-load or 0 if unsupported
+        let d = new Date().getTime(); // Timestamp
+        let d2 = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0; // Time in microseconds since page-load or 0 if unsupported
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            let r = Math.random() * 16; //random number between 0 and 16
+            let r = Math.random() * 16; // random number between 0 and 16
             if (d > 0) {
-                //Use timestamp until depleted
+                // Use timestamp until depleted
                 r = (d + r) % 16 | 0;
                 d = Math.floor(d / 16);
             } else {
-                //Use microseconds since page-load if supported
+                // Use microseconds since page-load if supported
                 r = (d2 + r) % 16 | 0;
                 d2 = Math.floor(d2 / 16);
             }

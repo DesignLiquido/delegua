@@ -74,7 +74,7 @@ export class ServidorDepuracao {
 
         this.interpretador.comando = 'adentrarEscopo';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.interpretarApenasUmaInstrucao();
+        await this.interpretador.instrucaoPasso();
         this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
@@ -133,7 +133,7 @@ export class ServidorDepuracao {
         linhasResposta += "Recebido comando 'continuar'\n";
         // this.interpretador.comando = 'continuar';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.continuarInterpretacao();
+        await this.interpretador.instrucaoContinuarInterpretacao();
 
         linhasResposta += '--- continuar-resposta ---\n';
         conexao.write(linhasResposta);
@@ -199,7 +199,7 @@ export class ServidorDepuracao {
         linhasResposta += '--- proximo-resposta ---\n';
         this.interpretador.comando = 'proximo';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.interpretarApenasUmaInstrucao();
+        await this.interpretador.instrucaoPasso();
         this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
@@ -234,7 +234,7 @@ export class ServidorDepuracao {
     comandoSairEscopo = async (conexao: net.Socket): Promise<any> => {
         conexao.write("Recebido comando 'sair-escopo'\n");
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.proximoESair();
+        await this.interpretador.instrucaoProximoESair();
     };
 
     comandoVariaveis = (conexao: net.Socket): any => {
