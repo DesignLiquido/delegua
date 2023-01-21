@@ -75,7 +75,7 @@ export class ServidorDepuracao {
         this.interpretador.comando = 'adentrarEscopo';
         this.interpretador.pontoDeParadaAtivo = false;
         await this.interpretador.instrucaoPasso();
-        this.interpretador.comando = undefined;
+        // this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
 
@@ -199,8 +199,13 @@ export class ServidorDepuracao {
         linhasResposta += '--- proximo-resposta ---\n';
         this.interpretador.comando = 'proximo';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.instrucaoPasso();
-        this.interpretador.comando = undefined;
+        try {
+            await this.interpretador.instrucaoPasso();
+        } catch (erro: any) {
+            console.error(erro);
+        }
+        
+        // this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
 
