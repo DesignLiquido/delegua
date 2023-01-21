@@ -73,6 +73,17 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         );
     }
 
+    obterEscopoPorTipo(tipo: string): EscopoExecucao | undefined {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const escopoAtual = this.pilha[this.pilha.length - i];
+            if (escopoAtual.tipo === tipo) {
+                return escopoAtual;
+            }
+        }
+
+        return undefined;
+    }
+
     obterVariavelEm(distancia: number, nome: string): VariavelInterface {
         const ambienteAncestral =
             this.pilha[this.pilha.length - distancia].ambiente;

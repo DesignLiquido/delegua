@@ -9,4 +9,5 @@ export interface EscopoExecucao {
     ambiente: EspacoVariaveis;
     finalizado: boolean;
     tipo: TipoEscopoExecucao
+    idChamada?: string;
 }
