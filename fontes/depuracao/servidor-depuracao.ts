@@ -255,9 +255,13 @@ export class ServidorDepuracao {
     };
 
     comandoSairEscopo = async (conexao: net.Socket): Promise<any> => {
-        conexao.write("Recebido comando 'sair-escopo'\n");
+        let linhasResposta = '';
+        linhasResposta += "Recebido comando 'sair-escopo'\n";
         this.interpretador.pontoDeParadaAtivo = false;
         await this.interpretador.instrucaoProximoESair();
+
+        linhasResposta += '--- sair-escopo-resposta ---\n';
+        conexao.write(linhasResposta);
     };
 
     comandoVariaveis = (conexao: net.Socket): any => {

@@ -386,6 +386,13 @@ export class InterpretadorComDepuracao
                 retornoExecucao = await this.executar(
                     ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
                 );
+
+                // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
+                // Por isso verificamos outra parada aqui para evitar que 
+                // `this.declaracaoAtual` seja incrementado.
+                if (this.pontoDeParadaAtivo) {
+                    break;
+                }
             }
 
             return retornoExecucao;
@@ -423,49 +430,7 @@ export class InterpretadorComDepuracao
      * @see executarBloco
      */
     async instrucaoContinuarInterpretacao(): Promise<any> {
-        this.escopoAtual = 1;
-        const primeiroEscopo = this.pilhaEscoposExecucao.naPosicao(1);
-
-        let retornoExecucao: any;
-        // Primeira execução sempre ocorre, independente de pontos de parada.
-        retornoExecucao = await this.executar(
-            primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
-        );
-        primeiroEscopo.declaracaoAtual++;
-
-        for (
-            ;
-            !(retornoExecucao instanceof Quebra) &&
-            primeiroEscopo.declaracaoAtual < primeiroEscopo.declaracoes.length;
-            primeiroEscopo.declaracaoAtual++
-        ) {
-            this.pontoDeParadaAtivo = this.verificarPontoParada(
-                primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
-            );
-
-            if (this.pontoDeParadaAtivo) {
-                break;
-            }
-
-            retornoExecucao = await this.executar(
-                primeiroEscopo.declaracoes[primeiroEscopo.declaracaoAtual]
-            );
-
-            // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
-            // Por isso verificamos outra parada aqui para evitar que 
-            // `this.declaracaoAtual` seja incrementado.
-            if (this.pontoDeParadaAtivo) {
-                break;
-            }
-        }
-
-        if (primeiroEscopo.declaracaoAtual >= primeiroEscopo.declaracoes.length || primeiroEscopo.finalizado) {
-            this.pilhaEscoposExecucao.removerUltimo();
-        }
-
-        if (this.pilhaEscoposExecucao.elementos() === 1) {
-            this.finalizacaoDaExecucao();
-        }
+        this.executarUltimoEscopoComandoContinuar(false, true);
     }
 
     /**
@@ -506,42 +471,8 @@ export class InterpretadorComDepuracao
      * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    async instrucaoProximoESair(escopo = 1) {
-        const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
-
-        if (escopo < this.escopoAtual - 1) {
-            this.instrucaoProximoESair(escopo + 1);
-        } else {
-            const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-
-            let retornoExecucao: any;
-            for (
-                ;
-                !(retornoExecucao instanceof Quebra) &&
-                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
-                ultimoEscopo.declaracaoAtual++
-            ) {
-                retornoExecucao = await this.executar(
-                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
-                );
-            }
-
-            this.pilhaEscoposExecucao.removerUltimo();
-            this.escopoAtual--;
-            escopoVisitado.declaracaoAtual++;
-        }
-
-        // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (
-            escopoVisitado.declaracoes.length <= escopoVisitado.declaracaoAtual
-        ) {
-            this.pilhaEscoposExecucao.removerUltimo();
-            this.escopoAtual--;
-        }
-
-        if (this.pilhaEscoposExecucao.elementos() === 1) {
-            this.finalizacaoDaExecucao();
-        }
+    async instrucaoProximoESair() {
+        this.executarUltimoEscopoComandoContinuar(false, true);
     }
 
     /**
