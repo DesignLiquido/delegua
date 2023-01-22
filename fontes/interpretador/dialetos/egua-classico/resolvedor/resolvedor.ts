@@ -177,7 +177,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoVar(declaracao: any): any {
+    visitarDeclaracaoVar(declaracao: any): any {
         this.declarar(declaracao.simbolo);
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
@@ -186,7 +186,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any): any {
+    visitarDeclaracaoDeAtribuicao(expressao: any): any {
         this.resolver(expressao.valor);
         this.resolverLocal(expressao, expressao.simbolo);
         return null;
@@ -212,7 +212,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = enclosingFunc;
     }
 
-    visitarExpressaoFuncao(declaracao: any): any {
+    visitarDeclaracaoDefinicaoFuncao(declaracao: any): any {
         this.declarar(declaracao.simbolo);
         this.definir(declaracao.simbolo);
 
@@ -225,7 +225,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoTente(declaracao: any): any {
+    visitarDeclaracaoTente(declaracao: any): any {
         this.resolver(declaracao.caminhoTente);
 
         if (declaracao.caminhoPegue !== null)
@@ -236,7 +236,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
             this.resolver(declaracao.caminhoFinalmente);
     }
 
-    visitarExpressaoClasse(declaracao: any): any {
+    visitarDeclaracaoClasse(declaracao: any): any {
         const enclosingClass = this.classeAtual;
         this.classeAtual = TipoClasse.CLASSE;
 
@@ -315,7 +315,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoSe(declaracao: Se): any {
+    visitarDeclaracaoSe(declaracao: Se): any {
         this.resolver(declaracao.condicao);
         this.resolver(declaracao.caminhoEntao);
 
@@ -329,11 +329,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoImportar(declaracao: any): void {
+    visitarDeclaracaoImportar(declaracao: any): void {
         this.resolver(declaracao.caminho);
     }
 
-    visitarExpressaoEscreva(declaracao: any): void {
+    visitarDeclaracaoEscreva(declaracao: any): void {
         this.resolver(declaracao.expressao);
     }
 
@@ -359,7 +359,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoEscolha(declaracao: any): void {
+    visitarDeclaracaoEscolha(declaracao: any): void {
         const enclosingType = this.cicloAtual;
         this.cicloAtual = LoopType.ESCOLHA;
 
@@ -375,13 +375,13 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = enclosingType;
     }
 
-    visitarExpressaoEnquanto(declaracao: any): any {
+    visitarDeclaracaoEnquanto(declaracao: any): any {
         this.resolver(declaracao.condicao);
         this.resolver(declaracao.corpo);
         return null;
     }
 
-    visitarExpressaoPara(declaracao: any): any {
+    visitarDeclaracaoPara(declaracao: any): any {
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
         }
@@ -400,7 +400,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoFazer(declaracao: any): any {
+    visitarDeclaracaoFazer(declaracao: any): any {
         this.resolver(declaracao.condicaoEnquanto);
 
         const enclosingType = this.cicloAtual;

@@ -23,6 +23,6 @@ export class Escolha extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return await visitante.visitarExpressaoEscolha(this);
+        return await visitante.visitarDeclaracaoEscolha(this);
     }
 }

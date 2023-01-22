@@ -21,7 +21,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha.length === 0;
     }
 
-    elementos() {
+    elementos(): number {
         return this.pilha.length;
     }
 
@@ -29,12 +29,12 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha[posicao];
     }
 
-    topoDaPilha() {
+    topoDaPilha(): EscopoExecucao {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha[this.pilha.length - 1];
     }
 
-    removerUltimo() {
+    removerUltimo(): EscopoExecucao {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
     }
@@ -73,13 +73,24 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         );
     }
 
+    obterEscopoPorTipo(tipo: string): EscopoExecucao | undefined {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const escopoAtual = this.pilha[this.pilha.length - i];
+            if (escopoAtual.tipo === tipo) {
+                return escopoAtual;
+            }
+        }
+
+        return undefined;
+    }
+
     obterVariavelEm(distancia: number, nome: string): VariavelInterface {
         const ambienteAncestral =
             this.pilha[this.pilha.length - distancia].ambiente;
         return ambienteAncestral.valores[nome];
     }
 
-    obterVariavel(simbolo: SimboloInterface): VariavelInterface {
+    obterValorVariavel(simbolo: SimboloInterface): VariavelInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {

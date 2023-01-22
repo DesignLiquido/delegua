@@ -11,6 +11,6 @@ export class Escreva extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return await visitante.visitarExpressaoEscreva(this);
+        return await visitante.visitarDeclaracaoEscreva(this);
     }
 }

@@ -72,10 +72,10 @@ export class ServidorDepuracao {
         linhasResposta += "Recebido comando 'adentrar-escopo'\n";
         linhasResposta += '--- adentrar-escopo-resposta ---\n';
 
-        this.interpretador.comandoAdentrarEscopo = true;
+        this.interpretador.comando = 'adentrarEscopo';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.interpretarApenasUmaInstrucao();
-
+        await this.interpretador.instrucaoPasso();
+        // this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
 
@@ -110,28 +110,48 @@ export class ServidorDepuracao {
         comando.shift();
         const expressaoAvaliar = comando.join(' ');
         let retornoInterpretacao: RetornoExecucaoInterface;
-        let textoInterpretacao: string[];
+        let resultadoInterpretacao: any[];
         try {
             retornoInterpretacao =
                 await this.instanciaDelegua.executarUmaLinha(expressaoAvaliar);
-            textoInterpretacao = retornoInterpretacao.resultado;
+            resultadoInterpretacao = retornoInterpretacao.resultado;
         } catch (erro: any) {
-            textoInterpretacao = [String(erro)];
+            resultadoInterpretacao = [String(erro)];
         }
 
         linhasResposta += "Recebido comando 'avaliar'\n";
         linhasResposta += '--- avaliar-resposta ---\n';
-        linhasResposta += textoInterpretacao.join('\n') + '\n';
+        // linhasResposta += resultadoInterpretacao.join('\n') + '\n';
+        linhasResposta += JSON.stringify(resultadoInterpretacao[0]) + '\n';
         linhasResposta += '--- fim-avaliar-resposta ---\n';
         conexao.write(linhasResposta);
     };
+
+    comandoAvaliarVariavel = async (comando: string[], conexao: net.Socket): Promise<any> => {
+        let linhasResposta = '';
+
+        comando.shift();
+        const nomeVariavel = comando.join(' ');
+        linhasResposta += "Recebido comando 'avaliar-variavel'\n";
+        linhasResposta += '--- avaliar-variavel-resposta ---\n';
+        // linhasResposta += resultadoInterpretacao.join('\n') + '\n';
+        try {
+            linhasResposta += JSON.stringify(this.interpretador.obterVariavel(nomeVariavel)) + '\n';
+        } catch (erro: any) {
+            linhasResposta += String(erro) + '\n';
+        }
+        
+        linhasResposta += '--- fim-avaliar-variavel-resposta ---\n';
+        conexao.write(linhasResposta);
+    }
 
     comandoContinuar = async (conexao: net.Socket): Promise<any> => {
         let linhasResposta = '';
 
         linhasResposta += "Recebido comando 'continuar'\n";
+        // this.interpretador.comando = 'continuar';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.continuarInterpretacao();
+        await this.interpretador.instrucaoContinuarInterpretacao();
 
         linhasResposta += '--- continuar-resposta ---\n';
         conexao.write(linhasResposta);
@@ -195,10 +215,15 @@ export class ServidorDepuracao {
         let linhasResposta = '';
         linhasResposta += "Recebido comando 'proximo'\n";
         linhasResposta += '--- proximo-resposta ---\n';
-        this.interpretador.comandoProximo = true;
+        this.interpretador.comando = 'proximo';
         this.interpretador.pontoDeParadaAtivo = false;
-        await this.interpretador.interpretarApenasUmaInstrucao();
-        this.interpretador.comandoProximo = false;
+        try {
+            await this.interpretador.instrucaoPasso();
+        } catch (erro: any) {
+            console.error(erro);
+        }
+        
+        // this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
 
@@ -229,10 +254,14 @@ export class ServidorDepuracao {
         }
     };
 
-    comandoSairEscopo = (conexao: net.Socket): any => {
-        conexao.write("Recebido comando 'sair-escopo'\n");
+    comandoSairEscopo = async (conexao: net.Socket): Promise<any> => {
+        let linhasResposta = '';
+        linhasResposta += "Recebido comando 'sair-escopo'\n";
         this.interpretador.pontoDeParadaAtivo = false;
-        this.interpretador.proximoESair();
+        await this.interpretador.instrucaoProximoESair();
+
+        linhasResposta += '--- sair-escopo-resposta ---\n';
+        conexao.write(linhasResposta);
     };
 
     comandoVariaveis = (conexao: net.Socket): any => {
@@ -296,6 +325,9 @@ export class ServidorDepuracao {
                         break;
                     case 'avaliar':
                         this.comandoAvaliar(partesComando, conexao);
+                        break;
+                    case 'avaliar-variavel':
+                        this.comandoAvaliarVariavel(partesComando, conexao);
                         break;
                     case 'continuar':
                         this.comandoContinuar(conexao);

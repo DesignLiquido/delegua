@@ -22,6 +22,6 @@ export class Se extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return await visitante.visitarExpressaoSe(this);
+        return await visitante.visitarDeclaracaoSe(this);
     }
 }
