@@ -618,7 +618,7 @@ export class Interpretador implements InterpretadorInterface {
     }
 
     protected procurarVariavel(simbolo: SimboloInterface): any {
-        return this.pilhaEscoposExecucao.obterVariavel(simbolo);
+        return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
     }
 
     visitarExpressaoDeVariavel(expressao: Variavel): any {

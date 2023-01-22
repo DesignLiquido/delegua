@@ -4,13 +4,14 @@ import { PontoParada } from '../depuracao';
 import {
     ComandoDepurador,
     ImportadorInterface,
-    InterpretadorComDepuracaoInterface,
+    InterpretadorComDepuracaoInterface
 } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { Interpretador } from './interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { Atribuir, Chamada } from '../construtos';
+import { inferirTipoVariavel } from './inferenciador';
 
 /**
  * Implementação do Interpretador com suporte a depuração.
@@ -604,5 +605,21 @@ export class InterpretadorComDepuracao
 
         this.resultadoInterpretador = [];
         return retorno;
+    }
+
+    /**
+     * Obtém o valor de uma variável por nome.
+     * Em versões anteriores, o mecanismo de avaliação fazia toda a avaliação tradicional, 
+     * passando por Lexador, Avaliador Sintático e Interpretador.
+     * Isso tem sua cota de problemas, sobretudo porque a avaliação insere e descarta escopos, 
+     * entrando em condição de corrida com a interpretação com depuração.
+     * @param nome O nome da variável.
+     */
+    obterVariavel(nome: string): any {
+        const valorOuVariavel = this.pilhaEscoposExecucao.obterValorVariavel({ lexema: nome } as any) as any;
+        return valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel : {
+            valor: valorOuVariavel,
+            tipo: inferirTipoVariavel(valorOuVariavel)
+        };
     }
 }

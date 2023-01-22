@@ -90,7 +90,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return ambienteAncestral.valores[nome];
     }
 
-    obterVariavel(simbolo: SimboloInterface): VariavelInterface {
+    obterValorVariavel(simbolo: SimboloInterface): VariavelInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {

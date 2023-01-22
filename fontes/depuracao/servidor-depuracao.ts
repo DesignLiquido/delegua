@@ -127,6 +127,24 @@ export class ServidorDepuracao {
         conexao.write(linhasResposta);
     };
 
+    comandoAvaliarVariavel = async (comando: string[], conexao: net.Socket): Promise<any> => {
+        let linhasResposta = '';
+
+        comando.shift();
+        const nomeVariavel = comando.join(' ');
+        linhasResposta += "Recebido comando 'avaliar-variavel'\n";
+        linhasResposta += '--- avaliar-variavel-resposta ---\n';
+        // linhasResposta += resultadoInterpretacao.join('\n') + '\n';
+        try {
+            linhasResposta += JSON.stringify(this.interpretador.obterVariavel(nomeVariavel)) + '\n';
+        } catch (erro: any) {
+            linhasResposta += String(erro) + '\n';
+        }
+        
+        linhasResposta += '--- fim-avaliar-variavel-resposta ---\n';
+        conexao.write(linhasResposta);
+    }
+
     comandoContinuar = async (conexao: net.Socket): Promise<any> => {
         let linhasResposta = '';
 
@@ -303,6 +321,9 @@ export class ServidorDepuracao {
                         break;
                     case 'avaliar':
                         this.comandoAvaliar(partesComando, conexao);
+                        break;
+                    case 'avaliar-variavel':
+                        this.comandoAvaliarVariavel(partesComando, conexao);
                         break;
                     case 'continuar':
                         this.comandoContinuar(conexao);

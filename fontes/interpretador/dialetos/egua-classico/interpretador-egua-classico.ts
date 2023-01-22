@@ -455,7 +455,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         simbolo: SimboloInterface,
         expressao: any
     ): VariavelInterface {
-        return this.pilhaEscoposExecucao.obterVariavel(simbolo);
+        return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
     }
 
     visitarExpressaoDeVariavel(expressao: Variavel): VariavelInterface {
