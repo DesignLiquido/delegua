@@ -1,6 +1,8 @@
 import {
+    AcessoIndiceVariavel,
     AcessoMetodo,
     Agrupamento,
+    AtribuicaoSobrescrita,
     Atribuir,
     Binario,
     Chamada,
@@ -8,7 +10,10 @@ import {
     FuncaoConstruto,
     Isto,
     Literal,
+    Logico,
+    Unario,
     Variavel,
+    Vetor,
 } from '../construtos';
 import {
     Bloco,
@@ -45,10 +50,20 @@ export class TradutorJavaScript implements TradutorInterface {
         switch (operador.tipo) {
             case tiposDeSimbolos.ADICAO:
                 return '+';
+            case tiposDeSimbolos.BIT_AND:
+                return '&';
+            case tiposDeSimbolos.BIT_OR:
+                return '|';
+            case tiposDeSimbolos.BIT_XOR:
+                return '^';
+            case tiposDeSimbolos.BIT_NOT:
+                return '~';
             case tiposDeSimbolos.DIFERENTE:
                 return '!==';
             case tiposDeSimbolos.DIVISAO:
                 return '/';
+            case tiposDeSimbolos.E:
+                return '&&';
             case tiposDeSimbolos.EXPONENCIACAO:
                 return '**';
             case tiposDeSimbolos.IGUAL:
@@ -67,6 +82,8 @@ export class TradutorJavaScript implements TradutorInterface {
                 return '%';
             case tiposDeSimbolos.MULTIPLICACAO:
                 return '*';
+            case tiposDeSimbolos.OU:
+                return '||';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
         }
@@ -320,6 +337,9 @@ export class TradutorJavaScript implements TradutorInterface {
         let resultado = 'for (';
         resultado +=
             this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+
+        resultado += !resultado.includes(';') ? ';': '';
+
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
         resultado +=
@@ -431,7 +451,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
 
-    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto){
+    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
         let resultado = 'function('
         for (const parametro of funcaoConstruto.parametros) {
             resultado += parametro.nome.lexema + ', ';
@@ -447,9 +467,70 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirConstrutoLogico(logico: Logico): string {
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita)
+        let operador = this.traduzirSimboloOperador(logico.operador)
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda)
+
+        return `${direita} ${operador} ${esquerda}`;
+    }
+
+    traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
+        let resultado = '';
+        
+        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '['
+        resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) + ']'
+        resultado += ' = '
+
+        if(atribuicaoSobrescrita?.valor?.simbolo?.lexema){
+            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`
+        } else {
+            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](atribuicaoSobrescrita.valor)
+        }
+
+        return resultado;
+    }
+
+    traduzirAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
+        let resultado = '';
+
+        resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](acessoIndiceVariavel.entidadeChamada)
+        resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice)}]`
+
+        return resultado;
+    }
+
+    traduzirConstrutoVetor(vetor: Vetor): string {
+        if(!vetor.valores.length){
+            return '[]'
+        }
+        
+        let resultado = '[';
+
+        for(let valor of vetor.valores){
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `
+        }
+        if (vetor.valores.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+
+        resultado += ']'
+
+        return resultado;
+    }
+
+    traduzirConstrutoUnario(unario: Unario): string {
+        let resultado = '';
+        resultado += this.traduzirSimboloOperador(unario.operador);
+        resultado += unario.direita.valor ?? unario.direita.simbolo.lexema;
+        return resultado;
+    }
+
     dicionarioConstrutos = {
+        AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
@@ -457,7 +538,10 @@ export class TradutorJavaScript implements TradutorInterface {
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        Logico: this.traduzirConstrutoLogico.bind(this),
+        Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
+        Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes = {

@@ -79,7 +79,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    verificarOperandoNumero(operador: any, operand: any): void {
+    verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
         throw new Error('Método não implementado.');
     }
 
@@ -87,7 +87,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+    verificarOperandosNumeros(operador: SimboloInterface, direita: any, esquerda: any): void {
         throw new Error('Método não implementado.');
     }
 

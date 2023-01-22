@@ -37,6 +37,72 @@ describe('Tradutor Delégua -> JavaScript', () => {
             delegua = new Delegua('delegua');
         });
 
+        it('bit a bit', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'escreva(8 | 1)',
+                    'escreva(8 & 1)',
+                    'escreva(8 ^ 1)',
+                    'escreva(~2)',
+                    'var a = 3',
+                    'var c = -a + 3'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(8 | 1\)/i);
+            expect(resultado).toMatch(/console\.log\(8 & 1\)/i);
+            expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
+            expect(resultado).toMatch(/console\.log\(~2\)/i);
+            expect(resultado).toMatch(/let a = 3/i);
+            expect(resultado).toMatch(/let c = -a \+ 3/i);
+        });
+
+        it('vetor acesso indice -> array/index', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var vetor = [1, \'2\']',
+                    'vetor[0] = 3',
+                    'vetor[1] = vetor[0]'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let vetor = \[1, \'2\'\];/i);
+            expect(resultado).toMatch(/vetor\[0\] = 3/i);
+            expect(resultado).toMatch(/vetor\[1\] = vetor\[0\]/i);
+        });
+
+        it('vetor -> array - com valores', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                ['var vetor = [1, \'2\']'],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let vetor = \[1, \'2\'\];/i);
+        });
+
+        it('vetor -> array - vazio', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                ['var vetor = []'],
+                -1
+            );
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let vetor = \[\]/i);
+        });
+
         it('declarando variável não inicializada', () => {
             const retornoLexador = delegua.lexador.mapear(
                 [
@@ -616,6 +682,27 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/if/i);
             expect(resultado).toMatch(/a === 1/i);
             expect(resultado).toMatch(/console\.log\(10\)/i);
+        });
+
+        it('se -> if com operadores lógicos, código', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'se (a == 1 ou a == 2) {',
+                    'escreva(10)', 
+                    '}',
+                    'se (a > 0 e a == 3) {',
+                    'escreva(5)', 
+                    '}'
+                ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if/i);
+            expect(resultado).toMatch(/a === 1 || a === 2/i);
+            expect(resultado).toMatch(/console\.log\(10\)/i);
+            // expect(resultado).toMatch(/a > 0 && a === 3/i);
+            expect(resultado).toMatch(/console\.log\(5\)/i);
         });
     });
 });

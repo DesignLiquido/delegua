@@ -36,6 +36,7 @@ import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador
 import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
 import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
 import { ErroInterpretador } from './interpretador';
+import { InterpretadorVisuAlgComDepuracao } from './interpretador/dialetos';
 
 /**
  * O núcleo da linguagem.
@@ -134,7 +135,9 @@ export class Delegua implements DeleguaInterface {
                     this.conteudoArquivosAbertos,
                     depurador
                 );
-                this.interpretador = new InterpretadorVisuAlg(this.importador, process.cwd(), false, console.log);
+                this.interpretador = depurador
+                    ? new InterpretadorVisuAlgComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
+                    : new InterpretadorVisuAlg(this.importador, process.cwd(), false, console.log);
                 break;
             default:
                 this.lexador = new Lexador(performance);
@@ -323,6 +326,20 @@ export class Delegua implements DeleguaInterface {
         this.funcaoDeRetorno(resultado);
     }
 
+    async executarCodigoComoArgumento(codigo: string) {
+        const retornoLexador = this.lexador.mapear([codigo], -1);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
+        const { erros } = await this.executar({
+            conteudoArquivo: [codigo],
+            nomeArquivo: '',
+            hashArquivo: -1,
+            retornoLexador: retornoLexador,
+            retornoAvaliadorSintatico: retornoAvaliadorSintatico
+        });
+
+        if (erros.length > 0) process.exit(70); // Código com exceções não tratadas
+    }
+
     /**
      * Execução por arquivo.
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
@@ -355,9 +372,14 @@ export class Delegua implements DeleguaInterface {
         this.interpretador.interfaceEntradaSaida = interfaceLeitura;
 
         if (this.modoDepuracao) {
-            (this.interpretador as InterpretadorComDepuracaoInterface).prepararParaDepuracao(
-                retornoImportador.retornoAvaliadorSintatico.declaracoes
-            );
+            try {
+                (this.interpretador as InterpretadorComDepuracaoInterface).prepararParaDepuracao(
+                    retornoImportador.retornoAvaliadorSintatico.declaracoes
+                );
+            } catch (erro: any) {
+                console.error(chalk.red(`[Erro de execução]`) + ` Dialeto ${this.dialeto} não suporta depuração.`);
+            }
+            
         } else {
             const { erros } = await this.executar(retornoImportador);
             errosExecucao = erros;
