@@ -326,6 +326,20 @@ export class Delegua implements DeleguaInterface {
         this.funcaoDeRetorno(resultado);
     }
 
+    async executarCodigoComoArgumento(codigo: string) {
+        const retornoLexador = this.lexador.mapear([codigo], -1);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
+        const { erros } = await this.executar({
+            conteudoArquivo: [codigo],
+            nomeArquivo: '',
+            hashArquivo: -1,
+            retornoLexador: retornoLexador,
+            retornoAvaliadorSintatico: retornoAvaliadorSintatico
+        });
+
+        if (erros.length > 0) process.exit(70); // Código com exceções não tratadas
+    }
+
     /**
      * Execução por arquivo.
      * @param caminhoRelativoArquivo O caminho no sistema operacional do arquivo a ser aberto.
