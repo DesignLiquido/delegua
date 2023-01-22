@@ -102,6 +102,21 @@ Recebido comando 'avaliar'
 --- fim-avaliar-resposta ---
 ```
 
+Atualmente não é usado por ter um conhecido problema de condição de corrida. Deve ser reimplementado em futuras versões.
+
+### `avaliar-variavel`
+
+Possui uma implementação mais segura do que `avaliar`, mas apenas retorna o valor de uma variável se existir. 
+
+**Exemplo**: Avaliando `a`
+
+```
+Recebido comando 'avaliar-variavel'  
+--- avaliar-variavel-resposta ---    
+0
+--- fim-avaliar-variavel-resposta ---
+```
+
 **Exemplo**: Avaliando `aleatorio()`
 
 ```
@@ -143,6 +158,6 @@ Recebido comando 'proximo'
 --- proximo-resposta ---
 ```
 
-### `variáveis`
+### `variaveis`
 
 Ao receber o comando, o depurador devolve o nome, o tipo e o valor da variável quando possível.
