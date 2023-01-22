@@ -7,6 +7,11 @@ const principal = () => {
 
     analisadorArgumentos
         .option(
+            '-c, --codigo <codigo>',
+            'Código a ser avaliado.',
+            ''
+        )
+        .option(
             '-d, --dialeto <dialeto>',
             'Dialeto a ser usado. Padrão: delegua.',
             'delegua'
@@ -48,12 +53,18 @@ const principal = () => {
     );
 
     if (!nomeArquivo) {
-        delegua.iniciarLairDelegua();
-    } else if (opcoes.traduzir) {
-        delegua.traduzirArquivo(nomeArquivo, opcoes.saida);
+        if (opcoes.codigo) {
+            delegua.executarCodigoComoArgumento(opcoes.codigo);
+        } else {
+            delegua.iniciarLairDelegua();
+        }
     } else {
-        delegua.carregarArquivo(nomeArquivo);
-    }
+        if (opcoes.traduzir) {
+            delegua.traduzirArquivo(nomeArquivo, opcoes.saida);
+        } else {
+            delegua.carregarArquivo(nomeArquivo);
+        }
+    }    
 };
 
 principal();
