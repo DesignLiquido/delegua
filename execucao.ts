@@ -3,7 +3,7 @@ import { Command } from 'commander';
 
 const principal = () => {
     const analisadorArgumentos = new Command();
-    let nomeArquivo: string;
+    let codigoOuNomeArquivo: string;
 
     analisadorArgumentos
         .option(
@@ -36,9 +36,9 @@ const principal = () => {
             'Traduz o código do arquivo passado como parâmetro.',
         )
         .argument('[arquivos...]', 'Nomes dos arquivos (opcional)')
-        .action((arquivos) => {
-            if (arquivos.length > 0) {
-                nomeArquivo = arquivos[0];
+        .action((argumentos) => {
+            if (argumentos.length > 0) {
+                codigoOuNomeArquivo = argumentos[0];
             }
         });
 
@@ -48,23 +48,23 @@ const principal = () => {
     const delegua = new Delegua(
         opcoes.dialeto,
         opcoes.performance,
-        nomeArquivo ? opcoes.depurador : false,
+        codigoOuNomeArquivo ? opcoes.depurador : false,
         opcoes.traduzir
     );
 
-    if (!nomeArquivo) {
-        if (opcoes.codigo) {
-            delegua.executarCodigoComoArgumento(opcoes.codigo);
+    if (opcoes.codigo) {
+        delegua.executarCodigoComoArgumento(opcoes.codigo || codigoOuNomeArquivo);
+    } else {
+        if (codigoOuNomeArquivo) {
+            if (opcoes.traduzir) {
+                delegua.traduzirArquivo(codigoOuNomeArquivo, opcoes.saida);
+            } else {
+                delegua.carregarArquivo(codigoOuNomeArquivo);
+            }
         } else {
             delegua.iniciarLairDelegua();
         }
-    } else {
-        if (opcoes.traduzir) {
-            delegua.traduzirArquivo(nomeArquivo, opcoes.saida);
-        } else {
-            delegua.carregarArquivo(nomeArquivo);
-        }
-    }    
+    }   
 };
 
 principal();
