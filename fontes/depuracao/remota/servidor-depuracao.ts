@@ -1,15 +1,23 @@
 import * as net from 'net';
-import { Declaracao } from '../declaracoes';
+import { Declaracao } from '../../declaracoes';
 
 import {
     DeleguaInterface,
     InterpretadorComDepuracaoInterface,
     RetornoExecucaoInterface,
-} from '../interfaces';
-import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
-import cyrb53 from './cyrb53';
-import { PontoParada } from './ponto-parada';
+} from '../../interfaces';
+import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
+import cyrb53 from '../cyrb53';
+import { PontoParada } from '../ponto-parada';
 
+/**
+ * Esta foi a primeira implementacão do mecanismo de depuração, usando comunicação por _sockets_.
+ * Inicialmente uma integração foi implementada na extensão do VSCode, mas o protocolo de 
+ * comunicação nunca foi exatamente maturado, em favor de uma implementação na extensão 
+ * usando a linguagem diretamente. 
+ * 
+ * Mecanismo poderá ser maturado num futuro próximo. Para mais detalhes, ler `README.md`.
+ */
 export class ServidorDepuracao {
     instanciaDelegua: DeleguaInterface;
     servidor: net.Server;
@@ -25,13 +33,6 @@ export class ServidorDepuracao {
             .interpretador as InterpretadorComDepuracaoInterface;
         this.interpretador.funcaoDeRetorno =
             this.escreverSaidaParaTodosClientes.bind(this);
-        // Isso é só um exemplo de definição de ponto de parada para testar
-        // `Interpretador.executar()`.
-        // Deve ser removido num futuro próximo.
-        /* (this.instanciaDelegua.interpretador as InterpretadorComDepuracaoInterface).pontosParada.push({
-            hashArquivo: cyrb53("D:\\GitHub\\delegua\\testes\\exemplos\\index.delegua"),
-            linha: 1
-        }); */
 
         this.servidor = net.createServer();
         this.conexoes = {};
@@ -75,7 +76,6 @@ export class ServidorDepuracao {
         this.interpretador.comando = 'adentrarEscopo';
         this.interpretador.pontoDeParadaAtivo = false;
         await this.interpretador.instrucaoPasso();
-        // this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
 
@@ -121,7 +121,6 @@ export class ServidorDepuracao {
 
         linhasResposta += "Recebido comando 'avaliar'\n";
         linhasResposta += '--- avaliar-resposta ---\n';
-        // linhasResposta += resultadoInterpretacao.join('\n') + '\n';
         linhasResposta += JSON.stringify(resultadoInterpretacao[0]) + '\n';
         linhasResposta += '--- fim-avaliar-resposta ---\n';
         conexao.write(linhasResposta);
@@ -134,7 +133,7 @@ export class ServidorDepuracao {
         const nomeVariavel = comando.join(' ');
         linhasResposta += "Recebido comando 'avaliar-variavel'\n";
         linhasResposta += '--- avaliar-variavel-resposta ---\n';
-        // linhasResposta += resultadoInterpretacao.join('\n') + '\n';
+
         try {
             linhasResposta += JSON.stringify(this.interpretador.obterVariavel(nomeVariavel)) + '\n';
         } catch (erro: any) {
@@ -149,7 +148,6 @@ export class ServidorDepuracao {
         let linhasResposta = '';
 
         linhasResposta += "Recebido comando 'continuar'\n";
-        // this.interpretador.comando = 'continuar';
         this.interpretador.pontoDeParadaAtivo = false;
         await this.interpretador.instrucaoContinuarInterpretacao();
 
@@ -223,7 +221,6 @@ export class ServidorDepuracao {
             console.error(erro);
         }
         
-        // this.interpretador.comando = undefined;
         conexao.write(linhasResposta);
     };
 
