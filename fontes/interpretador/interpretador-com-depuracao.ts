@@ -40,6 +40,7 @@ export class InterpretadorComDepuracao
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
+    avisoPontoParadaAtivado: Function;
     escopoAtual: number;
     comando?: ComandoDepurador;
 
@@ -57,6 +58,7 @@ export class InterpretadorComDepuracao
 
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;
+        this.avisoPontoParadaAtivado = () => console.log("Aviso: Ponto de parada ativado.")
         this.escopoAtual = 0;
         this.executandoChamada = false;
         this.passos = 0;
@@ -219,6 +221,7 @@ export class InterpretadorComDepuracao
                 );
 
                 if (this.pontoDeParadaAtivo) {
+                    this.avisoPontoParadaAtivado();
                     break;
                 }
 
@@ -230,6 +233,7 @@ export class InterpretadorComDepuracao
                 // Por isso verificamos outra parada aqui para evitar que 
                 // `this.declaracaoAtual` seja incrementado.
                 if (this.pontoDeParadaAtivo) {
+                    this.avisoPontoParadaAtivado();
                     break;
                 }
             }
@@ -379,6 +383,7 @@ export class InterpretadorComDepuracao
                     );
 
                     if (this.pontoDeParadaAtivo) {
+                        this.avisoPontoParadaAtivado();
                         break;
                     }
                 }
@@ -391,6 +396,7 @@ export class InterpretadorComDepuracao
                 // Por isso verificamos outra parada aqui para evitar que 
                 // `this.declaracaoAtual` seja incrementado.
                 if (this.pontoDeParadaAtivo) {
+                    this.avisoPontoParadaAtivado();
                     break;
                 }
             }
@@ -460,7 +466,7 @@ export class InterpretadorComDepuracao
         }
 
         if (escopo < this.escopoAtual) {
-            this.instrucaoPasso(escopo + 1);
+            await this.instrucaoPasso(escopo + 1);
         } else {
             await this.executarUmPassoNoEscopo();
         }
