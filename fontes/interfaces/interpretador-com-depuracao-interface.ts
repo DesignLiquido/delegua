@@ -9,6 +9,8 @@ export interface InterpretadorComDepuracaoInterface
     comando?: ComandoDepurador;
     pontoDeParadaAtivo: boolean;
     pontosParada: PontoParada[];
+    avisoPontoParadaAtivado: Function;
+    finalizacaoDaExecucao: Function;
 
     adentrarEscopo(): Promise<any>;
     instrucaoPasso(): Promise<any>;
