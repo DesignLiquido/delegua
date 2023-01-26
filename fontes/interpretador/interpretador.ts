@@ -863,7 +863,7 @@ export class Interpretador implements InterpretadorInterface {
         return funcoesChamaveis;
     }
 
-    private async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
