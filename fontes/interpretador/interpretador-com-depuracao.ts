@@ -1,5 +1,5 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Declaracao, Retorna, Var } from '../declaracoes';
+import { Declaracao, Escreva, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import {
     ComandoDepurador,
@@ -10,7 +10,7 @@ import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execuca
 import { Quebra, RetornoQuebra } from '../quebras';
 import { Interpretador } from './interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { Atribuir, Chamada } from '../construtos';
+import { Atribuir, Chamada, Construto } from '../construtos';
 import { inferirTipoVariavel } from './inferenciador';
 
 /**
@@ -64,6 +64,22 @@ export class InterpretadorComDepuracao
         this.passos = 0;
     }
 
+    /**
+     * Resolve problema de literais que tenham vírgulas, e confundem a resolução de chamadas.
+     * @param valor O valor do argumento, que pode ser um literal com virgulas.
+     * @returns Uma string com vírgulas escapadas.
+     */
+    private escaparVirgulas(valor: any) {
+        return String(valor).replace(/,/i, "\,");
+    }
+
+    /**
+     * Gera um identificador para resolução de chamadas. 
+     * Usado para não chamar funções repetidamente quando usando instruções 
+     * de passo, como "próximo" ou "adentrar-escopo".
+     * @param expressao A expressão de chamada.
+     * @returns Uma Promise que resolve como string.
+     */
     private async gerarIdResolucaoChamada(expressao: Chamada): Promise<string> {
         const argumentosResolvidos = [];
         for (let argumento of expressao.argumentos) {
@@ -72,7 +88,7 @@ export class InterpretadorComDepuracao
 
         return argumentosResolvidos.reduce(
             (acumulador, argumento) => 
-                acumulador += `,${argumento.hasOwnProperty('valor') ? argumento.valor : argumento}`,
+                acumulador += `,${this.escaparVirgulas(argumento.hasOwnProperty('valor') ? argumento.valor : argumento)}`,
             expressao.id
         );
     }
@@ -117,6 +133,60 @@ export class InterpretadorComDepuracao
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
+    }
+
+    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+        let formatoTexto: string = '';
+
+        for (const argumento of argumentos) {
+            let resultadoAvaliacao: any;
+            if (argumento instanceof Chamada) {
+                const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+                const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(argumento);
+                if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+                    resultadoAvaliacao = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                    delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                } else {
+                    resultadoAvaliacao = await this.avaliar(argumento);
+                }
+            } else {
+                resultadoAvaliacao = await this.avaliar(argumento);
+            }
+            
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                        ? resultadoAvaliacao.valor
+                        : resultadoAvaliacao;
+
+            formatoTexto += `${this.paraTexto(valor)} `;
+        }
+
+        return formatoTexto;
+    }
+
+    /**
+     * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
+     * alguma função para escrever numa página Web.
+     * Se ponto de parada foi ativado durante a avaliação de argumentos, não escreve.
+     * @param declaracao A declaração.
+     * @returns Sempre nulo, por convenção de visita.
+     */
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
+        try {
+            const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
+            if (this.pontoDeParadaAtivo) {
+                return null;
+            }
+
+            this.funcaoDeRetorno(formatoTexto);
+            return null;
+        } catch (erro: any) {
+            this.erros.push({ 
+                erroInterno: erro, 
+                linha: declaracao.linha, 
+                hashArquivo: 
+                declaracao.hashArquivo 
+            });
+        }
     }
 
     /**
