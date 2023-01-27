@@ -704,5 +704,29 @@ describe('Tradutor Delégua -> JavaScript', () => {
             // expect(resultado).toMatch(/a > 0 && a === 3/i);
             expect(resultado).toMatch(/console\.log\(5\)/i);
         });
+
+        it('importar', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var lodash = importar\(\'lodash\'\)',
+                ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let lodash = \'importar\(\) não é suportado por este padrão de JavaScript\'/i);
+        });
+        
+        it('leia', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var nome = leia\(\'Digite seu nome:\'\)',
+                ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let nome = \'leia\(\) não é suportado por este padrão de JavaScript.\'/i);
+        });
     });
 });
