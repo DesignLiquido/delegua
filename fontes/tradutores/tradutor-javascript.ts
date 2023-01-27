@@ -366,14 +366,15 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
         if (declaracaoSe.caminhoSenao !== null) {
-            resultado += '\nelse ';
+            resultado += ' '.repeat(this.indentacao);
+            resultado += 'else ';
             const se = declaracaoSe?.caminhoSenao as Se;
             if (se?.caminhoEntao) {
                 resultado += 'if (';
                 resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
                 resultado += ')';
                 resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-
+                resultado += ' '.repeat(this.indentacao);
                 if (se?.caminhoSenao) {
                     resultado += 'else ';
                     resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
