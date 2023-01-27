@@ -326,11 +326,11 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoImportar(declaracaoImportar: Importar) {
-        throw new Error('`importar()` não é suportado por este padrão de JavaScript.');
+        return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
     traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
-        throw new Error('`leia()` não é suportado por este padrão de JavaScript.');
+        return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
@@ -366,14 +366,15 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
         if (declaracaoSe.caminhoSenao !== null) {
-            resultado += '\nelse ';
+            resultado += ' '.repeat(this.indentacao);
+            resultado += 'else ';
             const se = declaracaoSe?.caminhoSenao as Se;
             if (se?.caminhoEntao) {
                 resultado += 'if (';
                 resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
                 resultado += ')';
                 resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-
+                resultado += ' '.repeat(this.indentacao);
                 if (se?.caminhoSenao) {
                     resultado += 'else ';
                     resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
@@ -431,13 +432,19 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema;
-        if(!declaracaoVar?.inicializador)
+        if (!declaracaoVar?.inicializador)
             resultado += ';';
         else {
             resultado += ' = ';
-            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
+            if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]){
+                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            } else {
+                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            }
             resultado += ";"
         }
         return resultado;
