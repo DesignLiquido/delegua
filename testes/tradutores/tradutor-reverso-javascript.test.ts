@@ -152,5 +152,21 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toBeTruthy();
             // expect(resultado).toMatch(/console\.log\(i\)/i);
         });
+
+        it('class -> classe', () => {
+            const codigo = `
+                class Base {
+                }
+                class Retangulo extends Base {
+                    constructor(a,b,c){
+                    }
+                }
+                var retangulo = new Retangulo(1,2,'a')
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
     });
 });

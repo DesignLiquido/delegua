@@ -7,6 +7,7 @@ import {
     Identifier,
     Literal,
     MethodDefinition,
+    NewExpression,
     ReturnStatement,
     UpdateExpression,
     VariableDeclaration
@@ -61,6 +62,22 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirNovo(novo: NewExpression){
+        let identificador = novo.callee as Identifier;
+
+        let resultado = `${identificador.name}(`;
+
+        for (let argumento of novo.arguments){
+            resultado += this.dicionarioConstrutos[argumento.type](argumento) + ', '
+        }
+        if (novo.arguments.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+
+        resultado += ')'
+        return resultado;
+    }
+
     dicionarioConstrutos = {
         ArrayExpression: this.traduzirConstrutoVetor.bind(this),
         ArrowFunctionExpression: this.traduzirDeclaracaoFuncao.bind(this),
@@ -72,6 +89,7 @@ export class TradutorReversoJavaScript {
         // Isto: this.traduzirConstrutoIsto.bind(this),
         Identifier: this.traduzirIdentificador.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        NewExpression: this.traduzirNovo.bind(this),
         UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this)
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
