@@ -182,5 +182,23 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toBeTruthy();
             // expect(resultado).toMatch(/console\.log\(i\)/i);
         });
+
+        it('do while -> fazer enquanto', () => {
+            const codigo = `
+                let result = '';
+                let i = 0;
+                
+                do {
+                i = i + 1;
+                result = result + i;
+                } while (i < 5);
+                
+                console.log(result);
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
     });
 });

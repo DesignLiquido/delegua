@@ -3,6 +3,7 @@ import {
     ArrayExpression,
     BinaryExpression,
     ClassDeclaration,
+    DoWhileStatement,
     ForStatement,
     Identifier,
     Literal,
@@ -204,7 +205,8 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirClasseDeclaracao(declaracao: ClassDeclaration) {
+    //TODO: Refatorar esse método. @Samuel
+    traduzirDeclaracaoClasse(declaracao: ClassDeclaration) {
         let resultado = `classe ${declaracao.id.name} `;
         if (declaracao.superClass) {
             let identificador = declaracao.superClass as Identifier;
@@ -268,10 +270,21 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirDeclaracaoFazerEnquanto(declaracao: DoWhileStatement): string {
+        let resultado = 'fazer'
+        resultado += this.logicaComumBlocoEscopo(declaracao);
+        resultado += 'enquanto('
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test)
+        resultado += ')'
+        return resultado;
+    }
+
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
             case 'ClassDeclaration':
-                return this.traduzirClasseDeclaracao(declaracao);
+                return this.traduzirDeclaracaoClasse(declaracao);
+            case 'DoWhileStatement':
+                return this.traduzirDeclaracaoFazerEnquanto(declaracao)
             case 'ExpressionStatement':
                 return this.traduzirExpressaoDeclaracao(declaracao);
             case 'ForStatement':
