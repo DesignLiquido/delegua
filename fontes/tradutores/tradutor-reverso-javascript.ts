@@ -1,5 +1,14 @@
 import { parseScript } from 'esprima';
-import { ClassDeclaration, Identifier, Literal, MethodDefinition } from 'estree';
+import {
+    ArrayExpression,
+    BinaryExpression,
+    ClassDeclaration,
+    Identifier,
+    Literal,
+    MethodDefinition,
+    VariableDeclaration
+} 
+from 'estree';
 
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
@@ -16,10 +25,30 @@ export class TradutorReversoJavaScript {
             case '==':
             case '===':
                 return '==';
+            case '**':
+                return '**' 
         }
     }
 
+    traduzirConstrutoVetor(vetor: ArrayExpression){
+        if(!vetor.elements.length){
+            return '[]'
+        }
+
+        let resultado = '['
+        
+        for(let elemento of vetor.elements){
+            resultado += this.dicionarioConstrutos[elemento.constructor.name](elemento) + ', '
+        }
+        if (vetor.elements.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ']'
+        return resultado;
+    }
+
     dicionarioConstrutos = {
+        ArrayExpression: this.traduzirConstrutoVetor.bind(this),
         ArrowFunctionExpression: this.traduzirDeclaracaoFuncao.bind(this),
         // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         // Atribuir: this.traduzirConstrutoAtribuir.bind(this),
@@ -81,19 +110,23 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirConstrutoBinario(binario: any): string {
+    traduzirConstrutoBinario(binario: BinaryExpression): string {
         let resultado = '';
-        let direita = typeof binario.right.value === 'string' ? `'${binario.right.value}'` : binario.right.value;
-        let esquerda = typeof binario.left.value === 'string' ? `'${binario.left.value}'` : binario.left.value;
+        const direita = this.dicionarioConstrutos[binario.right.type](binario.right);
+        const esquerda = this.dicionarioConstrutos[binario.left.type](binario.left);
         resultado += `${esquerda} ${this.traduzirSimboloOperador(binario.operator)} ${direita}`;
         return resultado;
     }
 
-    traduzirDeclaracaoDeVariavel(declaracao: any): string {
+    traduzirDeclaracaoDeVariavel(declaracao: VariableDeclaration): string {
+        let resultado = ''
         let informacoesDaVariavel = declaracao.declarations[0];
-        let resultado = `var ${informacoesDaVariavel.id.name} = ${this.dicionarioConstrutos[
-            informacoesDaVariavel.init.type
-        ](informacoesDaVariavel.init)}`;
+        const identificador = informacoesDaVariavel.id as Identifier;
+        if(identificador){
+            resultado += `var ${identificador.name} = ${this.dicionarioConstrutos[
+                informacoesDaVariavel.init.type
+            ](informacoesDaVariavel.init)}`;
+        }
 
         return resultado;
     }
@@ -102,7 +135,6 @@ export class TradutorReversoJavaScript {
         let resultado = '{\n';
         this.indentacao += 4;
 
-        // if (typeof declaracoes[Symbol.iterator] === 'function') {
         for (const declaracaoOuConstruto of declaracoes.body.body) {
             resultado += ' '.repeat(this.indentacao);
             const nomeConstrutor = declaracaoOuConstruto.constructor.name;
@@ -114,7 +146,6 @@ export class TradutorReversoJavaScript {
 
             resultado += '\n';
         }
-        // }
 
         this.indentacao -= 4;
         resultado += ' '.repeat(this.indentacao) + '}\n';
