@@ -90,6 +90,15 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/retorna \'\'/i);
         });
 
+        it('function -> funcao com retorno vazio', () => {
+            const codigo = `function teste(a, b, c) { return 0 }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna 0/i);
+        });
+
         it('function -> funcao com retorno de variavel', () => {
             const codigo = `function teste(a, b, c) { return a }`;
 

@@ -112,14 +112,7 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
-        if(!literal.hasOwnProperty('value')){
-            return '\'\''
-        }
-        let resultado = '';
-        if (typeof literal.value === 'string') resultado += `'${literal.value || null}'`;
-        else resultado += `${literal.value}`;
-
-        return resultado;
+        return `${literal.raw}`;
     }
 
     traduzirConstrutoBinario(binario: BinaryExpression): string {
