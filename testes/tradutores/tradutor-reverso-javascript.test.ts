@@ -29,6 +29,29 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
+        it('for -> para', () => {
+            const codigo = 'for (let i = 0; i < 10; i++) { console.log(i) }'
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/para \(var i = 0; i < 10; i\+\+\)/i);
+            expect(resultado).toMatch(/escreva\(i\)/i);
+        });
+
+        it('array - vetor - com valores', () => {
+            const codigo = 'let vetor = [1, \'2\']'
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var vetor = \[1, \'2\'\]/i);
+        });
+
+        it('array - vetor - vazio', () => {
+            const codigo = 'let vetor = []'
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var vetor = \[\]/i);
+        });
+
         it('const/let/var -> var', () => {
             const codigo = `const a = 1\nlet b = 2\nvar c = 3`;
 

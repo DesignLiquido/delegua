@@ -88,7 +88,7 @@ export class TradutorReversoJavaScript {
         if (informacoesExpressao?.type === 'MemberExpression') {
             if (informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log') {
                 if(declaracao.expression.arguments.length === 0){
-                    return 'console.log()'
+                    return 'escreva(\'\')'
                 }
                 for (let argumento of declaracao.expression.arguments) {
                     resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`;
