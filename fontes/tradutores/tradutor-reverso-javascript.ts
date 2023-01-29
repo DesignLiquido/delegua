@@ -3,9 +3,11 @@ import {
     ArrayExpression,
     BinaryExpression,
     ClassDeclaration,
+    ForStatement,
     Identifier,
     Literal,
     MethodDefinition,
+    UpdateExpression,
     VariableDeclaration
 } 
 from 'estree';
@@ -25,8 +27,8 @@ export class TradutorReversoJavaScript {
             case '==':
             case '===':
                 return '==';
-            case '**':
-                return '**' 
+            default:
+                return operador;
         }
     }
 
@@ -36,7 +38,7 @@ export class TradutorReversoJavaScript {
         }
 
         let resultado = '['
-        
+
         for(let elemento of vetor.elements){
             resultado += this.dicionarioConstrutos[elemento.constructor.name](elemento) + ', '
         }
@@ -44,6 +46,17 @@ export class TradutorReversoJavaScript {
             resultado = resultado.slice(0, -2);
         }
         resultado += ']'
+        return resultado;
+    }
+
+    traduzirIdentificador(identificador: Identifier): string {
+        return identificador.name;
+    }
+
+    traduzirAtualizacaoVariavel(atualizarVariavel: UpdateExpression): string {
+        let resultado = '';
+        resultado += this.dicionarioConstrutos[atualizarVariavel.argument.constructor.name](atualizarVariavel.argument)
+        resultado += this.traduzirSimboloOperador(atualizarVariavel.operator);
         return resultado;
     }
 
@@ -56,7 +69,9 @@ export class TradutorReversoJavaScript {
         CallExpression: this.traduzirConstrutoChamada.bind(this),
         // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         // Isto: this.traduzirConstrutoIsto.bind(this),
+        Identifier: this.traduzirIdentificador.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this)
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
 
@@ -72,6 +87,9 @@ export class TradutorReversoJavaScript {
         let informacoesExpressao = declaracao.expression.callee;
         if (informacoesExpressao?.type === 'MemberExpression') {
             if (informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log') {
+                if(declaracao.expression.arguments.length === 0){
+                    return 'console.log()'
+                }
                 for (let argumento of declaracao.expression.arguments) {
                     resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`;
                 }
@@ -152,6 +170,17 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirDeclaracaoPara(declaracao: ForStatement): string{
+        let resultado = ''
+        resultado += 'para ('
+        resultado += this.traduzirDeclaracao(declaracao.init) + '; '
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test) + '; '
+        resultado += this.dicionarioConstrutos[declaracao.update.type](declaracao.update) + ') '
+        resultado += this.logicaComumBlocoEscopo(declaracao);
+
+        return resultado;
+    }
+
     traduzirDeclaracaoDeFuncao(declaracao: any): string {
         let resultado = '';
         resultado += `funcao ${declaracao.id.name}(`;
@@ -225,6 +254,8 @@ export class TradutorReversoJavaScript {
                 return this.traduzirClasseDeclaracao(declaracao);
             case 'ExpressionStatement':
                 return this.traduzirExpressaoDeclaracao(declaracao);
+            case 'ForStatement':
+                return this.traduzirDeclaracaoPara(declaracao);            
             case 'FunctionDeclaration':
                 return this.traduzirDeclaracaoDeFuncao(declaracao);
             case 'VariableDeclaration':
