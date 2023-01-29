@@ -6,11 +6,13 @@ import {
     ForStatement,
     Identifier,
     Literal,
+    MemberExpression,
     MethodDefinition,
     NewExpression,
     ReturnStatement,
     UpdateExpression,
-    VariableDeclaration
+    VariableDeclaration,
+    WhileStatement
 } 
 from 'estree';
 
@@ -78,55 +80,56 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirExpressao(expressao: MemberExpression): string {
+        let objeto = this.dicionarioConstrutos[expressao.object.type](expressao.object)
+        let propriedade = this.dicionarioConstrutos[expressao.property.type](expressao.property)
+        if(objeto === 'console' && propriedade === 'log'){
+            return 'escreva'
+        }
+        return `${objeto}${propriedade}`;
+    }
+
     dicionarioConstrutos = {
+        AssignmentExpression: this.traduzirConstrutoAtribuir.bind(this),
         ArrayExpression: this.traduzirConstrutoVetor.bind(this),
         ArrowFunctionExpression: this.traduzirDeclaracaoFuncao.bind(this),
         // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-        // Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         BinaryExpression: this.traduzirConstrutoBinario.bind(this),
         CallExpression: this.traduzirConstrutoChamada.bind(this),
         // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         // Isto: this.traduzirConstrutoIsto.bind(this),
         Identifier: this.traduzirIdentificador.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        MemberExpression: this.traduzirExpressao.bind(this),
         NewExpression: this.traduzirNovo.bind(this),
+        ThisExpression: (expressao) => 'isto.',
         UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this)
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
 
-    traduzirConstrutoChamada(chamada: any) { }
+    traduzirConstrutoChamada(chamada: any) {
+        let resultado = '';
+        resultado += this.dicionarioConstrutos[chamada.callee.type](chamada.callee) + '('
+        for (let parametro of chamada.arguments) {
+            resultado += this.dicionarioConstrutos[parametro.type](parametro) + ', ';
+        }
+        if (chamada.arguments.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ')';
+        return resultado;
+    }
+
+    traduzirConstrutoAtribuir(atribuir: any): string {
+        let resultado = '';
+        const direita = this.dicionarioConstrutos[atribuir.right.type](atribuir.right);
+        const esquerda = this.dicionarioConstrutos[atribuir.left.type](atribuir.left);
+        resultado += `${esquerda} ${this.traduzirSimboloOperador(atribuir.operator)} ${direita}`;
+        return resultado;
+    }
 
     traduzirExpressaoDeclaracao(declaracao): string {
-        let resultado = '';
-        let informacoesExpressao = declaracao.expression.callee;
-        if (informacoesExpressao?.type === 'MemberExpression') {
-            if (informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log') {
-                if(declaracao.expression.arguments.length === 0){
-                    return 'escreva(\'\')'
-                }
-                for (let argumento of declaracao.expression.arguments) {
-                    resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`;
-                }
-            }
-        }
-        if(declaracao?.expression?.type === 'AssignmentExpression'){
-            let de = declaracao?.expression;
-            if(de.left.object.type === 'ThisExpression')
-                resultado += `isto.${de.left.property.name}`
-            resultado += ' = '
-            resultado += de.right.name
-        }
-        if(declaracao?.expression?.callee?.type === 'Identifier'){
-            resultado += informacoesExpressao.name + '(';
-            for (let parametro of declaracao?.expression?.arguments) {
-                resultado += this.dicionarioConstrutos[parametro.type](parametro) + ', ';
-            }
-            if (declaracao?.expression?.arguments.length > 0) {
-                resultado = resultado.slice(0, -2);
-            }
-            resultado += ')'
-        }
-        return resultado;
+        return this.dicionarioConstrutos[declaracao.expression.type](declaracao.expression)
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
@@ -141,7 +144,7 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirDeclaracaoDeVariavel(declaracao: VariableDeclaration): string {
+    traduzirDeclaracaoVariavel(declaracao: VariableDeclaration): string {
         let resultado = ''
         let informacoesDaVariavel = declaracao.declarations[0];
         const identificador = informacoesDaVariavel.id as Identifier;
@@ -257,6 +260,14 @@ export class TradutorReversoJavaScript {
         return `retorna ${this.dicionarioConstrutos[declaracao.argument.type](declaracao.argument)}`;
     }
 
+    traduzirDeclaracaoEnquanto(declaracao: WhileStatement): string{
+        let resultado = 'enquanto(';
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test);
+        resultado += ')';
+        resultado += this.logicaComumBlocoEscopo(declaracao);
+        return resultado;
+    }
+
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
             case 'ClassDeclaration':
@@ -270,7 +281,9 @@ export class TradutorReversoJavaScript {
             case 'ReturnStatement':
                 return this.traduzirDeclaracaoRetorna(declaracao);
             case 'VariableDeclaration':
-                return this.traduzirDeclaracaoDeVariavel(declaracao);
+                return this.traduzirDeclaracaoVariavel(declaracao);
+            case 'WhileStatement':
+                return this.traduzirDeclaracaoEnquanto(declaracao);
         }
     }
 
@@ -281,12 +294,7 @@ export class TradutorReversoJavaScript {
         for (let declaracao of declaracoes.body) {
             resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
         }
-        console.log(resultado);
+        // console.log(resultado);
         return resultado;
     }
 }
-
-//cd ./fontes/tradutores
-//ts-node -T tradutor-reverso-javascript.ts
-// var tjs = new TradutorReversoJavaScript();
-// tjs.traduzir();
