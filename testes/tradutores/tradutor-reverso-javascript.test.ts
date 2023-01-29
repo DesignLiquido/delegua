@@ -58,23 +58,27 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
-        // it('class -> classe', () => {
-        //     const codigo = `
-        //         class Rectangle {
-        //             constructor(height, width, abc) {
-        //                 this.height = height;
-        //                 this.width = width;
-        //             }
+        it('class -> classe', () => {
+            const codigo = `
+                class Rectangle {
+                    constructor(height, width, abc) {
+                        this.height = height;
+                        this.width = width;
+                    }
 
-        //             teste(){
-        //                 console.log('oi')
-        //             }
-        //         }
-        //     `
+                    teste(){
+                        console.log('oi')
+                    }
+                    
+                    teste2(parametro1){
+                        console.log('oi')
+                    }
+                }
+            `
 
-        //     const resultado = tradutor.traduzir(codigo);
-        //     // expect(resultado).toBeTruthy();
-        //     // expect(resultado).toMatch(/console\.log\(i\)/i);
-        // });
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
     });
 });

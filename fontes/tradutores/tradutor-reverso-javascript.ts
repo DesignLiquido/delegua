@@ -1,4 +1,5 @@
 import { parseScript } from 'esprima';
+import { ClassDeclaration, Identifier, MethodDefinition } from 'estree';
 
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
@@ -38,12 +39,19 @@ export class TradutorReversoJavaScript {
     traduzirExpressaoDeclaracao(declaracao): string {
         let resultado = '';
         let informacoesExpressao = declaracao.expression.callee;
-        if (informacoesExpressao.type === 'MemberExpression') {
+        if (informacoesExpressao?.type === 'MemberExpression') {
             if (informacoesExpressao?.object?.name === 'console' && informacoesExpressao?.property?.name === 'log') {
                 for (let argumento of declaracao.expression.arguments) {
                     resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`;
                 }
             }
+        }
+        if(declaracao?.expression?.type === 'AssignmentExpression'){
+            let de = declaracao?.expression;
+            if(de.left.object.type === 'ThisExpression')
+                resultado += `isto.${de.left.property.name}`
+            resultado += ' = '
+            resultado += de.right.name
         }
         return resultado;
     }
@@ -116,11 +124,51 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirClasseDeclaracao(declaracao: any) {
-        let resultado = '';
+    traduzirClasseDeclaracao(declaracao: ClassDeclaration) {
+        let resultado = `classe ${declaracao.id.name} {\n`;
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
 
-        console.log(declaracao);
-        return '';
+        for(let corpo of declaracao.body.body) {
+            if(corpo.type === 'MethodDefinition'){
+                let _corpo = corpo as MethodDefinition;
+                if(_corpo.kind === 'constructor'){
+                    resultado += 'construtor('
+                    for (let valor of _corpo.value.params){
+                        if(valor.type === 'Identifier'){
+                            resultado += `${valor.name}, `
+                        }
+                    }
+                    if (_corpo.value.params.length > 0) {
+                        resultado = resultado.slice(0, -2);
+                    }
+                    resultado += ')'
+                    resultado += this.logicaComumBlocoEscopo(_corpo.value)
+                } else if (_corpo.kind === 'method'){
+                    resultado += ' '.repeat(this.indentacao);
+                    let identificador = _corpo.key as Identifier
+                    resultado += identificador.name + '('
+                    for (let valor of _corpo.value.params){
+                        if(valor.type === 'Identifier'){
+                            resultado += `${valor.name}, `
+                        }
+                    }
+                    if (_corpo.value.params.length > 0) {
+                        resultado = resultado.slice(0, -2);
+                    }
+                    resultado += ')'
+                    resultado += this.logicaComumBlocoEscopo(_corpo.value)
+                }
+            } else if (corpo.constructor.name === 'PropertyDefinition'){
+
+            } else if (corpo.constructor.name === 'StaticBlock') {
+
+            }
+        }
+
+        this.indentacao -= 4;
+        resultado += ' '.repeat(this.indentacao) + '}\n';
+        return resultado;
     }
 
     traduzirDeclaracao(declaracao: any): string {
