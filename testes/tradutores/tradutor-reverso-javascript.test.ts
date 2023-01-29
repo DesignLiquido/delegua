@@ -60,7 +60,10 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
         it('class -> classe', () => {
             const codigo = `
-                class Rectangle {
+                class Base {
+                    constructor(){}
+                }
+                class Rectangle extends Base {
                     constructor(height, width, abc) {
                         this.height = height;
                         this.width = width;
@@ -69,7 +72,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
                     teste(){
                         console.log('oi')
                     }
-                    
+
                     teste2(parametro1){
                         console.log('oi')
                     }

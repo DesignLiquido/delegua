@@ -125,7 +125,12 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirClasseDeclaracao(declaracao: ClassDeclaration) {
-        let resultado = `classe ${declaracao.id.name} {\n`;
+        let resultado = `classe ${declaracao.id.name} `;
+        if (declaracao.superClass) {
+            let identificador = declaracao.superClass as Identifier;
+            resultado += `herda ${identificador.name} `;
+        }
+        resultado += '{\n'
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
 
