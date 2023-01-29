@@ -7,6 +7,7 @@ import {
     Identifier,
     Literal,
     MethodDefinition,
+    ReturnStatement,
     UpdateExpression,
     VariableDeclaration
 } 
@@ -75,11 +76,6 @@ export class TradutorReversoJavaScript {
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
     };
 
-    dicionarioDeclaracoes = {
-        ExpressionStatement: this.traduzirExpressaoDeclaracao.bind(this),
-        // traduzirDeclaracaoEscreva
-    };
-
     traduzirConstrutoChamada(chamada: any) { }
 
     traduzirExpressaoDeclaracao(declaracao): string {
@@ -115,14 +111,12 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirDeclaracaoFuncao(funcao: any): string {
-        console.log(funcao);
-        return '';
-    }
-
     traduzirConstrutoLiteral(literal: Literal): string {
+        if(!literal.hasOwnProperty('value')){
+            return '\'\''
+        }
         let resultado = '';
-        if (typeof literal.value === 'string') resultado += `'${literal.value}'`;
+        if (typeof literal.value === 'string') resultado += `'${literal.value || null}'`;
         else resultado += `${literal.value}`;
 
         return resultado;
@@ -159,7 +153,7 @@ export class TradutorReversoJavaScript {
             if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
                 resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
             } else {
-                resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
+                resultado += this.traduzirDeclaracao(declaracaoOuConstruto);
             }
 
             resultado += '\n';
@@ -181,7 +175,7 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
-    traduzirDeclaracaoDeFuncao(declaracao: any): string {
+    traduzirDeclaracaoFuncao(declaracao: any): string {
         let resultado = '';
         resultado += `funcao ${declaracao.id.name}(`;
 
@@ -248,6 +242,10 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirDeclaracaoRetorna(declaracao: ReturnStatement): string {
+        return `retorna ${this.dicionarioConstrutos[declaracao.argument.type](declaracao.argument)}`;
+    }
+
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
             case 'ClassDeclaration':
@@ -257,7 +255,9 @@ export class TradutorReversoJavaScript {
             case 'ForStatement':
                 return this.traduzirDeclaracaoPara(declaracao);            
             case 'FunctionDeclaration':
-                return this.traduzirDeclaracaoDeFuncao(declaracao);
+                return this.traduzirDeclaracaoFuncao(declaracao);
+            case 'ReturnStatement':
+                return this.traduzirDeclaracaoRetorna(declaracao);
             case 'VariableDeclaration':
                 return this.traduzirDeclaracaoDeVariavel(declaracao);
         }

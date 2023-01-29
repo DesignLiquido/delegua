@@ -81,6 +81,33 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
+        it('function -> funcao com retorno vazio', () => {
+            const codigo = `function teste(a, b, c) { return '' }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna \'\'/i);
+        });
+
+        it('function -> funcao com retorno de variavel', () => {
+            const codigo = `function teste(a, b, c) { return a }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna a/i);
+        });
+
+        it('function -> funcao com retorno de soma valores', () => {
+            const codigo = `function teste(a, b, c) { return 1 + 2 }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna 1 \+ 2/i);
+        });
+
         it('function -> chamada de função', () => {
             const codigo = `function teste(a, b, c) {console.log(\'Oi\')} teste(1,2,3)`;
 
