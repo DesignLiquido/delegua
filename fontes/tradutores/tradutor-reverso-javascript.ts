@@ -1,5 +1,5 @@
 import { parseScript } from 'esprima';
-import { ClassDeclaration, Identifier, MethodDefinition } from 'estree';
+import { ClassDeclaration, Identifier, Literal, MethodDefinition } from 'estree';
 
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
@@ -24,7 +24,7 @@ export class TradutorReversoJavaScript {
         // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         // Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         BinaryExpression: this.traduzirConstrutoBinario.bind(this),
-        // Chamada: this.traduzirConstrutoChamada.bind(this),
+        CallExpression: this.traduzirConstrutoChamada.bind(this),
         // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         // Isto: this.traduzirConstrutoIsto.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
@@ -35,6 +35,8 @@ export class TradutorReversoJavaScript {
         ExpressionStatement: this.traduzirExpressaoDeclaracao.bind(this),
         // traduzirDeclaracaoEscreva
     };
+
+    traduzirConstrutoChamada(chamada: any) { }
 
     traduzirExpressaoDeclaracao(declaracao): string {
         let resultado = '';
@@ -53,6 +55,16 @@ export class TradutorReversoJavaScript {
             resultado += ' = '
             resultado += de.right.name
         }
+        if(declaracao?.expression?.callee?.type === 'Identifier'){
+            resultado += informacoesExpressao.name + '(';
+            for (let parametro of declaracao?.expression?.arguments) {
+                resultado += this.dicionarioConstrutos[parametro.type](parametro) + ', ';
+            }
+            if (declaracao?.expression?.arguments.length > 0) {
+                resultado = resultado.slice(0, -2);
+            }
+            resultado += ')'
+        }
         return resultado;
     }
 
@@ -61,7 +73,7 @@ export class TradutorReversoJavaScript {
         return '';
     }
 
-    traduzirConstrutoLiteral(literal: any): string {
+    traduzirConstrutoLiteral(literal: Literal): string {
         let resultado = '';
         if (typeof literal.value === 'string') resultado += `'${literal.value}'`;
         else resultado += `${literal.value}`;

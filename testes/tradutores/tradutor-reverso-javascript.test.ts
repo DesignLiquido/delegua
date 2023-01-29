@@ -58,6 +58,16 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
+        it('function -> chamada de função', () => {
+            const codigo = `function teste(a, b, c) {console.log(\'Oi\')} teste(1,2,3)`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/escreva\('Oi'\)/i);
+            expect(resultado).toMatch(/teste\(1, 2, 3\)/i);
+        });
+
         it('class -> classe', () => {
             const codigo = `
                 class Base {
