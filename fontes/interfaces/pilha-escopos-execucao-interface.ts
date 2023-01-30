@@ -20,5 +20,6 @@ export interface PilhaEscoposExecucaoInterface
     obterValorVariavel(simbolo: SimboloInterface): VariavelInterface;
     obterVariavelEm(distancia: number, nome: string): VariavelInterface;
     obterVariavelPorNome(nome: string): VariavelInterface;
+    obterTodasDeclaracaoClasse(): any;
     obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao };
 }
