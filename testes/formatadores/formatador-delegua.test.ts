@@ -11,7 +11,6 @@ describe('Formatadores > Delégua', () => {
             -1
         );
         const resultado = formatador.formatar(resultadoLexador.simbolos);
-        // console.log(resultado);
-        expect(resultado.split('\n')).toHaveLength(10);
+        expect(resultado.split('\n')).toHaveLength(19);
     });
 });
