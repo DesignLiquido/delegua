@@ -150,7 +150,6 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/console\.log\(i\)/i);
         });
 
         it('class -> classe', () => {
@@ -166,7 +165,6 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/console\.log\(i\)/i);
         });
 
         it('while -> enquanto', () => {
@@ -180,7 +178,6 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/console\.log\(i\)/i);
         });
 
         it('do while -> fazer enquanto', () => {
@@ -198,7 +195,39 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            // expect(resultado).toMatch(/console\.log\(i\)/i);
+        });
+
+        it('if/else if/else -> se/senao', () => {
+            const codigo = `
+                let i = 1;
+                
+                if(i == 1){
+                    console.log(\'i é igual a 1\')
+                } else if(i === 2){
+                    console.log(\'i é igual a 2\')
+                } else{
+                    console.log(\'i não é igual a 1 e nem igual a 2\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+        });
+
+        it('try/catch/finally -> tente/pegue/finalmente', () => {
+            const codigo = `                
+                try {
+                    console.log(\'Teste1\')
+                    console.log(\'Teste2\')
+                } catch (erro){
+                    console.log(erro)
+                } finally {
+                    console.log(\'Terminou\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
         });
     });
 });

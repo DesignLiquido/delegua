@@ -2,15 +2,18 @@ import { parseScript } from 'esprima';
 import {
     ArrayExpression,
     BinaryExpression,
+    BlockStatement,
     ClassDeclaration,
     DoWhileStatement,
     ForStatement,
     Identifier,
+    IfStatement,
     Literal,
     MemberExpression,
     MethodDefinition,
     NewExpression,
     ReturnStatement,
+    TryStatement,
     UpdateExpression,
     VariableDeclaration,
     WhileStatement
@@ -279,8 +282,39 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirDeclaracaoSe(declaracao: IfStatement): string {
+
+        return '';
+    }
+
+    traduzirDeclaracaoTente(declaracao: TryStatement): string {
+        let resultado = 'tente '
+
+        let x = this.traduzirDeclaracao(declaracao.block);
+
+        // const nomeConstrutor = declaracaoOuConstruto.constructor.name;
+        // if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+        //     resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
+        // } else {
+        //     resultado += this.traduzirDeclaracao(declaracaoOuConstruto);
+        // }
+
+        return '';
+    }
+
+    traduzirDeclaracaoBloco(declaracao: BlockStatement): string {
+        let resultado = '';
+        for (let bloco of declaracao.body){
+            // resultado += this.dicionarioConstrutos[bloco.expression.type](bloco)
+        }
+
+        return resultado;
+    }
+
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
+            case 'BlockStatement':
+                return this.traduzirDeclaracaoBloco(declaracao);
             case 'ClassDeclaration':
                 return this.traduzirDeclaracaoClasse(declaracao);
             case 'DoWhileStatement':
@@ -291,8 +325,12 @@ export class TradutorReversoJavaScript {
                 return this.traduzirDeclaracaoPara(declaracao);            
             case 'FunctionDeclaration':
                 return this.traduzirDeclaracaoFuncao(declaracao);
+            case 'IfStatement':
+                return this.traduzirDeclaracaoSe(declaracao);
             case 'ReturnStatement':
                 return this.traduzirDeclaracaoRetorna(declaracao);
+            case 'TryStatement':
+                return this.traduzirDeclaracaoTente(declaracao);
             case 'VariableDeclaration':
                 return this.traduzirDeclaracaoVariavel(declaracao);
             case 'WhileStatement':
