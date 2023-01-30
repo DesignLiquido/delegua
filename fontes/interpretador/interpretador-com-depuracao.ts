@@ -502,11 +502,21 @@ export class InterpretadorComDepuracao
      * Quando um ponto de parada é ativado, a pilha de execução do TypeScript é perdida.
      * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
      * primeiro escopo, subindo até o último elemento executado do último escopo.
-     * Diferentemente de `executarUltimoEscopo`, este método descarta apenas um escopo (o que foi chamado).
-     * @see executarBloco
+     * Se entre escopos houver ponto de parada ativo, a execução é suspensa até o próximo comando
+     * do desenvolvedor. 
+     * @see executarUltimoEscopo
      */
-    async instrucaoContinuarInterpretacao(): Promise<any> {
-        this.executarUltimoEscopoComandoContinuar(false, true);
+    async instrucaoContinuarInterpretacao(escopo = 1): Promise<any> {
+        let retornoExecucao: any;
+        if (escopo < this.escopoAtual) {
+            retornoExecucao = await this.instrucaoContinuarInterpretacao(escopo + 1);
+        }
+
+        if (this.pontoDeParadaAtivo) {
+            return;
+        }
+
+        await this.executarUltimoEscopoComandoContinuar(false, true);
     }
 
     /**
