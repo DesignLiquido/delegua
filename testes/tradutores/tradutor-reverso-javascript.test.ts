@@ -29,6 +29,29 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
+        it('for -> para', () => {
+            const codigo = 'for (let i = 0; i < 10; i++) { console.log(i) }'
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/para \(var i = 0; i < 10; i\+\+\)/i);
+            expect(resultado).toMatch(/escreva\(i\)/i);
+        });
+
+        it('array - vetor - com valores', () => {
+            const codigo = 'let vetor = [1, \'2\']'
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var vetor = \[1, \'2\'\]/i);
+        });
+
+        it('array - vetor - vazio', () => {
+            const codigo = 'let vetor = []'
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var vetor = \[\]/i);
+        });
+
         it('const/let/var -> var', () => {
             const codigo = `const a = 1\nlet b = 2\nvar c = 3`;
 
@@ -58,23 +81,181 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
-        // it('class -> classe', () => {
-        //     const codigo = `
-        //         class Rectangle {
-        //             constructor(height, width, abc) {
-        //                 this.height = height;
-        //                 this.width = width;
-        //             }
+        it('function -> funcao com retorno vazio', () => {
+            const codigo = `function teste(a, b, c) { return '' }`;
 
-        //             teste(){
-        //                 console.log('oi')
-        //             }
-        //         }
-        //     `
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna \'\'/i);
+        });
 
-        //     const resultado = tradutor.traduzir(codigo);
-        //     // expect(resultado).toBeTruthy();
-        //     // expect(resultado).toMatch(/console\.log\(i\)/i);
-        // });
+        it('function -> funcao com retorno vazio', () => {
+            const codigo = `function teste(a, b, c) { return 0 }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna 0/i);
+        });
+
+        it('function -> funcao com retorno de variavel', () => {
+            const codigo = `function teste(a, b, c) { return a }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna a/i);
+        });
+
+        it('function -> funcao com retorno de soma valores', () => {
+            const codigo = `function teste(a, b, c) { return 1 + 2 }`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/retorna 1 \+ 2/i);
+        });
+
+        it('function -> chamada de função', () => {
+            const codigo = `function teste(a, b, c) {console.log(\'Oi\')} teste(1,2,3)`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/funcao teste\(a, b, c\)/i);
+            expect(resultado).toMatch(/escreva\('Oi'\)/i);
+            expect(resultado).toMatch(/teste\(1, 2, 3\)/i);
+        });
+
+        it('class -> classe', () => {
+            const codigo = `
+                class Base {
+                    constructor(){}
+                }
+                class Rectangle extends Base {
+                    constructor(height, width, abc) {
+                        this.height = height;
+                        this.width = width;
+                    }
+
+                    teste(){
+                        console.log('oi')
+                    }
+
+                    teste2(parametro1){
+                        console.log('oi')
+                    }
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+        });
+
+        it('class -> classe', () => {
+            const codigo = `
+                class Base {
+                }
+                class Retangulo extends Base {
+                    constructor(a,b,c){
+                    }
+                }
+                var retangulo = new Retangulo(1,2,'a')
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+        });
+
+        it('while -> enquanto', () => {
+            const codigo = `
+                let i = 0;
+                while(i < 10){
+                    escreva(i)
+                    i++;
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 0/i);
+            expect(resultado).toMatch(/enquanto\(i < 10\){/i);
+        });
+
+        it('do while -> fazer enquanto', () => {
+            const codigo = `
+                let result = '';
+                let i = 0;
+                
+                do {
+                i = i + 1;
+                result = result + i;
+                } while (i < 5);
+                
+                console.log(result);
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/fazer{/i);
+            expect(resultado).toMatch(/enquanto\(i < 5\)/i);
+        });
+
+        it('if -> se', () => {
+            const codigo = `
+                let i = 1;                
+                if(i == 1){
+                    console.log(\'i é igual a 1\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 1/i);
+            expect(resultado).toMatch(/if \(i == 1\)/i);
+        });
+
+        it('if/else if/else -> se/senao se/senao', () => {
+            const codigo = `
+                let i = 1;                
+                if(i == 1){
+                    console.log(\'i é igual a 1\')
+                } 
+                else if(i === 2){
+                    console.log(\'i é igual a 2\')
+                } 
+                else{
+                    console.log(\'i não é igual a 1 e nem igual a 2\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 1/i);
+            expect(resultado).toMatch(/if \(i == 1\)/i);
+            expect(resultado).toMatch(/else if \(i == 2\)/i);
+            expect(resultado).toMatch(/else {/i);
+        });
+
+        it('try/catch/finally -> tente/pegue/finalmente', () => {
+            const codigo = `                
+                try {
+                    console.log(\'Teste1\')
+                } catch (erro){
+                    console.log(erro)
+                } finally {
+                    console.log(\'Terminou\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/tente/i);
+            expect(resultado).toMatch(/pegue\(erro\)/i);
+            expect(resultado).toMatch(/finalmente/i);
+            expect(resultado).toMatch(/escreva\('Teste1'\)/i);
+            // expect(resultado).toMatch(/escreva\(erro\)/i);
+            expect(resultado).toMatch(/escreva\('Terminou'\)/i);
+        });
     });
 });
