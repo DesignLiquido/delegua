@@ -53,6 +53,8 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Grátis.** Sem planos, sem limitações e sem propaganda.
 - **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
+- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br).
+- **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha
 
 ## Aplicações
 
@@ -60,12 +62,15 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 
 ## Instalação
 
-Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser: [basta usar nosso editor online clicando aqui](https://designliquido.github.io/delegua-web/).
+Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser: utilize uma das seguintes opções: 
+
+- [Dentro do Visual Studio Code, instale a extensão da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode). [Aprenda como executar e depurar seu programa aqui](https://www.youtube.com/watch?v=TQxLekzvBv8);
+- [Utilize nosso editor online](https://designliquido.github.io/delegua-web/).
 
 Se quiser instalar no seu computador,
 [você deve ter antes o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo).
 
-Com o Node.js instalado, execute o seguinte comando em um _prompt_ de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `bash` em Mac e Linux):
+Com o Node.js instalado, execute o seguinte comando em um _prompt_ de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `sh` em Mac e Linux):
 
 ```
 npm install -g delegua
