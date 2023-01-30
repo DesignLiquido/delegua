@@ -821,13 +821,17 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
+    /**
+     * Importa um arquivo como módulo.
+     * @param declaracao A declaração de importação.
+     * @returns Ou um `DeleguaModulo`, ou um dicionário de funções.
+     */
+    async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
         const caminhoRelativo = await this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
 
         if (
-            !caminhoTotal.endsWith('.egua') &&
             !caminhoTotal.endsWith('.delegua')
         ) {
             try {
@@ -847,20 +851,28 @@ export class Interpretador implements InterpretadorInterface {
         const funcoesChamaveis =
             this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
 
-        const eDicionario = (objeto: any) => objeto.constructor === Object;
+        const declaracoesClasse = 
+            this.pilhaEscoposExecucao.obterTodasDeclaracaoClasse();
 
-        if (eDicionario(funcoesChamaveis)) {
-            const novoModulo = new DeleguaModulo();
-
-            const chaves = Object.keys(funcoesChamaveis);
-            for (let i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] = funcoesChamaveis[chaves[i]];
-            }
-
-            return novoModulo;
+        if (declaracoesClasse.hasOwnProperty('super')) {
+            delete declaracoesClasse['super'];
         }
 
-        return funcoesChamaveis;
+        const novoModulo = new DeleguaModulo();
+
+        const chavesFuncoesChamaveis = Object.keys(funcoesChamaveis);
+        for (let i = 0; i < chavesFuncoesChamaveis.length; i++) {
+            novoModulo.componentes[chavesFuncoesChamaveis[i]] = 
+                funcoesChamaveis[chavesFuncoesChamaveis[i]];
+        }
+
+        const chavesDeclaracoesClasse = Object.keys(declaracoesClasse);
+        for (let i = 0; i < chavesDeclaracoesClasse.length; i++) {
+            novoModulo.componentes[chavesDeclaracoesClasse[i]] = 
+                declaracoesClasse[chavesDeclaracoesClasse[i]];
+        }
+
+        return novoModulo;
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {

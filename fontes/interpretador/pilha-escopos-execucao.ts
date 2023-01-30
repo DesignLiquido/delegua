@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from '../estruturas';
+import { DeleguaClasse, DeleguaFuncao } from '../estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
@@ -141,14 +141,31 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     /**
      * Obtém todas as funções declaradas ou por código-fonte, ou pelo desenvolvedor
-     * em console.
+     * em console, do último escopo.
      */
-    obterTodasDeleguaFuncao() {
+    obterTodasDeleguaFuncao(): {[nome: string]: DeleguaFuncao} {
         const retorno = {};
         const ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
             const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
             if (corpoValor instanceof DeleguaFuncao) {
+                retorno[nome] = corpoValor;
+            }
+        }
+
+        return retorno;
+    }
+
+    /**
+     * Obtém todas as declarações de classe do último escopo.
+     * @returns 
+     */
+    obterTodasDeclaracaoClasse(): any {
+        const retorno = {};
+        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
+        for (const [nome, corpo] of Object.entries(ambiente.valores)) {
+            const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
+            if (corpoValor instanceof DeleguaClasse) {
                 retorno[nome] = corpoValor;
             }
         }
