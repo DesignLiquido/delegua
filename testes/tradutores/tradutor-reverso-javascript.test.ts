@@ -178,6 +178,8 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 0/i);
+            expect(resultado).toMatch(/enquanto\(i < 10\){/i);
         });
 
         it('do while -> fazer enquanto', () => {
@@ -195,30 +197,50 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/fazer{/i);
+            expect(resultado).toMatch(/enquanto\(i < 5\)/i);
         });
 
-        it('if/else if/else -> se/senao', () => {
+        it('if -> se', () => {
             const codigo = `
-                let i = 1;
-                
+                let i = 1;                
                 if(i == 1){
                     console.log(\'i é igual a 1\')
-                } else if(i === 2){
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 1/i);
+            expect(resultado).toMatch(/if \(i == 1\)/i);
+        });
+
+        it('if/else if/else -> se/senao se/senao', () => {
+            const codigo = `
+                let i = 1;                
+                if(i == 1){
+                    console.log(\'i é igual a 1\')
+                } 
+                else if(i === 2){
                     console.log(\'i é igual a 2\')
-                } else{
+                } 
+                else{
                     console.log(\'i não é igual a 1 e nem igual a 2\')
                 }
             `
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 1/i);
+            expect(resultado).toMatch(/if \(i == 1\)/i);
+            expect(resultado).toMatch(/else if \(i == 2\)/i);
+            expect(resultado).toMatch(/else {/i);
         });
 
         it('try/catch/finally -> tente/pegue/finalmente', () => {
             const codigo = `                
                 try {
                     console.log(\'Teste1\')
-                    console.log(\'Teste2\')
                 } catch (erro){
                     console.log(erro)
                 } finally {
@@ -228,6 +250,12 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/tente/i);
+            expect(resultado).toMatch(/pegue\(erro\)/i);
+            expect(resultado).toMatch(/finalmente/i);
+            expect(resultado).toMatch(/escreva\('Teste1'\)/i);
+            // expect(resultado).toMatch(/escreva\(erro\)/i);
+            expect(resultado).toMatch(/escreva\('Terminou'\)/i);
         });
     });
 });

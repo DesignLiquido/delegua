@@ -165,7 +165,8 @@ export class TradutorReversoJavaScript {
         let resultado = '{\n';
         this.indentacao += 4;
 
-        for (const declaracaoOuConstruto of declaracoes.body.body) {
+        const corpo = declaracoes.body.body || declaracoes.body;
+        for (const declaracaoOuConstruto of corpo) {
             resultado += ' '.repeat(this.indentacao);
             const nomeConstrutor = declaracaoOuConstruto.constructor.name;
             if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
@@ -283,29 +284,38 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirDeclaracaoSe(declaracao: IfStatement): string {
-
-        return '';
+        let resultado = 'if (';
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test)
+        resultado += ')'
+        resultado += this.logicaComumBlocoEscopo(declaracao.consequent)
+        if(declaracao?.alternate){
+            resultado += 'else '
+            if(declaracao.alternate.constructor.name === 'BlockStatement'){
+                resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
+                return resultado;
+            }
+            resultado += this.traduzirDeclaracao(declaracao.alternate)
+            return resultado;
+        }
+        return resultado;
     }
 
     traduzirDeclaracaoTente(declaracao: TryStatement): string {
         let resultado = 'tente '
 
-        let x = this.traduzirDeclaracao(declaracao.block);
+        resultado += this.logicaComumBlocoEscopo(declaracao.block);
 
-        // const nomeConstrutor = declaracaoOuConstruto.constructor.name;
-        // if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
-        //     resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
-        // } else {
-        //     resultado += this.traduzirDeclaracao(declaracaoOuConstruto);
-        // }
-
-        return '';
-    }
-
-    traduzirDeclaracaoBloco(declaracao: BlockStatement): string {
-        let resultado = '';
-        for (let bloco of declaracao.body){
-            // resultado += this.dicionarioConstrutos[bloco.expression.type](bloco)
+        if(declaracao.handler){
+            resultado += 'pegue'
+            if(declaracao.handler.param){
+                const identificador = declaracao.handler.param as Identifier;
+                resultado += `(${identificador.name})`
+            }
+            resultado += this.logicaComumBlocoEscopo(declaracao.block);
+        }
+        if(declaracao.finalizer){
+            resultado += 'finalmente'
+            resultado += this.logicaComumBlocoEscopo(declaracao.finalizer);
         }
 
         return resultado;
@@ -313,8 +323,6 @@ export class TradutorReversoJavaScript {
 
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
-            case 'BlockStatement':
-                return this.traduzirDeclaracaoBloco(declaracao);
             case 'ClassDeclaration':
                 return this.traduzirDeclaracaoClasse(declaracao);
             case 'DoWhileStatement':
@@ -345,7 +353,7 @@ export class TradutorReversoJavaScript {
         for (let declaracao of declaracoes.body) {
             resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
         }
-        // console.log(resultado);
+
         return resultado;
     }
 }
