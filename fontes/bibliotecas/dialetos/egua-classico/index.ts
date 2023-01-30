@@ -1,4 +1,4 @@
-import { DeleguaModulo, FuncaoPadrao } from "../../../estruturas";
+import { DeleguaModulo, FuncaoPadrao } from '../../../estruturas';
 
 const carregarModulo = function (nomeModulo: string, caminhoModulo: string) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -9,11 +9,8 @@ const carregarModulo = function (nomeModulo: string, caminhoModulo: string) {
     for (let i = 0; i < keys.length; i++) {
         let itemAtual = dadosDoModulo[keys[i]];
 
-        if (typeof itemAtual === "function") {
-            novoModulo[keys[i]] = new FuncaoPadrao(
-                itemAtual.length,
-                itemAtual
-            );
+        if (typeof itemAtual === 'function') {
+            novoModulo[keys[i]] = new FuncaoPadrao(itemAtual.length, itemAtual);
         } else {
             novoModulo[keys[i]] = itemAtual;
         }
@@ -24,12 +21,12 @@ const carregarModulo = function (nomeModulo: string, caminhoModulo: string) {
 
 export const carregarModuloPorNome = function (nome: string) {
     switch (nome) {
-        case "tempo":
-            return carregarModulo("tempo", "./tempo.ts");
-        case "matematica":
-            return carregarModulo("matematica", "./matematica.ts");
-        case "textos":
-            return carregarModulo("textos", "./textos.ts");
+        case 'tempo':
+            return carregarModulo('tempo', './tempo.ts');
+        case 'matematica':
+            return carregarModulo('matematica', './matematica.ts');
+        case 'textos':
+            return carregarModulo('textos', './textos.ts');
     }
 
     return null;

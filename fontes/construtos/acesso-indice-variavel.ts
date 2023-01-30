@@ -13,12 +13,7 @@ export class AcessoIndiceVariavel implements Construto {
     simboloFechamento: SimboloInterface;
     indice: any;
 
-    constructor(
-        hashArquivo: number,
-        entidadeChamada: Construto,
-        indice: any,
-        simboloFechamento: SimboloInterface
-    ) {
+    constructor(hashArquivo: number, entidadeChamada: Construto, indice: any, simboloFechamento: SimboloInterface) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
 

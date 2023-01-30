@@ -53,5 +53,5 @@ export default {
     tan: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     var: tiposDeSimbolos.VAR,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
-    vetor: tiposDeSimbolos.VETOR
+    vetor: tiposDeSimbolos.VETOR,
 };

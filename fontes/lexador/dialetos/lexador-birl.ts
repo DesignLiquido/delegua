@@ -62,15 +62,9 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
+        const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
-        const tipo: string =
-            codigo in palavrasReservadas
-                ? palavrasReservadas[codigo]
-                : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
         /* while (
@@ -163,7 +157,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case '\0':
-            case '\n':                
+            case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
                 this.avancar();
                 break;

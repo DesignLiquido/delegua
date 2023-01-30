@@ -1,6 +1,6 @@
 import * as sistemaOperacional from 'os';
 
-import { SimboloInterface } from "../interfaces";
+import { SimboloInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -18,7 +18,7 @@ export class FormatadorDelegua {
     }
 
     formatar(simbolos: SimboloInterface[], tamanhoIndentacao: number = 4): string {
-        let resultado = "";
+        let resultado = '';
         let deveQuebrarLinha: boolean = false;
 
         for (let simbolo of simbolos) {
@@ -66,7 +66,6 @@ export class FormatadorDelegua {
                 case tiposDeSimbolos.IDENTIFICADOR:
                 case tiposDeSimbolos.IGUAL:
                 case tiposDeSimbolos.IGUAL_IGUAL:
-                
                     resultado += simbolo.lexema + ' ';
                     break;
                 default:

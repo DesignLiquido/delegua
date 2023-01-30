@@ -9,13 +9,7 @@ export class DefinirValor implements Construto {
     nome: any;
     valor: any;
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        objeto: any,
-        nome: any,
-        valor: any
-    ) {
+    constructor(hashArquivo: number, linha: number, objeto: any, nome: any, valor: any) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

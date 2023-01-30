@@ -8,6 +8,6 @@ export interface EscopoExecucao {
     declaracaoAtual: number;
     ambiente: EspacoVariaveis;
     finalizado: boolean;
-    tipo: TipoEscopoExecucao
+    tipo: TipoEscopoExecucao;
     idChamada?: string;
 }

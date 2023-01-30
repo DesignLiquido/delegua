@@ -74,8 +74,5 @@ export interface InterpretadorInterface {
     visitarExpressaoSuper(expressao: Super): any;
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado: boolean): any;
-    interpretar(
-        declaracoes: Declaracao[],
-        manterAmbiente?: boolean
-    ): Promise<RetornoInterpretador>;
+    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador>;
 }

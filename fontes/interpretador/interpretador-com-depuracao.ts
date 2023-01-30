@@ -1,11 +1,7 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { Declaracao, Escreva, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
-import {
-    ComandoDepurador,
-    ImportadorInterface,
-    InterpretadorComDepuracaoInterface
-} from '../interfaces';
+import { ComandoDepurador, ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { Interpretador } from './interpretador';
@@ -33,10 +29,7 @@ import { inferirTipoVariavel } from './inferenciador';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao
-    extends Interpretador
-    implements InterpretadorComDepuracaoInterface
-{
+export class InterpretadorComDepuracao extends Interpretador implements InterpretadorComDepuracaoInterface {
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
@@ -49,16 +42,12 @@ export class InterpretadorComDepuracao
     idChamadaAtual?: string;
     passos: number;
 
-    constructor(
-        importador: ImportadorInterface,
-        diretorioBase: string,
-        funcaoDeRetorno: Function
-    ) {
+    constructor(importador: ImportadorInterface, diretorioBase: string, funcaoDeRetorno: Function) {
         super(importador, diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;
-        this.avisoPontoParadaAtivado = () => console.log("Aviso: Ponto de parada ativado.")
+        this.avisoPontoParadaAtivado = () => console.log('Aviso: Ponto de parada ativado.');
         this.escopoAtual = 0;
         this.executandoChamada = false;
         this.passos = 0;
@@ -70,12 +59,12 @@ export class InterpretadorComDepuracao
      * @returns Uma string com vírgulas escapadas.
      */
     private escaparVirgulas(valor: any) {
-        return String(valor).replace(/,/i, "\,");
+        return String(valor).replace(/,/i, ',');
     }
 
     /**
-     * Gera um identificador para resolução de chamadas. 
-     * Usado para não chamar funções repetidamente quando usando instruções 
+     * Gera um identificador para resolução de chamadas.
+     * Usado para não chamar funções repetidamente quando usando instruções
      * de passo, como "próximo" ou "adentrar-escopo".
      * @param expressao A expressão de chamada.
      * @returns Uma Promise que resolve como string.
@@ -87,8 +76,10 @@ export class InterpretadorComDepuracao
         }
 
         return argumentosResolvidos.reduce(
-            (acumulador, argumento) => 
-                acumulador += `,${this.escaparVirgulas(argumento.hasOwnProperty('valor') ? argumento.valor : argumento)}`,
+            (acumulador, argumento) =>
+                (acumulador += `,${this.escaparVirgulas(
+                    argumento.hasOwnProperty('valor') ? argumento.valor : argumento
+                )}`),
             expressao.id
         );
     }
@@ -97,7 +88,7 @@ export class InterpretadorComDepuracao
         const _idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao);
         // Usado na abertura do bloco de escopo da chamada.
         this.idChamadaAtual = _idChamadaComArgumentos;
-        
+
         this.executandoChamada = true;
         this.proximoEscopo = 'funcao';
         const retorno = await super.visitarExpressaoDeChamada(expressao);
@@ -113,8 +104,8 @@ export class InterpretadorComDepuracao
      * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
      * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
      * segunda para efetivamente atribuir o valor da variável.
-     * @param expressao 
-     * @returns 
+     * @param expressao
+     * @returns
      */
     async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         if (expressao.valor instanceof Chamada) {
@@ -123,7 +114,7 @@ export class InterpretadorComDepuracao
             if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
                 const retornar = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
                 this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, retornar);
-                
+
                 delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
                 return retornar;
             }
@@ -152,10 +143,8 @@ export class InterpretadorComDepuracao
             } else {
                 resultadoAvaliacao = await this.avaliar(argumento);
             }
-            
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                        ? resultadoAvaliacao.valor
-                        : resultadoAvaliacao;
+
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
 
             formatoTexto += `${this.paraTexto(valor)} `;
         }
@@ -180,11 +169,10 @@ export class InterpretadorComDepuracao
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push({ 
-                erroInterno: erro, 
-                linha: declaracao.linha, 
-                hashArquivo: 
-                declaracao.hashArquivo 
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
             });
         }
     }
@@ -196,7 +184,7 @@ export class InterpretadorComDepuracao
      * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
      * segunda para efetivamente atribuir o valor da variável.
      * @param declaracao A declaração Var
-     * @returns O valor do resultado resolvido, se a declaração resolveu. 
+     * @returns O valor do resultado resolvido, se a declaração resolveu.
      * Nulo ou indefinido em caso contrário.
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
@@ -205,10 +193,7 @@ export class InterpretadorComDepuracao
             const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(declaracao.inicializador);
             if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
                 const retornar = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                this.pilhaEscoposExecucao.definirVariavel(
-                    declaracao.simbolo.lexema,
-                    retornar
-                );
+                this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, retornar);
 
                 delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
                 return retornar;
@@ -217,10 +202,7 @@ export class InterpretadorComDepuracao
 
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
         if (valorFinal !== null && valorFinal !== undefined) {
-            this.pilhaEscoposExecucao.definirVariavel(
-                declaracao.simbolo.lexema,
-                valorFinal
-            );
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
         }
 
         return valorFinal;
@@ -245,9 +227,9 @@ export class InterpretadorComDepuracao
         if (escopoFuncao === undefined) {
             return Promise.reject('retorna() chamado fora de execução de função.');
         }
-        
+
         if (escopoFuncao.idChamada !== undefined) {
-            escopoAtual.ambiente.resolucoesChamadas[escopoFuncao.idChamada] = 
+            escopoAtual.ambiente.resolucoesChamadas[escopoFuncao.idChamada] =
                 retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
         }
 
@@ -268,22 +250,17 @@ export class InterpretadorComDepuracao
         // Se o escopo atual não é o último.
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
-            const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(
-                this.escopoAtual
-            );
+            const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
             let retornoExecucao: any;
 
             // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
-            retornoExecucao = await this.executar(
-                proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
-            );
+            retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
             proximoEscopo.declaracaoAtual++;
 
             for (
                 ;
                 !(retornoExecucao instanceof Quebra) &&
-                proximoEscopo.declaracaoAtual <
-                    proximoEscopo.declaracoes.length;
+                proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
                 proximoEscopo.declaracaoAtual++
             ) {
                 this.pontoDeParadaAtivo = this.verificarPontoParada(
@@ -295,12 +272,10 @@ export class InterpretadorComDepuracao
                     break;
                 }
 
-                retornoExecucao = await this.executar(
-                    proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
-                );
+                retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
 
                 // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
-                // Por isso verificamos outra parada aqui para evitar que 
+                // Por isso verificamos outra parada aqui para evitar que
                 // `this.declaracaoAtual` seja incrementado.
                 if (this.pontoDeParadaAtivo) {
                     this.avisoPontoParadaAtivado();
@@ -333,9 +308,7 @@ export class InterpretadorComDepuracao
      */
     private verificarPontoParada(declaracao: Declaracao): boolean {
         const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
-            (p: PontoParada) =>
-                p.hashArquivo === declaracao.hashArquivo &&
-                p.linha === declaracao.linha
+            (p: PontoParada) => p.hashArquivo === declaracao.hashArquivo && p.linha === declaracao.linha
         );
 
         if (buscaPontoParada.length > 0) {
@@ -349,7 +322,7 @@ export class InterpretadorComDepuracao
     /**
      * No interpretador com depuração, este método é dividido em dois outros métodos privados:
      * - `this.executarUmPassoNoEscopo`, que executa apenas uma instrução e nada mais;
-     * - `this.executarUltimoEscopoComandoContinuar`, que é a execução trivial de um escopo inteiro, 
+     * - `this.executarUltimoEscopoComandoContinuar`, que é a execução trivial de um escopo inteiro,
      *      ou com todas as instruções, ou até encontrar um ponto de parada.
      * @param manterAmbiente Se verdadeiro, junta elementos do último escopo com o escopo
      *                       imediatamente abaixo.
@@ -358,17 +331,14 @@ export class InterpretadorComDepuracao
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
      * @returns O retorno da execução.
      */
-    async executarUltimoEscopo(
-        manterAmbiente = false,
-        naoVerificarPrimeiraExecucao = false
-    ): Promise<any> {
+    async executarUltimoEscopo(manterAmbiente = false, naoVerificarPrimeiraExecucao = false): Promise<any> {
         switch (this.comando) {
             case 'adentrarEscopo':
             case 'proximo':
                 if (!this.executandoChamada) {
                     return this.executarUmPassoNoEscopo();
                 } else {
-                    return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);    
+                    return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
                 }
             default:
                 return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
@@ -380,10 +350,8 @@ export class InterpretadorComDepuracao
         let retornoExecucao: any;
         if (this.passos > 0) {
             this.passos--;
-            retornoExecucao = await this.executar(
-                ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
-            );
-    
+            retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+
             if (!this.pontoDeParadaAtivo) {
                 ultimoEscopo.declaracaoAtual++;
             }
@@ -411,7 +379,7 @@ export class InterpretadorComDepuracao
                 );
                 this.escopoAtual--;
             }
-    
+
             if (this.pilhaEscoposExecucao.elementos() === 1) {
                 this.finalizacaoDaExecucao();
             }
@@ -441,8 +409,7 @@ export class InterpretadorComDepuracao
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) &&
-                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
                 if (naoVerificarPrimeiraExecucao) {
@@ -458,12 +425,10 @@ export class InterpretadorComDepuracao
                     }
                 }
 
-                retornoExecucao = await this.executar(
-                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
-                );
+                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
 
                 // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
-                // Por isso verificamos outra parada aqui para evitar que 
+                // Por isso verificamos outra parada aqui para evitar que
                 // `this.declaracaoAtual` seja incrementado.
                 if (this.pontoDeParadaAtivo) {
                     this.avisoPontoParadaAtivado();
@@ -475,8 +440,7 @@ export class InterpretadorComDepuracao
         } finally {
             if (!this.pontoDeParadaAtivo && this.comando !== 'adentrarEscopo') {
                 this.pilhaEscoposExecucao.removerUltimo();
-                const escopoAnterior =
-                    this.pilhaEscoposExecucao.topoDaPilha();
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
                 escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
                     escopoAnterior.ambiente.resolucoesChamadas,
                     ultimoEscopo.ambiente.resolucoesChamadas
@@ -503,7 +467,7 @@ export class InterpretadorComDepuracao
      * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
      * primeiro escopo, subindo até o último elemento executado do último escopo.
      * Se entre escopos houver ponto de parada ativo, a execução é suspensa até o próximo comando
-     * do desenvolvedor. 
+     * do desenvolvedor.
      * @see executarUltimoEscopo
      */
     async instrucaoContinuarInterpretacao(escopo = 1): Promise<any> {
@@ -571,22 +535,26 @@ export class InterpretadorComDepuracao
         this.abrirNovoBlocoEscopo(declaracoes);
     }
 
-    private abrirNovoBlocoEscopo(declaracoes: Declaracao[], ambiente?: EspacoVariaveis, tipoEscopo: TipoEscopoExecucao = 'outro') {
+    private abrirNovoBlocoEscopo(
+        declaracoes: Declaracao[],
+        ambiente?: EspacoVariaveis,
+        tipoEscopo: TipoEscopoExecucao = 'outro'
+    ) {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
-            tipo: tipoEscopo
+            tipo: tipoEscopo,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
     }
 
     /**
-     * Reimplementando este método aqui porque a execução por depuração não requer 
+     * Reimplementando este método aqui porque a execução por depuração não requer
      * mostrar o resultado em momento algum, ou lidar com o retorno.
-     * @param declaracao A declaracao a ser executada. 
+     * @param declaracao A declaracao a ser executada.
      * @param mostrarResultado Sempre falso.
      * @returns O resultado da execução.
      */
@@ -595,16 +563,13 @@ export class InterpretadorComDepuracao
     }
 
     /**
-     * Interpretação utilizada pelo depurador para avaliar valores de variáveis. 
+     * Interpretação utilizada pelo depurador para avaliar valores de variáveis.
      * Diferentemente da interpretação tradicional, não possui indicadores
      * de performance porque eles não fazem sentido aqui.
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    async interpretar(
-        declaracoes: Declaracao[],
-        manterAmbiente = false
-    ): Promise<RetornoInterpretador> {
+    async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
         this.erros = [];
         this.declaracoes = declaracoes;
 
@@ -617,7 +582,7 @@ export class InterpretadorComDepuracao
         const retorno = {
             erros: this.erros,
             // resultado: this.resultadoInterpretador // Removido para simplificar `this.executar()`.
-            resultado: [resultado]
+            resultado: [resultado],
         } as RetornoInterpretador;
 
         this.resultadoInterpretador = [];
@@ -626,17 +591,19 @@ export class InterpretadorComDepuracao
 
     /**
      * Obtém o valor de uma variável por nome.
-     * Em versões anteriores, o mecanismo de avaliação fazia toda a avaliação tradicional, 
+     * Em versões anteriores, o mecanismo de avaliação fazia toda a avaliação tradicional,
      * passando por Lexador, Avaliador Sintático e Interpretador.
-     * Isso tem sua cota de problemas, sobretudo porque a avaliação insere e descarta escopos, 
+     * Isso tem sua cota de problemas, sobretudo porque a avaliação insere e descarta escopos,
      * entrando em condição de corrida com a interpretação com depuração.
      * @param nome O nome da variável.
      */
     obterVariavel(nome: string): any {
         const valorOuVariavel = this.pilhaEscoposExecucao.obterValorVariavel({ lexema: nome } as any) as any;
-        return valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel : {
-            valor: valorOuVariavel,
-            tipo: inferirTipoVariavel(valorOuVariavel)
-        };
+        return valorOuVariavel.hasOwnProperty('valor')
+            ? valorOuVariavel
+            : {
+                  valor: valorOuVariavel,
+                  tipo: inferirTipoVariavel(valorOuVariavel),
+              };
     }
 }

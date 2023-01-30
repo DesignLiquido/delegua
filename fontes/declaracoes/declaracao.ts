@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from "../interfaces";
+import { InterpretadorInterface } from '../interfaces';
 
 export class Declaracao {
     linha: number;

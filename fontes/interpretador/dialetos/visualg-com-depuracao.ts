@@ -1,14 +1,10 @@
-import { Construto } from "../../construtos";
-import { EscrevaMesmaLinha, Escreva } from "../../declaracoes";
-import { ImportadorInterface } from "../../interfaces";
-import { InterpretadorComDepuracao } from "../interpretador-com-depuracao";
+import { Construto } from '../../construtos';
+import { EscrevaMesmaLinha, Escreva } from '../../declaracoes';
+import { ImportadorInterface } from '../../interfaces';
+import { InterpretadorComDepuracao } from '../interpretador-com-depuracao';
 
 export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao {
-    constructor(
-        importador: ImportadorInterface,
-        diretorioBase: string,
-        funcaoDeRetorno: Function = null
-    ) {
+    constructor(importador: ImportadorInterface, diretorioBase: string, funcaoDeRetorno: Function = null) {
         super(importador, diretorioBase, funcaoDeRetorno);
     }
 
@@ -17,9 +13,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                        ? resultadoAvaliacao.valor
-                        : resultadoAvaliacao;
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
 
             formatoTexto += `${this.paraTexto(valor)}`;
         }

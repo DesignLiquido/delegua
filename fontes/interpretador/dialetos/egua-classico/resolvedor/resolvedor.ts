@@ -128,10 +128,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         if (this.escopos.eVazio()) return;
         const escopo = this.escopos.topoDaPilha();
         if (escopo.hasOwnProperty(simbolo.lexema)) {
-            const erro = new ErroResolvedor(
-                simbolo,
-                'Variável com esse nome já declarada neste escopo.'
-            );
+            const erro = new ErroResolvedor(simbolo, 'Variável com esse nome já declarada neste escopo.');
             this.erros.push(erro);
         }
 
@@ -162,10 +159,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     visitarExpressaoDeVariavel(expressao: Variavel): any {
-        if (
-            !this.escopos.eVazio() &&
-            this.escopos.topoDaPilha()[expressao.simbolo.lexema] === false
-        ) {
+        if (!this.escopos.eVazio() && this.escopos.topoDaPilha()[expressao.simbolo.lexema] === false) {
             const erro = new ErroResolvedor(
                 expressao.simbolo,
                 'Não é possível ler a variável local em seu próprio inicializador.'
@@ -228,12 +222,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarDeclaracaoTente(declaracao: any): any {
         this.resolver(declaracao.caminhoTente);
 
-        if (declaracao.caminhoPegue !== null)
-            this.resolver(declaracao.caminhoPegue);
-        if (declaracao.caminhoSenao !== null)
-            this.resolver(declaracao.caminhoSenao);
-        if (declaracao.caminhoFinalmente !== null)
-            this.resolver(declaracao.caminhoFinalmente);
+        if (declaracao.caminhoPegue !== null) this.resolver(declaracao.caminhoPegue);
+        if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);
+        if (declaracao.caminhoFinalmente !== null) this.resolver(declaracao.caminhoFinalmente);
     }
 
     visitarDeclaracaoClasse(declaracao: any): any {
@@ -243,14 +234,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.declarar(declaracao.simbolo);
         this.definir(declaracao.simbolo);
 
-        if (
-            declaracao.superClasse !== null &&
-            declaracao.simbolo.lexema === declaracao.superClasse.simbolo.lexema
-        ) {
-            const erro = new ErroResolvedor(
-                declaracao.simbolo,
-                'Uma classe não pode herdar de si mesma.'
-            );
+        if (declaracao.superClasse !== null && declaracao.simbolo.lexema === declaracao.superClasse.simbolo.lexema) {
+            const erro = new ErroResolvedor(declaracao.simbolo, 'Uma classe não pode herdar de si mesma.');
             this.erros.push(erro);
         }
 
@@ -288,16 +273,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
 
     visitarExpressaoSuper(expressao: Super): any {
         if (this.classeAtual === TipoClasse.NENHUM) {
-            const erro = new ErroResolvedor(
-                expressao.simboloChave,
-                "Não pode usar 'super' fora de uma classe."
-            );
+            const erro = new ErroResolvedor(expressao.simboloChave, "Não pode usar 'super' fora de uma classe.");
             this.erros.push(erro);
         } else if (this.classeAtual !== TipoClasse.SUBCLASSE) {
-            const erro = new ErroResolvedor(
-                expressao.simboloChave,
-                "Não se usa 'super' numa classe sem SuperClasse."
-            );
+            const erro = new ErroResolvedor(expressao.simboloChave, "Não se usa 'super' numa classe sem SuperClasse.");
             this.erros.push(erro);
         }
 
@@ -324,8 +303,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
             this.resolver(declaracao.caminhosSeSenao[i].branch);
         }
 
-        if (declaracao.caminhoSenao !== null)
-            this.resolver(declaracao.caminhoSenao);
+        if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);
         return null;
     }
 
@@ -348,10 +326,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
 
         if (declaracao.valor !== null) {
             if (this.funcaoAtual === TipoFuncao.CONSTRUTOR) {
-                const erro = new ErroResolvedor(
-                    declaracao.palavraChave,
-                    'Não pode retornar o valor do construtor.'
-                );
+                const erro = new ErroResolvedor(declaracao.palavraChave, 'Não pode retornar o valor do construtor.');
                 this.erros.push(erro);
             }
             this.resolver(declaracao.valor);
@@ -488,19 +463,14 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
 
     visitarExpressaoIsto(expressao?: any): any {
         if (this.classeAtual == TipoClasse.NENHUM) {
-            const erro = new ErroResolvedor(
-                expressao.palavraChave,
-                "Não pode usar 'isto' fora da classe."
-            );
+            const erro = new ErroResolvedor(expressao.palavraChave, "Não pode usar 'isto' fora da classe.");
             this.erros.push(erro);
         }
         this.resolverLocal(expressao, expressao.palavraChave);
         return null;
     }
 
-    resolver(
-        declaracoes: Construto | Declaracao | Declaracao[]
-    ): RetornoResolvedor {
+    resolver(declaracoes: Construto | Declaracao | Declaracao[]): RetornoResolvedor {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {

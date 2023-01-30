@@ -7,8 +7,7 @@ export default {
         vetor.push(elemento);
         return vetor;
     },
-    fatiar: (vetor: Array<any>, inicio: number, fim: number) =>
-        vetor.slice(inicio, fim),
+    fatiar: (vetor: Array<any>, inicio: number, fim: number) => vetor.slice(inicio, fim),
     inclui: (vetor: Array<any>, elemento: any) => vetor.includes(elemento),
     inverter: (vetor: Array<any>) => vetor.reverse(),
     juntar: (vetor: Array<any>, separador: string) => vetor.join(separador),
@@ -27,5 +26,5 @@ export default {
         return vetor;
     },
     somar: (vetor: Array<number>) => vetor.reduce((a, b) => a + b),
-    tamanho: (vetor: Array<any>) => vetor.length
+    tamanho: (vetor: Array<any>) => vetor.length,
 };

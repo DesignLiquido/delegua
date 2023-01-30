@@ -12,11 +12,7 @@ export class AcessoMetodo implements Construto {
     objeto: Construto;
     simbolo: SimboloInterface;
 
-    constructor(
-        hashArquivo: number,
-        objeto: Construto,
-        simbolo: SimboloInterface
-    ) {
+    constructor(hashArquivo: number, objeto: Construto, simbolo: SimboloInterface) {
         this.linha = objeto.linha;
         this.hashArquivo = hashArquivo;
 

@@ -9,13 +9,7 @@ export class AtribuicaoSobrescrita implements Construto {
     valor: any;
     indice: any;
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        objeto: any,
-        indice: any,
-        valor: any
-    ) {
+    constructor(hashArquivo: number, linha: number, objeto: any, indice: any, valor: any) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

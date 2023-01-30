@@ -7,13 +7,7 @@ export class Simbolo implements SimboloInterface {
     linha: number;
     hashArquivo: number;
 
-    constructor(
-        tipo: string,
-        lexema: string,
-        literal: any,
-        linha: number,
-        hashArquivo: number
-    ) {
+    constructor(tipo: string, lexema: string, literal: any, linha: number, hashArquivo: number) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;

@@ -33,5 +33,5 @@ export default {
     super: tiposDeSimbolos.SUPER,
     tente: tiposDeSimbolos.TENTE,
     var: tiposDeSimbolos.VARIAVEL,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };

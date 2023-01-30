@@ -47,8 +47,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
-        const ambienteAncestral =
-            this.pilha[this.pilha.length - distancia].ambiente;
+        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         ambienteAncestral.valores[simbolo.lexema] = {
             valor,
             tipo: inferirTipoVariavel(valor),
@@ -67,10 +66,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(
-            simbolo,
-            "Variável não definida '" + simbolo.lexema + "'."
-        );
+        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     }
 
     obterEscopoPorTipo(tipo: string): EscopoExecucao | undefined {
@@ -85,8 +81,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     obterVariavelEm(distancia: number, nome: string): VariavelInterface {
-        const ambienteAncestral =
-            this.pilha[this.pilha.length - distancia].ambiente;
+        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         return ambienteAncestral.valores[nome];
     }
 
@@ -98,10 +93,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(
-            simbolo,
-            "Variável não definida: '" + simbolo.lexema + "'."
-        );
+        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida: '" + simbolo.lexema + "'.");
     }
 
     obterVariavelPorNome(nome: string): VariavelInterface {
@@ -121,18 +113,15 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     /**
      * Método usado pelo depurador para obter todas as variáveis definidas.
      */
-    obterTodasVariaveis(
-        todasVariaveis: VariavelInterface[] = []
-    ): any[] {
+    obterTodasVariaveis(todasVariaveis: VariavelInterface[] = []): any[] {
         for (let i = 1; i <= this.pilha.length - 1; i++) {
             const valoresAmbiente = this.pilha[this.pilha.length - i].ambiente.valores;
 
-            const vetorObjeto: VariavelInterface[] = Object.entries(
-                valoresAmbiente
-            ).map(
-                (chaveEValor, indice) =>
-                    ({ nome: chaveEValor[0], valor: chaveEValor[1].valor, tipo: chaveEValor[1].tipo })
-            );
+            const vetorObjeto: VariavelInterface[] = Object.entries(valoresAmbiente).map((chaveEValor, indice) => ({
+                nome: chaveEValor[0],
+                valor: chaveEValor[1].valor,
+                tipo: chaveEValor[1].tipo,
+            }));
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }
 
@@ -143,7 +132,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      * Obtém todas as funções declaradas ou por código-fonte, ou pelo desenvolvedor
      * em console, do último escopo.
      */
-    obterTodasDeleguaFuncao(): {[nome: string]: DeleguaFuncao} {
+    obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao } {
         const retorno = {};
         const ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
@@ -158,7 +147,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     /**
      * Obtém todas as declarações de classe do último escopo.
-     * @returns 
+     * @returns
      */
     obterTodasDeclaracaoClasse(): any {
         const retorno = {};

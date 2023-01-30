@@ -1,9 +1,9 @@
-import { InterpretadorInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { InterpretadorInterface } from '../interfaces';
+import { Construto } from './construto';
 
 /**
  * Um construto de formatação de escrita é utilizado por instruções `escreva`
- * e derivadas para adição de espaços e casas decimais, este último para quando 
+ * e derivadas para adição de espaços e casas decimais, este último para quando
  * o conteúdo da escrita é um número.
  */
 export class FormatacaoEscrita implements Construto {

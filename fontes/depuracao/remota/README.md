@@ -4,9 +4,9 @@ O depurador foi pensado inicialmente para funcionar com o VSCode, mas em teoria 
 
 A primeira fonte de inspiração foi [um artigo do Vassili Kaplan](https://www.codemag.com/article/1809051/Writing-Your-Own-Debugger-and-Language-Extensions-with-Visual-Studio-Code), em que ele dá um exemplo para um depurador para uma linguagem chamada CSCS. A parte do cliente de depuração é implementada [na extensão dessa linguagem para o VSCode](https://github.com/DesignLiquido/delegua-vscode). Já a parte de abrir o _socket_ é encontrada em outros artigos, específicos para JavaScript, como por exemplo:
 
-- https://zetcode.com/javascript/socket/
+-   https://zetcode.com/javascript/socket/
 
-Você pode depurar o servidor de depuração remota depurador usando o VSCode. Para isso, você precisa iniciar um dos exemplos usando o _debug_ do VSCode e adicionar manualmente um ponto de parada (_breakpoint_) no fonte em que deseja parar. 
+Você pode depurar o servidor de depuração remota depurador usando o VSCode. Para isso, você precisa iniciar um dos exemplos usando o _debug_ do VSCode e adicionar manualmente um ponto de parada (_breakpoint_) no fonte em que deseja parar.
 
 No construtor da classe `ServidorDepuracao` (`fontes\depuracao\servidor-depuracao.ts`), há o seguinte:
 
@@ -18,13 +18,13 @@ constructor(_instanciaDelegua: Delegua) {
 }
 ```
 
-Adicione o bloco a seguir e atualize as referências (nome do arquivo, em que linha deseja parar, etc.). 
+Adicione o bloco a seguir e atualize as referências (nome do arquivo, em que linha deseja parar, etc.).
 
 ```js
 constructor(_instanciaDelegua: Delegua) {
     this.instanciaDelegua = _instanciaDelegua;
     // Isso é só um exemplo de definição de ponto de parada para testar
-    // `Interpretador.executar()`. 
+    // `Interpretador.executar()`.
     // Deve ser removido num futuro próximo.
     (this.instanciaDelegua.interpretador as any).pontosParada.push({
         hashArquivo: cyrb53('./exemplos/importacao/importacao-2.egua'),
@@ -41,7 +41,7 @@ Se tudo estiver correto, ao executar um dos exemplos pelo debug do VSCode (neste
 Ponto de parada encontrado. Linha: 4
 ```
 
-Isso significa que o servidor de depuração remota está aguardando instruções de algum cliente de depuração para continuar. 
+Isso significa que o servidor de depuração remota está aguardando instruções de algum cliente de depuração para continuar.
 
 Uma forma bastante simples de usar um cliente de depuração é abrindo uma conexão usando o comando `nc` (Netcat), para qualquer sistema operacional:
 
@@ -49,29 +49,29 @@ Uma forma bastante simples de usar um cliente de depuração é abrindo uma cone
 nc localhost 7777
 ```
 
-Isso abrirá um _socket_ entre o [Netcat](https://pt.wikipedia.org/wiki/Netcat) e a linguagem. 
+Isso abrirá um _socket_ entre o [Netcat](https://pt.wikipedia.org/wiki/Netcat) e a linguagem.
 
 Para desenvolvimento em Windows, caso o Netcat (`nc`) não esteja disponível, pode-se instalá-lo de duas formas:
 
-- [Cygwin](http://ptcomputador.com/Sistemas/windows/228426.html)
-- [Nmap](https://nmap.org/download#windows)
+-   [Cygwin](http://ptcomputador.com/Sistemas/windows/228426.html)
+-   [Nmap](https://nmap.org/download#windows)
 
 ## Testando comandos
 
 Os comandos implementados até então são:
 
-- `adentrar-escopo`: conhecido em inglês como _Step Into_. De um ponto de parada (_breakpoint_), executa a instrução atual se esta não abre um bloco de escopo. Se abre, empilha o bloco e o adentra, parando na primeira instrução deste bloco;
-- `adicionar-ponto-parada`: adiciona um ponto de parada (_breakpoint_) em um arquivo específico numa linha específica;
-- `avaliar`: avalia um trecho de código escrito em Delégua ou algum outro dialeto;
-- `avaliar-variavel`: pesquisa no ambiente por uma variável, e se existir, devolve seu valor e tipo inferido;
-- `continuar`: de um ponto de parada (_breakpoint_), continua executando o código até 1) outro ponto de parada, ou 2) o final do programa;
-- `pilha-execucao`: exibe a pilha de execução atual, com todos os escopos executados até o ponto de parada;
-- `pontos-parada`: lista todos os pontos de parada;
-- `proximo`: executa a instrução atual, parando na próxima instrução;
-- `remover-ponto-parada`: Remove um ponto de parada (_breakpoint_) em um arquivo específico numa linha específica, se houver;
-- `sair-escopo`: conhecida em inglês como _Step Out_, executa o resto do escopo atual e retorna ao escopo anterior, parando na próxima instrução. Se não houver mais instruções, finaliza a execução do programa;
-- `tchau`: fecha a conexão com o servidor de depuração;
-- `variaveis`: Mostra todas as variáveis instanciadas na execução atual.
+-   `adentrar-escopo`: conhecido em inglês como _Step Into_. De um ponto de parada (_breakpoint_), executa a instrução atual se esta não abre um bloco de escopo. Se abre, empilha o bloco e o adentra, parando na primeira instrução deste bloco;
+-   `adicionar-ponto-parada`: adiciona um ponto de parada (_breakpoint_) em um arquivo específico numa linha específica;
+-   `avaliar`: avalia um trecho de código escrito em Delégua ou algum outro dialeto;
+-   `avaliar-variavel`: pesquisa no ambiente por uma variável, e se existir, devolve seu valor e tipo inferido;
+-   `continuar`: de um ponto de parada (_breakpoint_), continua executando o código até 1) outro ponto de parada, ou 2) o final do programa;
+-   `pilha-execucao`: exibe a pilha de execução atual, com todos os escopos executados até o ponto de parada;
+-   `pontos-parada`: lista todos os pontos de parada;
+-   `proximo`: executa a instrução atual, parando na próxima instrução;
+-   `remover-ponto-parada`: Remove um ponto de parada (_breakpoint_) em um arquivo específico numa linha específica, se houver;
+-   `sair-escopo`: conhecida em inglês como _Step Out_, executa o resto do escopo atual e retorna ao escopo anterior, parando na próxima instrução. Se não houver mais instruções, finaliza a execução do programa;
+-   `tchau`: fecha a conexão com o servidor de depuração;
+-   `variaveis`: Mostra todas as variáveis instanciadas na execução atual.
 
 `adicionar-ponto-parada` e `remover-ponto-parada` pedem dois argumentos: o caminho do arquivo fonte e a linha em que se deseja adicionar ou renover ponto de parada. Exemplo:
 
@@ -91,8 +91,8 @@ Se texto após a palavra `avaliar` for sintaticamente correto e executar normalm
 **Exemplo**: Avaliando `2 + 2`
 
 ```
-Recebido comando 'avaliar'  
---- avaliar-resposta ---    
+Recebido comando 'avaliar'
+--- avaliar-resposta ---
 4
 --- fim-avaliar-resposta ---
 ```
@@ -110,13 +110,13 @@ Atualmente `avaliar` não é usado por ter um conhecido problema de condição d
 
 ### `avaliar-variavel`
 
-Possui uma implementação mais segura do que `avaliar`, mas apenas retorna o valor de uma variável se existir. 
+Possui uma implementação mais segura do que `avaliar`, mas apenas retorna o valor de uma variável se existir.
 
 **Exemplo**: Avaliando uma variável `a` que foi declarada antes do comando com o valor `0`
 
 ```
-Recebido comando 'avaliar-variavel'  
---- avaliar-variavel-resposta ---    
+Recebido comando 'avaliar-variavel'
+--- avaliar-variavel-resposta ---
 0
 --- fim-avaliar-variavel-resposta ---
 ```

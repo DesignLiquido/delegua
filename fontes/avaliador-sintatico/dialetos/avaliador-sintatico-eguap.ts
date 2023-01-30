@@ -323,11 +323,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.SUBTRACAO, 
-                tiposDeSimbolos.ADICAO
-            )
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.simboloAnterior();
             const direito = this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -339,11 +335,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     bitFill(): Construto {
         let expressao = this.adicaoOuSubtracao();
 
-        while (this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.MENOR_MENOR, 
-                tiposDeSimbolos.MAIOR_MAIOR
-            )
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
             const operador = this.simboloAnterior();
             const direito = this.adicaoOuSubtracao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -585,7 +577,10 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
             const caminhos = [];
             let caminhoPadrao = null;
-            while (!this.estaNoFinal() && [tiposDeSimbolos.CASO, tiposDeSimbolos.PADRAO].includes(this.simbolos[this.atual].tipo)) {
+            while (
+                !this.estaNoFinal() &&
+                [tiposDeSimbolos.CASO, tiposDeSimbolos.PADRAO].includes(this.simbolos[this.atual].tipo)
+            ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
                     const caminhoCondicoes = [this.expressao()];
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
@@ -596,7 +591,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
                         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
                     }
 
-                    // Como dois-pontos é um símbolo usado para conferir se há um início de bloco, 
+                    // Como dois-pontos é um símbolo usado para conferir se há um início de bloco,
                     // não podemos simplesmente chamar `this.resolverDeclaracao()` porque o dois-pontos já
                     // foi consumido na verificação.
                     // Outro problema é que, aparentemente, o Interpretador não espera um Bloco, e sim
@@ -619,7 +614,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'padrao'.");
 
-                    // Como dois-pontos é um símbolo usado para conferir se há um início de bloco, 
+                    // Como dois-pontos é um símbolo usado para conferir se há um início de bloco,
                     // não podemos simplesmente chamar `this.resolverDeclaracao()` porque o dois-pontos já
                     // foi consumido na verificação.
                     // Outro problema é que, aparentemente, o Interpretador não espera um Bloco, e sim
@@ -792,11 +787,19 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
 
             const declaracaoOuBlocoFazer = this.resolverDeclaracao();
 
-            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo da declaração 'fazer'.");
+            this.consumir(
+                tiposDeSimbolos.ENQUANTO,
+                "Esperado declaração do 'enquanto' após o escopo da declaração 'fazer'."
+            );
 
             const condicaoEnquanto = this.expressao();
 
-            return new Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), declaracaoOuBlocoFazer, condicaoEnquanto);
+            return new Fazer(
+                simboloFazer.hashArquivo,
+                Number(simboloFazer.linha),
+                declaracaoOuBlocoFazer,
+                condicaoEnquanto
+            );
         } finally {
             this.blocos -= 1;
         }
@@ -839,9 +842,9 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     funcao(tipo: string, construtor?: boolean): FuncaoDeclaracao {
-        const simbolo: SimboloInterface = !construtor ? 
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`) :
-            new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
+        const simbolo: SimboloInterface = !construtor
+            ? this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`)
+            : new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
     }
 
@@ -904,19 +907,15 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
 
         const metodos = [];
-        while (!this.estaNoFinal() && 
-                this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.CONSTRUTOR, 
-                    tiposDeSimbolos.FUNCAO, 
-                    tiposDeSimbolos.FUNÇÃO)
-            ) 
-        {
-            metodos.push(
-                this.funcao(
-                    'método', 
-                    this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR
-                ), 
-            );
+        while (
+            !this.estaNoFinal() &&
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.CONSTRUTOR,
+                tiposDeSimbolos.FUNCAO,
+                tiposDeSimbolos.FUNÇÃO
+            )
+        ) {
+            metodos.push(this.funcao('método', this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR));
         }
 
         return new Classe(simbolo, superClasse, metodos);

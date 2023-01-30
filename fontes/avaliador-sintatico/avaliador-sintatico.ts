@@ -283,7 +283,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.MODULO,
                 tiposDeSimbolos.MODULO_IGUAL,
                 tiposDeSimbolos.MULTIPLICACAO,
-                tiposDeSimbolos.MULTIPLICACAO_IGUAL,
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
@@ -439,11 +439,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.MODULO_IGUAL,
             ].includes(expressao.operador.tipo)
         ) {
-            return new Atribuir(
-                this.hashArquivo,
-                (expressao.esquerda as Variavel).simbolo,
-                expressao
-            );
+            return new Atribuir(this.hashArquivo, (expressao.esquerda as Variavel).simbolo, expressao);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.atribuir();
@@ -615,17 +611,20 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const simboloChave = this.simbolos[this.atual - 1];
         let valor = null;
 
-        if ([tiposDeSimbolos.VARIAVEL,
-            tiposDeSimbolos.ISTO,
-            tiposDeSimbolos.TEXTO,
-            tiposDeSimbolos.NUMERO,
-            tiposDeSimbolos.NULO,
-            tiposDeSimbolos.VERDADEIRO,
-            tiposDeSimbolos.NEGACAO,
-            tiposDeSimbolos.FALSO,
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            tiposDeSimbolos.SUPER
-        ]) {
+        if (
+            [
+                tiposDeSimbolos.VARIAVEL,
+                tiposDeSimbolos.ISTO,
+                tiposDeSimbolos.TEXTO,
+                tiposDeSimbolos.NUMERO,
+                tiposDeSimbolos.NULO,
+                tiposDeSimbolos.VERDADEIRO,
+                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.FALSO,
+                tiposDeSimbolos.PARENTESE_ESQUERDO,
+                tiposDeSimbolos.SUPER,
+            ]
+        ) {
             valor = this.expressao();
         }
 
@@ -721,7 +720,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 // Caso 1: com parâmetro de erro.
                 // `pegue` recebe um `FuncaoConstruto`.
-                blocoPegue = this.corpoDaFuncao("bloco `pegue`");
+                blocoPegue = this.corpoDaFuncao('bloco `pegue`');
             } else {
                 // Caso 2: sem parâmetro de erro.
                 // `pegue` recebe um bloco.
@@ -780,7 +779,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA, tiposDeSimbolos.SUSTAR)) return this.declaracaoSustar();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA, tiposDeSimbolos.SUSTAR))
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
