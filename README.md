@@ -119,7 +119,7 @@ npm install -g @designliquido/delegua
 
 ## Tradução para outras linguagens
 
-Por ora, Delégua traduz para JavaScript simples. [Mais informações aqui](https://github.com/DesignLiquido/delegua/wiki/Tradu%C3%A7%C3%A3o-para-outras-linguagens). 
+Delégua traduz para JavaScript e vice-versa. [Mais informações aqui](https://github.com/DesignLiquido/delegua/wiki/Tradu%C3%A7%C3%A3o-para-outras-linguagens). 
 
 ## Documentação
 
