@@ -13,6 +13,7 @@ import {
     MethodDefinition,
     NewExpression,
     ReturnStatement,
+    SwitchStatement,
     TryStatement,
     UpdateExpression,
     VariableDeclaration,
@@ -31,9 +32,12 @@ export class TradutorReversoJavaScript {
 
     traduzirSimboloOperador(operador: any): string {
         switch (operador) {
-            case '==':
             case '===':
                 return '==';
+            case '&&':
+                return 'e'
+            case '||':
+                return 'ou';
             default:
                 return operador;
         }
@@ -92,6 +96,10 @@ export class TradutorReversoJavaScript {
         return `${objeto}${propriedade}`;
     }
 
+    traduzirConstrutoLogico(logico: any): string {
+        return this.dicionarioConstrutos[logico.constructor.name](logico)
+    }
+
     dicionarioConstrutos = {
         AssignmentExpression: this.traduzirConstrutoAtribuir.bind(this),
         ArrayExpression: this.traduzirConstrutoVetor.bind(this),
@@ -103,6 +111,7 @@ export class TradutorReversoJavaScript {
         // Isto: this.traduzirConstrutoIsto.bind(this),
         Identifier: this.traduzirIdentificador.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        LogicalExpression: this.traduzirConstrutoLogico.bind(this),
         MemberExpression: this.traduzirExpressao.bind(this),
         NewExpression: this.traduzirNovo.bind(this),
         ThisExpression: (expressao) => 'isto.',
@@ -136,6 +145,8 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
+        if(literal.raw === 'true') return 'verdadeiro';
+        else if (literal.raw === 'false') return 'falso';
         return `${literal.raw}`;
     }
 
@@ -195,7 +206,9 @@ export class TradutorReversoJavaScript {
 
     traduzirDeclaracaoFuncao(declaracao: any): string {
         let resultado = '';
-        resultado += `funcao ${declaracao.id.name}(`;
+        const eFuncaoSeta = !declaracao.id;
+
+        resultado += eFuncaoSeta ? '(' : `funcao ${declaracao.id.name}(`;
 
         for (let parametro of declaracao.params) {
             resultado += parametro.name + ', ';
@@ -203,13 +216,15 @@ export class TradutorReversoJavaScript {
         if (declaracao.params.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        resultado += ') ';
+
+        resultado += eFuncaoSeta ? ') => ' : ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao);
+
         return resultado;
     }
 
     //TODO: Refatorar esse método. @Samuel
-    traduzirDeclaracaoClasse(declaracao: ClassDeclaration) {
+    traduzirDeclaracaoClasse(declaracao: ClassDeclaration): string {
         let resultado = `classe ${declaracao.id.name} `;
         if (declaracao.superClass) {
             let identificador = declaracao.superClass as Identifier;
@@ -281,19 +296,22 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirDeclaracaoSe(declaracao: IfStatement): string {
-        let resultado = 'if (';
+        let resultado = 'se (';
         resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test);
         resultado += ')';
         resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
-        if (declaracao?.alternate) {
-            resultado += 'else ';
+
+        if(declaracao?.alternate){
+            resultado += 'senao '
             if (declaracao.alternate.constructor.name === 'BlockStatement') {
-                resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
+                const bloco = declaracao.alternate as BlockStatement;
+                resultado += this.logicaComumBlocoEscopo(bloco);
                 return resultado;
             }
-            resultado += this.traduzirDeclaracao(declaracao.alternate);
-            return resultado;
+            const se = declaracao.alternate as IfStatement;
+            resultado += this.traduzirDeclaracao(se);
         }
+
         return resultado;
     }
 
@@ -318,6 +336,36 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirDeclaracaoEscolha(declaracao: SwitchStatement): string {
+        let resultado = '';
+        this.indentacao += 4;
+
+        resultado += `escolha(${this.dicionarioConstrutos[declaracao.discriminant.type](declaracao.discriminant)}) {`;
+        resultado += ' '.repeat(this.indentacao);
+        for(let caso of declaracao.cases){
+            if(!caso.test){
+                resultado += 'padrao:';
+                resultado += ' '.repeat(this.indentacao + 4);
+                for(let bloco of caso.consequent) {
+                    if(bloco.type === 'BreakStatement') continue;
+                    resultado += this.traduzirDeclaracao(bloco) + '\n'
+                }
+                break;
+            }
+            resultado += `caso ${this.dicionarioConstrutos[caso.test.type](caso.test)}:`
+            resultado += ' '.repeat(this.indentacao + 4);
+            for(let bloco of caso.consequent) {
+                if(bloco.type === 'BreakStatement') continue;
+                resultado += this.traduzirDeclaracao(bloco) + '\n'
+            }
+        }
+
+        this.indentacao -= 4;
+        resultado += ' '.repeat(this.indentacao) + '}\n';
+
+        return resultado;
+    }
+
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
             case 'ClassDeclaration':
@@ -334,6 +382,8 @@ export class TradutorReversoJavaScript {
                 return this.traduzirDeclaracaoSe(declaracao);
             case 'ReturnStatement':
                 return this.traduzirDeclaracaoRetorna(declaracao);
+            case 'SwitchStatement':
+                return this.traduzirDeclaracaoEscolha(declaracao);
             case 'TryStatement':
                 return this.traduzirDeclaracaoTente(declaracao);
             case 'VariableDeclaration':

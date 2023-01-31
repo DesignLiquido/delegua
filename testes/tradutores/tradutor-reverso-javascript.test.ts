@@ -127,6 +127,15 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/teste\(1, 2, 3\)/i);
         });
 
+        it('arrow function -> função seta', () => {
+            const codigo = `const func = (a, b, c) => {console.log(\'Oi\')}\nfunc(1,2,3)`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var func = \(a, b, c\) => {/i);
+            expect(resultado).toMatch(/escreva\('Oi'\)/i);
+        });
+
         it('class -> classe', () => {
             const codigo = `
                 class Base {
@@ -185,8 +194,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
         it('do while -> fazer enquanto', () => {
             const codigo = `
                 let result = '';
-                let i = 0;
-                
+                let i = 0;                
                 do {
                 i = i + 1;
                 result = result + i;
@@ -201,6 +209,43 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/enquanto\(i < 5\)/i);
         });
 
+        it('switch -> escolha', () => {
+            const codigo = `
+            const palavra = 'Papayas';
+            switch (palavra) {
+              case 'Laranja':
+                console.log('Laranja custa 0.59R$ centavos.');
+                break;
+              case 'Morango':
+              case 'Uva':
+                console.log('Morango e Uva custam 2.79R$ Reais.');
+                break;
+              default:
+                console.log('Valor padrão de 5R$');
+            }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/escolha\(palavra\)/i);
+            expect(resultado).toMatch(/caso \'Laranja\':/i);
+            expect(resultado).toMatch(/caso \'Morango\':/i);
+            expect(resultado).toMatch(/caso \'Uva\':/i);
+            expect(resultado).toMatch(/padrao:/i);
+        });
+
+        it('And e Or -> E e Ou', () => {
+            const codigo = `
+            const v = true && true;
+            const f = true || false;
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var v = verdadeiro e verdadeiro/i);
+            expect(resultado).toMatch(/var f = verdadeiro ou falso/i);
+        });
+
         it('if -> se', () => {
             const codigo = `
                 let i = 1;                
@@ -212,7 +257,22 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/var i = 1/i);
-            expect(resultado).toMatch(/if \(i == 1\)/i);
+            expect(resultado).toMatch(/se \(i == 1\)/i);
+        });
+
+        it('if/true/false -> se/verdadeiro/falso', () => {
+            const codigo = `             
+                if(true){
+                    console.log(\'verdadeiro\')
+                } else if(false){
+                    console.log(\'falso\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/se \(verdadeiro\)/i);
+            expect(resultado).toMatch(/senao se \(falso\)/i);
         });
 
         it('if/else if/else -> se/senao se/senao', () => {
@@ -223,18 +283,22 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
                 } 
                 else if(i === 2){
                     console.log(\'i é igual a 2\')
+                }
+                else if(i === 3){
+                    console.log(\'i é igual a 3\')
                 } 
                 else{
-                    console.log(\'i não é igual a 1 e nem igual a 2\')
+                    console.log(\'i é diferente de 1, 2 e 3\')
                 }
             `
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/var i = 1/i);
-            expect(resultado).toMatch(/if \(i == 1\)/i);
-            expect(resultado).toMatch(/else if \(i == 2\)/i);
-            expect(resultado).toMatch(/else {/i);
+            expect(resultado).toMatch(/se \(i == 1\)/i);
+            expect(resultado).toMatch(/senao se \(i == 2\)/i);
+            expect(resultado).toMatch(/senao se \(i == 3\)/i);
+            expect(resultado).toMatch(/senao {/i);
         });
 
         it('try/catch/finally -> tente/pegue/finalmente', () => {
