@@ -13,6 +13,6 @@ export class FuncaoDeclaracao extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return Promise.resolve(visitante.visitarExpressaoFuncao(this));
+        return Promise.resolve(visitante.visitarDeclaracaoDefinicaoFuncao(this));
     }
 }

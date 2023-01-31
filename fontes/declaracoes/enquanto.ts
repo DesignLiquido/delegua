@@ -13,6 +13,6 @@ export class Enquanto extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return await visitante.visitarExpressaoEnquanto(this);
+        return await visitante.visitarDeclaracaoEnquanto(this);
     }
 }

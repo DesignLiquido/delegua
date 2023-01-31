@@ -97,10 +97,7 @@ export class Lexador implements LexadorInterface {
     }
 
     eFinalDoCodigo(): boolean {
-        return (
-            this.eUltimaLinha() &&
-            this.codigo[this.codigo.length - 1].length <= this.atual
-        );
+        return this.eUltimaLinha() && this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
     avancar(): void {
@@ -112,19 +109,8 @@ export class Lexador implements LexadorInterface {
     }
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
-        const texto: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
-        this.simbolos.push(
-            new Simbolo(
-                tipo,
-                literal || texto,
-                literal,
-                this.linha + 1,
-                this.hashArquivo
-            )
-        );
+        const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     simboloAtual(): string {
@@ -159,10 +145,7 @@ export class Lexador implements LexadorInterface {
             return;
         }
 
-        const valor = this.codigo[this.linha].substring(
-            this.inicioSimbolo + 1,
-            this.atual
-        );
+        const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
         this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
 
@@ -179,15 +162,9 @@ export class Lexador implements LexadorInterface {
             }
         }
 
-        const numeroCompleto = this.codigo[this.linha].substring(
-                this.inicioSimbolo,
-                this.atual
-            );
+        const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
-        this.adicionarSimbolo(
-            tiposDeSimbolos.NUMERO,
-            parseFloat(numeroCompleto)
-        );
+        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave(): void {
@@ -195,15 +172,9 @@ export class Lexador implements LexadorInterface {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
+        const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
-        const tipo: string =
-            codigo in palavrasReservadas
-                ? palavrasReservadas[codigo]
-                : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
@@ -312,9 +283,7 @@ export class Lexador implements LexadorInterface {
                         break;
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(
-                            tiposDeSimbolos.MULTIPLICACAO_IGUAL
-                        );
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
@@ -448,8 +417,7 @@ export class Lexador implements LexadorInterface {
 
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
+                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
                 else {
                     this.erros.push({
                         linha: this.linha + 1,
@@ -483,11 +451,7 @@ export class Lexador implements LexadorInterface {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            console.log(
-                `[Lexador] Tempo para mapeamento: ${
-                    deltaMapeamento[0] * 1e9 + deltaMapeamento[1]
-                }ns`
-            );
+            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
 
         return {

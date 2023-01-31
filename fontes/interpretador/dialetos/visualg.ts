@@ -1,10 +1,10 @@
-import { Construto } from "../../construtos";
-import { Escreva, EscrevaMesmaLinha } from "../../declaracoes";
-import { ImportadorInterface } from "../../interfaces";
-import { Interpretador } from "../interpretador";
+import { Construto } from '../../construtos';
+import { Escreva, EscrevaMesmaLinha } from '../../declaracoes';
+import { ImportadorInterface } from '../../interfaces';
+import { Interpretador } from '../interpretador';
 
 /**
- * O Interpretador VisuAlg possui algumas diferenças em relação ao 
+ * O Interpretador VisuAlg possui algumas diferenças em relação ao
  * Interpretador Delégua quanto à escrita na saída.
  * Para N argumentos, Delégua inclui um espaço entre cada argumento.
  * Já VisuAlg imprime todos os argumentos concatenados.
@@ -24,9 +24,7 @@ export class InterpretadorVisuAlg extends Interpretador {
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                        ? resultadoAvaliacao.valor
-                        : resultadoAvaliacao;
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
 
             formatoTexto += `${this.paraTexto(valor)}`;
         }
@@ -56,7 +54,7 @@ export class InterpretadorVisuAlg extends Interpretador {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);

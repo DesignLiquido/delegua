@@ -44,6 +44,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
                     'escreva(8 & 1)',
                     'escreva(8 ^ 1)',
                     'escreva(~2)',
+                    'var a = 3',
+                    'var c = -a + 3'
                 ],
                 -1
             );
@@ -55,6 +57,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(8 & 1\)/i);
             expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
             expect(resultado).toMatch(/console\.log\(~2\)/i);
+            expect(resultado).toMatch(/let a = 3/i);
+            expect(resultado).toMatch(/let c = -a \+ 3/i);
         });
 
         it('vetor acesso indice -> array/index', () => {
@@ -699,6 +703,30 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(10\)/i);
             // expect(resultado).toMatch(/a > 0 && a === 3/i);
             expect(resultado).toMatch(/console\.log\(5\)/i);
+        });
+
+        it('importar', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var lodash = importar\(\'lodash\'\)',
+                ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let lodash = \'importar\(\) não é suportado por este padrão de JavaScript\'/i);
+        });
+        
+        it('leia', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'var nome = leia\(\'Digite seu nome:\'\)',
+                ], -1);
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let nome = \'leia\(\) não é suportado por este padrão de JavaScript.\'/i);
         });
     });
 });

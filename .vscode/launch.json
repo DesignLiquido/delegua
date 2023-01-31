@@ -286,6 +286,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Delégua > Importação > Animais",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                // "--depurador",
+                "./exemplos/importacao/animais.delegua"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Delégua > Inteiros",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
@@ -320,6 +335,21 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/media.delegua"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Delégua > Parâmetro -c",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--codigo",
+                "escreva(2+1)"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },

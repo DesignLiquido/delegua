@@ -16,5 +16,5 @@ export default {
     OU: 'OU',
     PARENTESE_DIREITO: 'PARENTESE_DIREITO',
     SUBTRACAO: 'SUBTRACAO',
-    VIRGULA: 'VIRGULA'
+    VIRGULA: 'VIRGULA',
 };

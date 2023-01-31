@@ -7,14 +7,7 @@ export class Para extends Declaracao {
     incrementar: any;
     corpo: any;
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        inicializador: any,
-        condicao: any,
-        incrementar: any,
-        corpo: any
-    ) {
+    constructor(hashArquivo: number, linha: number, inicializador: any, condicao: any, incrementar: any, corpo: any) {
         super(linha, hashArquivo);
         this.inicializador = inicializador;
         this.condicao = condicao;
@@ -23,6 +16,6 @@ export class Para extends Declaracao {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return await visitante.visitarExpressaoPara(this);
+        return await visitante.visitarDeclaracaoPara(this);
     }
 }

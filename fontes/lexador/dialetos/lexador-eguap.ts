@@ -101,10 +101,7 @@ export class LexadorEguaP implements LexadorInterface {
 
     eFinalDoCodigo(): boolean {
         if (this.linha > this.codigo.length - 1) return true;
-        return (
-            this.linha == this.codigo.length - 1 &&
-            this.codigo[this.codigo.length - 1].length <= this.atual
-        );
+        return this.linha == this.codigo.length - 1 && this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
     avancar(): void {
@@ -119,13 +116,8 @@ export class LexadorEguaP implements LexadorInterface {
     }
 
     adicionarSimbolo(tipo: any, literal: any = null): void {
-        const texto: string = this.codigo[this.linha].substring(
-            this.inicioSimbolo,
-            this.atual
-        );
-        this.simbolos.push(
-            new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo)
-        );
+        const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     simboloAtual(): string {
@@ -158,10 +150,7 @@ export class LexadorEguaP implements LexadorInterface {
             return;
         }
 
-        const textoCompleto = this.codigo[this.linha].substring(
-            this.inicioSimbolo + 1,
-            this.atual
-        );
+        const textoCompleto = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
 
         this.simbolos.push(
             new Simbolo(
@@ -176,10 +165,7 @@ export class LexadorEguaP implements LexadorInterface {
 
     analisarNumero(): void {
         const linhaPrimeiroDigito: number = this.linha;
-        while (
-            this.eDigito(this.simboloAtual()) &&
-            this.linha === linhaPrimeiroDigito
-        ) {
+        while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
             this.avancar();
         }
 
@@ -194,15 +180,9 @@ export class LexadorEguaP implements LexadorInterface {
         let numeroCompleto: string;
         if (linhaPrimeiroDigito < this.linha) {
             const linhaNumero: string = this.codigo[linhaPrimeiroDigito];
-            numeroCompleto = linhaNumero.substring(
-                this.inicioSimbolo,
-                linhaNumero.length
-            );
+            numeroCompleto = linhaNumero.substring(this.inicioSimbolo, linhaNumero.length);
         } else {
-            numeroCompleto = this.codigo[this.linha].substring(
-                this.inicioSimbolo,
-                this.atual
-            );
+            numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
 
         this.simbolos.push(
@@ -218,26 +198,16 @@ export class LexadorEguaP implements LexadorInterface {
 
     identificarPalavraChave(): void {
         const linhaPrimeiroCaracter: number = this.linha;
-        while (
-            this.eAlfabetoOuDigito(this.simboloAtual()) &&
-            this.linha === linhaPrimeiroCaracter
-        ) {
+        while (this.eAlfabetoOuDigito(this.simboloAtual()) && this.linha === linhaPrimeiroCaracter) {
             this.avancar();
         }
 
         let textoPalavraChave: string;
         if (linhaPrimeiroCaracter < this.linha) {
-            const linhaPalavraChave: string =
-                this.codigo[linhaPrimeiroCaracter];
-            textoPalavraChave = linhaPalavraChave.substring(
-                this.inicioSimbolo,
-                linhaPalavraChave.length
-            );
+            const linhaPalavraChave: string = this.codigo[linhaPrimeiroCaracter];
+            textoPalavraChave = linhaPalavraChave.substring(this.inicioSimbolo, linhaPalavraChave.length);
         } else {
-            textoPalavraChave = this.codigo[this.linha].substring(
-                this.inicioSimbolo,
-                this.atual
-            );
+            textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
 
         const tipo: string =
@@ -245,23 +215,12 @@ export class LexadorEguaP implements LexadorInterface {
                 ? palavrasReservadas[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
-        this.simbolos.push(
-            new Simbolo(
-                tipo,
-                textoPalavraChave,
-                null,
-                linhaPrimeiroCaracter + 1,
-                this.hashArquivo
-            )
-        );
+        this.simbolos.push(new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
     }
 
     analisarIndentacao(): void {
         let espacos = 0;
-        while (
-            ['\t', ' '].includes(this.simboloAtual()) &&
-            !this.eFinalDoCodigo()
-        ) {
+        while (['\t', ' '].includes(this.simboloAtual()) && !this.eFinalDoCodigo()) {
             espacos++;
             this.avancar();
         }
@@ -464,8 +423,7 @@ export class LexadorEguaP implements LexadorInterface {
 
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
+                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
                 else {
                     this.erros.push({
                         linha: this.linha + 1,
@@ -499,11 +457,7 @@ export class LexadorEguaP implements LexadorInterface {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            console.log(
-                `[Lexador] Tempo para mapeamento: ${
-                    deltaMapeamento[0] * 1e9 + deltaMapeamento[1]
-                }ns`
-            );
+            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
 
         return {

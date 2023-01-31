@@ -50,5 +50,5 @@ export default {
     ta: tiposDeSimbolos.TA,
     vai: tiposDeSimbolos.VAI,
     vamo: tiposDeSimbolos.VAMO,
-    ver: tiposDeSimbolos.VER
+    ver: tiposDeSimbolos.VER,
 };

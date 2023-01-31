@@ -1,11 +1,11 @@
-import { DeleguaFuncao, FuncaoPadrao } from "../../../estruturas";
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
+import { DeleguaFuncao, FuncaoPadrao } from '../../../estruturas';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 /* eslint-disable prefer-rest-params */
 export default function (interpreter, globals) {
     // Retorna um número aleatório entre 0 e 1.
     globals.definirVariavel(
-        "aleatorio",
+        'aleatorio',
         new FuncaoPadrao(1, function () {
             return Math.random();
         })
@@ -14,38 +14,26 @@ export default function (interpreter, globals) {
     // Retorna um número aleatório de acordo com o parâmetro passado.
     // MIN(inclusivo) - MAX(exclusivo)
     globals.definirVariavel(
-        "aleatorioEntre",
+        'aleatorioEntre',
         new FuncaoPadrao(1, function (min, max) {
             if (!arguments[0]) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "A função recebe ao menos um parâmetro"
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro');
             }
 
             if (arguments.length === 1) {
                 if (typeof min !== 'number') {
-                    throw new ErroEmTempoDeExecucao(
-                        this.simbolo,
-                        "O parâmetro deve ser do tipo número"
-                    );
-                };
+                    throw new ErroEmTempoDeExecucao(this.simbolo, 'O parâmetro deve ser do tipo número');
+                }
 
                 return Math.floor(Math.random() * (0 - min)) + min;
             }
 
             if (arguments.length > 2) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "A quantidade de argumentos máxima é 2"
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'A quantidade de argumentos máxima é 2');
             }
 
             if (typeof min !== 'number' || typeof max !== 'number') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Os dois parâmetros devem ser do tipo número."
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.');
             }
 
             return Math.floor(Math.random() * (max - min)) + min;
@@ -53,20 +41,14 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "inteiro",
+        'inteiro',
         new FuncaoPadrao(1, function (value) {
             if (value === undefined || value === null) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Somente números podem passar para inteiro."
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para inteiro.');
             }
 
             if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Somente números podem passar para inteiro."
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para inteiro.');
             }
 
             return parseInt(value);
@@ -74,54 +56,48 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "paraCada",
+        'paraCada',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
             for (let index = 0; index < array.length; ++index) {
-                await callback.chamar(
-                    interpreter, [array[index]]
-                );
+                await callback.chamar(interpreter, [array[index]]);
             }
         })
     );
 
     globals.definirVariavel(
-        "mapear",
+        'mapear',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
             let provisorio = [];
             for (let index = 0; index < array.length; ++index) {
-                provisorio.push(
-                    await callback.chamar(
-                        interpreter, [array[index]]
-                    )
-                );
+                provisorio.push(await callback.chamar(interpreter, [array[index]]));
             }
 
             return provisorio;
@@ -129,19 +105,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "filtrar",
+        'filtrar',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -157,19 +133,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "reduzir",
+        'reduzir',
         new FuncaoPadrao(1, async function (array, callback, padrao) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -190,19 +166,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "encontrar",
+        'encontrar',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -217,19 +193,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "encontrarUltimo",
+        'encontrarUltimo',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -242,19 +218,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "encontrarIndice",
+        'encontrarIndice',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -269,19 +245,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "encontrarUltimoIndice",
+        'encontrarUltimoIndice',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -294,12 +270,12 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "incluido",
+        'incluido',
         new FuncaoPadrao(1, function (array, valor) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
@@ -314,19 +290,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "algum",
+        'algum',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -341,19 +317,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "todos",
+        'todos',
         new FuncaoPadrao(1, async function (array, callback) {
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array."
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
             if (callback.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
-                    "Parâmetro inválido. O segundo parâmetro da função, deve ser uma função."
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
@@ -368,13 +344,10 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "ordenar",
+        'ordenar',
         new FuncaoPadrao(1, function (obj) {
             if (Array.isArray(obj) == false) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Valor Inválido. Objeto inserido não é um vetor."
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'Valor Inválido. Objeto inserido não é um vetor.');
             }
 
             let trocado;
@@ -393,25 +366,19 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "real",
+        'real',
         new FuncaoPadrao(1, function (value) {
             if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value))
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Somente números podem passar para real."
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para real.');
             return parseFloat(value);
         })
     );
 
     globals.definirVariavel(
-        "tamanho",
+        'tamanho',
         new FuncaoPadrao(1, function (obj) {
             if (!isNaN(obj)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    "Não é possível encontrar o tamanho de um número."
-                );
+                throw new ErroEmTempoDeExecucao(this.simbolo, 'Não é possível encontrar o tamanho de um número.');
             }
 
             if (obj instanceof DeleguaFuncao) {
@@ -427,13 +394,13 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        "texto",
+        'texto',
         new FuncaoPadrao(1, function (value) {
             return `${value}`;
         })
     );
 
-    globals.definirVariavel("exports", {});
+    globals.definirVariavel('exports', {});
 
     return globals;
-};
+}

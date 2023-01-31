@@ -8,12 +8,7 @@ export class FuncaoConstruto implements Construto {
     parametros: ParametroInterface[];
     corpo: any[];
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        parametros: ParametroInterface[],
-        corpo: any[]
-    ) {
+    constructor(hashArquivo: number, linha: number, parametros: ParametroInterface[], corpo: any[]) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

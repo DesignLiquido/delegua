@@ -6,29 +6,29 @@
  * @author André G.
  */
 
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 // Constantes úteis
 
 /**
  * Conjunto de todas as letraas minúsculas
  */
-module.exports.letras_minusculas = "abcdefghijklmnopqrstuvwxyz";
+module.exports.letras_minusculas = 'abcdefghijklmnopqrstuvwxyz';
 
 /**
  * Conjunto de todas as letraas maiúsculas
  */
-module.exports.letras_maiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+module.exports.letras_maiusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
  * Conjunto de todas as letraas
  */
-module.exports.letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+module.exports.letras = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
  * Conjunto de todas os dígitos
  */
-module.exports.digitos = "0123456789";
+module.exports.digitos = '0123456789';
 
 /**
  * Conjuto de pontuções
@@ -44,11 +44,8 @@ module.exports.pontuacoes = '!"' + "#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
  * @return {string} a string convertida.
  */
 module.exports.maiusculo = function (texto) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
     return texto.toUpperCase();
 };
@@ -60,11 +57,8 @@ module.exports.maiusculo = function (texto) {
  * @return {string} a string convertida.
  */
 module.exports.minusculo = function (texto) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
     return texto.toLowerCase();
 };
@@ -77,17 +71,11 @@ module.exports.minusculo = function (texto) {
  * @return {boolean} verdadeiro se o texto possui o subtexto falso caso contrário.
  */
 module.exports.contem = function (texto, subtexto) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
-    if (typeof subtexto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O segundo parâmetro também deve ser um texto"
-        );
+    if (typeof subtexto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O segundo parâmetro também deve ser um texto');
     }
     return texto.includes(subtexto);
 };
@@ -105,24 +93,21 @@ module.exports.contem = function (texto, subtexto) {
  * @return {string} o texto formatado.
  */
 module.exports.formate = function (texto, ...argumentos) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
     for (let i = 0; i < argumentos.length; i++) {
         let value = argumentos[i];
-        if (typeof value === "boolean") {
-            value = value ? "verdadeiro" : "falso";
+        if (typeof value === 'boolean') {
+            value = value ? 'verdadeiro' : 'falso';
         }
         if (value === null) {
-            value = "nulo";
+            value = 'nulo';
         }
-        if (typeof value === "object") {
-            value = "<dicionário>";
+        if (typeof value === 'object') {
+            value = '<dicionário>';
         }
-        texto = texto.replace("{}", value);
+        texto = texto.replace('{}', value);
     }
     return texto;
 };
@@ -136,28 +121,15 @@ module.exports.formate = function (texto, ...argumentos) {
  *
  * @returns {string[]} um vetor contendo os textos divididos.
  */
-module.exports.dividir = function (
-    texto,
-    separador = "",
-    limite = Number.MAX_SAFE_INTEGER
-) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+module.exports.dividir = function (texto, separador = '', limite = Number.MAX_SAFE_INTEGER) {
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
-    if (typeof separador !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O separador passado deve ser um texto"
-        );
+    if (typeof separador !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O separador passado deve ser um texto');
     }
-    if (typeof limite !== "number") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O limite passado deve ser um número"
-        );
+    if (typeof limite !== 'number') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O limite passado deve ser um número');
     }
     return texto.split(separador, limite);
 };
@@ -169,11 +141,8 @@ module.exports.dividir = function (
  * @return {number} o tamanho do texto.
  */
 module.exports.tamanho = function (texto) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
     return texto.length;
 };
@@ -186,17 +155,11 @@ module.exports.tamanho = function (texto) {
  * @return {string} um texto com o número de cópias do texto fornecido.
  */
 module.exports.repita = function (texto, contador = 0) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
-    if (typeof contador !== "number") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O contador passado deve ser um número"
-        );
+    if (typeof contador !== 'number') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O contador passado deve ser um número');
     }
     return texto.repeat(contador);
 };
@@ -210,20 +173,14 @@ module.exports.repita = function (texto, contador = 0) {
  * @return {string} um novo texto com os valores substituídos.
  */
 module.exports.substituir = function (texto, texto_buscado, novo_texto) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
-    if (typeof texto_buscado !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O padrão passado deve ser um texto"
-        );
+    if (typeof texto_buscado !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O padrão passado deve ser um texto');
     }
-    if (typeof novo_texto !== "string") {
-        throw new ErroEmTempoDeExecucao(this.token, "O novo valor deve ser um texto");
+    if (typeof novo_texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O novo valor deve ser um texto');
     }
     return texto.replace(texto_buscado, novo_texto);
 };
@@ -237,17 +194,11 @@ module.exports.substituir = function (texto, texto_buscado, novo_texto) {
  * @returns {number} o índice da primeira ocorrência no texto fornecido ou -1 caso contrário.
  */
 module.exports.busca = function (texto, texto_buscado) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
-    if (typeof texto_buscado !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O padrão passado deve ser um texto"
-        );
+    if (typeof texto_buscado !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O padrão passado deve ser um texto');
     }
     return texto.search(texto_buscado);
 };
@@ -259,11 +210,8 @@ module.exports.busca = function (texto, texto_buscado) {
  * @returns {number} um texto sem espaços em ambos os lados.
  */
 module.exports.apara = function (texto) {
-    if (typeof texto !== "string") {
-        throw new ErroEmTempoDeExecucao(
-            this.token,
-            "O parâmetro passado deve ser um texto"
-        );
+    if (typeof texto !== 'string') {
+        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
     }
     return texto.trim();
 };

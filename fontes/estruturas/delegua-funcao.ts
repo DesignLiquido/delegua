@@ -6,6 +6,9 @@ import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
 
+/**
+ * Qualquer função declarada em código é uma DeleguaFuncao.
+ */
 export class DeleguaFuncao extends Chamavel {
     nome: string;
     declaracao: FuncaoConstruto;
@@ -45,9 +48,7 @@ export class DeleguaFuncao extends Chamavel {
                 const nome = parametro['nome'].lexema;
                 let valor = argumentos[i];
                 if (argumentos[i] === null) {
-                    valor = parametro['padrao']
-                        ? parametro['padrao'].valor
-                        : null;
+                    valor = parametro['padrao'] ? parametro['padrao'].valor : null;
                 }
 
                 ambiente.valores[nome] = valor;
@@ -61,10 +62,7 @@ export class DeleguaFuncao extends Chamavel {
             };
         }
 
-        const retornoBloco: any = await interpretador.executarBloco(
-            this.declaracao.corpo,
-            ambiente
-        );
+        const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
         if (retornoBloco instanceof RetornoQuebra) {
             return retornoBloco.valor;
         }
@@ -77,11 +75,6 @@ export class DeleguaFuncao extends Chamavel {
     }
 
     definirInstancia(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
-        return new DeleguaFuncao(
-            this.nome,
-            this.declaracao,
-            instancia,
-            this.eInicializador
-        );
+        return new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
     }
 }

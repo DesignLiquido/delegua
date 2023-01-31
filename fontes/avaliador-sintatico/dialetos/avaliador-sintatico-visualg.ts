@@ -1,6 +1,19 @@
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { Bloco, Declaracao, Enquanto, Escolha, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para, Se, Sustar, Var } from '../../declaracoes';
+import {
+    Bloco,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    EscrevaMesmaLinha,
+    Fazer,
+    Leia,
+    Para,
+    Se,
+    Sustar,
+    Var,
+} from '../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -45,7 +58,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     private validarDimensoesVetor(): number[] {
         let dimensoes = [];
         do {
-            const numeroInicial = this.consumir(tiposDeSimbolos.NUMERO, 'Esperado índice inicial para inicialização de dimensão de vetor.');
+            const numeroInicial = this.consumir(
+                tiposDeSimbolos.NUMERO,
+                'Esperado índice inicial para inicialização de dimensão de vetor.'
+            );
             this.consumir(
                 tiposDeSimbolos.PONTO,
                 'Esperado primeiro ponto após índice inicial para inicialização de dimensão de vetor.'
@@ -54,7 +70,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.PONTO,
                 'Esperado segundo ponto após índice inicial para inicialização de dimensão de vetor.'
             );
-            const numeroFinal = this.consumir(tiposDeSimbolos.NUMERO, 'Esperado índice final para inicialização de dimensão de vetor.');
+            const numeroFinal = this.consumir(
+                tiposDeSimbolos.NUMERO,
+                'Esperado índice final para inicialização de dimensão de vetor.'
+            );
             dimensoes.push(Number(numeroFinal.literal) - Number(numeroInicial.literal));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -104,14 +123,20 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             for (let identificador of identificadores) {
                 switch (tipoVariavel) {
                     case tiposDeSimbolos.CARACTERE:
-                        inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), '')));
+                        inicializacoes.push(
+                            new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), ''))
+                        );
                         break;
                     case tiposDeSimbolos.INTEIRO:
                     case tiposDeSimbolos.REAL:
-                        inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), 0)));
+                        inicializacoes.push(
+                            new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), 0))
+                        );
                         break;
                     case tiposDeSimbolos.LOGICO:
-                        inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), false)));
+                        inicializacoes.push(
+                            new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), false))
+                        );
                         break;
                     case tiposDeSimbolos.VETOR:
                         // TODO: Validar vetor
@@ -142,7 +167,16 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                 'Tipo de variável não conhecido para inicialização de vetor.'
                             );
                         }
-                        inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloAtual.linha), this.criarVetorNDimensional(dimensoes))));
+                        inicializacoes.push(
+                            new Var(
+                                identificador,
+                                new Literal(
+                                    this.hashArquivo,
+                                    Number(simboloAtual.linha),
+                                    this.criarVetorNDimensional(dimensoes)
+                                )
+                            )
+                        );
                         break;
                 }
             }
@@ -168,11 +202,21 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const simboloAnterior = this.simbolos[this.atual - 1];
 
         switch (simboloAnterior.lexema) {
-            case "int":
-                return new Chamada(this.hashArquivo,
-                    new Variavel(this.hashArquivo,
-                        new Simbolo(tiposDeSimbolos.IDENTIFICADOR, "inteiro", null, Number(simboloAnterior.linha), this.hashArquivo)
-                    ), null, []
+            case 'int':
+                return new Chamada(
+                    this.hashArquivo,
+                    new Variavel(
+                        this.hashArquivo,
+                        new Simbolo(
+                            tiposDeSimbolos.IDENTIFICADOR,
+                            'inteiro',
+                            null,
+                            Number(simboloAnterior.linha),
+                            this.hashArquivo
+                        )
+                    ),
+                    null,
+                    []
                 );
             default:
                 return null;
@@ -187,7 +231,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)) {
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
+        ) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
@@ -208,16 +254,22 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         let expressao = this.comparar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL)) {
-            // TODO: Este é um caso que o interpretador não deveria ter conhecimento 
-            // do que é um símbolo. 
-            // Em VisuAlg não existe '==', apenas '=', já que o símbolo de atribuição 
+            // TODO: Este é um caso que o interpretador não deveria ter conhecimento
+            // do que é um símbolo.
+            // Em VisuAlg não existe '==', apenas '=', já que o símbolo de atribuição
             // é uma seta: '<-'.
             const simboloAnterior = this.simbolos[this.atual - 1];
-            let operador: SimboloInterface = new Simbolo('IGUAL_IGUAL', '=', null, this.hashArquivo, Number(simboloAnterior.linha));
+            let operador: SimboloInterface = new Simbolo(
+                'IGUAL_IGUAL',
+                '=',
+                null,
+                this.hashArquivo,
+                Number(simboloAnterior.linha)
+            );
             if (simboloAnterior.tipo === tiposDeSimbolos.DIFERENTE) {
                 operador = simboloAnterior;
             }
-            
+
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
@@ -240,7 +292,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
+                return new AtribuicaoSobrescrita(
+                    this.hashArquivo,
+                    expressao.linha,
+                    expressao.entidadeChamada,
+                    expressao.indice,
+                    valor
+                );
             }
 
             this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
@@ -407,7 +465,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     private logicaComumEscreva(): FormatacaoEscrita[] {
-        const simboloParenteses = this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
+        const simboloParenteses = this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' antes dos valores em escreva."
+        );
         const argumentos: FormatacaoEscrita[] = [];
 
         do {
@@ -416,17 +477,25 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             let casasDecimais = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 // Espaços
-                const simboloEspacos = this.consumir(tiposDeSimbolos.NUMERO, "Esperado número após sinal de dois-pontos após identificador como argumento.");
+                const simboloEspacos = this.consumir(
+                    tiposDeSimbolos.NUMERO,
+                    'Esperado número após sinal de dois-pontos após identificador como argumento.'
+                );
                 espacos = Number(simboloEspacos.lexema) - 1;
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 // Casas decimais
-                const simboloCasasDecimais = this.consumir(tiposDeSimbolos.NUMERO, "Esperado número após segundo sinal de dois-pontos após identificador como argumento.");
+                const simboloCasasDecimais = this.consumir(
+                    tiposDeSimbolos.NUMERO,
+                    'Esperado número após segundo sinal de dois-pontos após identificador como argumento.'
+                );
                 casasDecimais = Number(simboloCasasDecimais.lexema);
             }
 
-            argumentos.push(new FormatacaoEscrita(this.hashArquivo, Number(simboloParenteses.linha), valor, espacos, casasDecimais));
+            argumentos.push(
+                new FormatacaoEscrita(this.hashArquivo, Number(simboloParenteses.linha), valor, espacos, casasDecimais)
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
@@ -435,7 +504,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             tiposDeSimbolos.QUEBRA_LINHA,
             "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'."
         );
-        
+
         return argumentos;
     }
 
@@ -482,9 +551,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
 
         return new Fazer(
-            this.hashArquivo, 
-            Number(simboloAtual.linha), 
-            new Bloco(this.hashArquivo, Number(simboloAtual.linha), declaracoes.filter(d => d)), 
+            this.hashArquivo,
+            Number(simboloAtual.linha),
+            new Bloco(
+                this.hashArquivo,
+                Number(simboloAtual.linha),
+                declaracoes.filter((d) => d)
+            ),
             condicao
         );
     }
@@ -516,7 +589,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após fechamento de parênteses pós instrução `leia`."
+            'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         );
 
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), []);
@@ -575,7 +648,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Para(
             this.hashArquivo,
             Number(simboloPara.linha),
-            new Atribuir(this.hashArquivo, variavelIteracao, new Literal(this.hashArquivo, Number(simboloPara.linha), numeroInicio.literal)),
+            new Atribuir(
+                this.hashArquivo,
+                variavelIteracao,
+                new Literal(this.hashArquivo, Number(simboloPara.linha), numeroInicio.literal)
+            ),
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
@@ -602,7 +679,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const condicao = this.expressao();
 
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
-        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'entao' em declaração 'se'.");
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            "Esperado quebra de linha após palavra reservada 'entao' em declaração 'se'."
+        );
 
         const declaracoes = [];
         do {
@@ -616,21 +696,27 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             do {
                 declaracoes.push(this.declaracao());
             } while (![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
-            caminhoSenao = new Bloco(this.hashArquivo, Number(simboloSenao.linha), declaracoesSenao.filter(d => d));
+            caminhoSenao = new Bloco(
+                this.hashArquivo,
+                Number(simboloSenao.linha),
+                declaracoesSenao.filter((d) => d)
+            );
         }
 
-        this.consumir(
-            tiposDeSimbolos.FIM_SE,
-            "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'."
-        );
+        this.consumir(tiposDeSimbolos.FIM_SE, "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'.");
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimse'.");
 
         return new Se(
-            condicao, 
-            new Bloco(this.hashArquivo, Number(simboloSe.linha), declaracoes.filter(d => d)), 
-            [], 
-            caminhoSenao);
+            condicao,
+            new Bloco(
+                this.hashArquivo,
+                Number(simboloSe.linha),
+                declaracoes.filter((d) => d)
+            ),
+            [],
+            caminhoSenao
+        );
     }
 
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {

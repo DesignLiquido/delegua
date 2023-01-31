@@ -8,11 +8,7 @@ export class Super implements Construto {
     simboloChave: SimboloInterface;
     metodo: SimboloInterface;
 
-    constructor(
-        hashArquivo: number,
-        simboloChave: SimboloInterface,
-        metodo: SimboloInterface
-    ) {
+    constructor(hashArquivo: number, simboloChave: SimboloInterface, metodo: SimboloInterface) {
         this.linha = Number(simboloChave.linha);
         this.hashArquivo = hashArquivo;
 

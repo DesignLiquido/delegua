@@ -1,6 +1,6 @@
 import * as processoFilho from 'child_process';
 import * as caminho from 'path';
-import * as sistemaArquivos from 'fs'
+import * as sistemaArquivos from 'fs';
 
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
@@ -17,20 +17,14 @@ const carregarBibliotecaDelegua = (nome: string) => {
         try {
             dadosDoModulo = importarPacoteDeleguaCompleto(nome);
         } catch (erro2: any) {
-            throw new ErroEmTempoDeExecucao(
-                null,
-                `Biblioteca ${nome} não encontrada para importação.`
-            );
+            throw new ErroEmTempoDeExecucao(null, `Biblioteca ${nome} não encontrada para importação.`);
         }
     }
 
     return modularizarBiblioteca(dadosDoModulo, nome);
 };
 
-const carregarBiblioteca = async (
-    nomeDaBiblioteca: string,
-    caminhoDaBiblioteca: any
-) => {
+const carregarBiblioteca = async (nomeDaBiblioteca: string, caminhoDaBiblioteca: any) => {
     let dadosDoModulo: any;
 
     try {
@@ -41,7 +35,9 @@ const carregarBiblioteca = async (
         } catch (erro2: any) {
             throw new ErroEmTempoDeExecucao(
                 null,
-                `Biblioteca ${nomeDaBiblioteca} não encontrada para importação. Informações adicionais: ${erro2?.message || "(nenhuma)"}`
+                `Biblioteca ${nomeDaBiblioteca} não encontrada para importação. Informações adicionais: ${
+                    erro2?.message || '(nenhuma)'
+                }`
             );
         }
     }
@@ -63,16 +59,11 @@ const modularizarBiblioteca = (dadosDoModulo: any, nome: string) => {
             // Uma heurística nova é converter `moduloAtual` para `string` e verificar se a declaração começa com `class`.
             // Se sim, podemos dizer que a "function" é uma classe padrão.
             // Caso contrário, é uma função (`FuncaoPadrao`).
-            if (
-                String(moduloAtual).startsWith('class')
-            ) {
+            if (String(moduloAtual).startsWith('class')) {
                 const classePadrao = new ClassePadrao(chaves[i], moduloAtual);
                 novoModulo.componentes[chaves[i]] = classePadrao;
             } else {
-                novoModulo.componentes[chaves[i]] = new FuncaoPadrao(
-                    moduloAtual.length,
-                    moduloAtual
-                );
+                novoModulo.componentes[chaves[i]] = new FuncaoPadrao(moduloAtual.length, moduloAtual);
             }
         } else {
             novoModulo.componentes[chaves[i]] = moduloAtual;
@@ -87,18 +78,19 @@ const importarPacoteCaminhoBase = async (caminhoRelativo: string) => {
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
 
-    const caminhoAbsoluto = caminho.join(
-        (global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\package.json`;
+    const caminhoAbsoluto = caminho.join(global.output[1].toString().trim()) + `\\${caminhoRelativo}\\package.json`;
 
     let arquivoInicio = JSON.parse(sistemaArquivos.readFileSync(caminhoAbsoluto, 'utf-8')).main || 'index.js';
 
-    await import(caminho.join(
-        'file:///' +(global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\${arquivoInicio.replace('./', '')}`).then(resposta => {
-            resultado = resposta;
-        });
-    
+    await import(
+        caminho.join('file:///' + global.output[1].toString().trim()) +
+            `\\${caminhoRelativo}\\${arquivoInicio.replace('./', '')}`
+    ).then((resposta) => {
+        resultado = resposta;
+    });
+
     return resultado;
-}
+};
 
 const importarPacoteDeleguaCompleto = async (nome: string) => {
     return await importarPacoteCaminhoBase(`delegua\\node_modules\\${nome}`);
@@ -128,8 +120,7 @@ const verificarModulosDelegua = (nome: string): string | boolean => {
 };
 
 export default async function (nome: string) {
-    const nomeBibliotecaResolvido: string | boolean =
-        verificarModulosDelegua(nome);
+    const nomeBibliotecaResolvido: string | boolean = verificarModulosDelegua(nome);
     return nomeBibliotecaResolvido
         ? carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
         : await carregarBiblioteca(nome, nome);

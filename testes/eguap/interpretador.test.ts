@@ -184,7 +184,7 @@ describe('Interpretador (EguaP)', () => {
             });
 
             describe('Classes', () => {
-                it.skip('Trivial', async () => {
+                it('Trivial', async () => {
                     const codigo = [
                         "classe Animal:",
                         "    correr():",

@@ -2,5 +2,11 @@ import { RetornoImportador } from '../importador';
 
 export interface ImportadorInterface {
     diretorioBase: string;
-    importar(caminhoRelativoArquivo: string, importacaoInicial: boolean, traduzirJavaScriptParaDelegua: boolean): RetornoImportador;
+    conteudoArquivosAbertos: { [identificador: string]: string[] };
+
+    importar(
+        caminhoRelativoArquivo: string,
+        importacaoInicial: boolean,
+        traduzirJavaScriptParaDelegua: boolean
+    ): RetornoImportador;
 }

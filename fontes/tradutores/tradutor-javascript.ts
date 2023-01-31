@@ -137,15 +137,16 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
 
-        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
+        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
+            chamada.entidadeChamada
+        )}`;
 
-        const instanciaClasse = this.declaracoesDeClasses.some(declaracao => declaracao?.simbolo?.lexema === retorno);
+        const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
         if (instanciaClasse) {
-            const classe = this.declaracoesDeClasses.find(declaracao => declaracao?.simbolo?.lexema === retorno);
-            if (classe.simbolo.lexema === retorno)
-                resultado += `new ${retorno}`
+            const classe = this.declaracoesDeClasses.find((declaracao) => declaracao?.simbolo?.lexema === retorno);
+            if (classe.simbolo.lexema === retorno) resultado += `new ${retorno}`;
         } else {
-            resultado += retorno
+            resultado += retorno;
         }
         resultado += '(';
         for (let parametro of chamada.argumentos) {
@@ -208,10 +209,9 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
         let resultado = 'export class ';
 
-        if(declaracaoClasse.superClasse)
-            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`
-        else
-            resultado += declaracaoClasse.simbolo.lexema + ' {\n';
+        if (declaracaoClasse.superClasse)
+            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`;
+        else resultado += declaracaoClasse.simbolo.lexema + ' {\n';
 
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
@@ -326,19 +326,20 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoImportar(declaracaoImportar: Importar) {
-        throw new Error('`importar()` não é suportado por este padrão de JavaScript.');
+        return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
     traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
-        throw new Error('`leia()` não é suportado por este padrão de JavaScript.');
+        return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
         resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
+            ' ';
 
-        resultado += !resultado.includes(';') ? ';': '';
+        resultado += !resultado.includes(';') ? ';' : '';
 
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
@@ -366,14 +367,15 @@ export class TradutorJavaScript implements TradutorInterface {
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
         if (declaracaoSe.caminhoSenao !== null) {
-            resultado += '\nelse ';
+            resultado += ' '.repeat(this.indentacao);
+            resultado += 'else ';
             const se = declaracaoSe?.caminhoSenao as Se;
             if (se?.caminhoEntao) {
                 resultado += 'if (';
                 resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
                 resultado += ')';
                 resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-
+                resultado += ' '.repeat(this.indentacao);
                 if (se?.caminhoSenao) {
                     resultado += 'else ';
                     resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
@@ -412,7 +414,7 @@ export class TradutorJavaScript implements TradutorInterface {
                     resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
                 }
             }
-            
+
             resultado += ' '.repeat(this.indentacao);
             resultado += '}';
         }
@@ -431,14 +433,19 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema;
-        if(!declaracaoVar?.inicializador)
-            resultado += ';';
+        if (!declaracaoVar?.inicializador) resultado += ';';
         else {
             resultado += ' = ';
-            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
-            resultado += ";"
+            if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            } else {
+                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            }
+            resultado += ';';
         }
         return resultado;
     }
@@ -452,7 +459,7 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
-        let resultado = 'function('
+        let resultado = 'function(';
         for (const parametro of funcaoConstruto.parametros) {
             resultado += parametro.nome.lexema + ', ';
         }
@@ -461,31 +468,35 @@ export class TradutorJavaScript implements TradutorInterface {
             resultado = resultado.slice(0, -2);
         }
 
-        resultado += ') '
+        resultado += ') ';
 
         resultado += this.logicaComumBlocoEscopo(funcaoConstruto.corpo);
         return resultado;
     }
 
     traduzirConstrutoLogico(logico: Logico): string {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita)
-        let operador = this.traduzirSimboloOperador(logico.operador)
-        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda)
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
 
         return `${direita} ${operador} ${esquerda}`;
     }
 
     traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
         let resultado = '';
-        
-        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '['
-        resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) + ']'
-        resultado += ' = '
 
-        if(atribuicaoSobrescrita?.valor?.simbolo?.lexema){
-            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`
+        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+        resultado +=
+            this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+            ']';
+        resultado += ' = ';
+
+        if (atribuicaoSobrescrita?.valor?.simbolo?.lexema) {
+            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
         } else {
-            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](atribuicaoSobrescrita.valor)
+            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](
+                atribuicaoSobrescrita.valor
+            );
         }
 
         return resultado;
@@ -494,33 +505,40 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
         let resultado = '';
 
-        resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](acessoIndiceVariavel.entidadeChamada)
-        resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice)}]`
+        resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](
+            acessoIndiceVariavel.entidadeChamada
+        );
+        resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
+            acessoIndiceVariavel.indice
+        )}]`;
 
         return resultado;
     }
 
     traduzirConstrutoVetor(vetor: Vetor): string {
-        if(!vetor.valores.length){
-            return '[]'
+        if (!vetor.valores.length) {
+            return '[]';
         }
-        
+
         let resultado = '[';
 
-        for(let valor of vetor.valores){
-            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `
+        for (let valor of vetor.valores) {
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
         }
         if (vetor.valores.length > 0) {
             resultado = resultado.slice(0, -2);
         }
 
-        resultado += ']'
+        resultado += ']';
 
         return resultado;
     }
 
     traduzirConstrutoUnario(unario: Unario): string {
-        return this.traduzirSimboloOperador(unario.operador) + unario.direita.valor;
+        let resultado = '';
+        resultado += this.traduzirSimboloOperador(unario.operador);
+        resultado += unario.direita.valor ?? unario.direita.simbolo.lexema;
+        return resultado;
     }
 
     dicionarioConstrutos = {
@@ -564,7 +582,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
-        this.declaracoesDeClasses = declaracoes.filter(declaracao => declaracao instanceof Classe) as Classe[];
+        this.declaracoesDeClasses = declaracoes.filter((declaracao) => declaracao instanceof Classe) as Classe[];
 
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

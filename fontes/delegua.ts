@@ -178,9 +178,9 @@ export class Delegua implements DeleguaInterface {
         try {
             const manifesto = caminho.resolve(__dirname, 'package.json');
 
-            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.11';
+            return JSON.parse(fs.readFileSync(manifesto, { encoding: 'utf8' })).version || '0.12';
         } catch (error: any) {
-            return '0.11 (desenvolvimento)';
+            return '0.12 (desenvolvimento)';
         }
     }
 
@@ -286,7 +286,7 @@ export class Delegua implements DeleguaInterface {
     /**
      * Realiza a tradução do arquivo passado como parâmetro no comando de execução.
      * @param caminhoRelativoArquivo O caminho do arquivo.
-     * @param gerarArquivoSaida Se o resultado da tradução deve ser escrito em arquivo. 
+     * @param gerarArquivoSaida Se o resultado da tradução deve ser escrito em arquivo.
      *                          Se verdadeiro, os arquivos de saída são escritos no mesmo diretório
      *                          do arquivo passado no primeiro parâmetro.
      */
@@ -324,6 +324,20 @@ export class Delegua implements DeleguaInterface {
         }
 
         this.funcaoDeRetorno(resultado);
+    }
+
+    async executarCodigoComoArgumento(codigo: string) {
+        const retornoLexador = this.lexador.mapear([codigo], -1);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
+        const { erros } = await this.executar({
+            conteudoArquivo: [codigo],
+            nomeArquivo: '',
+            hashArquivo: -1,
+            retornoLexador: retornoLexador,
+            retornoAvaliadorSintatico: retornoAvaliadorSintatico,
+        });
+
+        if (erros.length > 0) process.exit(70); // Código com exceções não tratadas
     }
 
     /**
@@ -365,7 +379,6 @@ export class Delegua implements DeleguaInterface {
             } catch (erro: any) {
                 console.error(chalk.red(`[Erro de execução]`) + ` Dialeto ${this.dialeto} não suporta depuração.`);
             }
-            
         } else {
             const { erros } = await this.executar(retornoImportador);
             errosExecucao = erros;
@@ -395,7 +408,10 @@ export class Delegua implements DeleguaInterface {
                     this.erroEmTempoDeExecucao(erroInterpretador);
                 } else {
                     const erroEmJavaScript: any = erroInterpretador as ErroInterpretador;
-                    console.error(chalk.red(`[Linha: ${erroEmJavaScript.linha}] Erro em JavaScript: `) + `${erroEmJavaScript.erroInterno?.message}`);
+                    console.error(
+                        chalk.red(`[Linha: ${erroEmJavaScript.linha}] Erro em JavaScript: `) +
+                            `${erroEmJavaScript.erroInterno?.message}`
+                    );
                     console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.erroInterno?.stack}`);
                 }
             }

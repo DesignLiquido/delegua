@@ -1,8 +1,6 @@
-import { DeleguaModulo } from "../estruturas";
+import { DeleguaModulo } from '../estruturas';
 
-export function inferirTipoVariavel(
-    variavel: string | number | Array<any> | boolean | null | undefined
-) {
+export function inferirTipoVariavel(variavel: string | number | Array<any> | boolean | null | undefined) {
     const tipo = typeof variavel;
     switch (tipo) {
         case 'string':

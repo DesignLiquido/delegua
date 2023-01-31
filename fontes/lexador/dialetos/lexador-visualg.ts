@@ -6,12 +6,12 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 import palavrasReservadas from './palavras-reservadas/visualg';
 
 const dicionarioBibliotecaGlobal = {
-    'int': 'inteiro'
-}
+    int: 'inteiro',
+};
 
 /**
- * O Lexador do VisuAlg é de linha única porque não possui comentários 
- * multilinha na especificação. 
+ * O Lexador do VisuAlg é de linha única porque não possui comentários
+ * multilinha na especificação.
  */
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
@@ -27,14 +27,8 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             }
         }
 
-        const numeroCompleto = this.codigo.substring(
-            this.inicioSimbolo,
-            this.atual
-        );
-        this.adicionarSimbolo(
-            tiposDeSimbolos.NUMERO,
-            parseFloat(numeroCompleto)
-        );
+        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
+        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
     }
 
     analisarTexto(delimitador: string): void {
@@ -65,14 +59,12 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo = this.codigo
-            .substring(this.inicioSimbolo, this.atual)
-            .toLowerCase();
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
         if (codigo in palavrasReservadas) {
-            this.adicionarSimbolo(palavrasReservadas[codigo],
-                dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ?
-                    dicionarioBibliotecaGlobal[codigo] :
-                    codigo);
+            this.adicionarSimbolo(
+                palavrasReservadas[codigo],
+                dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ? dicionarioBibliotecaGlobal[codigo] : codigo
+            );
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }
@@ -164,11 +156,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.avancar();
                 switch (this.simboloAtual()) {
                     case '/':
-                        while (
-                            this.simboloAtual() != '\n' &&
-                            !this.eFinalDoCodigo()
-                        )
-                            this.avancar();
+                        while (this.simboloAtual() != '\n' && !this.eFinalDoCodigo()) this.avancar();
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
@@ -203,8 +191,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
+                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
                 else {
                     this.erros.push({
                         linha: this.linha + 1,

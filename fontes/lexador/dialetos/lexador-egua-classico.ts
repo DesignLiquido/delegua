@@ -12,7 +12,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- * 
+ *
  * Este Lexador implementa o mesmo mecanismo de lexação da linguagem Égua.
  * https://github.com/eguatech/egua/blob/master/src/lexer.js
  */
@@ -136,10 +136,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
         this.avancar();
 
-        const valor = this.codigo.substring(
-            this.inicioSimbolo + 1,
-            this.atual - 1
-        );
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual - 1);
         this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
 
@@ -156,14 +153,8 @@ export class LexadorEguaClassico implements LexadorInterface {
             }
         }
 
-        const numeroCompleto = this.codigo.substring(
-            this.inicioSimbolo,
-            this.atual
-        );
-        this.adicionarSimbolo(
-            tiposDeSimbolos.NUMERO,
-            parseFloat(numeroCompleto)
-        );
+        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
+        this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave() {
@@ -172,10 +163,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
 
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
-        const tipo =
-            codigo in palavrasReservadas
-                ? palavrasReservadas[codigo]
-                : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
@@ -232,18 +220,10 @@ export class LexadorEguaClassico implements LexadorInterface {
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 break;
             case '!':
-                this.adicionarSimbolo(
-                    this.proximoIgualA('=')
-                        ? tiposDeSimbolos.DIFERENTE
-                        : tiposDeSimbolos.NEGACAO
-                );
+                this.adicionarSimbolo(this.proximoIgualA('=') ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO);
                 break;
             case '=':
-                this.adicionarSimbolo(
-                    this.proximoIgualA('=')
-                        ? tiposDeSimbolos.IGUAL_IGUAL
-                        : tiposDeSimbolos.IGUAL
-                );
+                this.adicionarSimbolo(this.proximoIgualA('=') ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL);
                 break;
 
             case '&':
@@ -284,11 +264,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
             case '/':
                 if (this.proximoIgualA('/')) {
-                    while (
-                        this.simboloAtual() != '\n' &&
-                        !this.eFinalDoCodigo()
-                    )
-                        this.avancar();
+                    while (this.simboloAtual() != '\n' && !this.eFinalDoCodigo()) this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }
@@ -316,8 +292,7 @@ export class LexadorEguaClassico implements LexadorInterface {
 
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
+                else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
                 else
                     this.erros.push({
                         linha: this.linha,
@@ -342,9 +317,7 @@ export class LexadorEguaClassico implements LexadorInterface {
             this.analisarToken();
         }
 
-        this.simbolos.push(
-            new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha, -1)
-        );
+        this.simbolos.push(new Simbolo(tiposDeSimbolos.EOF, '', null, this.linha, -1));
 
         return {
             simbolos: this.simbolos,

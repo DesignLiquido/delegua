@@ -14,7 +14,7 @@ import {
 } from '../../declaracoes';
 
 export type RetornoResolverDeclaracao =
-    Escreva
+    | Escreva
     | Expressao
     | Se
     | Enquanto

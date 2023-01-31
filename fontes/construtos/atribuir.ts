@@ -17,6 +17,6 @@ export class Atribuir implements Construto {
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {
-        return await visitante.visitarExpressaoDeAtribuicao(this);
+        return await visitante.visitarDeclaracaoDeAtribuicao(this);
     }
 }
