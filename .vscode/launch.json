@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Birl > Teste 1",
+            "name": "Birl > Hello World",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
@@ -15,7 +15,7 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "birl",
-                "./exemplos/birl/teste1.birl"
+                "./exemplos/dialetos/birl/hello-world.birl"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]

@@ -1,10 +1,11 @@
-import { Construto, FuncaoConstruto } from '../../construtos';
-import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se } from '../../declaracoes';
+import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoSobrescrita, Atribuir, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from '../../construtos';
+import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se, Retorna } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
+import { SimboloInterface } from '../../interfaces';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     validarSegmentoHoraDoShow(): void {
@@ -20,7 +21,36 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        throw new Error('Method not implemented');
+        const simboloAtual = this.simbolos[this.atual];
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGATIVO))
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.POSITIVO))
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
+
+        /* if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
+        ) {
+            return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
+        } */
+
+        if (this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NUMERO, 
+                tiposDeSimbolos.FRANGAO, 
+                tiposDeSimbolos.FRANGÃO, 
+                tiposDeSimbolos.FRANGO, 
+                tiposDeSimbolos.TEXTO)) 
+        {
+            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
+            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            const expressao = this.expressao();
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+
+            return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+        }
     }
 
     chamar(): Construto {
@@ -28,59 +58,125 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     atribuir(): Construto {
-        throw new Error('Method not implemented.');
-    }
+        const expressao = this.ou();
 
-    declaracaoEscreva(): Escreva {
-        throw new Error('Method not implemented.');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            const igual = this.simboloAnterior();
+            const valor = this.atribuir();
+
+            if (expressao instanceof Variavel) {
+                const simbolo = expressao.simbolo;
+                return new Atribuir(this.hashArquivo, simbolo, valor);
+            } else if (expressao instanceof AcessoMetodo) {
+                const get = expressao;
+                return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+            } else if (expressao instanceof AcessoIndiceVariavel) {
+                return new AtribuicaoSobrescrita(
+                    this.hashArquivo,
+                    0,
+                    expressao.entidadeChamada,
+                    expressao.indice,
+                    valor
+                );
+            }
+            this.erro(igual, 'Tarefa de atribuição inválida');
+        }
+
+        return expressao;
     }
 
     blocoEscopo(): Declaracao[] {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEnquanto(): Enquanto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoPara(): Para {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
+    }
+
+    declaracaoEscreva(): Escreva {
+        const primeiroSimbolo = this.consumir(tiposDeSimbolos.CE, 'Esperado expressão `CE` para escrever mensagem.');
+        this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `CE` para escrever mensagem.');
+        this.consumir(tiposDeSimbolos.VER, 'Esperado expressão `VER` após `QUER` para escrever mensagem.');
+        this.consumir(tiposDeSimbolos.ESSA, 'Esperado expressão `ESSA` após `VER` para escrever mensagem.');
+        this.consumir(tiposDeSimbolos.PORRA, 'Esperado expressão `PORRA` após `ESSA` para escrever mensagem.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `PORRA` para escrever mensagem.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para escrever mensagem.');
+
+        const argumento = this.declaracao();
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após argumento para escrever mensagem.');
+
+        return new Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, [argumento]);
     }
 
     declaracaoFazer(): Fazer {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
+    }
+
+    declaracaoRetorna(): Retorna {
+        const primeiroSimbolo = this.consumir(tiposDeSimbolos.BORA, 'Esperado expressão `BORA` para retornar valor.');
+        this.consumir(tiposDeSimbolos.CUMPADE, 'Esperado expressão `CUMPADE` após `BORA` para retornar valor.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
+
+        const valor = this.declaracao();
+        
+        return new Retorna(primeiroSimbolo, valor);
     }
 
     declaracaoSe(): Se {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
-    declaracao(): Declaracao {
-        throw new Error('Method not implemented.');
+    declaracao(): any {
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.BORA: // BORA CUMPADE?
+                return this.declaracaoRetorna();
+            case tiposDeSimbolos.CE: // "CE QUER VER ESSA PORRA?"
+                return this.declaracaoEscreva();
+            case tiposDeSimbolos.PONTO_E_VIRGULA:
+            case tiposDeSimbolos.QUEBRA_LINHA:
+                this.avancarEDevolverAnterior();
+                return null;
+            default:
+                return this.expressao();
+        }
     }
 
     analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
+        this.erros = [];
         this.blocos = 0;
+        this.atual = 0;
 
         // 1 validação
-        if (this.blocos > 0) {
+        /* if (this.blocos > 0) {
             throw new ErroAvaliadorSintatico(
                 null,
                 'Quantidade de blocos abertos não corresponde com a quantidade de blocos fechados'
             );
-        }
+        } */
 
+        this.simbolos = retornoLexador.simbolos;
         const declaracoes = [];
 
         this.validarSegmentoHoraDoShow();
+
+        while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.BIRL) {
+            declaracoes.push(this.declaracao());
+        }
+
         this.validarSegmentoBirlFinal();
 
         return {
