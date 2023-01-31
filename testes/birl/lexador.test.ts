@@ -1,6 +1,6 @@
 import { Delegua } from '../../fontes/delegua';
 
-describe('Lexador', () => {
+describe('Lexador (BIRL)', () => {
     describe('mapear()', () => {
         let delegua: Delegua;
 
@@ -35,7 +35,7 @@ describe('Lexador', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(24);
+                expect(resultado.simbolos).toHaveLength(27);
                 expect(resultado.erros).toHaveLength(0);
             });
 
@@ -53,7 +53,7 @@ describe('Lexador', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(34);
+                expect(resultado.simbolos).toHaveLength(41);
                 expect(resultado.erros).toHaveLength(0);
             });
         });
