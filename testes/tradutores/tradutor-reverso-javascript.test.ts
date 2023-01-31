@@ -234,6 +234,18 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/padrao:/i);
         });
 
+        it('And e Or -> E e Ou', () => {
+            const codigo = `
+            const v = true && true;
+            const f = true || false;
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var v = verdadeiro e verdadeiro/i);
+            expect(resultado).toMatch(/var f = verdadeiro ou falso/i);
+        });
+
         it('if -> se', () => {
             const codigo = `
                 let i = 1;                

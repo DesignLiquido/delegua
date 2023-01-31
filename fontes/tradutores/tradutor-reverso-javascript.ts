@@ -34,6 +34,10 @@ export class TradutorReversoJavaScript {
         switch (operador) {
             case '===':
                 return '==';
+            case '&&':
+                return 'e'
+            case '||':
+                return 'ou';
             default:
                 return operador;
         }
@@ -92,6 +96,10 @@ export class TradutorReversoJavaScript {
         return `${objeto}${propriedade}`;
     }
 
+    traduzirConstrutoLogico(logico: any): string {
+        return this.dicionarioConstrutos[logico.constructor.name](logico)
+    }
+
     dicionarioConstrutos = {
         AssignmentExpression: this.traduzirConstrutoAtribuir.bind(this),
         ArrayExpression: this.traduzirConstrutoVetor.bind(this),
@@ -103,6 +111,7 @@ export class TradutorReversoJavaScript {
         // Isto: this.traduzirConstrutoIsto.bind(this),
         Identifier: this.traduzirIdentificador.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        LogicalExpression: this.traduzirConstrutoLogico.bind(this),
         MemberExpression: this.traduzirExpressao.bind(this),
         NewExpression: this.traduzirNovo.bind(this),
         ThisExpression: (expressao) => 'isto.',
