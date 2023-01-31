@@ -13,6 +13,7 @@ import {
     MethodDefinition,
     NewExpression,
     ReturnStatement,
+    SwitchStatement,
     TryStatement,
     UpdateExpression,
     VariableDeclaration,
@@ -208,7 +209,7 @@ export class TradutorReversoJavaScript {
     }
 
     //TODO: Refatorar esse método. @Samuel
-    traduzirDeclaracaoClasse(declaracao: ClassDeclaration) {
+    traduzirDeclaracaoClasse(declaracao: ClassDeclaration): string {
         let resultado = `classe ${declaracao.id.name} `;
         if (declaracao.superClass) {
             let identificador = declaracao.superClass as Identifier;
@@ -320,6 +321,36 @@ export class TradutorReversoJavaScript {
         return resultado;
     }
 
+    traduzirDeclaracaoEscolha(declaracao: SwitchStatement): string {
+        let resultado = '';
+        this.indentacao += 4;
+
+        resultado += `escolha(${this.dicionarioConstrutos[declaracao.discriminant.type](declaracao.discriminant)}) {`;
+        resultado += ' '.repeat(this.indentacao);
+        for(let caso of declaracao.cases){
+            if(!caso.test){
+                resultado += 'padrao:';
+                resultado += ' '.repeat(this.indentacao + 4);
+                for(let bloco of caso.consequent) {
+                    if(bloco.type === 'BreakStatement') continue;
+                    resultado += this.traduzirDeclaracao(bloco) + '\n'
+                }
+                break;
+            }
+            resultado += `caso ${this.dicionarioConstrutos[caso.test.type](caso.test)}:`
+            resultado += ' '.repeat(this.indentacao + 4);
+            for(let bloco of caso.consequent) {
+                if(bloco.type === 'BreakStatement') continue;
+                resultado += this.traduzirDeclaracao(bloco) + '\n'
+            }
+        }
+
+        this.indentacao -= 4;
+        resultado += ' '.repeat(this.indentacao) + '}\n';
+
+        return resultado;
+    }
+
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
             case 'ClassDeclaration':
@@ -336,6 +367,8 @@ export class TradutorReversoJavaScript {
                 return this.traduzirDeclaracaoSe(declaracao);
             case 'ReturnStatement':
                 return this.traduzirDeclaracaoRetorna(declaracao);
+            case 'SwitchStatement':
+                return this.traduzirDeclaracaoEscolha(declaracao);
             case 'TryStatement':
                 return this.traduzirDeclaracaoTente(declaracao);
             case 'VariableDeclaration':

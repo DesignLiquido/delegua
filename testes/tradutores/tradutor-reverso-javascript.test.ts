@@ -185,8 +185,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
         it('do while -> fazer enquanto', () => {
             const codigo = `
                 let result = '';
-                let i = 0;
-                
+                let i = 0;                
                 do {
                 i = i + 1;
                 result = result + i;
@@ -201,6 +200,31 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/enquanto\(i < 5\)/i);
         });
 
+        it('switch -> escolha', () => {
+            const codigo = `
+            const palavra = 'Papayas';
+            switch (palavra) {
+              case 'Laranja':
+                console.log('Laranja custa 0.59R$ centavos.');
+                break;
+              case 'Morango':
+              case 'Uva':
+                console.log('Morango e Uva custam 2.79R$ Reais.');
+                break;
+              default:
+                console.log('Valor padrão de 5R$');
+            }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/escolha\(palavra\)/i);
+            expect(resultado).toMatch(/caso \'Laranja\':/i);
+            expect(resultado).toMatch(/caso \'Morango\':/i);
+            expect(resultado).toMatch(/caso \'Uva\':/i);
+            expect(resultado).toMatch(/padrao:/i);
+        });
+
         it('if -> se', () => {
             const codigo = `
                 let i = 1;                
@@ -212,7 +236,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/var i = 1/i);
-            expect(resultado).toMatch(/if \(i == 1\)/i);
+            expect(resultado).toMatch(/se \(i == 1\)/i);
         });
 
         it('if/else if/else -> se/senao se/senao', () => {
