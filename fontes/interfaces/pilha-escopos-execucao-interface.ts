@@ -15,7 +15,7 @@ export interface PilhaEscoposExecucaoInterface
     definirVariavel(nomeVariavel: string, valor: any): void;
     elementos(): number;
     naPosicao(posicao: number): EscopoExecucao;
-    obterTodasVariaveis(todasVariaveis: any[]): VariavelInterface[];
+    obterTodasVariaveis(todasVariaveis: any[]): {valor: any, nome: string, tipo: string}[];
     obterVariavel(simbolo: SimboloInterface): VariavelInterface;
     obterVariavelEm(distancia: number, nome: string): VariavelInterface;
     obterVariavelPorNome(nome: string): VariavelInterface;

@@ -11,7 +11,7 @@ const dicionarioBibliotecaGlobal = {
 
 /**
  * O Lexador do VisuAlg é de linha única porque não possui comentários 
- * multilinha. 
+ * multilinha na especificação. 
  */
 export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
@@ -216,7 +216,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         }
     }
 
-    mapear(codigo: string[], hashArquivo = -1): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -226,6 +226,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         // Em VisuAlg, quebras de linha são relevantes na avaliação sintática.
         // Portanto, o Lexador precisa trabalhar com uma linha só.
         this.codigo = codigo.join('\n') || '';
+        this.hashArquivo = hashArquivo;
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;

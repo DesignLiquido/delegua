@@ -35,6 +35,8 @@ import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
 import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
 import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
+import { ErroInterpretador } from './interpretador';
+import { InterpretadorVisuAlgComDepuracao } from './interpretador/dialetos';
 
 /**
  * O núcleo da linguagem.
@@ -133,7 +135,9 @@ export class Delegua implements DeleguaInterface {
                     this.conteudoArquivosAbertos,
                     depurador
                 );
-                this.interpretador = new InterpretadorVisuAlg(this.importador, process.cwd(), false, console.log);
+                this.interpretador = depurador
+                    ? new InterpretadorVisuAlgComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
+                    : new InterpretadorVisuAlg(this.importador, process.cwd(), false, console.log);
                 break;
             default:
                 this.lexador = new Lexador(performance);
@@ -202,7 +206,7 @@ export class Delegua implements DeleguaInterface {
         interfaceLeitura.prompt();
         interfaceLeitura.on('line', async (linha: string) => {
             const { resultado } = await isto.executarUmaLinha(linha);
-            if (resultado.length) {
+            if (resultado && resultado.length) {
                 isto.funcaoDeRetorno(resultado[0]);
             }
 
@@ -354,9 +358,14 @@ export class Delegua implements DeleguaInterface {
         this.interpretador.interfaceEntradaSaida = interfaceLeitura;
 
         if (this.modoDepuracao) {
-            (this.interpretador as InterpretadorComDepuracaoInterface).prepararParaDepuracao(
-                retornoImportador.retornoAvaliadorSintatico.declaracoes
-            );
+            try {
+                (this.interpretador as InterpretadorComDepuracaoInterface).prepararParaDepuracao(
+                    retornoImportador.retornoAvaliadorSintatico.declaracoes
+                );
+            } catch (erro: any) {
+                console.error(chalk.red(`[Erro de execução]`) + ` Dialeto ${this.dialeto} não suporta depuração.`);
+            }
+            
         } else {
             const { erros } = await this.executar(retornoImportador);
             errosExecucao = erros;
@@ -385,9 +394,9 @@ export class Delegua implements DeleguaInterface {
                 if (erroInterpretador.simbolo) {
                     this.erroEmTempoDeExecucao(erroInterpretador);
                 } else {
-                    const erroEmJavaScript: any = erroInterpretador as any;
-                    console.error(chalk.red(`Erro em JavaScript: `) + `${erroEmJavaScript.message}`);
-                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.stack}`);
+                    const erroEmJavaScript: any = erroInterpretador as ErroInterpretador;
+                    console.error(chalk.red(`[Linha: ${erroEmJavaScript.linha}] Erro em JavaScript: `) + `${erroEmJavaScript.erroInterno?.message}`);
+                    console.error(chalk.red(`Pilha de execução: `) + `${erroEmJavaScript.erroInterno?.stack}`);
                 }
             }
         }

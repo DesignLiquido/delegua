@@ -1,0 +1,15 @@
+var t = importar("textos"); // Importa Biblioteca
+
+função checa_minusculas()  {
+  var esperado = "abcdefghijklmnopqrstuvwxyz";
+  var obtido = t.letras_minusculas;
+
+  se (obtido != esperado) {
+    escreva("TESTE: letras_minusculas: falhou!");
+    erros_t = erros_t + 1;
+    retorna;
+  }
+  escreva("TESTE: letras_minusculas: passou!");
+}
+
+checa_minusculas();

@@ -3,8 +3,6 @@ import * as sistemaArquivos from 'fs';
 
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { Delegua } from '../../../delegua';
-import carregarBibliotecaGlobal from '../../../bibliotecas/biblioteca-global';
-import carregarModulo from '../../../bibliotecas/importar-biblioteca';
 
 import { Chamavel } from '../../../estruturas/chamavel';
 import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
@@ -60,6 +58,9 @@ import {
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
+
+import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classico/biblioteca-global';
+import { carregarModuloPorNome } from '../../../bibliotecas/dialetos/egua-classico';
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
 
 /**
@@ -100,11 +101,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
@@ -133,7 +134,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return true;
     }
 
-    verificarOperandoNumero(operador: any, operando: any): void {
+    verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
         if (typeof operando === 'number' || operando.tipo === 'número') return;
         throw new ErroEmTempoDeExecucao(
             operador,
@@ -165,7 +166,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         esquerda: VariavelInterface | any,
         direita: VariavelInterface | any
     ): boolean {
-        if (esquerda.tipo) {
+        if (esquerda && esquerda.tipo) {
             if (
                 esquerda.tipo === 'nulo' &&
                 direita.tipo &&
@@ -183,7 +184,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     verificarOperandosNumeros(
-        operador: any,
+        operador: SimboloInterface,
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
@@ -213,16 +214,16 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             const direita: VariavelInterface | any = await this.avaliar(
                 expressao.direita
             );
-            const valorEsquerdo: any = esquerda.hasOwnProperty('valor')
+            const valorEsquerdo: any = esquerda && esquerda.hasOwnProperty('valor')
                 ? esquerda.valor
                 : esquerda;
-            const valorDireito: any = direita.hasOwnProperty('valor')
+            const valorDireito: any = direita && direita.hasOwnProperty('valor')
                 ? direita.valor
                 : direita;
-            const tipoEsquerdo: string = esquerda.hasOwnProperty('tipo')
+            const tipoEsquerdo: string = esquerda && esquerda.hasOwnProperty('tipo')
                 ? esquerda.tipo
                 : inferirTipoVariavel(esquerda);
-            const tipoDireito: string = direita.hasOwnProperty('tipo')
+            const tipoDireito: string = direita && direita.hasOwnProperty('tipo')
                 ? direita.tipo
                 : inferirTipoVariavel(direita);
 
@@ -591,28 +592,30 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoTente(declaracao: Tente): Promise<any> {
+        let valorRetorno: any;
         try {
             let sucesso = true;
             try {
-                await this.executarBloco(declaracao.caminhoTente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, []);
-                    await chamadaPegue.aceitar(this);
+                    valorRetorno = await this.executarBloco(declaracao.caminhoPegue as Declaracao[]);
                 } else {
                     this.erros.push(erro);
                 }
             }
 
             if (sucesso && declaracao.caminhoSenao !== null) {
-                await this.executarBloco(declaracao.caminhoSenao);
+                valorRetorno = await this.executarBloco(declaracao.caminhoSenao);
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                await this.executarBloco(declaracao.caminhoFinalmente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
         }
+
+        return valorRetorno;
     }
 
     async visitarExpressaoEnquanto(declaracao: Enquanto) {
@@ -632,7 +635,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         // const nomeArquivo = caminho.basename(caminhoTotal);
 
-        let dados: any = carregarModulo(caminhoRelativo);
+        let dados: any = carregarModuloPorNome(caminhoRelativo);
         if (dados) return dados;
 
         try {
@@ -684,7 +687,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             console.log(this.paraTexto(valor));
             return null;
         } catch (erro: any) {
-            this.erros.push(erro);
+            this.erros.push({ 
+                erroInterno: erro, 
+                linha: declaracao.linha, 
+                hashArquivo: 
+                declaracao.hashArquivo 
+            });
         }
     }
 
@@ -729,7 +737,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
-            valorOuOutraVariavel.hasOwnProperty('valor')
+            valorOuOutraVariavel && valorOuOutraVariavel.hasOwnProperty('valor')
                 ? valorOuOutraVariavel.valor
                 : valorOuOutraVariavel
         );
@@ -1080,7 +1088,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             return retornoExecucao;
         } catch (erro: any) {
-            return erro;
+            return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }

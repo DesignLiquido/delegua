@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as sistemaArquivos from 'fs';
 import * as caminho from 'path';
 import * as sistemaOperacional from 'os';
 
@@ -37,7 +37,11 @@ export class Importador implements ImportadorInterface {
         this.depuracao = depuracao;
     }
 
-    importar(caminhoRelativoArquivo: string, importacaoInicial: boolean = false, traduzirJavaScriptParaDelegua: boolean = false): RetornoImportador {
+    importar(
+        caminhoRelativoArquivo: string,
+        importacaoInicial: boolean = false,
+        traduzirJavaScriptParaDelegua: boolean = false
+    ): RetornoImportador {
         const nomeArquivo = caminho.basename(caminhoRelativoArquivo);
         let caminhoAbsolutoArquivo = caminho.resolve(this.diretorioBase, caminhoRelativoArquivo);
         if (importacaoInicial) {
@@ -46,7 +50,7 @@ export class Importador implements ImportadorInterface {
 
         const hashArquivo = cyrb53(caminhoAbsolutoArquivo.toLowerCase());
 
-        if (!fs.existsSync(nomeArquivo)) {
+        if (!sistemaArquivos.existsSync(nomeArquivo)) {
             // TODO: Terminar.
             /* throw new ErroEmTempoDeExecucao(
                 declaracao.simboloFechamento,
@@ -55,35 +59,24 @@ export class Importador implements ImportadorInterface {
             ); */
         }
 
-        const dadosDoArquivo: Buffer = fs.readFileSync(caminhoAbsolutoArquivo);
-        const conteudoDoArquivo: string[] = dadosDoArquivo
-            .toString()
-            .replace(sistemaOperacional.EOL, '\n')
-            .split('\n');
-        
-        if(traduzirJavaScriptParaDelegua){
+        const dadosDoArquivo: Buffer = sistemaArquivos.readFileSync(caminhoAbsolutoArquivo);
+        const conteudoDoArquivo: string[] = dadosDoArquivo.toString().replace(sistemaOperacional.EOL, '\n').split('\n');
+
+        if (traduzirJavaScriptParaDelegua) {
             return {
                 conteudoArquivo: conteudoDoArquivo,
                 nomeArquivo,
                 hashArquivo,
-            } as RetornoImportador
+            } as RetornoImportador;
         }
 
         for (let linha = 0; linha < conteudoDoArquivo.length; linha++) {
             conteudoDoArquivo[linha] += '\0';
         }
 
-        const retornoLexador = this.lexador.mapear(
-            conteudoDoArquivo,
-            hashArquivo
-        );
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
-            retornoLexador,
-            hashArquivo
-        );
-        this.arquivosAbertos[hashArquivo] = caminho.resolve(
-            caminhoRelativoArquivo
-        );
+        const retornoLexador = this.lexador.mapear(conteudoDoArquivo, hashArquivo);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, hashArquivo);
+        this.arquivosAbertos[hashArquivo] = caminho.resolve(caminhoRelativoArquivo);
 
         if (this.depuracao) {
             this.conteudoArquivosAbertos[hashArquivo] = conteudoDoArquivo;

@@ -47,7 +47,6 @@ import {
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao, RetornoResolverDeclaracao } from './retornos';
-import { Simbolo } from '../lexador';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -537,22 +536,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const caminhoEntao = this.resolverDeclaracao();
 
-        // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
-        // funciona do jeito que deveria.
-        // Marcando este código para ser removido em versões futuras.
-        /* while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
-            const condicaoSeSenao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
-
-            const caminho = this.resolverDeclaracao();
-
-            caminhosSeSenao.push({
-                condicao: condicaoSeSenao,
-                caminho: caminho,
-            });
-        } */
-
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
@@ -733,28 +716,30 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         const blocoTente: any[] = this.blocoEscopo();
 
-        let blocoPegue: FuncaoConstruto = null;
+        let blocoPegue: FuncaoConstruto | Declaracao[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 // Caso 1: com parâmetro de erro.
+                // `pegue` recebe um `FuncaoConstruto`.
                 blocoPegue = this.corpoDaFuncao("bloco `pegue`");
             } else {
                 // Caso 2: sem parâmetro de erro.
-                const simboloBlocoPegue = this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
-                blocoPegue = new FuncaoConstruto(this.hashArquivo, Number(simboloBlocoPegue.linha), null, this.blocoEscopo());
+                // `pegue` recebe um bloco.
+                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+                blocoPegue = this.blocoEscopo();
             }
         }
 
         let blocoSenao: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'senão'.");
 
             blocoSenao = this.blocoEscopo();
         }
 
         let blocoFinalmente: any[] = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'finalmente'.");
 
             blocoFinalmente = this.blocoEscopo();
         }

@@ -9,7 +9,7 @@ export interface InterpretadorComDepuracaoInterface
     pontoDeParadaAtivo: boolean;
     pontosParada: PontoParada[];
 
-    interpretacaoApenasUmaInstrucao(): Promise<any>;
+    interpretarApenasUmaInstrucao(): Promise<any>;
     continuarInterpretacao(): Promise<any>;
     proximoESair(): Promise<any>;
     prepararParaDepuracao(declaracoes: Declaracao[]): void;

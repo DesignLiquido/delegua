@@ -1,4 +1,4 @@
-var segundaImportacao = importar("./testes/exemplos/importacao/importacao-3.egua")
+var segundaImportacao = importar("./exemplos/importacao/importacao-3.egua")
 
 funcao escreverAlgumaCoisa() {
     escreva("Importação funcionou.")

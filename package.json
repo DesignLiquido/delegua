@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.11.7",
+    "version": "0.11.12",
     "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
     "main": "index.js",
     "scripts": {
@@ -9,13 +9,13 @@
         "lair": "ts-node execucao.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
-        "testes:egua": "./bin/delegua-ts testes/exemplos/testes.egua",
-        "testes:delegua:bhaskara": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/bhaskara.egua",
-        "testes:delegua:fibonacci": "./bin/delegua-ts testes/exemplos/dialetos/egua-classico/fibonacci.egua",
-        "testes:egua-classico": "./bin/delegua-ts --dialeto egua testes/exemplos/dialetos/egua-classico/testes.egua",
+        "testes:egua": "./bin/delegua-ts exemplos/dialetos/egua-classico/testes.egua",
+        "testes:delegua:bhaskara": "./bin/delegua-ts exemplos/dialetos/egua-classico/bhaskara.egua",
+        "testes:delegua:fibonacci": "./bin/delegua-ts exemplos/dialetos/egua-classico/fibonacci.egua",
+        "testes:egua-classico": "./bin/delegua-ts --dialeto egua exemplos/dialetos/egua-classico/testes.egua",
         "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
         "testes-unitarios": "jest --coverage",
-        "testes-unitarios:insignias": "yarn jest-coverage-badges --output './recursos/imagens'",
+        "testes-unitarios:insignias": "jest-coverage-badges --output './recursos/imagens'",
         "observar-testes-unitarios": "jest --watchAll",
         "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",
@@ -43,7 +43,7 @@
         },
         {
             "name": "Samuel Renan Gonçalves Vaz",
-            "url": "https://www.linkedin.com/in/samuel-renan-gon%C3%A7alves-vaz-b6b83a103/"
+            "url": "https://www.linkedin.com/in/samuel-renan-goncalves-vaz"
         },
         {
             "name": "Alessandro Fuhr de Mello",

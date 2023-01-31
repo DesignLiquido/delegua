@@ -3,7 +3,7 @@ import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
-import carregarBibliotecaGlobal from '../bibliotecas/biblioteca-global';
+import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
 import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
 import { ErroEmTempoDeExecucao } from '../excecoes';
@@ -112,7 +112,7 @@ export class Interpretador implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
-        carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+        carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
 
     /**
@@ -288,7 +288,7 @@ export class Interpretador implements InterpretadorInterface {
      * @returns Se ambos os operandos são números ou não.
      */
     verificarOperandosNumeros(
-        operador: any,
+        operador: SimboloInterface,
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
@@ -767,23 +767,34 @@ export class Interpretador implements InterpretadorInterface {
      * @param declaracao O objeto da declaração.
      */
     async visitarExpressaoTente(declaracao: Tente): Promise<any> {
+        let valorRetorno: any;
         try {
             let sucesso = true;
             try {
-                await this.executarBloco(declaracao.caminhoTente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
                 sucesso = false;
 
                 if (declaracao.caminhoPegue !== null) {
-                    const literalErro = new Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
-                    const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, [literalErro]);
-                    await chamadaPegue.aceitar(this);
+                    // `caminhoPegue` aqui pode ser um construto de função (se `pegue` tem parâmetros)
+                    // ou um vetor de `Declaracao` (`pegue` sem parâmetros).
+                    // As execuções, portanto, são diferentes.
+                    if (Array.isArray(declaracao.caminhoPegue)) {
+                        valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
+                    } else {
+                        const literalErro = new Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
+                        const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, null, [literalErro]);
+                        valorRetorno = await chamadaPegue.aceitar(this);
+                    }
+                    
                 }
             }
         } finally {
             if (declaracao.caminhoFinalmente !== null)
-                await this.executarBloco(declaracao.caminhoFinalmente);
+                valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
         }
+
+        return valorRetorno;
     }
 
     async visitarExpressaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -874,7 +885,12 @@ export class Interpretador implements InterpretadorInterface {
             process.stdout.write(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push(erro);
+            this.erros.push({ 
+                erroInterno: erro, 
+                linha: declaracao.linha, 
+                hashArquivo: 
+                declaracao.hashArquivo 
+            });
         }
     }
 

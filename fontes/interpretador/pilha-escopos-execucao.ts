@@ -112,17 +112,17 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      */
     obterTodasVariaveis(
         todasVariaveis: VariavelInterface[] = []
-    ): VariavelInterface[] {
-        for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
-            // TODO: Testar se isso faz sentido.
+    ): any[] {
+        for (let i = 1; i <= this.pilha.length - 1; i++) {
+            const valoresAmbiente = this.pilha[this.pilha.length - i].ambiente.valores;
+
             const vetorObjeto: VariavelInterface[] = Object.entries(
-                ambiente
+                valoresAmbiente
             ).map(
-                (chave, valor) =>
-                    ({ valor: valor, tipo: 'texto' } as VariavelInterface)
+                (chaveEValor, indice) =>
+                    ({ nome: chaveEValor[0], valor: chaveEValor[1].valor, tipo: chaveEValor[1].tipo })
             );
-            todasVariaveis.concat(vetorObjeto);
+            todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }
 
         return todasVariaveis;

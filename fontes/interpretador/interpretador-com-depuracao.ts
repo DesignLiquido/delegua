@@ -253,43 +253,54 @@ export class InterpretadorComDepuracao
         }
     }
 
+    private descartarEscoposFinalizados(numeroEscopo: number, escopoVisitado: EscopoExecucao) {
+        // Se última instrução do escopo atual foi executada, e
+        // escopos adicionais não foram criados com a última execução,
+        // descartar este e todos os escopos abaixo deste que também estejam na última instrução.
+        if (
+            escopoVisitado.declaracoes.length ==
+            escopoVisitado.declaracaoAtual &&
+            numeroEscopo == this.pilhaEscoposExecucao.pilha.length - 1
+        ) {
+            let numeroEscopoAtual = numeroEscopo;
+            while (numeroEscopoAtual > 0) {
+                const escopo = this.pilhaEscoposExecucao.pilha[numeroEscopoAtual];
+                if (escopo.declaracoes.length == escopo.declaracaoAtual) {
+                    this.pilhaEscoposExecucao.removerUltimo();
+                    this.escopoAtual--;
+                }
+                numeroEscopoAtual--;
+            }
+        }
+    }
+
     /**
      * Interpreta apenas uma instrução a partir do ponto de parada ativo, conforme comando do depurador.
      * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
      * primeiro escopo, subindo até o último elemento executado do último escopo.
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
-    async interpretacaoApenasUmaInstrucao(escopo = 1) {
+    async interpretarApenasUmaInstrucao(escopo = 1) {
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
         if (escopo < this.escopoAtual) {
-            this.interpretacaoApenasUmaInstrucao(escopo + 1);
+            this.interpretarApenasUmaInstrucao(escopo + 1);
         } else {
             const declaracaoAtual =
                 escopoVisitado.declaracoes[escopoVisitado.declaracaoAtual];
             await this.executar(declaracaoAtual);
-            // Blocos de escopo que não sejam de funções adentram
-            // o escopo ativo por padrão, por isso o teste abaixo.
-            // this.adentrarEscopoAtivo = Object.getPrototypeOf(declaracaoAtual).constructor.name !== 'Funcao';
-        }
 
-        if (this.comandoAdentrarEscopo) {
-            // Depurador comandou instrução 'adentrar-escopo', ou bloco de escopo
-            // não é de uma função.
-            // Instrução só foi realmente executada se não abriu novo bloco de escopo.
-            // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
-            this.comandoAdentrarEscopo = false;
-        } else {
-            escopoVisitado.declaracaoAtual++;
-        }
+            if (this.comandoAdentrarEscopo) {
+                // Depurador comandou instrução 'adentrar-escopo', ou bloco de escopo
+                // não é de uma função.
+                // Instrução só foi realmente executada se não abriu novo bloco de escopo.
+                // Por isso, `declaracaoAtual` não deve ser incrementada aqui.
+                this.comandoAdentrarEscopo = false;
+            } else {
+                escopoVisitado.declaracaoAtual++;
+            }
 
-        // Se última instrução do escopo atual foi executada, descartar escopo.
-        if (
-            escopoVisitado.declaracoes.length - 1 <=
-            escopoVisitado.declaracaoAtual
-        ) {
-            this.pilhaEscoposExecucao.removerUltimo();
-            this.escopoAtual--;
+            this.descartarEscoposFinalizados(escopo, escopoVisitado);
         }
 
         if (this.pilhaEscoposExecucao.elementos() === 1) {

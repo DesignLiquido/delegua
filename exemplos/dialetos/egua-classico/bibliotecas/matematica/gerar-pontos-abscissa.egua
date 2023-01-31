@@ -1,0 +1,14 @@
+var m = importar("matematica");
+
+função teste_gerarPontosAbscissa() {
+  var gerarPontosAbscissa = m.gerarPontosAbscissa(2,3);
+
+  se (gerarPontosAbscissa != nulo)
+    escreva (gerarPontosAbscissa);
+  senão {
+    errosM = errosM+1;
+    escreva(errosM);
+  }
+}
+
+teste_gerarPontosAbscissa();
