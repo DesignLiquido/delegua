@@ -48,6 +48,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return excecao;
     }
 
+    simboloAnterior(): SimboloInterface {
+        return this.simbolos[this.atual - 1];
+    }
+
     verificarTipoSimboloAtual(tipo: string): boolean {
         if (this.estaNoFinal()) return false;
         return this.simbolos[this.atual].tipo === tipo;
@@ -79,7 +83,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     declaracaoLeia(): Leia {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     abstract primario(): Construto;

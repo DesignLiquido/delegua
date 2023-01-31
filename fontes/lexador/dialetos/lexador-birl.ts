@@ -62,59 +62,15 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        const codigo: string = 
+            this.codigo.substring(this.inicioSimbolo, this.atual)
+            .toLowerCase();
 
-        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string = codigo in palavrasReservadas ? 
+            palavrasReservadas[codigo] : 
+            tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
-        /* while (
-            this.simboloAtual() !== '\n' &&
-            this.simboloAtual() !== '?'
-        ) {
-            this.avancar();
-        }
-
-        const valor = this.simboloAtual() !== '?'
-                ? this.codigo.substring(this.inicioSimbolo, this.atual - 1).trim()
-                : this.codigo.substring(this.inicioSimbolo, this.atual + 1).trim();
-
-        switch (valor) {
-            case 'HORA DO SHOW':
-                this.adicionarSimbolo(tiposDeSimbolos.HORA_DO_SHOW);
-                this.avancar();
-                break;
-            case 'BIRL':
-                this.adicionarSimbolo(tiposDeSimbolos.BIRL);
-                this.avancar();
-                break;
-            case 'CE QUER VER ESSA PORRA?':
-                this.adicionarSimbolo(tiposDeSimbolos.CE_QUER_VER_ESSA_PORRA);
-                this.avancar();
-                break;
-            case 'BORA CUMPADE?':
-                this.adicionarSimbolo(tiposDeSimbolos.BORA_CUMPADE);
-                this.avancar();
-                break;
-            case 'QUE QUE CE QUER MONSTRAO?':
-                this.adicionarSimbolo(tiposDeSimbolos.QUE_QUE_CE_QUER_MONSTRAO);
-                this.avancar();
-                break;
-            case 'ELE QUE A GENTE QUER?':
-                this.adicionarSimbolo(tiposDeSimbolos.ELE_QUE_A_GENTE_QUER);
-                this.avancar();
-                break;
-            case 'NAO VAI DAR NAO':
-                this.adicionarSimbolo(tiposDeSimbolos.NAO_VAI_DAR_NAO);
-                this.avancar();
-                break;
-            case 'MONSTRO?':
-                this.adicionarSimbolo(tiposDeSimbolos.MONSTRO);
-                this.avancar();
-                break;
-            default:
-                this.avancar();
-                break;
-        } */
     }
 
     analisarToken(): void {
@@ -156,6 +112,10 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA, ';', null);
                 this.avancar();
                 break;
+            case '?':
+                this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO, '?', null);
+                this.avancar();
+                break;
             case '\0':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
@@ -176,7 +136,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                         caractere: caractere,
                         mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
-                this.avancar();
+                break;
         }
     }
 
