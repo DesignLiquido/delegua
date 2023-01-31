@@ -31,7 +31,6 @@ export class TradutorReversoJavaScript {
 
     traduzirSimboloOperador(operador: any): string {
         switch (operador) {
-            case '==':
             case '===':
                 return '==';
             default:
@@ -281,19 +280,22 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirDeclaracaoSe(declaracao: IfStatement): string {
-        let resultado = 'if (';
+        let resultado = 'se (';
         resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test);
         resultado += ')';
         resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
-        if (declaracao?.alternate) {
-            resultado += 'else ';
+
+        if(declaracao?.alternate){
+            resultado += 'senao '
             if (declaracao.alternate.constructor.name === 'BlockStatement') {
-                resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
+                const bloco = declaracao.alternate as BlockStatement;
+                resultado += this.logicaComumBlocoEscopo(bloco);
                 return resultado;
             }
-            resultado += this.traduzirDeclaracao(declaracao.alternate);
-            return resultado;
+            const se = declaracao.alternate as IfStatement;
+            resultado += this.traduzirDeclaracao(se);
         }
+
         return resultado;
     }
 

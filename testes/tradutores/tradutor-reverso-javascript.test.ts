@@ -223,18 +223,22 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
                 } 
                 else if(i === 2){
                     console.log(\'i é igual a 2\')
+                }
+                else if(i === 3){
+                    console.log(\'i é igual a 3\')
                 } 
                 else{
-                    console.log(\'i não é igual a 1 e nem igual a 2\')
+                    console.log(\'i é diferente de 1, 2 e 3\')
                 }
             `
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/var i = 1/i);
-            expect(resultado).toMatch(/if \(i == 1\)/i);
-            expect(resultado).toMatch(/else if \(i == 2\)/i);
-            expect(resultado).toMatch(/else {/i);
+            expect(resultado).toMatch(/se \(i == 1\)/i);
+            expect(resultado).toMatch(/senao se \(i == 2\)/i);
+            expect(resultado).toMatch(/senao se \(i == 3\)/i);
+            expect(resultado).toMatch(/senao {/i);
         });
 
         it('try/catch/finally -> tente/pegue/finalmente', () => {
