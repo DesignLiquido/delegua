@@ -1,10 +1,11 @@
-import { AcessoIndiceVariavel, AcessoMetodo, AtribuicaoSobrescrita, Atribuir, Construto, DefinirValor, FuncaoConstruto, Variavel } from '../../construtos';
-import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se } from '../../declaracoes';
+import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoSobrescrita, Atribuir, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from '../../construtos';
+import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se, Retorna } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
+import { SimboloInterface } from '../../interfaces';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     validarSegmentoHoraDoShow(): void {
@@ -20,7 +21,36 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        throw new Error('Método não implementado');
+        const simboloAtual = this.simbolos[this.atual];
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGATIVO))
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.POSITIVO))
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
+
+        /* if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
+        ) {
+            return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
+        } */
+
+        if (this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NUMERO, 
+                tiposDeSimbolos.FRANGAO, 
+                tiposDeSimbolos.FRANGÃO, 
+                tiposDeSimbolos.FRANGO, 
+                tiposDeSimbolos.TEXTO)) 
+        {
+            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
+            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            const expressao = this.expressao();
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+
+            return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+        }
     }
 
     chamar(): Construto {
@@ -82,11 +112,23 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         const argumento = this.declaracao();
 
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após argumento para escrever mensagem.');
+
         return new Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, [argumento]);
     }
 
     declaracaoFazer(): Fazer {
         throw new Error('Método não implementado.');
+    }
+
+    declaracaoRetorna(): Retorna {
+        const primeiroSimbolo = this.consumir(tiposDeSimbolos.BORA, 'Esperado expressão `BORA` para retornar valor.');
+        this.consumir(tiposDeSimbolos.CUMPADE, 'Esperado expressão `CUMPADE` após `BORA` para retornar valor.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
+
+        const valor = this.declaracao();
+        
+        return new Retorna(primeiroSimbolo, valor);
     }
 
     declaracaoSe(): Se {
@@ -100,8 +142,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.BORA: // BORA CUMPADE?
+                return this.declaracaoRetorna();
             case tiposDeSimbolos.CE: // "CE QUER VER ESSA PORRA?"
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.PONTO_E_VIRGULA:
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
