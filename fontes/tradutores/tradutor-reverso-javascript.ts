@@ -195,7 +195,9 @@ export class TradutorReversoJavaScript {
 
     traduzirDeclaracaoFuncao(declaracao: any): string {
         let resultado = '';
-        resultado += `funcao ${declaracao.id.name}(`;
+        const eFuncaoSeta = !declaracao.id;
+
+        resultado += eFuncaoSeta ? '(' : `funcao ${declaracao.id.name}(`;
 
         for (let parametro of declaracao.params) {
             resultado += parametro.name + ', ';
@@ -203,8 +205,10 @@ export class TradutorReversoJavaScript {
         if (declaracao.params.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        resultado += ') ';
+        
+        resultado += eFuncaoSeta ? ') => ' : ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao);
+
         return resultado;
     }
 
