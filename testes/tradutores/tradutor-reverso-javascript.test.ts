@@ -248,6 +248,21 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/se \(i == 1\)/i);
         });
 
+        it('if/true/false -> se/verdadeiro/falso', () => {
+            const codigo = `             
+                if(true){
+                    console.log(\'verdadeiro\')
+                } else if(false){
+                    console.log(\'falso\')
+                }
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/se \(verdadeiro\)/i);
+            expect(resultado).toMatch(/senao se \(falso\)/i);
+        });
+
         it('if/else if/else -> se/senao se/senao', () => {
             const codigo = `
                 let i = 1;                

@@ -136,6 +136,8 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
+        if(literal.raw === 'true') return 'verdadeiro';
+        else if (literal.raw === 'false') return 'falso';
         return `${literal.raw}`;
     }
 
@@ -205,7 +207,7 @@ export class TradutorReversoJavaScript {
         if (declaracao.params.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        
+
         resultado += eFuncaoSeta ? ') => ' : ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao);
 
