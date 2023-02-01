@@ -62,15 +62,15 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo: string = 
+        const codigo: string =
             this.codigo.substring(this.inicioSimbolo, this.atual)
-            .toLowerCase();
+                .toLowerCase();
 
-        const tipo: string = codigo in palavrasReservadas ? 
-            palavrasReservadas[codigo] : 
+        const tipo: string = codigo in palavrasReservadas ?
+            palavrasReservadas[codigo] :
             tiposDeSimbolos.IDENTIFICADOR;
 
-        this.adicionarSimbolo(tipo);
+        this.adicionarSimbolo(tipo, codigo, null); // Todo: adicionar lexama e literal
     }
 
     analisarToken(): void {
