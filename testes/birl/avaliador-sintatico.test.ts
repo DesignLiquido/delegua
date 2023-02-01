@@ -8,16 +8,16 @@ describe('Avaliador sintático Birl', () => {
             delegua = new Delegua('birl');
         });
 
-        it.skip('Sucesso - Hello, World! Porra!', () => {
+        it('Sucesso - Hello, World! Porra!', () => {
             const retornoLexador = delegua.lexador.mapear(
-                ['HORA DO SHOW', 'CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', 'BORA CUMPADE 0;', 'BIRL'],
+                ['HORA DO SHOW', 'CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', 'BORA CUMPADE? 0;', 'BIRL'],
                 -1
             );
 
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
     });
 });
