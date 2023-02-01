@@ -19,5 +19,27 @@ describe('Avaliador sintático Birl', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
+
+        it.only('Sucesso - Variavel - Atribuição', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'HORA DO SHOW \n',
+                    '  MONSTRO? M1 = 1; \n',
+                    '  M1 = M1 + 1',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE? 0; \n',
+                    'BIRL \n',
+                ],
+                -1
+            );
+
+            expect(retornoLexador).toBeTruthy();
+            expect(retornoLexador.simbolos).toHaveLength(41);
+            expect(retornoLexador.erros).toHaveLength(0);
+
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+        });
     });
 });
