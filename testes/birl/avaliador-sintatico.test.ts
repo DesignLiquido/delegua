@@ -21,22 +21,23 @@ describe('Avaliador sintático Birl', () => {
         });
 
         // TODO: @ItaloCobains - Implementar esse teste
-        it.only('Sucesso - Variavel - Atribuição', () => {
-            const retornoLexador = delegua.lexador.mapear(
-                [
-                    'HORA DO SHOW \n',
-                    '  MONSTRO? M1 = 1; \n',
-                    '  M1 = M1 + 1',
-                    '  CE QUER VER ESSA PORRA? (M1); \n',
-                    '  BORA CUMPADE? 0; \n',
-                    'BIRL \n',
-                ],
-                -1
-            );
-            
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+        it.skip
+            ('Sucesso - Variavel - Atribuição', () => {
+                const retornoLexador = delegua.lexador.mapear(
+                    [
+                        'HORA DO SHOW \n',
+                        '  MONSTRO? M1 = 1; \n',
+                        '  M1 = M1 + 1',
+                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  BORA CUMPADE? 0; \n',
+                        'BIRL \n',
+                    ],
+                    -1
+                );
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-        });
+                const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+            });
     });
 });

@@ -35,12 +35,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         } */
 
         if (this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NUMERO, 
-                tiposDeSimbolos.FRANGAO, 
-                tiposDeSimbolos.FRANGÃO, 
-                tiposDeSimbolos.FRANGO, 
-                tiposDeSimbolos.TEXTO)) 
-        {
+            tiposDeSimbolos.NUMERO,
+            tiposDeSimbolos.FRANGAO,
+            tiposDeSimbolos.FRANGÃO,
+            tiposDeSimbolos.FRANGO,
+            tiposDeSimbolos.TEXTO)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
@@ -127,7 +126,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
 
         const valor = this.declaracao();
-        
+
         return new Retorna(primeiroSimbolo, valor);
     }
 
@@ -139,11 +138,29 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
+
+
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.BORA: // BORA CUMPADE?
                 return this.declaracaoRetorna();
+            case tiposDeSimbolos.QUE:
+            // Retornar uma declaração de leia
+            case tiposDeSimbolos.ELE:
+            // Retornar uma declaração de IF
+            case tiposDeSimbolos.NEGATIVA:
+            // Retornar uma declaração de WHILE
+            case tiposDeSimbolos.MAIS:
+            // Retornar uma declaração de FOR
+            case tiposDeSimbolos.VAMO:
+            // Retornar uma declaração de continue
+            case tiposDeSimbolos.SAI:
+            // Retornar uma declaração de break
+            case tiposDeSimbolos.OH:
+            // Retornar uma declaração de funcao
+            case tiposDeSimbolos.AJUDA:
+            // Retornar uma declaração de chamar funcao
             case tiposDeSimbolos.CE: // "CE QUER VER ESSA PORRA?"
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.PONTO_E_VIRGULA:
