@@ -1,5 +1,5 @@
 import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoSobrescrita, Atribuir, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from '../../construtos';
-import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se, Retorna } from '../../declaracoes';
+import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se, Retorna, Leia } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
@@ -130,6 +130,22 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return new Retorna(primeiroSimbolo, valor);
     }
 
+    declaracaoLeia(): Leia {
+        const primeiroSimbolo = this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` para ler valor.');
+        this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `QUE` para ler valor.');
+        this.consumir(tiposDeSimbolos.CE, 'Esperado expressão `CE` após `QUE` para ler valor.');
+        this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `CE` para ler valor.');
+        this.consumir(tiposDeSimbolos.MONSTRAO, 'Esperado expressão `MONSTRAO` após `QUER` para ler valor.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `MONSTRAO` para ler valor.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para ler valor.');
+        const simbolo = this.consumir(tiposDeSimbolos.TEXTO, 'Esperado texto após parêntese esquerdo para ler valor.');
+        const ponteiro = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado identificador após texto para ler valor.');
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após identificador para ler valor.');
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após parêntese direito para ler valor.');
+
+        return new Leia(primeiroSimbolo.linha, this.hashArquivo, []);
+    }
+
     declaracaoSe(): Se {
         throw new Error('Método não implementado.');
     }
@@ -146,7 +162,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.BORA: // BORA CUMPADE?
                 return this.declaracaoRetorna();
             case tiposDeSimbolos.QUE:
-            // Retornar uma declaração de leia
+                return this.declaracaoLeia()
             case tiposDeSimbolos.ELE:
             // Retornar uma declaração de IF
             case tiposDeSimbolos.NEGATIVA:

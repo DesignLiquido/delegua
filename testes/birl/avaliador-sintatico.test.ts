@@ -20,6 +20,8 @@ describe('Avaliador sintático Birl', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
+
+
         // TODO: @ItaloCobains - Implementar esse teste
         it.skip
             ('Sucesso - Variavel - Atribuição', () => {
