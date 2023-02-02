@@ -1,6 +1,9 @@
-var a = 1
-var b = 1
-se (a == b)
-    escreva("Se - Se não: OK!")
-senao
-    escreva("Se - Se não: ERRO!")
+var a = 1 
+var b = 1 
+se (a == b){
+    escreva('Se - Se não: OK!')
+}
+senao {
+    escreva('Se - Se não: ERRO!')
+}
+ 

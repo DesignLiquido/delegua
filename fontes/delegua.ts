@@ -290,7 +290,7 @@ export class Delegua implements DeleguaInterface {
      *                          Se verdadeiro, os arquivos de saída são escritos no mesmo diretório
      *                          do arquivo passado no primeiro parâmetro.
      */
-    traduzirArquivo(caminhoRelativoArquivo: string, gerarArquivoSaida: boolean): any {
+    traduzirArquivo(caminhoRelativoArquivo: string, gerarArquivoSaida: boolean, extensaoArquivoSaida: string): any {
         const caminhoAbsolutoPrimeiroArquivo = caminho.resolve(caminhoRelativoArquivo);
         const novoDiretorioBase = caminho.dirname(caminhoAbsolutoPrimeiroArquivo);
 
@@ -314,9 +314,9 @@ export class Delegua implements DeleguaInterface {
         }
 
         if (gerarArquivoSaida) {
-            ['.delegua', '.egua'].map((extensao) => {
+            ['.delegua', '.js'].map((extensao) => {
                 if (caminhoAbsolutoPrimeiroArquivo.includes(extensao)) {
-                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, '.js'), resultado, (erro) => {
+                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, `.${extensaoArquivoSaida}`), resultado, (erro) => {
                         if (erro) throw erro;
                     });
                 }

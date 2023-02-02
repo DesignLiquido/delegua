@@ -57,7 +57,8 @@ const principal = () => {
     } else {
         if (codigoOuNomeArquivo) {
             if (opcoes.traduzir) {
-                delegua.traduzirArquivo(codigoOuNomeArquivo, opcoes.saida);
+                const extensaoSaida = opcoes.traduzir;
+                delegua.traduzirArquivo(codigoOuNomeArquivo, opcoes.saida, extensaoSaida);
             } else {
                 delegua.carregarArquivo(codigoOuNomeArquivo);
             }
