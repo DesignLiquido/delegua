@@ -314,9 +314,10 @@ export class Delegua implements DeleguaInterface {
         }
 
         if (gerarArquivoSaida) {
-            ['.delegua', '.egua'].map((extensao) => {
+            ['.js', '.delegua'].map((extensao) => {
                 if (caminhoAbsolutoPrimeiroArquivo.includes(extensao)) {
-                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, '.js'), resultado, (erro) => {
+                    const extensaoSaida = extensao === '.js' ? '.delegua' : '.js';
+                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, extensaoSaida), resultado, (erro) => {
                         if (erro) throw erro;
                     });
                 }
