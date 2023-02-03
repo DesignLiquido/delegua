@@ -89,7 +89,20 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoEnquanto(): Enquanto {
-        throw new Error('Método não implementado.');
+        this.consumir(tiposDeSimbolos.NEGATIVA, 'Esperado expressão `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
+        this.consumir(tiposDeSimbolos.BAMBAM, 'Esperado expressão `BAMBAM` após `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `BAMBAM` para iniciar o bloco `ENQUANTO`.');
+        const codicao = this.expressao()
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição para iniciar o bloco `ENQUANTO`.');
+
+        const declaracoes = [];
+
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIRL)) {
+            declaracoes.push(this.declaracao());
+        }
+
+        this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `ENQUANTO`.');
+        return new Enquanto(codicao, declaracoes);
     }
 
     declaracaoPara(): Para {
@@ -143,7 +156,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após identificador para ler valor.');
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após parêntese direito para ler valor.');
 
-        return new Leia(primeiroSimbolo.linha, this.hashArquivo, []);
+        return new Leia(Number(primeiroSimbolo.linha), this.hashArquivo, []);
     }
 
     declaracaoSe(): Se {
