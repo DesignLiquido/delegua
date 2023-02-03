@@ -3,24 +3,16 @@ import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from "../../d
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { SimboloInterface } from "../../interfaces";
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
+import { RetornoDeclaracao } from "../retornos";
 
 export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     private validarEscopoPrograma(declaracoes: Declaracao[]): void {
         this.consumir(tiposDeSimbolos.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
 
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperada chave esquerda após expressão 'programa' para inicializar programa.");
-
-        /* this.consumir(tiposDeSimbolos.FUNCAO, "Esperada declaração de função após expressão 'programa' para inicializar programa.");
-        const funcaoInicio = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperada declaração de função 'inicio()' após expressão 'programa' para inicializar programa.");
-
-        if (funcaoInicio.lexema !== 'inicio') {
-            throw this.erro(funcaoInicio, "Esperada declaração de função 'inicio()' após expressão 'programa' para inicializar programa.");
-        }
-
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado parêntese esquerdo após identificador de função 'inicio()' para inicializar programa.");
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado parêntese direito após identificador de função 'inicio()' para inicializar programa."); */
 
         while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao() as Declaracao);
@@ -91,7 +83,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscreva(): Escreva {
-        const simboloAtual = this.simbolos[this.atual];
+        const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
 
@@ -107,7 +99,14 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     blocoEscopo(): Declaracao[] {
-        throw new Error("Método não implementado.");
+        const declaracoes: Array<RetornoDeclaracao> = [];
+
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+            declaracoes.push(this.declaracao());
+        }
+
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
+        return declaracoes;
     }
 
     declaracaoSe(): Se {
@@ -131,7 +130,24 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
-        throw new Error("Método não implementado.");
+        // O parêntese esquerdo é considerado o símbolo inicial para
+        // fins de pragma.
+        const parenteseEsquerdo = this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            `Esperado '(' após o nome ${tipo}.`
+        );
+
+        let parametros = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            parametros = this.logicaComumParametros();
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
+
+        const corpo = this.blocoEscopo();
+
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     }
 
     expressao(): Construto {
@@ -167,7 +183,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         this.validarEscopoPrograma(declaracoes);
 
         return {
-            declaracoes: declaracoes,
+            declaracoes: declaracoes.filter(d => d),
             erros: this.erros,
         } as RetornoAvaliadorSintatico;
     }
