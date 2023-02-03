@@ -76,8 +76,17 @@ export abstract class LexadorBase implements LexadorInterface {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
+    /**
+     * Indica se o código está na última linha.
+     * @returns Verdadeiro se contador de linhas está na última linha.
+     *          Falso caso contrário.
+     */
+    protected eUltimaLinha(): boolean {
+        return this.linha >= this.codigo.length - 1;
+    }
+
     eFinalDoCodigo(): boolean {
-        return this.atual >= this.codigo.length;
+        return this.eUltimaLinha() && this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
     eFinalDaLinha(): boolean {
@@ -98,9 +107,12 @@ export abstract class LexadorBase implements LexadorInterface {
         }
     }
 
-    avancar(): string {
+    avancar(): void {
         this.atual += 1;
-        return this.codigo[this.atual - 1];
+        if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
+            this.linha++;
+            this.atual = 0;
+        }
     }
 
     adicionarSimbolo(tipo: any, literal?: any): void {
