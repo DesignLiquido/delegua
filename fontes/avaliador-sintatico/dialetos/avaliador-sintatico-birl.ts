@@ -106,7 +106,12 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoPara(): Para {
-        throw new Error('Método não implementado.');
+        const simboloPara: SimboloInterface = this.consumir(tiposDeSimbolos.MAIS, 'Esperado expressão `MAIS` para iniciar o bloco `PARA`.');
+        this.consumir(tiposDeSimbolos.QUERO, 'Esperado expressão `QUERO` após `MAIS` para iniciar o bloco `PARA`.');
+        this.consumir(tiposDeSimbolos.MAIS, 'Esperado expressão `MAIS` após `QUERO` para iniciar o bloco `PARA`.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.');
+        // @Todo: @ItaloCobains terminar isso.
+        return new Para(0, 0, 0, 0, 0, 0);
     }
 
     declaracaoEscolha(): Escolha {

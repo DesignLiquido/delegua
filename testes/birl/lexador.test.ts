@@ -56,6 +56,21 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.simbolos).toHaveLength(41);
                 expect(resultado.erros).toHaveLength(0);
             });
+            it.skip('Sucesso - Loop - For', () => {
+                const resultado = delegua.lexador.mapear([
+                    'HORA DO SHOW \n',
+                    'MONSTRO M;',
+                    'MAIS QUERO MAIS (M = 0; M < 5; M++)',
+                    '   CE QUER VER ESSA PORRA? ("%d", M);',
+                    'BIRL',
+                    'BORA CUMPADE? 0; \n',
+                    'BIRL \n',
+                ], -1)
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(47);
+                expect(resultado.erros).toHaveLength(0);
+            })
         });
     });
 });
