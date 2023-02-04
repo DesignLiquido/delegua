@@ -27,7 +27,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 delegua.avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
         it('Falha - Função `inicio()` não definida', () => {
