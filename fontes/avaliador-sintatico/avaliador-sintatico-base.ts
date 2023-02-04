@@ -18,7 +18,7 @@ import {
     Declaracao,
     Leia,
 } from '../declaracoes';
-import { AvaliadorSintaticoInterface, SimboloInterface } from '../interfaces';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
@@ -289,6 +289,36 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     declaracaoDeClasse(): Classe {
         throw new Error('Método não implementado.');
+    }
+
+    protected logicaComumParametros(): ParametroInterface[] {
+        const parametros: ParametroInterface[] = [];
+
+        do {
+            if (parametros.length >= 255) {
+                this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
+            }
+
+            const parametro: Partial<ParametroInterface> = {};
+
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
+                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
+                parametro.tipo = 'estrela';
+            } else {
+                parametro.tipo = 'padrao';
+            }
+
+            parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                parametro.valorPadrao = this.primario();
+            }
+
+            parametros.push(parametro as ParametroInterface);
+
+            if (parametro.tipo === 'estrela') break;
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        return parametros;
     }
 
     abstract declaracao(): Declaracao;

@@ -37,6 +37,8 @@ import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
 import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
 import { ErroInterpretador } from './interpretador';
 import { InterpretadorVisuAlgComDepuracao } from './interpretador/dialetos';
+import { LexadorPortugolStudio } from './lexador/dialetos/lexador-portugol-studio';
+import { AvaliadorSintaticoPortugolStudio } from './avaliador-sintatico/dialetos/avaliador-sintatico-portugol-studio';
 
 /**
  * O núcleo da linguagem.
@@ -50,6 +52,7 @@ export class Delegua implements DeleguaInterface {
         delegua: 'padrão',
         egua: 'Égua',
         eguap: 'ÉguaP',
+        'portugol-studio': 'Portugol Studio',
         visualg: 'VisuAlg',
     };
 
@@ -114,6 +117,20 @@ export class Delegua implements DeleguaInterface {
             case 'eguap':
                 this.lexador = new LexadorEguaP();
                 this.avaliadorSintatico = new AvaliadorSintaticoEguaP();
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = depurador
+                    ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
+                    : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                break;
+            case 'portugol-studio':
+                this.lexador = new LexadorPortugolStudio();
+                this.avaliadorSintatico = new AvaliadorSintaticoPortugolStudio();
                 this.importador = new Importador(
                     this.lexador,
                     this.avaliadorSintatico,
