@@ -1,5 +1,5 @@
-import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, FuncaoDeclaracao } from "../../declaracoes";
+import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Chamada, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, FuncaoDeclaracao, Expressao } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -7,6 +7,7 @@ import { SimboloInterface } from "../../interfaces";
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from "../retornos";
+import { DeleguaFuncao } from "../../estruturas";
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -33,6 +34,19 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         if (encontrarDeclaracaoInicio.length <= 0) {
             throw this.erro(this.simbolos[0], "Função 'inicio()' para iniciar o programa não foi definida.");
         }
+
+        // A última declaração do programa deve ser uma chamada a inicio()
+        const declaracaoInicio = encontrarDeclaracaoInicio[0];
+        declaracoes.push(
+            new Expressao(
+                new Chamada(
+                    declaracaoInicio.hashArquivo,
+                    (declaracaoInicio as any).funcao,
+                    null, 
+                    []
+                )
+            )
+        );
     }
 
     primario(): Construto {
