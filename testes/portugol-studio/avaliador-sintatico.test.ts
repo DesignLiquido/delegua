@@ -1,3 +1,4 @@
+import { ErroAvaliadorSintatico } from "../../fontes/avaliador-sintatico/erro-avaliador-sintatico";
 import { Delegua } from "../../fontes/delegua";
 
 describe('Avaliador sintático (Portugol Studio)', () => {
@@ -27,6 +28,28 @@ describe('Avaliador sintático (Portugol Studio)', () => {
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
+
+        it('Falha - Função `inicio()` não definida', () => {
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'programa',
+                    '{',
+                    '   ', 
+                    '    funcao teste()',
+                    '    {',
+                    '        escreva("Olá Mundo")',
+                    '    }',
+                    '}'
+                ],
+                -1
+            );
+
+            const t = () => {
+                delegua.avaliadorSintatico.analisar(retornoLexador);
+            };
+
+            expect(t).toThrow(ErroAvaliadorSintatico);
         });
     });
 });

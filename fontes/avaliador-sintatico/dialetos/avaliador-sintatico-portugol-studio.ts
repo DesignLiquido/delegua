@@ -1,5 +1,5 @@
 import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from "../../declaracoes";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, FuncaoDeclaracao } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -8,6 +8,11 @@ import { SimboloInterface } from "../../interfaces";
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from "../retornos";
 
+/**
+ * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
+ * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
+ */
 export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     private validarEscopoPrograma(declaracoes: Declaracao[]): void {
         this.consumir(tiposDeSimbolos.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
@@ -20,6 +25,13 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         if (this.simbolos[this.atual - 1].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
             throw this.erro(this.simbolos[this.atual - 1], "Esperado chave direita final para término do programa.");
+        }
+
+        const encontrarDeclaracaoInicio = 
+            declaracoes.filter(d => d instanceof FuncaoDeclaracao && d.simbolo.lexema === 'inicio');
+
+        if (encontrarDeclaracaoInicio.length <= 0) {
+            throw this.erro(this.simbolos[0], "Função 'inicio()' para iniciar o programa não foi definida.");
         }
     }
 
