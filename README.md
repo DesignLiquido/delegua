@@ -53,7 +53,7 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Grátis.** Sem planos, sem limitações e sem propaganda.
 - **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
-- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br).
+- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br) e [Portugol Studio](http://lite.acad.univali.br/portugol/).
 - **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha
 
 ## Aplicações
