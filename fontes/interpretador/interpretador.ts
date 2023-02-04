@@ -329,7 +329,21 @@ export class Interpretador implements InterpretadorInterface {
 
                 case tiposDeSimbolos.MULTIPLICACAO:
                 case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
+                        // Sem ambos os valores resolvem como texto, multiplica normal.
+                        // Se apenas um resolve como texto, o outro repete o 
+                        // texto n vezes, sendo n o valor do outro.
+                        if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
+                            return Number(valorEsquerdo) * Number(valorDireito);    
+                        } 
+                        
+                        if (tipoEsquerdo === 'texto') {
+                            return valorEsquerdo.repeat(Number(valorDireito));
+                        }
+
+                        return valorDireito.repeat(Number(valorEsquerdo));
+                    }
+                    
                     return Number(valorEsquerdo) * Number(valorDireito);
 
                 case tiposDeSimbolos.MODULO:
@@ -1235,7 +1249,7 @@ export class Interpretador implements InterpretadorInterface {
      * Método que efetivamente inicia o processo de interpretação.
      * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
      * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado
-     *                       pelo modo REPL (LEIA).
+     *                       pelo modo REPL (LAIR).
      * @returns Um objeto com o resultado da interpretação.
      */
     async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {

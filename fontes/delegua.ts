@@ -34,7 +34,7 @@ import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avalia
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
 import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
-import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
+import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg/interpretador-visualg';
 import { ErroInterpretador } from './interpretador';
 import { InterpretadorVisuAlgComDepuracao } from './interpretador/dialetos';
 import { LexadorPortugolStudio } from './lexador/dialetos/lexador-portugol-studio';
