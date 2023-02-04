@@ -1,7 +1,8 @@
-import { Construto } from '../../construtos';
-import { Escreva, EscrevaMesmaLinha } from '../../declaracoes';
-import { ImportadorInterface } from '../../interfaces';
-import { Interpretador } from '../interpretador';
+import { Construto, Variavel } from '../../../construtos';
+import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
+import { ImportadorInterface } from '../../../interfaces';
+import { Interpretador } from '../..';
+import { ContinuarQuebra, Quebra } from '../../../quebras';
 
 /**
  * O Interpretador VisuAlg possui algumas diferenças em relação ao
@@ -30,6 +31,29 @@ export class InterpretadorVisuAlg extends Interpretador {
         }
 
         return formatoTexto;
+    }
+
+    /**
+     * No VisuAlg, o bloco de condição executa se falso.
+     * Por isso a reimplementação aqui.
+     * @param declaracao A declaração `Fazer`
+     * @returns Só retorna em caso de erro na execução, e neste caso, o erro.
+     */
+    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        let retornoExecucao: any;
+        do {
+            try {
+                retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                return Promise.reject(erro);
+            }
+        } while (
+            !(retornoExecucao instanceof Quebra) &&
+            !this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
+        );
     }
 
     /**
@@ -62,5 +86,24 @@ export class InterpretadorVisuAlg extends Interpretador {
         } catch (erro: any) {
             this.erros.push(erro);
         }
+    }
+
+    /**
+     * Execução da leitura de valores da entrada configurada no
+     * início da aplicação.
+     * @param expressao Expressão do tipo Leia
+     * @returns Promise com o resultado da leitura.
+     */
+    async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        const mensagem = '> ';
+        const argumento = (expressao.argumentos[0] as Variavel).simbolo.lexema;
+        const promessaLeitura: Function = () => new Promise((resolucao) =>
+            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                resolucao(resposta);
+            })
+        );
+
+        const valorLido = await promessaLeitura();
+        this.pilhaEscoposExecucao.definirVariavel(argumento, valorLido);
     }
 }

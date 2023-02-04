@@ -85,6 +85,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @returns Vetor de Construtos para inicialização de variáveis.
      */
     private validarSegmentoVar(): Construto[] {
+        // Podem haver linhas de comentários acima de `var`, que geram
+        // quebras de linha. 
+        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
+            this.avancarEDevolverAnterior();
+        }
+
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.VAR)) {
             return [];
         }
@@ -581,18 +587,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos argumentos em instrução `leia`.");
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
 
-        const valor = this.declaracao();
+        const argumento = this.declaracao();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos em instrução `leia`.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
             'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         );
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), []);
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), [argumento]);
     }
 
     declaracaoPara(): Para {

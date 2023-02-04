@@ -40,9 +40,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     definirVariavel(nomeVariavel: string, valor: any) {
+        const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
+        const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
+            variavel.tipo : 
+            inferirTipoVariavel(valor);
+
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = {
             valor,
-            tipo: inferirTipoVariavel(valor),
+            tipo: tipo
         };
     }
 
