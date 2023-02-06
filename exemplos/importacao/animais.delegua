@@ -1,4 +1,0 @@
-var cachorro = importar('./objetos/cachorro.delegua')
-
-var thor = cachorro.Cachorro()
-thor.corre()

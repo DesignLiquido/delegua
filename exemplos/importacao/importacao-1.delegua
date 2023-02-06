@@ -1,2 +1,0 @@
-var importacao = importar("./exemplos/importacao/importacao-2.egua")
-importacao.escreverAlgumaCoisa()

@@ -88,8 +88,6 @@
     },
     "dependencies": {
         "browser-process-hrtime": "^1.0.0",
-        "chalk": "4.1.2",
-        "commander": "^9.4.1",
         "esprima": "^4.0.1"
     }
 }
