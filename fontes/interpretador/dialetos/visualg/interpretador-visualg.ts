@@ -1,7 +1,7 @@
 import { Construto, Variavel } from '../../../construtos';
 import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { ImportadorInterface } from '../../../interfaces';
-import { Interpretador } from '../..';
+import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 
 /**
@@ -10,7 +10,7 @@ import { ContinuarQuebra, Quebra } from '../../../quebras';
  * Para N argumentos, Delégua inclui um espaço entre cada argumento.
  * Já VisuAlg imprime todos os argumentos concatenados.
  */
-export class InterpretadorVisuAlg extends Interpretador {
+export class InterpretadorVisuAlg extends InterpretadorBase {
     constructor(
         importador: ImportadorInterface,
         diretorioBase: string,
