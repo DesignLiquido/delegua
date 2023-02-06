@@ -1,7 +1,0 @@
-// Usando herança
-classe Animal {
-  corre() {
-    escreva("correndo");
-  }
-}
-classe Cachorro herda Animal {}

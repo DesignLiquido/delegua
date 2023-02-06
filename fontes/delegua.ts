@@ -5,7 +5,6 @@ import chalk from 'chalk';
 
 import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
-import { Interpretador } from './interpretador/interpretador';
 
 import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 
@@ -35,7 +34,7 @@ import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
 import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
 import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg/interpretador-visualg';
-import { ErroInterpretador } from './interpretador';
+import { ErroInterpretador, InterpretadorBase } from './interpretador';
 import { InterpretadorVisuAlgComDepuracao } from './interpretador/dialetos';
 import { LexadorPortugolStudio } from './lexador/dialetos/lexador-portugol-studio';
 import { AvaliadorSintaticoPortugolStudio } from './avaliador-sintatico/dialetos/avaliador-sintatico-portugol-studio';
@@ -96,7 +95,7 @@ export class Delegua implements DeleguaInterface {
                     this.conteudoArquivosAbertos,
                     depurador
                 );
-                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                this.interpretador = new InterpretadorBase(this.importador, process.cwd(), false, console.log);
                 break;
             case 'egua':
                 if (depurador) {
@@ -126,7 +125,7 @@ export class Delegua implements DeleguaInterface {
                 );
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
-                    : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                    : new InterpretadorBase(this.importador, process.cwd(), performance, funcaoDeRetorno);
                 break;
             case 'portugol-studio':
                 this.lexador = new LexadorPortugolStudio();
@@ -140,7 +139,7 @@ export class Delegua implements DeleguaInterface {
                 );
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
-                    : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                    : new InterpretadorBase(this.importador, process.cwd(), performance, funcaoDeRetorno);
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
@@ -168,7 +167,7 @@ export class Delegua implements DeleguaInterface {
                 );
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
-                    : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                    : new InterpretadorBase(this.importador, process.cwd(), performance, funcaoDeRetorno);
                 break;
         }
 
