@@ -1,0 +1,11 @@
+export default {
+    OI: 'OI', // E,
+    PE: 'PE', // Em
+    HAI: 'HAI', // Escreva
+
+    IDENTIFICADOR: 'IDENTIFICADOR',
+    NUMERO: 'NUMERO',
+    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
+    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
+    TEXTO: 'TEXTO'
+}
