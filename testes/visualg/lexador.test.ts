@@ -1,31 +1,32 @@
-import { Delegua } from "../../fontes/delegua";
+import { LexadorVisuAlg } from '../../fontes/lexador/dialetos';
+
 import tiposDeSimbolos from "../../fontes/tipos-de-simbolos/visualg"
 
 describe('Lexador (VisuAlg)', () => {
     describe('mapear()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorVisuAlg;
 
         beforeEach(() => {
-            delegua = new Delegua('visualg');
+            lexador = new LexadorVisuAlg();
         });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
-                const resultado = delegua.lexador.mapear([''], -1);
+                const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
             it('Sucesso - Ponto-e-vírgula, opcional', () => {
-                const resultado = delegua.lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
+                const resultado = lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
             it('Sucesso - estrutura mínima', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     "algoritmo \"vazio\"",
                     "var",
                     "inicio",
@@ -50,7 +51,7 @@ describe('Lexador (VisuAlg)', () => {
             });
 
             it('Sucesso - Olá mundo', () => {
-                const resultado = delegua.lexador.mapear(
+                const resultado = lexador.mapear(
                     [
                         "algoritmo \"ola-mundo\"",
                         "var",

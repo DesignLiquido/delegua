@@ -1,16 +1,20 @@
+import { AvaliadorSintaticoPortugolStudio } from "../../fontes/avaliador-sintatico/dialetos";
 import { ErroAvaliadorSintatico } from "../../fontes/avaliador-sintatico/erro-avaliador-sintatico";
-import { Delegua } from "../../fontes/delegua";
+import { LexadorPortugolStudio } from "../../fontes/lexador/dialetos";
+
 
 describe('Avaliador sintático (Portugol Studio)', () => {
     describe('analisar()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorPortugolStudio;
+        let avaliadorSintatico: AvaliadorSintaticoPortugolStudio;
 
         beforeEach(() => {
-            delegua = new Delegua('portugol-studio');
+            lexador = new LexadorPortugolStudio();
+            avaliadorSintatico = new AvaliadorSintaticoPortugolStudio();
         });
 
         it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'programa',
                     '{',
@@ -24,14 +28,14 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 -1
             );
             const retornoAvaliadorSintatico =
-                delegua.avaliadorSintatico.analisar(retornoLexador);
+                avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
         it('Falha - Função `inicio()` não definida', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'programa',
                     '{',
@@ -46,7 +50,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
             );
 
             const t = () => {
-                delegua.avaliadorSintatico.analisar(retornoLexador);
+                avaliadorSintatico.analisar(retornoLexador);
             };
 
             expect(t).toThrow(ErroAvaliadorSintatico);

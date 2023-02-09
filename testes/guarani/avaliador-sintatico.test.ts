@@ -1,4 +1,3 @@
-import { ErroAvaliadorSintatico } from "../../fontes/avaliador-sintatico/erro-avaliador-sintatico";
 import { AvaliadorSintaticoGuarani } from "../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-guarani";
 import { LexadorGuarani } from "../../fontes/lexador/dialetos/lexador-guarani";
 

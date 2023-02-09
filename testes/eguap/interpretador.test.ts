@@ -1,38 +1,44 @@
-import { Delegua } from "../../fontes/delegua";
+import { AvaliadorSintaticoEguaP } from "../../fontes/avaliador-sintatico/dialetos";
+import { InterpretadorBase } from "../../fontes/interpretador";
+import { LexadorEguaP } from "../../fontes/lexador/dialetos";
 
 describe('Interpretador (EguaP)', () => {
     describe('interpretar()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorEguaP;
+        let avaliadorSintatico: AvaliadorSintaticoEguaP;
+        let interpretador: InterpretadorBase;
 
         beforeEach(() => {
-            delegua = new Delegua('eguap');
+            lexador = new LexadorEguaP();
+            avaliadorSintatico = new AvaliadorSintaticoEguaP();
+            interpretador = new InterpretadorBase(null as any, process.cwd());
         });
 
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
                 it('Trivial', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = 1;"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = 1;"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Vetor', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3]"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = [1, 2, 3]"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Dicionário', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2}"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = {'a': 1, 'b': 2}"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -40,19 +46,19 @@ describe('Interpretador (EguaP)', () => {
 
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3];\nescreva(a[1])"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = [1, 2, 3];\nescreva(a[1])"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Acesso a elementos de dicionário', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2};\nescreva(a['b'])"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = {'a': 1, 'b': 2};\nescreva(a['b'])"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -60,19 +66,19 @@ describe('Interpretador (EguaP)', () => {
 
             describe('escreva()', () => {
                 it('Olá Mundo (escreva() e literal)', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["escreva('Olá mundo')"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('nulo', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["escreva(nulo)"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["escreva(nulo)"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -80,10 +86,10 @@ describe('Interpretador (EguaP)', () => {
 
             describe('Operações matemáticas', () => {
                 it('Operações matemáticas - Trivial', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -91,28 +97,28 @@ describe('Interpretador (EguaP)', () => {
 
             describe('Operações lógicas', () => {
                 it('Operações lógicas - ou', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro ou falso)"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["escreva(verdadeiro ou falso)"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Operações lógicas - e', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["escreva(verdadeiro e falso)"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["escreva(verdadeiro e falso)"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Operações lógicas - em', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["escreva(2 em [1, 2, 3])"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["escreva(2 em [1, 2, 3])"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -126,10 +132,10 @@ describe('Interpretador (EguaP)', () => {
                         "senao:",
                         "   escreva('Nunca será executado')",
                     ];
-                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -141,10 +147,10 @@ describe('Interpretador (EguaP)', () => {
                         "senão:",
                         "   escreva('Um não é maior que dois')",
                     ];
-                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -152,19 +158,19 @@ describe('Interpretador (EguaP)', () => {
 
             describe('Laços de repetição', () => {
                 it('Laços de repetição - enquanto', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = 0\nenquanto a < 10:\n    a = a + 1"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = 0\nenquanto a < 10:\n    a = a + 1"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Laços de repetição - fazer ... enquanto', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = 0\nfazer:\n    a = a + 1\nenquanto a < 10"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = 0\nfazer:\n    a = a + 1\nenquanto a < 10"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -174,10 +180,10 @@ describe('Interpretador (EguaP)', () => {
                         "para var i = 0; i < 10; i = i + 1:",
                         "   escreva(i)",
                     ];
-                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -198,10 +204,10 @@ describe('Interpretador (EguaP)', () => {
                         "escreva('Classe: OK!')"
                     ];
 
-                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -233,10 +239,10 @@ describe('Interpretador (EguaP)', () => {
                         "a = fibonacci(5)",
                         "escreva(a)"
                     ];
-                    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
@@ -246,19 +252,19 @@ describe('Interpretador (EguaP)', () => {
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = [1, 2, 3]\nescreva(a[4])"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = [1, 2, 3]\nescreva(a[4])"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
 
                 it('Acesso a elementos de dicionário', async () => {
-                    const retornoLexador = delegua.lexador.mapear(["var a = {'a': 1, 'b': 2}\nescreva(a['c'])"], -1);
-                    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    const retornoLexador = lexador.mapear(["var a = {'a': 1, 'b': 2}\nescreva(a['c'])"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                    const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
                 });
