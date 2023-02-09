@@ -63,11 +63,12 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         }
 
         const codigo: string =
-            this.codigo.substring(this.inicioSimbolo, this.atual)
-                .toLowerCase();
+            this.codigo.substring(this.inicioSimbolo, this.atual);
 
-        const tipo: string = codigo in palavrasReservadas ?
-            palavrasReservadas[codigo] :
+        const codigoMinusculo = codigo.toLowerCase();
+
+        const tipo: string = codigoMinusculo in palavrasReservadas ?
+            palavrasReservadas[codigoMinusculo] :
             tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo, codigo, null); // Todo: adicionar lexama e literal
@@ -108,6 +109,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
                 break;
             case '&':
+                // Ler o simbolo porem não é tratado.
                 this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
                 this.avancar();
                 break;
@@ -162,13 +164,14 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
-                else
+                else {
                     this.erros.push({
                         linha: this.linha,
                         caractere: caractere,
                         mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
-                // this.avancar();
+                    this.avancar();
+                }
                 break;
         }
     }

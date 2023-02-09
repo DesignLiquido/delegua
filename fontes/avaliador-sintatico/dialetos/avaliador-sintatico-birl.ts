@@ -236,7 +236,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.BIRL) {
             declaracoes.push(this.declaracao());
-            this.atual++;
         }
 
         this.validarSegmentoBirlFinal();

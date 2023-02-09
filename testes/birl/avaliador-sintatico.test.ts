@@ -20,7 +20,7 @@ describe('Avaliador sintático Birl', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
-        it.skip('Sucesso - For', () => {
+       it.skip('Sucesso - For', () => {
             //@TODO: @ItaloCobains - Implementar esse teste
             const retornoLexador = delegua.lexador.mapear(
                 [
