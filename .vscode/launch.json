@@ -5,27 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "BIRL > Testes Lexador",
             "type": "node",
             "request": "launch",
-            "name": "Birl > Hello World",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "birl",
-                "./exemplos/dialetos/birl/hello-world.birl"
-            ],
-            "runtimeExecutable": "node",
             "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                // "interpretador.test.ts",
+                "birl/lexador.test.ts",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         },
         {
             "name": "BIRL > Testes unitários",

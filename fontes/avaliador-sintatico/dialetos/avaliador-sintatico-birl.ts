@@ -110,7 +110,17 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.QUERO, 'Esperado expressão `QUERO` após `MAIS` para iniciar o bloco `PARA`.');
         this.consumir(tiposDeSimbolos.MAIS, 'Esperado expressão `MAIS` após `QUERO` para iniciar o bloco `PARA`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.');
-        // @Todo: @ItaloCobains terminar isso.
+        const condicao = this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição para iniciar o bloco `PARA`.');
+
+        const declaracao = [];
+
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIRL)) {
+            declaracao.push(this.declaracao());
+        }
+
+        this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `PARA`.');
+
         return new Para(0, 0, 0, 0, 0, 0);
     }
 
@@ -186,7 +196,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.NEGATIVA:
             // Retornar uma declaração de WHILE
             case tiposDeSimbolos.MAIS:
-            // Retornar uma declaração de FOR
+                return this.declaracaoPara();
             case tiposDeSimbolos.VAMO:
             // Retornar uma declaração de continue
             case tiposDeSimbolos.SAI:
@@ -226,6 +236,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.BIRL) {
             declaracoes.push(this.declaracao());
+            this.atual++;
         }
 
         this.validarSegmentoBirlFinal();

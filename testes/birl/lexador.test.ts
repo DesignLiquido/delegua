@@ -38,7 +38,19 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.simbolos).toHaveLength(27);
                 expect(resultado.erros).toHaveLength(0);
             });
+            it('Sucesso - Ler da tela', () => {
+                const resultado = delegua.lexador.mapear([
+                    'HORA DO SHOW \n',
+                    'MONSTRO? X;',
+                    'QUE QUE CE QUER MONSTRAO? ("%d", &X);',
+                    'BORA CUMPADE 1;',
+                    'BIRL \n'
+                ], -1)
 
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(32);
+                expect(resultado.erros).toHaveLength(0);
+            });
             it('Sucesso - Variavel - Atribuição', () => {
                 const resultado = delegua.lexador.mapear(
                     [
@@ -56,7 +68,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.simbolos).toHaveLength(41);
                 expect(resultado.erros).toHaveLength(0);
             });
-            it.skip('Sucesso - Loop - For', () => {
+            it('Sucesso - Loop - For', () => {
                 const resultado = delegua.lexador.mapear([
                     'HORA DO SHOW \n',
                     'MONSTRO M;',
@@ -68,7 +80,53 @@ describe('Lexador (BIRL)', () => {
                 ], -1)
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(47);
+                expect(resultado.simbolos).toHaveLength(51);
+                expect(resultado.erros).toHaveLength(0);
+            })
+            it('Sucesso - Loop - While', () => {
+                const resultado = delegua.lexador.mapear([
+                    'HORA DO SHOW \n',
+                    'MONSTRO X = 5;',
+                    'NEGATIVA BAMBAM (X > 2)',
+                    '   CE QUER VER ESSA PORRA? ("%d", X);',
+                    '   X--;',
+                    'BIRL',
+                    'BORA CUMPADE? 0; \n',
+                    'BIRL \n',
+                ], -1)
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(49);
+                expect(resultado.erros).toHaveLength(0);
+            })
+            it('Sucesso - Condição - If', () => {
+                const resultado = delegua.lexador.mapear([
+                    'HORA DO SHOW \n',
+                    'ELE QUE A GENTE QUER? (3 > 2)',
+                    '   CE QUER VER ESSA PORRA? ("%d", 3);',
+                    'BIRL',
+                    'BORA CUMPADE? 0; \n',
+                    'BIRL \n',
+                ], -1)
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(42);
+                expect(resultado.erros).toHaveLength(0);
+            })
+            it('Sucesso - Condição - If Else', () => {
+                const resultado = delegua.lexador.mapear([
+                    'HORA DO SHOW \n',
+                    'ELE QUE A GENTE QUER? (3 > 2)',
+                    '   CE QUER VER ESSA PORRA? ("%d", 3);',
+                    'NAO VAI DAR NAO',
+                    '   CE QUER VER ESSA PORRA? ("%d", 2);',
+                    'BIRL',
+                    'BORA CUMPADE? 0; \n',
+                    'BIRL \n',
+                ], -1)
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(60);
                 expect(resultado.erros).toHaveLength(0);
             })
         });

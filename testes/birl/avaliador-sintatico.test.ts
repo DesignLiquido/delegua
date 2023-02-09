@@ -20,6 +20,24 @@ describe('Avaliador sintático Birl', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
+        it.skip('Sucesso - For', () => {
+            //@TODO: @ItaloCobains - Implementar esse teste
+            const retornoLexador = delegua.lexador.mapear(
+                [
+                    'HORA DO SHOW',
+                    'MONSTRO M;',
+                    'MAIS QUERO MAIS (M = 0; M < 5; M++)',
+                    '   CE QUER VER ESSA PORRA? ("%d", M);',
+                    'BIRL',
+                    'BIRL'
+                ], -1
+            )
+
+            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            // expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+        })
+
 
 
         // TODO: @ItaloCobains - Implementar esse teste

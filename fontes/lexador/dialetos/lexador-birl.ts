@@ -77,6 +77,18 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         const caractere = this.simboloAtual();
 
         switch (caractere) {
+            case ',':
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA, ',', null);
+                this.avancar();
+                break;
+            case '>':
+                this.adicionarSimbolo(tiposDeSimbolos.MAIOR_QUE, '>', null);
+                this.avancar();
+                break;
+            case '<':
+                this.adicionarSimbolo(tiposDeSimbolos.MENOR_QUE, '<', null);
+                this.avancar();
+                break;
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '(', null);
                 this.avancar();
@@ -95,8 +107,28 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 }
 
                 break;
+            case '&':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
+                this.avancar();
+                break;
             case '+':
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.avancar();
+                break;
+            case '-':
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.avancar();
+                break;
+            case '*':
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                this.avancar();
+                break;
+            case '/':
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                this.avancar();
+                break;
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 this.avancar();
                 break;
             case "'":
@@ -136,6 +168,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                         caractere: caractere,
                         mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
+                // this.avancar();
                 break;
         }
     }
