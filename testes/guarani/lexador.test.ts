@@ -1,31 +1,31 @@
-import { Delegua } from '../../fontes/delegua';
+import { LexadorGuarani } from '../../fontes/lexador/dialetos/lexador-guarani';
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/guarani';
 
 describe('Lexador', () => {
     describe('mapear()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorGuarani;
 
         beforeEach(() => {
-            delegua = new Delegua('delegua');
+            lexador = new LexadorGuarani();
         });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
-                const resultado = delegua.lexador.mapear([''], -1);
+                const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
             it('Sucesso - Ponto-e-vírgula, opcional', () => {
-                const resultado = delegua.lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
+                const resultado = lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
             it('Sucesso - Olá guaranis', () => {
-                const resultado = delegua.lexador.mapear(["hai('Olá guaranis')"], -1);
+                const resultado = lexador.mapear(["hai('Olá guaranis')"], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(4);
