@@ -9,7 +9,6 @@
         "lair": "ts-node execucao.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
-        "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
         "testes-unitarios": "jest --coverage",
         "testes-unitarios:insignias": "jest-coverage-badges --output './recursos/imagens'",
         "observar-testes-unitarios": "jest --watchAll",
@@ -62,7 +61,6 @@
         "@types/esprima": "^4.0.3",
         "@types/estree": "^1.0.0",
         "@types/jest": "^29.4.0",
-        "@types/node": "^18.11.13",
         "@typescript-eslint/eslint-plugin": "^5.46.1",
         "@typescript-eslint/parser": "^5.46.1",
         "copyfiles": "^2.4.1",
@@ -76,7 +74,6 @@
         "release-it": "^15.5.1",
         "rimraf": "^3.0.2",
         "ts-jest": "^29.0.5",
-        "ts-node": "^10.9.1",
         "typedoc": "^0.23.22",
         "typescript": "^4.9.4"
     },
