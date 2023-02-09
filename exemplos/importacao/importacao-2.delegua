@@ -1,6 +1,0 @@
-var segundaImportacao = importar("./exemplos/importacao/importacao-3.egua")
-
-funcao escreverAlgumaCoisa() {
-    escreva("Importação funcionou.")
-    segundaImportacao.escreverMaisAlgumaCoisa()
-}

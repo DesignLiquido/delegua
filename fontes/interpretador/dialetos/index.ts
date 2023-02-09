@@ -1,3 +1,3 @@
 export * from './egua-classico';
-export * from './visualg';
-export * from './visualg-com-depuracao';
+export * from './visualg/interpretador-visualg';
+export * from './visualg/interpretador-visualg-com-depuracao';

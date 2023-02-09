@@ -1,10 +1,8 @@
-import * as caminho from 'path';
 import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
-import carregarBibliotecaNode from '../bibliotecas/importar-biblioteca';
 
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
@@ -67,8 +65,11 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
  * e de fato executa a lógica de programação descrita no código.
+ * 
+ * O Interpretador Base não contém dependências com o Node.js. É
+ * recomendado para uso em execuções que ocorrem no navegador de internet.
  */
-export class Interpretador implements InterpretadorInterface {
+export class InterpretadorBase implements InterpretadorInterface {
     importador: ImportadorInterface;
     diretorioBase: any;
     erros: ErroInterpretador[];
@@ -329,7 +330,21 @@ export class Interpretador implements InterpretadorInterface {
 
                 case tiposDeSimbolos.MULTIPLICACAO:
                 case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
+                        // Sem ambos os valores resolvem como texto, multiplica normal.
+                        // Se apenas um resolve como texto, o outro repete o 
+                        // texto n vezes, sendo n o valor do outro.
+                        if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
+                            return Number(valorEsquerdo) * Number(valorDireito);    
+                        } 
+                        
+                        if (tipoEsquerdo === 'texto') {
+                            return valorEsquerdo.repeat(Number(valorDireito));
+                        }
+
+                        return valorDireito.repeat(Number(valorEsquerdo));
+                    }
+                    
                     return Number(valorEsquerdo) * Number(valorDireito);
 
                 case tiposDeSimbolos.MODULO:
@@ -689,52 +704,8 @@ export class Interpretador implements InterpretadorInterface {
         return null;
     }
 
-    /**
-     * Importa um arquivo como módulo.
-     * @param declaracao A declaração de importação.
-     * @returns Ou um `DeleguaModulo`, ou um dicionário de funções.
-     */
     async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
-        const caminhoRelativo = await this.avaliar(declaracao.caminho);
-        const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-        const nomeArquivo = caminho.basename(caminhoTotal);
-
-        if (!caminhoTotal.endsWith('.delegua')) {
-            try {
-                return await carregarBibliotecaNode(caminhoRelativo);
-            } catch (erro: any) {
-                this.erros.push(erro);
-                return null;
-            }
-        }
-
-        const conteudoImportacao = this.importador.importar(caminhoRelativo, false, false);
-        const retornoInterpretador = await this.interpretar(
-            conteudoImportacao.retornoAvaliadorSintatico.declaracoes,
-            true
-        );
-
-        const funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
-
-        const declaracoesClasse = this.pilhaEscoposExecucao.obterTodasDeclaracaoClasse();
-
-        if (declaracoesClasse.hasOwnProperty('super')) {
-            delete declaracoesClasse['super'];
-        }
-
-        const novoModulo = new DeleguaModulo();
-
-        const chavesFuncoesChamaveis = Object.keys(funcoesChamaveis);
-        for (let i = 0; i < chavesFuncoesChamaveis.length; i++) {
-            novoModulo.componentes[chavesFuncoesChamaveis[i]] = funcoesChamaveis[chavesFuncoesChamaveis[i]];
-        }
-
-        const chavesDeclaracoesClasse = Object.keys(declaracoesClasse);
-        for (let i = 0; i < chavesDeclaracoesClasse.length; i++) {
-            novoModulo.componentes[chavesDeclaracoesClasse[i]] = declaracoesClasse[chavesDeclaracoesClasse[i]];
-        }
-
-        return novoModulo;
+        return Promise.reject("Importação de arquivos não suportada por Interpretador Base.");
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
@@ -1235,7 +1206,7 @@ export class Interpretador implements InterpretadorInterface {
      * Método que efetivamente inicia o processo de interpretação.
      * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
      * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado
-     *                       pelo modo REPL (LEIA).
+     *                       pelo modo REPL (LAIR).
      * @returns Um objeto com o resultado da interpretação.
      */
     async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {

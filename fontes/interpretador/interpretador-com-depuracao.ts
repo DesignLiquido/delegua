@@ -4,10 +4,10 @@ import { PontoParada } from '../depuracao';
 import { ComandoDepurador, ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra, RetornoQuebra } from '../quebras';
-import { Interpretador } from './interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { Atribuir, Chamada, Construto } from '../construtos';
 import { inferirTipoVariavel } from './inferenciador';
+import { InterpretadorBase } from './interpretador-base';
 
 /**
  * Implementação do Interpretador com suporte a depuração.
@@ -29,7 +29,10 @@ import { inferirTipoVariavel } from './inferenciador';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao extends Interpretador implements InterpretadorComDepuracaoInterface {
+export class InterpretadorComDepuracao 
+        extends InterpretadorBase 
+        implements InterpretadorComDepuracaoInterface 
+{
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;

@@ -53,8 +53,9 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Grátis.** Sem planos, sem limitações e sem propaganda.
 - **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
-- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br).
+- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br) e [Portugol Studio](http://lite.acad.univali.br/portugol/).
 - **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha
+- **Portável.** Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.
 
 ## Aplicações
 
@@ -62,64 +63,12 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 
 ## Instalação
 
-Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser: utilize uma das seguintes opções: 
+Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser. Utilize uma das seguintes opções: 
 
 - [Dentro do Visual Studio Code, instale a extensão da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode). [Aprenda como executar e depurar seu programa aqui](https://www.youtube.com/watch?v=TQxLekzvBv8);
 - [Utilize nosso editor online](https://designliquido.github.io/delegua-web/).
 
-Se quiser instalar no seu computador,
-[você deve ter antes o Node.js instalado em seu ambiente](https://dicasdejavascript.com.br/instalacao-do-nodejs-e-npm-no-windows-passo-a-passo).
-
-Com o Node.js instalado, execute o seguinte comando em um _prompt_ de comando (Terminal, PowerShell ou `cmd` no Windows, Terminal ou `sh` em Mac e Linux):
-
-```
-npm install -g delegua
-```
-
-### Usando como LAIR (Leia-Avalie-Imprima-Repita) em console
-
-Feita a instalação no seu ambiente, execute o seguinte comando:
-
-```
-delegua
-```
-
-Você terá um interpretador Delégua que avalia expressões linha a linha.
-
-Um exemplo de uso é como uma calculadora:
-
-```js
-delegua> 2 + 2
-4
-
-delegua> 2 * 3
-6
-
-delegua> 2 ** 10
-1024
-```
-
-Para finalizar a execução do interpretador LAIR Delégua, use o atalho <key>Ctrl</key> + <key>C</key> (todos os sistemas operacionais).
-
-### Executando arquivos
-
-É possível usar o interpretador com outros dialetos, como Égua.
-
-```
-delegua --dialeto egua
-```
-
-[Veja aqui todos os dialetos suportados](https://github.com/DesignLiquido/delegua/wiki/Dialetos).
-
-Se não quiser instalar as bibliotecas que acompanham Delégua, apenas o núcleo da linguagem pode ser instalado:
-
-```
-npm install -g @designliquido/delegua
-```
-
-## Tradução para outras linguagens
-
-Delégua traduz para JavaScript e vice-versa. [Mais informações aqui](https://github.com/DesignLiquido/delegua/wiki/Tradu%C3%A7%C3%A3o-para-outras-linguagens). 
+Para instalar no seu computador, veja o projeto [`@designliquido/delegua-node`](https://github.com/DesignLiquido/delegua-node). 
 
 ## Documentação
 

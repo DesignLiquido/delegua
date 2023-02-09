@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.12.7",
+    "version": "0.13.2",
     "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
     "main": "index.js",
     "scripts": {
@@ -9,10 +9,6 @@
         "lair": "ts-node execucao.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
-        "testes:egua": "./bin/delegua-ts exemplos/dialetos/egua-classico/testes.egua",
-        "testes:delegua:bhaskara": "./bin/delegua-ts exemplos/dialetos/egua-classico/bhaskara.egua",
-        "testes:delegua:fibonacci": "./bin/delegua-ts exemplos/dialetos/egua-classico/fibonacci.egua",
-        "testes:egua-classico": "./bin/delegua-ts --dialeto egua exemplos/dialetos/egua-classico/testes.egua",
         "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
         "testes-unitarios": "jest --coverage",
         "testes-unitarios:insignias": "jest-coverage-badges --output './recursos/imagens'",
@@ -24,9 +20,6 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/DesignLiquido/delegua.git"
-    },
-    "bin": {
-        "delegua": "./bin/delegua"
     },
     "keywords": [
         "egua",
@@ -67,6 +60,7 @@
         "@designliquido/delegua-matematica": "^0.2.0",
         "@designliquido/delegua-tempo": "^0.0.1",
         "@types/esprima": "^4.0.3",
+        "@types/estree": "^1.0.0",
         "@types/jest": "^29.4.0",
         "@types/node": "^18.11.13",
         "@typescript-eslint/eslint-plugin": "^5.46.1",
@@ -88,8 +82,6 @@
     },
     "dependencies": {
         "browser-process-hrtime": "^1.0.0",
-        "chalk": "4.1.2",
-        "commander": "^9.4.1",
         "esprima": "^4.0.1"
     }
 }

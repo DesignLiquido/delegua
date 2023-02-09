@@ -5,7 +5,6 @@ import chalk from 'chalk';
 
 import { Lexador } from './lexador/lexador';
 import { AvaliadorSintatico } from './avaliador-sintatico/avaliador-sintatico';
-import { Interpretador } from './interpretador/interpretador';
 
 import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 
@@ -34,9 +33,11 @@ import { AvaliadorSintaticoVisuAlg } from './avaliador-sintatico/dialetos/avalia
 import { LexadorBirl } from './lexador/dialetos/lexador-birl';
 import { AvaliadorSintaticoBirl } from './avaliador-sintatico/dialetos/avaliador-sintatico-birl';
 import { TradutorJavaScript, TradutorReversoJavaScript } from './tradutores';
-import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg';
-import { ErroInterpretador } from './interpretador';
+import { InterpretadorVisuAlg } from './interpretador/dialetos/visualg/interpretador-visualg';
+import { ErroInterpretador, InterpretadorBase } from './interpretador';
 import { InterpretadorVisuAlgComDepuracao } from './interpretador/dialetos';
+import { LexadorPortugolStudio } from './lexador/dialetos/lexador-portugol-studio';
+import { AvaliadorSintaticoPortugolStudio } from './avaliador-sintatico/dialetos/avaliador-sintatico-portugol-studio';
 
 /**
  * O núcleo da linguagem.
@@ -50,6 +51,7 @@ export class Delegua implements DeleguaInterface {
         delegua: 'padrão',
         egua: 'Égua',
         eguap: 'ÉguaP',
+        'portugol-studio': 'Portugol Studio',
         visualg: 'VisuAlg',
     };
 
@@ -93,7 +95,7 @@ export class Delegua implements DeleguaInterface {
                     this.conteudoArquivosAbertos,
                     depurador
                 );
-                this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+                this.interpretador = new InterpretadorBase(this.importador, process.cwd(), false, console.log);
                 break;
             case 'egua':
                 if (depurador) {
@@ -123,7 +125,21 @@ export class Delegua implements DeleguaInterface {
                 );
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
-                    : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                    : new InterpretadorBase(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                break;
+            case 'portugol-studio':
+                this.lexador = new LexadorPortugolStudio();
+                this.avaliadorSintatico = new AvaliadorSintaticoPortugolStudio();
+                this.importador = new Importador(
+                    this.lexador,
+                    this.avaliadorSintatico,
+                    this.arquivosAbertos,
+                    this.conteudoArquivosAbertos,
+                    depurador
+                );
+                this.interpretador = depurador
+                    ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
+                    : new InterpretadorBase(this.importador, process.cwd(), performance, funcaoDeRetorno);
                 break;
             case 'visualg':
                 this.lexador = new LexadorVisuAlg();
@@ -151,7 +167,7 @@ export class Delegua implements DeleguaInterface {
                 );
                 this.interpretador = depurador
                     ? new InterpretadorComDepuracao(this.importador, process.cwd(), funcaoDeRetorno)
-                    : new Interpretador(this.importador, process.cwd(), performance, funcaoDeRetorno);
+                    : new InterpretadorBase(this.importador, process.cwd(), performance, funcaoDeRetorno);
                 break;
         }
 
@@ -290,7 +306,7 @@ export class Delegua implements DeleguaInterface {
      *                          Se verdadeiro, os arquivos de saída são escritos no mesmo diretório
      *                          do arquivo passado no primeiro parâmetro.
      */
-    traduzirArquivo(caminhoRelativoArquivo: string, gerarArquivoSaida: boolean): any {
+    traduzirArquivo(caminhoRelativoArquivo: string, gerarArquivoSaida: boolean, extensaoArquivoSaida: string): any {
         const caminhoAbsolutoPrimeiroArquivo = caminho.resolve(caminhoRelativoArquivo);
         const novoDiretorioBase = caminho.dirname(caminhoAbsolutoPrimeiroArquivo);
 
@@ -314,9 +330,9 @@ export class Delegua implements DeleguaInterface {
         }
 
         if (gerarArquivoSaida) {
-            ['.delegua', '.egua'].map((extensao) => {
+            ['.delegua', '.js'].map((extensao) => {
                 if (caminhoAbsolutoPrimeiroArquivo.includes(extensao)) {
-                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, '.js'), resultado, (erro) => {
+                    fs.writeFile(caminhoAbsolutoPrimeiroArquivo.replace(extensao, `.${extensaoArquivoSaida}`), resultado, (erro) => {
                         if (erro) throw erro;
                     });
                 }
