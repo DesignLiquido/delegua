@@ -5,39 +5,6 @@ on:
     branches: [ principal ]
 
 jobs:
-  #testes-delegua:
-  #  runs-on: ubuntu-latest
-#
-  #  steps:
-  #  - uses: actions/checkout@v2
-  #  - uses: actions/setup-node@v2-beta
-  #    with:
-  #      node-version: '16'
-  #  - name: NPM - Dependências
-  #    run: |
-  #      sudo npm install
-  #  - name: Testes da Linguagem Delégua
-  #    run: |
-  #      sudo chmod +x ./bin/delegua-ts
-  #      sudo npm run testes:delegua:bhaskara
-  #      sudo npm run testes:delegua:fibonacci
-#
-  #testes-egua-classico:
-  #  runs-on: ubuntu-latest
-#
-  #  steps:
-  #  - uses: actions/checkout@v2
-  #  - uses: actions/setup-node@v2-beta
-  #    with:
-  #      node-version: '16'
-  #  - name: NPM - Dependências
-  #    run: |
-  #      sudo npm install
-  #  - name: Testes do Dialeto Égua Clássico
-  #    run: |
-  #      sudo chmod +x ./bin/delegua-ts
-  #      sudo npm run testes:egua
-
   testes-unitarios:
     permissions:
       checks: write
