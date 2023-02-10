@@ -113,6 +113,23 @@ describe('Avaliador sintático (VisuAlg)', () => {
 
         it('Sucesso - Para', () => {
             const retornoLexador = lexador.mapear([
+                'Algoritmo "Soma 5"',
+                'Var',
+                '   n1, n2, n3, n4, n5: inteiro',
+                'Inicio',
+                '      leia(n1, n2, n3, n4, n5)',
+                '      escreva(n1 + n2 + n3 + n4 + n5)',
+                'Fimalgoritmo'
+            ], -1);
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+        });
+
+        it('Sucesso - Para', () => {
+            const retornoLexador = lexador.mapear([
                 'algoritmo "Numeros de 1 a 10"',
                 'var j: inteiro',
                 'inicio',
