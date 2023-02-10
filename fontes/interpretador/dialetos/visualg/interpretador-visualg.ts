@@ -94,14 +94,15 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
         const mensagem = '> ';
-        const argumento = (expressao.argumentos[0] as Variavel).simbolo.lexema;
-        const promessaLeitura: Function = () => new Promise((resolucao) =>
-            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(resposta);
-            })
-        );
+        for (let argumento of expressao.argumentos) {
+            const promessaLeitura: Function = () => new Promise((resolucao) =>
+                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                    resolucao(resposta);
+                })
+            );
 
-        const valorLido = await promessaLeitura();
-        this.pilhaEscoposExecucao.definirVariavel(argumento, valorLido);
+            const valorLido = await promessaLeitura();
+            this.pilhaEscoposExecucao.definirVariavel((<Variavel>argumento).simbolo.lexema, valorLido);
+        }
     }
 }

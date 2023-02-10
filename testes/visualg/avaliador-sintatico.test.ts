@@ -111,7 +111,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
-        it('Sucesso - Para', () => {
+        it('Sucesso - Leia', () => {
             const retornoLexador = lexador.mapear([
                 'Algoritmo "Soma 5"',
                 'Var',
