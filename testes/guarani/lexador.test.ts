@@ -1,4 +1,5 @@
 import { LexadorGuarani } from '../../fontes/lexador/dialetos/lexador-guarani';
+
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/guarani';
 
 describe('Lexador', () => {

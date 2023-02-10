@@ -1,16 +1,22 @@
-import { Delegua } from '../../fontes/delegua';
+import { AvaliadorSintaticoPortugolStudio } from '../../fontes/avaliador-sintatico/dialetos';
+import { InterpretadorBase } from '../../fontes/interpretador';
+import { LexadorPortugolStudio } from '../../fontes/lexador/dialetos';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorPortugolStudio;
+        let avaliadorSintatico: AvaliadorSintaticoPortugolStudio;
+        let interpretador: InterpretadorBase;
 
         beforeEach(() => {
-            delegua = new Delegua('portugol-studio');
+            lexador = new LexadorPortugolStudio();
+            avaliadorSintatico = new AvaliadorSintaticoPortugolStudio();
+            interpretador = new InterpretadorBase(null as any, process.cwd());
         });
 
         describe('Cenários de sucesso', () => {
             it('Trivial', async () => {
-                const retornoLexador = delegua.lexador.mapear([
+                const retornoLexador = lexador.mapear([
                     'programa',
                     '{',
                     '   ', 
@@ -20,9 +26,9 @@ describe('Interpretador', () => {
                     '    }',
                     '}'
                 ], -1);
-                const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
