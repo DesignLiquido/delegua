@@ -11,7 +11,7 @@ describe('Interpretador (EguaP)', () => {
         beforeEach(() => {
             lexador = new LexadorEguaP();
             avaliadorSintatico = new AvaliadorSintaticoEguaP();
-            interpretador = new InterpretadorBase(null as any, process.cwd());
+            interpretador = new InterpretadorBase(process.cwd());
         });
 
         describe('Cenários de sucesso', () => {

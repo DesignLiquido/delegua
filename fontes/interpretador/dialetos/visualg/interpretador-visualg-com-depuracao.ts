@@ -1,12 +1,11 @@
 import { Construto } from '../../../construtos';
 import { EscrevaMesmaLinha, Escreva, Fazer } from '../../../declaracoes';
-import { ImportadorInterface } from '../../../interfaces';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
 export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao {
-    constructor(importador: ImportadorInterface, diretorioBase: string, funcaoDeRetorno: Function = null) {
-        super(importador, diretorioBase, funcaoDeRetorno);
+    constructor(diretorioBase: string, funcaoDeRetorno: Function = null) {
+        super(diretorioBase, funcaoDeRetorno);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

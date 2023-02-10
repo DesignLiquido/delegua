@@ -11,7 +11,7 @@ describe('Interpretador', () => {
         beforeEach(() => {
             lexador = new LexadorVisuAlg();
             avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
-            interpretador = new InterpretadorVisuAlg(null as any, process.cwd());
+            interpretador = new InterpretadorVisuAlg(process.cwd());
         });
 
         describe('Cenários de sucesso', () => {
