@@ -50,7 +50,6 @@ import {
 } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { ImportadorInterface } from '../interfaces/importador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -70,8 +69,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * recomendado para uso em execuções que ocorrem no navegador de internet.
  */
 export class InterpretadorBase implements InterpretadorInterface {
-    importador: ImportadorInterface;
-    diretorioBase: any;
+    diretorioBase: string;
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
@@ -84,12 +82,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
 
     constructor(
-        importador: ImportadorInterface,
         diretorioBase: string,
         performance = false,
         funcaoDeRetorno: Function = null
     ) {
-        this.importador = importador;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
 

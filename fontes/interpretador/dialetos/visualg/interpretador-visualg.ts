@@ -1,6 +1,5 @@
 import { Construto, Variavel } from '../../../construtos';
 import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
-import { ImportadorInterface } from '../../../interfaces';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 
@@ -12,12 +11,11 @@ import { ContinuarQuebra, Quebra } from '../../../quebras';
  */
 export class InterpretadorVisuAlg extends InterpretadorBase {
     constructor(
-        importador: ImportadorInterface,
         diretorioBase: string,
         performance = false,
         funcaoDeRetorno: Function = null
     ) {
-        super(importador, diretorioBase, performance, funcaoDeRetorno);
+        super(diretorioBase, performance, funcaoDeRetorno);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

@@ -1,7 +1,7 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { Declaracao, Escreva, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
-import { ComandoDepurador, ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
+import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
@@ -45,8 +45,8 @@ export class InterpretadorComDepuracao
     idChamadaAtual?: string;
     passos: number;
 
-    constructor(importador: ImportadorInterface, diretorioBase: string, funcaoDeRetorno: Function) {
-        super(importador, diretorioBase, false, funcaoDeRetorno);
+    constructor(diretorioBase: string, funcaoDeRetorno: Function) {
+        super(diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;

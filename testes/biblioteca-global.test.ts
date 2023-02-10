@@ -10,7 +10,7 @@ describe('Biblioteca Global', () => {
     beforeEach(() => {
         lexador = new Lexador();
         avaliadorSintatico = new AvaliadorSintatico();
-        interpretador = new InterpretadorBase(null as any, process.cwd());
+        interpretador = new InterpretadorBase(process.cwd());
     });
 
     describe('aleatorio()', () => {
