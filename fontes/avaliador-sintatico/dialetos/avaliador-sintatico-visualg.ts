@@ -584,12 +584,19 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return new Sustar(simboloAtual);
     }
 
+    /**
+     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
+     * @returns Uma declaração `Leia`.
+     */
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
 
-        const argumento = this.declaracao();
+        const argumentos = [];
+        do {
+            argumentos.push(this.declaracao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
 
@@ -598,7 +605,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         );
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), [argumento]);
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
     declaracaoPara(): Para {
