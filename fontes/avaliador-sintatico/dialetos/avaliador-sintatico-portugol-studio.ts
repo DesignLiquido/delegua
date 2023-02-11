@@ -129,10 +129,15 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     blocoEscopo(): Declaracao[] {
-        const declaracoes: Array<RetornoDeclaracao> = [];
+        let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            const declaracaoOuVetor: any = this.declaracao();
+            if (Array.isArray(declaracaoOuVetor)) {
+                declaracoes = declaracoes.concat(declaracaoOuVetor);
+            } else {
+                declaracoes.push(declaracaoOuVetor);
+            }
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
