@@ -13,47 +13,68 @@ describe('Avaliador sintático (Portugol Studio)', () => {
             avaliadorSintatico = new AvaliadorSintaticoPortugolStudio();
         });
 
-        it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = lexador.mapear(
-                [
+        describe('Casos de Sucesso', () => {
+            it('Sucesso - Olá Mundo', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'programa',
+                        '{',
+                        '    funcao inicio()',
+                        '    {',
+                        '        escreva("Olá Mundo")',
+                        '    }',
+                        '}'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico =
+                    avaliadorSintatico.analisar(retornoLexador);
+    
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            });
+
+            it('Sucesso - Leia', () => {
+                const retornoLexador = lexador.mapear([
                     'programa',
                     '{',
-                    '   ', 
                     '    funcao inicio()',
                     '    {',
-                    '        escreva("Olá Mundo")',
+                    '        inteiro numero1, numero2, numero3, numero4, numero5',
+                    '        leia(numero1, numero2, numero3, numero4, numero5)',
+                    '        escreva(numero1 + numero2 + numero3 + numero4 + numero5)',
                     '    }',
                     '}'
-                ],
-                -1
-            );
-            const retornoAvaliadorSintatico =
-                avaliadorSintatico.analisar(retornoLexador);
-
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                ], -1);
+    
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+    
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
         });
 
-        it('Falha - Função `inicio()` não definida', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'programa',
-                    '{',
-                    '   ', 
-                    '    funcao teste()',
-                    '    {',
-                    '        escreva("Olá Mundo")',
-                    '    }',
-                    '}'
-                ],
-                -1
-            );
-
-            const t = () => {
-                avaliadorSintatico.analisar(retornoLexador);
-            };
-
-            expect(t).toThrow(ErroAvaliadorSintatico);
+        describe('Casos de Falha', () => {
+            it('Falha - Função `inicio()` não definida', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'programa',
+                        '{',
+                        '    funcao teste()',
+                        '    {',
+                        '        escreva("Olá Mundo")',
+                        '    }',
+                        '}'
+                    ],
+                    -1
+                );
+    
+                const t = () => {
+                    avaliadorSintatico.analisar(retornoLexador);
+                };
+    
+                expect(t).toThrow(ErroAvaliadorSintatico);
+            });
         });
     });
 });

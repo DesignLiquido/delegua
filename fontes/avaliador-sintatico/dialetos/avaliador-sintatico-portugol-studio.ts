@@ -1,5 +1,5 @@
 import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Chamada, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, FuncaoDeclaracao, Expressao } from "../../declaracoes";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, FuncaoDeclaracao, Expressao, Leia, Var } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -21,7 +21,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperada chave esquerda após expressão 'programa' para inicializar programa.");
 
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao() as Declaracao);
+            declaracoes.push(this.declaracao());
         }
 
         if (this.simbolos[this.atual - 1].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
@@ -50,6 +50,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
+            return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
+        }
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.REAL, tiposDeSimbolos.CADEIA)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
@@ -143,6 +147,37 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         throw new Error("Método não implementado.");
     }
 
+    declaracaoInteiros(): Var[] {
+        const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, "");
+
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado identificador após palavra reservada 'inteiro'.");
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
+    }
+
+    /**
+     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
+     * @returns Uma declaração `Leia`.
+     */
+    declaracaoLeia(): Leia {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
+
+        const argumentos = [];
+        do {
+            argumentos.push(this.declaracao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
+
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+    }
+
     declaracaoPara(): Para {
         throw new Error("Método não implementado.");
     }
@@ -188,6 +223,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:
                 return this.funcao('funcao');
+            case tiposDeSimbolos.INTEIRO:
+                return this.declaracaoInteiros();
+            case tiposDeSimbolos.LEIA:
+                return this.declaracaoLeia();
             case tiposDeSimbolos.PROGRAMA:
             case tiposDeSimbolos.CHAVE_DIREITA:
                 this.avancarEDevolverAnterior();
