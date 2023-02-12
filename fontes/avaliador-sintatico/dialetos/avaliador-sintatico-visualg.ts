@@ -102,6 +102,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
+            // Se ainda houver quebras de linha, volta para o começo do `while`.
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA)) {
+                continue;
+            }
+
             const identificadores = [];
             do {
                 identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
