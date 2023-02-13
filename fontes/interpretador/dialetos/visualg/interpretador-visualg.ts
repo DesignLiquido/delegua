@@ -10,12 +10,15 @@ import { ContinuarQuebra, Quebra } from '../../../quebras';
  * Já VisuAlg imprime todos os argumentos concatenados.
  */
 export class InterpretadorVisuAlg extends InterpretadorBase {
+    mensagemPrompt: string;
+
     constructor(
         diretorioBase: string,
         performance = false,
         funcaoDeRetorno: Function = null
     ) {
         super(diretorioBase, performance, funcaoDeRetorno);
+        this.mensagemPrompt = '> ';
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {
@@ -57,12 +60,18 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
     /**
      * Execução de uma escrita na saída padrão, sem quebras de linha.
      * Implementada para alguns dialetos, como VisuAlg.
+     * 
+     * Como `readline.question` sobrescreve o que foi escrito antes, aqui
+     * definimos `this.mensagemPrompt` para uso com `leia`.
+     * No VisuAlg é muito comum usar `escreva()` seguido de `leia()` para
+     * gerar um prompt na mesma linha.
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
     async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
+            this.mensagemPrompt = formatoTexto;
             process.stdout.write(formatoTexto);
             return null;
         } catch (erro: any) {
@@ -93,16 +102,16 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = '> ';
         for (let argumento of expressao.argumentos) {
             const promessaLeitura: Function = () => new Promise((resolucao) =>
-                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
+                    this.mensagemPrompt = '> ';
                     resolucao(resposta);
                 })
             );
 
             const valorLido = await promessaLeitura();
-            this.pilhaEscoposExecucao.definirVariavel((<Variavel>argumento).simbolo.lexema, valorLido);
+            this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);
         }
     }
 }

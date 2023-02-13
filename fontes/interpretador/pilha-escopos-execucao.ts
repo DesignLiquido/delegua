@@ -63,9 +63,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
+                const variavel = ambiente.valores[simbolo.lexema];
+                const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
+                    variavel.tipo : 
+                    inferirTipoVariavel(valor);
+
                 ambiente.valores[simbolo.lexema] = {
                     valor,
-                    tipo: inferirTipoVariavel(valor),
+                    tipo
                 };
                 return;
             }

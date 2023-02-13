@@ -102,6 +102,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
+            // Se ainda houver quebras de linha, volta para o começo do `while`.
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA)) {
+                continue;
+            }
+
             const identificadores = [];
             do {
                 identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
@@ -647,9 +652,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM_PARA) {
             declaracoesBlocoPara.push(this.declaracao());
-            simboloAtualBlocoPara = this.avancarEDevolverAnterior();
+            simboloAtualBlocoPara = this.simbolos[this.atual];
         }
 
+        this.consumir(tiposDeSimbolos.FIM_PARA, "");
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'fimpara'.");
 
         const corpo = new Bloco(
@@ -706,9 +712,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             const simboloSenao = this.simbolos[this.atual - 1];
             const declaracoesSenao = [];
+
             do {
-                declaracoes.push(this.declaracao());
+                declaracoesSenao.push(this.declaracao());
             } while (![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
+
             caminhoSenao = new Bloco(
                 this.hashArquivo,
                 Number(simboloSenao.linha),
