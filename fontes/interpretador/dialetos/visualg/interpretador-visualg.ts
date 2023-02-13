@@ -111,7 +111,7 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
             );
 
             const valorLido = await promessaLeitura();
-            this.pilhaEscoposExecucao.definirVariavel((<Variavel>argumento).simbolo.lexema, valorLido);
+            this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);
         }
     }
 }

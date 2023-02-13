@@ -93,6 +93,44 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it("Sucesso - Média de Vetor", async () => {
+                // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                const respostas = [
+                    90, 80, 50, 100, 60, 70, 75, 85, 89, 91, 
+                    74, 79, 99, 90, 65, 78, 100, 67, 93, 88
+                ];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.pop());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "media-vetor"',
+                    'var',
+                    'media:vetor[1..10] de real',
+                    'i:inteiro',
+                    'n1,n2:real',
+                    'inicio',
+                    'para i de 1 ate 10 faca',
+                    '     escreval ("Digite a nota do",i,"º Aluno")',
+                    '     leia (n1,n2)',
+                    '     media[i]<-(n1+n2)/2',
+                    'fimpara',
+                    'escreval ("-")',
+                    'para i de 1 ate 10 faca',
+                    '       escreval ("Media do",i,"º aluno: ", media[i])',
+                    'fimpara',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });
