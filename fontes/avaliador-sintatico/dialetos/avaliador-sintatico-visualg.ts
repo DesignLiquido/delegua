@@ -711,9 +711,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             const simboloSenao = this.simbolos[this.atual - 1];
             const declaracoesSenao = [];
+
             do {
-                declaracoes.push(this.declaracao());
+                declaracoesSenao.push(this.declaracao());
             } while (![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
+            
             caminhoSenao = new Bloco(
                 this.hashArquivo,
                 Number(simboloSenao.linha),
