@@ -349,17 +349,34 @@ export class InterpretadorComDepuracao
     }
 
     private async executarUmPassoNoEscopo() {
-        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        const ultimoEscopoAntesExecucao = this.pilhaEscoposExecucao.topoDaPilha();
+
+        if (ultimoEscopoAntesExecucao.declaracaoAtual >= ultimoEscopoAntesExecucao.declaracoes.length || ultimoEscopoAntesExecucao.finalizado) {
+            this.pilhaEscoposExecucao.removerUltimo();
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+            escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
+                escopoAnterior.ambiente.resolucoesChamadas,
+                ultimoEscopoAntesExecucao.ambiente.resolucoesChamadas
+            );
+            this.escopoAtual--;
+
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
+                this.finalizacaoDaExecucao();
+            }
+
+            return;
+        }
+
         let retornoExecucao: any;
         if (this.passos > 0) {
             this.passos--;
-            retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            retornoExecucao = await this.executar(ultimoEscopoAntesExecucao.declaracoes[ultimoEscopoAntesExecucao.declaracaoAtual]);
 
             if (!this.pontoDeParadaAtivo) {
-                ultimoEscopo.declaracaoAtual++;
+                ultimoEscopoAntesExecucao.declaracaoAtual++;
             }
 
-            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
+            if (ultimoEscopoAntesExecucao.declaracaoAtual >= ultimoEscopoAntesExecucao.declaracoes.length || ultimoEscopoAntesExecucao.finalizado) {
                 let outroEscopo = this.pilhaEscoposExecucao.topoDaPilha();
                 if (retornoExecucao instanceof RetornoQuebra) {
                     while (outroEscopo.tipo !== 'funcao') {
@@ -374,13 +391,16 @@ export class InterpretadorComDepuracao
                     }
                 }
 
-                this.pilhaEscoposExecucao.removerUltimo();
+                // O problema deste código aqui é quando o bloco tem uma instrução apenas.
+                // Ela executa e o depurador não mostra, dando a sensação de que
+                // a execução nunca aconteceu.
+                /* this.pilhaEscoposExecucao.removerUltimo();
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
                 escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
                     escopoAnterior.ambiente.resolucoesChamadas,
                     outroEscopo.ambiente.resolucoesChamadas
                 );
-                this.escopoAtual--;
+                this.escopoAtual--; */
             }
 
             if (this.pilhaEscoposExecucao.elementos() === 1) {
@@ -504,17 +524,17 @@ export class InterpretadorComDepuracao
         this.passos = 1;
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
-        if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
-            this.pilhaEscoposExecucao.removerUltimo();
-        }
-
-        if (this.pilhaEscoposExecucao.elementos() === 1) {
-            return this.finalizacaoDaExecucao();
-        }
-
         if (escopo < this.escopoAtual) {
             await this.instrucaoPasso(escopo + 1);
         } else {
+            if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
+                this.pilhaEscoposExecucao.removerUltimo();
+            }
+    
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
+                return this.finalizacaoDaExecucao();
+            }
+
             await this.executarUmPassoNoEscopo();
         }
     }

@@ -610,7 +610,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         );
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+        return new Leia(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
     declaracaoPara(): Para {
