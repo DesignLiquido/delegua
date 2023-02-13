@@ -193,10 +193,10 @@ describe('Interpretador (EguaP)', () => {
                 it('Trivial', async () => {
                     const codigo = [
                         "classe Animal:",
-                        "    correr():",
+                        "    função correr():",
                         "        escreva('Correndo Loucamente')",
                         "classe Cachorro herda Animal:",
-                        "    latir():",
+                        "    função latir():",
                         "        escreva('Au Au Au Au')",
                         "var nomeDoCachorro = Cachorro()",
                         "nomeDoCachorro.correr()",
