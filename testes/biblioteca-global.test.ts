@@ -35,6 +35,72 @@ describe('Biblioteca Global', () => {
         });
     });
 
+    describe('algum()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(algum([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrar()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrar([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarIndice()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrarIndice([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarUltimo()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrarUltimo([1, 2, 3], funcao(a) { retorna(a == 3) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarUltimoIndice()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrarUltimoIndice([1, 2, 3], funcao(a) { retorna(a == 3) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('incluido()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(incluido([1, 2, 3], 3))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
     describe('inteiro()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(inteiro(1 + 1))"], -1);
