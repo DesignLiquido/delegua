@@ -1,11 +1,14 @@
-import { Construto } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer } from '../../../declaracoes';
+import { Construto, Variavel } from '../../../construtos';
+import { EscrevaMesmaLinha, Escreva, Fazer, Leia } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
 export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao {
+    mensagemPrompt: string;
+    
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null) {
         super(diretorioBase, funcaoDeRetorno);
+        this.mensagemPrompt = '> ';
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {
@@ -47,12 +50,18 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
     /**
      * Execução de uma escrita na saída padrão, sem quebras de linha.
      * Implementada para alguns dialetos, como VisuAlg.
+     * 
+     * Como `readline.question` sobrescreve o que foi escrito antes, aqui
+     * definimos `this.mensagemPrompt` para uso com `leia`.
+     * No VisuAlg é muito comum usar `escreva()` seguido de `leia()` para
+     * gerar um prompt na mesma linha.
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
     async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
+            this.mensagemPrompt = formatoTexto;
             process.stdout.write(formatoTexto);
             return null;
         } catch (erro: any) {
@@ -73,6 +82,26 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
             return null;
         } catch (erro: any) {
             this.erros.push(erro);
+        }
+    }
+
+    /**
+     * Execução da leitura de valores da entrada configurada no
+     * início da aplicação.
+     * @param expressao Expressão do tipo Leia
+     * @returns Promise com o resultado da leitura.
+     */
+    async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        for (let argumento of expressao.argumentos) {
+            const promessaLeitura: Function = () => new Promise((resolucao) =>
+                this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
+                    this.mensagemPrompt = '> ';
+                    resolucao(resposta);
+                })
+            );
+
+            const valorLido = await promessaLeitura();
+            this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);
         }
     }
 }
