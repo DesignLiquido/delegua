@@ -7,8 +7,8 @@ export class InterpretadorPortugolStudio extends InterpretadorBase {
         diretorioBase: string,
         performance = false,
         funcaoDeRetorno: Function = null
-    ) {
-        super(diretorioBase, performance, funcaoDeRetorno);
+        ) {
+            super(diretorioBase, performance, funcaoDeRetorno);
     }
 
     /**
