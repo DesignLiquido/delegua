@@ -13,17 +13,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Teste de verificação de PR de origem
+      run: |
+        echo "${{ github.event.pull_request.head.repo.full_name }}"
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '16'
     - uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage
+      # if: {% raw %}${{ github.event_name == 'pull_request' && github.event.action == 'unassigned' }}{% endraw %}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         test-script: yarn testes-unitarios
         package-manager: yarn
         output: report-markdown
     - uses: marocchino/sticky-pull-request-comment@v2
+      # if: {% raw %}${{ github.event_name == 'pull_request' && github.event.action == 'unassigned' }}{% endraw %}
       with:
         message: ${{ steps.coverage.outputs.report }}
