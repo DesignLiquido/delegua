@@ -1,5 +1,8 @@
 .idea
 
+package-lock.json
+package.json
+
 *.swp
 
 coverage/
