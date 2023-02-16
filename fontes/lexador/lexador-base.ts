@@ -1,11 +1,11 @@
-import { LexadorInterface, SimboloInterface } from "../interfaces";
-import { RetornoLexador } from "../interfaces/retornos";
-import { ErroLexador } from "./erro-lexador";
-import { Simbolo } from "./simbolo";
+import { LexadorInterface, SimboloInterface } from '../interfaces';
+import { RetornoLexador } from '../interfaces/retornos';
+import { ErroLexador } from './erro-lexador';
+import { Simbolo } from './simbolo';
 
 /**
  * Essa versão do Lexador Base é por padrão com comentários multilinha.
- * Em outras palavras, se o dialeto da linguagem terá comentários multilinha, 
+ * Em outras palavras, se o dialeto da linguagem terá comentários multilinha,
  * este Lexador Base deverá ser usado.
  */
 export abstract class LexadorBase implements LexadorInterface {
