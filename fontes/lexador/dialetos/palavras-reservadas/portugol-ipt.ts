@@ -1,7 +1,7 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 
 export default {
-    escreva: tiposDeSimbolos.ESCREVA,
+    escrever: tiposDeSimbolos.ESCREVER,
     fim: tiposDeSimbolos.FIM,
     inicio: tiposDeSimbolos.INICIO
 };
