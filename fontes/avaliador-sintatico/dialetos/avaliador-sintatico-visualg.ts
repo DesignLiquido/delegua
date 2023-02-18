@@ -411,11 +411,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
     private logicaCasosEscolha(): any {
         const literais = [];
-        let simboloAtualCaso: SimboloInterface = this.avancarEDevolverAnterior();
+        // let simboloAtualCaso: SimboloInterface = this.avancarEDevolverAnterior();
+        let simboloAtualCaso: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
             literais.push(this.primario());
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA);
-            simboloAtualCaso = this.simbolos[this.atual];
+            simboloAtualCaso = this.avancarEDevolverAnterior();
         }
 
         return literais;
@@ -424,17 +425,21 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoEscolha(): Escolha {
         const simboloAtual = this.avancarEDevolverAnterior();
 
+        // Parênteses são opcionais para delimitar o identificador.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
         const identificador = this.primario();
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após variável ou literal de declaração 'caso'.")
 
         // Blocos de caso
         const caminhos = [];
         let simboloAtualBlocoCaso: SimboloInterface = this.avancarEDevolverAnterior();
         while (![tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(simboloAtualBlocoCaso.tipo)) {
             const caminhoCondicoes = this.logicaCasosEscolha();
-            this.consumir(
+            /* this.consumir(
                 tiposDeSimbolos.QUEBRA_LINHA,
                 "Esperado quebra de linha após último valor de declaração 'caso'."
-            );
+            ); */
 
             const declaracoes = [];
             do {
@@ -463,12 +468,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             caminhoPadrao = {
                 declaracoes: declaracoes.filter((d) => d),
             };
+
+            simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
         }
 
-        this.consumir(
-            tiposDeSimbolos.FIM_ESCOLHA,
-            "Esperado palavra-chave 'fimescolha' para fechamento de declaração 'escolha'."
-        );
+        if (simboloAtualBlocoCaso.tipo !== tiposDeSimbolos.FIM_ESCOLHA) {
+            throw this.erro(this.simbolos[this.atual], 
+                "Esperado palavra-chave 'fimescolha' para fechamento de declaração 'escolha'.");
+        }
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimescolha'.");
 
@@ -482,8 +489,19 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
         const argumentos: FormatacaoEscrita[] = [];
 
+        // Sem não houver parâmetros, retorna vetor com literal vazio.
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
+            this.avancarEDevolverAnterior();
+            return [new FormatacaoEscrita(
+                this.hashArquivo, 
+                Number(simboloParenteses.linha), 
+                new Literal(this.hashArquivo, Number(simboloParenteses.linha), ''))
+            ]
+        }
+
         do {
             const valor = this.declaracao();
+
             let espacos = 0;
             let casasDecimais = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
@@ -695,7 +713,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoSe(): Se {
         const simboloSe: SimboloInterface = this.avancarEDevolverAnterior();
 
+        // Parênteses são opcionais para delimitar o identificador.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
         const condicao = this.expressao();
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
 
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
         this.consumir(
