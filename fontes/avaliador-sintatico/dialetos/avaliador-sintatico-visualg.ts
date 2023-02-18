@@ -713,10 +713,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoSe(): Se {
         const simboloSe: SimboloInterface = this.avancarEDevolverAnterior();
 
-        // Parênteses são opcionais para delimitar o identificador.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
         const condicao = this.expressao();
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
 
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
         this.consumir(
