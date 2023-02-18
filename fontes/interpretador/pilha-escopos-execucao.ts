@@ -39,6 +39,19 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha.pop();
     }
 
+    private converterValor(tipo: string, valor: any) {
+        switch (tipo) {
+            case 'texto':
+                return String(valor);
+            case 'número':
+                return Number(valor);
+            case 'lógico':
+                return Boolean(valor);
+            default:
+                return valor;
+        }
+    }
+
     definirVariavel(nomeVariavel: string, valor: any) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
         const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
@@ -68,8 +81,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     variavel.tipo : 
                     inferirTipoVariavel(valor);
 
+                const valorResolvido = this.converterValor(tipo, valor);
                 ambiente.valores[simbolo.lexema] = {
-                    valor,
+                    valor: valorResolvido,
                     tipo
                 };
                 return;

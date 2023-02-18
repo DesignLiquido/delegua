@@ -612,6 +612,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
+        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ? 
+            condicaoEscolha.valor :
+            condicaoEscolha;
+
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
 
@@ -621,7 +625,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const caminho = caminhos[i];
 
                 for (let j = 0; j < caminho.condicoes.length; j++) {
-                    if ((await this.avaliar(caminho.condicoes[j])) === condicaoEscolha) {
+                    const condicaoAvaliada = await this.avaliar(caminho.condicoes[j]);
+                    if (condicaoAvaliada === valorCondicaoEscolha) {
                         encontrado = true;
 
                         try {
