@@ -131,6 +131,50 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('Sucesso - Procedimento', async () => {
+                // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                const respostas = [
+                    2, 3
+                ];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.pop());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "semnome"',
+                    '// Função :',
+                    '// Autor :',
+                    '// Data : 27/02/2014',
+                    '// Seção de Declarações ',
+                    'var',
+                    'a,b:inteiro',
+                    'procedimento mostranumero (a:inteiro;b:inteiro)',
+                    '',
+                    'inicio',
+                    '',
+                    'se a > b entao',
+                    '     escreval ("A variavel escolhida é ",a)',
+                    'senao',
+                    '     escreval ("A variavel escolhida é ",b)',
+                    'fimse',
+                    'fimprocedimento',
+                    '',
+                    'inicio',
+                    'escreval ("Digite dois valores: ")',
+                    'leia (a,b)',
+                    'mostranumero (a,b)',
+                    '',
+                    'fimalgoritmo'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });
