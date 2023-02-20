@@ -4,6 +4,7 @@ package-lock.json
 
 *.swp
 
+.antlr/
 coverage/
 dist/
 docs/
