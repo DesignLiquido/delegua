@@ -155,19 +155,19 @@ export abstract class Python3LexerBase extends Lexer {
     }
 
     onNewLine() {
-        let newLine = super.text.replace(/[^\r\n\f]+/, '');
-        let spaces = super.text.replace(/[\r\n\f]+/, '');
+        let newLine = this.text.replace(/[^\r\n\f]+/, '');
+        let spaces = this.text.replace(/[\r\n\f]+/, '');
 
         // Strip newlines inside open clauses except if we are near EOF. We keep NEWLINEs near EOF to
         // satisfy the final newline needed by the single_put rule used by the REPL.
-        let next = super._input.LA(1);
-        let nextNext = super._input.LA(2);
+        let next = this._input.LA(1);
+        let nextNext = this._input.LA(2);
         if (this.opened > 0 || (nextNext != -1 && (next === '\r'.charCodeAt(0) || next === '\n'.charCodeAt(0) || next === '\f'.charCodeAt(0) || next === '#'.charCodeAt(0)))) {
             // If we're inside a list or on a blank line, ignore all indents,
             // dedents and line breaks.
-            super.skip();
+            this.skip();
         } else {
-            super.emit(this.commonToken(Python3LexerBase.NEWLINE, newLine));
+            this.emit(this.commonToken(Python3LexerBase.NEWLINE, newLine));
             let indent = this.getIndentationCount(spaces);
             let previous = this.indents.length === 0 ? 0 : this.indents[this.indents.length - 1];
 
@@ -175,7 +175,7 @@ export abstract class Python3LexerBase extends Lexer {
                 this.skip();
             } else if (indent > previous) {
                 this.indents.push(indent);
-                super.emit(this.commonToken(Python3LexerBase.INDENT, spaces));
+                this.emit(this.commonToken(Python3LexerBase.INDENT, spaces));
             } else {
                 while (this.indents.length > 0 && this.indents[this.indents.length - 1] > indent) {
                     this.emit(this.createDedent());
@@ -186,7 +186,7 @@ export abstract class Python3LexerBase extends Lexer {
     }
 
     atStartOfInput() {
-        return super.charPositionInLine === 0 && super.line === 1;
+        return this.charPositionInLine === 0 && this.line === 1;
     }
 
     // Overrides
@@ -218,7 +218,7 @@ export abstract class Python3LexerBase extends Lexer {
                 }
 
                 // Put the EOF back on the token stream.
-                this.emit(this.commonToken(Python3LexerBase.EOF, "<EOF>"));
+                this.emit(this.commonToken(Python3LexerBase.EOF, '<EOF>'));
             }
         }
 

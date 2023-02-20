@@ -854,6 +854,19 @@
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Tradutores > Python",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}fontes${pathSeparator}tradutores${pathSeparator}tradutor-python.ts"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
     ]
 }
