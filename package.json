@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.14.4",
+    "version": "0.14.6",
     "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
     "main": "index.js",
     "scripts": {
@@ -63,6 +63,8 @@
         "@types/jest": "^29.4.0",
         "@typescript-eslint/eslint-plugin": "^5.46.1",
         "@typescript-eslint/parser": "^5.46.1",
+        "antlr4": "^4.12.0",
+        "antlr4ts-cli": "^0.5.0-alpha.4",
         "copyfiles": "^2.4.1",
         "eslint": "^8.29.0",
         "eslint-config-prettier": "^8.5.0",
@@ -79,6 +81,7 @@
         "typescript": "^4.9.4"
     },
     "dependencies": {
+        "antlr4ts": "^0.5.0-alpha.4",
         "browser-process-hrtime": "^1.0.0",
         "esprima": "^4.0.1"
     }

@@ -144,6 +144,39 @@ describe('Avaliador sintático (VisuAlg)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
+        it('Sucesso - Procedimento', () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo "semnome"',
+                '// Função :',
+                '// Autor :',
+                '// Data : 27/02/2014',
+                '// Seção de Declarações ',
+                'var',
+                'a,b:inteiro',
+                'procedimento mostranumero (a:inteiro;b:inteiro)',
+                '',
+                'inicio',
+                '',
+                'se a > b entao',
+                '     escreval ("A variavel escolhida é ",a)',
+                'senao',
+                '     escreval ("A variavel escolhida é ",b)',
+                'fimse',
+                'fimprocedimento',
+                '',
+                'inicio',
+                'escreval ("Digite dois valores: ")',
+                'leia (a,b)',
+                'mostranumero (a,b)',
+                '',
+                'fimalgoritmo'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
+        });
+
         it('Sucesso - Repita', () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo "Números de 1 a 10 (com repita)"',
