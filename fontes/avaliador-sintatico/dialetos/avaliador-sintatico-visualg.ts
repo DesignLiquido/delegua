@@ -86,7 +86,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      */
     private validarSegmentoVar(): Construto[] {
         // Podem haver linhas de comentários acima de `var`, que geram
-        // quebras de linha. 
+        // quebras de linha.
         while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
             this.avancarEDevolverAnterior();
         }
@@ -655,7 +655,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             simboloAtualBlocoPara = this.simbolos[this.atual];
         }
 
-        this.consumir(tiposDeSimbolos.FIM_PARA, "");
+        this.consumir(tiposDeSimbolos.FIM_PARA, '');
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'fimpara'.");
 
         const corpo = new Bloco(

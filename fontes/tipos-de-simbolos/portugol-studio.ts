@@ -31,4 +31,6 @@ export default {
     REAL: 'REAL',
     SUBTRACAO: 'SUBTRACAO',
     VIRGULA: 'VIRGULA',
+    SE: 'SE',
+    SENAO: 'SENAO',
 };
