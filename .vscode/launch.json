@@ -413,13 +413,27 @@
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
         {
-            "name": "Testes unitários",
+            "name": "Testes unitários - visualg",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "visualg/interpretador",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - portugol-studio",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "portugol-studio",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],

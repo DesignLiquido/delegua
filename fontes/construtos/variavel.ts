@@ -18,3 +18,4 @@ export class Variavel implements Construto {
         return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
     }
 }
+

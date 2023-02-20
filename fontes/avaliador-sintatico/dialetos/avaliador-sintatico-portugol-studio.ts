@@ -1,13 +1,35 @@
-import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Chamada, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, FuncaoDeclaracao, Expressao, Leia, Var } from "../../declaracoes";
-import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
-import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
+import {
+    AcessoIndiceVariavel,
+    AtribuicaoSobrescrita,
+    Atribuir,
+    Chamada,
+    Construto,
+    FuncaoConstruto,
+    Literal,
+    Variavel,
+} from '../../construtos';
+import {
+    Escreva,
+    Declaracao,
+    Se,
+    Enquanto,
+    Para,
+    Escolha,
+    Fazer,
+    FuncaoDeclaracao,
+    Expressao,
+    Leia,
+    Var,
+    Bloco,
+} from '../../declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
+import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
-import { SimboloInterface } from "../../interfaces";
+import { SimboloInterface } from '../../interfaces';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
-import { RetornoDeclaracao } from "../retornos";
-import { DeleguaFuncao } from "../../estruturas";
+import { RetornoDeclaracao } from '../retornos';
+import { DeleguaFuncao } from '../../estruturas';
 
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -18,18 +40,22 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     private validarEscopoPrograma(declaracoes: Declaracao[]): void {
         this.consumir(tiposDeSimbolos.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
 
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperada chave esquerda após expressão 'programa' para inicializar programa.");
+        this.consumir(
+            tiposDeSimbolos.CHAVE_ESQUERDA,
+            "Esperada chave esquerda após expressão 'programa' para inicializar programa."
+        );
 
         while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
 
         if (this.simbolos[this.atual - 1].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
-            throw this.erro(this.simbolos[this.atual - 1], "Esperado chave direita final para término do programa.");
+            throw this.erro(this.simbolos[this.atual - 1], 'Esperado chave direita final para término do programa.');
         }
 
-        const encontrarDeclaracaoInicio = 
-            declaracoes.filter(d => d instanceof FuncaoDeclaracao && d.simbolo.lexema === 'inicio');
+        const encontrarDeclaracaoInicio = declaracoes.filter(
+            (d) => d instanceof FuncaoDeclaracao && d.simbolo.lexema === 'inicio'
+        );
 
         if (encontrarDeclaracaoInicio.length <= 0) {
             throw this.erro(this.simbolos[0], "Função 'inicio()' para iniciar o programa não foi definida.");
@@ -38,14 +64,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         // A última declaração do programa deve ser uma chamada a inicio()
         const declaracaoInicio = encontrarDeclaracaoInicio[0];
         declaracoes.push(
-            new Expressao(
-                new Chamada(
-                    declaracaoInicio.hashArquivo,
-                    (declaracaoInicio as any).funcao,
-                    null, 
-                    []
-                )
-            )
+            new Expressao(new Chamada(declaracaoInicio.hashArquivo, (declaracaoInicio as any).funcao, null, []))
         );
     }
 
@@ -129,6 +148,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     blocoEscopo(): Declaracao[] {
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' antes do bloco.");
+
         let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
@@ -145,19 +166,26 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoSe(): Se {
-        throw new Error("Método não implementado.");
+        const simboloSe = this.avancarEDevolverAnterior();
+        const expressao = this.expressao();
+        const declaracoes = this.declaracao();
+
+        return; // RETORNA O NEW 'SE'
     }
 
     declaracaoEnquanto(): Enquanto {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoInteiros(): Var[] {
-        const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, "");
+        const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
 
         const inicializacoes = [];
         do {
-            const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado identificador após palavra reservada 'inteiro'.");
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'inteiro'."
+            );
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -184,15 +212,15 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoPara(): Para {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoFazer(): Fazer {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
@@ -232,6 +260,9 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.LEIA:
                 return this.declaracaoLeia();
+            case tiposDeSimbolos.CHAVE_ESQUERDA:
+                const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual];
+                return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
             case tiposDeSimbolos.PROGRAMA:
             case tiposDeSimbolos.CHAVE_DIREITA:
                 this.avancarEDevolverAnterior();
@@ -253,7 +284,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         this.validarEscopoPrograma(declaracoes);
 
         return {
-            declaracoes: declaracoes.filter(d => d),
+            declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
         } as RetornoAvaliadorSintatico;
     }
