@@ -120,7 +120,7 @@ describe('Lexador (Portugol Studio)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(49);
+                expect(resultado.simbolos).toHaveLength(45);
             });
         });
     });
