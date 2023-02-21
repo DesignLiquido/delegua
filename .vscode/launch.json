@@ -413,7 +413,7 @@
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
         {
-            "name": "Testes unitários - visualg",
+            "name": "Testes unitários - VisuAlg",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [
@@ -427,13 +427,13 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários - portugol-studio",
+            "name": "Testes unitários - Portugol Studio",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "portugol-studio",
+                "portugol-studio/avaliador-sintatico",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],

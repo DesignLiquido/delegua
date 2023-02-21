@@ -73,7 +73,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.REAL, tiposDeSimbolos.CADEIA)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.REAL, tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CADEIA)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
@@ -148,7 +148,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     blocoEscopo(): Declaracao[] {
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' antes do bloco.");
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '}' antes do bloco.");
 
         let declaracoes: Array<RetornoDeclaracao> = [];
 
@@ -166,18 +166,55 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoSe(): Se {
-        const simboloSe = this.avancarEDevolverAnterior();
-        const expressao = this.expressao();
-        const declaracoes = this.declaracao();
+        this.consumir(tiposDeSimbolos.SE, "");
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
+        const condicao = this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
 
-        return; // RETORNA O NEW 'SE'
+        const caminhoEntao = this.declaracao();
+
+        let caminhoSenao = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+            caminhoSenao = this.declaracao();
+        }
+
+        return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
     declaracaoEnquanto(): Enquanto {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoInteiros(): Var[] {
+    declaracaoEscolha(): Escolha {
+        throw new Error('Método não implementado.');
+    }
+
+    declaracaoFazer(): Fazer {
+        throw new Error('Método não implementado.');
+    }
+
+    corpoDaFuncao(tipo: string): FuncaoConstruto {
+        // O parêntese esquerdo é considerado o símbolo inicial para
+        // fins de pragma.
+        const parenteseEsquerdo = this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            `Esperado '(' após o nome ${tipo}.`
+        );
+
+        let parametros = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            parametros = this.logicaComumParametros();
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        // this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
+
+        const corpo = this.blocoEscopo();
+
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+    }
+
+    declaracaoInteiro(): Var[] {
         const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
 
         const inicializacoes = [];
@@ -215,33 +252,19 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoEscolha(): Escolha {
-        throw new Error('Método não implementado.');
-    }
+    declaracaoReal(): Var[] {
+        const simboloReal = this.consumir(tiposDeSimbolos.REAL, '');
 
-    declaracaoFazer(): Fazer {
-        throw new Error('Método não implementado.');
-    }
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'real'."
+            );
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloReal.linha), 0)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-    corpoDaFuncao(tipo: string): FuncaoConstruto {
-        // O parêntese esquerdo é considerado o símbolo inicial para
-        // fins de pragma.
-        const parenteseEsquerdo = this.consumir(
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            `Esperado '(' após o nome ${tipo}.`
-        );
-
-        let parametros = [];
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            parametros = this.logicaComumParametros();
-        }
-
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
-
-        const corpo = this.blocoEscopo();
-
-        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+        return inicializacoes;
     }
 
     expressao(): Construto {
@@ -252,21 +275,25 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.CHAVE_ESQUERDA:
+                const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual];
+                return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:
                 return this.funcao('funcao');
             case tiposDeSimbolos.INTEIRO:
-                return this.declaracaoInteiros();
+                return this.declaracaoInteiro();
             case tiposDeSimbolos.LEIA:
-                return this.declaracaoLeia();
-            case tiposDeSimbolos.CHAVE_ESQUERDA:
-                const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual];
-                return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+                return this.declaracaoLeia();            
             case tiposDeSimbolos.PROGRAMA:
             case tiposDeSimbolos.CHAVE_DIREITA:
                 this.avancarEDevolverAnterior();
                 return null;
+            case tiposDeSimbolos.REAL:
+                return this.declaracaoReal();
+            case tiposDeSimbolos.SE:
+                return this.declaracaoSe();
             default:
                 return this.expressao();
         }

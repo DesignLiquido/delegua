@@ -15,7 +15,15 @@ describe('Avaliador sintático (Portugol Studio)', () => {
         describe('Casos de Sucesso', () => {
             it('Sucesso - Olá Mundo', () => {
                 const retornoLexador = lexador.mapear(
-                    ['programa', '{', '    funcao inicio()', '    {', '        escreva("Olá Mundo")', '    }', '}'],
+                    [
+                        'programa', 
+                        '{', 
+                        '    funcao inicio()', 
+                        '    {', 
+                        '        escreva("Olá Mundo")', 
+                        '    }', 
+                        '}'
+                    ],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
@@ -50,7 +58,15 @@ describe('Avaliador sintático (Portugol Studio)', () => {
         describe('Casos de Falha', () => {
             it('Falha - Função `inicio()` não definida', () => {
                 const retornoLexador = lexador.mapear(
-                    ['programa', '{', '    funcao teste()', '    {', '        escreva("Olá Mundo")', '    }', '}'],
+                    [
+                        'programa', 
+                        '{', 
+                        '    funcao teste()', 
+                        '    {', 
+                        '        escreva("Olá Mundo")', 
+                        '    }', 
+                        '}'
+                    ],
                     -1
                 );
 
@@ -74,13 +90,13 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                     '        numeroDois = 20.0',
                     '        soma = numeroUm + numeroDois',
                     '        se (soma > 20)',
-                    '      {',
-                    '        escreva("Numero maior que 20")',
-                    '      }',
-                    // '        senao',
-                    // '      {',
-                    // '        escreva("Numero menor que 20")',
-                    // '      }',
+                    '        {',
+                    '            escreva("Numero maior que 20")',
+                    '        }',
+                    '        senao',
+                    '        {',
+                    '            escreva("Numero menor que 20")',
+                    '        }',
                     '    }',
                     '}',
                 ],
@@ -90,7 +106,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado);
 
             expect(resultado).toBeTruthy();
-            expect(resultado.simbolos).toHaveLength(42);
+            expect(resultado.simbolos).toHaveLength(45);
         });
     });
 });

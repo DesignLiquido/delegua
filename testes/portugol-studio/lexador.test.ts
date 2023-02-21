@@ -32,7 +32,7 @@ describe('Lexador (Portugol Studio)', () => {
                 expect(resultado.simbolos).toHaveLength(9);
             });
 
-            it('Operação matematica - adicao.', () => {
+            it('Operação matematica - adição', () => {
                 const resultado = lexador.mapear([
                     'programa',
                     '{',
@@ -48,7 +48,7 @@ describe('Lexador (Portugol Studio)', () => {
                 expect(resultado.simbolos).toHaveLength(15);
             });
 
-            it('Operação matematica - subtracao.', () => {
+            it('Operação matematica - subtração', () => {
                 const resultado = lexador.mapear([
                     'programa',
                     '{',
@@ -64,7 +64,7 @@ describe('Lexador (Portugol Studio)', () => {
                 expect(resultado.simbolos).toHaveLength(15);
             });
 
-            it('Operação matematica - multiplicacao.', () => {
+            it('Operação matematica - multiplicação', () => {
                 const resultado = lexador.mapear([
                     'programa',
                     '{',
@@ -80,7 +80,7 @@ describe('Lexador (Portugol Studio)', () => {
                 expect(resultado.simbolos).toHaveLength(15);
             });
 
-            it('Operação matematica - divisao.', () => {
+            it('Operação matematica - divisão', () => {
                 const resultado = lexador.mapear([
                     'programa',
                     '{',
@@ -96,7 +96,7 @@ describe('Lexador (Portugol Studio)', () => {
                 expect(resultado.simbolos).toHaveLength(15);
             });
 
-            it('Estrutura condicional - se e senao.', () => {
+            it('Estrutura condicional - se e senão', () => {
                 const resultado = lexador.mapear([
                     'programa',
                     '{',
@@ -108,13 +108,13 @@ describe('Lexador (Portugol Studio)', () => {
                     '        numeroDois = 20.0',
                     '        soma = numeroUm + numeroDois',
                     '        se (soma > 20)',
-                    '      {',
-                    '        escreva("Numero maior que 20")',
-                    '      }',
+                    '        {',
+                    '            escreva("Numero maior que 20")',
+                    '        }',
                     '        senao',
-                    '      {',
-                    '        escreva("Numero menor que 20")',
-                    '      }',
+                    '        {',
+                    '            escreva("Numero menor que 20")',
+                    '        }',
                     '    }',
                     '}'
                 ], -1);
