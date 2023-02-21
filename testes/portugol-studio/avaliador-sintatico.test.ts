@@ -62,7 +62,7 @@ describe.skip('Avaliador sintático (Portugol Studio)', () => {
             });
         });
 
-        it('Estrutura condicional - se e senao.', () => {
+        it.skip('Estrutura condicional - se e senao.', () => {
             const resultado = lexador.mapear(
                 [
                     'programa',

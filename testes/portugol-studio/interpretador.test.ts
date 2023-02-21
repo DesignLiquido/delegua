@@ -2,7 +2,7 @@ import { AvaliadorSintaticoPortugolStudio } from '../../fontes/avaliador-sintati
 import { LexadorPortugolStudio } from '../../fontes/lexador/dialetos';
 import { InterpretadorPortugolStudio } from '../../fontes/interpretador/dialetos';
 
-describe.skip('Interpretador', () => {
+describe.skip('Interpretador (Portugol Studio)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPortugolStudio;
         let avaliadorSintatico: AvaliadorSintaticoPortugolStudio;
@@ -15,7 +15,7 @@ describe.skip('Interpretador', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            it('Trivial', async () => {
+            it.skip('Trivial', async () => {
                 const retornoLexador = lexador.mapear([
                     'programa',
                     '{',
@@ -33,7 +33,7 @@ describe.skip('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it('Sucesso - Leia', async () => {
+            it.skip('Sucesso - Leia', async () => {
                 // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
                 const respostas = [1, 2, 3, 4, 5];
                 interpretador.interfaceEntradaSaida = {
