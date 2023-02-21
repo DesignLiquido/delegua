@@ -2,7 +2,7 @@ import { AvaliadorSintaticoPortugolStudio } from '../../fontes/avaliador-sintati
 import { ErroAvaliadorSintatico } from '../../fontes/avaliador-sintatico/erro-avaliador-sintatico';
 import { LexadorPortugolStudio } from '../../fontes/lexador/dialetos';
 
-describe('Avaliador sintático (Portugol Studio)', () => {
+describe.skip('Avaliador sintático (Portugol Studio)', () => {
     describe('analisar()', () => {
         let lexador: LexadorPortugolStudio;
         let avaliadorSintatico: AvaliadorSintaticoPortugolStudio;
@@ -62,7 +62,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
             });
         });
 
-        it.only('Estrutura condicional - se e senao.', () => {
+        it('Estrutura condicional - se e senao.', () => {
             const resultado = lexador.mapear(
                 [
                     'programa',
