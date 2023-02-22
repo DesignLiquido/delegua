@@ -1,5 +1,3 @@
-import * as sistemaOperacional from 'os';
-
 import { SimboloInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -17,7 +15,14 @@ export class FormatadorDelegua {
         this.blocoAberto = true;
     }
 
-    formatar(simbolos: SimboloInterface[], tamanhoIndentacao: number = 4): string {
+    /**
+     * Devolve código formatado de acordo com os símbolos encontrados.
+     * @param simbolos Um vetor de símbolos.
+     * @param quebraLinha O símbolo de quebra de linha. Normalmente `\r\n` para Windows e `\n` para outros sistemas operacionais.
+     * @param tamanhoIndentacao O tamanho de cada bloco de indentação (por padrão, 4)
+     * @returns Código Delégua formatado.
+     */
+    formatar(simbolos: SimboloInterface[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
         let resultado = '';
         let deveQuebrarLinha: boolean = false;
 
@@ -25,12 +30,12 @@ export class FormatadorDelegua {
             switch (simbolo.tipo) {
                 case tiposDeSimbolos.CHAVE_ESQUERDA:
                     this.indentacao += tamanhoIndentacao;
-                    resultado += '{' + sistemaOperacional.EOL;
+                    resultado += '{' + quebraLinha;
                     resultado += ' '.repeat(this.indentacao);
                     break;
                 case tiposDeSimbolos.CHAVE_DIREITA:
                     this.indentacao -= tamanhoIndentacao;
-                    resultado += sistemaOperacional.EOL + ' '.repeat(this.indentacao) + '}' + sistemaOperacional.EOL;
+                    resultado += quebraLinha + ' '.repeat(this.indentacao) + '}' + quebraLinha;
                     break;
                 case tiposDeSimbolos.ESCREVA:
                     deveQuebrarLinha = true;
@@ -45,7 +50,7 @@ export class FormatadorDelegua {
                 case tiposDeSimbolos.SENÃO:
                 case tiposDeSimbolos.TENTE:
                 case tiposDeSimbolos.VARIAVEL:
-                    resultado += sistemaOperacional.EOL + ' '.repeat(this.indentacao) + simbolo.lexema + ' ';
+                    resultado += quebraLinha + ' '.repeat(this.indentacao) + simbolo.lexema + ' ';
                     break;
                 case tiposDeSimbolos.PARENTESE_ESQUERDO:
                     resultado += '(';
@@ -55,7 +60,7 @@ export class FormatadorDelegua {
                     resultado += ')';
                     if (deveQuebrarLinha) {
                         deveQuebrarLinha = false;
-                        resultado += sistemaOperacional.EOL;
+                        resultado += quebraLinha;
                     } else {
                         resultado += ' ';
                     }
