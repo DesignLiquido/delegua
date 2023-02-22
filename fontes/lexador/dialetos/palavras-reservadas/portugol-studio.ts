@@ -6,6 +6,7 @@ export default {
     inteiro: tiposDeSimbolos.INTEIRO,
     leia: tiposDeSimbolos.LEIA,
     programa: tiposDeSimbolos.PROGRAMA,
+    real: tiposDeSimbolos.REAL,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
 }

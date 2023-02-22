@@ -31,11 +31,13 @@ export class LexadorPortugolStudio extends LexadorBase {
     }
 
     analisarNumero(): void {
+        let real = false;
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
 
         if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
+            real = true;
             this.avancar();
 
             while (this.eDigito(this.simboloAtual())) {
@@ -45,7 +47,9 @@ export class LexadorPortugolStudio extends LexadorBase {
 
         const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
-        this.adicionarSimbolo(tiposDeSimbolos.REAL, parseFloat(numeroCompleto));
+        this.adicionarSimbolo(
+            real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO,
+            parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave(): void {
