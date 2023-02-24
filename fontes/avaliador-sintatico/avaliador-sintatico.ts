@@ -484,11 +484,16 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
 
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
     declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Expressao(expressao);
     }
 
@@ -576,6 +581,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 condicao = this.expressao();
             }
 
+            // Ponto-e-vírgula é opcional aqui.
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
             let incrementar = null;
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 incrementar = this.expressao();
@@ -596,6 +604,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.erro(this.simbolos[this.atual - 1], "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
 
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Sustar(this.simbolos[this.atual]);
     }
 
@@ -604,6 +614,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.erro(this.simbolos[this.atual - 1], "'continua' precisa estar em um laço de repetição.");
         }
 
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Continua(this.simbolos[this.atual]);
     }
 
@@ -628,6 +640,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             valor = this.expressao();
         }
 
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Retorna(simboloChave, valor);
     }
 
@@ -823,6 +837,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             inicializador = this.expressao();
         }
 
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Var(simbolo, inicializador);
     }
 

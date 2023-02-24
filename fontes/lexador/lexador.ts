@@ -394,15 +394,20 @@ export class Lexador implements LexadorInterface {
                 break;
 
             // Esta sessão ignora espaços em branco na tokenização.
-            // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
+            
             case ' ':
             case '\0':
             case '\r':
             case '\t':
-            case ';':
                 this.avancar();
                 break;
 
+            // Ponto-e-vírgula é opcional em Delégua, mas em alguns casos pode ser
+            // necessário. Por exemplo, declaração de `para` sem inicializador.
+            case ';':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
+                this.avancar();
+                break;
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
