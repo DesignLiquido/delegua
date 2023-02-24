@@ -85,7 +85,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
     
-            it.only('Estruturas de repetição - Enquanto', () => {
+            it('Estruturas de repetição - Enquanto', () => {
                 const resultado = lexador.mapear([
                     'programa',
                     '{',
@@ -107,6 +107,23 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                     '}'
                 ], -1);
     
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado);
+    
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
+
+            it('Estruturas de repetição - Para', () => {
+                const resultado = lexador.mapear([
+                    'programa {',
+                    '    funcao inicio() {',
+                    '      para (inteiro i = 1; i <= 10; i++) {',
+                    '        escreva(i)',
+                    '      }',
+                    '    }',
+                    '  }'
+                ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado);
     
                 expect(retornoAvaliadorSintatico).toBeTruthy();

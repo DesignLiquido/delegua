@@ -6,6 +6,7 @@ export default {
     funcao: tiposDeSimbolos.FUNCAO,
     inteiro: tiposDeSimbolos.INTEIRO,
     leia: tiposDeSimbolos.LEIA,
+    para: tiposDeSimbolos.PARA,
     programa: tiposDeSimbolos.PROGRAMA,
     real: tiposDeSimbolos.REAL,
     se: tiposDeSimbolos.SE,

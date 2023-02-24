@@ -148,6 +148,21 @@ describe('Lexador (Portugol Studio)', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(57);
             });
+
+            it('Para', () => {
+                const resultado = lexador.mapear([
+                    'programa {',
+                    '    funcao inicio() {',
+                    '      para (inteiro i = 1; i <= 10; i++) {',
+                    '        escreva(i)',
+                    '      }',
+                    '    }',
+                    '  }'
+                ], -1);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(28);
+            });
         });
     });
 });
