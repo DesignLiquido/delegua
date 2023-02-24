@@ -166,7 +166,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoSe(): Se {
-        this.consumir(tiposDeSimbolos.SE, "");
+        this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
         const condicao = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
@@ -183,12 +183,13 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
     declaracaoEnquanto(): Enquanto {
         try {
+            this.avancarEDevolverAnterior();
             this.blocos += 1;
 
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição.");
-            const corpo = this.resolverDeclaracao();
+            const corpo = this.declaracao();
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -218,7 +219,6 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        // this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
 
@@ -242,7 +242,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                     'Esperado literal inteiro após símbolo de igual em declaração de variável.');
                 valorInicializacao = Number(literalInicializacao.literal);
             }
-            
+
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
