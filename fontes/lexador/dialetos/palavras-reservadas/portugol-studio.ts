@@ -1,6 +1,7 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-studio';
 
 export default {
+    enquanto: tiposDeSimbolos.ENQUANTO,
     escreva: tiposDeSimbolos.ESCREVA,
     funcao: tiposDeSimbolos.FUNCAO,
     inteiro: tiposDeSimbolos.INTEIRO,

@@ -546,7 +546,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condicional.");
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição.");
             const corpo = this.resolverDeclaracao();
 
             return new Enquanto(condicao, corpo);

@@ -32,7 +32,7 @@ import { RetornoDeclaracao } from '../retornos';
 import { DeleguaFuncao } from '../../estruturas';
 
 /**
- * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
@@ -182,7 +182,18 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoEnquanto(): Enquanto {
-        throw new Error('Método não implementado.');
+        try {
+            this.blocos += 1;
+
+            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
+            const condicao = this.expressao();
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição.");
+            const corpo = this.resolverDeclaracao();
+
+            return new Enquanto(condicao, corpo);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     declaracaoEscolha(): Escolha {
@@ -223,7 +234,16 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado identificador após palavra reservada 'inteiro'."
             );
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO, 
+                    'Esperado literal inteiro após símbolo de igual em declaração de variável.');
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+            
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -278,6 +298,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual];
                 return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case tiposDeSimbolos.ENQUANTO:
+                return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:
