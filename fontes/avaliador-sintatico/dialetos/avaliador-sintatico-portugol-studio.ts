@@ -252,6 +252,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 abrangencia: 'padrao'
             };
 
+            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADEIA, tiposDeSimbolos.REAL, tiposDeSimbolos.REAL)) {
+                throw this.erro(this.simbolos[this.atual], 'Esperado tipo de parâmetro válido para declaração de função.');
+            }
+
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
 
             // Em Portugol Studio, um parâmetro múltiplo é terminado por abre e fecha colchetes.
@@ -316,6 +320,13 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                     )
                 );
         }
+    }
+
+    declaracaoExpressao(): Expressao {
+        const expressao = this.expressao();
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        return new Expressao(expressao);
     }
 
     declaracaoInteiros(): Var[] {
