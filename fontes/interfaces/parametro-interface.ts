@@ -1,7 +1,7 @@
 import { SimboloInterface } from './simbolo-interface';
 
 export interface ParametroInterface {
-    tipo: 'estrela' | 'padrao';
+    tipo: 'padrao' | 'multiplo';
     nome: SimboloInterface;
     valorPadrao?: any;
 }

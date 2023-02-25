@@ -1,6 +1,7 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-studio';
 
 export default {
+    cadeia: tiposDeSimbolos.CADEIA,
     enquanto: tiposDeSimbolos.ENQUANTO,
     escreva: tiposDeSimbolos.ESCREVA,
     e: tiposDeSimbolos.E,

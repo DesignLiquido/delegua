@@ -26,7 +26,7 @@ import {
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
-import { SimboloInterface } from '../../interfaces';
+import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from '../retornos';
@@ -240,6 +240,35 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         }
     }
 
+    protected logicaComumParametros(): ParametroInterface[] {
+        const parametros: ParametroInterface[] = [];
+
+        do {
+            if (parametros.length >= 255) {
+                this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
+            }
+
+            const parametro: Partial<ParametroInterface> = {};
+
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
+                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
+                parametro.tipo = 'multiplo';
+            } else {
+                parametro.tipo = 'padrao';
+            }
+
+            parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                parametro.valorPadrao = this.primario();
+            }
+
+            parametros.push(parametro as ParametroInterface);
+
+            if (parametro.tipo === 'multiplo') break;
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        return parametros;
+
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
@@ -383,6 +412,26 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     expressao(): Construto {
         // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
         return this.atribuir();
+    }
+
+    funcao(tipo: string): FuncaoDeclaracao {
+        const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
+
+        // No Portugol Studio, se temos um símbolo de tipo após `função`, 
+        // teremos um retorno no corpo da função.
+        if (
+            [
+                tiposDeSimbolos.REAL, 
+                tiposDeSimbolos.INTEIRO, 
+                tiposDeSimbolos.CADEIA
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            // Por enquanto apenas consumimos o símbolo sem ações adicionais.
+            this.avancarEDevolverAnterior();
+        }
+
+        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+        return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {

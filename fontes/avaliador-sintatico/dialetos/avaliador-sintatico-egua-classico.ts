@@ -763,7 +763,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
                 if (this.simboloAtual().tipo === tiposDeSimbolos.MULTIPLICACAO) {
                     this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                    parametro['tipo'] = 'estrela';
+                    parametro['tipo'] = 'multiplo';
                 } else {
                     parametro['tipo'] = 'padrao';
                 }
@@ -776,7 +776,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
                 parametros.push(parametro);
 
-                if (parametro['tipo'] === 'estrela') break;
+                if (parametro['tipo'] === 'multiplo') break;
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 

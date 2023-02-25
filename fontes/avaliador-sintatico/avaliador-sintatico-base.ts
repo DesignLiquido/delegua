@@ -311,7 +311,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro.tipo = 'estrela';
+                parametro.tipo = 'multiplo';
             } else {
                 parametro.tipo = 'padrao';
             }
@@ -324,7 +324,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
             parametros.push(parametro as ParametroInterface);
 
-            if (parametro.tipo === 'estrela') break;
+            if (parametro.tipo === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }
