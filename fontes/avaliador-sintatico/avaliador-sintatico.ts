@@ -146,6 +146,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 }
 
                 return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
+
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 valores = [];
@@ -163,40 +164,58 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 }
     
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
+
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
+
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
                 return this.corpoDaFuncao(simboloFuncao.lexema);
+
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+                // Se o próximo símbolo é um incremento ou um decremento,
+                // aqui deve retornar um unário correspondente.
+                // Caso contrário, apenas retornar um construto de variável.
+                if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
+                    const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
+                    return new Unario(this.hashArquivo, simboloIncrementoDecremento, simboloIdentificador, 'DEPOIS');
+                }
+
                 return new Variavel(this.hashArquivo, simboloIdentificador);
+
             case tiposDeSimbolos.IMPORTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoImportar();
+
             case tiposDeSimbolos.ISTO:
                 this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, Number(simboloAtual.linha), simboloAtual);
+
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), null);
+
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal);
+
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
                 return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+
             case tiposDeSimbolos.SUPER:
                 const simboloChave = this.avancarEDevolverAnterior();
                 this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
                 const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
                 return new Super(this.hashArquivo, simboloChave, metodo);
+                
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
