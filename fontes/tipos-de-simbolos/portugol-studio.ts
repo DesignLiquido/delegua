@@ -13,6 +13,7 @@ export default {
     E: 'E',
     ENQUANTO: 'ENQUANTO',
     ESCREVA: 'ESCREVA',
+    FACA: 'FACA',
     FUNCAO: 'FUNCAO',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',

@@ -113,6 +113,32 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
 
+            it('Estruturas de repetição - Faca ... Enquanto', () => {
+                const resultado = lexador.mapear([
+                    'programa',
+                    '{',
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro idade',
+                    '        ',
+                    '        faca',
+                    '        {',
+                    '            escreva ("Informe sua idade (valores aceitos de 5 a 150): ")',
+                    '            leia (idade)',
+                    '        }',
+                    '        enquanto (idade < 5 ou idade > 120)',
+                    '        ',
+                    '        escreva ("\nCorreto!\n")',
+                    '    }',
+                    '}'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado);
+    
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
+
             it('Estruturas de repetição - Para', () => {
                 const resultado = lexador.mapear([
                     'programa {',
