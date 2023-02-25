@@ -179,7 +179,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 // Se o próximo símbolo é um incremento ou um decremento,
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
-                if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
+                if (this.simbolos[this.atual] && [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
                         this.hashArquivo, 
