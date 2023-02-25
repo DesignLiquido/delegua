@@ -1,7 +1,7 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
-describe('Avaliador sintático Birl', () => {
+describe('Avaliador Sintático Birl', () => {
     describe('analisar()', () => {
         let lexador: LexadorBirl;
         let avaliadorSintatico: AvaliadorSintaticoBirl;
@@ -11,7 +11,7 @@ describe('Avaliador sintático Birl', () => {
             avaliadorSintatico = new AvaliadorSintaticoBirl();
         });
 
-        it.skip('Sucesso - Hello, World! Porra!', () => {
+        it('Sucesso - Hello, World! Porra!', () => {
             const retornoLexador = lexador.mapear(
                 ['HORA DO SHOW', 'CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', 'BORA CUMPADE 0;', 'BIRL'],
                 -1
@@ -23,9 +23,9 @@ describe('Avaliador sintático Birl', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
-       it.skip('Sucesso - For', () => {
+       it('Sucesso - For', () => {
             //@TODO: @ItaloCobains - Implementar esse teste
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'HORA DO SHOW',
                     'MONSTRO M;',
@@ -36,31 +36,28 @@ describe('Avaliador sintático Birl', () => {
                 ], -1
             )
 
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
             expect(retornoAvaliadorSintatico).toBeTruthy();
             // expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         })
 
-
-
         // TODO: @ItaloCobains - Implementar esse teste
-        it.skip
-            ('Sucesso - Variavel - Atribuição', () => {
-                const retornoLexador = delegua.lexador.mapear(
-                    [
-                        'HORA DO SHOW \n',
-                        '  MONSTRO? M1 = 1; \n',
-                        '  M1 = M1 + 1',
-                        '  CE QUER VER ESSA PORRA? (M1); \n',
-                        '  BORA CUMPADE? 0; \n',
-                        'BIRL \n',
-                    ],
-                    -1
-                );
+        it('Sucesso - Variavel - Atribuição', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'HORA DO SHOW \n',
+                    '  MONSTRO? M1 = 1; \n',
+                    '  M1 = M1 + 1',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE? 0; \n',
+                    'BIRL \n',
+                ],
+                -1
+            );
 
-                const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-            });
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+        });
     });
 });

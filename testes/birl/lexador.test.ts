@@ -39,7 +39,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Ler da tela', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'MONSTRO? X;',
                     'QUE QUE CE QUER MONSTRAO? ("%d", &X);',
@@ -69,7 +69,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Loop - For', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'MONSTRO M;',
                     'MAIS QUERO MAIS (M = 0; M < 5; M++)',
@@ -84,7 +84,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             })
             it('Sucesso - Loop - While', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'MONSTRO X = 5;',
                     'NEGATIVA BAMBAM (X > 2)',
@@ -100,7 +100,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             })
             it('Sucesso - Condição - If', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'ELE QUE A GENTE QUER? (3 > 2)',
                     '   CE QUER VER ESSA PORRA? ("%d", 3);',
@@ -114,7 +114,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             })
             it('Sucesso - Condição - If Else', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'ELE QUE A GENTE QUER? (3 > 2)',
                     '   CE QUER VER ESSA PORRA? ("%d", 3);',
@@ -130,7 +130,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             })
             it('Sucesso - Condição - If Else If', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'ELE QUE A GENTE QUER? (3 > 2)',
                     '   CE QUER VER ESSA PORRA? ("%d", 3);',
@@ -148,7 +148,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Condição - BREAK/CONTINUE', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'MONSTRO M = 0;',
                     'MAIS QUERO MAIS (M = 0; M < 5; M++)',
@@ -165,7 +165,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             })
             it('Sucesso - Declaração de Função', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'OH O HOME AI PO (MONSTRO NOMEFUNC(MONSTRO A, MONSTRO B))',
                     '   CE QUER VER ESSA PORRA? ("%d", A + B);',
@@ -180,7 +180,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             })
             it('Sucesso - Chamada de função', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'HORA DO SHOW \n',
                     'MONSTRO A = 5;',
                     'MONSTRO B = 8;',
@@ -192,7 +192,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - EXEMPLO DESCENDENTE', () => {
-                const resultado = delegua.lexador.mapear([
+                const resultado = lexador.mapear([
                     'OH O HOME AI PO (MONSTRO SOMAR(MONSTRO A, MONSTRO B))',
                     '   BORA CUMPADE A + B;',
                     'BIRL',
