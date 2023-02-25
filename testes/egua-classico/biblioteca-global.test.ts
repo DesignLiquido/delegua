@@ -27,7 +27,7 @@ describe('Biblioteca Global', () => {
     describe('aleatorioEntre()', () => {
         it('Trivial', () => {
             const resultado = funcoes['aleatorioEntre'](2, 10);
-            expect(resultado).toBeGreaterThan(2);
+            expect(resultado).toBeGreaterThanOrEqual(2);
             expect(resultado).toBeLessThan(10);
         });
     });

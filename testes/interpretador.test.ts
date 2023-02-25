@@ -64,7 +64,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.only('Incremento e decremento após variável ou literal', async () => {
+                it('Incremento e decremento após variável ou literal', async () => {
                     const retornoLexador = lexador.mapear([
                         'var a = 1',
                         'escreva(a++)',

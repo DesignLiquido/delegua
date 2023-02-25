@@ -2,7 +2,7 @@ import { AvaliadorSintaticoPortugolStudio } from '../../fontes/avaliador-sintati
 import { LexadorPortugolStudio } from '../../fontes/lexador/dialetos';
 import { InterpretadorPortugolStudio } from '../../fontes/interpretador/dialetos';
 
-describe.skip('Interpretador (Portugol Studio)', () => {
+describe('Interpretador (Portugol Studio)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPortugolStudio;
         let avaliadorSintatico: AvaliadorSintaticoPortugolStudio;
