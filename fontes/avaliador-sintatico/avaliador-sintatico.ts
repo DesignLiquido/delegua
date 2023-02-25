@@ -1011,9 +1011,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro.tipo = 'multiplo';
+                parametro.abrangencia = 'multiplo';
             } else {
-                parametro.tipo = 'padrao';
+                parametro.abrangencia = 'padrao';
             }
 
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
@@ -1024,7 +1024,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             parametros.push(parametro as ParametroInterface);
 
-            if (parametro.tipo === 'multiplo') break;
+            if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }

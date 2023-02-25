@@ -248,16 +248,18 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
             }
 
-            const parametro: Partial<ParametroInterface> = {};
-
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
-                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro.tipo = 'multiplo';
-            } else {
-                parametro.tipo = 'padrao';
-            }
+            const parametro: Partial<ParametroInterface> = {
+                abrangencia: 'padrao'
+            };
 
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+
+            // Em Portugol Studio, um parâmetro múltiplo é terminado por abre e fecha colchetes.
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, 
+                    'Esperado colchete direito após colchete esquerdo ao definir parâmetro múltiplo em função.');
+                parametro.abrangencia = 'multiplo';
+            }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 parametro.valorPadrao = this.primario();
@@ -265,9 +267,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
             parametros.push(parametro as ParametroInterface);
 
-            if (parametro.tipo === 'multiplo') break;
+            if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
+    }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
