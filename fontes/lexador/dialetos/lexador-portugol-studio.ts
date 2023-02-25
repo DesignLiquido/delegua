@@ -101,12 +101,30 @@ export class LexadorPortugolStudio extends LexadorBase {
                 this.avancar();
                 break;
             case '-':
-                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
-                break;
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '-') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                }
             case '+':
-                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '+') {
+                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                }
+
                 break;
 
             /* case '%':
@@ -124,8 +142,21 @@ export class LexadorPortugolStudio extends LexadorBase {
 
                 break; */
             case '*':
-                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                switch (this.simboloAtual()) {
+                    /* case '*':
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                        break; */
+                    case '=':
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                        break;
+                }
                 break;
             /* case '!':
                 this.avancar();
@@ -196,6 +227,10 @@ export class LexadorPortugolStudio extends LexadorBase {
                         break;
                     case '*':
                         this.encontrarFimComentarioAsterisco();
+                        break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.avancar();
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
