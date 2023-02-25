@@ -127,28 +127,14 @@ export class LexadorPortugolStudio extends LexadorBase {
 
                 break;
 
-            /* case '%':
-                this.inicioSimbolo = this.atual;
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 this.avancar();
-                switch (this.simboloAtual()) {
-                    case '=':
-                        this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MODULO_IGUAL);
-                        break;
-                    default:
-                        this.adicionarSimbolo(tiposDeSimbolos.MODULO);
-                        break;
-                }
-
-                break; */
+                break;
             case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 switch (this.simboloAtual()) {
-                    /* case '*':
-                        this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
-                        break; */
                     case '=':
                         this.avancar();
                         this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
@@ -158,7 +144,7 @@ export class LexadorPortugolStudio extends LexadorBase {
                         break;
                 }
                 break;
-            /* case '!':
+            case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
@@ -167,7 +153,7 @@ export class LexadorPortugolStudio extends LexadorBase {
                     this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
                 }
 
-                break; */
+                break;
             case '=':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
