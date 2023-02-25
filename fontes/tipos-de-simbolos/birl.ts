@@ -45,15 +45,12 @@ export default {
     VER: 'VER',
 
     // Símbolos de propósito geral
+    IGUAL: 'IGUAL',
     PARENTESE_DIREITO: 'PARENTESE_DIREITO',
     PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
-    IGUAL: 'IGUAL',
-    IGUAL_IGUAL: 'IGUAL_IGUAL',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
     QUEBRA_LINHA: 'QUEBRA_LINHA',
     INTERROGACAO: 'INTERROGACAO',
-    MENOR_QUE: 'MENOR_QUE',
-    MAIOR_QUE: "MAIOR_QUE",
     VIRGULA: 'VIRGULA',
 
     // Operações matemáticas
@@ -63,6 +60,14 @@ export default {
     DIVISAO: 'DIVISAO',
     MODULO: 'MODULO',
 
+    // Comparadores
+    IGUAL_IGUAL: 'IGUAL_IGUAL',
+    MAIOR: 'MAIOR',
+    MAIOR_IGUAL: 'MAIOR_IGUAL',
+    MENOR: 'MENOR',
+    MENOR_IGUAL: 'MENOR_IGUAL',
+
+    // Tipos de dados
     TEXTO: 'TEXTO',
     NUMERO: 'NUMERO',
     IDENTIFICADOR: 'IDENTIFICADOR',

@@ -82,13 +82,24 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA, ',', null);
                 this.avancar();
                 break;
-            case '>':
-                this.adicionarSimbolo(tiposDeSimbolos.MAIOR_QUE, '>', null);
-                this.avancar();
-                break;
             case '<':
-                this.adicionarSimbolo(tiposDeSimbolos.MENOR_QUE, '<', null);
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+                break;
+
+            case '>':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
+                }
                 break;
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '(', null);
@@ -150,10 +161,12 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO, '?', null);
                 this.avancar();
                 break;
+            
             case '\0':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
                 this.avancar();
+                this.linha++;
                 break;
             case ' ':
             case '\r':

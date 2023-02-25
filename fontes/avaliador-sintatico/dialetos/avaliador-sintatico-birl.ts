@@ -1,5 +1,5 @@
 import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoSobrescrita, Atribuir, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from '../../construtos';
-import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se, Retorna, Leia } from '../../declaracoes';
+import { Escreva, Declaracao, Enquanto, Para, Escolha, Fazer, Se, Retorna, Leia, Var, Expressao } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
@@ -28,11 +28,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.POSITIVO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
-        /* if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
         ) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        } */
+        }
 
         if (this.verificarSeSimboloAtualEIgualA(
             tiposDeSimbolos.NUMERO,
@@ -105,12 +105,37 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return new Enquanto(codicao, declaracoes);
     }
 
+    declaracaoExpressao(): Expressao {
+        const expressao = this.expressao();
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após expressão.");
+        return new Expressao(expressao);
+    }
+
     declaracaoPara(): Para {
         const simboloPara: SimboloInterface = this.consumir(tiposDeSimbolos.MAIS, 'Esperado expressão `MAIS` para iniciar o bloco `PARA`.');
         this.consumir(tiposDeSimbolos.QUERO, 'Esperado expressão `QUERO` após `MAIS` para iniciar o bloco `PARA`.');
         this.consumir(tiposDeSimbolos.MAIS, 'Esperado expressão `MAIS` após `QUERO` para iniciar o bloco `PARA`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.');
-        const condicao = this.expressao();
+        
+        let inicializador: Var | Expressao;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+            inicializador = null;
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MONSTRO)) {
+            inicializador = this.declaracaoDeVariavel();
+        } else {
+            inicializador = this.declaracaoExpressao();
+        }
+
+        let condicao = null;
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+            condicao = this.expressao();
+        }
+
+        let incrementar = null;
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            incrementar = this.expressao();
+        }
+
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição para iniciar o bloco `PARA`.');
 
         const declaracao = [];
@@ -121,7 +146,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `PARA`.');
 
-        return new Para(0, 0, 0, 0, 0, 0);
+        return new Para(this.hashArquivo, simboloPara.linha, 0, 0, 0, 0);
     }
 
     declaracaoEscolha(): Escolha {
@@ -148,10 +173,35 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
+    declaracaoInteiros(): Var[] {
+        const simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
+
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'MONSTRO'."
+            );
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(tiposDeSimbolos.NUMERO, 
+                    'Esperado literal de MONSTRO após símbolo de igual em declaração de variável.');
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
+    }
+
     declaracaoRetorna(): Retorna {
         const primeiroSimbolo = this.consumir(tiposDeSimbolos.BORA, 'Esperado expressão `BORA` para retornar valor.');
         this.consumir(tiposDeSimbolos.CUMPADE, 'Esperado expressão `CUMPADE` após `BORA` para retornar valor.');
-        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
+        // this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
 
         const valor = this.declaracao();
 
@@ -182,8 +232,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-
-
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -197,6 +245,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             // Retornar uma declaração de WHILE
             case tiposDeSimbolos.MAIS:
                 return this.declaracaoPara();
+            // Declaração de inteiros
+            case tiposDeSimbolos.MONSTRO:
+                return this.declaracaoInteiros();
             case tiposDeSimbolos.VAMO:
             // Retornar uma declaração de continue
             case tiposDeSimbolos.SAI:
