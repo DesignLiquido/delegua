@@ -537,7 +537,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirConstrutoUnario(unario: Unario): string {
         let resultado = '';
         resultado += this.traduzirSimboloOperador(unario.operador);
-        resultado += unario.direita.valor ?? unario.direita.simbolo.lexema;
+        resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
         return resultado;
     }
 

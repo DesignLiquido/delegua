@@ -181,7 +181,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 // Caso contrário, apenas retornar um construto de variável.
                 if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
-                    return new Unario(this.hashArquivo, simboloIncrementoDecremento, simboloIdentificador, 'DEPOIS');
+                    return new Unario(
+                        this.hashArquivo, 
+                        simboloIncrementoDecremento, 
+                        new Variavel(this.hashArquivo, simboloIdentificador), 
+                        'DEPOIS'
+                    );
                 }
 
                 return new Variavel(this.hashArquivo, simboloIdentificador);
@@ -215,7 +220,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
                 const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
                 return new Super(this.hashArquivo, simboloChave, metodo);
-                
+
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
@@ -348,7 +353,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.BIT_NOT
+                tiposDeSimbolos.BIT_NOT,
+                tiposDeSimbolos.INCREMENTAR,
+                tiposDeSimbolos.DECREMENTAR
             )
         ) {
             const operador = this.simbolos[this.atual - 1];

@@ -63,6 +63,24 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it.only('Incremento e decremento após variável ou literal', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var a = 1',
+                        'escreva(a++)',
+                        'escreva(a--)',
+                        'escreva(++a)',
+                        'escreva(--a)',
+                        'escreva(++5)',
+                        'escreva(--5)'
+                    ], -1);
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Acesso a variáveis e objetos', () => {
