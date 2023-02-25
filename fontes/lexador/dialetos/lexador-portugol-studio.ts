@@ -10,9 +10,13 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
+ * 
+ * O Lexador de Portugol Studio possui algumas particularidades:
+ * - Aspas simples são para caracteres individuais, e aspas duplas para cadeias de caracteres.
+ * - Literais de vetores usam chaves, e não colchetes.
  */
 export class LexadorPortugolStudio extends LexadorBase {
-    analisarTexto(delimitador: string): void {
+    protected logicaComumCaracteres(delimitador: string) {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
@@ -27,6 +31,16 @@ export class LexadorPortugolStudio extends LexadorBase {
         }
 
         const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        return valor;
+    }
+
+    analisarCaracter() {
+        const valor = this.logicaComumCaracteres("'");
+        this.adicionarSimbolo(tiposDeSimbolos.CARACTER, valor);
+    }
+
+    analisarTexto(): void {
+        const valor = this.logicaComumCaracteres('"');
         this.adicionarSimbolo(tiposDeSimbolos.CADEIA, valor);
     }
 
@@ -101,33 +115,50 @@ export class LexadorPortugolStudio extends LexadorBase {
                 this.avancar();
                 break;
             case '-':
-                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
-                break;
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '-') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                }
             case '+':
-                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '+') {
+                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                }
+
                 break;
 
-            /* case '%':
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.avancar();
+                break;
+            case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 switch (this.simboloAtual()) {
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MODULO_IGUAL);
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
                         break;
                     default:
-                        this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                         break;
                 }
-
-                break; */
-            case '*':
-                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                this.avancar();
                 break;
-            /* case '!':
+            case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
@@ -136,7 +167,7 @@ export class LexadorPortugolStudio extends LexadorBase {
                     this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
                 }
 
-                break; */
+                break;
             case '=':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
@@ -197,6 +228,10 @@ export class LexadorPortugolStudio extends LexadorBase {
                     case '*':
                         this.encontrarFimComentarioAsterisco();
                         break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.avancar();
+                        break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                         break;
@@ -216,13 +251,13 @@ export class LexadorPortugolStudio extends LexadorBase {
 
             case '"':
                 this.avancar();
-                this.analisarTexto('"');
+                this.analisarTexto();
                 this.avancar();
                 break;
 
             case "'":
                 this.avancar();
-                this.analisarTexto("'");
+                this.analisarCaracter();
                 this.avancar();
                 break;
 

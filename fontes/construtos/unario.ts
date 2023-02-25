@@ -6,14 +6,21 @@ export class Unario implements Construto {
     hashArquivo?: number;
 
     operador: SimboloInterface;
-    direita: any;
+    operando: any;
+    incidenciaOperador: 'ANTES' | 'DEPOIS';
 
-    constructor(hashArquivo: number, operador: SimboloInterface, direita: any) {
+    constructor(
+        hashArquivo: number, 
+        operador: SimboloInterface, 
+        operando: any, 
+        incidenciaOperador: 'ANTES' | 'DEPOIS' = 'ANTES'
+    ) {
         this.linha = operador.linha;
         this.hashArquivo = hashArquivo;
 
         this.operador = operador;
-        this.direita = direita;
+        this.operando = operando;
+        this.incidenciaOperador = incidenciaOperador;
     }
 
     async aceitar(visitante: InterpretadorInterface): Promise<any> {

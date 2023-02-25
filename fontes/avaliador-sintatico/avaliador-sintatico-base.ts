@@ -111,7 +111,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
-            return new Unario(this.hashArquivo, operador, direito);
+            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
         }
 
         return this.chamar();
@@ -311,9 +311,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro.tipo = 'estrela';
+                parametro.abrangencia = 'multiplo';
             } else {
-                parametro.tipo = 'padrao';
+                parametro.abrangencia = 'padrao';
             }
 
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
@@ -324,7 +324,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
             parametros.push(parametro as ParametroInterface);
 
-            if (parametro.tipo === 'estrela') break;
+            if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }

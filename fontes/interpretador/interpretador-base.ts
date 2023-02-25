@@ -204,8 +204,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
-        const direita = await this.avaliar(expressao.direita);
-        const valor: any = direita.hasOwnProperty('valor') ? direita.valor : direita;
+        const operando = await this.avaliar(expressao.operando);
+        let valor: any = operando.hasOwnProperty('valor') ? operando.valor : operando;
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
@@ -215,6 +215,36 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
                 return ~valor;
+            // Para incrementar e decrementar, primeiro precisamos saber se o operador
+            // veio antes do literal ou variável.
+            // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
+            // armazenar o valor da variável pra só então devolver o valor.
+            case tiposDeSimbolos.INCREMENTAR:
+                if (expressao.incidenciaOperador === 'ANTES') {
+                    valor++;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                    }
+                    
+                    return valor;
+                } 
+                
+                const valorAnteriorIncremento = valor;
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
+                return valorAnteriorIncremento;
+            case tiposDeSimbolos.DECREMENTAR:
+                if (expressao.incidenciaOperador === 'ANTES') {
+                    valor--;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                    }
+
+                    return valor;
+                } 
+                
+                const valorAnteriorDecremento = valor;
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
+                return valorAnteriorDecremento;
         }
 
         return null;
@@ -448,7 +478,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     argumentos.push(null);
                 }
             } else {
-                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].tipo === 'estrela') {
+                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
                     const novosArgumentos = argumentos.slice(0, parametros.length - 1);
                     novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
                     argumentos = novosArgumentos;

@@ -22,7 +22,7 @@ describe('Lexador', () => {
                 const resultado = lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(21);
             });
 
             it('Sucesso - Olá mundo', () => {

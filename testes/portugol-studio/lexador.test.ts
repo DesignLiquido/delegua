@@ -61,7 +61,7 @@ describe('Lexador (Portugol Studio)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(15);
+                expect(resultado.simbolos).toHaveLength(16);
             });
 
             it('Operação matematica - multiplicação', () => {
@@ -121,6 +121,47 @@ describe('Lexador (Portugol Studio)', () => {
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(45);
+            });
+
+            it('Enquanto', () => {
+                const resultado = lexador.mapear([
+                    'programa',
+                    '{',
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro numero, atual = 1, fatorial = 1',
+                    '        ',
+                    '        escreva("Digite um numero: ")',
+                    '        leia(numero)',
+                    '        ',
+                    '        enquanto (atual <= numero)',
+                    '        {',
+                    '            fatorial = fatorial * atual',
+                    '            atual = atual + 1',
+                    '        }',
+                    '        ',
+                    '        escreva("O fatorial de ", numero, " é: ", fatorial, "\n")',
+                    '    }',
+                    '}'
+                ], -1);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(57);
+            });
+
+            it('Para', () => {
+                const resultado = lexador.mapear([
+                    'programa {',
+                    '    funcao inicio() {',
+                    '      para (inteiro i = 1; i <= 10; i++) {',
+                    '        escreva(i)',
+                    '      }',
+                    '    }',
+                    '  }'
+                ], -1);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(27);
             });
         });
     });

@@ -744,7 +744,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 const dadosParametros = this.logicaComumParametroVisuAlg();
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
-                        tipo: 'padrao',
+                        abrangencia: 'padrao',
                         nome: parametro
                     });
                 }
