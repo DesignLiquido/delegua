@@ -6,6 +6,7 @@ import {
     Construto,
     FuncaoConstruto,
     Literal,
+    Unario,
     Variavel,
 } from '../../construtos';
 import {
@@ -69,13 +70,28 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
-            return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        }
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+                // Se o próximo símbolo é um incremento ou um decremento,
+                // aqui deve retornar um unário correspondente.
+                // Caso contrário, apenas retornar um construto de variável.
+                if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
+                    const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
+                    return new Unario(
+                        this.hashArquivo, 
+                        simboloIncrementoDecremento, 
+                        new Variavel(this.hashArquivo, simboloIdentificador), 
+                        'DEPOIS'
+                    );
+                }
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.REAL, tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CADEIA)) {
-            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+                return new Variavel(this.hashArquivo, simboloIdentificador);
+            case tiposDeSimbolos.CADEIA:
+            case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.REAL:
+                const simboloVariavel: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloVariavel.linha), simboloVariavel.literal);
         }
     }
 
@@ -201,8 +217,27 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
+    /**
+     * No Portugol Studio, a palavra reservada é `faca`, sem acento.
+     */
     declaracaoFazer(): Fazer {
-        throw new Error('Método não implementado.');
+        const simboloFaca: SimboloInterface = this.avancarEDevolverAnterior();
+        try {
+            this.blocos += 1;
+
+            const caminhoFazer = this.declaracao();
+
+            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
+            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
+
+            const condicaoEnquanto = this.expressao();
+
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração do 'enquanto'.");
+
+            return new Fazer(simboloFaca.hashArquivo, Number(simboloFaca.linha), caminhoFazer, condicaoEnquanto);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
@@ -360,6 +395,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.FACA:
+                return this.declaracaoFazer();
             case tiposDeSimbolos.FUNCAO:
                 return this.funcao('funcao');
             case tiposDeSimbolos.INTEIRO:
