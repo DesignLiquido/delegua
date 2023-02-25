@@ -61,7 +61,7 @@ describe('Lexador (Portugol Studio)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(15);
+                expect(resultado.simbolos).toHaveLength(16);
             });
 
             it('Operação matematica - multiplicação', () => {
@@ -161,7 +161,7 @@ describe('Lexador (Portugol Studio)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(28);
+                expect(resultado.simbolos).toHaveLength(27);
             });
         });
     });

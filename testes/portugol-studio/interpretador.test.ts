@@ -15,7 +15,7 @@ describe.skip('Interpretador (Portugol Studio)', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            it.skip('Trivial', async () => {
+            it('Trivial', async () => {
                 const retornoLexador = lexador.mapear([
                     'programa',
                     '{',
@@ -33,7 +33,7 @@ describe.skip('Interpretador (Portugol Studio)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Sucesso - Leia', async () => {
+            it('Sucesso - Leia', async () => {
                 // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
                 const respostas = [1, 2, 3, 4, 5];
                 interpretador.interfaceEntradaSaida = {

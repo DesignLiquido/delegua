@@ -45,11 +45,13 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
             });
 
-            it.only('Sucesso - Incremento e decremento após variável ou literal', () => {
+            it('Sucesso - Incremento e decremento após variável ou literal', () => {
                 const retornoLexador = lexador.mapear([
                     'var a = 1',
                     'a++',
-                    'a--'
+                    'a--',
+                    '++5',
+                    '--5'
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
