@@ -88,6 +88,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
                 return new Variavel(this.hashArquivo, simboloIdentificador);
             case tiposDeSimbolos.CADEIA:
+            case tiposDeSimbolos.CARACTER:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.REAL:
                 const simboloVariavel: SimboloInterface = this.avancarEDevolverAnterior();
@@ -322,6 +323,54 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         }
     }
 
+    declaracaoCadeiasCaracteres(): Var[] {
+        const simboloCadeia = this.consumir(tiposDeSimbolos.CADEIA, '');
+
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'cadeia'."
+            );
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(tiposDeSimbolos.CADEIA, 
+                    'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.');
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloCadeia.linha), 0)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
+    }
+
+    declaracaoCaracteres(): Var[] {
+        const simboloCaracter = this.consumir(tiposDeSimbolos.CARACTER, '');
+
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'caracter'."
+            );
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(tiposDeSimbolos.CARACTER, 
+                    'Esperado literal de caracter após símbolo de igual em declaração de variável.');
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaracter.linha), 0)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
+    }
+
     declaracaoExpressao(): Expressao {
         const expressao = this.expressao();
         // Ponto-e-vírgula é opcional aqui.
@@ -372,6 +421,32 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
 
+    declaracaoLogicos(): Var[] {
+        const simboloLogico = this.consumir(tiposDeSimbolos.LOGICO, '');
+
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'logico'."
+            );
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                if (![tiposDeSimbolos.VERDADEIRO, tiposDeSimbolos.FALSO].includes(this.simbolos[this.atual].tipo)) {
+                    throw this.erro(this.simbolos[this.atual], 'Esperado literal verdadeiro ou falso após símbolo de igual em declaração de variável.');
+                }
+                const literalInicializacao = this.avancarEDevolverAnterior();
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloLogico.linha), 0)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
+    }
+
     declaracaoPara(): Para {
         try {
             const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
@@ -408,7 +483,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         }
     }
 
-    declaracaoReal(): Var[] {
+    declaracaoReais(): Var[] {
         const simboloReal = this.consumir(tiposDeSimbolos.REAL, '');
 
         const inicializacoes = [];
@@ -417,6 +492,15 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado identificador após palavra reservada 'real'."
             );
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(tiposDeSimbolos.REAL, 
+                    'Esperado literal real após símbolo de igual em declaração de variável.');
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloReal.linha), 0)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -437,7 +521,9 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             [
                 tiposDeSimbolos.REAL, 
                 tiposDeSimbolos.INTEIRO, 
-                tiposDeSimbolos.CADEIA
+                tiposDeSimbolos.CADEIA,
+                tiposDeSimbolos.CARACTER,
+                tiposDeSimbolos.LOGICO
             ].includes(this.simbolos[this.atual].tipo)
         ) {
             // Por enquanto apenas consumimos o símbolo sem ações adicionais.
@@ -451,6 +537,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.CADEIA:
+                return this.declaracaoCadeiasCaracteres();
+            case tiposDeSimbolos.CARACTER:
+                return this.declaracaoCaracteres();
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual];
                 return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
@@ -466,6 +556,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.LEIA:
                 return this.declaracaoLeia();
+            case tiposDeSimbolos.LOGICO:
+                return this.declaracaoLogicos();
             case tiposDeSimbolos.PARA:
                 return this.declaracaoPara();        
             case tiposDeSimbolos.PROGRAMA:
@@ -473,7 +565,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 this.avancarEDevolverAnterior();
                 return null;
             case tiposDeSimbolos.REAL:
-                return this.declaracaoReal();
+                return this.declaracaoReais();
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
             default:

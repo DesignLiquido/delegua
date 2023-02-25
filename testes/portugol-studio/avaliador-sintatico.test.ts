@@ -32,6 +32,32 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
             });
 
+            it('Sucesso - Estruturas de dados', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'programa',
+                        '{',
+                        '    inteiro variavel',
+                        '    ',
+                        '    funcao inicio()',
+                        '    {',
+                        '        inteiro outra_variavel',
+                        '        real altura = 1.79',
+                        '        cadeia frase = "Isso é uma variável do tipo cadeia"',
+                        '        caracter inicial = \'P\'',  
+                        '        logico exemplo = verdadeiro',
+                        '        escreva(altura)',
+                        '    }',
+                        '}'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
+
             it('Sucesso - Leia', () => {
                 const retornoLexador = lexador.mapear(
                     [

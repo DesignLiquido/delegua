@@ -10,9 +10,13 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
+ * 
+ * O Lexador de Portugol Studio possui algumas particularidades:
+ * - Aspas simples são para caracteres individuais, e aspas duplas para cadeias de caracteres.
+ * - Literais de vetores usam chaves, e não colchetes.
  */
 export class LexadorPortugolStudio extends LexadorBase {
-    analisarTexto(delimitador: string): void {
+    protected logicaComumCaracteres(delimitador: string) {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
@@ -27,6 +31,16 @@ export class LexadorPortugolStudio extends LexadorBase {
         }
 
         const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        return valor;
+    }
+
+    analisarCaracter() {
+        const valor = this.logicaComumCaracteres("'");
+        this.adicionarSimbolo(tiposDeSimbolos.CARACTER, valor);
+    }
+
+    analisarTexto(): void {
+        const valor = this.logicaComumCaracteres('"');
         this.adicionarSimbolo(tiposDeSimbolos.CADEIA, valor);
     }
 
@@ -237,13 +251,13 @@ export class LexadorPortugolStudio extends LexadorBase {
 
             case '"':
                 this.avancar();
-                this.analisarTexto('"');
+                this.analisarTexto();
                 this.avancar();
                 break;
 
             case "'":
                 this.avancar();
-                this.analisarTexto("'");
+                this.analisarCaracter();
                 this.avancar();
                 break;
 
