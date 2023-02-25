@@ -111,7 +111,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
-            return new Unario(this.hashArquivo, operador, direito);
+            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
         }
 
         return this.chamar();
