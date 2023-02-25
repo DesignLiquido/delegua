@@ -1,28 +1,31 @@
-import { Delegua } from "../../fontes/delegua";
+import { LexadorVisuAlg } from '../../fontes/lexador/dialetos';
+import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
 
 describe('Avaliador sintático (VisuAlg)', () => {
     describe('analisar()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorVisuAlg;
+        let avaliadorSintatico: AvaliadorSintaticoVisuAlg;
 
         beforeEach(() => {
-            delegua = new Delegua('visualg');
+            lexador = new LexadorVisuAlg();
+            avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
         });
 
         it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'algoritmo "olá-mundo"',
                 'inicio',
                 'escreva("Olá mundo")',
                 'fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
         it('Sucesso - Enquanto', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'algoritmo "Números de 1 a 10 (com enquanto...faca)"',
                 'var j: inteiro',
                 'inicio',
@@ -33,14 +36,14 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 'fimenquanto',
                 'fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
         it('Sucesso - Escolha', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'algoritmo "Times"',
                 'var time: caractere',
                 'inicio',
@@ -56,13 +59,13 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 'fimescolha',
                 'fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
         });
 
         it('Sucesso - Função', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'Algoritmo "exemplo-funcoes"',
                 'Var',
                 '   n: inteiro',
@@ -81,14 +84,14 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 '   escreva(res)',
                 'Fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(8);
         });
 
         it('Sucesso - Interrompa', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'algoritmo "Números de 1 a 10 (com interrompa)"',
                 'var x: inteiro',
                 'inicio',
@@ -102,14 +105,31 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 'ate falso',
                 'fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
+        it('Sucesso - Leia', () => {
+            const retornoLexador = lexador.mapear([
+                'Algoritmo "Soma 5"',
+                'Var',
+                '   n1, n2, n3, n4, n5: inteiro',
+                'Inicio',
+                '      leia(n1, n2, n3, n4, n5)',
+                '      escreva(n1 + n2 + n3 + n4 + n5)',
+                'Fimalgoritmo'
+            ], -1);
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+        });
+
         it('Sucesso - Para', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'algoritmo "Numeros de 1 a 10"',
                 'var j: inteiro',
                 'inicio',
@@ -118,14 +138,47 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 '    fimpara',
                 'fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
+        it('Sucesso - Procedimento', () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo "semnome"',
+                '// Função :',
+                '// Autor :',
+                '// Data : 27/02/2014',
+                '// Seção de Declarações ',
+                'var',
+                'a,b:inteiro',
+                'procedimento mostranumero (a:inteiro;b:inteiro)',
+                '',
+                'inicio',
+                '',
+                'se a > b entao',
+                '     escreval ("A variavel escolhida é ",a)',
+                'senao',
+                '     escreval ("A variavel escolhida é ",b)',
+                'fimse',
+                'fimprocedimento',
+                '',
+                'inicio',
+                'escreval ("Digite dois valores: ")',
+                'leia (a,b)',
+                'mostranumero (a,b)',
+                '',
+                'fimalgoritmo'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
+        });
+
         it('Sucesso - Repita', () => {
-            const retornoLexador = delegua.lexador.mapear([
+            const retornoLexador = lexador.mapear([
                 'algoritmo "Números de 1 a 10 (com repita)"',
                 'var j: inteiro',
                 'inicio',
@@ -136,7 +189,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 'ate j > 10',
                 'fimalgoritmo'
             ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);

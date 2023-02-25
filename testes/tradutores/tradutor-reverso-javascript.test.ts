@@ -1,16 +1,9 @@
 import { TradutorReversoJavaScript } from '../../fontes/tradutores/tradutor-reverso-javascript';
-import { Delegua } from '../../fontes/delegua';
 
 describe('Tradutor Reverso JavaScript -> Delégua', () => {
     const tradutor: TradutorReversoJavaScript = new TradutorReversoJavaScript();
 
     describe('Código', () => {
-        let delegua: Delegua;
-
-        beforeEach(() => {
-            delegua = new Delegua('delegua');
-        });
-
         it('comparacao de valores -> igualdade', () => {
             const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;
 

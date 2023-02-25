@@ -42,7 +42,7 @@
 
 ## Introdução
 
-Delégua é uma linguagem de programação cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.tech), usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
+Delégua é uma linguagem de programação baseada na língua portuguesa, cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.tech), usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
 
 Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
 
@@ -53,6 +53,8 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Grátis.** Sem planos, sem limitações e sem propaganda.
 - **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir.
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
+- **Modular.** Escreva múltiplos fontes e os reuse em seu código.
+- **Orientada a Objetos.** Classes, objetos e herança são implementados em Delégua e EguaP.
 - **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br) e [Portugol Studio](http://lite.acad.univali.br/portugol/).
 - **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha
 - **Portável.** Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.

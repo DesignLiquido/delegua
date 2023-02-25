@@ -118,11 +118,19 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     exponenciacao(): Construto {
-        throw new Error('Método não implementado.');
+        let expressao = this.unario();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
     }
 
     multiplicar(): Construto {
-        let expressao = this.unario();
+        let expressao = this.exponenciacao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(

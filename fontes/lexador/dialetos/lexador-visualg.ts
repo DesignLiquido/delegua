@@ -152,6 +152,10 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 this.avancar();
                 break;
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                this.avancar();
+                break;
             case '/':
                 this.avancar();
                 switch (this.simboloAtual()) {

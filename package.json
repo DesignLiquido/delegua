@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.13.2",
+    "version": "0.14.7",
     "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
     "main": "index.js",
     "scripts": {
@@ -9,9 +9,8 @@
         "lair": "ts-node execucao.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
-        "testes:servidor-depuracao": "ts-node ./fontes/depuracao/servidor-depuracao.ts",
         "testes-unitarios": "jest --coverage",
-        "testes-unitarios:insignias": "jest-coverage-badges --output './recursos/imagens'",
+        "testes-unitarios:insignias": "jest-coverage-badges --output ./recursos/imagens",
         "observar-testes-unitarios": "jest --watchAll",
         "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",
@@ -62,9 +61,10 @@
         "@types/esprima": "^4.0.3",
         "@types/estree": "^1.0.0",
         "@types/jest": "^29.4.0",
-        "@types/node": "^18.11.13",
         "@typescript-eslint/eslint-plugin": "^5.46.1",
         "@typescript-eslint/parser": "^5.46.1",
+        "antlr4": "^4.12.0",
+        "antlr4ts-cli": "^0.5.0-alpha.4",
         "copyfiles": "^2.4.1",
         "eslint": "^8.29.0",
         "eslint-config-prettier": "^8.5.0",
@@ -81,6 +81,7 @@
         "typescript": "^4.9.4"
     },
     "dependencies": {
+        "antlr4ts": "^0.5.0-alpha.4",
         "browser-process-hrtime": "^1.0.0",
         "esprima": "^4.0.1"
     }

@@ -1,8 +1,4 @@
-import * as caminho from 'path';
-import * as sistemaArquivos from 'fs';
-
 import { EspacoVariaveis } from '../../../espaco-variaveis';
-import { Delegua } from '../../../delegua';
 
 import { Chamavel } from '../../../estruturas/chamavel';
 import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
@@ -58,7 +54,6 @@ import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
  * e de fato executa a lógica de programação descrita no código.
  */
 export class InterpretadorEguaClassico implements InterpretadorInterface {
-    Delegua: Delegua;
     resolvedor: ResolvedorInterface;
 
     diretorioBase: any;
@@ -68,8 +63,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     pilhaEscoposExecucao: PilhaEscoposExecucao;
     interfaceEntradaSaida: any = null;
 
-    constructor(Delegua: Delegua, diretorioBase: string) {
-        this.Delegua = Delegua;
+    constructor(diretorioBase: string) {
         this.resolvedor = new ResolvedorEguaClassico();
         this.diretorioBase = diretorioBase;
         this.funcaoDeRetorno = console.log;
@@ -502,8 +496,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
+    // TODO: Implementar em `delegua-node`.
     async visitarDeclaracaoImportar(declaracao: Importar) {
-        const caminhoRelativo = await this.avaliar(declaracao.caminho);
+        throw new ErroEmTempoDeExecucao(
+            declaracao.simboloFechamento,
+            'Importação não suportada em núcleo da linguagem puro. Favor executar a aplicação usando o pacote NPM `delegua-node`.',
+            declaracao.linha
+        );
+        /* const caminhoRelativo = await this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         // const nomeArquivo = caminho.basename(caminhoTotal);
 
@@ -547,7 +547,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             return novoModulo;
         }
 
-        return exportar;
+        return exportar; */
     }
 
     async visitarDeclaracaoEscreva(declaracao: Escreva) {
@@ -865,7 +865,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             const formato = Intl.DateTimeFormat('pt', {
                 dateStyle: 'full',
                 timeStyle: 'full',
-            });
+            } as any);
             return formato.format(objeto);
         }
 

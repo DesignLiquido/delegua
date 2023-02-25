@@ -1,30 +1,30 @@
-import { Delegua } from '../../fontes/delegua';
+import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 describe('Lexador (BIRL)', () => {
     describe('mapear()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorBirl;
 
         beforeEach(() => {
-            delegua = new Delegua('birl');
+            lexador = new LexadorBirl();
         });
 
         describe('Cenário de sucesso', () => {
             it('Arquivo vazio.', () => {
-                const resultado = delegua.lexador.mapear([''], -1);
+                const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(1);
             });
 
             it('Programa vazio.', () => {
-                const resultado = delegua.lexador.mapear(['HORA DO SHOW \n', 'BIRL \n'], -1);
+                const resultado = lexador.mapear(['HORA DO SHOW \n', 'BIRL \n'], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(8);
             });
 
             it('Programa Olá mundo simples.', () => {
-                const resultado = delegua.lexador.mapear(
+                const resultado = lexador.mapear(
                     [
                         'HORA DO SHOW \n',
                         '   CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n"); \n',
@@ -52,7 +52,7 @@ describe('Lexador (BIRL)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Variavel - Atribuição', () => {
-                const resultado = delegua.lexador.mapear(
+                const resultado = lexador.mapear(
                     [
                         'HORA DO SHOW \n',
                         '  MONSTRO? M1 = 1; \n',

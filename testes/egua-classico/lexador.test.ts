@@ -1,30 +1,30 @@
-import { Delegua } from "../../fontes/delegua";
+import { LexadorEguaClassico } from "../../fontes/lexador/dialetos";
 
 describe('Lexador (Égua Clássico)', () => {
     describe('mapear()', () => {
-        let delegua: Delegua;
+        let lexador: LexadorEguaClassico;
 
         beforeEach(() => {
-            delegua = new Delegua('egua');
+            lexador = new LexadorEguaClassico();
         });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio', () => {
-                const resultado = delegua.lexador.mapear([''], -1);
+                const resultado = lexador.mapear(['']);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(1);
             });
 
             it('Sucesso - Ponto-e-vírgula, obrigatório', () => {
-                const resultado = delegua.lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
+                const resultado = lexador.mapear([';;;;;;;;;;;;;;;;;;;;;']);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(22);
             });
 
             it('Sucesso - Olá mundo', () => {
-                const resultado = delegua.lexador.mapear(["escreva('Olá mundo');"], -1);
+                const resultado = lexador.mapear(["escreva('Olá mundo');"]);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(6);
@@ -40,7 +40,7 @@ describe('Lexador (Égua Clássico)', () => {
             });
 
             it('Sucesso - Se', () => {
-                const resultado = delegua.lexador.mapear(["se (1 == 1) { escreva('Tautologia'); }"], -1);
+                const resultado = lexador.mapear(["se (1 == 1) { escreva('Tautologia'); }"]);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(14);
@@ -61,7 +61,7 @@ describe('Lexador (Égua Clássico)', () => {
             });
 
             it('Sucesso - Operação Matemática (soma e igualdade)', () => {
-                const resultado = delegua.lexador.mapear(['2 + 3 == 5;'], -1);
+                const resultado = lexador.mapear(['2 + 3 == 5;']);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(7);
@@ -76,7 +76,7 @@ describe('Lexador (Égua Clássico)', () => {
             });
 
             it('Sucesso - Atribução de variável e Operação Matemática (diferença, multiplicação e módulo)', () => {
-                const resultado = delegua.lexador.mapear(['var numero = 1 * 2 - 3 % 4;'], -1);
+                const resultado = lexador.mapear(['var numero = 1 * 2 - 3 % 4;']);
 
                 expect(resultado).toBeTruthy();
             });
@@ -84,13 +84,13 @@ describe('Lexador (Égua Clássico)', () => {
 
         describe('Cenários de falha', () => {
             it('Falha léxica - texto sem fim', () => {
-                const resultado = delegua.lexador.mapear(['"texto sem fim'], -1);
+                const resultado = lexador.mapear(['"texto sem fim']);
                 expect(resultado.simbolos).toHaveLength(1);
                 expect(resultado.erros).toHaveLength(1);
             });
 
             it('Falha léxica - caractere inesperado', () => {
-                const resultado = delegua.lexador.mapear(['平'], -1);
+                const resultado = lexador.mapear(['平']);
                 expect(resultado.simbolos).toHaveLength(1);
                 expect(resultado.erros).toHaveLength(1);
             });

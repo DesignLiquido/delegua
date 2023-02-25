@@ -1,18 +1,25 @@
-import { Delegua } from '../../fontes/delegua';
+import { AvaliadorSintaticoEguaClassico } from '../../fontes/avaliador-sintatico/dialetos';
 import { ResolvedorEguaClassico } from '../../fontes/interpretador/dialetos/egua-classico/resolvedor/resolvedor';
+import { LexadorEguaClassico } from '../../fontes/lexador/dialetos';
 
 describe('Resolvedor (Égua Clássico)', () => {
     describe('resolver()', () => {
-        const delegua = new Delegua('egua');
-        const resolvedor = new ResolvedorEguaClassico();
+        let lexador: LexadorEguaClassico;
+        let avaliadorSintatico: AvaliadorSintaticoEguaClassico;
+        let resolvedor: ResolvedorEguaClassico;
+
+        beforeEach(() => {
+            lexador = new LexadorEguaClassico();
+            avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
+            resolvedor = new ResolvedorEguaClassico();
+        });
 
         it('Sucesso', () => {
-            const retornoLexador = delegua.lexador.mapear(
-                ["escreva('Olá mundo');"],
-                -1
+            const retornoLexador = lexador.mapear(
+                ["escreva('Olá mundo');"]
             );
             const retornoAvaliadorSintatico =
-                delegua.avaliadorSintatico.analisar(retornoLexador);
+                avaliadorSintatico.analisar(retornoLexador);
             resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
             expect(resolvedor.escopos).toBeTruthy();
             expect(resolvedor.escopos.pilha).toBeTruthy();

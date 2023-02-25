@@ -359,10 +359,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./exemplos/fila-estatica.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fila-estatica.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -489,10 +486,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./exemplos/leia.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/leia.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -531,11 +525,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--codigo",
-                "escreva(2+1)"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--codigo", "escreva(2+1)"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -553,10 +543,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./exemplos/perceptron.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/perceptron.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -574,10 +561,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./exemplos/primitivas/texto/minusculo.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/primitivas/texto/minusculo.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -636,10 +620,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "./exemplos/classes/teste-classe.delegua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/teste-classe.delegua"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -670,13 +651,27 @@
             ]
         },
         {
-            "name": "Testes unitários",
+            "name": "Testes unitários - VisuAlg",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "birl",
+                "visualg/interpretador",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Portugol Studio",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "portugol-studio/avaliador-sintatico",
                 "--runInBand"
             ],
             "skipFiles": [
@@ -1005,12 +1000,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "egua",
-                "./exemplos/testes.egua"
-            ],
+            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua", "./exemplos/testes.egua"],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -1312,80 +1302,12 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "VisuAlg > Divisão Inteira",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/divisao-inteira.alg"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "VisuAlg > Exemplos Escreva",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/exemplos-escreva.alg"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "VisuAlg > Multiplicar",
+            "name": "Tradutores > Python",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/multiplicar.alg"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "VisuAlg > Olá Mundo",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/ola-mundo.alg"
+                "${workspaceFolder}${pathSeparator}fontes${pathSeparator}tradutores${pathSeparator}tradutor-python.ts"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1394,74 +1316,5 @@
                 "ts-node/register/transpile-only"
             ]
         },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "VisuAlg > Times",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/times.alg"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "VisuAlg > 1 a 10",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/um-a-dez-interrompa.alg"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "VisuAlg > Variáveis",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "visualg",
-                "./exemplos/dialetos/visualg/variaveis.alg"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        }
     ]
 }

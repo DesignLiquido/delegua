@@ -1,6 +1,4 @@
 export * from './avaliador-sintatico-interface';
-export * from './delegua-interface';
-export * from './importador-interface';
 export * from './interpretador-com-depuracao-interface';
 export * from './interpretador-interface';
 export * from './lexador-interface';

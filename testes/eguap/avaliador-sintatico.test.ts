@@ -1,17 +1,23 @@
-import { Delegua } from '../../fontes/delegua';
-import { RetornoLexador } from '../../fontes/interfaces/retornos/retorno-lexador';
+import { AvaliadorSintaticoEguaP } from "../../fontes/avaliador-sintatico/dialetos";
+import { LexadorEguaP } from "../../fontes/lexador/dialetos";
 
 describe('Avaliador sintático (EguaP)', () => {
     describe('analisar()', () => {
-        const delegua = new Delegua('eguap');
+        let lexador: LexadorEguaP;
+        let avaliadorSintatico: AvaliadorSintaticoEguaP;
+
+        beforeEach(() => {
+            lexador = new LexadorEguaP();
+            avaliadorSintatico = new AvaliadorSintaticoEguaP();
+        });
 
         it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ["escreva('Olá mundo')"],
                 -1
             );
             const retornoAvaliadorSintatico =
-                delegua.avaliadorSintatico.analisar(retornoLexador);
+                avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -19,23 +25,11 @@ describe('Avaliador sintático (EguaP)', () => {
 
         it('Falha - Identação', () => {
             const codigo = ['classe Cachorro:', 'latir():', "escreva('Erro')"];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
+            const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico =
-                delegua.avaliadorSintatico.analisar(retornoLexador);
+                avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
         });
-
-        // it('Falha - Vetor vazio', () => {
-        //     expect(() => delegua.avaliadorSintatico.analisar({simbolos: []} as RetornoLexador)).toThrow(TypeError);
-        // });
-
-        // it('Falha - Undefined', () => {
-        //     expect(() => delegua.avaliadorSintatico.analisar(undefined)).toThrow(TypeError);
-        // });
-
-        // it('Falha - Null', () => {
-        //     expect(() => delegua.avaliadorSintatico.analisar(null)).toThrow(TypeError);
-        // });
     });
 });

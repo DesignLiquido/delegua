@@ -1,18 +1,24 @@
-import { Delegua } from "../fontes/delegua";
+import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
+import { InterpretadorBase } from "../fontes/interpretador";
+import { Lexador } from "../fontes/lexador";
 
 describe('Biblioteca Global', () => {
-    let delegua: Delegua;
+    let lexador: Lexador;
+    let avaliadorSintatico: AvaliadorSintatico;
+    let interpretador: InterpretadorBase;
 
     beforeEach(() => {
-        delegua = new Delegua('delegua');
+        lexador = new Lexador();
+        avaliadorSintatico = new AvaliadorSintatico();
+        interpretador = new InterpretadorBase(process.cwd());
     });
 
     describe('aleatorio()', () => {
         it('Trivial', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(aleatorio())"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(aleatorio())"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -20,10 +26,76 @@ describe('Biblioteca Global', () => {
 
     describe('aleatorioEntre()', () => {
         it('Sucesso', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(aleatorioEntre(1, 5))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(aleatorioEntre(1, 5))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('algum()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(algum([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrar()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrar([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarIndice()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrarIndice([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarUltimo()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrarUltimo([1, 2, 3], funcao(a) { retorna(a == 3) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarUltimoIndice()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(encontrarUltimoIndice([1, 2, 3], funcao(a) { retorna(a == 3) }))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('incluido()', () => {
+        it('Sucesso', async () => {
+            const retornoLexador = lexador.mapear(["escreva(incluido([1, 2, 3], 3))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -31,28 +103,28 @@ describe('Biblioteca Global', () => {
 
     describe('inteiro()', () => {
         it('Sucesso', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(1 + 1))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(inteiro(1 + 1))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
         it('Sucesso - Nulo', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro(nulo))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(inteiro(nulo))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
         it('Falha - Não inteiro', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(inteiro('Oi'))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(inteiro('Oi'))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -64,10 +136,10 @@ describe('Biblioteca Global', () => {
                 "var f = funcao(x) { retorna(x ** x) }",
                 "escreva(mapear([1, 2, 3], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -77,10 +149,10 @@ describe('Biblioteca Global', () => {
                 "var f = 'Sou uma função'",
                 "escreva(mapear([1, 2, 3], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -92,10 +164,10 @@ describe('Biblioteca Global', () => {
                 "var f = funcao(x) { retorna(x < 10) }",
                 "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -105,10 +177,10 @@ describe('Biblioteca Global', () => {
                 "var f = 'Sou uma função'",
                 "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -120,10 +192,10 @@ describe('Biblioteca Global', () => {
                 "var f = funcao(x) { se(x > 4) { retorna(x) } }",
                 "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -133,10 +205,10 @@ describe('Biblioteca Global', () => {
                 "var f = 'Sou uma função'",
                 "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -148,10 +220,10 @@ describe('Biblioteca Global', () => {
                 "var f = funcao(x) { se(x > 4) { retorna(x) } }",
                 "escreva(primeiroEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -161,10 +233,10 @@ describe('Biblioteca Global', () => {
                 "var f = 'Sou uma função'",
                 "escreva(primeiroEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -176,10 +248,10 @@ describe('Biblioteca Global', () => {
                 "var f = funcao(valor) { se(valor >= 7) { escreva(valor) } }",
                 "escreva(paraCada([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -189,10 +261,10 @@ describe('Biblioteca Global', () => {
                 "var f = 'Sou uma função'",
                 "escreva(paraCada([1, 2, 3, 4, 5, 6], f))"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -203,10 +275,10 @@ describe('Biblioteca Global', () => {
             const codigo = [
                 "ordenar([5, 12, 10, 1, 4, 25, 33, 9, 7, 6, 2])"
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
@@ -214,28 +286,28 @@ describe('Biblioteca Global', () => {
 
     describe('real()', () => {
         it('Sucesso', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(real(3.14))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(real(3.14))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
         it('Sucesso - Nulo ou Indefinido (resolve para zero)', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(real(nulo))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(real(nulo))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
         it('Falha - Não inteiro', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(real('Oi'))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(real('Oi'))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -243,28 +315,28 @@ describe('Biblioteca Global', () => {
 
     describe('tamanho()', () => {
         it('Sucesso', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(tamanho([1, 2, 3]))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(tamanho([1, 2, 3]))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
         it('Falha - Argumento não é lista', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(tamanho(1))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(tamanho(1))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
 
         it('Falha - Nulo', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(tamanho(nulo))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(tamanho(nulo))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
@@ -272,10 +344,10 @@ describe('Biblioteca Global', () => {
 
     describe('texto()', () => {
         it('Trivial', async () => {
-            const retornoLexador = delegua.lexador.mapear(["escreva(texto(123))"], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(["escreva(texto(123))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
-            const retornoInterpretador = await delegua.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });

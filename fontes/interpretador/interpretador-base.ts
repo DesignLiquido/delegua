@@ -50,7 +50,6 @@ import {
 } from '../construtos';
 import { ErroInterpretador } from './erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { ImportadorInterface } from '../interfaces/importador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -70,8 +69,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * recomendado para uso em execuções que ocorrem no navegador de internet.
  */
 export class InterpretadorBase implements InterpretadorInterface {
-    importador: ImportadorInterface;
-    diretorioBase: any;
+    diretorioBase: string;
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
@@ -84,12 +82,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
 
     constructor(
-        importador: ImportadorInterface,
         diretorioBase: string,
         performance = false,
         funcaoDeRetorno: Function = null
     ) {
-        this.importador = importador;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
 
@@ -616,6 +612,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
+        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ? 
+            condicaoEscolha.valor :
+            condicaoEscolha;
+
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
 
@@ -625,7 +625,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const caminho = caminhos[i];
 
                 for (let j = 0; j < caminho.condicoes.length; j++) {
-                    if ((await this.avaliar(caminho.condicoes[j])) === condicaoEscolha) {
+                    const condicaoAvaliada = await this.avaliar(caminho.condicoes[j]);
+                    if (condicaoAvaliada === valorCondicaoEscolha) {
                         encontrado = true;
 
                         try {

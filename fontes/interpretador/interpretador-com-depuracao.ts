@@ -1,7 +1,7 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { Declaracao, Escreva, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
-import { ComandoDepurador, ImportadorInterface, InterpretadorComDepuracaoInterface } from '../interfaces';
+import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
@@ -45,8 +45,8 @@ export class InterpretadorComDepuracao
     idChamadaAtual?: string;
     passos: number;
 
-    constructor(importador: ImportadorInterface, diretorioBase: string, funcaoDeRetorno: Function) {
-        super(importador, diretorioBase, false, funcaoDeRetorno);
+    constructor(diretorioBase: string, funcaoDeRetorno: Function) {
+        super(diretorioBase, false, funcaoDeRetorno);
 
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;
@@ -348,6 +348,47 @@ export class InterpretadorComDepuracao
         }
     }
 
+    private descartarTodosEscoposFinalizados() {
+        let i = this.pilhaEscoposExecucao.pilha.length - 1;
+        while (i > 0) {
+            let ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length) {
+                this.pilhaEscoposExecucao.removerUltimo();
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
+                    escopoAnterior.ambiente.resolucoesChamadas,
+                    ultimoEscopo.ambiente.resolucoesChamadas
+                );
+                this.escopoAtual--;
+            } else {
+                break;
+            }
+            i--;
+        }
+    }
+
+    private descartarEscopoPorRetornoFuncao() {
+        let ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        while (ultimoEscopo.tipo !== 'funcao') {
+            this.pilhaEscoposExecucao.removerUltimo();
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+            escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
+                escopoAnterior.ambiente.resolucoesChamadas,
+                ultimoEscopo.ambiente.resolucoesChamadas
+            );
+            this.escopoAtual--;
+            ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        }
+
+        this.pilhaEscoposExecucao.removerUltimo();
+        const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+        escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
+            escopoAnterior.ambiente.resolucoesChamadas,
+            ultimoEscopo.ambiente.resolucoesChamadas
+        );
+        this.escopoAtual--;
+    }
+
     private async executarUmPassoNoEscopo() {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: any;
@@ -360,27 +401,11 @@ export class InterpretadorComDepuracao
             }
 
             if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
-                let outroEscopo = this.pilhaEscoposExecucao.topoDaPilha();
                 if (retornoExecucao instanceof RetornoQuebra) {
-                    while (outroEscopo.tipo !== 'funcao') {
-                        this.pilhaEscoposExecucao.removerUltimo();
-                        const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                        escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                            escopoAnterior.ambiente.resolucoesChamadas,
-                            outroEscopo.ambiente.resolucoesChamadas
-                        );
-                        this.escopoAtual--;
-                        outroEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-                    }
+                    this.descartarEscopoPorRetornoFuncao();
+                } else {
+                    this.descartarTodosEscoposFinalizados();
                 }
-
-                this.pilhaEscoposExecucao.removerUltimo();
-                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                    escopoAnterior.ambiente.resolucoesChamadas,
-                    outroEscopo.ambiente.resolucoesChamadas
-                );
-                this.escopoAtual--;
             }
 
             if (this.pilhaEscoposExecucao.elementos() === 1) {
@@ -504,17 +529,17 @@ export class InterpretadorComDepuracao
         this.passos = 1;
         const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
 
-        if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
-            this.pilhaEscoposExecucao.removerUltimo();
-        }
-
-        if (this.pilhaEscoposExecucao.elementos() === 1) {
-            return this.finalizacaoDaExecucao();
-        }
-
         if (escopo < this.escopoAtual) {
             await this.instrucaoPasso(escopo + 1);
         } else {
+            if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
+                this.pilhaEscoposExecucao.removerUltimo();
+            }
+    
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
+                return this.finalizacaoDaExecucao();
+            }
+
             await this.executarUmPassoNoEscopo();
         }
     }

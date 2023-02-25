@@ -14,6 +14,8 @@ export default {
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
+    INTEIRO: 'INTEIRO',
+    LEIA: 'LEIA',
     MAIOR: 'MAIOR',
     MAIOR_IGUAL: 'MAIOR_IGUAL',
     MENOR: 'MENOR',
@@ -29,4 +31,6 @@ export default {
     REAL: 'REAL',
     SUBTRACAO: 'SUBTRACAO',
     VIRGULA: 'VIRGULA',
+    SE: 'SE',
+    SENAO: 'SENAO',
 };

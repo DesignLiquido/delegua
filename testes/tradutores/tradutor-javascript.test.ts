@@ -1,10 +1,10 @@
 import { Binario, Variavel, Literal } from '../../fontes/construtos';
 import { Se, Bloco, Escreva } from '../../fontes/declaracoes';
-import { Simbolo } from '../../fontes/lexador';
+import { Lexador, Simbolo } from '../../fontes/lexador';
 import { TradutorJavaScript } from '../../fontes/tradutores/tradutor-javascript';
+import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
-import { Delegua } from '../../fontes/delegua';
 
 describe('Tradutor Delégua -> JavaScript', () => {
     const tradutor: TradutorJavaScript = new TradutorJavaScript();
@@ -31,14 +31,16 @@ describe('Tradutor Delégua -> JavaScript', () => {
     });
 
     describe('Código', () => {
-        let delegua: Delegua;
+        let lexador: Lexador;
+        let avaliadorSintatico: AvaliadorSintatico;
 
         beforeEach(() => {
-            delegua = new Delegua('delegua');
+            lexador = new Lexador();
+            avaliadorSintatico = new AvaliadorSintatico();
         });
 
         it('bit a bit', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'escreva(8 | 1)',
                     'escreva(8 & 1)',
@@ -49,7 +51,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -62,7 +64,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('vetor acesso indice -> array/index', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var vetor = [1, \'2\']',
                     'vetor[0] = 3',
@@ -70,7 +72,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -80,11 +82,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('vetor -> array - com valores', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['var vetor = [1, \'2\']'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -92,11 +94,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('vetor -> array - vazio', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['var vetor = []'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -104,13 +106,13 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('declarando variável não inicializada', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var a;',
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -118,14 +120,14 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('definindo funcao com variavel', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var a = funcao(parametro1, parametro2) { escreva(\'Oi\')\nescreva(\'Olá\') }',
                     'a(1, 2)'
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -136,7 +138,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('herda -> extends', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
                     'corre() {',
@@ -149,7 +151,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -162,11 +164,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('agrupamento', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['var agrupamento = (2 * 2) + 5 - 1 ** (2 + 3 - 4)', 'escreva(agrupamento)'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -175,7 +177,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('isto -> this', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'classe Teste {',
                     'construtor(abc){',
@@ -190,7 +192,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -204,11 +206,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('para/sustar -> for/break', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['para (var i = 0; i < 5; i = i + 1) {', 'se(i == 3) {', 'sustar;', '}', 'escreva(i);', '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -220,11 +222,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('para/continue -> for/continue', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['para (var i = 0; i < 5; i = i + 1) {', 'se(i == 3) {', 'continua', '}', 'escreva(i);', '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -235,11 +237,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('para -> for', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['para (var i = 0; i < 5; i = i + 1) {', 'escreva(i);', '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -249,11 +251,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('enquanto -> while', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['var i = 0;', 'fazer {', 'escreva(i);', 'i = i + 1;', '} enquanto (i < 5)'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -266,8 +268,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('enquanto -> do while', () => {
-            const retornoLexador = delegua.lexador.mapear(['enquanto (verdadeiro) {', 'escreva("sim");', '}'], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(['enquanto (verdadeiro) {', 'escreva("sim");', '}'], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -277,8 +279,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('enquanto -> while', () => {
-            const retornoLexador = delegua.lexador.mapear(['enquanto (verdadeiro) {', "escreva('sim');", '}'], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(['enquanto (verdadeiro) {', "escreva('sim');", '}'], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -288,7 +290,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('tente - pegue - finalmente -> try - catch - finally', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'tente { ',
                     '   1 > "2";',
@@ -302,7 +304,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -315,7 +317,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('escolha -> switch/case', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'escolha (2) {',
                     'caso "1":',
@@ -332,7 +334,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -350,7 +352,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('classe com parametros -> class', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'classe Teste {',
                     'construtor(valor1) {',
@@ -364,7 +366,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -377,11 +379,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('classe sem parametros -> class', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['classe Teste {', 'construtor() {', 'escreva("começou")', '}', '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -391,8 +393,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('se -> if, código', () => {
-            const retornoLexador = delegua.lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -402,11 +404,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('senão -> else, código', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['se (a == 1) {', '    escreva(10)', '} senão {', '   escreva(20)', '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -418,7 +420,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('se senão 01 -> if else, código', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var a = 20',
                     'se (a == 10) {',
@@ -431,7 +433,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -446,7 +448,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('se senão 02 -> if else, código', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var a = 20',
                     'se (a == 10) {',
@@ -461,7 +463,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -480,8 +482,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('escreva -> console.log', () => {
             const codigo = ["var texto = 'Olá Mundo'", 'escreva(texto)'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -491,8 +493,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('escreva -> console.log com operação lógica', () => {
             const codigo = ['escreva(1 == 2)'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -515,8 +517,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 'var exponenciacao = 1 ** 1',
                 'escreva(soma, subtracao, diferente, igual, divisao, menor, maior, maiorOuIgual, menorOuIgual, multiplicacao, modulo, exponenciacao)',
             ];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -539,8 +541,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('chamada de função com parametros -> function', () => {
             const codigo = ['funcao minhaFuncao(a, b, c) { }', 'minhaFuncao(a, b, c)'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -551,8 +553,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('chamada de função sem parametros -> function', () => {
             const codigo = ['funcao minhaFuncao() { }', 'minhaFuncao()'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -563,8 +565,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno nulo -> function', () => {
             const codigo = ['funcao minhaFuncao() { retorna nulo }'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -575,8 +577,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno lógico de texto e número -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == 1 }"];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -587,8 +589,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno lógico de número -> function', () => {
             const codigo = ['funcao minhaFuncao() { retorna 1 == 1 }'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -599,8 +601,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno lógico de texto -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == '1' }"];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -611,8 +613,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno número -> function', () => {
             const codigo = ['funcao minhaFuncao() { retorna 10 }'];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -623,8 +625,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno texto -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna 'Ola Mundo!!!' }"];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -635,8 +637,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('função com retorno -> function', () => {
             const codigo = ["funcao minhaFuncao() { retorna 'Ola Mundo!!!' }"];
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -646,11 +648,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('função -> function - com parametro', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['funcao minhaFuncaoComParametro(teste) {', '    escreva(teste)', '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -660,11 +662,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('função -> function - sem parametro', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 ['funcao minhaFuncaoSemParametro() {', "    escreva('teste')", '}'],
                 -1
             );
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -674,8 +676,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('se -> if, código', () => {
-            const retornoLexador = delegua.lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -685,7 +687,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('se -> if com operadores lógicos, código', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'se (a == 1 ou a == 2) {',
                     'escreva(10)', 
@@ -694,7 +696,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                     'escreva(5)', 
                     '}'
                 ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -706,11 +708,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
 
         it('importar', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var lodash = importar\(\'lodash\'\)',
                 ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -718,11 +720,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
         
         it('leia', () => {
-            const retornoLexador = delegua.lexador.mapear(
+            const retornoLexador = lexador.mapear(
                 [
                     'var nome = leia\(\'Digite seu nome:\'\)',
                 ], -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
