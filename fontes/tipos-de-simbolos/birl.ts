@@ -25,6 +25,7 @@ export default {
     MALUCO: 'MALUCO',
     MONSTRAO: 'MONSTRAO',
     MONSTRO: 'MONSTRO',
+    TRAPEZIO: 'TRAPEZIO',
     NAO: 'NAO',
     NEGATIVA: 'NEGATIVA',
     NEGATIVO: 'NEGATIVO',

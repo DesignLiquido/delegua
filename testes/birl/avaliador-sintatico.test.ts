@@ -74,5 +74,23 @@ describe('Avaliador Sintático Birl', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
+
+        it('Sucesso - Variavel - Float', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'HORA DO SHOW \n',
+                    '  TRAPEZIO M1 = 1.03; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
     });
 });

@@ -52,4 +52,5 @@ export default {
     vai: tiposDeSimbolos.VAI,
     vamo: tiposDeSimbolos.VAMO,
     ver: tiposDeSimbolos.VER,
+    trapezio: tiposDeSimbolos.TRAPEZIO,
 };

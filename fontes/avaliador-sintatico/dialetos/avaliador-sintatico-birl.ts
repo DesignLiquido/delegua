@@ -286,6 +286,36 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
+    declaracaoPontoFlutuante(): Var[] {
+        const simboloFloat = this.consumir(tiposDeSimbolos.TRAPEZIO, '');
+
+        const inicializacoes = [];
+
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'TRAPEZIO'."
+            );
+
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), 0)));
+
+            // Inicializações de variáveis que podem ter valores definidos
+            let valorInicializacao = 0x00;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(
+                    tiposDeSimbolos.NUMERO,
+                    'Esperado literal de TRAPEZIO após símbolo de igual em declaração de variavel.'
+                );
+                valorInicializacao = parseFloat(literalInicializacao.literal);
+            }
+
+            inicializacoes.push(
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao))
+            );
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        return inicializacoes;
+    }
+
     declaracaoRetorna(): Retorna {
         const primeiroSimbolo = this.consumir(tiposDeSimbolos.BORA, 'Esperado expressão `BORA` para retornar valor.');
         this.consumir(tiposDeSimbolos.CUMPADE, 'Esperado expressão `CUMPADE` após `BORA` para retornar valor.');
@@ -350,6 +380,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.FRANGO:
                 return this.declaracaoCaracteres();
+            case tiposDeSimbolos.TRAPEZIO:
+                return this.declaracaoPontoFlutuante();
             case tiposDeSimbolos.VAMO:
             // Retornar uma declaração de continue
             case tiposDeSimbolos.SAI:
