@@ -235,13 +235,15 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             );
 
             // Inicialização de variáveis que podem ter valor definido;
-            let valorInicializacao = 0;
+            let valorInicializacao = '';
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para começar o texto.");
                 const literalInicializacao = this.consumir(
-                    tiposDeSimbolos.FRANGO,
+                    tiposDeSimbolos.IDENTIFICADOR,
                     'Esperado literal de FRANGO após símbolo de igual em declaração de variável.'
                 );
-                valorInicializacao = Number(literalInicializacao.literal);
+                this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para terminar o texto.");
+                valorInicializacao = String(literalInicializacao.literal); // Error nessa linha
             }
 
             inicializacoes.push(

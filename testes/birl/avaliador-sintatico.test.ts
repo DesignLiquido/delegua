@@ -63,7 +63,7 @@ describe('Avaliador Sintático Birl', () => {
         it('Sucesso - Variavel - String', () => {
             const retornoLexador = lexador.mapear([
                 'HORA DO SHOW \n',
-                "   FRANGO FR = 'a';\n",
+                "   FRANGO FR = 'testes';\n",
                 '   CE QUER VER ESSA PORRA? (FR); \n',
                 '   BORA CUMPADE 0; \n',
                 'BIRL \n',

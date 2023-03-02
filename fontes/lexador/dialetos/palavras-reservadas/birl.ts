@@ -28,6 +28,7 @@ export default {
     ele: tiposDeSimbolos.ELE,
     essa: tiposDeSimbolos.ESSA,
     filho: tiposDeSimbolos.FILHO,
+    frango: tiposDeSimbolos.FRANGO,
     gente: tiposDeSimbolos.GENTE,
     home: tiposDeSimbolos.HOME,
     hora: tiposDeSimbolos.HORA,

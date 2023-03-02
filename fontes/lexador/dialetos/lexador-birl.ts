@@ -3,8 +3,8 @@ import { ErroLexador } from '../erro-lexador';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { Simbolo } from '../simbolo';
 
-import palavrasReservadas from './palavras-reservadas/birl';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
+import palavrasReservadas from './palavras-reservadas/birl';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
@@ -62,16 +62,14 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo: string =
-            this.codigo.substring(this.inicioSimbolo, this.atual);
+        const codigo: string = this.codigo.substring(this.inicioSimbolo, this.atual);
 
         const codigoMinusculo = codigo.toLowerCase();
 
-        const tipo: string = codigoMinusculo in palavrasReservadas ?
-            palavrasReservadas[codigoMinusculo] :
-            tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string =
+            codigoMinusculo in palavrasReservadas ? palavrasReservadas[codigoMinusculo] : tiposDeSimbolos.IDENTIFICADOR;
 
-        this.adicionarSimbolo(tipo, codigo, null); // Todo: adicionar lexama e literal
+        this.adicionarSimbolo(tipo, codigo, codigo);
     }
 
     analisarToken(): void {
@@ -161,7 +159,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO, '?', null);
                 this.avancar();
                 break;
-            
+
             case '\0':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
