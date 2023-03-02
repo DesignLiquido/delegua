@@ -3,8 +3,8 @@ import { ErroLexador } from '../erro-lexador';
 import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { Simbolo } from '../simbolo';
 
-import palavrasReservadas from './palavras-reservadas/birl';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
+import palavrasReservadas from './palavras-reservadas/birl';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
@@ -62,21 +62,43 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             this.avancar();
         }
 
-        const codigo: string = 
-            this.codigo.substring(this.inicioSimbolo, this.atual)
-            .toLowerCase();
+        const codigo: string = this.codigo.substring(this.inicioSimbolo, this.atual);
 
-        const tipo: string = codigo in palavrasReservadas ? 
-            palavrasReservadas[codigo] : 
-            tiposDeSimbolos.IDENTIFICADOR;
+        const codigoMinusculo = codigo.toLowerCase();
 
-        this.adicionarSimbolo(tipo);
+        const tipo: string =
+            codigoMinusculo in palavrasReservadas ? palavrasReservadas[codigoMinusculo] : tiposDeSimbolos.IDENTIFICADOR;
+
+        this.adicionarSimbolo(tipo, codigo, codigo);
     }
 
     analisarToken(): void {
         const caractere = this.simboloAtual();
 
         switch (caractere) {
+            case ',':
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA, ',', null);
+                this.avancar();
+                break;
+            case '<':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+                break;
+
+            case '>':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
+                }
+                break;
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '(', null);
                 this.avancar();
@@ -95,8 +117,29 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 }
 
                 break;
+            case '&':
+                // Ler o simbolo porem não é tratado.
+                this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
+                this.avancar();
+                break;
             case '+':
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.avancar();
+                break;
+            case '-':
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.avancar();
+                break;
+            case '*':
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                this.avancar();
+                break;
+            case '/':
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                this.avancar();
+                break;
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 this.avancar();
                 break;
             case "'":
@@ -116,10 +159,12 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO, '?', null);
                 this.avancar();
                 break;
+
             case '\0':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
                 this.avancar();
+                this.linha++;
                 break;
             case ' ':
             case '\r':
@@ -130,12 +175,14 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
-                else
+                else {
                     this.erros.push({
                         linha: this.linha,
                         caractere: caractere,
                         mensagem: 'Caractere inesperado.',
                     } as ErroLexador);
+                    this.avancar();
+                }
                 break;
         }
     }

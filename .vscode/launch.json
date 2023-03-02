@@ -5,20 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "BIRL > Testes Lexador",
             "type": "node",
             "request": "launch",
-            "name": "Birl > Hello World",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "birl",
-                "./exemplos/dialetos/birl/hello-world.birl"
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                // "interpretador.test.ts",
+                "birl/lexador.test.ts",
+                "--runInBand"
             ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         },
         {
             "name": "BIRL > Testes unitários",
@@ -38,7 +36,10 @@
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bhaskara",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -46,13 +47,20 @@
                 "./exemplos/dialetos/egua-classico/bhaskara.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Enquanto",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -60,13 +68,20 @@
                 "./exemplos/estruturas-de-repeticao/enquanto.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Enquanto (com Continua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -74,13 +89,20 @@
                 "./exemplos/estruturas-de-repeticao/enquanto-continua.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Fazer ... Enquanto",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -88,13 +110,20 @@
                 "./exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Fazer ... Enquanto (com Continua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -102,13 +131,20 @@
                 "./exemplos/estruturas-de-repeticao/fazer-enquanto-continua.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Para",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -116,13 +152,20 @@
                 "./exemplos/estruturas-de-repeticao/para.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Para (com Continua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -130,46 +173,83 @@
                 "./exemplos/estruturas-de-repeticao/para-continua.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bloco Se",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/condicionais/se.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/condicionais/se.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Classes > Classe vazia",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/classe-vazia.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/classes/classe-vazia.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Classes > Construtor",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/construtor-classe.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/classes/construtor-classe.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Classes > Herança",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -178,24 +258,41 @@
                 "./exemplos/classes/heranca.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Escolha",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/condicionais/escolha.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/condicionais/escolha.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Estruturas de Dados > Inteiros",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -204,13 +301,20 @@
                 "./exemplos/estruturas-de-dados/inteiros.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Estruturas de Repetição > Fazer ... Enquanto",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -218,46 +322,80 @@
                 "./exemplos/estruturas-de-repeticao/fazer-enquanto.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Fibonacci",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fibonacci.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/fibonacci.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Fila estática",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fila-estatica.delegua"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > FizzBuzz",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fizzbuzz.egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/fizzbuzz.egua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Funções Anônimas",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -266,13 +404,20 @@
                 "./exemplos/funcoes/funcoes-anonimas.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Importação",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -281,13 +426,20 @@
                 "./exemplos/importacao/inicial.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Importação > Animais",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -296,13 +448,20 @@
                 "./exemplos/importacao/animais.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Inteiros",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -311,106 +470,185 @@
                 "./exemplos/estruturas-de-dados/inteiros.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Leia",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/leia.delegua"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Média",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/media.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/media.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Parâmetro -c",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--codigo", "escreva(2+1)"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Perceptron",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/perceptron.delegua"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Primitivas > Texto > Minúsculo",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/primitivas/texto/minusculo.delegua"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Primitivas > Lista > Inclui",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/primitivas/lista/inclui.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/primitivas/lista/inclui.delegua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > REPL",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Teste de Classe",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/teste-classe.delegua"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Todos os Testes de Égua",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "-p", "./exemplos/testes.egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "-p",
+                "./exemplos/testes.egua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "name": "Testes unitários - Delégua",
@@ -450,7 +688,10 @@
                 "portugol-studio/avaliador-sintatico",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -464,7 +705,10 @@
                 "tradutor-javascript.test.ts",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -478,7 +722,10 @@
                 "tradutor-reverso-javascript.test.ts",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -486,7 +733,10 @@
             "type": "node",
             "request": "launch",
             "name": "Tradutores > Delégua > JavaScript > Teste",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -497,13 +747,20 @@
                 "./exemplos/condicionais/se.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Todos os Testes de Delégua",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -512,13 +769,20 @@
                 "./exemplos/index.delegua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Bhaskara",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -528,13 +792,20 @@
                 "./exemplos/dialetos/egua-classico/bhaskara.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Egua Clássico > Bloco Para (com Continua)",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -544,13 +815,20 @@
                 "./exemplos/dialetos/egua-classico/estruturas-de-repeticao/para-continua.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Fibonacci",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -560,13 +838,20 @@
                 "./exemplos/dialetos/egua-classico/fibonacci.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Classes > Construtor",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -576,13 +861,20 @@
                 "./exemplos/classes/construtor-classe.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Merge Sort",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -592,13 +884,20 @@
                 "./exemplos/dialetos/egua-classico/merge-sort.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Fila Estática",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -608,13 +907,20 @@
                 "./exemplos/dialetos/egua-classico/fila-estatica.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Funções > Retorna sem valor",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -624,13 +930,20 @@
                 "./exemplos/dialetos/egua-classico/funcoes/retorna-sem-valor.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Biblioteca Matemática > Gerar pontos da abscissa",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -640,13 +953,20 @@
                 "./exemplos/dialetos/egua-classico/bibliotecas/matematica/gerar-pontos-abscissa.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Perceptron",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -656,35 +976,60 @@
                 "./exemplos/dialetos/egua-classico/perceptron.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > REPL",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Todos os Testes de Égua",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua", "./exemplos/testes.egua"],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Égua Clássico > Teste de Classe",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -694,13 +1039,20 @@
                 "./exemplos/dialetos/egua-classico/teste-classe.egua"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Bhaskara",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -710,13 +1062,20 @@
                 "./exemplos/dialetos/eguap/bhaskara.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Bloco Enquanto",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -726,13 +1085,20 @@
                 "./exemplos/dialetos/eguap/estruturas-de-repeticao/enquanto.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Bloco Escolha",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -742,13 +1108,20 @@
                 "./exemplos/dialetos/eguap/condicionais/escolha.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Bloco Fazer ... Enquanto",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -758,13 +1131,20 @@
                 "./exemplos/dialetos/eguap/estruturas-de-repeticao/fazer-enquanto.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Bloco Para",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -774,13 +1154,20 @@
                 "./exemplos/dialetos/eguap/estruturas-de-repeticao/para.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Bloco Se",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -790,13 +1177,20 @@
                 "./exemplos/dialetos/eguap/condicionais/se.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Classes",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -806,13 +1200,20 @@
                 "./exemplos/dialetos/eguap/classes/teste-classe.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Classes > Construtor",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -822,13 +1223,20 @@
                 "./exemplos/dialetos/eguap/classes/construtor-classe.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > FizzBuzz",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -838,13 +1246,20 @@
                 "./exemplos/dialetos/eguap/fizzbuzz.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > Média",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -854,18 +1269,33 @@
                 "./exemplos/dialetos/eguap/media.eguap"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "EguaP > REPL",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "eguap"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "eguap"
+            ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "type": "node",
@@ -894,7 +1324,11 @@
                 "${workspaceFolder}${pathSeparator}fontes${pathSeparator}tradutores${pathSeparator}tradutor-python.ts"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
     ]
 }
