@@ -13,11 +13,7 @@ describe('Avaliador Sintático Birl', () => {
 
         it('Sucesso - Hello, World! Porra!', () => {
             const retornoLexador = lexador.mapear(
-                [
-                    'HORA DO SHOW', 
-                    '  CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', 
-                    '  BORA CUMPADE 0;',
-                    'BIRL'],
+                ['HORA DO SHOW', '  CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', '  BORA CUMPADE 0;', 'BIRL'],
                 -1
             );
 
@@ -27,7 +23,7 @@ describe('Avaliador Sintático Birl', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
-       it.skip('Sucesso - For', () => {
+        it.skip('Sucesso - For', () => {
             //@TODO: @ItaloCobains - Implementar esse teste
             const retornoLexador = lexador.mapear(
                 [
@@ -36,22 +32,21 @@ describe('Avaliador Sintático Birl', () => {
                     '  MAIS QUERO MAIS (M = 0; M < 5; M++)',
                     '    CE QUER VER ESSA PORRA? ("%d", M);',
                     '  BIRL',
-                    'BIRL'
-                ], -1
-            )
+                    'BIRL',
+                ],
+                -1
+            );
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
             expect(retornoAvaliadorSintatico).toBeTruthy();
             // expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-        })
+        });
 
-        // TODO: @ItaloCobains - Implementar esse teste
-        it('Sucesso - Variavel - Atribuição', () => {
+        it('Sucesso - Variavel - Numero', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'HORA DO SHOW \n',
                     '  MONSTRO M1 = 1; \n',
-                    '  M1 = M1 + 1;',
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
@@ -62,6 +57,22 @@ describe('Avaliador Sintático Birl', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
+
+        it('Sucesso - Variavel - String', () => {
+            const retornoLexador = lexador.mapear([
+                'HORA DO SHOW \n',
+                "   FRANGO FR = 'a';\n",
+                '   CE QUER VER ESSA PORRA? (FR); \n',
+                '   BORA CUMPADE 0; \n',
+                'BIRL \n',
+            ]);
+            //  FRANGO esta vindo como um indentificador
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
     });
 });
