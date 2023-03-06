@@ -138,6 +138,20 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
+
+            it('Sucesso - Variavel - unsigned char', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    `  BICEPS FRANGO TD = 'test'; \n`,
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
         });
     });
 });

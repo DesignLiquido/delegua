@@ -19,6 +19,7 @@ export default {
     bambam: tiposDeSimbolos.BAMBAM,
     birl: tiposDeSimbolos.BIRL,
     bora: tiposDeSimbolos.BORA,
+    biceps: tiposDeSimbolos.BICEPS,
     ce: tiposDeSimbolos.CE,
     cumpade: tiposDeSimbolos.CUMPADE,
     da: tiposDeSimbolos.DA,

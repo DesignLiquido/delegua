@@ -6,6 +6,7 @@ export default {
     BAMBAM: 'BAMBAM',
     BIRL: 'BIRL',
     BORA: 'BORA',
+    BICEPS: 'BICEPS',
     CE: 'CE',
     CUMPADE: 'CUMPADE',
     DA: 'DA',

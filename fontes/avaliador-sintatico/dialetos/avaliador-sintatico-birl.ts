@@ -221,6 +221,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoCaracteres(): Var[] {
+        if (this.consumirSemError(tiposDeSimbolos.BICEPS)) {
+            this.consumir(tiposDeSimbolos.BICEPS, '');
+        }
         const simboloCaractere = this.consumir(tiposDeSimbolos.FRANGO, '');
 
         const inicializacoes = [];
@@ -235,7 +238,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             );
 
             // Inicialização de variáveis que podem ter valor definido;
-            let valorInicializacao = '';
+            let valorInicializacao: string | Array<string>;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para começar o texto.");
                 const literalInicializacao = this.consumir(
@@ -243,7 +246,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                     'Esperado literal de FRANGO após símbolo de igual em declaração de variável.'
                 );
                 this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para terminar o texto.");
-                valorInicializacao = String(literalInicializacao.literal); // Error nessa linha
+                valorInicializacao = String(literalInicializacao.literal);
             }
 
             inicializacoes.push(
@@ -389,6 +392,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.MONSTRINHO:
             case tiposDeSimbolos.MONSTRAO:
                 return this.declaracaoInteiros();
+            case tiposDeSimbolos.BICEPS:
             case tiposDeSimbolos.FRANGO:
                 return this.declaracaoCaracteres();
             case tiposDeSimbolos.TRAPEZIO:
