@@ -263,6 +263,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
         } else if (this.consumirSemError(tiposDeSimbolos.MONSTRINHO)) {
             simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRINHO, '');
+        } else if (this.consumirSemError(tiposDeSimbolos.MONSTRAO)) {
+            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRAO, '');
         } else {
             throw new Error('Simbolo referente a inteiro não especificado.');
         }
@@ -382,6 +384,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             // Declaração de inteiros
             case tiposDeSimbolos.MONSTRO:
             case tiposDeSimbolos.MONSTRINHO:
+            case tiposDeSimbolos.MONSTRAO:
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.FRANGO:
                 return this.declaracaoCaracteres();
