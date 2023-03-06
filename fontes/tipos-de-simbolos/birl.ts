@@ -12,6 +12,7 @@ export default {
     DAR: 'DAR',
     DO: 'DO',
     DOENTE: 'DOENTE',
+    DESCENDENTE: 'DESCENDENTE',
     ELE: 'ELE',
     ESSA: 'ESSA',
     FRANGAO: 'FRANGAO',

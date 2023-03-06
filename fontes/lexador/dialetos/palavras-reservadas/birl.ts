@@ -25,6 +25,7 @@ export default {
     dar: tiposDeSimbolos.DAR,
     do: tiposDeSimbolos.DO,
     doente: tiposDeSimbolos.DOENTE,
+    descendente: tiposDeSimbolos.DESCENDENTE,
     ele: tiposDeSimbolos.ELE,
     essa: tiposDeSimbolos.ESSA,
     filho: tiposDeSimbolos.FILHO,

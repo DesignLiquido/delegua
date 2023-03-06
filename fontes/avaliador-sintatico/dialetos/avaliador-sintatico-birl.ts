@@ -277,7 +277,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             );
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 const literalInicializacao = this.consumir(
                     tiposDeSimbolos.NUMERO,
@@ -294,6 +294,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
     declaracaoPontoFlutuante(): Var[] {
         const simboloFloat = this.consumir(tiposDeSimbolos.TRAPEZIO, '');
+        if (this.consumirSemError(tiposDeSimbolos.DESCENDENTE)) {
+            this.consumir(tiposDeSimbolos.DESCENDENTE, '');
+        }
 
         const inicializacoes = [];
 
