@@ -258,31 +258,35 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoInteiros(): Var[] {
-        const simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
+        let simboloInteiro: SimboloInterface;
+        if (this.consumirSemError(tiposDeSimbolos.MONSTRO)) {
+            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
+        } else if (this.consumirSemError(tiposDeSimbolos.MONSTRINHO)) {
+            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRINHO, '');
+        } else {
+            throw new Error('Simbolo referente a inteiro não especificado.');
+        }
 
         const inicializacoes = [];
         do {
             const identificador = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
-                "Esperado identificador após palavra reservada 'MONSTRO'."
+                `Esperado identificador após palavra reservada '${simboloInteiro.lexema}'.`
             );
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
-
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 const literalInicializacao = this.consumir(
                     tiposDeSimbolos.NUMERO,
-                    'Esperado literal de MONSTRO após símbolo de igual em declaração de variável.'
+                    `Esperado literal de ${simboloInteiro.lexema} após símbolo de igual em declaração de variável.`
                 );
                 valorInicializacao = Number(literalInicializacao.literal);
             }
-
             inicializacoes.push(
                 new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao))
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
         return inicializacoes;
     }
 
@@ -377,6 +381,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 return this.declaracaoPara();
             // Declaração de inteiros
             case tiposDeSimbolos.MONSTRO:
+            case tiposDeSimbolos.MONSTRINHO:
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.FRANGO:
                 return this.declaracaoCaracteres();

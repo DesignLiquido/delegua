@@ -36,6 +36,7 @@ export default {
     maluco: tiposDeSimbolos.MALUCO,
     monstrao: tiposDeSimbolos.MONSTRAO,
     monstro: tiposDeSimbolos.MONSTRO,
+    monstrinho: tiposDeSimbolos.MONSTRINHO, // Essa palavra reservada faz referencia a um short int que em C tem 2bytes ou 16 bits, mas não tratamos ela assim, aqui ela é ignorada e a tratamos como um inteiros de 4 bytes ou 32 bits.
     nao: tiposDeSimbolos.NAO,
     negativa: tiposDeSimbolos.NEGATIVA,
     o: tiposDeSimbolos.O,
