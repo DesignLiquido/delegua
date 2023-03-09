@@ -37,11 +37,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     atual: number;
     blocos: number;
 
-    // Função util para birl onde o tipo int, short int e long int tem a mesma tratativa
-    consumirSemError(tipo: string): Boolean {
-        if (this.verificarTipoSimboloAtual(tipo)) return true;
-        return false;
-    }
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();

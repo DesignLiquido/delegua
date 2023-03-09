@@ -221,7 +221,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoCaracteres(): Var[] {
-        if (this.consumirSemError(tiposDeSimbolos.BICEPS)) {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.BICEPS)) {
             this.consumir(tiposDeSimbolos.BICEPS, '');
         }
         const simboloCaractere = this.consumir(tiposDeSimbolos.FRANGO, '');
@@ -262,11 +262,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
     declaracaoInteiros(): Var[] {
         let simboloInteiro: SimboloInterface;
-        if (this.consumirSemError(tiposDeSimbolos.MONSTRO)) {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRO)) {
             simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
-        } else if (this.consumirSemError(tiposDeSimbolos.MONSTRINHO)) {
+        } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRINHO)) {
             simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRINHO, '');
-        } else if (this.consumirSemError(tiposDeSimbolos.MONSTRAO)) {
+        } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRAO)) {
             simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRAO, '');
         } else {
             throw new Error('Simbolo referente a inteiro não especificado.');
@@ -297,7 +297,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
     declaracaoPontoFlutuante(): Var[] {
         const simboloFloat = this.consumir(tiposDeSimbolos.TRAPEZIO, '');
-        if (this.consumirSemError(tiposDeSimbolos.DESCENDENTE)) {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DESCENDENTE)) {
             this.consumir(tiposDeSimbolos.DESCENDENTE, '');
         }
 
