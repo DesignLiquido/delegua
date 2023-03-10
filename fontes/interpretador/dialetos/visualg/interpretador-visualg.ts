@@ -72,7 +72,7 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
             this.mensagemPrompt = formatoTexto;
-            process.stdout.write(formatoTexto);
+            this.funcaoDeRetornoMesmaLinha(formatoTexto);
             return null;
         } catch (erro: any) {
             this.erros.push(erro);
