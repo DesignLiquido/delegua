@@ -221,6 +221,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoCaracteres(): Var[] {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.BICEPS)) {
+            this.consumir(tiposDeSimbolos.BICEPS, '');
+        }
         const simboloCaractere = this.consumir(tiposDeSimbolos.FRANGO, '');
 
         const inicializacoes = [];
@@ -235,7 +238,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             );
 
             // Inicialização de variáveis que podem ter valor definido;
-            let valorInicializacao = '';
+            let valorInicializacao: string | Array<string>;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para começar o texto.");
                 const literalInicializacao = this.consumir(
@@ -243,7 +246,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                     'Esperado literal de FRANGO após símbolo de igual em declaração de variável.'
                 );
                 this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para terminar o texto.");
-                valorInicializacao = String(literalInicializacao.literal); // Error nessa linha
+                valorInicializacao = String(literalInicializacao.literal);
             }
 
             inicializacoes.push(
@@ -258,36 +261,45 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoInteiros(): Var[] {
-        const simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
+        let simboloInteiro: SimboloInterface;
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRO)) {
+            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
+        } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRINHO)) {
+            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRINHO, '');
+        } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRAO)) {
+            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRAO, '');
+        } else {
+            throw new Error('Simbolo referente a inteiro não especificado.');
+        }
 
         const inicializacoes = [];
         do {
             const identificador = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
-                "Esperado identificador após palavra reservada 'MONSTRO'."
+                `Esperado identificador após palavra reservada '${simboloInteiro.lexema}'.`
             );
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0)));
-
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 const literalInicializacao = this.consumir(
                     tiposDeSimbolos.NUMERO,
-                    'Esperado literal de MONSTRO após símbolo de igual em declaração de variável.'
+                    `Esperado literal de ${simboloInteiro.lexema} após símbolo de igual em declaração de variável.`
                 );
                 valorInicializacao = Number(literalInicializacao.literal);
             }
-
             inicializacoes.push(
                 new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao))
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
         return inicializacoes;
     }
 
     declaracaoPontoFlutuante(): Var[] {
         const simboloFloat = this.consumir(tiposDeSimbolos.TRAPEZIO, '');
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DESCENDENTE)) {
+            this.consumir(tiposDeSimbolos.DESCENDENTE, '');
+        }
 
         const inicializacoes = [];
 
@@ -377,7 +389,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 return this.declaracaoPara();
             // Declaração de inteiros
             case tiposDeSimbolos.MONSTRO:
+            case tiposDeSimbolos.MONSTRINHO:
+            case tiposDeSimbolos.MONSTRAO:
                 return this.declaracaoInteiros();
+            case tiposDeSimbolos.BICEPS:
             case tiposDeSimbolos.FRANGO:
                 return this.declaracaoCaracteres();
             case tiposDeSimbolos.TRAPEZIO:

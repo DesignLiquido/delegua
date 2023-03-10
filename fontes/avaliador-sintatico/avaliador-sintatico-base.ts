@@ -1,25 +1,25 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
+    Classe,
+    Continua,
+    Declaracao,
+    Enquanto,
+    Escolha,
     Escreva,
     Expressao,
-    Se,
-    Enquanto,
-    Para,
-    Sustar,
-    Continua,
-    Retorna,
-    Escolha,
-    Importar,
-    Tente,
     Fazer,
-    Var,
-    FuncaoDeclaracao as FuncaoDeclaracao,
-    Classe,
-    Declaracao,
+    FuncaoDeclaracao,
+    Importar,
     Leia,
+    Para,
+    Retorna,
+    Se,
+    Sustar,
+    Tente,
+    Var,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../interfaces/retornos';
+import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/comum';
@@ -36,6 +36,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     hashArquivo: number;
     atual: number;
     blocos: number;
+
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();

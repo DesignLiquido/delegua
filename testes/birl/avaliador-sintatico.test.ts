@@ -92,5 +92,66 @@ describe('Avaliador Sintático Birl', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
+
+        describe('Sucesso - Variavel de tipagem não utilizada', () => {
+            it('Sucesso - Variavel - short int', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '  MONSTRINHO M1 = 1.03; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+
+            it('Sucesso - Variavel - long int', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '  MONSTRAO M1 = 16666666; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+
+            it('Sucesso - Variavel - double', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '  TRAPEZIO DESCENDENTE TD = 0.37; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+
+            it('Sucesso - Variavel - unsigned char', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    `  BICEPS FRANGO TD = 'test'; \n`,
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+        });
     });
 });
