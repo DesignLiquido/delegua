@@ -73,6 +73,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     erros: ErroInterpretador[];
     performance: boolean;
     funcaoDeRetorno: Function = null;
+    funcaoDeRetornoMesmaLinha: Function = null;
     interfaceDeEntrada: readline.Interface = null;
     resultadoInterpretador: Array<string> = [];
     declaracoes: Declaracao[];
@@ -84,12 +85,14 @@ export class InterpretadorBase implements InterpretadorInterface {
     constructor(
         diretorioBase: string,
         performance = false,
-        funcaoDeRetorno: Function = null
+        funcaoDeRetorno: Function = null,
+        funcaoDeRetornoMesmaLinha: Function = null
     ) {
         this.diretorioBase = diretorioBase;
         this.performance = performance;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
+        this.funcaoDeRetornoMesmaLinha = funcaoDeRetornoMesmaLinha || process.stdout.write;
 
         this.erros = [];
         this.declaracoes = [];
@@ -761,7 +764,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
-            process.stdout.write(formatoTexto);
+            this.funcaoDeRetornoMesmaLinha(formatoTexto);
             return null;
         } catch (erro: any) {
             this.erros.push({
