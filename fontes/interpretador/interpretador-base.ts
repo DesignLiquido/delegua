@@ -1,4 +1,4 @@
-import * as readline from 'readline';
+// import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
@@ -74,7 +74,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     performance: boolean;
     funcaoDeRetorno: Function = null;
     funcaoDeRetornoMesmaLinha: Function = null;
-    interfaceDeEntrada: readline.Interface = null;
+    interfaceDeEntrada: any = null; // Originalmente é `readline.Interface`
     resultadoInterpretador: Array<string> = [];
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;

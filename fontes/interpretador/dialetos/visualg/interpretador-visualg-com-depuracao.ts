@@ -6,8 +6,8 @@ import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao {
     mensagemPrompt: string;
     
-    constructor(diretorioBase: string, funcaoDeRetorno: Function = null) {
-        super(diretorioBase, funcaoDeRetorno);
+    constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
+        super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.mensagemPrompt = '> ';
     }
 
