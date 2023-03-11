@@ -15,9 +15,10 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
     constructor(
         diretorioBase: string,
         performance = false,
-        funcaoDeRetorno: Function = null
+        funcaoDeRetorno: Function = null,
+        funcaoDeRetornoMesmaLinha: Function = null
     ) {
-        super(diretorioBase, performance, funcaoDeRetorno);
+        super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.mensagemPrompt = '> ';
     }
 

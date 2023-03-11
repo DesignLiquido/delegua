@@ -45,8 +45,8 @@ export class InterpretadorComDepuracao
     idChamadaAtual?: string;
     passos: number;
 
-    constructor(diretorioBase: string, funcaoDeRetorno: Function) {
-        super(diretorioBase, false, funcaoDeRetorno);
+    constructor(diretorioBase: string, funcaoDeRetorno: Function, funcaoDeRetornoMesmaLinha: Function) {
+        super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
 
         this.pontosParada = [];
         this.pontoDeParadaAtivo = false;
