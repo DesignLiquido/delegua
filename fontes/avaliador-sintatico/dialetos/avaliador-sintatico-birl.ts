@@ -11,6 +11,7 @@ import {
     Variavel,
 } from '../../construtos';
 import {
+    Bloco,
     Declaracao,
     Enquanto,
     Escolha,
@@ -367,7 +368,62 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoSe(): Se {
-        throw new Error('Método não implementado.');
+        const simboloSe: SimboloInterface = this.consumir(
+            tiposDeSimbolos.ELE,
+            'Esperado expressão `ELE` para condição.'
+        );
+        this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `ELE` para condição.');
+        this.consumir(tiposDeSimbolos.A, 'Esperado expressão `A` após `QUE` para condição.');
+        this.consumir(tiposDeSimbolos.GENTE, 'Esperado expressão `GENTE` após `A` para condição.');
+        this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `GENTE` para condição.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `QUER` para condição.');
+
+        const condicao = this.declaracao();
+
+        this.consumir(
+            tiposDeSimbolos.QUEBRA_LINHA,
+            'Esperado quebra de linha após expressão de condição para condição.'
+        );
+        const declaracoes = [];
+        do {
+            declaracoes.push(this.declaracao());
+        } while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo));
+
+        let caminhoSenao = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NAO)) {
+            const simboloSenao: SimboloInterface = this.consumir(
+                tiposDeSimbolos.NAO,
+                'Esperado expressão `NAO` após expressão de condição.'
+            );
+            this.consumir(tiposDeSimbolos.VAI, 'Esperado expressão `VAI` após `NAO`.');
+            this.consumir(tiposDeSimbolos.DAR, 'Esperado expressão `DAR` após `VAI`.');
+            this.consumir(tiposDeSimbolos.NAO, 'Esperado expressão `NAO` após `DAR`.');
+
+            const declaracaoSenao = [];
+
+            do {
+                declaracaoSenao.push(this.declaracao());
+            } while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo));
+
+            caminhoSenao = new Bloco(
+                this.hashArquivo,
+                Number(simboloSe.linha),
+                declaracaoSenao.filter((d) => d)
+            );
+        }
+
+        this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` após expressão de condição.');
+
+        return new Se(
+            condicao,
+            new Bloco(
+                this.hashArquivo,
+                Number(simboloSe.linha),
+                declaracoes.filter((d) => d)
+            ),
+            [],
+            caminhoSenao
+        );
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
