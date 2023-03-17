@@ -385,12 +385,16 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             'Esperado quebra de linha após expressão de condição para condição.'
         );
         const declaracoes = [];
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUEBRA_LINHA)) {
+            this.consumir(tiposDeSimbolos.QUEBRA_LINHA, '');
+        }
         do {
             declaracoes.push(this.declaracao());
+            this.avancarEDevolverAnterior();
         } while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NAO)) {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)) {
             const simboloSenao: SimboloInterface = this.consumir(
                 tiposDeSimbolos.NAO,
                 'Esperado expressão `NAO` após expressão de condição.'
@@ -438,7 +442,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.QUE:
                 return this.declaracaoLeia();
             case tiposDeSimbolos.ELE:
-            // Retornar uma declaração de IF
+                return this.declaracaoSe();
             case tiposDeSimbolos.NEGATIVA:
             // Retornar uma declaração de WHILE
             case tiposDeSimbolos.MAIS:
@@ -453,10 +457,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 return this.declaracaoCaracteres();
             case tiposDeSimbolos.TRAPEZIO:
                 return this.declaracaoPontoFlutuante();
-            case tiposDeSimbolos.VAMO:
-            // Retornar uma declaração de continue
-            case tiposDeSimbolos.SAI:
-            // Retornar uma declaração de break
             case tiposDeSimbolos.OH:
             // Retornar uma declaração de funcao
             case tiposDeSimbolos.AJUDA:

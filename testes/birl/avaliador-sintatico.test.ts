@@ -1,4 +1,5 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
+import { Se } from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático Birl', () => {
@@ -151,6 +152,38 @@ describe('Avaliador Sintático Birl', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+            it('Sucesso - declaração - if', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   ELE QUE A GENTE QUER? (3 > 2)\n',
+                    '     CE QUER VER ESSA PORRA? ("teste");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
+                expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
+            });
+            it('Sucesso - declaração - if else', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   ELE QUE A GENTE QUER? (1 > 2)\n',
+                    '     CE QUER VER ESSA PORRA? ("teste1");\n',
+                    '   NAO VAI DAR NAO\n',
+                    '     CE QUER VER ESSA PORRA? ("teste");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
+                expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
             });
         });
     });
