@@ -2,11 +2,12 @@ import { Construto, Variavel } from '../../../construtos';
 import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
-import { registrarBibliotecaGlobalVisuAlg } from '../../../bibliotecas/dialetos/visualg';
+import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
 import { VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
+import { registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/dialetos/visualg';
 
 /**
  * O Interpretador VisuAlg possui algumas diferenças em relação ao
@@ -26,7 +27,8 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.mensagemPrompt = '> ';
 
-        registrarBibliotecaGlobalVisuAlg(this, this.pilhaEscoposExecucao);
+        registrarBibliotecaNumericaVisuAlg(this, this.pilhaEscoposExecucao);
+        registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {
@@ -139,11 +141,11 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
             // No VisuAlg, uma variável pode resolver para função porque funções não precisam ter parênteses.
             // Esta parte evita o problema.
-            if (valorEsquerdo.hasOwnProperty('funcao')) {
+            if (valorEsquerdo && valorEsquerdo.hasOwnProperty('funcao')) {
                 valorEsquerdo = valorEsquerdo.funcao();
             }
 
-            if (valorDireito.hasOwnProperty('funcao')) {
+            if (valorDireito && valorDireito.hasOwnProperty('funcao')) {
                 valorDireito = valorDireito.funcao();
             }
 

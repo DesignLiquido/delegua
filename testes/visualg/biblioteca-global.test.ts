@@ -1,5 +1,5 @@
 import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
-import { registrarBibliotecaGlobalVisuAlg } from '../../fontes/bibliotecas/dialetos/visualg';
+import { registrarBibliotecaCaracteresVisuAlg, registrarBibliotecaNumericaVisuAlg } from '../../fontes/bibliotecas/dialetos/visualg';
 import { DeleguaFuncao, FuncaoPadrao } from '../../fontes/estruturas';
 import { SimboloInterface, VariavelInterface } from '../../fontes/interfaces';
 import { EscopoExecucao } from '../../fontes/interfaces/escopo-execucao';
@@ -76,11 +76,11 @@ const mockPilha: PilhaEscoposExecucaoInterface = {
     }
 };
 
-describe('Biblioteca Global', () => {
+describe('Biblioteca Numérica', () => {
     let interpretador: InterpretadorVisuAlg;
 
     beforeAll(() => {
-        registrarBibliotecaGlobalVisuAlg(interpretador, mockPilha);
+        registrarBibliotecaNumericaVisuAlg(interpretador, mockPilha);
     });
 
     describe('Testes triviais', () => {
@@ -182,7 +182,7 @@ describe('Biblioteca Global', () => {
         });
     });
 
-    describe('Testes con fonte completo', () => {
+    describe('Testes com fonte completo', () => {
         let lexador: LexadorVisuAlg;
         let avaliadorSintatico: AvaliadorSintaticoVisuAlg;
         let interpretador: InterpretadorVisuAlg;
@@ -209,6 +209,103 @@ describe('Biblioteca Global', () => {
                 'escreval( int( b / ( a + c ) ) )',
                 'Fimalgoritmo'
             ], -1);
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+});
+
+describe('Biblioteca de caracteres', () => {
+    let interpretador: InterpretadorVisuAlg;
+
+    beforeAll(() => {
+        registrarBibliotecaCaracteresVisuAlg(interpretador, mockPilha);
+    });
+
+    describe('Testes triviais', () => {
+        it('asc', () => {
+            const funcaoAsc = funcoes['asc'].funcao;
+            expect(funcaoAsc('a')).toBe(97);
+        });
+
+        it('carac', () => {
+            const funcaoCarac = funcoes['carac'].funcao;
+            expect(funcaoCarac(97)).toBe('a');
+        });
+
+        it('caracpnum', () => {
+            const funcaoCaracPNum = funcoes['caracpnum'].funcao;
+            expect(funcaoCaracPNum('97')).toBe(97);
+        });
+
+        it('compr', () => {
+            const funcaoCompr = funcoes['compr'].funcao;
+            expect(funcaoCompr('a')).toBe(1);
+        });
+
+        it('copia', () => {
+            const funcaoCopia = funcoes['copia'].funcao;
+            expect(funcaoCopia('Uma cadeia de caracteres', 4, 6)).toBe('cadeia');
+        });
+
+        it('maiusc', () => {
+            const funcaoMaiusc = funcoes['maiusc'].funcao;
+            expect(funcaoMaiusc('a')).toBe('A');
+        });
+
+        it('minusc', () => {
+            const funcaoMinusc = funcoes['minusc'].funcao;
+            expect(funcaoMinusc('A')).toBe('a');
+        });
+
+        it('numpcarac', () => {
+            const funcaoNumPCarac = funcoes['numpcarac'].funcao;
+            expect(funcaoNumPCarac(1)).toBe('1');
+        });
+
+        it('pos', () => {
+            const funcaoPos = funcoes['pos'].funcao;
+            expect(funcaoPos('a', 'a')).toBe(1);
+        });
+    });
+
+    describe('Testes com fonte completo', () => {
+        let lexador: LexadorVisuAlg;
+        let avaliadorSintatico: AvaliadorSintaticoVisuAlg;
+        let interpretador: InterpretadorVisuAlg;
+
+        beforeEach(() => {
+            lexador = new LexadorVisuAlg();
+            avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
+            interpretador = new InterpretadorVisuAlg(process.cwd());
+        });
+        
+        it('Chamadas diversas', async () => {
+            const retornoLexador = lexador.mapear([
+                'Algoritmo "exemplo_funcoes2"',
+                'var',
+                'a, b, c : caractere',
+                'inicio',
+                'a <- "2"',
+                'b <- "9"',
+                'escreval( b + a ) // será escrito "92" na tela',
+                'escreval( caracpnum(b) + caracpnum(a) ) // será escrito 11 na tela',
+                'escreval( numpcarac(3+3) + a ) // será escrito "62" na tela',
+                'c <- "Brasil"',
+                'escreval(maiusc(c)) // será escrito "BRASIL" na tela',
+                'escreval(compr(c)) // será escrito 6 na tela',
+                'b <- "O melhor do Brasil"',
+                'escreval(pos(c,b)) // será escrito 13 na tela',
+                'escreval(asc(c)) // será escrito 66 na tela - código ASCII de "B"',
+                'a <- carac(65) + carac(66) + carac(67)',
+                'escreval(a) // será escrito "ABC" na tela',
+                'Fimalgoritmo'
+            ], -1);
+
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
