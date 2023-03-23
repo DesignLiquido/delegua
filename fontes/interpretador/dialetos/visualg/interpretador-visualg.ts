@@ -2,6 +2,7 @@ import { Construto, Variavel } from '../../../construtos';
 import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
+import { registrarBibliotecaGlobalVisuAlg } from '../../../bibliotecas/dialetos/visualg';
 
 /**
  * O Interpretador VisuAlg possui algumas diferenças em relação ao
@@ -20,6 +21,8 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.mensagemPrompt = '> ';
+
+        registrarBibliotecaGlobalVisuAlg(this, this.pilhaEscoposExecucao);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {
