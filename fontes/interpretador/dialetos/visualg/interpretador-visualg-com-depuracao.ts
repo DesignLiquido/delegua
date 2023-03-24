@@ -1,14 +1,21 @@
+import { registrarBibliotecaNumericaVisuAlg, registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/dialetos/visualg';
 import { Construto, Variavel } from '../../../construtos';
 import { EscrevaMesmaLinha, Escreva, Fazer, Leia } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
+/**
+ * Interpretador com depuração para o dialeto VisuAlg.
+ */
 export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao {
     mensagemPrompt: string;
     
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.mensagemPrompt = '> ';
+
+        registrarBibliotecaNumericaVisuAlg(this, this.pilhaEscoposExecucao);
+        registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

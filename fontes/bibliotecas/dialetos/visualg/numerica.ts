@@ -1,9 +1,9 @@
 import { FuncaoPadrao } from "../../../estruturas";
 import { PilhaEscoposExecucaoInterface } from "../../../interfaces/pilha-escopos-execucao-interface";
-import { InterpretadorVisuAlg } from "../../../interpretador/dialetos";
+import { InterpretadorVisuAlg, InterpretadorVisuAlgComDepuracao } from "../../../interpretador/dialetos";
 
 export function registrarBibliotecaNumericaVisuAlg(
-    interpretador: InterpretadorVisuAlg, 
+    interpretador: InterpretadorVisuAlg | InterpretadorVisuAlgComDepuracao, 
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) 
 {
     pilhaEscoposExecucao.definirVariavel(
