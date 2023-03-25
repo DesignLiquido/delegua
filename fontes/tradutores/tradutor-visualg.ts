@@ -91,9 +91,9 @@ export class TradutorVisualg {
         }
     }
 
-    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
-    }
+    // traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
+    //     return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
+    // }
 
     traduzirConstrutoAtribuir(atribuir: Atribuir): string {
         let resultado = atribuir.simbolo.lexema;
@@ -481,13 +481,13 @@ export class TradutorVisualg {
     //     return resultado;
     // }
 
-    traduzirConstrutoLogico(logico: Logico): string {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
-        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+    // traduzirConstrutoLogico(logico: Logico): string {
+    //     let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+    //     let operador = this.traduzirSimboloOperador(logico.operador);
+    //     let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
 
-        return `${direita} ${operador} ${esquerda}`;
-    }
+    //     return `${direita} ${operador} ${esquerda}`;
+    // }
 
     // traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
     //     let resultado = '';
@@ -541,17 +541,17 @@ export class TradutorVisualg {
     //     return resultado;
     // }
 
-    traduzirConstrutoUnario(unario: Unario): string {
-        let resultado = '';
-        resultado += this.traduzirSimboloOperador(unario.operador);
-        resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
-        return resultado;
-    }
+    // traduzirConstrutoUnario(unario: Unario): string {
+    //     let resultado = '';
+    //     resultado += this.traduzirSimboloOperador(unario.operador);
+    //     resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
+    //     return resultado;
+    // }
 
     dicionarioConstrutos = {
         // AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         // AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
-        Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         // AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
@@ -560,8 +560,8 @@ export class TradutorVisualg {
         // FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         // Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
-        Logico: this.traduzirConstrutoLogico.bind(this),
-        Unario: this.traduzirConstrutoUnario.bind(this),
+        // Logico: this.traduzirConstrutoLogico.bind(this),
+        // Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         // Vetor: this.traduzirConstrutoVetor.bind(this),
     };
