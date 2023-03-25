@@ -3,13 +3,13 @@ import { TradutorVisualg } from '../../fontes/tradutores/tradutor-visualg';
 describe('Tradutor Reverso JavaScript -> Delégua', () => {
     const tradutor: TradutorVisualg = new TradutorVisualg();
 
-    describe('Código', () => {
+     describe('Código', () => {
         it('escreva -> escreva', () => {
             const codigo = `
             algoritmo "escreva"
             inicio
             escreval("Olá")
-            escreval("Mundo")
+            escreva("Mundo")
             fimalgoritmo
             `;
 
@@ -18,6 +18,29 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Olá'\)/i);
             expect(resultado).toMatch(/escreva\('Mundo'\)/i);
         });
+
+        it('declaração de variaveis', () => {
+            const codigo = `
+            algoritmo "media-vetor"
+            var
+            media:vetor[1..10] de real
+            i:inteiro
+            n1,n2:real
+            inicio
+            escreval(1 + 1)
+            escreva("2 - 1")
+            fimalgoritmo
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var media = \[\]/i);
+            expect(resultado).toMatch(/var i = 0/i);
+            expect(resultado).toMatch(/var n1 = 0/i);
+            expect(resultado).toMatch(/var n2 = 0/i);
+            expect(resultado).toMatch(/escreva\(1 \+ 1\)/i);
+            expect(resultado).toMatch(/escreva\('2 \- 1'\)/i);
+        })
 
         // it('comparacao de valores -> igualdade', () => {
         //     const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;

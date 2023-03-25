@@ -32,11 +32,10 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { SimboloInterface, TradutorInterface } from '../interfaces';
+import { SimboloInterface } from '../interfaces';
 import { CaminhoEscolha } from '../interfaces/construtos';
 
 import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
-import { InterpretadorVisuAlg } from "../../fontes/interpretador/dialetos";
 import { LexadorVisuAlg } from '../../fontes/lexador/dialetos';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -436,9 +435,11 @@ export class TradutorVisualg {
     }
 
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
-        let resultado = 'let ';
+        let resultado = 'var ';
         resultado += declaracaoVar.simbolo.lexema;
         if (!declaracaoVar?.inicializador) resultado += ';';
+        else if (Array.isArray(declaracaoVar?.inicializador.valor))
+            resultado += ' = []'
         else {
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
@@ -453,6 +454,10 @@ export class TradutorVisualg {
             resultado += ';';
         }
         return resultado;
+    }
+
+    tradzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: any): string {
+        return this.traduzirDeclaracaoEscreva(declaracaoEscreva);
     }
 
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
@@ -568,6 +573,7 @@ export class TradutorVisualg {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
         Continua: () => 'continue',
+        EscrevaMesmaLinha: this.tradzirDeclaracaoEscrevaMesmaLinha.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
