@@ -37,7 +37,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     private validarSegmentoAlgoritmo(): void {
         this.consumir(tiposDeSimbolos.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
 
-        this.consumir(tiposDeSimbolos.CARACTERE, "Esperad cadeia de caracteres após palavra-chave 'algoritmo'.");
+        this.consumir(tiposDeSimbolos.CARACTERE, "Esperada cadeia de caracteres após palavra-chave 'algoritmo'.");
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
     }

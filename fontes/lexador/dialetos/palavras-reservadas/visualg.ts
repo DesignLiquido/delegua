@@ -7,6 +7,7 @@ export default {
     arcsen: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     arctan: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     ate: tiposDeSimbolos.ATE,
+    caracter: tiposDeSimbolos.CARACTER,
     caractere: tiposDeSimbolos.CARACTERE,
     caso: tiposDeSimbolos.CASO,
     cos: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
