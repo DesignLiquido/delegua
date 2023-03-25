@@ -891,6 +891,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
 
+        for (let indice = 0; indice < this.simbolos.length; indice++) {
+            if(this.simbolos[indice].tipo === tiposDeSimbolos.ALGORITMO)
+                break;
+            if(this.simbolos[indice].tipo === tiposDeSimbolos.QUEBRA_LINHA)
+                this.avancarEDevolverAnterior()
+        }
+
         let declaracoes = [];
         this.validarSegmentoAlgoritmo();
         declaracoes = declaracoes.concat(this.validarSegmentoVar());
