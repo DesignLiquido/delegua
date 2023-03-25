@@ -42,6 +42,24 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('2 \- 1'\)/i);
         })
 
+        it('laço de repetição para', () => {
+            const codigo = `
+            algoritmo "media-vetor"
+            var
+            i:inteiro
+            inicio
+            para i de 1 ate 10 faca
+                 escreval ("Digite a nota do",i,"º Aluno")
+            fimpara
+            fimalgoritmo
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var i = 0/i);
+            expect(resultado).toMatch(/para \(i = 1 ;i < 10; i = i \+ 1\)/i);
+        })
+
         // it('comparacao de valores -> igualdade', () => {
         //     const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;
 

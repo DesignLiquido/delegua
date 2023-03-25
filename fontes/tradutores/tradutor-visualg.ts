@@ -41,9 +41,7 @@ import { LexadorVisuAlg } from '../../fontes/lexador/dialetos';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
- * Esse tradutor traduz para JavaScript sem módulos, o que significa que
- * instruções em Delégua como `leia()` e `importar()` não são suportadas.
- * O tradutor levantará erro toda vez que essas instruções são encontradas.
+ * Esse tradutor traduz de VisuAlg para Delégua
  */
 export class TradutorVisualg {
     indentacao: number = 0;
@@ -119,15 +117,15 @@ export class TradutorVisualg {
         return resultado;
     }
 
-    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-        let resultado = '';
-        if (definirValor.objeto instanceof Isto) {
-            resultado = 'this.' + definirValor.nome.lexema + ' = ';
-        }
+    // traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
+    //     let resultado = '';
+    //     if (definirValor.objeto instanceof Isto) {
+    //         resultado = 'this.' + definirValor.nome.lexema + ' = ';
+    //     }
 
-        resultado += definirValor.valor.simbolo.lexema;
-        return resultado;
-    }
+    //     resultado += definirValor.valor.simbolo.lexema;
+    //     return resultado;
+    // }
 
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
@@ -138,30 +136,29 @@ export class TradutorVisualg {
         return variavel.simbolo.lexema;
     }
 
-    traduzirConstrutoChamada(chamada: Chamada): string {
-        // let resultado = '';
+    // traduzirConstrutoChamada(chamada: Chamada): string {
+    //     let resultado = '';
 
-        // const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
-        //     chamada.entidadeChamada
-        // )}`;
+    //     const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
+    //         chamada.entidadeChamada
+    //     )}`;
 
-        // const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
-        // if (instanciaClasse) {
-        //     const classe = this.declaracoesDeClasses.find((declaracao) => declaracao?.simbolo?.lexema === retorno);
-        //     if (classe.simbolo.lexema === retorno) resultado += `new ${retorno}`;
-        // } else {
-        //     resultado += retorno;
-        // }
-        // resultado += '(';
-        // for (let parametro of chamada.argumentos) {
-        //     resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
-        // }
-        // if (chamada.argumentos.length > 0) {
-        //     resultado = resultado.slice(0, -2);
-        // }
-        // resultado += ')';
-        return '';
-    }
+    //     const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
+    //     if (instanciaClasse) {
+    //         const classe = this.declaracoesDeClasses.find((declaracao) => declaracao?.simbolo?.lexema === retorno);
+    //         if (classe.simbolo.lexema === retorno) resultado += `new ${retorno}`;
+    //     } else {
+    //         resultado += retorno;
+    //     }
+    //     resultado += '(';
+    //     for (let parametro of chamada.argumentos) {
+    //         resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
+    //     }
+    //     if (chamada.argumentos.length > 0) {
+    //         resultado = resultado.slice(0, -2);
+    //     }
+    //     resultado += ')';
+    // }
 
     logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '{\n';
@@ -190,96 +187,96 @@ export class TradutorVisualg {
         return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
     }
 
-    logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
-        this.indentacao += 4;
-        let resultado = ' '.repeat(this.indentacao);
-        resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
+    // logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
+    //     this.indentacao += 4;
+    //     let resultado = ' '.repeat(this.indentacao);
+    //     resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
 
-        for (let parametro of metodoClasse.funcao.parametros) {
-            resultado += parametro.nome.lexema + ', ';
-        }
-        if (metodoClasse.funcao.parametros.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
+    //     for (let parametro of metodoClasse.funcao.parametros) {
+    //         resultado += parametro.nome.lexema + ', ';
+    //     }
+    //     if (metodoClasse.funcao.parametros.length > 0) {
+    //         resultado = resultado.slice(0, -2);
+    //     }
 
-        resultado += ') ';
-        resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
-        resultado += ' '.repeat(this.indentacao) + '\n';
+    //     resultado += ') ';
+    //     resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
+    //     resultado += ' '.repeat(this.indentacao) + '\n';
 
-        this.indentacao -= 4;
-        return resultado;
-    }
+    //     this.indentacao -= 4;
+    //     return resultado;
+    // }
 
-    traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
-        let resultado = 'export class ';
+    // traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
+    //     let resultado = 'export class ';
 
-        if (declaracaoClasse.superClasse)
-            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`;
-        else resultado += declaracaoClasse.simbolo.lexema + ' {\n';
+    //     if (declaracaoClasse.superClasse)
+    //         resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`;
+    //     else resultado += declaracaoClasse.simbolo.lexema + ' {\n';
 
-        for (let metodo of declaracaoClasse.metodos) {
-            resultado += this.logicaTraducaoMetodoClasse(metodo);
-        }
+    //     for (let metodo of declaracaoClasse.metodos) {
+    //         resultado += this.logicaTraducaoMetodoClasse(metodo);
+    //     }
 
-        resultado += '}';
-        return resultado;
-    }
+    //     resultado += '}';
+    //     return resultado;
+    // }
 
-    traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
-        let resultado = 'while (';
-        resultado +=
-            this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao) + ') ';
-        resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
-        return resultado;
-    }
+    // traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
+    //     let resultado = 'while (';
+    //     resultado +=
+    //         this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao) + ') ';
+    //     resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
+    //     return resultado;
+    // }
 
-    logicaComumCaminhosEscolha(caminho: CaminhoEscolha): string {
-        let resultado = '';
-        this.indentacao += 4;
-        resultado += ' '.repeat(this.indentacao);
-        if (caminho?.condicoes?.length) {
-            for (let condicao of caminho.condicoes) {
-                resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-                resultado += ' '.repeat(this.indentacao);
-            }
-        }
-        if (caminho?.declaracoes?.length) {
-            for (let declaracao of caminho.declaracoes) {
-                resultado += ' '.repeat(this.indentacao + 4);
-                if (declaracao?.simboloChave?.lexema === 'retorna') {
-                    resultado +=
-                        'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
-                }
-                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-            }
-            resultado += ' '.repeat(this.indentacao + 4);
-            resultado += 'break' + '\n';
-        }
+    // logicaComumCaminhosEscolha(caminho: CaminhoEscolha): string {
+    //     let resultado = '';
+    //     this.indentacao += 4;
+    //     resultado += ' '.repeat(this.indentacao);
+    //     if (caminho?.condicoes?.length) {
+    //         for (let condicao of caminho.condicoes) {
+    //             resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+    //             resultado += ' '.repeat(this.indentacao);
+    //         }
+    //     }
+    //     if (caminho?.declaracoes?.length) {
+    //         for (let declaracao of caminho.declaracoes) {
+    //             resultado += ' '.repeat(this.indentacao + 4);
+    //             if (declaracao?.simboloChave?.lexema === 'retorna') {
+    //                 resultado +=
+    //                     'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
+    //             }
+    //             resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+    //         }
+    //         resultado += ' '.repeat(this.indentacao + 4);
+    //         resultado += 'break' + '\n';
+    //     }
 
-        this.indentacao -= 4;
-        return resultado;
-    }
+    //     this.indentacao -= 4;
+    //     return resultado;
+    // }
 
-    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
-        let resultado = 'switch (';
-        resultado +=
-            this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](
-                declaracaoEscolha.identificadorOuLiteral
-            ) + ') {\n';
+    // traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
+    //     let resultado = 'switch (';
+    //     resultado +=
+    //         this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](
+    //             declaracaoEscolha.identificadorOuLiteral
+    //         ) + ') {\n';
 
-        for (let caminho of declaracaoEscolha.caminhos) {
-            resultado += this.logicaComumCaminhosEscolha(caminho);
-        }
+    //     for (let caminho of declaracaoEscolha.caminhos) {
+    //         resultado += this.logicaComumCaminhosEscolha(caminho);
+    //     }
 
-        if (declaracaoEscolha.caminhoPadrao) {
-            resultado += ' '.repeat(4);
-            resultado += 'default:\n';
-            resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
-        }
+    //     if (declaracaoEscolha.caminhoPadrao) {
+    //         resultado += ' '.repeat(4);
+    //         resultado += 'default:\n';
+    //         resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
+    //     }
 
-        resultado += '}\n';
-        return resultado;
-    }
+    //     resultado += '}\n';
+    //     return resultado;
+    // }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
@@ -293,54 +290,54 @@ export class TradutorVisualg {
         return resultado;
     }
 
-    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
-        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
-    }
+    // traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
+    //     return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+    // }
 
-    traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {
-        let resultado = 'do ';
-        resultado += this.dicionarioDeclaracoes[declaracaoFazer.caminhoFazer.constructor.name](
-            declaracaoFazer.caminhoFazer
-        );
-        resultado +=
-            'while (' +
-            this.dicionarioConstrutos[declaracaoFazer.condicaoEnquanto.constructor.name](
-                declaracaoFazer.condicaoEnquanto
-            ) +
-            ') ';
-        return resultado;
-    }
+    // traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {
+    //     let resultado = 'do ';
+    //     resultado += this.dicionarioDeclaracoes[declaracaoFazer.caminhoFazer.constructor.name](
+    //         declaracaoFazer.caminhoFazer
+    //     );
+    //     resultado +=
+    //         'while (' +
+    //         this.dicionarioConstrutos[declaracaoFazer.condicaoEnquanto.constructor.name](
+    //             declaracaoFazer.condicaoEnquanto
+    //         ) +
+    //         ') ';
+    //     return resultado;
+    // }
 
-    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
-        let resultado = 'function ';
-        resultado += declaracaoFuncao.simbolo.lexema + ' (';
+    // traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
+    //     let resultado = 'function ';
+    //     resultado += declaracaoFuncao.simbolo.lexema + ' (';
 
-        for (const parametro of declaracaoFuncao.funcao.parametros) {
-            resultado += parametro.nome.lexema + ', ';
-        }
+    //     for (const parametro of declaracaoFuncao.funcao.parametros) {
+    //         resultado += parametro.nome.lexema + ', ';
+    //     }
 
-        if (declaracaoFuncao.funcao.parametros.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
+    //     if (declaracaoFuncao.funcao.parametros.length > 0) {
+    //         resultado = resultado.slice(0, -2);
+    //     }
 
-        resultado += ') ';
+    //     resultado += ') ';
 
-        resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
-        return resultado;
-    }
+    //     resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
+    //     return resultado;
+    // }
 
-    traduzirDeclaracaoImportar(declaracaoImportar: Importar) {
-        return `'importar() não é suportado por este padrão de JavaScript'`;
-    }
+    // traduzirDeclaracaoImportar(declaracaoImportar: Importar) {
+    //     return `'importar() não é suportado por este padrão de JavaScript'`;
+    // }
 
-    traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
-        return `'leia() não é suportado por este padrão de JavaScript.'`;
-    }
+    // traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
+    //     return `'leia() não é suportado por este padrão de JavaScript.'`;
+    // }
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
-        let resultado = 'for (';
+        let resultado = 'para (';
         resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
+            this.dicionarioConstrutos[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
             ' ';
 
         resultado += !resultado.includes(';') ? ';' : '';
@@ -354,85 +351,85 @@ export class TradutorVisualg {
         return resultado;
     }
 
-    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
-        let resultado = 'return ';
-        const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
-        return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
-    }
+    // traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
+    //     let resultado = 'return ';
+    //     const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
+    //     return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
+    // }
 
-    traduzirDeclaracaoSe(declaracaoSe: Se): string {
-        let resultado = 'if (';
+    // traduzirDeclaracaoSe(declaracaoSe: Se): string {
+    //     let resultado = 'if (';
 
-        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
+    //     const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
 
-        resultado += condicao;
+    //     resultado += condicao;
 
-        resultado += ')';
-        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+    //     resultado += ')';
+    //     resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
-        if (declaracaoSe.caminhoSenao !== null) {
-            resultado += ' '.repeat(this.indentacao);
-            resultado += 'else ';
-            const se = declaracaoSe?.caminhoSenao as Se;
-            if (se?.caminhoEntao) {
-                resultado += 'if (';
-                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
-                resultado += ')';
-                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-                resultado += ' '.repeat(this.indentacao);
-                if (se?.caminhoSenao) {
-                    resultado += 'else ';
-                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
-                    return resultado;
-                }
-            }
+    //     if (declaracaoSe.caminhoSenao !== null) {
+    //         resultado += ' '.repeat(this.indentacao);
+    //         resultado += 'else ';
+    //         const se = declaracaoSe?.caminhoSenao as Se;
+    //         if (se?.caminhoEntao) {
+    //             resultado += 'if (';
+    //             resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+    //             resultado += ')';
+    //             resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+    //             resultado += ' '.repeat(this.indentacao);
+    //             if (se?.caminhoSenao) {
+    //                 resultado += 'else ';
+    //                 resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
+    //                 return resultado;
+    //             }
+    //         }
 
-            resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
-                declaracaoSe.caminhoSenao
-            );
-        }
+    //         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
+    //             declaracaoSe.caminhoSenao
+    //         );
+    //     }
 
-        return resultado;
-    }
+    //     return resultado;
+    // }
 
-    traduzirDeclaracaoTente(declaracaoTente: Tente): string {
-        let resultado = 'try {\n';
-        this.indentacao += 4;
-        resultado += ' '.repeat(this.indentacao);
+    // traduzirDeclaracaoTente(declaracaoTente: Tente): string {
+    //     let resultado = 'try {\n';
+    //     this.indentacao += 4;
+    //     resultado += ' '.repeat(this.indentacao);
 
-        for (let condicao of declaracaoTente.caminhoTente) {
-            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
-            resultado += ' '.repeat(this.indentacao);
-        }
-        resultado += '}';
+    //     for (let condicao of declaracaoTente.caminhoTente) {
+    //         resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
+    //         resultado += ' '.repeat(this.indentacao);
+    //     }
+    //     resultado += '}';
 
-        if (declaracaoTente.caminhoPegue !== null) {
-            resultado += '\ncatch {\n';
-            resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
-                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
-                }
-            }
+    //     if (declaracaoTente.caminhoPegue !== null) {
+    //         resultado += '\ncatch {\n';
+    //         resultado += ' '.repeat(this.indentacao);
+    //         if (Array.isArray(declaracaoTente.caminhoPegue)) {
+    //             for (let declaracao of declaracaoTente.caminhoPegue) {
+    //                 resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+    //             }
+    //         } else {
+    //             for (let corpo of declaracaoTente.caminhoPegue.corpo) {
+    //                 resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
+    //             }
+    //         }
 
-            resultado += ' '.repeat(this.indentacao);
-            resultado += '}';
-        }
-        if (declaracaoTente.caminhoFinalmente !== null) {
-            resultado += '\nfinally {\n';
-            for (let finalmente of declaracaoTente.caminhoFinalmente) {
-                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
-            }
-            resultado += ' '.repeat(this.indentacao);
-            resultado += '}';
-        }
+    //         resultado += ' '.repeat(this.indentacao);
+    //         resultado += '}';
+    //     }
+    //     if (declaracaoTente.caminhoFinalmente !== null) {
+    //         resultado += '\nfinally {\n';
+    //         for (let finalmente of declaracaoTente.caminhoFinalmente) {
+    //             resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
+    //         }
+    //         resultado += ' '.repeat(this.indentacao);
+    //         resultado += '}';
+    //     }
 
-        return resultado;
-    }
+    //     return resultado;
+    // }
 
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'var ';
@@ -460,29 +457,29 @@ export class TradutorVisualg {
         return this.traduzirDeclaracaoEscreva(declaracaoEscreva);
     }
 
-    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
-        if (acessoMetodo.objeto instanceof Variavel) {
-            let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
-        }
-        return `this.${acessoMetodo.simbolo.lexema}`;
-    }
+    // trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+    //     if (acessoMetodo.objeto instanceof Variavel) {
+    //         let objetoVariavel = acessoMetodo.objeto as Variavel;
+    //         return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+    //     }
+    //     return `this.${acessoMetodo.simbolo.lexema}`;
+    // }
 
-    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
-        let resultado = 'function(';
-        for (const parametro of funcaoConstruto.parametros) {
-            resultado += parametro.nome.lexema + ', ';
-        }
+    // traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
+    //     let resultado = 'function(';
+    //     for (const parametro of funcaoConstruto.parametros) {
+    //         resultado += parametro.nome.lexema + ', ';
+    //     }
 
-        if (funcaoConstruto.parametros.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
+    //     if (funcaoConstruto.parametros.length > 0) {
+    //         resultado = resultado.slice(0, -2);
+    //     }
 
-        resultado += ') ';
+    //     resultado += ') ';
 
-        resultado += this.logicaComumBlocoEscopo(funcaoConstruto.corpo);
-        return resultado;
-    }
+    //     resultado += this.logicaComumBlocoEscopo(funcaoConstruto.corpo);
+    //     return resultado;
+    // }
 
     traduzirConstrutoLogico(logico: Logico): string {
         let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
@@ -492,57 +489,57 @@ export class TradutorVisualg {
         return `${direita} ${operador} ${esquerda}`;
     }
 
-    traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
-        let resultado = '';
+    // traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
+    //     let resultado = '';
 
-        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
-        resultado +=
-            this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
-            ']';
-        resultado += ' = ';
+    //     resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+    //     resultado +=
+    //         this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+    //         ']';
+    //     resultado += ' = ';
 
-        if (atribuicaoSobrescrita?.valor?.simbolo?.lexema) {
-            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
-        } else {
-            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](
-                atribuicaoSobrescrita.valor
-            );
-        }
+    //     if (atribuicaoSobrescrita?.valor?.simbolo?.lexema) {
+    //         resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
+    //     } else {
+    //         resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](
+    //             atribuicaoSobrescrita.valor
+    //         );
+    //     }
 
-        return resultado;
-    }
+    //     return resultado;
+    // }
 
-    traduzirAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
-        let resultado = '';
+    // traduzirAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
+    //     let resultado = '';
 
-        resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](
-            acessoIndiceVariavel.entidadeChamada
-        );
-        resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
-            acessoIndiceVariavel.indice
-        )}]`;
+    //     resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](
+    //         acessoIndiceVariavel.entidadeChamada
+    //     );
+    //     resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
+    //         acessoIndiceVariavel.indice
+    //     )}]`;
 
-        return resultado;
-    }
+    //     return resultado;
+    // }
 
-    traduzirConstrutoVetor(vetor: Vetor): string {
-        if (!vetor.valores.length) {
-            return '[]';
-        }
+    // traduzirConstrutoVetor(vetor: Vetor): string {
+    //     if (!vetor.valores.length) {
+    //         return '[]';
+    //     }
 
-        let resultado = '[';
+    //     let resultado = '[';
 
-        for (let valor of vetor.valores) {
-            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
-        }
-        if (vetor.valores.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
+    //     for (let valor of vetor.valores) {
+    //         resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
+    //     }
+    //     if (vetor.valores.length > 0) {
+    //         resultado = resultado.slice(0, -2);
+    //     }
 
-        resultado += ']';
+    //     resultado += ']';
 
-        return resultado;
-    }
+    //     return resultado;
+    // }
 
     traduzirConstrutoUnario(unario: Unario): string {
         let resultado = '';
@@ -552,41 +549,41 @@ export class TradutorVisualg {
     }
 
     dicionarioConstrutos = {
-        AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
+        // AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
+        // AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-        AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
+        // AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
-        Chamada: this.traduzirConstrutoChamada.bind(this),
-        DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
-        FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
-        Isto: () => 'this',
+        // Chamada: this.traduzirConstrutoChamada.bind(this),
+        // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        // FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
+        // Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
-        Vetor: this.traduzirConstrutoVetor.bind(this),
+        // Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
-        Classe: this.traduzirDeclaracaoClasse.bind(this),
-        Continua: () => 'continue',
+        // Classe: this.traduzirDeclaracaoClasse.bind(this),
+        // Continua: () => 'continue',
         EscrevaMesmaLinha: this.tradzirDeclaracaoEscrevaMesmaLinha.bind(this),
-        Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
-        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
+        // Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        // Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
-        Expressao: this.traduzirDeclaracaoExpressao.bind(this),
-        Fazer: this.traduzirDeclaracaoFazer.bind(this),
-        FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
-        Importar: this.traduzirDeclaracaoImportar.bind(this),
-        Leia: this.traduzirDeclaracaoLeia.bind(this),
+        // Expressao: this.traduzirDeclaracaoExpressao.bind(this),
+        // Fazer: this.traduzirDeclaracaoFazer.bind(this),
+        // FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
+        // Importar: this.traduzirDeclaracaoImportar.bind(this),
+        // Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
-        Sustar: () => 'break',
-        Retorna: this.traduzirDeclaracaoRetorna.bind(this),
-        Se: this.traduzirDeclaracaoSe.bind(this),
-        Tente: this.traduzirDeclaracaoTente.bind(this),
+        // Sustar: () => 'break',
+        // Retorna: this.traduzirDeclaracaoRetorna.bind(this),
+        // Se: this.traduzirDeclaracaoSe.bind(this),
+        // Tente: this.traduzirDeclaracaoTente.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
     };
 
