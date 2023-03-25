@@ -264,9 +264,8 @@ export class TradutorReversoJavaScript {
                     resultado += ')';
                     resultado += this.logicaComumBlocoEscopo(_corpo.value);
                 }
-            } else if (corpo.constructor.name === 'PropertyDefinition') {
-            } else if (corpo.constructor.name === 'StaticBlock') {
-            }
+            } // else if (corpo.constructor.name === 'PropertyDefinition') {} 
+            // else if (corpo.constructor.name === 'StaticBlock') {}
         }
 
         this.indentacao -= 4;
