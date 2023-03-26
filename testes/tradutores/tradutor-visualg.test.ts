@@ -60,6 +60,34 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/para \(i = 1 ;i < 10; i = i \+ 1\)/i);
         })
 
+        it('cálculo imc com se/senão', () => {
+            const codigo = `
+            Algoritmo "CalculaIMC"
+            Var
+                M: Real
+                A: Real
+                IMC: Real
+            Inicio
+               Escreva("Massa(Kg): ")
+               Leia(M)
+               Escreva("Altura (m): ")
+               Leia(A)
+               IMC <- M / (A ^ 2)
+               Escreval("IMC: ", IMC:5:2)
+               Se (IMC >= 18.5) e (IMC < 25) entao
+                  Escreva("Parabens! Voce esta no seu peso ideal")
+               senao
+                  Escreva("Voce nao esta na faixa de peso ideal")
+               Fimse
+            Fimalgoritmo
+            `
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/se \(imc < 25 e imc >= 18.5\)/i);
+            expect(resultado).toMatch(/senao {/i);
+        })
+
         // it('comparacao de valores -> igualdade', () => {
         //     const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;
 
