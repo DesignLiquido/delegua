@@ -4,9 +4,7 @@ import {
     Binario,
     Literal,
     Logico,
-    Unario,
     Variavel,
-    Vetor,
 } from '../construtos';
 import {
     Bloco,
