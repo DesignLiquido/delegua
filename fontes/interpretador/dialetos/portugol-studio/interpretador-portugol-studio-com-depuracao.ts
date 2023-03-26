@@ -1,14 +1,13 @@
 import { Leia } from "../../../declaracoes";
-import { InterpretadorBase } from "../../interpretador-base";
 import { visitarExpressaoLeiaComum } from "./comum";
+import { InterpretadorComDepuracao } from "../../interpretador-com-depuracao";
 
-export class InterpretadorPortugolStudio extends InterpretadorBase {
-    constructor(
-        diretorioBase: string,
-        performance = false,
-        funcaoDeRetorno: Function = null
-        ) {
-            super(diretorioBase, performance, funcaoDeRetorno);
+export class InterpretadorPortugolStudioComDepuracao extends InterpretadorComDepuracao {
+    mensagemPrompt: string;
+
+    constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
+        super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
+        this.mensagemPrompt = '> ';
     }
 
     /**
