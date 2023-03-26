@@ -1,14 +1,7 @@
 import {
-    AcessoIndiceVariavel,
-    AcessoMetodo,
     Agrupamento,
-    AtribuicaoSobrescrita,
     Atribuir,
     Binario,
-    Chamada,
-    DefinirValor,
-    FuncaoConstruto,
-    Isto,
     Literal,
     Logico,
     Unario,
@@ -17,23 +10,12 @@ import {
 } from '../construtos';
 import {
     Bloco,
-    Classe,
     Declaracao,
-    Enquanto,
-    Escolha,
-    Escreva,
-    Expressao,
-    Fazer,
-    FuncaoDeclaracao,
-    Importar,
     Para,
-    Retorna,
     Se,
-    Tente,
     Var,
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
-import { CaminhoEscolha } from '../interfaces/construtos';
 
 import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
 import { LexadorVisuAlg } from '../../fontes/lexador/dialetos';
@@ -61,17 +43,17 @@ export class TradutorVisualg {
             case tiposDeSimbolos.BIT_NOT:
                 return '~';
             case tiposDeSimbolos.DIFERENTE:
-                return '!==';
+                return '!=';
             case tiposDeSimbolos.DIVISAO:
                 return '/';
             case tiposDeSimbolos.E:
-                return '&&';
+                return 'e';
             case tiposDeSimbolos.EXPONENCIACAO:
                 return '**';
             case tiposDeSimbolos.IGUAL:
                 return '=';
             case tiposDeSimbolos.IGUAL_IGUAL:
-                return '===';
+                return '==';
             case tiposDeSimbolos.MAIOR:
                 return '>';
             case tiposDeSimbolos.MAIOR_IGUAL:
@@ -85,17 +67,17 @@ export class TradutorVisualg {
             case tiposDeSimbolos.MULTIPLICACAO:
                 return '*';
             case tiposDeSimbolos.OU:
-                return '||';
+                return 'ou';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
         }
     }
 
-    // traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-    //     return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
-    // }
+    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
+        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
+    }
 
-    traduzirConstrutoAtribuir(atribuir: Atribuir): string {
+    traduzirDeclaracaoAtribuir(atribuir: Atribuir): string {
         let resultado = atribuir.simbolo.lexema;
         resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
@@ -117,16 +99,6 @@ export class TradutorVisualg {
         return resultado;
     }
 
-    // traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-    //     let resultado = '';
-    //     if (definirValor.objeto instanceof Isto) {
-    //         resultado = 'this.' + definirValor.nome.lexema + ' = ';
-    //     }
-
-    //     resultado += definirValor.valor.simbolo.lexema;
-    //     return resultado;
-    // }
-
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
         return literal.valor;
@@ -135,30 +107,6 @@ export class TradutorVisualg {
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return variavel.simbolo.lexema;
     }
-
-    // traduzirConstrutoChamada(chamada: Chamada): string {
-    //     let resultado = '';
-
-    //     const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
-    //         chamada.entidadeChamada
-    //     )}`;
-
-    //     const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
-    //     if (instanciaClasse) {
-    //         const classe = this.declaracoesDeClasses.find((declaracao) => declaracao?.simbolo?.lexema === retorno);
-    //         if (classe.simbolo.lexema === retorno) resultado += `new ${retorno}`;
-    //     } else {
-    //         resultado += retorno;
-    //     }
-    //     resultado += '(';
-    //     for (let parametro of chamada.argumentos) {
-    //         resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
-    //     }
-    //     if (chamada.argumentos.length > 0) {
-    //         resultado = resultado.slice(0, -2);
-    //     }
-    //     resultado += ')';
-    // }
 
     logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '{\n';
@@ -186,41 +134,6 @@ export class TradutorVisualg {
     traduzirDeclaracaoBloco(declaracaoBloco: Bloco): string {
         return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
     }
-
-    // logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
-    //     this.indentacao += 4;
-    //     let resultado = ' '.repeat(this.indentacao);
-    //     resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
-
-    //     for (let parametro of metodoClasse.funcao.parametros) {
-    //         resultado += parametro.nome.lexema + ', ';
-    //     }
-    //     if (metodoClasse.funcao.parametros.length > 0) {
-    //         resultado = resultado.slice(0, -2);
-    //     }
-
-    //     resultado += ') ';
-    //     resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
-    //     resultado += ' '.repeat(this.indentacao) + '\n';
-
-    //     this.indentacao -= 4;
-    //     return resultado;
-    // }
-
-    // traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
-    //     let resultado = 'export class ';
-
-    //     if (declaracaoClasse.superClasse)
-    //         resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`;
-    //     else resultado += declaracaoClasse.simbolo.lexema + ' {\n';
-
-    //     for (let metodo of declaracaoClasse.metodos) {
-    //         resultado += this.logicaTraducaoMetodoClasse(metodo);
-    //     }
-
-    //     resultado += '}';
-    //     return resultado;
-    // }
 
     // traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
     //     let resultado = 'while (';
@@ -330,14 +243,20 @@ export class TradutorVisualg {
     //     return `'importar() não é suportado por este padrão de JavaScript'`;
     // }
 
-    // traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
-    //     return `'leia() não é suportado por este padrão de JavaScript.'`;
-    // }
+    traduzirDeclaracaoLeia(declaracaoLeia: any) {
+        let resultado = 'leia('
+        for (const parametro of declaracaoLeia.argumentos) {
+            resultado += this.dicionarioConstrutos[parametro.constructor.name](declaracaoLeia.argumentos[0]);
+        }
+        resultado += ')'
+
+        return resultado;
+    }
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'para (';
         resultado +=
-            this.dicionarioConstrutos[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
+            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
             ' ';
 
         resultado += !resultado.includes(';') ? ';' : '';
@@ -345,7 +264,7 @@ export class TradutorVisualg {
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
         resultado +=
-            this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ') ';
+            this.dicionarioDeclaracoes[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ') ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](declaracaoPara.corpo);
         return resultado;
@@ -357,40 +276,41 @@ export class TradutorVisualg {
     //     return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
     // }
 
-    // traduzirDeclaracaoSe(declaracaoSe: Se): string {
-    //     let resultado = 'if (';
+    traduzirDeclaracaoSe(declaracaoSe: Se): string {
+        let resultado = 'se (';
 
-    //     const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
+        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
 
-    //     resultado += condicao;
+        resultado += condicao;
 
-    //     resultado += ')';
-    //     resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+        resultado += ')';
+        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
-    //     if (declaracaoSe.caminhoSenao !== null) {
-    //         resultado += ' '.repeat(this.indentacao);
-    //         resultado += 'else ';
-    //         const se = declaracaoSe?.caminhoSenao as Se;
-    //         if (se?.caminhoEntao) {
-    //             resultado += 'if (';
-    //             resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
-    //             resultado += ')';
-    //             resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-    //             resultado += ' '.repeat(this.indentacao);
-    //             if (se?.caminhoSenao) {
-    //                 resultado += 'else ';
-    //                 resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
-    //                 return resultado;
-    //             }
-    //         }
+        if (declaracaoSe.caminhoSenao !== null) {
+            resultado += ' '.repeat(this.indentacao);
+            resultado += 'senao ';
+            //TODO: Verificar se VisuAlg tem `senão se` @Samuel
+            // const se = declaracaoSe?.caminhoSenao as Se;
+            // if (se?.caminhoEntao) {
+            //     resultado += 'se (';
+            //     resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+            //     resultado += ')';
+            //     resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+            //     resultado += ' '.repeat(this.indentacao);
+            //     if (se?.caminhoSenao) {
+            //         resultado += 'senao ';
+            //         resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
+            //         return resultado;
+            //     }
+            // }
 
-    //         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
-    //             declaracaoSe.caminhoSenao
-    //         );
-    //     }
+            resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
+                declaracaoSe.caminhoSenao
+            );
+        }
 
-    //     return resultado;
-    // }
+        return resultado;
+    }
 
     // traduzirDeclaracaoTente(declaracaoTente: Tente): string {
     //     let resultado = 'try {\n';
@@ -481,13 +401,13 @@ export class TradutorVisualg {
     //     return resultado;
     // }
 
-    // traduzirConstrutoLogico(logico: Logico): string {
-    //     let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-    //     let operador = this.traduzirSimboloOperador(logico.operador);
-    //     let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+    traduzirConstrutoLogico(logico: Logico): string {
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
 
-    //     return `${direita} ${operador} ${esquerda}`;
-    // }
+        return `${direita} ${operador} ${esquerda}`;
+    }
 
     // traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
     //     let resultado = '';
@@ -551,22 +471,21 @@ export class TradutorVisualg {
     dicionarioConstrutos = {
         // AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         // AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
-        // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         // AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
-        Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         // Chamada: this.traduzirConstrutoChamada.bind(this),
-        // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         // FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         // Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
-        // Logico: this.traduzirConstrutoLogico.bind(this),
+        Logico: this.traduzirConstrutoLogico.bind(this),
         // Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         // Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes = {
+        Atribuir: this.traduzirDeclaracaoAtribuir.bind(this),
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         // Classe: this.traduzirDeclaracaoClasse.bind(this),
         // Continua: () => 'continue',
@@ -578,11 +497,11 @@ export class TradutorVisualg {
         // Fazer: this.traduzirDeclaracaoFazer.bind(this),
         // FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
         // Importar: this.traduzirDeclaracaoImportar.bind(this),
-        // Leia: this.traduzirDeclaracaoLeia.bind(this),
+        Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         // Sustar: () => 'break',
         // Retorna: this.traduzirDeclaracaoRetorna.bind(this),
-        // Se: this.traduzirDeclaracaoSe.bind(this),
+        Se: this.traduzirDeclaracaoSe.bind(this),
         // Tente: this.traduzirDeclaracaoTente.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
     };
