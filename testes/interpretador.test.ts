@@ -571,6 +571,72 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             });
+
+            describe('Entrada e saída', () => {
+                it('Enquanto (verdadeiro) e Sustar', async () => {
+                    // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
+                    const respostas = ['5', '5', '5', '4', '4'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        }
+                    };
+
+                    const codigo = [
+                        'var n1 = 1;',
+                        'var n2 = 1;',
+                        'var resultado = 0',
+                        'var n1 = leia("teste 1");',
+                        'enquanto (verdadeiro) {',
+                        '    var menu = leia("Digite a opção: 1 - Multiplicacao / 2 - Divisao / 3 - Soma / 4 - Subtração");',
+                        '    se (menu == "1") {',
+                        '        resultado = n1 * n2;',
+                        '        sustar;',
+                        '    } senao se (menu =="2") {',
+                        '        resultado = n1 / n2;',
+                        '        sustar;',
+                        '    } senao se (menu =="3") {',
+                        '        resultado = n1 + n2;',
+                        '        sustar;',
+                        '    } senao se (menu =="4") {',
+                        '        resultado = n1 - n2;',
+                        '        sustar;',
+                        '    } senao {',
+                        '        escreva("opção invalida");',
+                        '    }',
+                        '}',
+                        'escreva("resultado "+resultado);'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Dias de vida', async () => {
+                    // Aqui vamos simular a resposta para uma variável de `leia()`.
+                    const respostas = [38];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        }
+                    };
+
+                    const codigo = [
+                        'var n1 = leia("digite sua idade");',
+                        'var n2 = (365*n1);',
+                        'escreva("Você tem " +n2+" dias de vida");'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
