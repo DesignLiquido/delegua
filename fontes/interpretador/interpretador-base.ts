@@ -626,21 +626,20 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
-    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: any;
-        do {
+        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
-                retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
-            } catch (erro: any) {
-                return Promise.reject(erro);
+            } catch (erro) {
+                throw erro;
             }
-        } while (
-            !(retornoExecucao instanceof Quebra) &&
-            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
-        );
+        }
+
+        return null;
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
@@ -677,6 +676,23 @@ export class InterpretadorBase implements InterpretadorInterface {
         } catch (erro: any) {
             throw erro;
         }
+    }
+
+    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        let retornoExecucao: any;
+        do {
+            try {
+                retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                return Promise.reject(erro);
+            }
+        } while (
+            !(retornoExecucao instanceof Quebra) &&
+            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
+        );
     }
 
     /**
@@ -720,22 +736,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return valorRetorno;
-    }
-
-    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
-        let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
-                }
-            } catch (erro) {
-                throw erro;
-            }
-        }
-
-        return null;
     }
 
     async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {

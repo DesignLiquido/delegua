@@ -1,5 +1,5 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Declaracao, Escreva, Retorna, Var } from '../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
@@ -127,6 +127,18 @@ export class InterpretadorComDepuracao
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
 
         return valor;
+    }
+
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        switch (this.comando) {
+            case "proximo":
+                if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    return this.executarBloco((declaracao.corpo as Bloco).declaracoes);
+                }
+                return null;
+            default:
+                return super.visitarDeclaracaoEnquanto(declaracao);
+        }
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
