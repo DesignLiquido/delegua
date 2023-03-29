@@ -5,7 +5,7 @@ import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfa
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { Atribuir, Chamada, Construto } from '../construtos';
+import { Atribuir, Chamada, Construto, Literal } from '../construtos';
 import { inferirTipoVariavel } from './inferenciador';
 import { InterpretadorBase } from './interpretador-base';
 
@@ -69,13 +69,24 @@ export class InterpretadorComDepuracao
      * Gera um identificador para resolução de chamadas.
      * Usado para não chamar funções repetidamente quando usando instruções
      * de passo, como "próximo" ou "adentrar-escopo".
+     * 
+     * Argumentos que dependem de chamadas de funções são resolvidos aqui
+     * como literais, para evitar comportamentos esquisitos em 
+     * interfaces visuais, como por exemplo o VSCode.
      * @param expressao A expressão de chamada.
-     * @returns Uma Promise que resolve como string.
+     * @returns Uma `Promise` que resolve como `string`.
      */
     private async gerarIdResolucaoChamada(expressao: Chamada): Promise<string> {
         const argumentosResolvidos = [];
         for (let argumento of expressao.argumentos) {
             argumentosResolvidos.push(await this.avaliar(argumento));
+        }
+
+        // Após resolver valores, atualizar argumentos para evitar 
+        // _callbacks_ nas resoluções futuras.
+        for (let [indice, valor] of argumentosResolvidos.entries()) {
+            const argumento = expressao.argumentos[indice];
+            expressao.argumentos[indice] = new Literal(argumento.hashArquivo, argumento.linha, valor);
         }
 
         return argumentosResolvidos.reduce(
