@@ -286,24 +286,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         let expressao = this.comparar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL)) {
-            // TODO: Este é um caso que o interpretador não deveria ter conhecimento
-            // do que é um símbolo.
-            // Em VisuAlg não existe '==', apenas '=', já que o símbolo de atribuição
-            // é uma seta: '<-'.
             const simboloAnterior = this.simbolos[this.atual - 1];
-            let operador: SimboloInterface = new Simbolo(
-                'IGUAL_IGUAL',
-                '=',
-                null,
-                this.hashArquivo,
-                Number(simboloAnterior.linha)
-            );
-            if (simboloAnterior.tipo === tiposDeSimbolos.DIFERENTE) {
-                operador = simboloAnterior;
-            }
-
             const direito = this.comparar();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario(this.hashArquivo, expressao, simboloAnterior, direito);
         }
 
         return expressao;
