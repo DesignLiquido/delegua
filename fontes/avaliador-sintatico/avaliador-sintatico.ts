@@ -713,7 +713,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Sustar(this.simbolos[this.atual]);
+        return new Sustar(this.simbolos[this.atual - 1]);
     }
 
     declaracaoContinua(): Continua {
@@ -723,7 +723,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Continua(this.simbolos[this.atual]);
+        return new Continua(this.simbolos[this.atual - 1]);
     }
 
     declaracaoRetorna(): Retorna {
