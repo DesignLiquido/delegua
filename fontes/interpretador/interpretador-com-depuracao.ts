@@ -135,7 +135,8 @@ export class InterpretadorComDepuracao
         }
 
         const valor = await this.avaliar(expressao.valor);
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+        const valorResolvido = valor.hasOwnProperty(valor) ? valor.valor : valor;
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);
 
         return valor;
     }
