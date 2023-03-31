@@ -376,7 +376,7 @@ export class InterpretadorComDepuracao
         let i = this.pilhaEscoposExecucao.pilha.length - 1;
         while (i > 0) {
             let ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length) {
+            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
                 this.pilhaEscoposExecucao.removerUltimo();
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
                 escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
