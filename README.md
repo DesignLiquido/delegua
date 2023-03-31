@@ -4,7 +4,7 @@
   <h3 align="center">Linguagem Delégua</h3>
 
   <p align="center">
-    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como Portugol VisuAlg e BIRL.</a>
+    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como Portugol VisuAlg, Portugol Studio e BIRL.</a>
   </p>
 
   <p align="center">
