@@ -679,6 +679,23 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
+            "name": "Testes unitários - Portugol IPT",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "portugol-ipt/interpretador",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Testes unitários - Portugol Studio",
             "type": "node",
             "request": "launch",

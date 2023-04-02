@@ -11,7 +11,7 @@ export class LexadorPortugolIpt implements LexadorInterface {
     erros: ErroLexador[];
     hashArquivo: number;
     
-    codigo: string | string[];
+    codigo: string[];
     inicioSimbolo: number;
     atual: number;
     linha: number;
@@ -85,8 +85,9 @@ export class LexadorPortugolIpt implements LexadorInterface {
         }
     }
 
-    adicionarSimbolo(tipo: any, literal: any): void {
-        throw new Error("Método não implementado.");
+    adicionarSimbolo(tipo: any, literal?: any): void {
+        const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
     }
 
     private eFinalDaLinha(): boolean {
@@ -196,18 +197,46 @@ export class LexadorPortugolIpt implements LexadorInterface {
         const caractere = this.simboloAtual();
 
         switch (caractere) {
+            case ';':
+                // TODO: Ponto-e-vírgula não é exatamente tolerado em Portugol IPT.
+                this.avancar();
+                break;
             case ' ':
             case '\t':
+            case '\0':
+                this.avancar();
+                break;
             case '\r':
             case '\n':
-            case '\0':
-            case ';':
+                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
+                this.linha++;
                 this.avancar();
                 break;
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
                 this.avancar();
+                break;
+            case '<':
+                this.avancar();
+                switch (this.simboloAtual()) {
+                    case '-':
+                        this.adicionarSimbolo(tiposDeSimbolos.SETA_ATRIBUICAO);
+                        this.avancar();
+                        break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                        this.avancar();
+                        break;
+                    /* case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                        this.avancar();
+                        break; */
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                        break;
+                }
+
                 break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
