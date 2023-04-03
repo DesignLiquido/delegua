@@ -437,7 +437,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
             literais.push(this.primario());
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA);
-            simboloAtualCaso = this.avancarEDevolverAnterior();
+            simboloAtualCaso = this.simbolos[this.atual];
         }
 
         return literais;

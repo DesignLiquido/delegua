@@ -72,7 +72,7 @@ describe('Interpretador', () => {
                 const respostas = [1, 2, 3, 4, 5];
                 interpretador.interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
-                        callback(respostas.pop());
+                        callback(respostas.shift());
                     }
                 };
 
@@ -98,7 +98,7 @@ describe('Interpretador', () => {
                 const respostas = [78, 1.78];
                 interpretador.interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
-                        callback(respostas.pop());
+                        callback(respostas.shift());
                     }
                 };
 
