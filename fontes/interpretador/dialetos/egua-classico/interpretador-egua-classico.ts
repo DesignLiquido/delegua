@@ -77,6 +77,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -582,6 +583,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -928,6 +930,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         await this.executarUltimoEscopo();
