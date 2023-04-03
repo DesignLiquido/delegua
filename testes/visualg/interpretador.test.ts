@@ -28,7 +28,46 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Sucesso - Leia', async () => {
+            it("Sucesso - Enquanto", async () => {
+                // Aqui vamos simular a resposta para três variáveis de `leia()`.
+                const respostas = [
+                    -1, -2, 1
+                ];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "teste5"',
+                    'var',
+                    '    num1, num2: inteiro',
+                    '    texto1, texto2: caractere',
+                    '    teste: logico',
+                    'inicio',
+                    '    teste <- verdadeiro',
+                    '    leia (num1)',
+                    '    escreval(teste)',
+                    '    enquanto teste = verdadeiro faca',
+                    '         escreval("num1 não é maior que 0")',
+                    '         leia (num1)',
+                    '         se num1 > 0 entao',
+                    '             teste <- falso',
+                    '         fimse',
+                    '    fimenquanto',
+                    '    escreval("num1 é maior que 0")',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - Leia', async () => {
                 // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
                 const respostas = [1, 2, 3, 4, 5];
                 interpretador.interfaceEntradaSaida = {
@@ -54,7 +93,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Sucesso - IMC', async () => {
+            it('Sucesso - IMC', async () => {
                 // Aqui vamos simular a resposta para duas variáveis de `leia()`.
                 const respostas = [78, 1.78];
                 interpretador.interfaceEntradaSaida = {
