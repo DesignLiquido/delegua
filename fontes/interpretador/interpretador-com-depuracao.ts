@@ -142,11 +142,15 @@ export class InterpretadorComDepuracao
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
             case "proximo":
                 if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    escopoAtual.emLacoRepeticao = true;
                     return this.executarBloco((declaracao.corpo as Bloco).declaracoes);
                 }
+
+                escopoAtual.emLacoRepeticao = false;
                 return null;
             default:
                 return super.visitarDeclaracaoEnquanto(declaracao);
@@ -420,7 +424,7 @@ export class InterpretadorComDepuracao
             this.passos--;
             retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
 
-            if (!this.pontoDeParadaAtivo) {
+            if (!this.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao) {
                 ultimoEscopo.declaracaoAtual++;
             }
 
@@ -598,6 +602,7 @@ export class InterpretadorComDepuracao
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: tipoEscopo,
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;

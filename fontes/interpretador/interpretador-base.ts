@@ -104,6 +104,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -812,6 +813,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -1253,6 +1255,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 

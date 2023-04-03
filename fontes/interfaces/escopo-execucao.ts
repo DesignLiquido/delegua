@@ -10,4 +10,5 @@ export interface EscopoExecucao {
     finalizado: boolean;
     tipo: TipoEscopoExecucao;
     idChamada?: string;
+    emLacoRepeticao: boolean;
 }
