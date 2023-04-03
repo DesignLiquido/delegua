@@ -635,8 +635,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
-            } catch (erro) {
-                throw erro;
+            } catch (erro: any) {
+                return Promise.reject(erro);
             }
         }
 

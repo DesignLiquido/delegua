@@ -280,6 +280,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
+
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     comparacaoIgualdade(): Construto {
@@ -418,17 +420,24 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimenquanto'.");
 
-        return new Enquanto(condicao, declaracoes);
+        return new Enquanto(
+            condicao, 
+            new Bloco(
+                simboloAtual.hashArquivo, 
+                Number(simboloAtual.linha), 
+                declaracoes
+            )
+        );
     }
 
     private logicaCasosEscolha(): any {
         const literais = [];
-        // let simboloAtualCaso: SimboloInterface = this.avancarEDevolverAnterior();
+
         let simboloAtualCaso: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
             literais.push(this.primario());
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA);
-            simboloAtualCaso = this.avancarEDevolverAnterior();
+            simboloAtualCaso = this.simbolos[this.atual];
         }
 
         return literais;
@@ -448,10 +457,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         let simboloAtualBlocoCaso: SimboloInterface = this.avancarEDevolverAnterior();
         while (![tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(simboloAtualBlocoCaso.tipo)) {
             const caminhoCondicoes = this.logicaCasosEscolha();
-            /* this.consumir(
-                tiposDeSimbolos.QUEBRA_LINHA,
-                "Esperado quebra de linha após último valor de declaração 'caso'."
-            ); */
 
             const declaracoes = [];
             do {
