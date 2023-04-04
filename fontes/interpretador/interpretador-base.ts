@@ -92,7 +92,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.performance = performance;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
-        this.funcaoDeRetornoMesmaLinha = funcaoDeRetornoMesmaLinha || process.stdout.write;
+        this.funcaoDeRetornoMesmaLinha = funcaoDeRetornoMesmaLinha || process.stdout.write.bind(process.stdout);
 
         this.erros = [];
         this.declaracoes = [];
