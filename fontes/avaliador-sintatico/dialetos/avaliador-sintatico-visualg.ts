@@ -26,6 +26,7 @@ import {
     FormatacaoEscrita,
     FuncaoConstruto,
     Literal,
+    Logico,
     Variavel,
 } from '../../construtos';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
@@ -291,6 +292,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             const simboloAnterior = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, simboloAnterior, direito);
+        }
+
+        return expressao;
+    }
+
+    ou(): Construto {
+        let expressao = this.e();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU, tiposDeSimbolos.XOU)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.e();
+            expressao = new Logico(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
