@@ -40,6 +40,7 @@ export default {
     log: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     logn: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     logico: tiposDeSimbolos.LOGICO,
+    nao: tiposDeSimbolos.NEGACAO, // Exceção
     ou: tiposDeSimbolos.OU,
     outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
@@ -59,4 +60,5 @@ export default {
     var: tiposDeSimbolos.VAR,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
     vetor: tiposDeSimbolos.VETOR,
+    xou: tiposDeSimbolos.XOU
 };

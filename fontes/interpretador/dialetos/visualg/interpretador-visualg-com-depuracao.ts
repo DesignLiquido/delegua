@@ -2,14 +2,12 @@ import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
-import { Construto, Variavel } from '../../../construtos';
+import { Binario, Construto, Logico, Variavel } from '../../../construtos';
 import { EscrevaMesmaLinha, Escreva, Fazer, Leia } from '../../../declaracoes';
-import { VariavelInterface } from '../../../interfaces';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
-import { inferirTipoVariavel } from '../../inferenciador';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
-import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
+import * as comum from './comum';
 
 /**
  * Interpretador com depuração para o dialeto VisuAlg.
@@ -120,105 +118,11 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         }
     }
 
-    /**
-     * Método de visita de expressão binária.
-     * Reintroduzido pelas particularidades do VisuAlg.
-     * @param expressao A expressão binária.
-     * @returns O resultado da resolução da expressão.
-     */
-    async visitarExpressaoBinaria(expressao: any): Promise<any> {
-        try {
-            const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
-            const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
+    async visitarExpressaoBinaria(expressao: Binario | any): Promise<any> {
+        return comum.visitarExpressaoBinaria(this, expressao);
+    }
 
-            let valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
-            let valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
-
-            // No VisuAlg, uma variável pode resolver para função porque funções não precisam ter parênteses.
-            // Esta parte evita o problema.
-            if (valorEsquerdo && valorEsquerdo.hasOwnProperty('funcao')) {
-                valorEsquerdo = valorEsquerdo.funcao();
-            }
-
-            if (valorDireito && valorDireito.hasOwnProperty('funcao')) {
-                valorDireito = valorDireito.funcao();
-            }
-
-            const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
-                ? esquerda.tipo
-                : inferirTipoVariavel(esquerda);
-            const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
-
-            switch (expressao.operador.tipo) {
-                case tiposDeSimbolos.EXPONENCIACAO:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Math.pow(valorEsquerdo, valorDireito);
-
-                case tiposDeSimbolos.MAIOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) > Number(valorDireito);
-
-                case tiposDeSimbolos.MAIOR_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) >= Number(valorDireito);
-
-                case tiposDeSimbolos.MENOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) < Number(valorDireito);
-
-                case tiposDeSimbolos.MENOR_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) <= Number(valorDireito);
-
-                case tiposDeSimbolos.SUBTRACAO:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) - Number(valorDireito);
-
-                case tiposDeSimbolos.ADICAO:
-                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                        return Number(valorEsquerdo) + Number(valorDireito);
-                    } else {
-                        return String(valorEsquerdo) + String(valorDireito);
-                    }
-
-                case tiposDeSimbolos.DIVISAO:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) / Number(valorDireito);
-
-                case tiposDeSimbolos.DIVISAO_INTEIRA:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
-
-                case tiposDeSimbolos.MULTIPLICACAO:
-                    if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
-                        // Sem ambos os valores resolvem como texto, multiplica normal.
-                        // Se apenas um resolve como texto, o outro repete o
-                        // texto n vezes, sendo n o valor do outro.
-                        if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
-                            return Number(valorEsquerdo) * Number(valorDireito);
-                        }
-
-                        if (tipoEsquerdo === 'texto') {
-                            return valorEsquerdo.repeat(Number(valorDireito));
-                        }
-
-                        return valorDireito.repeat(Number(valorEsquerdo));
-                    }
-
-                    return Number(valorEsquerdo) * Number(valorDireito);
-
-                case tiposDeSimbolos.MODULO:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) % Number(valorDireito);
-
-                case tiposDeSimbolos.DIFERENTE:
-                    return !this.eIgual(valorEsquerdo, valorDireito);
-
-                case tiposDeSimbolos.IGUAL:
-                    return this.eIgual(valorEsquerdo, valorDireito);
-            }
-        } catch (erro: any) {
-            return Promise.reject(erro);
-        }
+    async visitarExpressaoLogica(expressao: Logico): Promise<any> {
+        return comum.visitarExpressaoLogica(this, expressao);
     }
 }
