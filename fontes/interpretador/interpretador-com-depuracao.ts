@@ -3,7 +3,7 @@ import { Bloco, Declaracao, Enquanto, Escreva, Retorna, Var } from '../declaraco
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
-import { Quebra, RetornoQuebra } from '../quebras';
+import { ContinuarQuebra, Quebra, RetornoQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { Atribuir, Chamada, Construto, Literal } from '../construtos';
 import { inferirTipoVariavel } from './inferenciador';
@@ -142,14 +142,34 @@ export class InterpretadorComDepuracao
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
             case "proximo":
                 if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    escopoAtual.emLacoRepeticao = true;
                     return this.executarBloco((declaracao.corpo as Bloco).declaracoes);
                 }
+
+                escopoAtual.emLacoRepeticao = false;
                 return null;
             default:
-                return super.visitarDeclaracaoEnquanto(declaracao);
+                let retornoExecucao: any;
+                while (!(retornoExecucao instanceof Quebra) && 
+                        !this.pontoDeParadaAtivo &&
+                        this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    escopoAtual.emLacoRepeticao = true;
+                    try {
+                        retornoExecucao = await this.executar(declaracao.corpo);
+                        if (retornoExecucao instanceof ContinuarQuebra) {
+                            retornoExecucao = null;
+                        }
+                    } catch (erro: any) {
+                        return Promise.reject(erro);
+                    }
+                }
+        
+                escopoAtual.emLacoRepeticao = false;
+                return null;
         }
     }
 
@@ -420,7 +440,7 @@ export class InterpretadorComDepuracao
             this.passos--;
             retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
 
-            if (!this.pontoDeParadaAtivo) {
+            if (!this.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao) {
                 ultimoEscopo.declaracaoAtual++;
             }
 
@@ -598,6 +618,7 @@ export class InterpretadorComDepuracao
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: tipoEscopo,
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
