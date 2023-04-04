@@ -1,4 +1,3 @@
-// import * as readline from 'readline';
 import hrtime from 'browser-process-hrtime';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
