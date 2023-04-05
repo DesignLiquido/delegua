@@ -1,11 +1,11 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Bloco, Declaracao, Enquanto, Escreva, Retorna, Var } from '../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { Atribuir, Chamada, Construto, Literal } from '../construtos';
+import { Chamada, Construto } from '../construtos';
 import { inferirTipoVariavel } from './inferenciador';
 import { InterpretadorBase } from './interpretador-base';
 
@@ -45,6 +45,8 @@ export class InterpretadorComDepuracao
     idChamadaAtual?: string;
     passos: number;
 
+    aoEncerrarEscopo: Function;
+
     constructor(diretorioBase: string, funcaoDeRetorno: Function, funcaoDeRetornoMesmaLinha: Function) {
         super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
 
@@ -54,6 +56,26 @@ export class InterpretadorComDepuracao
         this.escopoAtual = 0;
         this.executandoChamada = false;
         this.passos = 0;
+    }
+
+    /**
+     * Quando um construto ou declaração possui id, significa que o interpretador
+     * deve resolver a avaliação e guardar seu valor até o final do escopo.
+     * Isso serve para quando a linguagem está em modo de depuração, e o contexto
+     * da execução deixa de existir com um ponto de parada, por exemplo.
+     * @param expressao A expressão a ser avaliada.
+     * @returns O resultado da avaliação.
+     */
+    async avaliar(expressao: Construto | Declaracao): Promise<any> {
+        if (expressao.hasOwnProperty('id')) {
+            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+            const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao);
+            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+                return escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+            }
+        }
+
+        return await expressao.aceitar(this);
     }
 
     /**
@@ -69,24 +91,13 @@ export class InterpretadorComDepuracao
      * Gera um identificador para resolução de chamadas.
      * Usado para não chamar funções repetidamente quando usando instruções
      * de passo, como "próximo" ou "adentrar-escopo".
-     * 
-     * Argumentos que dependem de chamadas de funções são resolvidos aqui
-     * como literais, para evitar comportamentos esquisitos em 
-     * interfaces visuais, como por exemplo o VSCode.
      * @param expressao A expressão de chamada.
      * @returns Uma `Promise` que resolve como `string`.
      */
-    private async gerarIdResolucaoChamada(expressao: Chamada): Promise<string> {
+    private async gerarIdResolucaoChamada(expressao: any): Promise<string> {
         const argumentosResolvidos = [];
         for (let argumento of expressao.argumentos) {
             argumentosResolvidos.push(await this.avaliar(argumento));
-        }
-
-        // Após resolver valores, atualizar argumentos para evitar 
-        // _callbacks_ nas resoluções futuras.
-        for (let [indice, valor] of argumentosResolvidos.entries()) {
-            const argumento = expressao.argumentos[indice];
-            expressao.argumentos[indice] = new Literal(argumento.hashArquivo, argumento.linha, valor);
         }
 
         return argumentosResolvidos.reduce(
@@ -110,35 +121,6 @@ export class InterpretadorComDepuracao
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         escopoAtual.ambiente.resolucoesChamadas[_idChamadaComArgumentos] = retorno;
         return retorno;
-    }
-
-    /**
-     * A execução de uma atribuição de variável no interpretador com depuração pode ser em duas etapas.
-     * O desenvolvedor pode inspecionar o lado direito e ir parando a execução usando
-     * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
-     * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
-     * segunda para efetivamente atribuir o valor da variável.
-     * @param expressao
-     * @returns
-     */
-    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        if (expressao.valor instanceof Chamada) {
-            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
-            const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao.valor);
-            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
-                const retornar = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, retornar);
-
-                delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                return retornar;
-            }
-        }
-
-        const valor = await this.avaliar(expressao.valor);
-        const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);
-
-        return valor;
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -224,35 +206,47 @@ export class InterpretadorComDepuracao
         }
     }
 
-    /**
-     * A execução de `var` no interpretador com depuração pode ser em duas etapas.
-     * O desenvolvedor pode inspecionar o lado direito e ir parando a execução usando
-     * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
-     * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
-     * segunda para efetivamente atribuir o valor da variável.
-     * @param declaracao A declaração Var
-     * @returns O valor do resultado resolvido, se a declaração resolveu.
-     * Nulo ou indefinido em caso contrário.
-     */
-    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        if (declaracao.inicializador instanceof Chamada) {
-            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
-            const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(declaracao.inicializador);
-            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
-                const retornar = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, retornar);
-
-                delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                return retornar;
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        const corpoExecucao = declaracao.corpo as Bloco;
+        if (declaracao.inicializador !== null && !declaracao.inicializada) {
+            await this.avaliar(declaracao.inicializador);
+            // O incremento vai ao final do bloco de escopo.
+            if (declaracao.incrementar !== null) {
+                corpoExecucao.declaracoes.push(declaracao.incrementar);
             }
         }
 
-        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
-        if (valorFinal !== null && valorFinal !== undefined) {
-            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
-        }
+        declaracao.inicializada = true;
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        switch (this.comando) {
+            case "proximo":
+                if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    escopoAtual.emLacoRepeticao = true;
+                    
+                    const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
+                    return resultadoBloco;
+                }
 
-        return valorFinal;
+                escopoAtual.emLacoRepeticao = false;
+                return null;
+            default: 
+                let retornoExecucao: any;
+                while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
+                    if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                        break;
+                    }
+
+                    try {                        
+                        retornoExecucao = await this.executar(corpoExecucao);
+                        if (retornoExecucao instanceof ContinuarQuebra) {
+                            retornoExecucao = null;
+                        }
+                    } catch (erro: any) {
+                        return Promise.reject(erro);
+                    }
+                }
+                return null;
+        }
     }
 
     /**

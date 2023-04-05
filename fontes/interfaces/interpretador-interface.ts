@@ -1,5 +1,5 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Atribuir, Literal, Super } from '../construtos';
+import { Atribuir, Construto, Literal, Super } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -24,7 +24,6 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
 import { RetornoInterpretador } from './retornos/retorno-interpretador';
-import { SimboloInterface } from './simbolo-interface';
 import { EscrevaMesmaLinha } from '../declaracoes/escreva-mesma-linha';
 import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
 
@@ -35,7 +34,7 @@ export interface InterpretadorInterface {
     interfaceEntradaSaida: any;
 
     visitarExpressaoLiteral(expressao: Literal): any;
-    avaliar(expressao: any): any;
+    avaliar(expressao: Construto | Declaracao): any;
     visitarExpressaoAgrupamento(expressao: any): any;
     visitarExpressaoUnaria(expressao: any): any;
     visitarExpressaoBinaria(expressao: any): any;
