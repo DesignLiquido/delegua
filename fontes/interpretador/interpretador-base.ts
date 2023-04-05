@@ -110,6 +110,17 @@ export class InterpretadorBase implements InterpretadorInterface {
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
 
+    async avaliar(expressao: Construto | Declaracao): Promise<any> {
+        // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
+        // Por algum motivo o depurador do VSCode não funciona direito aqui
+        // com breakpoint condicional.
+        /* if (expressao === null || expressao === undefined) {
+            console.log('Aqui');
+        } */
+        
+        return await expressao.aceitar(this);
+    }
+
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
@@ -175,16 +186,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return expressao.valor;
-    }
-
-    async avaliar(expressao: Construto): Promise<any> {
-        // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
-        // Por algum motivo o depurador do VSCode não funciona direito aqui
-        // com breakpoint condicional.
-        /* if (expressao === null || expressao === undefined) {
-            console.log('Aqui');
-        } */
-        return await expressao.aceitar(this);
     }
 
     async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
