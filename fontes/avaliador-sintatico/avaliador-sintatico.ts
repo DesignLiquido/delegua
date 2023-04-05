@@ -561,7 +561,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoSobrescrita(
                     this.hashArquivo,
-                    0,
+                    expressao.linha,
                     expressao.entidadeChamada,
                     expressao.indice,
                     valor
