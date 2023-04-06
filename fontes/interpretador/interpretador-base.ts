@@ -114,9 +114,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
         // Por algum motivo o depurador do VSCode não funciona direito aqui
         // com breakpoint condicional.
-        /* if (expressao === null || expressao === undefined) {
+        if (expressao === null || expressao === undefined) {
             console.log('Aqui');
-        } */
+        }
         
         return await expressao.aceitar(this);
     }
@@ -909,23 +909,29 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DeleguaModulo
         ) {
             objeto[indice] = valor;
-        } else {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    expressao.objeto.nome,
-                    'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
-                    expressao.linha
-                )
-            );
-        }
+        } 
+
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                expressao.objeto.nome,
+                'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
+                expressao.linha
+            )
+        );
     }
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
-        const variavelObjeto: VariavelInterface = await this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const promises = await Promise.all([
+            this.avaliar(expressao.entidadeChamada),
+            this.avaliar(expressao.indice)
+        ]);
 
-        const indice = await this.avaliar(expressao.indice);
+        const variavelObjeto: VariavelInterface = promises[0];
+        const indice = promises[1];
+
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(

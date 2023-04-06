@@ -48,7 +48,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             const dimensao = dimensoes[0] + 1;
             const resto = dimensoes.slice(1);
             const novoArray = Array(dimensao);
-            for (let i = 0; i < dimensao; i++) {
+            for (let i = 0; i <= dimensao; i++) {
                 novoArray[i] = this.criarVetorNDimensional(resto);
             }
             return novoArray;
@@ -723,7 +723,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
-                new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo),
+                new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo),
                 new Literal(this.hashArquivo, Number(simboloPara.linha), numeroFim.literal)
             ),
             new Atribuir(

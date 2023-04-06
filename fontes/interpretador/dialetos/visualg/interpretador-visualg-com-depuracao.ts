@@ -2,7 +2,7 @@ import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
-import { Binario, Construto, Logico, Variavel } from '../../../construtos';
+import { AcessoIndiceVariavel, Binario, Construto, Logico, Variavel } from '../../../construtos';
 import { EscrevaMesmaLinha, Escreva, Fazer, Leia } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
@@ -37,7 +37,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
     }
 
     /**
-     * No VisuAlg, o bloco de condição executa se falso.
+     * No VisuAlg, o bloco executa se a condição for falsa.
      * Por isso a reimplementação aqui.
      * @param declaracao A declaração `Fazer`
      * @returns Só retorna em caso de erro na execução, e neste caso, o erro.
@@ -97,6 +97,32 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         }
     }
 
+    async atribuirVariavel(expressao: Construto, valor: any): Promise<any> {
+        if (expressao instanceof Variavel) {
+            this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+            return;
+        }
+
+        if (expressao instanceof AcessoIndiceVariavel) {
+            const promises = await Promise.all([
+                this.avaliar(expressao.entidadeChamada),
+                this.avaliar(expressao.indice)
+            ]);
+
+            let alvo = promises[0];
+            let indice = promises[1];
+            if (alvo.hasOwnProperty('valor')) {
+                alvo = alvo.valor;
+            }
+
+            if (indice.hasOwnProperty('valor')) {
+                indice = indice.valor;
+            }
+
+            alvo[indice] = valor;
+        }
+    }
+
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
@@ -114,7 +140,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                 );
 
             const valorLido = await promessaLeitura();
-            this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);
+            await this.atribuirVariavel(argumento, valorLido);
         }
     }
 
