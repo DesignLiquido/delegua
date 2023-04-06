@@ -57,7 +57,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/var i = 0/i);
-            expect(resultado).toMatch(/para \(i = 1 ;i < 10; i = i \+ 1\)/i);
+            expect(resultado).toMatch(/para \(i = 1 ;i <= 10; i = i \+ 1\)/i);
         })
 
         it('cálculo imc com se/senão', () => {

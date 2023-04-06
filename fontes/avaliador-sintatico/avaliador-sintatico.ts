@@ -225,84 +225,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
         }
-        
-        /*if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
-            const simboloChave = this.simbolos[this.atual - 1];
-            this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
-            return new Super(this.hashArquivo, simboloChave, metodo);
-        }*/
-
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-            const valores = [];
-
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                return new Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
-            }
-
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                const valor = this.atribuir();
-                valores.push(valor);
-                if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                    this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
-                }
-            }
-
-            return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
-        } */
-
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            const chaves = [];
-            const valores = [];
-
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), [], []);
-            }
-
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                const chave = this.atribuir();
-                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                const valor = this.atribuir();
-
-                chaves.push(chave);
-                valores.push(valor);
-
-                if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
-                    this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
-                }
-            }
-
-            return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
-        } */
-
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO, tiposDeSimbolos.FUNCAO))
-            return this.corpoDaFuncao(this.simbolos[this.atual - 1].lexema);
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
-            return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
-            return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NULO))
-            return new Literal(this.hashArquivo, Number(simboloAtual.linha), null);
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
-            return new Isto(this.hashArquivo, Number(simboloAtual.linha), this.simbolos[this.atual - 1]); */
-
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
-            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
-        }
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
-            return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        }
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-            const expressao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-
-            return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
-        }
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR)) return this.declaracaoImportar(); */
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
@@ -549,7 +471,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return new Atribuir(this.hashArquivo, (expressao.esquerda as Variavel).simbolo, expressao);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
+            const valor = this.expressao();
 
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
@@ -932,21 +854,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return this.declaracaoTente();
             
         }
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE)) return this.declaracaoTente();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA, tiposDeSimbolos.SUSTAR))
-            return this.declaracaoSustar(); */
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA)) return this.declaracaoEscreva();
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
-        } */
 
         const simboloAtual = this.simbolos[this.atual];
         if (simboloAtual.tipo === tiposDeSimbolos.IDENTIFICADOR) {
@@ -1086,6 +993,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             return this.resolverDeclaracao();
         } catch (erro: any) {
             this.sincronizar();
+            this.erros.push(erro);
             return null;
         }
     }

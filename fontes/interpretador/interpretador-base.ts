@@ -917,15 +917,21 @@ export class InterpretadorBase implements InterpretadorInterface {
                     expressao.linha
                 )
             );
-        }
+        }        
     }
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
-        const variavelObjeto: VariavelInterface = await this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const promises = await Promise.all([
+            this.avaliar(expressao.entidadeChamada),
+            this.avaliar(expressao.indice)
+        ]);
 
-        const indice = await this.avaliar(expressao.indice);
+        const variavelObjeto: VariavelInterface = promises[0];
+        const indice = promises[1];
+
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(

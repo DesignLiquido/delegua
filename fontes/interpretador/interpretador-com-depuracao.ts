@@ -159,7 +159,7 @@ export class InterpretadorComDepuracao
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
-            let resultadoAvaliacao: any;
+            /* let resultadoAvaliacao: any;
             if (argumento instanceof Chamada) {
                 const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
                 const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(argumento);
@@ -170,11 +170,11 @@ export class InterpretadorComDepuracao
                     resultadoAvaliacao = await this.avaliar(argumento);
                 }
             } else {
-                resultadoAvaliacao = await this.avaliar(argumento);
-            }
+                
+            } */
 
+            const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
