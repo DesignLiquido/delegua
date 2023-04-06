@@ -909,15 +909,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DeleguaModulo
         ) {
             objeto[indice] = valor;
-        } 
-
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                expressao.objeto.nome,
-                'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
-                expressao.linha
-            )
-        );
+        } else {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    expressao.objeto.nome,
+                    'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
+                    expressao.linha
+                )
+            );
+        }        
     }
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
