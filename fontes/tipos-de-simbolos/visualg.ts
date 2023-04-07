@@ -56,6 +56,7 @@ export default {
     PROCEDIMENTO: 'PROCEDIMENTO',
     REAL: 'REAL',
     REPITA: 'REPITA',
+    RETORNE: 'RETORNE',
     SE: 'SE',
     SENAO: 'SENAO',
     SETA_ATRIBUICAO: 'SETA_ATRIBUICAO',

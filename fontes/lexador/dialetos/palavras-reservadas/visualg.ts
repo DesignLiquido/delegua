@@ -53,6 +53,7 @@ export default {
     randi: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     real: tiposDeSimbolos.REAL,
     repita: tiposDeSimbolos.REPITA,
+    retorne: tiposDeSimbolos.RETORNE,
     se: tiposDeSimbolos.SE,
     sen: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     senao: tiposDeSimbolos.SENAO,

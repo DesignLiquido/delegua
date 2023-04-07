@@ -503,6 +503,8 @@ export class InterpretadorComDepuracao
             }
 
             return retornoExecucao;
+        } catch (erro: any) {
+            this.erros.push(erro);
         } finally {
             if (!this.pontoDeParadaAtivo && this.comando !== 'adentrarEscopo') {
                 this.pilhaEscoposExecucao.removerUltimo();
