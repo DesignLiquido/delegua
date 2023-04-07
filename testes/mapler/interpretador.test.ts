@@ -39,7 +39,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it('Escreva', async () => {
+            it('Escrever simples', async () => {
                 const retornoLexador = lexador.mapear([
                     'variaveis',
                     'inicio',
@@ -53,10 +53,11 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it('Escreva', async () => {
+            it('Escrever com variável', async () => {
                 const retornoLexador = lexador.mapear([
                     'variaveis',
                     'idade: inteiro;',
+                    'nome, sobrenome: cadeia;',
                     'inicio',
                     'idade <- 10;',
                     'escrever "Minha idade é: ", idade;',
@@ -69,7 +70,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it('Escrever lógicos', async () => {
+            it('Escrever lógicos e outros textos', async () => {
                 const retornoLexador = lexador.mapear([
                     'variaveis',
                     'inicio',

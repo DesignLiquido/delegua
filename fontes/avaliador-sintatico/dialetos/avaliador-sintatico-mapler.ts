@@ -29,7 +29,7 @@ import {
     Logico,
     Variavel,
 } from '../../construtos';
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
+import { SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../../lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/mapler';
@@ -86,6 +86,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         if (
             !this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.CADEIA,
                 tiposDeSimbolos.CARACTERE,
                 tiposDeSimbolos.INTEIRO,
                 tiposDeSimbolos.LOGICO,
@@ -111,35 +112,9 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
      * @returns Vetor de Construtos para inicialização de variáveis.
      */
     private validarSegmentoVariaveis(): Construto[] | Declaracao[] {
-        // Podem haver linhas de comentários acima de `var`, que geram
-        // quebras de linha.
-        // while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
-        //     this.avancarEDevolverAnterior();
-        // }
-
-        // if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.VARIAVEIS)) {
-        //     return [];
-        // }
-
         const inicializacoes = [];
-        // this.avancarEDevolverAnterior(); // Var
-
-        // Quebra de linha é opcional aqui.
-        // this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
-            // Se ainda houver quebras de linha, volta para o começo do `while`.
-
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_VIRGULA)) {
-                this.avancarEDevolverAnterior();
-                continue;
-            }
-
-            //TODO: @Samuel
-            if (this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.INICIO) {
-                this.atual -= 1;
-                break;
-            }
 
             const simboloAtual = this.simbolos[this.atual];
             
@@ -154,6 +129,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                     // Devem ser declaradas com um valor inicial padrão.
                     for (let identificador of dadosVariaveis.identificadores) {
                         switch (dadosVariaveis.tipo) {
+                            case tiposDeSimbolos.CADEIA:
                             case tiposDeSimbolos.CARACTERE:
                                 inicializacoes.push(
                                     new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''))
@@ -215,7 +191,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                     break;
             }
 
-            // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 'Esperado quebra de linha após declaração de variável.');
+            this.consumir(tiposDeSimbolos.PONTO_VIRGULA, 'Esperado \';\' após declaração de variável.');
         }
 
         return inicializacoes;
@@ -587,7 +563,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
     /**
      * Criação de declaração "interrompa".
-     * Em VisuAlg, "sustar" é chamada de "interrompa".
+     * Em Mapler, "sustar" é chamada de "interrompa".
      * @returns Uma declaração do tipo Sustar.
      */
     private declaracaoInterrompa(): Sustar {
@@ -602,7 +578,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
+     * Análise de uma declaração `leia()`. No Mapler, `leia()` aceita 1..N argumentos.
      * @returns Uma declaração `Leia`.
      */
     declaracaoLeia(): Leia {
