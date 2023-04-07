@@ -664,7 +664,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 tiposDeSimbolos.FALSO,
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 tiposDeSimbolos.SUPER,
-            ]
+            ].includes(this.simbolos[this.atual].tipo)
         ) {
             valor = this.expressao();
         }

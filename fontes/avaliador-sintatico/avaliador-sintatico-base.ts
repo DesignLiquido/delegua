@@ -37,7 +37,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     atual: number;
     blocos: number;
 
-
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);

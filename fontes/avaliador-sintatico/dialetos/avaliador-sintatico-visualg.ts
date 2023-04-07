@@ -11,6 +11,7 @@ import {
     FuncaoDeclaracao,
     Leia,
     Para,
+    Retorna,
     Se,
     Sustar,
     Var,
@@ -35,6 +36,13 @@ import { Simbolo } from '../../lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
+    blocoPrincipalIniciado: boolean;
+
+    constructor() {
+        super();
+        this.blocoPrincipalIniciado = false;
+    }
+
     private validarSegmentoAlgoritmo(): void {
         this.consumir(tiposDeSimbolos.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
 
@@ -389,21 +397,30 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
     corpoDaFuncao(tipo: any): FuncaoConstruto {
         const simboloAnterior = this.simbolos[this.atual - 1];
+
+        // Parâmetros
+        const parametros = this.logicaComumParametros();
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
         // Tipo retornado pela função.
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE)) {
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE, tiposDeSimbolos.REAL, tiposDeSimbolos.LOGICO)) {
             throw this.erro(this.simbolos[this.atual], 'Esperado um tipo válido para retorno de função');
         }
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
 
-        this.validarSegmentoVar();
+        const inicializacoes = this.validarSegmentoVar();
         this.validarSegmentoInicio('função');
 
-        const corpo = this.blocoEscopo();
+        const corpo: any[] = (inicializacoes as any[])
+            .concat(this.blocoEscopo());
 
-        return new FuncaoConstruto(this.hashArquivo, Number(simboloAnterior.linha), null, corpo);
+        return new FuncaoConstruto(
+            this.hashArquivo, 
+            Number(simboloAnterior.linha), 
+            parametros, 
+            corpo.filter(d => d)
+        );
     }
 
     declaracaoEnquanto(): Enquanto {
@@ -775,19 +792,43 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         // Parâmetros
         const parametros = this.logicaComumParametros();
 
-        this.validarSegmentoVar();
+        const inicializacoes = this.validarSegmentoVar();
         this.validarSegmentoInicio('procedimento');
 
-        const corpo = this.blocoEscopo();
+        const corpo: any[] = (inicializacoes as any[])
+            .concat(this.blocoEscopo());
 
         return new FuncaoDeclaracao(
-            nomeProcedimento, new FuncaoConstruto(
+            nomeProcedimento, 
+            new FuncaoConstruto(
                 this.hashArquivo, 
                 Number(simboloProcedimento.linha), 
                 parametros, 
                 corpo.filter(d => d)
             )
         );
+    }
+
+    declaracaoRetorna(): Retorna {
+        const simboloRetorna: SimboloInterface = this.avancarEDevolverAnterior();
+        let valor = null;
+
+        if (
+            [
+                tiposDeSimbolos.CARACTER,
+                tiposDeSimbolos.CARACTERE,
+                tiposDeSimbolos.IDENTIFICADOR,
+                tiposDeSimbolos.NUMERO,
+                tiposDeSimbolos.VERDADEIRO,
+                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.FALSO,
+                tiposDeSimbolos.PARENTESE_ESQUERDO
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            valor = this.expressao();
+        }
+
+        return new Retorna(simboloRetorna, valor);
     }
 
     declaracaoSe(): Se {
@@ -839,7 +880,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
-        // Refatorar isso no futuro.
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
@@ -852,6 +892,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FUNCAO:
                 return this.funcao('funcao');
+            case tiposDeSimbolos.INICIO:
+                this.validarSegmentoInicio('algoritmo');
+                return null;
             case tiposDeSimbolos.INTERROMPA:
                 return this.declaracaoInterrompa();
             case tiposDeSimbolos.LEIA:
@@ -867,8 +910,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 return null;
             case tiposDeSimbolos.REPITA:
                 return this.declaracaoFazer();
+            case tiposDeSimbolos.RETORNE:
+                return this.declaracaoRetorna();
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
+            case tiposDeSimbolos.VAR:
+                if (this.blocoPrincipalIniciado) {
+                    throw this.erro(this.simbolos[this.atual], 'Sintaxe incorreta: início do bloco principal já foi declarado.');
+                }
+                return this.validarSegmentoVar();
             default:
                 return this.expressao();
         }
@@ -878,9 +928,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * No VisuAlg, há uma determinada cadência de validação de símbolos.
      * - O primeiro símbolo é `algoritmo`, seguido por um identificador e
      * uma quebra de linha.
-     * - O segundo símbolo é `var`, que pode ser seguido por uma série de
-     * declarações de variáveis e finalizado por uma quebra de linha.
-     * - O terceiro símbolo é `inicio`, seguido por uma quebra de linha.
+     * - Os próximos símbolo pode `var`, que pode ser seguido por uma série de
+     * declarações de variáveis e finalizado por uma quebra de linha, 
+     * ou ainda `funcao` ou `procedimento`, seguidos dos devidos símbolos que definem 
+     * os blocos.
+     * - O penúltimo símbolo é `inicio`, seguido por uma quebra de linha.
+     * Pode haver ou não declarações dentro do bloco.
      * - O último símbolo deve ser `fimalgoritmo`, que também é usado para
      * definir quando não existem mais construtos a serem adicionados.
      * @param retornoLexador Os símbolos entendidos pelo Lexador.
@@ -890,6 +943,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
+        this.blocoPrincipalIniciado = false;
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
@@ -899,12 +953,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         let declaracoes = [];
-        this.validarSegmentoAlgoritmo();
-        declaracoes = declaracoes.concat(this.validarSegmentoVar());
-        this.validarSegmentoInicio('algoritmo');
+        this.validarSegmentoAlgoritmo();        
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
-            declaracoes.push(this.declaracao());
+            const declaracao = this.declaracao();
+            if (Array.isArray(declaracao)) {
+                declaracoes = declaracoes.concat(declaracao);
+            } else {
+                declaracoes.push(declaracao);
+            }
         }
 
         return {

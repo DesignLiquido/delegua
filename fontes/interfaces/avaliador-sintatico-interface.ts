@@ -30,7 +30,6 @@ export interface AvaliadorSintaticoInterface {
     atual: number;
     blocos: number;
 
-    // sincronizar(): void;
     consumir(tipo: any, mensagemDeErro: string): any;
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: string): boolean;
