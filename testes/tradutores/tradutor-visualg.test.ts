@@ -109,21 +109,39 @@ describe('Tradutor VisuAlg -> Delégua', () => {
             expect(resultado).toMatch(/n3 = n1 \+ n2 /i);
         });
 
-        // it('for -> para', () => {
-        //     const codigo = 'for (let i = 0; i < 10; i++) { console.log(i) }'
+        it('escolha', () => {
+            const codigo = `
+            algoritmo "Times"
+            var time: caractere
+            inicio
+            escreva ("Entre com o nome de um time de futebol: ")
+            leia (time)
+                escolha time
+                    caso "Flamengo", "Fluminense", "Vasco", "Botafogo"
+                        escreval ("É um time carioca.")
+                    caso "São Paulo", "Palmeiras", "Santos", "Corínthians"
+                        escreval ("É um time paulista.")
+                    outrocaso
+                        escreval ("É de outro estado.")
+                fimescolha
+            fimalgoritmo
+            `
 
-        //     const resultado = tradutor.traduzir(codigo);
-        //     expect(resultado).toBeTruthy();
-        //     expect(resultado).toMatch(/para \(var i = 0; i < 10; i\+\+\)/i);
-        //     expect(resultado).toMatch(/escreva\(i\)/i);
-        // });
-
-        // it('array - vetor - com valores', () => {
-        //     const codigo = 'let vetor = [1, \'2\']'
-        //     const resultado = tradutor.traduzir(codigo);
-        //     expect(resultado).toBeTruthy();
-        //     expect(resultado).toMatch(/var vetor = \[1, \'2\'\]/i);
-        // });
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/escolha \(time\)/i);
+            expect(resultado).toMatch(/caso \'Flamengo\':/i);
+            expect(resultado).toMatch(/caso \'Vasco\':/i);
+            expect(resultado).toMatch(/caso \'Botafogo\':/i);
+            expect(resultado).toMatch(/escreva\('É um time carioca.'\)/i);
+            expect(resultado).toMatch(/caso \'São Paulo\':/i);
+            expect(resultado).toMatch(/caso \'Palmeiras\':/i);
+            expect(resultado).toMatch(/caso \'Santos\':/i);
+            expect(resultado).toMatch(/caso \'Corínthians\':/i);
+            expect(resultado).toMatch(/escreva\('É um time paulista.'\)/i);
+            expect(resultado).toMatch(/padrao:/i);
+            expect(resultado).toMatch(/escreva\('É de outro estado.'\)/i);
+        });
 
         // it('array - vetor - vazio', () => {
         //     const codigo = 'let vetor = []'

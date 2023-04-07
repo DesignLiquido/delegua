@@ -141,53 +141,48 @@ export class TradutorVisualg {
     //     return resultado;
     // }
 
-    // logicaComumCaminhosEscolha(caminho: CaminhoEscolha): string {
-    //     let resultado = '';
-    //     this.indentacao += 4;
-    //     resultado += ' '.repeat(this.indentacao);
-    //     if (caminho?.condicoes?.length) {
-    //         for (let condicao of caminho.condicoes) {
-    //             resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-    //             resultado += ' '.repeat(this.indentacao);
-    //         }
-    //     }
-    //     if (caminho?.declaracoes?.length) {
-    //         for (let declaracao of caminho.declaracoes) {
-    //             resultado += ' '.repeat(this.indentacao + 4);
-    //             if (declaracao?.simboloChave?.lexema === 'retorna') {
-    //                 resultado +=
-    //                     'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
-    //             }
-    //             resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-    //         }
-    //         resultado += ' '.repeat(this.indentacao + 4);
-    //         resultado += 'break' + '\n';
-    //     }
+    logicaComumCaminhosEscolha(caminho: any): string {
+        let resultado = '';
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
+        if (caminho?.condicoes?.length) {
+            for (let condicao of caminho.condicoes) {
+                resultado += 'caso ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+                resultado += ' '.repeat(this.indentacao);
+            }
+        }
+        if (caminho?.declaracoes?.length) {
+            for (let declaracao of caminho.declaracoes) {
+                resultado += ' '.repeat(this.indentacao + 4);
+                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+            }
+            resultado += ' '.repeat(this.indentacao + 4);
+        }
 
-    //     this.indentacao -= 4;
-    //     return resultado;
-    // }
+        this.indentacao -= 4;
+        return resultado;
+    }
 
-    // traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
-    //     let resultado = 'switch (';
-    //     resultado +=
-    //         this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](
-    //             declaracaoEscolha.identificadorOuLiteral
-    //         ) + ') {\n';
+    traduzirDeclaracaoEscolha(declaracaoEscolha: any): string {
+        let resultado = 'escolha (';
+        resultado +=
+            this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](
+                declaracaoEscolha.identificadorOuLiteral
+            ) + ') {\n';
 
-    //     for (let caminho of declaracaoEscolha.caminhos) {
-    //         resultado += this.logicaComumCaminhosEscolha(caminho);
-    //     }
+        for (let caminho of declaracaoEscolha.caminhos) {
+            resultado += this.logicaComumCaminhosEscolha(caminho);
+        }
 
-    //     if (declaracaoEscolha.caminhoPadrao) {
-    //         resultado += ' '.repeat(4);
-    //         resultado += 'default:\n';
-    //         resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
-    //     }
+        if (declaracaoEscolha.caminhoPadrao) {
+            resultado += ' '.repeat(4);
+            resultado += 'padrao:\n';
+            resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
+        }
 
-    //     resultado += '}\n';
-    //     return resultado;
-    // }
+        resultado += '}\n';
+        return resultado;
+    }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
@@ -488,7 +483,7 @@ export class TradutorVisualg {
         // Continua: () => 'continue',
         EscrevaMesmaLinha: this.tradzirDeclaracaoEscrevaMesmaLinha.bind(this),
         // Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
-        // Escolha: this.traduzirDeclaracaoEscolha.bind(this),
+        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         // Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         // Fazer: this.traduzirDeclaracaoFazer.bind(this),
