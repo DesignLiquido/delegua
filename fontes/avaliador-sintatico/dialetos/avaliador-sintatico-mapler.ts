@@ -391,11 +391,6 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
             "Esperado paravra reservada 'faca' após condição de continuidade em declaracão 'enquanto'."
         );
 
-        // this.consumir(
-        //     tiposDeSimbolos.QUEBRA_LINHA,
-        //     "Esperado quebra de linha após palavra reservada 'faca' em declaracão 'enquanto'."
-        // );
-
         const declaracoes = [];
         do {
             declaracoes.push(this.declaracao());
@@ -432,59 +427,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscolha(): Escolha {
-        const simboloAtual = this.avancarEDevolverAnterior();
-
-        // Parênteses são opcionais para delimitar o identificador.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
-        const identificador = this.primario();
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
-        // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após variável ou literal de declaração 'caso'.")
-
-        // Blocos de caso
-        const caminhos = [];
-        let simboloAtualBlocoCaso: SimboloInterface = this.avancarEDevolverAnterior();
-        // while (![tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(simboloAtualBlocoCaso.tipo)) {
-        //     const caminhoCondicoes = this.logicaCasosEscolha();
-
-        //     const declaracoes = [];
-        //     do {
-        //         declaracoes.push(this.declaracao());
-        //     } while (
-        //         ![tiposDeSimbolos.CASO, tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(
-        //             this.simbolos[this.atual].tipo
-        //         )
-        //     );
-
-        //     caminhos.push({
-        //         condicoes: caminhoCondicoes.filter((c: any) => c),
-        //         declaracoes: declaracoes.filter((d) => d),
-        //     });
-
-        //     simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
-        // }
-
-        let caminhoPadrao = null;
-        // if (simboloAtualBlocoCaso.tipo === tiposDeSimbolos.OUTRO_CASO) {
-        //     const declaracoes = [];
-        //     do {
-        //         declaracoes.push(this.declaracao());
-        //     } while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_ESCOLHA));
-
-        //     caminhoPadrao = {
-        //         declaracoes: declaracoes.filter((d) => d),
-        //     };
-
-        //     simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
-        // }
-
-        // if (simboloAtualBlocoCaso.tipo !== tiposDeSimbolos.FIM_ESCOLHA) {
-        //     throw this.erro(this.simbolos[this.atual], 
-        //         "Esperado palavra-chave 'fimescolha' para fechamento de declaração 'escolha'.");
-        // }
-
-        // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimescolha'.");
-
-        return new Escolha(identificador, caminhos, caminhoPadrao);
+        throw new Error('Method not implemented.');
     }
 
     private logicaComumEscreva(): FormatacaoEscrita[] {
@@ -508,11 +451,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscreva(): Escreva {
-        const simboloAtual = this.avancarEDevolverAnterior();
-
-        const argumentos = this.logicaComumEscreva();
-
-        return new Escreva(Number(simboloAtual.linha), this.hashArquivo, argumentos);
+        throw new Error('Method not implemented.');
     }
 
     declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
@@ -781,19 +720,12 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
-        // Refatorar isso no futuro.
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
-            // case tiposDeSimbolos.ESCOLHA:
-            //     return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVER:
                 return this.declaracaoEscrevaMesmaLinha();
-            // case tiposDeSimbolos.ESCREVA:
-            //     return this.declaracaoEscrevaMesmaLinha();
-            // case tiposDeSimbolos.ESCREVA_LINHA:
-            //     return this.declaracaoEscreva();
             // case tiposDeSimbolos.FUNCAO:
             //     return this.funcao('funcao');
             // case tiposDeSimbolos.INTERROMPA:
