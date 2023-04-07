@@ -5,10 +5,6 @@ import { ErroLexador } from '../erro-lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/mapler';
 import palavrasReservadas from './palavras-reservadas/mapler';
 
-const dicionarioBibliotecaGlobal = {
-    int: 'inteiro',
-};
-
 export class LexadorMapler extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
         while (this.eDigito(this.simboloAtual())) {
@@ -54,7 +50,7 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
         if (codigo in palavrasReservadas) {
             this.adicionarSimbolo(
                 palavrasReservadas[codigo],
-                dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ? dicionarioBibliotecaGlobal[codigo] : codigo
+                codigo
             );
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
@@ -147,10 +143,6 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 this.avancar();
                 break;
-            // case '^':
-            //     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
-            //     this.avancar();
-            //     break;
             case '/':
                 this.avancar();
                 switch (this.simboloAtual()) {
@@ -163,10 +155,6 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
                 }
 
                 break;
-            // case '\\':
-            //     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
-            //     this.avancar();
-            //     break;
             // Esta sessão ignora espaços em branco na tokenização.
             // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
             case ' ':
