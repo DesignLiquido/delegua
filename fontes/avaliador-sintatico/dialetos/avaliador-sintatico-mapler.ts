@@ -35,14 +35,6 @@ import { Simbolo } from '../../lexador';
 import tiposDeSimbolos from '../../tipos-de-simbolos/mapler';
 
 export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
-    private validarSegmentoAlgoritmo(): void {
-        this.consumir(tiposDeSimbolos.VARIAVEIS, "Esperado 'variaveis' para inicializar programa.");
-
-        // this.consumir(tiposDeSimbolos.CARACTERE, "Esperada cadeia de caracteres após palavra-chave 'algoritmo'.");
-
-        // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
-    }
-
     private criarVetorNDimensional(dimensoes: number[]) {
         if (dimensoes.length > 0) {
             const dimensao = dimensoes[0] + 1;
@@ -229,13 +221,6 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
-    private validarSegmentoInicio(algoritmoOuFuncao: string): void {
-        this.consumir(
-            tiposDeSimbolos.INICIO,
-            `Esperada expressão 'inicio' para marcar escopo de ${algoritmoOuFuncao}.`
-        );
-    }
-
     estaNoFinal(): boolean {
         return this.atual === this.simbolos.length;
     }
@@ -268,8 +253,8 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
-        //     return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
+            return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
@@ -314,11 +299,11 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     ou(): Construto {
         let expressao = this.e();
 
-        // while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU, tiposDeSimbolos.XOU)) {
-        //     const operador = this.simbolos[this.atual - 1];
-        //     const direito = this.e();
-        //     expressao = new Logico(this.hashArquivo, expressao, operador, direito);
-        // }
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU/*, tiposDeSimbolos.XOU*/)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.e();
+            expressao = new Logico(this.hashArquivo, expressao, operador, direito);
+        }
 
         return expressao;
     }
@@ -527,68 +512,21 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     private logicaComumEscreva(): FormatacaoEscrita[] {
-        const simboloCaractere = this.consumir(
-            tiposDeSimbolos.CARACTERE,
-            "Esperado '\"' antes dos valores em escreva."
-        );
+        const simboloAtual = this.simbolos[this.atual];
         const argumentos: FormatacaoEscrita[] = [];
 
-        // Sem não houver parâmetros, retorna vetor com literal vazio.
-        // if (this.simbolos[this.atual].tipo === tiposDeSimbolos.CARACTERE) {
-        //     this.avancarEDevolverAnterior();
-        //     return [new FormatacaoEscrita(
-        //         this.hashArquivo, 
-        //         Number(simboloParenteses.linha), 
-        //         new Literal(this.hashArquivo, Number(simboloParenteses.linha), ''))
-        //     ]
-        // }
+        do {
+            const valor = this.declaracao();
+
+            argumentos.push(
+                new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
+            );
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(
             tiposDeSimbolos.PONTO_VIRGULA,
-            "Esperado ';' no final da expressão escreva"
+            "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'."
         );
-
-        let valor = simboloCaractere.lexema;
-        argumentos.push(
-            new FormatacaoEscrita(this.hashArquivo, Number(simboloCaractere.linha), new Literal(this.hashArquivo, Number(simboloCaractere.linha), valor))
-        );
-
-        // const simboloAtual = this.simbolos[this.atual];
-
-        // do {
-        //     const valor = this.declaracao();
-
-        //     let espacos = 0;
-        //     let casasDecimais = 0;
-        //     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-        //         // Espaços
-        //         const simboloEspacos = this.consumir(
-        //             tiposDeSimbolos.NUMERO,
-        //             'Esperado número após sinal de dois-pontos após identificador como argumento.'
-        //         );
-        //         espacos = Number(simboloEspacos.lexema) - 1;
-        //     }
-
-        //     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-        //         // Casas decimais
-        //         const simboloCasasDecimais = this.consumir(
-        //             tiposDeSimbolos.NUMERO,
-        //             'Esperado número após segundo sinal de dois-pontos após identificador como argumento.'
-        //         );
-        //         casasDecimais = Number(simboloCasasDecimais.lexema);
-        //     }
-
-        //     argumentos.push(
-        //         new FormatacaoEscrita(this.hashArquivo, Number(simboloCaractere.linha), valor, espacos, casasDecimais)
-        //     );
-        // } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        // this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
-
-        // this.consumir(
-        //     tiposDeSimbolos.QUEBRA_LINHA,
-        //     "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'."
-        // );
 
         return argumentos;
     }
@@ -917,14 +855,10 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
 
-        // while (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUEBRA_LINHA)){
-        //     this.avancarEDevolverAnterior()
-        // }
-
         let declaracoes = [];
-        this.validarSegmentoAlgoritmo();
+        this.consumir(tiposDeSimbolos.VARIAVEIS, "Esperado expressão 'variaveis' para inicializar programa.");
         declaracoes = declaracoes.concat(this.validarSegmentoVariaveis());
-        this.validarSegmentoInicio('inicio');
+        this.consumir(tiposDeSimbolos.INICIO, `Esperado expressão 'inicio' para marcar o inicio do programa.`);
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
             declaracoes.push(this.declaracao());

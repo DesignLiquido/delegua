@@ -59,7 +59,27 @@ describe('Interpretador', () => {
                     'idade: inteiro;',
                     'inicio',
                     'idade <- 10;',
-                    'escrever "Minha idade é: ";',
+                    'escrever "Minha idade é: ", idade;',
+                    'fim'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Escrever lógicos', async () => {
+                const retornoLexador = lexador.mapear([
+                    'variaveis',
+                    'inicio',
+                    'escrever "";',
+                    'escrever "Mapler1 ", "Mapler2";',
+                    'escrever "Mapler3 ", 10.2;',
+                    'escrever verdadeiro;',
+                    'escrever falso;',
+                    'escrever nao verdadeiro;',
+                    'escrever nao falso;',
                     'fim'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
