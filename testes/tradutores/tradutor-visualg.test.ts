@@ -1,6 +1,6 @@
 import { TradutorVisualg } from '../../fontes/tradutores/tradutor-visualg';
 
-describe('Tradutor Reverso JavaScript -> Delégua', () => {
+describe('Tradutor VisuAlg -> Delégua', () => {
     const tradutor: TradutorVisualg = new TradutorVisualg();
 
      describe('Código', () => {
@@ -88,15 +88,26 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/senao {/i);
         })
 
-        // it('comparacao de valores -> igualdade', () => {
-        //     const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;
+        it('leia', () => {
+            const codigo = `
+            algoritmo "semnome"
+            var
+            n1,n2,n3:real
+            inicio
+            escreval ("Digite dois valores para a soma,subtração,multiplicação e divisão: ")
+            leia (n1,n2)
+            n3<-n1+n2
+            escreval ()
+            escreval ("A soma de ",n1," mais ",n2," é igual a: ", n3)
+            fimalgoritmo
+            `
 
-        //     const resultado = tradutor.traduzir(codigo);
-        //     expect(resultado).toBeTruthy();
-        //     expect(resultado).toMatch(/escreva\(1 == 2\)/i);
-        //     expect(resultado).toMatch(/escreva\(1 == '1'\)/i);
-        //     expect(resultado).toMatch(/escreva\('1' == '1'\)/i);
-        // });
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var n1 = leia\(\)/i);
+            expect(resultado).toMatch(/var n2 = leia\(\)/i);
+            expect(resultado).toMatch(/n3 = n1 \+ n2 /i);
+        });
 
         // it('for -> para', () => {
         //     const codigo = 'for (let i = 0; i < 10; i++) { console.log(i) }'

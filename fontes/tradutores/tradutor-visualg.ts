@@ -242,11 +242,10 @@ export class TradutorVisualg {
     // }
 
     traduzirDeclaracaoLeia(declaracaoLeia: any) {
-        let resultado = 'leia('
+        let resultado = ''
         for (const parametro of declaracaoLeia.argumentos) {
-            resultado += this.dicionarioConstrutos[parametro.constructor.name](declaracaoLeia.argumentos[0]);
+            resultado += `var ${this.dicionarioConstrutos[parametro.constructor.name](parametro)} = leia()\n`;
         }
-        resultado += ')'
 
         return resultado;
     }
