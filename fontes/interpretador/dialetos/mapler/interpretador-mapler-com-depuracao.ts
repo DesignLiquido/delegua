@@ -30,7 +30,7 @@ export class InterpretadorMaplerComDepuracao extends InterpretadorComDepuracao {
     }
 
     /**
-     * No VisuAlg, o bloco executa se a condição for falsa.
+     * No Mapler, o bloco executa se a condição for falsa.
      * Por isso a reimplementação aqui.
      * @param declaracao A declaração `Fazer`
      * @returns Só retorna em caso de erro na execução, e neste caso, o erro.
@@ -54,11 +54,11 @@ export class InterpretadorMaplerComDepuracao extends InterpretadorComDepuracao {
 
     /**
      * Execução de uma escrita na saída padrão, sem quebras de linha.
-     * Implementada para alguns dialetos, como VisuAlg.
+     * Implementada para alguns dialetos, como Mapler.
      *
      * Como `readline.question` sobrescreve o que foi escrito antes, aqui
      * definimos `this.mensagemPrompt` para uso com `leia`.
-     * No VisuAlg é muito comum usar `escreva()` seguido de `leia()` para
+     * No Mapler é muito comum usar `escreva()` seguido de `leia()` para
      * gerar um prompt na mesma linha.
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
