@@ -679,6 +679,20 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
+            "name": "Testes unitários - Mapler",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "mapler",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Testes unitários - Portugol IPT",
             "type": "node",
             "request": "launch",
