@@ -8,7 +8,6 @@ import {
     Escreva,
     EscrevaMesmaLinha,
     Fazer,
-    FuncaoDeclaracao,
     Leia,
     Para,
     Se,
@@ -30,7 +29,6 @@ import {
     Variavel,
 } from '../../construtos';
 import { SimboloInterface } from '../../interfaces';
-import { Simbolo } from '../../lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/mapler';
 
@@ -201,31 +199,6 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         return this.atual === this.simbolos.length;
     }
 
-    metodoBibliotecaGlobal(): Construto {
-        const simboloAnterior = this.simbolos[this.atual - 1];
-
-        switch (simboloAnterior.lexema) {
-            case 'int':
-                return new Chamada(
-                    this.hashArquivo,
-                    new Variavel(
-                        this.hashArquivo,
-                        new Simbolo(
-                            tiposDeSimbolos.IDENTIFICADOR,
-                            'inteiro',
-                            null,
-                            Number(simboloAnterior.linha),
-                            this.hashArquivo
-                        )
-                    ),
-                    null,
-                    []
-                );
-            default:
-                return null;
-        }
-    }
-
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -240,7 +213,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.CARACTERE)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.CADEIA, tiposDeSimbolos.CARACTERE)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
@@ -366,15 +339,9 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const simboloAnterior = this.simbolos[this.atual - 1];
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
-        // Tipo retornado pela função.
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE)) {
-            throw this.erro(this.simbolos[this.atual], 'Esperado um tipo válido para retorno de função');
-        }
-
         // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
 
         this.validarSegmentoVariaveis();
-        // this.validarSegmentoInicio('função');
 
         const corpo = this.blocoEscopo();
 
@@ -394,14 +361,23 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const declaracoes = [];
         do {
             declaracoes.push(this.declaracao());
-        } while (![tiposDeSimbolos.FIM_ENQUANTO].includes(this.simbolos[this.atual].tipo));
+        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
+                && ![tiposDeSimbolos.ENQUANTO].includes(this.simbolos[this.atual + 1].tipo));
 
         this.consumir(
-            tiposDeSimbolos.FIM_ENQUANTO,
-            "Esperado palavra-chave 'fimenquanto' para fechamento de declaração 'enquanto'."
+            tiposDeSimbolos.FIM,
+            "Esperado palavra-chave 'fim' para iniciar o fechamento de declaração 'enquanto'."
         );
 
-        // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimenquanto'.");
+        this.consumir(
+            tiposDeSimbolos.ENQUANTO,
+            "Esperado palavra-chave 'enquanto' para o fechamento de declaração 'enquanto'."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.PONTO_VIRGULA,
+            "Esperado palavra-chave ';' para o fechamento de declaração 'enquanto'."
+        );
 
         return new Enquanto(
             condicao, 
@@ -411,19 +387,6 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                 declaracoes.filter(d => d)
             )
         );
-    }
-
-    private logicaCasosEscolha(): any {
-        const literais = [];
-
-        let simboloAtualCaso: SimboloInterface = this.simbolos[this.atual];
-        // while (simboloAtualCaso.tipo !== tiposDeSimbolos.QUEBRA_LINHA) {
-        //     literais.push(this.primario());
-        //     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA);
-        //     simboloAtualCaso = this.simbolos[this.atual];
-        // }
-
-        return literais;
     }
 
     declaracaoEscolha(): Escolha {
@@ -677,35 +640,45 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const condicao = this.expressao();
 
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
-        // this.consumir(
-        //     tiposDeSimbolos.QUEBRA_LINHA,
-        //     "Esperado quebra de linha após palavra reservada 'entao' em declaração 'se'."
-        // );
 
         const declaracoes = [];
+        let caminhoSenao = null;
+
         do {
             declaracoes.push(this.declaracao());
-        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
 
-        let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            const simboloSenao = this.simbolos[this.atual - 1];
-            const declaracoesSenao = [];
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+                const simboloSenao = this.simbolos[this.atual - 1];
+                const declaracoesSenao = [];
+    
+                do {
+                    declaracoesSenao.push(this.declaracao());
+                } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
+                        && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
+    
+                caminhoSenao = new Bloco(
+                    this.hashArquivo,
+                    Number(simboloSenao.linha),
+                    declaracoesSenao.filter((d) => d)
+                );
+            }
+        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo) 
+                && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
 
-            do {
-                declaracoesSenao.push(this.declaracao());
-            } while (![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
+        this.consumir(
+            tiposDeSimbolos.FIM,
+            "Esperado palavra-chave 'fim' para iniciar o fechamento de declaração 'se'."
+        );
 
-            caminhoSenao = new Bloco(
-                this.hashArquivo,
-                Number(simboloSenao.linha),
-                declaracoesSenao.filter((d) => d)
-            );
-        }
+        this.consumir(
+            tiposDeSimbolos.SE,
+            "Esperado palavra-chave 'se' para o fechamento de declaração 'se'."
+        );
 
-        this.consumir(tiposDeSimbolos.FIM_SE, "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'.");
-
-        // this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimse'.");
+        this.consumir(
+            tiposDeSimbolos.PONTO_VIRGULA,
+            "Esperado palavra-chave ';' para o fechamento de declaração 'se'."
+        );
 
         return new Se(
             condicao,
@@ -738,9 +711,6 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
             //     throw new Error('Não deveria estar caindo aqui.');
             // case tiposDeSimbolos.PROCEDIMENTO:
             //     return this.declaracaoProcedimento();
-            // case tiposDeSimbolos.QUEBRA_LINHA:
-            //     this.avancarEDevolverAnterior();
-            //     return null;
             case tiposDeSimbolos.REPITA:
                 return this.declaracaoFazer();
             case tiposDeSimbolos.SE:
