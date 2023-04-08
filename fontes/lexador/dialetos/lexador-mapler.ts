@@ -135,10 +135,10 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 this.avancar();
                 break;
-            case '%':
-                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
-                this.avancar();
-                break;
+            // case '%':
+            //     this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+            //     this.avancar();
+            //     break;
             case '*':
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 this.avancar();
