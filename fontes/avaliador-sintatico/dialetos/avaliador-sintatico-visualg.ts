@@ -688,20 +688,38 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
 
-        const numeroInicio = this.consumir(
-            tiposDeSimbolos.NUMERO,
-            "Esperado literal ou variável após 'de' em declaração 'para'."
-        );
+        let literalOuVariavelInicio;
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.IDENTIFICADOR:
+                let identificadorInicio = this.avancarEDevolverAnterior();
+                literalOuVariavelInicio = new Variavel(this.hashArquivo, identificadorInicio);
+                break;
+            case tiposDeSimbolos.NUMERO: 
+                let numeroInicio = this.avancarEDevolverAnterior();
+                literalOuVariavelInicio = new Literal(this.hashArquivo, Number(simboloPara.linha), numeroInicio.literal);
+                break;
+            default:
+                throw this.erro(this.simbolos[this.atual], "Esperado literal ou variável após 'de' em declaração 'para'.");
+        }
 
         this.consumir(
             tiposDeSimbolos.ATE,
             "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'."
         );
 
-        const numeroFim = this.consumir(
-            tiposDeSimbolos.NUMERO,
-            "Esperado literal ou variável após 'de' em declaração 'para'."
-        );
+        let literalOuVariavelFim;
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.IDENTIFICADOR:
+                let identificadorFim = this.avancarEDevolverAnterior();
+                literalOuVariavelFim = new Variavel(this.hashArquivo, identificadorFim);
+                break;
+            case tiposDeSimbolos.NUMERO: 
+                let numeroFim = this.avancarEDevolverAnterior();
+                literalOuVariavelFim = new Literal(this.hashArquivo, Number(simboloPara.linha), numeroFim.literal);
+                break;
+            default:
+                throw this.erro(this.simbolos[this.atual], "Esperado literal ou variável após 'ate' em declaração 'para'.");
+        }
 
         this.consumir(
             tiposDeSimbolos.FACA,
@@ -735,13 +753,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             new Atribuir(
                 this.hashArquivo,
                 variavelIteracao,
-                new Literal(this.hashArquivo, Number(simboloPara.linha), numeroInicio.literal)
+                literalOuVariavelInicio
             ),
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
                 new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo),
-                new Literal(this.hashArquivo, Number(simboloPara.linha), numeroFim.literal)
+                literalOuVariavelFim
             ),
             new Atribuir(
                 this.hashArquivo,

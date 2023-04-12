@@ -1,12 +1,12 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export default {
-    e: tiposDeSimbolos.E,
-    em: tiposDeSimbolos.EM,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,
-    continua: tiposDeSimbolos.CONTINUA,
     construtor: tiposDeSimbolos.CONSTRUTOR,
+    continua: tiposDeSimbolos.CONTINUA,
+    e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
     enquanto: tiposDeSimbolos.ENQUANTO,
     escolha: tiposDeSimbolos.ESCOLHA,
     escreva: tiposDeSimbolos.ESCREVA,
@@ -21,8 +21,8 @@ export default {
     leia: tiposDeSimbolos.LEIA,
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
-    para: tiposDeSimbolos.PARA,
     padrao: tiposDeSimbolos.PADRAO,
+    para: tiposDeSimbolos.PARA,
     pausa: tiposDeSimbolos.PAUSA,
     pegue: tiposDeSimbolos.PEGUE,
     retorna: tiposDeSimbolos.RETORNA,
