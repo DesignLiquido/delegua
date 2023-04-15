@@ -688,38 +688,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
 
-        let literalOuVariavelInicio;
-        switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.IDENTIFICADOR:
-                let identificadorInicio = this.avancarEDevolverAnterior();
-                literalOuVariavelInicio = new Variavel(this.hashArquivo, identificadorInicio);
-                break;
-            case tiposDeSimbolos.NUMERO: 
-                let numeroInicio = this.avancarEDevolverAnterior();
-                literalOuVariavelInicio = new Literal(this.hashArquivo, Number(simboloPara.linha), numeroInicio.literal);
-                break;
-            default:
-                throw this.erro(this.simbolos[this.atual], "Esperado literal ou variável após 'de' em declaração 'para'.");
-        }
+        const literalOuVariavelInicio = this.adicaoOuSubtracao();
 
         this.consumir(
             tiposDeSimbolos.ATE,
             "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'."
         );
 
-        let literalOuVariavelFim;
-        switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.IDENTIFICADOR:
-                let identificadorFim = this.avancarEDevolverAnterior();
-                literalOuVariavelFim = new Variavel(this.hashArquivo, identificadorFim);
-                break;
-            case tiposDeSimbolos.NUMERO: 
-                let numeroFim = this.avancarEDevolverAnterior();
-                literalOuVariavelFim = new Literal(this.hashArquivo, Number(simboloPara.linha), numeroFim.literal);
-                break;
-            default:
-                throw this.erro(this.simbolos[this.atual], "Esperado literal ou variável após 'ate' em declaração 'para'.");
-        }
+        const literalOuVariavelFim = this.adicaoOuSubtracao();
 
         this.consumir(
             tiposDeSimbolos.FACA,
