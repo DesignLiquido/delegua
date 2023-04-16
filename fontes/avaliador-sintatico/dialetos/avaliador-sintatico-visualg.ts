@@ -37,6 +37,12 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
+    dicionarioTiposPrimitivos = {
+        'caractere': 'texto',
+        'inteiro': 'número',
+        'logico': 'lógico',
+        'real': 'número'
+    }
 
     constructor() {
         super();
@@ -192,17 +198,17 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                     tiposDeSimbolos.DE,
                                     'Esperado palavra reservada "de" após declaração de dimensões de vetor.'
                                 );
+
+                                const simboloTipo = this.simbolos[this.atual];
                                 if (
-                                    !this.verificarSeSimboloAtualEIgualA(
-                                        tiposDeSimbolos.CARACTERE,
+                                    ![tiposDeSimbolos.CARACTERE,
                                         tiposDeSimbolos.INTEIRO,
                                         tiposDeSimbolos.LOGICO,
                                         tiposDeSimbolos.REAL,
-                                        tiposDeSimbolos.VETOR
-                                    )
+                                        tiposDeSimbolos.VETOR].includes(simboloTipo.tipo)
                                 ) {
                                     throw this.erro(
-                                        this.simbolos[this.atual],
+                                        simboloTipo,
                                         'Tipo de variável não conhecido para inicialização de vetor.'
                                     );
                                 }
@@ -213,9 +219,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                             this.hashArquivo,
                                             Number(dadosVariaveis.simbolo.linha),
                                             this.criarVetorNDimensional(dimensoes)
-                                        )
+                                        ),
+                                        this.dicionarioTiposPrimitivos[simboloTipo.lexema.toLowerCase()]
                                     )
                                 );
+                                this.atual++;
                                 break;
                         }
                     }

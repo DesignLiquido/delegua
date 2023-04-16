@@ -850,8 +850,13 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+        
+        let subtipo;
+        if (declaracao.tipo !== undefined) {
+            subtipo = declaracao.tipo;
+        }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
 
         return null;
     }

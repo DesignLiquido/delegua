@@ -12,4 +12,5 @@ export interface VariavelInterface {
         | 'símbolo'
         | 'objeto'
         | 'módulo';
+    subtipo?: 'texto' | 'número' | 'longo' | 'lógico'
 }

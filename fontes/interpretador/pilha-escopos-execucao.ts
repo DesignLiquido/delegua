@@ -52,16 +52,23 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         }
     }
 
-    definirVariavel(nomeVariavel: string, valor: any) {
+    definirVariavel(nomeVariavel: string, valor: any, subtipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
         const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
             variavel.tipo : 
             inferirTipoVariavel(valor);
 
-        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = {
+        let elementoAlvo = {
             valor,
-            tipo: tipo
+            tipo: tipo,
+            subtipo: undefined
         };
+
+        if (subtipo !== undefined) {
+            (elementoAlvo.subtipo as any) = subtipo;
+        }
+
+        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = elementoAlvo;
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
