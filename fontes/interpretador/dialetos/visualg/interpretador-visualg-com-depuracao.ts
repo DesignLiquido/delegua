@@ -111,6 +111,10 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
             let alvo = promises[0];
             let indice = promises[1];
+            const subtipo = alvo.hasOwnProperty('subtipo') ? 
+                alvo.subtipo :
+                undefined;
+
             if (alvo.hasOwnProperty('valor')) {
                 alvo = alvo.valor;
             }
@@ -119,7 +123,23 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                 indice = indice.valor;
             }
 
-            alvo[indice] = valor;
+            let valorResolvido;
+            switch (subtipo) {
+                case 'texto':
+                    valorResolvido = String(valor);
+                    break;
+                case 'número':
+                    valorResolvido = Number(valor);
+                    break;
+                case 'lógico':
+                    valorResolvido = Boolean(valor);
+                    break;
+                default:
+                    valorResolvido = valor;
+                    break;
+            }
+
+            alvo[indice] = valorResolvido;
         }
     }
 
