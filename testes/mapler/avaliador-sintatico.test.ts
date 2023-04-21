@@ -18,7 +18,7 @@ describe('Avaliador sintático (Mapler)', () => {
                 'escrever "Olá mundo";',
                 'fim'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -36,7 +36,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         'fimenquanto',
         //         'fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -59,7 +59,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         'fimescolha',
         //         'fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         // });
@@ -84,7 +84,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         '   escreva(res)',
         //         'Fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(8);
@@ -105,7 +105,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         'ate falso',
         //         'fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -122,7 +122,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         'Fimalgoritmo'
         //     ], -1);
 
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
@@ -138,7 +138,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         '    fimpara',
         //         'fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
@@ -171,7 +171,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         '',
         //         'fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
@@ -189,7 +189,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         'ate j > 10',
         //         'fimalgoritmo'
         //     ], -1);
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -219,7 +219,7 @@ describe('Avaliador sintático (Mapler)', () => {
         //         'fimalgoritmo'
         //     ], -1);
             
-        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+        //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
         //     expect(retornoAvaliadorSintatico).toBeTruthy();
         //     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22);

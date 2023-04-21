@@ -805,7 +805,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
     }
 
-    resolverDeclaracao(): RetornoResolverDeclaracao {
+    resolverDeclaracao(): any {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE)) return this.declaracaoTente();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
@@ -946,7 +946,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;

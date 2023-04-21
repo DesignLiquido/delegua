@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class Super implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     simboloChave: SimboloInterface;
     metodo: SimboloInterface;

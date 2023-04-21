@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class Vetor implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     valores: any[];
 

@@ -8,7 +8,7 @@ import { uuidv4 } from '../geracao-identificadores';
 export class Chamada implements Construto {
     id: string;
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     entidadeChamada: Construto;
     argumentos: any[];

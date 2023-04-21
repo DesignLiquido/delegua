@@ -40,6 +40,7 @@ import {
     Atribuir,
     Chamada,
     Construto,
+    FimPara,
     FormatacaoEscrita,
     Literal,
     Logico,
@@ -108,6 +109,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoFimPara(declaracao: FimPara) {
+        throw new Error('Método não implementado.');
     }
 
     async avaliar(expressao: Construto | Declaracao): Promise<any> {

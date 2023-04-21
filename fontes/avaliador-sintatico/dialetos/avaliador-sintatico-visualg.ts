@@ -7,6 +7,7 @@ import {
     Escolha,
     Escreva,
     EscrevaMesmaLinha,
+    Expressao,
     Fazer,
     FuncaoDeclaracao,
     Leia,
@@ -24,6 +25,7 @@ import {
     Binario,
     Chamada,
     Construto,
+    FimPara,
     FormatacaoEscrita,
     FuncaoConstruto,
     Literal,
@@ -731,7 +733,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             declaracoesBlocoPara.filter((d) => d)
         );
 
-        return new Para(
+        const para = new Para(
             this.hashArquivo,
             Number(simboloPara.linha),
             new Atribuir(
@@ -745,18 +747,32 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo),
                 literalOuVariavelFim
             ),
-            new Atribuir(
-                this.hashArquivo,
-                variavelIteracao,
+            new FimPara(
+                this.hashArquivo, 
+                Number(simboloPara.linha), 
                 new Binario(
                     this.hashArquivo,
                     new Variavel(this.hashArquivo, variavelIteracao),
-                    new Simbolo(tiposDeSimbolos.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo),
-                    new Literal(this.hashArquivo, Number(simboloPara.linha), 1)
+                    new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo),
+                    literalOuVariavelFim
+                ),
+                new Expressao(
+                    new Atribuir(
+                        this.hashArquivo,
+                        variavelIteracao,
+                        new Binario(
+                            this.hashArquivo,
+                            new Variavel(this.hashArquivo, variavelIteracao),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo),
+                            new Literal(this.hashArquivo, Number(simboloPara.linha), 1)
+                        )
+                    )
                 )
             ),
             corpo
         );
+        para.blocoPosExecucao = corpo;
+        return para;
     }
 
     logicaComumParametros(): ParametroInterface[] {
@@ -941,7 +957,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @param retornoLexador Os símbolos entendidos pelo Lexador.
      * @param hashArquivo Obrigatório por interface mas não usado aqui.
      */
-    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;

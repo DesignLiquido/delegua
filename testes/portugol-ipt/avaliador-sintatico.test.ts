@@ -17,7 +17,7 @@ describe('Avaliador sintático (Portugol IPT)', () => {
                 'escrever "Olá mundo"',
                 'fim'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);

@@ -21,7 +21,7 @@ describe('Interpretador', () => {
                     'escrever "Olá mundo"',
                     'fim'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 

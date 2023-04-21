@@ -1,5 +1,5 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Atribuir, Construto, Literal, Super } from '../construtos';
+import { Atribuir, Construto, FimPara, Literal, Super } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -33,9 +33,9 @@ export interface InterpretadorInterface {
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any;
 
-    visitarExpressaoLiteral(expressao: Literal): any;
+    visitarExpressaoLiteral(expressao: Literal): Promise<any>;
     avaliar(expressao: Construto | Declaracao): any;
-    visitarExpressaoAgrupamento(expressao: any): any;
+    visitarExpressaoAgrupamento(expressao: any): Promise<any>;
     visitarExpressaoUnaria(expressao: any): any;
     visitarExpressaoBinaria(expressao: any): any;
     visitarExpressaoDeChamada(expressao: any): any;
@@ -46,6 +46,7 @@ export interface InterpretadorInterface {
     visitarExpressaoLogica(expressao: any): any;
     visitarDeclaracaoSe(declaracao: Se): any;
     visitarDeclaracaoPara(declaracao: Para): any;
+    visitarExpressaoFimPara(declaracao: FimPara): any;
     visitarDeclaracaoFazer(declaracao: Fazer): any;
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): any;
     visitarDeclaracaoEscolha(declaracao: Escolha): any;
