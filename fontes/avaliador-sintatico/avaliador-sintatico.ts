@@ -816,7 +816,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    resolverDeclaracao(): RetornoResolverDeclaracao {
+    resolverDeclaracao(): any {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();

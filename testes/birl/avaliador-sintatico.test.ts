@@ -18,7 +18,7 @@ describe('Avaliador Sintático Birl', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
@@ -38,7 +38,7 @@ describe('Avaliador Sintático Birl', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             expect(retornoAvaliadorSintatico).toBeTruthy();
             // expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
@@ -55,7 +55,7 @@ describe('Avaliador Sintático Birl', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -70,7 +70,7 @@ describe('Avaliador Sintático Birl', () => {
                 'BIRL \n',
             ]);
             //  FRANGO esta vindo como um indentificador
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -88,7 +88,7 @@ describe('Avaliador Sintático Birl', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -104,7 +104,7 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL \n',
                 ]);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -119,7 +119,7 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL \n',
                 ]);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -134,7 +134,7 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL \n',
                 ]);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -149,7 +149,7 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL \n',
                 ]);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
@@ -162,7 +162,7 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL\n',
                 ]);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
@@ -179,7 +179,7 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL\n',
                 ]);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');

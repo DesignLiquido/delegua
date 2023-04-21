@@ -14,22 +14,22 @@ describe('Avaliador sintático (Égua Clássico)', () => {
 
         it('Sucesso - Olá Mundo', () => {
             const retornoLexador = lexador.mapear(["escreva('Olá mundo');"]);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
         it('Falha - Vetor vazio', () => {
-            expect(() => avaliadorSintatico.analisar({ simbolos: [] } as unknown as RetornoLexador)).toThrow(TypeError);
+            expect(() => avaliadorSintatico.analisar({ simbolos: [] } as unknown as RetornoLexador, -1)).toThrow(TypeError);
         });
 
         it('Falha - Undefined', () => {
-            expect(() => avaliadorSintatico.analisar(undefined as any)).toThrow(TypeError);
+            expect(() => avaliadorSintatico.analisar(undefined as any, -1)).toThrow(TypeError);
         });
 
         it('Falha - Null', () => {
-            expect(() => avaliadorSintatico.analisar(null as any)).toThrow(TypeError);
+            expect(() => avaliadorSintatico.analisar(null as any, -1)).toThrow(TypeError);
         });
     });
 });
