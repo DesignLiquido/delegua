@@ -1026,7 +1026,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;

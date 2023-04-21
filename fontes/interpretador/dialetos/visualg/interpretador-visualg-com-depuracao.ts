@@ -2,9 +2,9 @@ import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
-import { AcessoIndiceVariavel, Binario, Construto, Logico, Variavel } from '../../../construtos';
+import { AcessoIndiceVariavel, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
 import { EscrevaMesmaLinha, Escreva, Fazer, Leia } from '../../../declaracoes';
-import { ContinuarQuebra, Quebra } from '../../../quebras';
+import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
 import * as comum from './comum';
@@ -95,6 +95,24 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         } catch (erro: any) {
             this.erros.push(erro);
         }
+    }
+
+    async visitarExpressaoFimPara(declaracao: FimPara): Promise<any> {
+        if (!this.eVerdadeiro(await this.avaliar(declaracao.condicaoPara))) {
+            const escopoPara = this.pilhaEscoposExecucao.pilha[this.pilhaEscoposExecucao.pilha.length - 2];
+            if (this.comando === 'proximo') {
+                escopoPara.declaracaoAtual++;
+            }
+            
+            escopoPara.emLacoRepeticao = false;
+            return new SustarQuebra();
+        }
+
+        if (declaracao.incremento === null || declaracao.incremento === undefined) {
+            return;
+        }
+
+        await this.executar(declaracao.incremento);
     }
 
     async atribuirVariavel(expressao: Construto, valor: any): Promise<any> {

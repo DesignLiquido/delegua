@@ -8,7 +8,7 @@ import { Construto } from './construto';
  */
 export class FormatacaoEscrita implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
     expressao: Construto;
     espacos: number;
     casasDecimais: number;

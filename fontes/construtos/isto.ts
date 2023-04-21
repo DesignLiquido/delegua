@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class Isto implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     palavraChave: any;
 

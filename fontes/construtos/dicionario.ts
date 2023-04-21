@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class Dicionario implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     chaves: any;
     valores: any;

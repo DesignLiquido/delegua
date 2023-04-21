@@ -31,6 +31,7 @@ import {
     Atribuir,
     Chamada,
     Construto,
+    FimPara,
     FormatacaoEscrita,
     Literal,
     Super,
@@ -82,6 +83,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+    
+    visitarExpressaoFimPara(declaracao: FimPara) {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {

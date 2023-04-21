@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class FuncaoConstruto implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     parametros: ParametroInterface[];
     corpo: any[];

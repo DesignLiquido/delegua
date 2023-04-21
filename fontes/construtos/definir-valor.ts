@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class DefinirValor implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     objeto: any;
     nome: any;

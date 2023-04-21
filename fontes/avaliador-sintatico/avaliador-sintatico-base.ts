@@ -331,5 +331,5 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     abstract declaracao(): Declaracao;
 
-    abstract analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico;
+    abstract analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico;
 }

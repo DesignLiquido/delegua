@@ -7,7 +7,7 @@ import { Construto } from './construto';
  */
 export class AcessoMetodo implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     objeto: Construto;
     simbolo: SimboloInterface;

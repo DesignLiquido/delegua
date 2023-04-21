@@ -158,7 +158,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
