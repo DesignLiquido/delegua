@@ -14,7 +14,7 @@ import { Construto } from './construto';
  */
 export class Binario implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     esquerda: any;
     operador: SimboloInterface;

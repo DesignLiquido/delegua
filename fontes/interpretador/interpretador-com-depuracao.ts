@@ -159,20 +159,6 @@ export class InterpretadorComDepuracao
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
-            /* let resultadoAvaliacao: any;
-            if (argumento instanceof Chamada) {
-                const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
-                const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(argumento);
-                if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
-                    resultadoAvaliacao = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                    delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
-                } else {
-                    resultadoAvaliacao = await this.avaliar(argumento);
-                }
-            } else {
-                
-            } */
-
             const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
@@ -245,6 +231,7 @@ export class InterpretadorComDepuracao
                         return Promise.reject(erro);
                     }
                 }
+                // escopoAtual.emLacoRepeticao = false;
                 return null;
         }
     }

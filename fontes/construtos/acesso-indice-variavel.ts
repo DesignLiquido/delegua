@@ -7,7 +7,7 @@ import { Construto } from './construto';
  */
 export class AcessoIndiceVariavel implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     entidadeChamada: Construto;
     simboloFechamento: SimboloInterface;

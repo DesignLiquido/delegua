@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class Logico implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     esquerda: any;
     operador: SimboloInterface;

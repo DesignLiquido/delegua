@@ -8,7 +8,7 @@ import { Construto } from './construto';
  */
 export class Agrupamento implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     expressao: Construto;
 

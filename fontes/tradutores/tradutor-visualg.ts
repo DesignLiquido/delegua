@@ -2,6 +2,7 @@ import {
     Agrupamento,
     Atribuir,
     Binario,
+    FimPara,
     Literal,
     Logico,
     Variavel,
@@ -9,6 +10,7 @@ import {
 import {
     Bloco,
     Declaracao,
+    Expressao,
     Para,
     Se,
     Var,
@@ -95,6 +97,17 @@ export class TradutorVisualg {
         else resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
 
         return resultado;
+    }
+
+    traduzirConstrutoFimPara(fimPara: FimPara): string {
+        if (fimPara.incremento === null || fimPara.incremento === undefined) {
+            return '';
+        }
+
+        const expressao = fimPara.incremento as Expressao;
+        const atribuir = expressao.expressao as Atribuir;
+        const variavel = atribuir.simbolo.lexema;
+        return `${variavel}++`;
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
@@ -467,6 +480,7 @@ export class TradutorVisualg {
         // AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         // Chamada: this.traduzirConstrutoChamada.bind(this),
+        FimPara: this.traduzirConstrutoFimPara.bind(this),
         // FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         // Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
@@ -505,7 +519,7 @@ export class TradutorVisualg {
         this.avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
 
         const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
+        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
 
         for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

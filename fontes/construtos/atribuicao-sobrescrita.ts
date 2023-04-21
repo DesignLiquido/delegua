@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class AtribuicaoSobrescrita implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     objeto: any;
     valor: any;

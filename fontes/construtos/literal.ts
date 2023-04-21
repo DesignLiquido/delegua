@@ -5,7 +5,7 @@ export type ValorLiteral = number | string | number[] | string[] | any;
 
 export class Literal implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     valor: ValorLiteral;
 

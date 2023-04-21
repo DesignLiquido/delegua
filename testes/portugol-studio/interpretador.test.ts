@@ -26,7 +26,7 @@ describe('Interpretador (Portugol Studio)', () => {
                     '    }',
                     '}'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -54,7 +54,7 @@ describe('Interpretador (Portugol Studio)', () => {
                     '}'
                 ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 

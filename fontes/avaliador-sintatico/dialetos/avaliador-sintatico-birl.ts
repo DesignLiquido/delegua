@@ -188,7 +188,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `PARA`.');
 
-        return new Para(this.hashArquivo, simboloPara.linha, 0, 0, 0, 0);
+        return new Para(this.hashArquivo, simboloPara.linha, 0, 0, {} as any, {} as any);
     }
 
     declaracaoEscolha(): Escolha {
@@ -472,7 +472,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo?: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
         this.erros = [];
         this.blocos = 0;
         this.atual = 0;

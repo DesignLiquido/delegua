@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 export class Unario implements Construto {
     linha: number;
-    hashArquivo?: number;
+    hashArquivo: number;
 
     operador: SimboloInterface;
     operando: any;

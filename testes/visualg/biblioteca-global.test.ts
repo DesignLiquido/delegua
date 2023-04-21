@@ -210,7 +210,7 @@ describe('Biblioteca Numérica', () => {
                 'Fimalgoritmo'
             ], -1);
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -306,7 +306,7 @@ describe('Biblioteca de caracteres', () => {
                 'Fimalgoritmo'
             ], -1);
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
