@@ -43,6 +43,7 @@ import {
     Tente,
     Var,
     Leia,
+    Const,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -601,7 +602,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 inicializador = null;
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
                 inicializador = this.declaracaoDeVariavel();
-            } else {
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
+                inicializador = this.declaracaoDeConstante();
+            }
+            else {
                 inicializador = this.declaracaoExpressao();
             }
 
@@ -893,6 +897,21 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Var(simbolo, inicializador);
     }
 
+        /**
+     * Caso símbolo atual seja `const, constante ou fixo`, devolve uma declaração de const.
+     * @returns Um Construto do tipo Const.
+     */
+    declaracaoDeConstante(): Const {
+        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de constante.');
+        let inicializador = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            inicializador = this.expressao();
+        }
+
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        return new Const(simbolo, inicializador);
+    }
+
     funcao(tipo: string): FuncaoDeclaracao {
         let simbolo: SimboloInterface;
         switch (this.simbolos[this.atual].tipo) {
@@ -988,6 +1007,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 return this.funcao('funcao');
             }
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariavel();
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) return this.declaracaoDeConstante();
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();

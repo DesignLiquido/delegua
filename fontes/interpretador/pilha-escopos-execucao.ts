@@ -52,16 +52,37 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         }
     }
 
+    definirConstante(nomeConstante: string, valor: any, subtipo?: string): void {
+        const constante = this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante];
+        const tipo = constante && constante.hasOwnProperty('tipo') ? 
+            constante.tipo : 
+            inferirTipoVariavel(valor);
+
+        let elementoAlvo: VariavelInterface = {
+            valor,
+            tipo: tipo,
+            subtipo: undefined,
+            imutavel: true
+        };
+
+        if (subtipo !== undefined) {
+            (elementoAlvo.subtipo as any) = subtipo;
+        }
+
+        this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante] = elementoAlvo;
+    }
+
     definirVariavel(nomeVariavel: string, valor: any, subtipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
         const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
             variavel.tipo : 
             inferirTipoVariavel(valor);
 
-        let elementoAlvo = {
+        let elementoAlvo: VariavelInterface = {
             valor,
             tipo: tipo,
-            subtipo: undefined
+            subtipo: undefined,
+            imutavel: false
         };
 
         if (subtipo !== undefined) {
@@ -73,9 +94,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
+        if(ambienteAncestral.valores[simbolo.lexema].imutavel) {
+            // throw new Error(`Constante ${simbolo.lexema} não pode receber novos valores.`);
+            throw new ErroEmTempoDeExecucao(simbolo, `Constante ${simbolo.lexema} não pode receber novos valores.`);
+        }
         ambienteAncestral.valores[simbolo.lexema] = {
             valor,
             tipo: inferirTipoVariavel(valor),
+            imutavel: false
         };
     }
 
@@ -84,6 +110,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 const variavel = ambiente.valores[simbolo.lexema];
+                if(variavel.imutavel){
+                    // throw new Error(`Constante ${simbolo.lexema} não pode receber novos valores.`);
+                    throw new ErroEmTempoDeExecucao(simbolo, `Constante ${simbolo.lexema} não pode receber novos valores.`);
+                }
                 const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
                     variavel.tipo : 
                     inferirTipoVariavel(valor);
@@ -91,7 +121,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 const valorResolvido = this.converterValor(tipo, valor);
                 ambiente.valores[simbolo.lexema] = {
                     valor: valorResolvido,
-                    tipo
+                    tipo,
+                    imutavel: false
                 };
                 return;
             }
@@ -152,6 +183,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 nome: chaveEValor[0],
                 valor: chaveEValor[1].valor,
                 tipo: chaveEValor[1].tipo,
+                imutavel: chaveEValor[1].imutavel
             }));
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }

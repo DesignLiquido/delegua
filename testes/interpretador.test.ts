@@ -16,8 +16,21 @@ describe('Interpretador', () => {
 
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
-                it('Trivial', async () => {
+                it('Trivial var', async () => {
                     const retornoLexador = lexador.mapear(["var a = 1"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Trivial const/constante/fixo', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "const a = 1",
+                        "constante b = \"b\"",
+                        "fixo c = 3"
+                    ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -651,6 +664,48 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('const', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "const a = 1",
+                        "a = 2",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros[0].mensagem).toBe(
+                        'Constante a não pode receber novos valores.'
+                    );
+                });
+
+                it('constante', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "constante b = \"b\"",
+                        "b = 3",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros[0].mensagem).toBe(
+                        'Constante b não pode receber novos valores.'
+                    );
+                });
+
+                it('fixo', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "fixo c = 3",
+                        "c = 1"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros[0].mensagem).toBe(
+                        'Constante c não pode receber novos valores.'
+                    );
                 });
 
                 it('Acesso a elementos de dicionário', async () => {

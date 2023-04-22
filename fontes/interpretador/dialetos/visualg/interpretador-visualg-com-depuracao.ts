@@ -3,7 +3,7 @@ import {
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
 import { AcessoIndiceVariavel, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer, Leia } from '../../../declaracoes';
+import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
@@ -21,6 +21,10 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
         registrarBibliotecaNumericaVisuAlg(this, this.pilhaEscoposExecucao);
         registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

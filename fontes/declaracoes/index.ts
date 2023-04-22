@@ -1,5 +1,6 @@
 export * from './bloco';
 export * from './classe';
+export * from './const';
 export * from './continua';
 export * from './declaracao';
 export * from './enquanto';
