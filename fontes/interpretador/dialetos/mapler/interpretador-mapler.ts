@@ -1,5 +1,5 @@
 import { Binario, Construto, Logico, Variavel } from '../../../construtos';
-import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
+import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 
@@ -16,6 +16,10 @@ export class InterpretadorMapler extends InterpretadorBase {
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.mensagemPrompt = '> ';
+    }
+
+    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     private async avaliarArgumentosEscrevaMapler(argumentos: Construto[]): Promise<string> {

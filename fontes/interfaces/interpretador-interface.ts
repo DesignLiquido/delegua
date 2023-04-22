@@ -3,6 +3,7 @@ import { Atribuir, Construto, FimPara, Literal, Super } from '../construtos';
 import {
     Bloco,
     Classe,
+    Const,
     Continua,
     Declaracao,
     Enquanto,
@@ -58,6 +59,7 @@ export interface InterpretadorInterface {
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any>;
     visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
     visitarDeclaracaoVar(declaracao: Var): Promise<any>;
+    visitarDeclaracaoConst(declaracao: Const): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;

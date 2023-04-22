@@ -2,7 +2,7 @@ import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface
 import { PilhaEscopos } from './pilha-escopos';
 import { ErroResolvedor } from './erro-resolvedor';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
-import { Bloco, Declaracao, EscrevaMesmaLinha, Expressao, Leia, Se } from '../../../../declaracoes';
+import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, Se } from '../../../../declaracoes';
 import { AcessoMetodo, Construto, FimPara, FormatacaoEscrita, Super, Variavel } from '../../../../construtos';
 import { RetornoResolvedor } from './retorno-resolvedor';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
@@ -61,6 +61,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Método não implementado.');
     }
     
     visitarExpressaoFimPara(declaracao: FimPara) {

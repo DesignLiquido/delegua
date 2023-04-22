@@ -59,6 +59,7 @@ export class DeleguaFuncao extends Chamavel {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
                 tipo: 'objeto',
+                imutavel: false
             };
         }
 

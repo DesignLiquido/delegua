@@ -1,5 +1,5 @@
 import { Binario, Construto, Logico, Variavel } from '../../../construtos';
-import { Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
+import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
@@ -27,6 +27,10 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
         registrarBibliotecaNumericaVisuAlg(this, this.pilhaEscoposExecucao);
         registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

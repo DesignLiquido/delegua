@@ -21,6 +21,10 @@ const mockPilha: PilhaEscoposExecucaoInterface = {
         funcoes[nomeVariavel] = valor;
     },
 
+    definirConstante: function (nomeConstante: string, valor: any, subtipo?: string | undefined): void {
+        funcoes[nomeConstante] = valor;
+    },
+
     elementos: function (): number {
         throw new Error('Função não implementada.');
     },
@@ -73,7 +77,7 @@ const mockPilha: PilhaEscoposExecucaoInterface = {
 
     removerUltimo: function (): EscopoExecucao {
         throw new Error('Função não implementada.');
-    }
+    },
 };
 
 describe('Biblioteca Numérica', () => {

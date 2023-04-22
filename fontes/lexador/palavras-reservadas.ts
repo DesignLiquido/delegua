@@ -5,6 +5,8 @@ export default {
     classe: tiposDeSimbolos.CLASSE,
     construtor: tiposDeSimbolos.CONSTRUTOR,
     continua: tiposDeSimbolos.CONTINUA,
+    constante: tiposDeSimbolos.CONSTANTE,
+    const: tiposDeSimbolos.CONSTANTE,
     e: tiposDeSimbolos.E,
     em: tiposDeSimbolos.EM,
     enquanto: tiposDeSimbolos.ENQUANTO,
@@ -13,6 +15,7 @@ export default {
     falso: tiposDeSimbolos.FALSO,
     fazer: tiposDeSimbolos.FAZER,
     finalmente: tiposDeSimbolos.FINALMENTE,
+    fixo: tiposDeSimbolos.CONSTANTE,
     funcao: tiposDeSimbolos.FUNCAO,
     função: tiposDeSimbolos.FUNÇÃO,
     herda: tiposDeSimbolos.HERDA,
@@ -33,5 +36,6 @@ export default {
     sustar: tiposDeSimbolos.SUSTAR,
     tente: tiposDeSimbolos.TENTE,
     var: tiposDeSimbolos.VARIAVEL,
+    variavel: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };

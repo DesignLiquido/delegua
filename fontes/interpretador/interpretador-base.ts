@@ -8,6 +8,7 @@ import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelI
 import {
     Bloco,
     Classe,
+    Const,
     Continua,
     Declaracao,
     Enquanto,
@@ -862,6 +863,24 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
+
+        return null;
+    }
+
+        /**
+     * Executa expressão de definição de constante.
+     * @param declaracao A declaração Const
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+        
+        let subtipo;
+        if (declaracao.tipo !== undefined) {
+            subtipo = declaracao.tipo;
+        }
+
+        this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, subtipo);
 
         return null;
     }
