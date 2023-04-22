@@ -593,26 +593,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Delégua > REPL",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Delégua > Teste de Classe",
             "skipFiles": [
                 "<node_internals>/**",
