@@ -3,7 +3,7 @@ import { InterpretadorInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**
- * Uma declaração de variável.
+ * Uma declaração de constante.
  */
 export class Const extends Declaracao {
     simbolo: SimboloInterface;
