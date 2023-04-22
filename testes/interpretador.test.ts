@@ -16,8 +16,11 @@ describe('Interpretador', () => {
 
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
-                it('Trivial var', async () => {
-                    const retornoLexador = lexador.mapear(["var a = 1"], -1);
+                it('Trivial var/variavel', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var a = 1",
+                        "variavel b = 2"
+                    ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);

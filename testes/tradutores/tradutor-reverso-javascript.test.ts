@@ -50,9 +50,17 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/var a = 1/i);
+            expect(resultado).toMatch(/const a = 1/i);
             expect(resultado).toMatch(/var b = 2/i);
             expect(resultado).toMatch(/var c = 3/i);
+        });
+
+        it('const -> const/constante', () => {
+            const codigo = `const a = 1`;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/const a = 1/i);
         });
 
         it('function -> funcao sem parametro', () => {
@@ -125,7 +133,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/var func = \(a, b, c\) => {/i);
+            expect(resultado).toMatch(/const func = \(a, b, c\) => {/i);
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
@@ -235,8 +243,8 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/var v = verdadeiro e verdadeiro/i);
-            expect(resultado).toMatch(/var f = verdadeiro ou falso/i);
+            expect(resultado).toMatch(/const v = verdadeiro e verdadeiro/i);
+            expect(resultado).toMatch(/const f = verdadeiro ou falso/i);
         });
 
         it('if -> se', () => {

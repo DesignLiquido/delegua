@@ -163,7 +163,7 @@ export class TradutorReversoJavaScript {
         let informacoesDaVariavel = declaracao.declarations[0];
         const identificador = informacoesDaVariavel.id as Identifier;
         if (identificador) {
-            resultado += `var ${identificador.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](
+            resultado += `${declaracao.kind === 'const' ? 'const' : 'var'} ${identificador.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](
                 informacoesDaVariavel.init
             )}`;
         }
