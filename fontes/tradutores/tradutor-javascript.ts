@@ -18,6 +18,7 @@ import {
 import {
     Bloco,
     Classe,
+    Const,
     Declaracao,
     Enquanto,
     Escolha,
@@ -430,6 +431,26 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirDeclaracaoConst(declaracaoConst: Const): string {
+        let resultado = 'const ';
+        resultado += declaracaoConst.simbolo.lexema;
+        if (!declaracaoConst?.inicializador) resultado += ';';
+        else {
+            resultado += ' = ';
+            if (this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name](
+                    declaracaoConst.inicializador
+                );
+            } else {
+                resultado += this.dicionarioDeclaracoes[declaracaoConst.inicializador.constructor.name](
+                    declaracaoConst.inicializador
+                );
+            }
+            resultado += ';';
+        }
+        return resultado;
+    }
+
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema;
@@ -562,6 +583,7 @@ export class TradutorJavaScript implements TradutorInterface {
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
+        Const : this.traduzirDeclaracaoConst.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
