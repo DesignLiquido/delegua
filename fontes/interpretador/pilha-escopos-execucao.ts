@@ -95,7 +95,6 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         if(ambienteAncestral.valores[simbolo.lexema].imutavel) {
-            // throw new Error(`Constante ${simbolo.lexema} não pode receber novos valores.`);
             throw new ErroEmTempoDeExecucao(simbolo, `Constante ${simbolo.lexema} não pode receber novos valores.`);
         }
         ambienteAncestral.valores[simbolo.lexema] = {
@@ -111,7 +110,6 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 const variavel = ambiente.valores[simbolo.lexema];
                 if(variavel.imutavel){
-                    // throw new Error(`Constante ${simbolo.lexema} não pode receber novos valores.`);
                     throw new ErroEmTempoDeExecucao(simbolo, `Constante ${simbolo.lexema} não pode receber novos valores.`);
                 }
                 const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
