@@ -11,7 +11,7 @@ export class Var extends Declaracao {
     tipo: 'texto' | 'numero' | 'longo' | 'lógico' | 'nulo' | 'vetor' | 'módulo' | 'dicionário' | 'função' | 'símbolo' | undefined
 
     constructor(
-        simbolo: SimboloInterface, 
+        simbolo: SimboloInterface,
         inicializador: Construto,
         tipo: 'texto' | 'numero' | 'longo' | 'lógico' | 'nulo' | 'vetor' | 'módulo' | 'dicionário' | 'função' | 'símbolo' | undefined = undefined
     ) {

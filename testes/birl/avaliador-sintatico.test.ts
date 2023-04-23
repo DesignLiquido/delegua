@@ -168,7 +168,7 @@ describe('Avaliador Sintático Birl', () => {
             });
         });
         describe('Sucesso - Loops', () => {
-            it.skip('Sucesso - declaração - for', () => {
+            it('Sucesso - declaração - for', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; M++)',
