@@ -217,14 +217,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         const incrementoValor = this.tratarSimbolos(incremento);
 
-        const incrementoConstruto: Construto = {
-            linha: Number(primeiroSimbolo.linha),
-            hashArquivo: this.hashArquivo,
-            valor: incrementoValor,
-            aceitar: function (visitante: InterpretadorInterface): Promise<any> {
-                throw new Error('Function not implemented.');
-            }
-        }
+        const incrementoConstruto: Construto = new Literal(
+            this.hashArquivo,
+            Number(primeiroSimbolo.linha) + 1,
+            incrementoValor as string
+        );
         const corpo = new Bloco(
             this.hashArquivo,
             Number(primeiroSimbolo.linha) + 1,
@@ -285,7 +282,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 "Esperado identificador após palavra reservada 'FRANGO'."
             );
             inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0))
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto')
             );
 
             // Inicialização de variáveis que podem ter valor definido;
@@ -303,7 +300,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             inicializacoes.push(
                 new Var(
                     identificador,
-                    new Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao)
+                    new Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao),
+                    'texto'
                 )
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -339,12 +337,13 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)
+                        new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao),
+                        'numero'
                     )
                 );
             } else {
                 inicializacoes.push(
-                    new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0))
+                    new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0), 'numero')
                 );
             }
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -365,7 +364,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 "Esperado identificador após palavra reservada 'TRAPEZIO'."
             );
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), 0)));
+            inicializacoes.push(
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), 0), 'numero')
+            );
 
             // Inicializações de variáveis que podem ter valores definidos
             let valorInicializacao = 0x00;
@@ -378,7 +379,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             }
 
             inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao))
+                new Var(
+                    identificador,
+                    new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao),
+                    'numero'
+                )
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return inicializacoes;
