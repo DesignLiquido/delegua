@@ -63,6 +63,7 @@ export class DeleguaFuncao extends Chamavel {
             };
         }
 
+        (interpretador as any).proximoEscopo = 'funcao';
         const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
         if (retornoBloco instanceof RetornoQuebra) {
             return retornoBloco.valor;
