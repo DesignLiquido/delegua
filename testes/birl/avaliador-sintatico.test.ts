@@ -1,5 +1,5 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
-import { Se } from '../../fontes/declaracoes';
+import { Para, Se } from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático Birl', () => {
@@ -22,25 +22,6 @@ describe('Avaliador Sintático Birl', () => {
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-        });
-
-        it.skip('Sucesso - For', () => {
-            //@TODO: @ItaloCobains - Implementar esse teste
-            const retornoLexador = lexador.mapear(
-                [
-                    'HORA DO SHOW',
-                    '  MONSTRO M;',
-                    '  MAIS QUERO MAIS (M = 0; M < 5; M++)',
-                    '    CE QUER VER ESSA PORRA? ("%d", M);',
-                    '  BIRL',
-                    'BIRL',
-                ],
-                -1
-            );
-
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            // expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
         it('Sucesso - Variavel - Numero', () => {
@@ -185,6 +166,23 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
             });
+        });
+        describe('Sucesso - Loops', () => {
+            it('Sucesso - declaração - for', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; M++)',
+                    '       CE QUER VER ESSA PORRA? ("teste");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
+                expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Para);
+            })
         });
     });
 });
