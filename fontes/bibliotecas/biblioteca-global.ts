@@ -405,8 +405,10 @@ export default function (interpretador: InterpretadorInterface, pilhaEscoposExec
 
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                (await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]])) &&
-                    resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]));
+                const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
+                if (deveRetornarValor) {
+                    resultados.push(valorVetor[indice]);
+                }
             }
 
             return resultados;
