@@ -168,7 +168,7 @@ describe('Avaliador Sintático Birl', () => {
             });
         });
         describe('Sucesso - Loops', () => {
-            it('Sucesso - declaração - for', () => {
+            it('Sucesso - declaração - for - incremento', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; M++)',
@@ -182,7 +182,40 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Para);
-            })
+            });
+
+            it('Sucesso - declaração - for - decremento', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MAIS QUERO MAIS (MONSTRO M = 5; M > 0; M--)',
+                    '       CE QUER VER ESSA PORRA? ("teste");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
+                expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Para);
+            });
+
+            it('Sucesso - declaração - for - incremento - atribuição', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MONSTRO M;\n',
+                    '   MAIS QUERO MAIS (M = 5; M > 0; M--)',
+                    '       CE QUER VER ESSA PORRA? ("teste");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
+                expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Para);
+            });
         });
     });
 });
