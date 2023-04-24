@@ -197,16 +197,21 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         let declaracaoInicial: any = null;
 
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                this.atual++;
-            }
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO)) {
-                this.atual++;
-            }
-            const valor = this.simbolos[this.atual - 1].literal;
+            this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado expressão `IDENTIFICADOR` após `(` para iniciar o bloco `PARA`.'
+            );
+            this.consumir(
+                tiposDeSimbolos.IGUAL,
+                'Esperado expressão `=` após `IDENTIFICADOR` para iniciar o bloco `PARA`.'
+            );
+            const valor = this.consumir(
+                tiposDeSimbolos.NUMERO,
+                'Esperado expressão `NUMERO` após `=` para iniciar o bloco `PARA`.'
+            );
             declaracaoInicial = new Var(
                 this.simbolos[this.atual],
-                new Literal(this.simbolos[this.atual].linha, this.hashArquivo, valor),
+                new Literal(this.simbolos[this.atual].linha, this.hashArquivo, valor.literal),
                 'numero'
             );
         } else {
