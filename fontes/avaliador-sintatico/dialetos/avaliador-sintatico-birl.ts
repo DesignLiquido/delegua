@@ -182,7 +182,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return new Expressao(expressao);
     }
 
-    declaracaoPara(): any {
+    declaracaoPara(): Para {
         const primeiroSimbolo = this.consumir(
             tiposDeSimbolos.MAIS,
             'Esperado expressão `MAIS` para iniciar o bloco `PARA`.'
@@ -516,6 +516,30 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
+    declacacaoEnquanto(): Enquanto {
+        const simboloEnquanto: SimboloInterface = this.consumir(
+            tiposDeSimbolos.NEGATIVA,
+            'Esperado expressão `NEGATIVA`.'
+        );
+        this.consumir(tiposDeSimbolos.BAMBAM, 'Esperado expressão `BAMBAM` após `NEGATIVA`.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `BAMBAM`.');
+        const condicao = this.declaracao(); // E para ser um binario.
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
+        const declaracoes = [];
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIRL)) {
+            declaracoes.push(this.declaracao());
+        }
+
+        return new Enquanto(
+            condicao,
+            new Bloco(
+                simboloEnquanto.hashArquivo,
+                Number(simboloEnquanto.linha),
+                declaracoes.filter((d) => d)
+            )
+        );
+    }
+
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -526,7 +550,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ELE:
                 return this.declaracaoSe();
             case tiposDeSimbolos.NEGATIVA:
-            // Retornar uma declaração de WHILE
+                return this.declacacaoEnquanto();
             case tiposDeSimbolos.MAIS:
                 return this.declaracaoPara();
             // Declaração de inteiros

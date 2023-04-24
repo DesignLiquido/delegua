@@ -1,6 +1,7 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
-import { Para, Se } from '../../fontes/declaracoes';
+import { Enquanto, Para, Se } from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
+import { RetornoLexador } from '../../fontes/interfaces/retornos/retorno-lexador';
 
 describe('Avaliador Sintático Birl', () => {
     describe('analisar()', () => {
@@ -216,6 +217,23 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Para);
             });
+            it('Sucesso - declaração - while', () => {
+                const RetornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MONSTRO X = 5;\n',
+                    '   NEGATIVA BAMBAM (X > 2)',
+                    '       CE QUER VER ESSA PORRA? ("teste");\n',
+                    '       X--;\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const RetornoAvaliadorSintatico = avaliadorSintatico.analisar(RetornoLexador, -1);
+                expect(RetornoAvaliadorSintatico).toBeTruthy();
+                expect(RetornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(RetornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
+                expect(RetornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Enquanto);
+            })
         });
     });
 });
