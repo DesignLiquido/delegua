@@ -194,7 +194,24 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.'
         );
 
-        const declaracaoInicial = this.declaracao(); // inicialização da variável de controle
+        let declaracaoInicial: any = null;
+
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                this.atual++;
+            }
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO)) {
+                this.atual++;
+            }
+            const valor = this.simbolos[this.atual - 1].literal;
+            declaracaoInicial = new Var(
+                this.simbolos[this.atual],
+                new Literal(this.simbolos[this.atual].linha, this.hashArquivo, valor),
+                'numero'
+            );
+        } else {
+            declaracaoInicial = this.declaracao(); // inicialização da variável de controle
+        }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado expressão `;` após a inicialização do `PARA`.');
 
