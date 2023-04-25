@@ -13,70 +13,74 @@ describe('Avaliador Sintático Birl', () => {
             avaliadorSintatico = new AvaliadorSintaticoBirl();
         });
 
-        it('Sucesso - Hello, World! Porra!', () => {
-            const retornoLexador = lexador.mapear(
-                ['HORA DO SHOW', '  CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");', '  BORA CUMPADE 0;', 'BIRL'],
-                -1
-            );
+        describe('Cenários de sucesso', () => {
+            it('Sucesso - Hello, World! Porra!', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'HORA DO SHOW',
+                        '  CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");',
+                        '  BORA CUMPADE 0;',
+                        'BIRL',
+                    ],
+                    -1
+                );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-        });
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            });
 
-        it('Sucesso - Variavel - Numero', () => {
-            const retornoLexador = lexador.mapear(
-                [
+            it('Sucesso - Variavel - Numero', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'HORA DO SHOW \n',
+                        '  MONSTRO M1 = 1; \n',
+                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  BORA CUMPADE 0; \n',
+                        'BIRL \n',
+                    ],
+                    -1
+                );
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+
+            it('Sucesso - Variavel - String', () => {
+                const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    '  MONSTRO M1 = 1; \n',
-                    '  CE QUER VER ESSA PORRA? (M1); \n',
-                    '  BORA CUMPADE 0; \n',
+                    "   FRANGO FR = 'testes';\n",
+                    '   CE QUER VER ESSA PORRA? (FR); \n',
+                    '   BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ],
-                -1
-            );
+                ]);
+                //  FRANGO esta vindo como um indentificador
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
-        });
+            it('Sucesso - Variavel - Float', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'HORA DO SHOW \n',
+                        '  TRAPEZIO M1 = 1.03; \n',
+                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  BORA CUMPADE 0; \n',
+                        'BIRL \n',
+                    ],
+                    -1
+                );
 
-        it('Sucesso - Variavel - String', () => {
-            const retornoLexador = lexador.mapear([
-                'HORA DO SHOW \n',
-                "   FRANGO FR = 'testes';\n",
-                '   CE QUER VER ESSA PORRA? (FR); \n',
-                '   BORA CUMPADE 0; \n',
-                'BIRL \n',
-            ]);
-            //  FRANGO esta vindo como um indentificador
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
-        });
-
-        it('Sucesso - Variavel - Float', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'HORA DO SHOW \n',
-                    '  TRAPEZIO M1 = 1.03; \n',
-                    '  CE QUER VER ESSA PORRA? (M1); \n',
-                    '  BORA CUMPADE 0; \n',
-                    'BIRL \n',
-                ],
-                -1
-            );
-
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
-        });
-
-        describe('Sucesso - Variavel de tipagem não utilizada', () => {
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
             it('Sucesso - Variavel - short int', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
@@ -167,8 +171,6 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
             });
-        });
-        describe('Sucesso - Loops', () => {
             it('Sucesso - declaração - for - incremento', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
@@ -233,7 +235,10 @@ describe('Avaliador Sintático Birl', () => {
                 expect(RetornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(RetornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
                 expect(RetornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Enquanto);
-            })
+            });
         });
+        describe('Cenários de erro', () => {
+            it('Falha - ')
+        })
     });
 });
