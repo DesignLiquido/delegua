@@ -492,6 +492,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após variável ou literal de declaração 'caso'.")
 
+        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
+            this.avancarEDevolverAnterior();
+        }
+
         // Blocos de caso
         const caminhos = [];
         let simboloAtualBlocoCaso: SimboloInterface = this.avancarEDevolverAnterior();
@@ -511,6 +515,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 condicoes: caminhoCondicoes.filter((c: any) => c),
                 declaracoes: declaracoes.filter((d) => d),
             });
+
+            while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
+                this.avancarEDevolverAnterior();
+            }
 
             simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
         }
