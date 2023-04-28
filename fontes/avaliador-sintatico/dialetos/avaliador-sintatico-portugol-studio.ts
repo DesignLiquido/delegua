@@ -79,9 +79,9 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 if (this.simbolos[this.atual] && [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
-                        this.hashArquivo, 
-                        simboloIncrementoDecremento, 
-                        new Variavel(this.hashArquivo, simboloIdentificador), 
+                        this.hashArquivo,
+                        simboloIncrementoDecremento,
+                        new Variavel(this.hashArquivo, simboloIdentificador),
                         'DEPOIS'
                     );
                 }
@@ -253,7 +253,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 abrangencia: 'padrao'
             };
 
-            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADEIA, tiposDeSimbolos.REAL, tiposDeSimbolos.REAL)) {
+            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADEIA, tiposDeSimbolos.REAL, tiposDeSimbolos.INTEIRO)) {
                 throw this.erro(this.simbolos[this.atual], 'Esperado tipo de parâmetro válido para declaração de função.');
             }
 
@@ -261,7 +261,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
             // Em Portugol Studio, um parâmetro múltiplo é terminado por abre e fecha colchetes.
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, 
+                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO,
                     'Esperado colchete direito após colchete esquerdo ao definir parâmetro múltiplo em função.');
                 parametro.abrangencia = 'multiplo';
             }
@@ -298,8 +298,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Declaração de apenas uma variável. 
-     * Neste caso, o símbolo que determina o tipo da variável já foi consumido, 
+     * Declaração de apenas uma variável.
+     * Neste caso, o símbolo que determina o tipo da variável já foi consumido,
      * e o retorno conta com apenas uma variável retornada.
      */
     declaracaoDeVariavel(): Var {
@@ -310,13 +310,13 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                     "Esperado identificador após palavra reservada 'inteiro'."
                 );
                 this.consumir(tiposDeSimbolos.IGUAL, "Esperado símbolo igual para inicialização de variável.");
-                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO, 
+                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO,
                     'Esperado literal inteiro após símbolo de igual em declaração de variável.');
                 const valorInicializacao = Number(literalInicializacao.literal);
                 return new Var(
-                    identificador, 
-                    new Literal(this.hashArquivo, 
-                        Number(literalInicializacao.linha), 
+                    identificador,
+                    new Literal(this.hashArquivo,
+                        Number(literalInicializacao.linha),
                         valorInicializacao
                     )
                 );
@@ -336,7 +336,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.CADEIA, 
+                const literalInicializacao = this.consumir(tiposDeSimbolos.CADEIA,
                     'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.');
                 valorInicializacao = Number(literalInicializacao.literal);
             }
@@ -360,7 +360,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.CARACTER, 
+                const literalInicializacao = this.consumir(tiposDeSimbolos.CARACTER,
                     'Esperado literal de caracter após símbolo de igual em declaração de variável.');
                 valorInicializacao = Number(literalInicializacao.literal);
             }
@@ -391,7 +391,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO, 
+                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO,
                     'Esperado literal inteiro após símbolo de igual em declaração de variável.');
                 valorInicializacao = Number(literalInicializacao.literal);
             }
@@ -496,7 +496,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.REAL, 
+                const literalInicializacao = this.consumir(tiposDeSimbolos.REAL,
                     'Esperado literal real após símbolo de igual em declaração de variável.');
                 valorInicializacao = Number(literalInicializacao.literal);
             }
@@ -515,12 +515,12 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     funcao(tipo: string): FuncaoDeclaracao {
         const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
 
-        // No Portugol Studio, se temos um símbolo de tipo após `função`, 
+        // No Portugol Studio, se temos um símbolo de tipo após `função`,
         // teremos um retorno no corpo da função.
         if (
             [
-                tiposDeSimbolos.REAL, 
-                tiposDeSimbolos.INTEIRO, 
+                tiposDeSimbolos.REAL,
+                tiposDeSimbolos.INTEIRO,
                 tiposDeSimbolos.CADEIA,
                 tiposDeSimbolos.CARACTER,
                 tiposDeSimbolos.LOGICO
@@ -559,7 +559,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LOGICO:
                 return this.declaracaoLogicos();
             case tiposDeSimbolos.PARA:
-                return this.declaracaoPara();        
+                return this.declaracaoPara();
             case tiposDeSimbolos.PROGRAMA:
             case tiposDeSimbolos.CHAVE_DIREITA:
                 this.avancarEDevolverAnterior();

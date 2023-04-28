@@ -1,7 +1,20 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
-import { Bloco, Continua, Enquanto, Escreva, Para, Se, Sustar, Var } from '../../fontes/declaracoes';
+import {
+    Bloco,
+    Continua,
+    Enquanto,
+    Escreva,
+    FuncaoDeclaracao,
+    Para,
+    Retorna,
+    Se,
+    Sustar,
+    Var,
+} from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 import { RetornoLexador } from '../../fontes/interfaces/retornos/retorno-lexador';
+import { Simbolo } from '../../fontes/lexador';
+import { FuncaoConstruto, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador Sintático Birl', () => {
     describe('analisar()', () => {
@@ -218,9 +231,9 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Para);
-                const declaracao1 = (retornoAvaliadorSintatico.declaracoes[0][0] as Var)
-                expect(declaracao1.inicializador.valor).toBe(0)
-                expect(declaracao1.simbolo.lexema).toBe('M')
+                const declaracao1 = retornoAvaliadorSintatico.declaracoes[0][0] as Var;
+                expect(declaracao1.inicializador.valor).toBe(0);
+                expect(declaracao1.simbolo.lexema).toBe('M');
                 expect((retornoAvaliadorSintatico.declaracoes[1] as Para).corpo.declaracoes[0]).toBeInstanceOf(Escreva);
             });
             it('Sucesso - declaração - while', () => {
@@ -283,9 +296,32 @@ describe('Avaliador Sintático Birl', () => {
                 const declaracao1 = retornoAvaliadorSintatico.declaracoes[1] as Para;
                 expect(declaracao1.corpo.declaracoes[0]).toBeInstanceOf(Escreva);
                 expect(declaracao1.corpo.declaracoes[1]).toBeInstanceOf(Se);
-                const declaracaoSe = declaracao1.corpo.declaracoes[1] as Se
+                const declaracaoSe = declaracao1.corpo.declaracoes[1] as Se;
                 expect((declaracaoSe.caminhoEntao as Bloco).declaracoes[0]).toBeInstanceOf(Sustar);
                 expect((declaracaoSe.caminhoSenao as Bloco).declaracoes[0]).toBeInstanceOf(Continua);
+            });
+            it('Sucesso - declaração - declaracaoFuncao', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   OH O HOME AI PO(MONSTRO NOMEFUNCAO(MONSTRO primeiro, MONSTRO segundo)\n',
+                    '       MONSTRO C = primeiro + segundo;\n',
+                    '       BORA CUMPADE C;\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
+                expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(FuncaoDeclaracao);
+                const declaracoes = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                expect(declaracoes.tipoRetorno?.tipo).toBe('MONSTRO');
+                const funcao = declaracoes.funcao as FuncaoConstruto;
+                expect(funcao.parametros[0]).toHaveLength(2);
+                expect(funcao.corpo).toHaveLength(2);
+                expect(funcao.corpo[1]).toBeInstanceOf(Retorna);
+                expect(funcao.corpo[0]).toBeInstanceOf(Array<Var>);
             });
         });
         // describe('Cenários de erro', () => {
