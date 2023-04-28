@@ -1,5 +1,6 @@
 import { Construto } from '../construtos';
 import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { Declaracao } from './declaracao';
 
 /**
@@ -8,13 +9,9 @@ import { Declaracao } from './declaracao';
 export class Var extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
-    tipo: 'texto' | 'numero' | 'longo' | 'lógico' | 'nulo' | 'vetor' | 'módulo' | 'dicionário' | 'função' | 'símbolo' | undefined
+    tipo: TiposDadosInterface;
 
-    constructor(
-        simbolo: SimboloInterface,
-        inicializador: Construto,
-        tipo: 'texto' | 'numero' | 'longo' | 'lógico' | 'nulo' | 'vetor' | 'módulo' | 'dicionário' | 'função' | 'símbolo' | undefined = undefined
-    ) {
+    constructor(simbolo: SimboloInterface, inicializador: Construto, tipo: TiposDadosInterface = undefined) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
