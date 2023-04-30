@@ -10,9 +10,15 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
-            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+
+                return new Variavel(this.hashArquivo, simboloIdentificador);
+            case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.TEXTO:
+                const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
     }
 
@@ -81,10 +87,16 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
         const caminhoEntao = this.declaracao();
 
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
+
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+            this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'senão' ou 'senao' em instrução se.");
             caminhoSenao = this.declaracao();
         }
+
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se.");
+        this.consumir(tiposDeSimbolos.FIMSE, "Esperado 'fimse' para finalização de uma instrução se.");
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
@@ -136,14 +148,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     declaracaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
-
         const argumentos = [];
         do {
             argumentos.push(this.declaracao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
 
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
     }
@@ -159,7 +167,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.INTEIRO:
                 return this.declaracaoInteiros();
-            case tiposDeSimbolos.LEIA:
+            case tiposDeSimbolos.LER:
                 return this.declaracaoLeia();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
@@ -194,7 +202,12 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.validarSegmentoInicio();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            declaracoes.push(this.declaracao());
+            const resolucaoDeclaracao = this.declaracao();
+            if (Array.isArray(resolucaoDeclaracao)) {
+                declaracoes = declaracoes.concat(resolucaoDeclaracao);
+            } else {
+                declaracoes.push(resolucaoDeclaracao);
+            }
         }
 
         return {

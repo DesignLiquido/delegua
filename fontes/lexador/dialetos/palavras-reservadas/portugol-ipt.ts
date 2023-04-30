@@ -5,9 +5,10 @@ export default {
     então: tiposDeSimbolos.ENTAO,
     escrever: tiposDeSimbolos.ESCREVER,
     fim: tiposDeSimbolos.FIM,
+    fimse: tiposDeSimbolos.FIMSE,
     inicio: tiposDeSimbolos.INICIO,
     inteiro: tiposDeSimbolos.INTEIRO,
-    leia: tiposDeSimbolos.LEIA,
+    ler: tiposDeSimbolos.LER,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
     senão: tiposDeSimbolos.SENAO

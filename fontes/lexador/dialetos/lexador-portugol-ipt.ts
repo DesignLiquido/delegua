@@ -162,7 +162,7 @@ export class LexadorPortugolIpt implements LexadorInterface {
 
         this.simbolos.push(
             new Simbolo(
-                tiposDeSimbolos.NUMERO,
+                tiposDeSimbolos.INTEIRO,
                 numeroCompleto,
                 parseFloat(numeroCompleto),
                 linhaPrimeiroDigito + 1,
@@ -209,7 +209,6 @@ export class LexadorPortugolIpt implements LexadorInterface {
             case '\r':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA);
-                this.linha++;
                 this.avancar();
                 break;
             case '"':
@@ -226,6 +225,23 @@ export class LexadorPortugolIpt implements LexadorInterface {
                         break;
                     case '=':
                         this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                        this.avancar();
+                        break;
+                    /* case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                        this.avancar();
+                        break; */
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                        break;
+                }
+
+                break;
+            case '>':
+                this.avancar();
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
                         this.avancar();
                         break;
                     /* case '>':
