@@ -249,7 +249,7 @@ export class LexadorPortugolIpt implements LexadorInterface {
                         this.avancar();
                         break; */
                     default:
-                        this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                        this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                         break;
                 }
 
