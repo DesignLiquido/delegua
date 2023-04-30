@@ -1,5 +1,5 @@
 import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Construto, FormatacaoEscrita, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha } from "../../declaracoes";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Var, Leia } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -10,9 +10,15 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
-            const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+
+                return new Variavel(this.hashArquivo, simboloIdentificador);
+            case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.TEXTO:
+                const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
     }
 
@@ -74,7 +80,25 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     }
 
     declaracaoSe(): Se {
-        throw new Error("Método não implementado.");
+        this.avancarEDevolverAnterior();
+        const condicao = this.expressao();
+        this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'então' ou 'entao' após condição do se.");
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se.");
+
+        const caminhoEntao = this.declaracao();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
+
+        let caminhoSenao = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+            this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'senão' ou 'senao' em instrução se.");
+            caminhoSenao = this.declaracao();
+        }
+
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se.");
+        this.consumir(tiposDeSimbolos.FIMSE, "Esperado 'fimse' para finalização de uma instrução se.");
+
+        return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
     declaracaoEnquanto(): Enquanto {
@@ -93,6 +117,45 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         throw new Error("Método não implementado.");
     }
 
+    declaracaoInteiros(): Var[] {
+        const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
+
+        const inicializacoes = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após palavra reservada 'inteiro'."
+            );
+
+            // Inicializações de variáveis podem ter valores definidos.
+            let valorInicializacao = 0;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO,
+                    'Esperado literal inteiro após símbolo de igual em declaração de variável.');
+                valorInicializacao = Number(literalInicializacao.literal);
+            }
+
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
+    }
+
+    /**
+     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
+     * @returns Uma declaração `Leia`.
+     */
+    declaracaoLeia(): Leia {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        const argumentos = [];
+        do {
+            argumentos.push(this.declaracao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+    }
+
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         throw new Error("Método não implementado.");
     }
@@ -102,9 +165,15 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVER:
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.INTEIRO:
+                return this.declaracaoInteiros();
+            case tiposDeSimbolos.LER:
+                return this.declaracaoLeia();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
+            case tiposDeSimbolos.SE:
+                return this.declaracaoSe();
             default:
                 return this.expressao();
         }
@@ -133,7 +202,12 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.validarSegmentoInicio();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            declaracoes.push(this.declaracao());
+            const resolucaoDeclaracao = this.declaracao();
+            if (Array.isArray(resolucaoDeclaracao)) {
+                declaracoes = declaracoes.concat(resolucaoDeclaracao);
+            } else {
+                declaracoes.push(resolucaoDeclaracao);
+            }
         }
 
         return {

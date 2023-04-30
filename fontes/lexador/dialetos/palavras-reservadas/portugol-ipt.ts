@@ -1,7 +1,15 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 
 export default {
+    entao: tiposDeSimbolos.ENTAO,
+    então: tiposDeSimbolos.ENTAO,
     escrever: tiposDeSimbolos.ESCREVER,
     fim: tiposDeSimbolos.FIM,
-    inicio: tiposDeSimbolos.INICIO
+    fimse: tiposDeSimbolos.FIMSE,
+    inicio: tiposDeSimbolos.INICIO,
+    inteiro: tiposDeSimbolos.INTEIRO,
+    ler: tiposDeSimbolos.LER,
+    se: tiposDeSimbolos.SE,
+    senao: tiposDeSimbolos.SENAO,
+    senão: tiposDeSimbolos.SENAO
 };
