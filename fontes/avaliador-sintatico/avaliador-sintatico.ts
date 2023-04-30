@@ -658,7 +658,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         if (
             [
-                tiposDeSimbolos.VARIAVEL,
+                tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
                 tiposDeSimbolos.TEXTO,
                 tiposDeSimbolos.NUMERO,
