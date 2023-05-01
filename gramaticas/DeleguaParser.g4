@@ -172,7 +172,7 @@ comandoIteracao
 varModificador  // let, const - ECMAScript 6
     : Var
 //    | let_
-//    | Const
+    | Const
     ;
 
 comandoContinua

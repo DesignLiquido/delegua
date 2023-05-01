@@ -19,7 +19,8 @@ describe('Interpretador', () => {
                 it('Trivial var/variavel', async () => {
                     const retornoLexador = lexador.mapear([
                         "var a = 1",
-                        "variavel b = 2"
+                        "variavel b = 2",
+                        "variável c = 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
