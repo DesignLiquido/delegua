@@ -680,7 +680,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros[0].mensagem).toBe(
-                        'Constante a não pode receber novos valores.'
+                        'Constante \'a\' não pode receber novos valores.'
                     );
                 });
 
@@ -694,7 +694,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros[0].mensagem).toBe(
-                        'Constante b não pode receber novos valores.'
+                        'Constante \'b\' não pode receber novos valores.'
                     );
                 });
 
@@ -708,7 +708,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros[0].mensagem).toBe(
-                        'Constante c não pode receber novos valores.'
+                        'Constante \'c\' não pode receber novos valores.'
                     );
                 });
 
