@@ -1,3 +1,3 @@
-export function limpaItensNull<T>(arr: Array<T | null>): Array<T> {
-    return arr.filter((item) => item !== null);
+export function limpaItensNulos<T>(vetor: Array<T | null>): Array<T> {
+    return vetor.filter((item) => item !== null);
 }

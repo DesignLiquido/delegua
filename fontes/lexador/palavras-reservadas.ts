@@ -37,5 +37,6 @@ export default {
     tente: tiposDeSimbolos.TENTE,
     var: tiposDeSimbolos.VARIAVEL,
     variavel: tiposDeSimbolos.VARIAVEL,
+    variável: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };
