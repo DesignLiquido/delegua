@@ -33,7 +33,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { Construto } from '../../construtos/construto';
 import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
-import { limpaItensNulos } from '../../utilidades';
+import { limparItensNulos } from '../../utilidades';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
@@ -588,7 +588,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             this.hashArquivo,
             Number(parenteseEsquerdo.linha),
             paramentros,
-            limpaItensNulos(corpo)
+            limparItensNulos(corpo)
         );
     }
 
