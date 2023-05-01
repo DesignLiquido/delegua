@@ -49,14 +49,14 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 ## Características
 
 - **Simples e Completa.** Podendo ser usada por pessoas com ou sem experiência em programação.
-- **Totalmente em Português.** Desenvolvida totalmente em português para quebrar a barreira do inglês.
-- **Grátis.** Sem planos, sem limitações e sem propaganda.
-- **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir.
-- **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.
+- **Totalmente em Português.** Desenvolvida totalmente em português (mesmo) para quebrar a barreira do inglês.
+- **Grátis.** Sem planos, sem limitações e sem propaganda. A licença é MIT.
+- **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir. Usamos 100% TypeScript. As gramáticas são escritas em ANTLR4.
+- **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação. Temos diferentes pacotes e bibliotecas para física, matemática, etc.
 - **Modular.** Escreva múltiplos fontes e os reuse em seu código.
 - **Orientada a Objetos.** Classes, objetos e herança são implementados em Delégua e EguaP.
-- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br) e [Portugol Studio](http://lite.acad.univali.br/portugol/).
-- **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha
+- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br), [Portugol Studio](http://lite.acad.univali.br/portugol/), [Portugol Mapler](https://portugol.sourceforge.io/) e [Portugol IPT](http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html). 
+- **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha.
 - **Portável.** Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.
 
 ## Aplicações
