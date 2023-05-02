@@ -587,6 +587,28 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Número repetido', async () => {
+                    const codigo = [
+                        "funcao temDigitoRepetido(num) {",
+                        "    var str = texto(num);",
+                        "    para (var i = 1; i < tamanho(str); i++) {",
+                        "      se (str[i] != str[0]) {",
+                        "        retorna falso;",
+                        "      }",
+                        "    }",
+                        "    retorna verdadeiro;",
+                        "}",
+                        "escreva(temDigitoRepetido(123));"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Entrada e saída', () => {

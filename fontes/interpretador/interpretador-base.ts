@@ -631,7 +631,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 await this.avaliar(declaracao.incrementar);
             }
         }
-        return null;
+        return retornoExecucao;
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -647,7 +647,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
         }
 
-        return null;
+        return retornoExecucao;
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
