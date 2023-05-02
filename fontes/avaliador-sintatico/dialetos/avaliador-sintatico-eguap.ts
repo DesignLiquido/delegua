@@ -332,7 +332,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         return expressao;
     }
 
-    bitFill(): Construto {
+    bitShift(): Construto {
         let expressao = this.adicaoOuSubtracao();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
@@ -345,11 +345,11 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
     }
 
     bitE(): Construto {
-        let expressao = this.bitFill();
+        let expressao = this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
             const operador = this.simboloAnterior();
-            const direito = this.bitFill();
+            const direito = this.bitShift();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 

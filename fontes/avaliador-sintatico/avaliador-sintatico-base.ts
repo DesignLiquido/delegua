@@ -160,7 +160,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    bitFill(): Construto {
+    bitShift(): Construto {
         throw new Error('Método não implementado.');
     }
 

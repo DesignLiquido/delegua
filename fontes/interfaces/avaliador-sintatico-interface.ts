@@ -44,7 +44,7 @@ export interface AvaliadorSintaticoInterface {
     exponenciacao(): Construto;
     multiplicar(): Construto;
     adicaoOuSubtracao(): Construto;
-    bitFill(): Construto;
+    bitShift(): Construto;
     bitE(): Construto;
     bitOu(): Construto;
     comparar(): Construto;
