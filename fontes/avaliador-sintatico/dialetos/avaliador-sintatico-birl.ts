@@ -665,6 +665,25 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo), tipoRetorno);
     }
 
+    declaracaoChamaFuncao(): any {
+        this.consumir(tiposDeSimbolos.AJUDA, 'Esperado expressão `AJUDA`.');
+        this.consumir(tiposDeSimbolos.O, 'Esperado expressão `O` após `AJUDA`.');
+        this.consumir(tiposDeSimbolos.MALUCO, 'Esperado expressão `MALUCO` após `O`.');
+        this.consumir(tiposDeSimbolos.TA, 'Esperado expressão `TA` após `MALUCO`.');
+        this.consumir(tiposDeSimbolos.DOENTE, 'Esperado expressão `DOENTE` após `TA`.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `DOENTE`.');
+
+        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da função.');
+
+        const paramentros = [];
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            paramentros.push(this.declaracao());
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após lista de parâmetros.');
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após a chamada de função.');
+    }
+
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -694,7 +713,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.OH:
                 return this.funcao('funcao');
             case tiposDeSimbolos.AJUDA:
-            // Retornar uma declaração de chamar funcao
+                return this.declaracaoChamaFuncao();
             case tiposDeSimbolos.CE:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.PONTO_E_VIRGULA:

@@ -323,6 +323,19 @@ describe('Avaliador Sintático Birl', () => {
                 expect(funcao.corpo[1]).toBeInstanceOf(Retorna);
                 expect(funcao.corpo[0]).toBeInstanceOf(Array<Var>);
             });
+
+            it('Sucesso - declaração - chamarFuncao', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MONSTRO primeiro = 5;\n',
+                    '   MONSTRO segundo = 10;\n',
+                    '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE SOMAR(primeiro, segundo);\n',
+                    'BIRL\n',
+                ])
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+            })
         });
         // describe('Cenários de erro', () => {
         //     it('Falha - ')
