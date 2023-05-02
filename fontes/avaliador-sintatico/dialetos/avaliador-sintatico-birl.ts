@@ -355,6 +355,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             );
             let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    const simboloAjuda = this.declaracao();
+                }
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
@@ -671,17 +674,22 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.MALUCO, 'Esperado expressão `MALUCO` após `O`.');
         this.consumir(tiposDeSimbolos.TA, 'Esperado expressão `TA` após `MALUCO`.');
         this.consumir(tiposDeSimbolos.DOENTE, 'Esperado expressão `DOENTE` após `TA`.');
+        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da função.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `DOENTE`.');
 
-        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da função.');
 
         const paramentros = [];
-        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             paramentros.push(this.declaracao());
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+                this.avancarEDevolverAnterior();
+            }
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após lista de parâmetros.');
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após a chamada de função.');
+
+        console.log(paramentros);
     }
 
     declaracao(): any {
