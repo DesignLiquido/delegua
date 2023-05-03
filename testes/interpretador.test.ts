@@ -648,25 +648,25 @@ describe('Interpretador', () => {
                         'var n2 = 1;',
                         'var resultado = 0',
                         'var n1 = leia("teste 1");',
-                        'enquanto (verdadeiro) {',
+                        'enquanto verdadeiro {',
                         '    var menu = leia("Digite a opção: 1 - Multiplicacao / 2 - Divisao / 3 - Soma / 4 - Subtração");',
-                        '    se (menu == "1") {',
+                        '    se menu == "1" {',
                         '        resultado = n1 * n2;',
                         '        sustar;',
-                        '    } senao se (menu =="2") {',
+                        '    } senao se menu == "2" {',
                         '        resultado = n1 / n2;',
                         '        sustar;',
-                        '    } senao se (menu =="3") {',
+                        '    } senao se menu == "3" {',
                         '        resultado = n1 + n2;',
                         '        sustar;',
-                        '    } senao se (menu =="4") {',
+                        '    } senao se menu == "4" {',
                         '        resultado = n1 - n2;',
                         '        sustar;',
                         '    } senao {',
                         '        escreva("opção invalida");',
                         '    }',
                         '}',
-                        'escreva("resultado "+resultado);'
+                        'escreva("resultado " + resultado);'
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
