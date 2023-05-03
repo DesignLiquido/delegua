@@ -620,6 +620,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
@@ -639,6 +643,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
@@ -691,6 +699,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         do {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+                
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
