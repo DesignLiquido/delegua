@@ -3,7 +3,7 @@ import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna, Var } from '../dec
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
-import { ContinuarQuebra, Quebra, RetornoQuebra } from '../quebras';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { Chamada, Construto } from '../construtos';
 import { inferirTipoVariavel } from './inferenciador';
@@ -142,6 +142,10 @@ export class InterpretadorComDepuracao
                     escopoAtual.emLacoRepeticao = true;
                     try {
                         retornoExecucao = await this.executar(declaracao.corpo);
+                        if (retornoExecucao instanceof SustarQuebra) {
+                            return null;
+                        }
+
                         if (retornoExecucao instanceof ContinuarQuebra) {
                             retornoExecucao = null;
                         }
@@ -151,7 +155,7 @@ export class InterpretadorComDepuracao
                 }
         
                 escopoAtual.emLacoRepeticao = false;
-                return null;
+                return retornoExecucao;
         }
     }
 
@@ -224,6 +228,10 @@ export class InterpretadorComDepuracao
 
                     try {                        
                         retornoExecucao = await this.executar(corpoExecucao);
+                        if (retornoExecucao instanceof SustarQuebra) {
+                            return null;
+                        }
+                        
                         if (retornoExecucao instanceof ContinuarQuebra) {
                             retornoExecucao = null;
                         }
@@ -232,7 +240,7 @@ export class InterpretadorComDepuracao
                     }
                 }
                 // escopoAtual.emLacoRepeticao = false;
-                return null;
+                return retornoExecucao;
         }
     }
 
