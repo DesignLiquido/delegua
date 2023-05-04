@@ -87,6 +87,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.simbolos[this.atual].tipo === tipo;
     }
 
+    verificarFechamentoOpcionalDeParenteses(comParenteses: boolean, mensagem: string) {
+        if(comParenteses){
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, mensagem);
+        }
+    }
+
     verificarTipoProximoSimbolo(tipo: string): boolean {
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
@@ -561,9 +567,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     declaracaoSe(): Se {
-        // this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
+        const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
+        
         const condicao = this.expressao();
-        // this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
+
+        this.verificarFechamentoOpcionalDeParenteses(comParenteses, "Esperado ')' após condição do se.")
 
         const caminhoEntao = this.resolverDeclaracao();
 
@@ -579,9 +587,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         try {
             this.blocos += 1;
 
-            // this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
+            const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
+
             const condicao = this.expressao();
-            // this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição.");
+            
+            this.verificarFechamentoOpcionalDeParenteses(comParenteses, "Esperado ')' após condição.")
+
             const corpo = this.resolverDeclaracao();
 
             return new Enquanto(condicao, corpo);
@@ -595,7 +606,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
             this.blocos += 1;
 
-            // this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'para'.");
             const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
 
             let inicializador: Var | Expressao;
@@ -623,9 +633,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 incrementar = this.expressao();
             }
 
-            if (comParenteses) {
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas de inicialização, condição e incremento.");
-            }
+            this.verificarFechamentoOpcionalDeParenteses(comParenteses, "Esperado ')' após cláusulas de inicialização, condição e incremento.")
 
             const corpo = this.resolverDeclaracao();
 
@@ -811,11 +819,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             const caminhoFazer = this.resolverDeclaracao();
 
             this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
-            // this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
+
+            const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
 
             const condicaoEnquanto = this.expressao();
 
-            // this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração do 'enquanto'.");
+            this.verificarFechamentoOpcionalDeParenteses(comParenteses, "Esperado ')' após declaração do 'enquanto'.")
 
             return new Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), caminhoFazer, condicaoEnquanto);
         } finally {
