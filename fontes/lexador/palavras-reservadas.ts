@@ -1,12 +1,14 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export default {
+    cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,
     construtor: tiposDeSimbolos.CONSTRUTOR,
     continua: tiposDeSimbolos.CONTINUA,
     constante: tiposDeSimbolos.CONSTANTE,
     const: tiposDeSimbolos.CONSTANTE,
+    de: tiposDeSimbolos.DE,
     e: tiposDeSimbolos.E,
     em: tiposDeSimbolos.EM,
     enquanto: tiposDeSimbolos.ENQUANTO,

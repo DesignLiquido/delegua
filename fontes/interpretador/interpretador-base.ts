@@ -21,6 +21,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Tente,
@@ -581,32 +582,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.avaliar(expressao.direita);
     }
 
-    /**
-     * Executa uma expressão Se, que tem uma condição, pode ter um bloco
-     * Senão, e múltiplos blocos Senão-se.
-     * @param declaracao A declaração Se.
-     * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
-     */
-    async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
-        if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-            return await this.executar(declaracao.caminhoEntao);
-        }
-
-        for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            const atual = declaracao.caminhosSeSenao[i];
-
-            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
-                return await this.executar(atual.caminho);
-            }
-        }
-
-        if (declaracao.caminhoSenao !== null) {
-            return await this.executar(declaracao.caminhoSenao);
-        }
-
-        return null;
-    }
-
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
             await this.avaliar(declaracao.inicializador);
@@ -635,7 +610,61 @@ export class InterpretadorBase implements InterpretadorInterface {
                 await this.avaliar(declaracao.incrementar);
             }
         }
+
         return retornoExecucao;
+    }
+
+    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < declaracao.vetor.length) {
+            try {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    declaracao.nomeVariavelIteracao, 
+                    declaracao.vetor[declaracao.posicaoAtual]
+                );
+
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                declaracao.posicaoAtual++;
+            } catch (erro: any) {
+                return Promise.reject(erro);
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    /**
+     * Executa uma expressão Se, que tem uma condição, pode ter um bloco
+     * Senão, e múltiplos blocos Senão-se.
+     * @param declaracao A declaração Se.
+     * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
+     */
+    async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
+        if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            return await this.executar(declaracao.caminhoEntao);
+        }
+
+        for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
+            const atual = declaracao.caminhosSeSenao[i];
+
+            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
+                return await this.executar(atual.caminho);
+            }
+        }
+
+        if (declaracao.caminhoSenao !== null) {
+            return await this.executar(declaracao.caminhoSenao);
+        }
+
+        return null;
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {

@@ -44,6 +44,7 @@ import {
     Var,
     Leia,
     Const,
+    ParaCada,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -589,47 +590,78 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    declaracaoPara(): Para {
+    protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
+        const nomeVariavelIteracao = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+            "Esperado identificador de variável de iteração para instrução 'para cada'.");
+        
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual], 
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
+            );
+        }
+
+        const vetor = this.expressao();
+        const corpo = this.resolverDeclaracao();
+
+        return new ParaCada(
+            this.hashArquivo, 
+            Number(simboloPara.linha), 
+            nomeVariavelIteracao.lexema, 
+            vetor, 
+            corpo
+        );
+    }
+
+    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
+        const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
+
+        let inicializador: Var | Expressao;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+            inicializador = null;
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
+            inicializador = this.declaracaoDeVariavel();
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
+            inicializador = this.declaracaoDeConstante();
+        } else {
+            inicializador = this.declaracaoExpressao();
+        }
+
+        let condicao = null;
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+            condicao = this.expressao();
+        }
+
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+        let incrementar = null;
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            incrementar = this.expressao();
+        }
+
+        if (comParenteses) {
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após cláusulas de inicialização, condição e incremento."
+            );
+        }
+
+        const corpo = this.resolverDeclaracao();
+
+        return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+    }
+
+    declaracaoPara(): Para | ParaCada {
         try {
             const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
             this.blocos += 1;
 
-            const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
+                return this.declaracaoParaCada(simboloPara);
+            } 
 
-            let inicializador: Var | Expressao;
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                inicializador = null;
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
-                inicializador = this.declaracaoDeVariavel();
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
-                inicializador = this.declaracaoDeConstante();
-            } else {
-                inicializador = this.declaracaoExpressao();
-            }
-
-            let condicao = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                condicao = this.expressao();
-            }
-
-            // Ponto-e-vírgula é opcional aqui.
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-
-            let incrementar = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                incrementar = this.expressao();
-            }
-
-            if (comParenteses) {
-                this.consumir(
-                    tiposDeSimbolos.PARENTESE_DIREITO,
-                    "Esperado ')' após cláusulas de inicialização, condição e incremento."
-                );
-            }
-
-            const corpo = this.resolverDeclaracao();
-
-            return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+            return this.declaracaoParaTradicional(simboloPara);
         } finally {
             this.blocos -= 1;
         }
