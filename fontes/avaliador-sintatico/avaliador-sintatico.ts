@@ -155,7 +155,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     return new Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
                 }
-    
+
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     const valor = this.atribuir();
                     valores.push(valor);
@@ -163,7 +163,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                         this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                     }
                 }
-    
+
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
 
             case tiposDeSimbolos.FALSO:
@@ -180,12 +180,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 // Se o próximo símbolo é um incremento ou um decremento,
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
-                if (this.simbolos[this.atual] && [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
+                if (
+                    this.simbolos[this.atual] &&
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)
+                ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
-                        this.hashArquivo, 
-                        simboloIncrementoDecremento, 
-                        new Variavel(this.hashArquivo, simboloIdentificador), 
+                        this.hashArquivo,
+                        simboloIncrementoDecremento,
+                        new Variavel(this.hashArquivo, simboloIdentificador),
                         'DEPOIS'
                     );
                 }
@@ -600,8 +603,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 inicializador = this.declaracaoDeVariavel();
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
                 inicializador = this.declaracaoDeConstante();
-            }
-            else {
+            } else {
                 inicializador = this.declaracaoExpressao();
             }
 
@@ -619,7 +621,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             }
 
             if (comParenteses) {
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas de inicialização, condição e incremento.");
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_DIREITO,
+                    "Esperado ')' após cláusulas de inicialização, condição e incremento."
+                );
             }
 
             const corpo = this.resolverDeclaracao();
@@ -849,7 +854,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
-            
         }
 
         const simboloAtual = this.simbolos[this.atual];
@@ -890,7 +894,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return new Var(simbolo, inicializador);
     }
 
-        /**
+    /**
      * Caso símbolo atual seja `const, constante ou fixo`, devolve uma declaração de const.
      * @returns Um Construto do tipo Const.
      */
