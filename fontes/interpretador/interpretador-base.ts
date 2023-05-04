@@ -616,11 +616,20 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < declaracao.vetor.length) {
+        const vetorResolvido = await this.avaliar(declaracao.vetor);
+        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ? 
+            vetorResolvido.valor :
+            vetorResolvido;
+
+        if (!Array.isArray(valorVetorResolvido)) {
+            return Promise.reject("Variável ou literal provida em instrução 'para cada' não é um vetor.");
+        }
+
+        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < valorVetorResolvido.length) {
             try {
                 this.pilhaEscoposExecucao.definirVariavel(
                     declaracao.nomeVariavelIteracao, 
-                    declaracao.vetor[declaracao.posicaoAtual]
+                    valorVetorResolvido[declaracao.posicaoAtual]
                 );
 
                 retornoExecucao = await this.executar(declaracao.corpo);

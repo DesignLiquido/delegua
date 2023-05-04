@@ -1,5 +1,5 @@
 import { Literal, Construto, Atribuir, FimPara, FormatacaoEscrita, Super, Variavel } from "../../../construtos";
-import { Declaracao, Expressao, Leia, Se, Para, Fazer, Escolha, Tente, Enquanto, Importar, Escreva, EscrevaMesmaLinha, Bloco, Var, Const, Continua, Sustar, Retorna, FuncaoDeclaracao, Classe } from "../../../declaracoes";
+import { Declaracao, Expressao, Leia, Se, Para, Fazer, Escolha, Tente, Enquanto, Importar, Escreva, EscrevaMesmaLinha, Bloco, Var, Const, Continua, Sustar, Retorna, FuncaoDeclaracao, Classe, ParaCada } from "../../../declaracoes";
 import { EspacoVariaveis } from "../../../espaco-variaveis";
 import { ObjetoPadrao } from "../../../estruturas";
 import { ErroEmTempoDeExecucao } from "../../../excecoes";
@@ -53,6 +53,10 @@ export class InterpretadorPortugolIpt
             emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        throw new Error("Método não implementado.");
     }
 
     visitarExpressaoLiteral(expressao: Literal): Promise<any> {
@@ -256,11 +260,13 @@ export class InterpretadorPortugolIpt
     }
 
     visitarDeclaracaoPara(declaracao: Para) {
-        throw new Error("Método não implementado");
+        return Promise.reject("Método não implementado");
     }
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error("Método não implementado");
     }
+
     visitarDeclaracaoFazer(declaracao: Fazer) {
         throw new Error("Método não implementado");
     }
