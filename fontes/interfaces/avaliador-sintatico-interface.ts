@@ -13,6 +13,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Sustar,
@@ -59,7 +60,7 @@ export interface AvaliadorSintaticoInterface {
     declaracaoEscreva(): Escreva;
     declaracaoExpressao(): Expressao;
     declaracaoLeia(): Leia;
-    declaracaoPara(): Para;
+    declaracaoPara(): Para | ParaCada;
     declaracaoSe(): Se;
     declaracaoSustar(): Sustar;
     declaracaoContinua(): Continua;

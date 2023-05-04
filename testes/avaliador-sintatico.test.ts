@@ -75,6 +75,20 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
+
+            it('Sucesso - para cada', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'para cada elemento em [1, 2, 3] {',
+                        "   escreva('Valor: ', elemento)",
+                        '}',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
     
             it('Sucesso - para/sustar', async () => {
                 const retornoLexador = lexador.mapear(

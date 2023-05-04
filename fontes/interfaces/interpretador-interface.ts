@@ -15,6 +15,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Sustar,
@@ -45,8 +46,9 @@ export interface InterpretadorInterface {
     visitarDeclaracaoDeExpressao(declaracao: Expressao): any;
     visitarExpressaoLeia(expressao: Leia): any;
     visitarExpressaoLogica(expressao: any): any;
+    visitarDeclaracaoPara(declaracao: Para): Promise<any>;
+    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any>;
     visitarDeclaracaoSe(declaracao: Se): any;
-    visitarDeclaracaoPara(declaracao: Para): any;
     visitarExpressaoFimPara(declaracao: FimPara): any;
     visitarDeclaracaoFazer(declaracao: Fazer): any;
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): any;

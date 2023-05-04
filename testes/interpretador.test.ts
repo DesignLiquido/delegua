@@ -493,6 +493,47 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Laços de repetição - para cada - trivial', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "para cada elemento em [1, 2, 3] {",
+                        "   escreva('Valor: ', elemento)",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Laços de repetição - para cada - vetor variável', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var v = [1, 2, 3]",
+                        "para cada elemento em v {",
+                        "   escreva('Valor: ', elemento)",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Laços de repetição - para cada - vetor inválido', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var v = falso",
+                        "para cada elemento em v {",
+                        "   escreva('Valor: ', elemento)",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
                 it('Laços de repetição - para', async () => {
                     const retornoLexador = lexador.mapear(["para (var i = 0; i < 10; i = i + 1) { escreva(i) }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
