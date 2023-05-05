@@ -3,6 +3,9 @@ export default {
         vetor.push(elemento);
         return vetor;
     },
+    concatenar: (vetor: Array<any>, outroVetor: Array<any>) => {
+        return vetor.concat(outroVetor)
+    },
     empilhar: (vetor: Array<any>, elemento: any) => {
         vetor.push(elemento);
         return vetor;

@@ -43,6 +43,13 @@ describe('Primitivas de vetor', () => {
         });
     });
 
+    describe('concatenar()', () => {
+        it('Trivial', () => {
+            const resultado = primitivasVetor.concatenar([1, 2, 3], [4, 5, 6]);
+            expect(resultado).toStrictEqual([1, 2, 3, 4, 5, 6]);
+        });
+    });
+
     describe('ordenar()', () => {
         it('Trivial', () => {
             const resultado = primitivasVetor.ordenar([3, 2, 7, 1, 5]);
