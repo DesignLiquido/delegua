@@ -13,6 +13,7 @@ import {
 } from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 import { Chamada, FuncaoConstruto } from '../../fontes/construtos';
+import { ErroAvaliadorSintatico } from '../../fontes/avaliador-sintatico/erro-avaliador-sintatico';
 
 describe('Avaliador Sintático Birl', () => {
     describe('analisar()', () => {
@@ -329,7 +330,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   MONSTRO segundo = 10;\n',
                     '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE SOMAR(primeiro, segundo);\n',
                     'BIRL\n',
-                ])
+                ]);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -338,10 +339,71 @@ describe('Avaliador Sintático Birl', () => {
                 expect(declaracao3[0].tipo).toBe('numero');
                 expect(declaracao3[0].assinaturaMetodo).toBe('<principal>');
                 expect(declaracao3[0].inicializador.valor).toBeInstanceOf(Chamada);
+            });
+        });
+        describe('Cenários de erro', () => {
+            it('Falha - Programa vazio', () => {
+                expect(() => avaliadorSintatico.analisar({ erros: [], simbolos: [] }, -1)).toThrow(
+                    ErroAvaliadorSintatico
+                );
+                expect(() => {
+                    avaliadorSintatico.analisar({ erros: [], simbolos: [] }, -1);
+                }).toThrow(
+                    expect.objectContaining({
+                        message: 'Esperado expressão `HORA DO SHOW` para iniciar o programa',
+                    })
+                );
+            });
+
+            it('Falha - declaração - variavel = "=" no lugar do identificador', () => {
+                const retornoLexador = lexador.mapear(['HORA DO SHOW \n', '   MONSTRO =;\n', 'BIRL\n']);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: "Esperado identificador após palavra reservada 'MONSTRO'.",
+                    })
+                );
+            });
+
+            it('Falha - declaração - variavel - sem identificador', () => {
+                const retornoLexador = lexador.mapear(['HORA DO SHOW \n', '   MONSTRO \n', 'BIRL\n']);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: "Esperado identificador após palavra reservada 'MONSTRO'.",
+                    })
+                );
+            });
+
+            it('Falha - declaração - Escreva - com falha na expressão', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'HORA DO SHOW',
+                        '  CE QUER VER ESSA ? ("Hello, World! Porra!\n");',
+                        '  BORA CUMPADE 0;',
+                        'BIRL',
+                    ],
+                    -1
+                );
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: 'Esperado expressão `PORRA` após `ESSA` para escrever mensagem.',
+                    }))
+            });
+
+            it.skip('Falha - declaração - Variavel - numero recebendo string', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '  MONSTRINHO M1 = "Teste"; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                console.log(avaliadorSintatico.analisar(retornoLexador, -1));
             })
         });
-        // describe('Cenários de erro', () => {
-        //     it('Falha - ')
-        // })
     });
 });
