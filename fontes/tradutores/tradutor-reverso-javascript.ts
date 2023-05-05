@@ -5,6 +5,8 @@ import {
     BlockStatement,
     ClassDeclaration,
     DoWhileStatement,
+    ForInStatement,
+    ForOfStatement,
     ForStatement,
     Identifier,
     IfStatement,
@@ -163,9 +165,12 @@ export class TradutorReversoJavaScript {
         let informacoesDaVariavel = declaracao.declarations[0];
         const identificador = informacoesDaVariavel.id as Identifier;
         if (identificador) {
-            resultado += `${declaracao.kind === 'const' ? 'const' : 'var'} ${identificador.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](
-                informacoesDaVariavel.init
-            )}`;
+            resultado += `${declaracao.kind === 'const' ? 'const' : 'var'} ${identificador.name}`;
+            if (informacoesDaVariavel.init) {
+                resultado += ` = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](
+                    informacoesDaVariavel.init
+                )}`;
+            }
         }
 
         return resultado;
@@ -200,6 +205,16 @@ export class TradutorReversoJavaScript {
         resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test) + '; ';
         resultado += this.dicionarioConstrutos[declaracao.update.type](declaracao.update) + ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao);
+
+        return resultado;
+    }
+
+    traduzirDeclaracaoParaDe(declaracao: ForInStatement | ForOfStatement): string {
+        let resultado = '';
+        let emOuDe = declaracao.type === 'ForInStatement' ? 'em' : 'de';
+        resultado += `para (${this.traduzirDeclaracao(declaracao.left)} ${emOuDe} `;
+        resultado += this.dicionarioConstrutos[declaracao.right.constructor.name](declaracao.right) + ') ';
+        resultado += this.logicaComumBlocoEscopo(declaracao.body);
 
         return resultado;
     }
@@ -375,6 +390,9 @@ export class TradutorReversoJavaScript {
                 return this.traduzirExpressaoDeclaracao(declaracao);
             case 'ForStatement':
                 return this.traduzirDeclaracaoPara(declaracao);
+            case 'ForInStatement':
+            case 'ForOfStatement':
+                return this.traduzirDeclaracaoParaDe(declaracao);
             case 'FunctionDeclaration':
                 return this.traduzirDeclaracaoFuncao(declaracao);
             case 'IfStatement':
