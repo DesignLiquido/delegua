@@ -12,9 +12,7 @@ import {
     Var,
 } from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
-import { RetornoLexador } from '../../fontes/interfaces/retornos/retorno-lexador';
-import { Simbolo } from '../../fontes/lexador';
-import { FuncaoConstruto, Variavel } from '../../fontes/construtos';
+import { Chamada, FuncaoConstruto } from '../../fontes/construtos';
 
 describe('Avaliador Sintático Birl', () => {
     describe('analisar()', () => {
@@ -335,6 +333,11 @@ describe('Avaliador Sintático Birl', () => {
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                const declaracao3 = retornoAvaliadorSintatico.declaracoes[2] as unknown as Array<Var>;
+                expect(declaracao3[0].tipo).toBe('numero');
+                expect(declaracao3[0].assinaturaMetodo).toBe('<principal>');
+                expect(declaracao3[0].inicializador.valor).toBeInstanceOf(Chamada);
             })
         });
         // describe('Cenários de erro', () => {
