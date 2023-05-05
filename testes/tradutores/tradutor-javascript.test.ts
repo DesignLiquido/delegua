@@ -296,7 +296,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/let v = \[1, 2, 3\]/i);
-            expect(resultado).toMatch(/for \(let elemento in v\) {/i);
+            expect(resultado).toMatch(/for \(let elemento of v\) {/i);
             expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
             expect(resultado).toMatch(/}/i);
         });
@@ -311,7 +311,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/for \(let elemento in \[1, 2, 3\]\) {/i);
+            expect(resultado).toMatch(/for \(let elemento of \[1, 2, 3\]\) {/i);
             expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
             expect(resultado).toMatch(/}/i);
         });
@@ -328,7 +328,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/let v = \[1, 2, 3\]/i);
-            expect(resultado).toMatch(/for \(let elemento in v\) {/i);
+            expect(resultado).toMatch(/for \(let elemento of v\) {/i);
             expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
             expect(resultado).toMatch(/}/i);
         });
@@ -343,7 +343,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/for \(let elemento in \[1, 2, 3\]\) {/i);
+            expect(resultado).toMatch(/for \(let elemento of \[1, 2, 3\]\) {/i);
             expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
             expect(resultado).toMatch(/}/i);
         });

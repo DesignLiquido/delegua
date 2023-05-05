@@ -40,7 +40,7 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\(elemento\)/i);
         });
 
-        it('for of-> para cada de', () => {
+        it('for of -> para cada de', () => {
             const codigo = 'for (let elemento of [1, 2, 3]) { console.log(elemento) }'
 
             const resultado = tradutor.traduzir(codigo);
