@@ -449,6 +449,10 @@ export class Lexador implements LexadorInterface {
             this.codigo[iterador] += '\0';
         }
 
+        if (this.codigo[0].substring(0, 1) === '\n') {
+            this.codigo = this.codigo[0].split('\n');
+        }
+
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
             this.analisarToken();

@@ -25,6 +25,23 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(21);
             });
 
+            it('Sucesso - Código em uma única string', async () => {
+                const codigo = `
+
+                
+                // comentário
+                funcao verificar(num) { 
+                retorna verdadeiro;
+                }
+
+                escreva(verificar(777))
+                `;
+
+                const retornoLexador = lexador.mapear([codigo], -1);
+
+                expect(retornoLexador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Olá mundo', () => {
                 const resultado = lexador.mapear(["escreva('Olá mundo')"], -1);
 
