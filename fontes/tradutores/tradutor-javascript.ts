@@ -95,6 +95,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
             case 'adicionar':
+            case 'empilhar':
                 return 'push';
             case 'concatenar':
                 return 'concat'

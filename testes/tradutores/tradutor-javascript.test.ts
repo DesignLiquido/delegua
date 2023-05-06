@@ -44,6 +44,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 [
                     'var vetor = [1, 2];', 
                     'vetor.adicionar(3);',
+                    'vetor.empilhar(4);',
                     'vetor.removerUltimo();',
                     'vetor.tamanho();',
                     'vetor.inverter();',
@@ -61,6 +62,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/let vetor = \[1, 2\]/i);
             expect(resultado).toMatch(/vetor.push\(3\)/i);
+            expect(resultado).toMatch(/vetor.push\(4\)/i);
             expect(resultado).toMatch(/vetor.pop\(\)/i);
             expect(resultado).toMatch(/vetor.length/i);
             expect(resultado).toMatch(/vetor.reverse\(\)/i);
