@@ -91,6 +91,40 @@ export class TradutorJavaScript implements TradutorInterface {
         }
     }
 
+    //TODO: @Samuel
+    traduzirFuncoesNativas(metodo: string): string {
+        switch (metodo.toLowerCase()) {
+            case 'adicionar':
+                return 'push';
+            case 'concatenar':
+                return 'concat'
+            case 'fatiar':
+                return 'slice';
+            case 'inclui':
+                return 'includes';
+            case 'inverter':
+                return 'reverse';
+            case 'juntar':
+                return 'join';
+            case 'ordenar':
+                return 'sort';
+            case 'removerprimeiro':
+                return 'shift';
+            case 'removerultimo':
+                return 'pop';
+            case 'tamanho':
+                return 'length';
+            case 'maiusculo':
+                return 'toUpperCase';
+            case 'minusculo':
+                return 'toLowerCase';
+            case 'substituir':
+                return 'replace';
+            default:
+                return metodo;
+        }
+    }
+
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
         return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
@@ -484,7 +518,7 @@ export class TradutorJavaScript implements TradutorInterface {
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
         }
         return `this.${acessoMetodo.simbolo.lexema}`;
     }

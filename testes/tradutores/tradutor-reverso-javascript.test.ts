@@ -22,6 +22,33 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
+        it('funções nativas', () => {
+            const codigo = `
+                var vetor = [1, 2]; 
+                vetor.push(3);
+                vetor.pop();
+                vetor.length;
+                vetor.reverse();
+                vetor.shift();
+
+                var nome = 'delégua > égua';
+                nome = nome.toUpperCase();
+                nome = nome.toLowerCase();
+            `;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var vetor = \[1, 2\]/i);
+            expect(resultado).toMatch(/vetor.adicionar\(3\)/i);
+            expect(resultado).toMatch(/vetor.removerUltimo\(\)/i);
+            expect(resultado).toMatch(/vetor.tamanho\(\)/i);
+            expect(resultado).toMatch(/vetor.inverter\(\)/i);
+            expect(resultado).toMatch(/vetor.removerPrimeiro\(\)/i);
+
+            expect(resultado).toMatch(/nome.maiusculo\(\)/i);
+            expect(resultado).toMatch(/nome.minusculo\(\)/i);
+        });
+
         it('for -> para', () => {
             const codigo = 'for (let i = 0; i < 10; i++) { console.log(i) }'
 

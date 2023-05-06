@@ -45,6 +45,40 @@ export class TradutorReversoJavaScript {
         }
     }
 
+    //TODO: @Samuel
+    traduzirFuncoesNativas(metodo: string): string {
+        switch (metodo.toLowerCase()) {
+            case 'push':
+                return 'adicionar';
+            case 'concat':
+                return 'concatenar'
+            case 'slice':
+                return 'fatiar';
+            case 'includes':
+                return 'inclui';
+            case 'reverse':
+                return 'inverter';
+            case 'join':
+                return 'juntar';
+            case 'sort':
+                return 'ordenar';
+            case 'shift':
+                return 'removerPrimeiro';
+            case 'pop':
+                return 'removerUltimo';
+            case 'length':
+                return 'tamanho()';
+            case 'touppercase':
+                return 'maiusculo';
+            case 'tolowercase':
+                return 'minusculo';
+            case 'replace':
+                return 'substituir';
+            default:
+                return metodo;
+        }
+    }
+
     traduzirConstrutoVetor(vetor: ArrayExpression) {
         if (!vetor.elements.length) {
             return '[]';
@@ -95,7 +129,7 @@ export class TradutorReversoJavaScript {
         if (objeto === 'console' && propriedade === 'log') {
             return 'escreva';
         }
-        return `${objeto}${propriedade}`;
+        return `${objeto}.${this.traduzirFuncoesNativas(propriedade)}`;
     }
 
     traduzirConstrutoLogico(logico: any): string {
@@ -116,7 +150,7 @@ export class TradutorReversoJavaScript {
         LogicalExpression: this.traduzirConstrutoLogico.bind(this),
         MemberExpression: this.traduzirExpressao.bind(this),
         NewExpression: this.traduzirNovo.bind(this),
-        ThisExpression: (expressao) => 'isto.',
+        ThisExpression: () => 'isto',
         UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this),
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
     };

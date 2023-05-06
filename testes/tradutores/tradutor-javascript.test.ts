@@ -39,6 +39,37 @@ describe('Tradutor Delégua -> JavaScript', () => {
             avaliadorSintatico = new AvaliadorSintatico();
         });
 
+        it('funções nativas', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var vetor = [1, 2];', 
+                    'vetor.adicionar(3);',
+                    'vetor.removerUltimo();',
+                    'vetor.tamanho();',
+                    'vetor.inverter();',
+                    'vetor.removerPrimeiro();',
+    
+                    'var nome = \'delégua > égua\';',
+                    'nome = nome.maiusculo();',
+                    'nome = nome.minusculo();',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let vetor = \[1, 2\]/i);
+            expect(resultado).toMatch(/vetor.push\(3\)/i);
+            expect(resultado).toMatch(/vetor.pop\(\)/i);
+            expect(resultado).toMatch(/vetor.length/i);
+            expect(resultado).toMatch(/vetor.reverse\(\)/i);
+            expect(resultado).toMatch(/vetor.shift\(\)/i);
+
+            expect(resultado).toMatch(/nome.toUpperCase\(\)/i);
+            expect(resultado).toMatch(/nome.toLowerCase\(\)/i);
+        });
+
         it('bit a bit', () => {
             const retornoLexador = lexador.mapear(
                 [
