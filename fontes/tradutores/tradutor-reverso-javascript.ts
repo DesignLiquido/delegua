@@ -68,6 +68,8 @@ export class TradutorReversoJavaScript {
                 return 'removerUltimo';
             case 'length':
                 return 'tamanho()';
+            case 'log':
+                return 'escreva'
             case 'touppercase':
                 return 'maiusculo';
             case 'tolowercase':
@@ -126,9 +128,6 @@ export class TradutorReversoJavaScript {
     traduzirExpressao(expressao: MemberExpression): string {
         let objeto = this.dicionarioConstrutos[expressao.object.type](expressao.object);
         let propriedade = this.dicionarioConstrutos[expressao.property.type](expressao.property);
-        if (objeto === 'console' && propriedade === 'log') {
-            return 'escreva';
-        }
         return `${objeto}.${this.traduzirFuncoesNativas(propriedade)}`;
     }
 
