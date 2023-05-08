@@ -580,6 +580,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             paramentros.push(this.logicaComumParamentros());
         }
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         let corpo = [];
 
