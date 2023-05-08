@@ -22,7 +22,7 @@ export class ParaCada extends Declaracao {
         this.posicaoAtual = 0;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoParaCada(this);
     }
 }

@@ -1,7 +1,7 @@
 import { Chamavel } from './chamavel';
 import { EspacoVariaveis } from '../espaco-variaveis';
 
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';

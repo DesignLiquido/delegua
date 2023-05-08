@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Unario implements Construto {
@@ -23,7 +23,7 @@ export class Unario implements Construto {
         this.incidenciaOperador = incidenciaOperador;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoUnaria(this);
     }
 }

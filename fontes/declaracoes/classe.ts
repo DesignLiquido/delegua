@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Classe extends Declaracao {
@@ -13,7 +13,7 @@ export class Classe extends Declaracao {
         this.metodos = metodos;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoClasse(this);
     }
 }

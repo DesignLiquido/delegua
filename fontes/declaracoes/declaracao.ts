@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 
 export class Declaracao {
     linha: number;
@@ -14,7 +14,7 @@ export class Declaracao {
         this.assinaturaMetodo = '<principal>';
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }

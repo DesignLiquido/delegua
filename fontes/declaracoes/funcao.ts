@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 import { FuncaoConstruto } from '../construtos';
 
@@ -14,7 +14,7 @@ export class FuncaoDeclaracao extends Declaracao {
         this.tipoRetorno = tipoRetorno;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarDeclaracaoDefinicaoFuncao(this));
     }
 }

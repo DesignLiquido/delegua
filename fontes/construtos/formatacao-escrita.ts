@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Construto } from './construto';
 
 /**
@@ -21,7 +21,7 @@ export class FormatacaoEscrita implements Construto {
         this.casasDecimais = casasDecimais || -1;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoFormatacaoEscrita(this);
     }
 }

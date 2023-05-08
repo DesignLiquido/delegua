@@ -50,7 +50,7 @@ import {
     Unario,
     Variavel,
 } from '../construtos';
-import { ErroInterpretador } from './erro-interpretador';
+import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';

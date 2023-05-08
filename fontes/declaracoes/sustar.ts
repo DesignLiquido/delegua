@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Sustar extends Declaracao {
@@ -6,7 +6,7 @@ export class Sustar extends Declaracao {
         super(Number(simbolo.linha), simbolo.hashArquivo);
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoSustar(this));
     }
 }

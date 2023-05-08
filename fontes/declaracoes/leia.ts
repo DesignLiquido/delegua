@@ -1,6 +1,6 @@
 import { Construto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Declaracao } from './declaracao';
 
 /**
@@ -17,7 +17,7 @@ export class Leia extends Declaracao {
         this.argumentos = argumentos;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoLeia(this);
     }
 }
