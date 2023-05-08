@@ -55,8 +55,29 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoDeChamada(expressao: any) {
         throw new Error("Método não implementado.");
     }
+
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        throw new Error("Método não implementado.");
+        if (!this.variaveis.hasOwnProperty(expressao.simbolo.lexema)) {
+            this.erros.push({
+                simbolo: expressao.simbolo,
+                mensagem: `Variável ${expressao.simbolo} ainda não foi declarada até este ponto.`,
+                hashArquivo: expressao.hashArquivo,
+                linha: expressao.linha
+            });
+
+            return Promise.resolve();
+        }
+
+        if (this.variaveis[expressao.simbolo.lexema].imutavel) {
+            this.erros.push({
+                simbolo: expressao.simbolo,
+                mensagem: `Constante ${expressao.simbolo} não pode ser modificada.`,
+                hashArquivo: expressao.hashArquivo,
+                linha: expressao.linha
+            });
+
+            return Promise.resolve();
+        }
     }
 
     visitarExpressaoDeVariavel(expressao: any) {
@@ -64,9 +85,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        throw new Error("Método não implementado.");
+        return declaracao.expressao.aceitar(this);
     }
-    
+
     visitarExpressaoLeia(expressao: Leia) {
         throw new Error("Método não implementado.");
     }

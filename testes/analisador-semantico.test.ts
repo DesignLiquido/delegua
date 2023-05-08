@@ -26,7 +26,7 @@ describe('Analisador semântico', () => {
         });
         
         describe('Cenários de falha', () => {
-            it.skip('Atribuição de constante + reatribuição de constante', () => {
+            it('Atribuição de constante + reatribuição de constante', () => {
                 const retornoLexador = lexador.mapear([
                     "const a = 1",
                     "a = 2"
