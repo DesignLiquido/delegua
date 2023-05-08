@@ -79,7 +79,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         if (!this.variaveis.hasOwnProperty(expressao.simbolo.lexema)) {
             this.erros.push({
                 simbolo: expressao.simbolo,
-                mensagem: `Variável ${expressao.simbolo} ainda não foi declarada até este ponto.`,
+                mensagem: `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
             });
@@ -90,7 +90,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         if (this.variaveis[expressao.simbolo.lexema].imutavel) {
             this.erros.push({
                 simbolo: expressao.simbolo,
-                mensagem: `Constante ${expressao.simbolo} não pode ser modificada.`,
+                mensagem: `Constante ${expressao.simbolo.lexema} não pode ser modificada.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
             });
