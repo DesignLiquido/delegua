@@ -600,10 +600,10 @@ describe('Avaliador Sintático Birl', () => {
                 );
             })
 
-            it.skip('Falha - declaração - declaracao - sem declaração', () => {
+            it('Falha - declaração - declaracao - sem declaração', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    '   OH O HOME AI PO(MONSTRO NOMEFUNCAO(MONSTRO primeiro, MONSTRO segundo))\n',
+                    '   OH O HOME AI PO(MONSTRO(MONSTRO primeiro, MONSTRO segundo))\n',
                     '       MONSTRO C = primeiro + segundo;\n',
                     '       BORA CUMPADE C;\n',
                     '   BIRL\n',
@@ -611,6 +611,28 @@ describe('Avaliador Sintático Birl', () => {
                 ]);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: 'Esperado nome da função apos a declaração do tipo.',
+                    })
+                );
+            })
+
+            it('Falha - declaração - chamarFuncao - sem identificador', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MONSTRO primeiro = 5;\n',
+                    '   MONSTRO segundo = 10;\n',
+                    '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE (primeiro, segundo);\n',
+                    'BIRL\n',
+                ]);
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: "Esperado ')' após a expressão.",
+                    })
+                );
             })
 
             it.skip('Falha - declaração - Variavel - numero recebendo string', () => {
