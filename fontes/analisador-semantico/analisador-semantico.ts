@@ -155,7 +155,13 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
         return Promise.resolve();
     }
+    
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        this.variaveis[declaracao.simbolo.lexema] = {
+            imutavel: false,
+            tipo: 'número',
+        };
+
         return Promise.resolve();
     }
 
