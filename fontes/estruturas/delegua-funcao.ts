@@ -63,7 +63,7 @@ export class DeleguaFuncao extends Chamavel {
             };
         }
 
-        // TODO: Repensar essa dinâmica para análise sintática.
+        // TODO: Repensar essa dinâmica para análise semântica.
         const interpretador = (visitante as any);
         interpretador.proximoEscopo = 'funcao';
         const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
