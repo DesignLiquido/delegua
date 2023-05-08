@@ -1,5 +1,5 @@
 import { Construto } from '../construtos';
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { Declaracao } from './declaracao';
 
@@ -18,7 +18,7 @@ export class Var extends Declaracao {
         this.tipo = tipo;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoVar(this);
     }
 }

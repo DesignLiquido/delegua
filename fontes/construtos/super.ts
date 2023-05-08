@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Super implements Construto {
@@ -16,7 +16,7 @@ export class Super implements Construto {
         this.metodo = metodo;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoSuper(this));
     }
 }

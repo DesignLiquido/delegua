@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Declaracao } from './declaracao';
 
 export class Fazer extends Declaracao {
@@ -11,7 +11,7 @@ export class Fazer extends Declaracao {
         this.condicaoEnquanto = condicaoEnquanto;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoFazer(this);
     }
 }

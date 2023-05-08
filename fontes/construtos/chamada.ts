@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Construto } from './construto';
 import { uuidv4 } from '../geracao-identificadores';
 
@@ -24,7 +24,7 @@ export class Chamada implements Construto {
         this.argumentos = argumentos;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoDeChamada(this);
     }
 }

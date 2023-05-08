@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Logico implements Construto {
@@ -18,7 +18,7 @@ export class Logico implements Construto {
         this.direita = direita;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoLogica(this);
     }
 }

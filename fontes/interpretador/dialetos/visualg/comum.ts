@@ -1,11 +1,11 @@
 import { Binario, Construto, Logico } from "../../../construtos";
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
+import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ErroEmTempoDeExecucao } from "../../../excecoes";
 
-async function avaliar(interpretador: InterpretadorInterface, expressao: Construto): Promise<any> {
+async function avaliar(interpretador: VisitanteComumInterface, expressao: Construto): Promise<any> {
     return await expressao.aceitar(interpretador);
 }
 
@@ -46,7 +46,7 @@ function verificarOperandosNumeros(
  * @param expressao A expressão binária.
  * @returns O resultado da resolução da expressão.
  */
-export async function visitarExpressaoBinaria(interpretador: InterpretadorInterface, expressao: Binario | any): Promise<any> {
+export async function visitarExpressaoBinaria(interpretador: VisitanteComumInterface, expressao: Binario | any): Promise<any> {
     try {
         const esquerda: VariavelInterface | any = await avaliar(interpretador, expressao.esquerda);
         const direita: VariavelInterface | any = await avaliar(interpretador, expressao.direita);
@@ -142,7 +142,7 @@ export async function visitarExpressaoBinaria(interpretador: InterpretadorInterf
     }
 }
 
-export async function visitarExpressaoLogica(interpretador: InterpretadorInterface, expressao: Logico): Promise<any> {
+export async function visitarExpressaoLogica(interpretador: VisitanteComumInterface, expressao: Logico): Promise<any> {
     const esquerda = await avaliar(interpretador, expressao.esquerda);
 
     // se um estado for verdadeiro, retorna verdadeiro

@@ -40,7 +40,7 @@ import {
     Variavel,
 } from '../../../construtos';
 import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
-import { ErroInterpretador } from '../../erro-interpretador';
+import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';

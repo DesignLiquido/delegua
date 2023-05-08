@@ -1,12 +1,12 @@
 import { Binario, Construto, Logico } from "../../../construtos";
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
+import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/mapler';
 import { ErroEmTempoDeExecucao } from "../../../excecoes";
 
-async function avaliar(interpretador: InterpretadorInterface, expressao: Construto): Promise<any> {
-    return await expressao.aceitar(interpretador);
+async function avaliar(visitante: VisitanteComumInterface, expressao: Construto): Promise<any> {
+    return await expressao.aceitar(visitante);
 }
 
 function eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
@@ -46,10 +46,10 @@ function verificarOperandosNumeros(
  * @param expressao A expressão binária.
  * @returns O resultado da resolução da expressão.
  */
-export async function visitarExpressaoBinaria(interpretador: InterpretadorInterface, expressao: Binario | any): Promise<any> {
+export async function visitarExpressaoBinaria(visitante: VisitanteComumInterface, expressao: Binario | any): Promise<any> {
     try {
-        const esquerda: VariavelInterface | any = await avaliar(interpretador, expressao.esquerda);
-        const direita: VariavelInterface | any = await avaliar(interpretador, expressao.direita);
+        const esquerda: VariavelInterface | any = await avaliar(visitante, expressao.esquerda);
+        const direita: VariavelInterface | any = await avaliar(visitante, expressao.direita);
 
         let valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
         let valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
@@ -142,7 +142,7 @@ export async function visitarExpressaoBinaria(interpretador: InterpretadorInterf
     }
 }
 
-export async function visitarExpressaoLogica(interpretador: InterpretadorInterface, expressao: Logico): Promise<any> {
+export async function visitarExpressaoLogica(interpretador: VisitanteComumInterface, expressao: Logico): Promise<any> {
     const esquerda = await avaliar(interpretador, expressao.esquerda);
 
     // se um estado for verdadeiro, retorna verdadeiro

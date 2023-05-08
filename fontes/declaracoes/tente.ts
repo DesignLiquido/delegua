@@ -1,5 +1,5 @@
 import { FuncaoConstruto } from '../construtos';
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Declaracao } from './declaracao';
 
 /**
@@ -26,7 +26,7 @@ export class Tente extends Declaracao {
         this.caminhoFinalmente = caminhoFinalmente;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoTente(this);
     }
 }

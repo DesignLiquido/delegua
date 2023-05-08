@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Construto } from './construto';
 
 /**
@@ -19,7 +19,7 @@ export class Agrupamento implements Construto {
         this.expressao = expressao;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAgrupamento(this);
     }
 }

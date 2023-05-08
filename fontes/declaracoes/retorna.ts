@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Retorna extends Declaracao {
@@ -11,7 +11,7 @@ export class Retorna extends Declaracao {
         this.valor = valor;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoRetornar(this);
     }
 }

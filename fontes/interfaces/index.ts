@@ -9,3 +9,4 @@ export * from './retornos/retorno-execucao-interface';
 export * from './simbolo-interface';
 export * from './tradutor-interface';
 export * from './variavel-interface';
+export * from './visitante-comum-interface';

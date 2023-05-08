@@ -1,4 +1,4 @@
-import { InterpretadorInterface, ParametroInterface } from '../interfaces';
+import { VisitanteComumInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class FuncaoConstruto implements Construto {
@@ -16,7 +16,7 @@ export class FuncaoConstruto implements Construto {
         this.corpo = corpo;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoDeleguaFuncao(this));
     }
 }

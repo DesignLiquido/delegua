@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from "../interfaces";
+import { VisitanteComumInterface } from '../interfaces';
 import { Bloco } from "./bloco";
 import { Declaracao } from "./declaracao";
 
@@ -22,7 +22,7 @@ export class ParaCada extends Declaracao {
         this.posicaoAtual = 0;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoParaCada(this);
     }
 }

@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Construto } from './construto';
 
 export type ValorLiteral = number | string | number[] | string[] | any;
@@ -16,7 +16,7 @@ export class Literal implements Construto {
         this.valor = valor;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoLiteral(this));
     }
 }

@@ -2,11 +2,11 @@ import { ErroEmTempoDeExecucao } from '../excecoes';
 import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../estruturas/delegua-classe';
-import { InterpretadorInterface, VariavelInterface } from '../interfaces';
+import { VisitanteComumInterface, VariavelInterface } from '../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { DeleguaFuncao } from '../estruturas';
 
-export default function (interpretador: InterpretadorInterface, pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
+export default function (interpretador: VisitanteComumInterface, pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     const todosEmCondicao = async function (
         vetor: VariavelInterface | any,
         funcaoCondicional: VariavelInterface | any

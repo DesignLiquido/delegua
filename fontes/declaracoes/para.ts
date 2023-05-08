@@ -1,5 +1,5 @@
 import { Construto } from '../construtos';
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
@@ -32,7 +32,7 @@ export class Para extends Declaracao {
         this.blocoPosExecucao = undefined;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoPara(this);
     }
 }

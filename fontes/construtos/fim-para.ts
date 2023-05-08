@@ -1,5 +1,5 @@
 import { Declaracao } from '../declaracoes';
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { Binario } from './binario';
 import { Construto } from './construto';
 
@@ -27,7 +27,7 @@ export class FimPara implements Construto {
         this.incremento = blocoIncremento;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoFimPara(this);
     }
 }

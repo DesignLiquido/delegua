@@ -1,4 +1,4 @@
-import { SimboloInterface } from '../interfaces';
+import { SimboloInterface } from '..';
 
 export interface ErroInterpretador {
     simbolo?: SimboloInterface;

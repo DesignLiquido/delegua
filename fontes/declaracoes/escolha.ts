@@ -1,5 +1,5 @@
 import { Construto } from '../construtos';
-import { InterpretadorInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces'
 import { CaminhoEscolha } from '../interfaces/construtos';
 import { Declaracao } from './declaracao';
 
@@ -18,7 +18,7 @@ export class Escolha extends Declaracao {
         this.caminhoPadrao = caminhoPadrao;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<any> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoEscolha(this);
     }
 }

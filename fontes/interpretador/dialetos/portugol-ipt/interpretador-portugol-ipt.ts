@@ -8,7 +8,7 @@ import { EscopoExecucao } from "../../../interfaces/escopo-execucao";
 import { PilhaEscoposExecucaoInterface } from "../../../interfaces/pilha-escopos-execucao-interface";
 import { RetornoInterpretador } from "../../../interfaces/retornos";
 import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from "../../../quebras";
-import { ErroInterpretador } from "../../erro-interpretador";
+import { ErroInterpretador } from "../../../interfaces/erros/erro-interpretador";
 import { PilhaEscoposExecucao } from "../../pilha-escopos-execucao";
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';

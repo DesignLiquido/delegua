@@ -1,4 +1,4 @@
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class Constante implements Construto {
@@ -14,7 +14,7 @@ export class Constante implements Construto {
         this.simbolo = simbolo;
     }
 
-    async aceitar(visitante: InterpretadorInterface): Promise<VariavelInterface> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
         return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
     }
 }
