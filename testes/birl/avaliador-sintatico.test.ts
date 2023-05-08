@@ -299,10 +299,10 @@ describe('Avaliador Sintático Birl', () => {
                 expect((declaracaoSe.caminhoEntao as Bloco).declaracoes[0]).toBeInstanceOf(Sustar);
                 expect((declaracaoSe.caminhoSenao as Bloco).declaracoes[0]).toBeInstanceOf(Continua);
             });
-            it.skip('Sucesso - declaração - declaracaoFuncao', () => {
+            it('Sucesso - declaração - declaracaoFuncao', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    '   OH O HOME AI PO(MONSTRO NOMEFUNCAO(MONSTRO primeiro, MONSTRO segundo)\n',
+                    '   OH O HOME AI PO(MONSTRO NOMEFUNCAO(MONSTRO primeiro, MONSTRO segundo))\n',
                     '       MONSTRO C = primeiro + segundo;\n',
                     '       BORA CUMPADE C;\n',
                     '   BIRL\n',
