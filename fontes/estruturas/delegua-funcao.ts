@@ -1,7 +1,7 @@
 import { Chamavel } from './chamavel';
 import { EspacoVariaveis } from '../espaco-variaveis';
 
-import { VisitanteComumInterface } from '../interfaces'
+import { InterpretadorInterface, VisitanteComumInterface } from '../interfaces'
 import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
@@ -37,7 +37,7 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    async chamar(interpretador: InterpretadorInterface, argumentos: any): Promise<any> {
+    async chamar(visitante: VisitanteComumInterface, argumentos: any): Promise<any> {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros;
 
@@ -63,7 +63,9 @@ export class DeleguaFuncao extends Chamavel {
             };
         }
 
-        (interpretador as any).proximoEscopo = 'funcao';
+        // TODO: Repensar essa dinâmica para análise sintática.
+        const interpretador = (visitante as any);
+        interpretador.proximoEscopo = 'funcao';
         const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
         if (retornoBloco instanceof RetornoQuebra) {
             return retornoBloco.valor;

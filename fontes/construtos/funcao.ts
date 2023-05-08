@@ -1,4 +1,4 @@
-import { InterpretadorInterface, ParametroInterface } from '../interfaces';
+import { VisitanteComumInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class FuncaoConstruto implements Construto {

@@ -36,12 +36,12 @@ export class DeleguaClasse extends Chamavel {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    chamar(interpretador: InterpretadorInterface, argumentos: any[]): ObjetoDeleguaClasse {
+    chamar(visitante: VisitanteComumInterface, argumentos: any[]): ObjetoDeleguaClasse {
         const instancia = new ObjetoDeleguaClasse(this);
 
         const inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
-            inicializador.definirInstancia(instancia).chamar(interpretador, argumentos);
+            inicializador.definirInstancia(instancia).chamar(visitante, argumentos);
         }
 
         return instancia;
