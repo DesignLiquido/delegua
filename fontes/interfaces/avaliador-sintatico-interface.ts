@@ -13,6 +13,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Sustar,
@@ -44,7 +45,7 @@ export interface AvaliadorSintaticoInterface {
     exponenciacao(): Construto;
     multiplicar(): Construto;
     adicaoOuSubtracao(): Construto;
-    bitFill(): Construto;
+    bitShift(): Construto;
     bitE(): Construto;
     bitOu(): Construto;
     comparar(): Construto;
@@ -59,7 +60,7 @@ export interface AvaliadorSintaticoInterface {
     declaracaoEscreva(): Escreva;
     declaracaoExpressao(): Expressao;
     declaracaoLeia(): Leia;
-    declaracaoPara(): Para;
+    declaracaoPara(): Para | ParaCada;
     declaracaoSe(): Se;
     declaracaoSustar(): Sustar;
     declaracaoContinua(): Continua;

@@ -493,6 +493,47 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Laços de repetição - para cada - trivial', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "para cada elemento em [1, 2, 3] {",
+                        "   escreva('Valor: ', elemento)",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Laços de repetição - para cada - vetor variável', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var v = [1, 2, 3]",
+                        "para cada elemento em v {",
+                        "   escreva('Valor: ', elemento)",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Laços de repetição - para cada - vetor inválido', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var v = falso",
+                        "para cada elemento em v {",
+                        "   escreva('Valor: ', elemento)",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
                 it('Laços de repetição - para', async () => {
                     const retornoLexador = lexador.mapear(["para (var i = 0; i < 10; i = i + 1) { escreva(i) }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -587,6 +628,50 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Número repetido (com retorna)', async () => {
+                    const codigo = [
+                        "funcao temDigitoRepetido(num) {",
+                        "    var str = texto(num);",
+                        "    para (var i = 1; i < tamanho(str); i++) {",
+                        "      se (str[i] != str[0]) {",
+                        "        retorna falso;",
+                        "      }",
+                        "    }",
+                        "    retorna verdadeiro;",
+                        "}",
+                        "escreva(temDigitoRepetido(123));"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Número repetido (com sustar)', async () => {
+                    const codigo = [
+                        "funcao temDigitoRepetido(num) {",
+                        "    var str = texto(num);",
+                        "    para (var i = 1; i < tamanho(str); i++) {",
+                        "      se (str[i] != str[0]) {",
+                        "        sustar;",
+                        "      }",
+                        "    }",
+                        "    retorna verdadeiro;",
+                        "}",
+                        "escreva(temDigitoRepetido(123));"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Entrada e saída', () => {
@@ -604,25 +689,25 @@ describe('Interpretador', () => {
                         'var n2 = 1;',
                         'var resultado = 0',
                         'var n1 = leia("teste 1");',
-                        'enquanto (verdadeiro) {',
+                        'enquanto verdadeiro {',
                         '    var menu = leia("Digite a opção: 1 - Multiplicacao / 2 - Divisao / 3 - Soma / 4 - Subtração");',
-                        '    se (menu == "1") {',
+                        '    se menu == "1" {',
                         '        resultado = n1 * n2;',
                         '        sustar;',
-                        '    } senao se (menu =="2") {',
+                        '    } senao se menu == "2" {',
                         '        resultado = n1 / n2;',
                         '        sustar;',
-                        '    } senao se (menu =="3") {',
+                        '    } senao se menu == "3" {',
                         '        resultado = n1 + n2;',
                         '        sustar;',
-                        '    } senao se (menu =="4") {',
+                        '    } senao se menu == "4" {',
                         '        resultado = n1 - n2;',
                         '        sustar;',
                         '    } senao {',
                         '        escreva("opção invalida");',
                         '    }',
                         '}',
-                        'escreva("resultado "+resultado);'
+                        'escreva("resultado " + resultado);'
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

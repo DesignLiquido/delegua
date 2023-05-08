@@ -28,6 +28,7 @@ import {
     FuncaoDeclaracao,
     Importar,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Tente,
@@ -87,6 +88,41 @@ export class TradutorJavaScript implements TradutorInterface {
                 return '||';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
+        }
+    }
+
+    //TODO: @Samuel
+    traduzirFuncoesNativas(metodo: string): string {
+        switch (metodo.toLowerCase()) {
+            case 'adicionar':
+            case 'empilhar':
+                return 'push';
+            case 'concatenar':
+                return 'concat'
+            case 'fatiar':
+                return 'slice';
+            case 'inclui':
+                return 'includes';
+            case 'inverter':
+                return 'reverse';
+            case 'juntar':
+                return 'join';
+            case 'ordenar':
+                return 'sort';
+            case 'removerprimeiro':
+                return 'shift';
+            case 'removerultimo':
+                return 'pop';
+            case 'tamanho':
+                return 'length';
+            case 'maiusculo':
+                return 'toUpperCase';
+            case 'minusculo':
+                return 'toLowerCase';
+            case 'substituir':
+                return 'replace';
+            default:
+                return metodo;
         }
     }
 
@@ -334,6 +370,15 @@ export class TradutorJavaScript implements TradutorInterface {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
+    traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
+        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `; 
+        resultado +=
+            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ") ";
+
+        resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
+        return resultado;
+    }
+
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
         resultado +=
@@ -474,7 +519,7 @@ export class TradutorJavaScript implements TradutorInterface {
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
         }
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
@@ -594,6 +639,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Importar: this.traduzirDeclaracaoImportar.bind(this),
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
+        ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Sustar: () => 'break',
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),

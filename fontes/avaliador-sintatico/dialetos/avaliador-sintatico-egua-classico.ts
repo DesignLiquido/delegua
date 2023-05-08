@@ -309,7 +309,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    bitFill(): Construto {
+    bitShift(): Construto {
         let expressao = this.adicionar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
@@ -322,11 +322,11 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     }
 
     bitE(): Construto {
-        let expressao = this.bitFill();
+        let expressao = this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
             const operador = this.simboloAnterior();
-            const direito = this.bitFill();
+            const direito = this.bitShift();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 

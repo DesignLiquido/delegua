@@ -21,6 +21,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Tente,
@@ -581,6 +582,74 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.avaliar(expressao.direita);
     }
 
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        if (declaracao.inicializador !== null) {
+            await this.avaliar(declaracao.inicializador);
+        }
+
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra)) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                break;
+            }
+
+            try {
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                return Promise.reject(erro);
+            }
+
+            if (declaracao.incrementar !== null) {
+                await this.avaliar(declaracao.incrementar);
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        let retornoExecucao: any;
+        const vetorResolvido = await this.avaliar(declaracao.vetor);
+        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ? 
+            vetorResolvido.valor :
+            vetorResolvido;
+
+        if (!Array.isArray(valorVetorResolvido)) {
+            return Promise.reject("Variável ou literal provida em instrução 'para cada' não é um vetor.");
+        }
+
+        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < valorVetorResolvido.length) {
+            try {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    declaracao.nomeVariavelIteracao, 
+                    valorVetorResolvido[declaracao.posicaoAtual]
+                );
+
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                declaracao.posicaoAtual++;
+            } catch (erro: any) {
+                return Promise.reject(erro);
+            }
+        }
+
+        return retornoExecucao;
+    }
+
     /**
      * Executa uma expressão Se, que tem uma condição, pode ter um bloco
      * Senão, e múltiplos blocos Senão-se.
@@ -607,38 +676,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
-    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        if (declaracao.inicializador !== null) {
-            await this.avaliar(declaracao.inicializador);
-        }
-
-        let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra)) {
-            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-                break;
-            }
-
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
-                }
-            } catch (erro: any) {
-                return Promise.reject(erro);
-            }
-
-            if (declaracao.incrementar !== null) {
-                await this.avaliar(declaracao.incrementar);
-            }
-        }
-        return null;
-    }
-
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: any;
         while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
@@ -647,7 +693,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
         }
 
-        return null;
+        return retornoExecucao;
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
@@ -691,6 +737,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         do {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+                
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }

@@ -39,6 +39,39 @@ describe('Tradutor Delégua -> JavaScript', () => {
             avaliadorSintatico = new AvaliadorSintatico();
         });
 
+        it('funções nativas', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var vetor = [1, 2];', 
+                    'vetor.adicionar(3);',
+                    'vetor.empilhar(4);',
+                    'vetor.removerUltimo();',
+                    'vetor.tamanho();',
+                    'vetor.inverter();',
+                    'vetor.removerPrimeiro();',
+    
+                    'var nome = \'delégua > égua\';',
+                    'nome = nome.maiusculo();',
+                    'nome = nome.minusculo();',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let vetor = \[1, 2\]/i);
+            expect(resultado).toMatch(/vetor.push\(3\)/i);
+            expect(resultado).toMatch(/vetor.push\(4\)/i);
+            expect(resultado).toMatch(/vetor.pop\(\)/i);
+            expect(resultado).toMatch(/vetor.length/i);
+            expect(resultado).toMatch(/vetor.reverse\(\)/i);
+            expect(resultado).toMatch(/vetor.shift\(\)/i);
+
+            expect(resultado).toMatch(/nome.toUpperCase\(\)/i);
+            expect(resultado).toMatch(/nome.toLowerCase\(\)/i);
+        });
+
         it('bit a bit', () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -267,6 +300,84 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/for \(let i = 0; i < 5; i = i \+ 1\) {/i);
             expect(resultado).toMatch(/console\.log\(i\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('\'para\' sem parenteses -> for', () => {
+            const retornoLexador = lexador.mapear(
+                ['para var i = 0; i < 5; i = i + 1 {', 'escreva(i);', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(let i = 0; i < 5; i = i \+ 1\) {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('para cada \'em\' - vetor variável', async () => {
+            const retornoLexador = lexador.mapear([
+                "var v = [1, 2, 3]",
+                "para cada elemento em v {",
+                "   escreva('Valor: ', elemento)",
+                "}",
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let v = \[1, 2, 3\]/i);
+            expect(resultado).toMatch(/for \(let elemento of v\) {/i);
+            expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('para cada \'em\' - vetor variável', async () => {
+            const retornoLexador = lexador.mapear([
+                "para cada elemento em [1, 2, 3] {",
+                "   escreva('Valor: ', elemento)",
+                "}",
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(let elemento of \[1, 2, 3\]\) {/i);
+            expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('para cada elemento \'de\' - vetor variável', async () => {
+            const retornoLexador = lexador.mapear([
+                "var v = [1, 2, 3]",
+                "para cada elemento de v {",
+                "   escreva('Valor: ', elemento)",
+                "}",
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let v = \[1, 2, 3\]/i);
+            expect(resultado).toMatch(/for \(let elemento of v\) {/i);
+            expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('para cada elemento \'de\' - vetor variável', async () => {
+            const retornoLexador = lexador.mapear([
+                "para cada elemento de [1, 2, 3] {",
+                "   escreva('Valor: ', elemento)",
+                "}",
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(let elemento of \[1, 2, 3\]\) {/i);
+            expect(resultado).toMatch(/console\.log\(\'Valor: \', elemento\)/i);
             expect(resultado).toMatch(/}/i);
         });
 
@@ -706,7 +817,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(10\)/i);
         });
 
-        it('se -> if com operadores lógicos, código', () => {
+        it('condicional \'se\' com parenteses -> if com operadores lógicos, código', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'se (a == 1 ou a == 2) {',
@@ -723,7 +834,28 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/if/i);
             expect(resultado).toMatch(/a === 1 || a === 2/i);
             expect(resultado).toMatch(/console\.log\(10\)/i);
-            // expect(resultado).toMatch(/a > 0 && a === 3/i);
+            expect(resultado).toMatch(/a === 3 && a > 0/i);
+            expect(resultado).toMatch(/console\.log\(5\)/i);
+        });
+
+        it('condicional \'se\' sem parenteses -> if com operadores lógicos, código', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'se a == 1 ou a == 2 {',
+                    'escreva(10)', 
+                    '}',
+                    'se a > 0 e a == 3 {',
+                    'escreva(5)', 
+                    '}'
+                ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if/i);
+            expect(resultado).toMatch(/a === 1 || a === 2/i);
+            expect(resultado).toMatch(/console\.log\(10\)/i);
+            expect(resultado).toMatch(/a === 3 && a > 0/i);
             expect(resultado).toMatch(/console\.log\(5\)/i);
         });
 

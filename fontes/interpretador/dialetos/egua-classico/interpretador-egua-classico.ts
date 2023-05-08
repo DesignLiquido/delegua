@@ -23,6 +23,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Se,
     Tente,
     Var,
@@ -84,6 +85,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+    
+    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        throw new Error('Método não implementado.');
     }
     
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
