@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from "../interfaces";
+import { VisitanteComumInterface } from '../interfaces';
 import { Bloco } from "./bloco";
 import { Declaracao } from "./declaracao";
 
