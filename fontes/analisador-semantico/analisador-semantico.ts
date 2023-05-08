@@ -1,11 +1,32 @@
-import { Literal, Construto, Atribuir, FimPara, FormatacaoEscrita, Super } from "../construtos";
-import { Declaracao, Expressao, Leia, Para, ParaCada, Se, Fazer, Escolha, Tente, Enquanto, Importar, Escreva, EscrevaMesmaLinha, Bloco, Var, Const, Continua, Sustar, Retorna, FuncaoDeclaracao, Classe } from "../declaracoes";
-import { VariavelInterface } from "../interfaces";
-import { AnalisadorSemanticoInterface } from "../interfaces/analisador-semantico-interface";
-import { ErroAnalisadorSemantico } from "../interfaces/erros";
-import { RetornoAnalisadorSemantico } from "../interfaces/retornos/retorno-analisador-semantico";
-import { ContinuarQuebra, SustarQuebra, RetornoQuebra } from "../quebras";
-import { PilhaVariaveis } from "./pilha-variaveis";
+import { Literal, Atribuir, FimPara, FormatacaoEscrita, Super } from '../construtos';
+import {
+    Declaracao,
+    Expressao,
+    Leia,
+    Para,
+    ParaCada,
+    Se,
+    Fazer,
+    Escolha,
+    Tente,
+    Enquanto,
+    Importar,
+    Escreva,
+    EscrevaMesmaLinha,
+    Bloco,
+    Var,
+    Const,
+    Continua,
+    Sustar,
+    Retorna,
+    FuncaoDeclaracao,
+    Classe,
+} from '../declaracoes';
+import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
+import { ErroAnalisadorSemantico } from '../interfaces/erros';
+import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
+import { ContinuarQuebra, SustarQuebra, RetornoQuebra } from '../quebras';
+import { PilhaVariaveis } from './pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
     tipo:
@@ -26,7 +47,7 @@ interface VariavelHipoteticaInterface {
 
 export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
-    variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface }
+    variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     atual: number;
     erros: ErroAnalisadorSemantico[];
 
@@ -38,22 +59,20 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
-    avaliar(expressao: Construto | Declaracao) {
-        throw new Error("Método não implementado.");
-    }
+
     visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoUnaria(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoBinaria(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoDeChamada(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
@@ -62,7 +81,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 simbolo: expressao.simbolo,
                 mensagem: `Variável ${expressao.simbolo} ainda não foi declarada até este ponto.`,
                 hashArquivo: expressao.hashArquivo,
-                linha: expressao.linha
+                linha: expressao.linha,
             });
 
             return Promise.resolve();
@@ -73,7 +92,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 simbolo: expressao.simbolo,
                 mensagem: `Constante ${expressao.simbolo} não pode ser modificada.`,
                 hashArquivo: expressao.hashArquivo,
-                linha: expressao.linha
+                linha: expressao.linha,
             });
 
             return Promise.resolve();
@@ -81,7 +100,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarExpressaoDeVariavel(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
@@ -89,55 +108,55 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarExpressaoLeia(expressao: Leia) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoLogica(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoSe(declaracao: Se) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoFimPara(declaracao: FimPara) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoFazer(declaracao: Fazer) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoEscolha(declaracao: Escolha) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoTente(declaracao: Tente) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoImportar(declaracao: Importar) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
-        // throw new Error("Método não implementado.");
+        // return Promise.resolve();
     }
 
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
-    
+
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
@@ -146,12 +165,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 simbolo: declaracao.simbolo,
                 mensagem: 'Declaração de constante já feita.',
                 hashArquivo: declaracao.hashArquivo,
-                linha: declaracao.linha
+                linha: declaracao.linha,
             });
         } else {
             this.variaveis[declaracao.simbolo.lexema] = {
                 imutavel: true,
-                tipo: 'número'
+                tipo: 'número',
             };
         }
 
@@ -159,46 +178,46 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve(null);
     }
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoDefinirValor(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarDeclaracaoClasse(declaracao: Classe) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoAcessoMetodo(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoIsto(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoDicionario(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoVetor(expressao: any) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
     visitarExpressaoSuper(expressao: Super) {
-        throw new Error("Método não implementado.");
+        return Promise.resolve();
     }
 
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
@@ -214,7 +233,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
 
         return {
-            erros: this.erros
+            erros: this.erros,
         } as RetornoAnalisadorSemantico;
     }
 }
