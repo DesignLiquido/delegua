@@ -808,6 +808,17 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
                 });
+
+                it.only('Métodos inexistentes', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'nescreva("Qualquer coisa")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
             });
         });
     });

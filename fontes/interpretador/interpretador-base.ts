@@ -416,6 +416,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return this.eIgual(valorEsquerdo, valorDireito);
             }
         } catch (erro: any) {
+            this.erros.push({
+                erroInterno: erro,
+                linha: expressao.linha,
+                hashArquivo: expressao.hashArquivo,
+            });
             return Promise.reject(erro);
         }
     }
@@ -503,6 +508,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                         expressao.entidadeChamada.nome
                     );
                 } catch (erro: any) {
+                    this.erros.push({
+                        erroInterno: erro,
+                        linha: expressao.linha,
+                        hashArquivo: expressao.hashArquivo,
+                    });
                     this.erros.push(erro);
                 }
             }
@@ -526,6 +536,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             );
         } catch (erro: any) {
             console.log(erro);
+            this.erros.push({
+                erroInterno: erro,
+                linha: expressao.linha,
+                hashArquivo: expressao.hashArquivo,
+            });
+            this.erros.push(erro);
         }
     }
 
@@ -603,6 +619,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoExecucao = null;
                 }
             } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
 
@@ -643,6 +664,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 declaracao.posicaoAtual++;
             } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
         }
@@ -689,6 +715,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoExecucao = null;
                 }
             } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
         }
@@ -718,6 +749,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                         try {
                             await this.executarBloco(caminho.declaracoes);
                         } catch (erro: any) {
+                            this.erros.push({
+                                erroInterno: erro,
+                                linha: declaracao.linha,
+                                hashArquivo: declaracao.hashArquivo,
+                            });
                             return Promise.reject(erro);
                         }
                     }
@@ -728,6 +764,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
             throw erro;
         }
     }
@@ -745,6 +786,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoExecucao = null;
                 }
             } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
         } while (
@@ -1310,6 +1356,12 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             return retornoExecucao;
         } catch (erro: any) {
+            const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracaoAtual.linha,
+                hashArquivo: declaracaoAtual.hashArquivo,
+            });
             return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
@@ -1351,7 +1403,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.erros.push(retornoOuErro);
             }
         } catch (erro: any) {
-            this.erros.push(erro);
+            this.erros.push({
+                erroInterno: erro,
+                linha: -1,
+                hashArquivo: -1,
+            });
         } finally {
             if (this.performance) {
                 const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);
