@@ -91,8 +91,19 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoLeia(expressao: Leia) {
-        throw new Error('Método não implementado.');
+    /**
+     * Execução da leitura de valores da entrada configurada no
+     * início da aplicação.
+     * @param expressao Expressão do tipo Leia
+     * @returns Promise com o resultado da leitura.
+     */
+    async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
+        return new Promise((resolucao) =>
+            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                resolucao(resposta);
+            })
+        );
     }
     visitarExpressaoLiteral(expressao: Literal): Promise<any> {
         throw new Error('Método não implementado.');
@@ -204,9 +215,41 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        throw new Error('Método não implementado.');
+
+    protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
+        let valorOuOutraVariavel = null;
+        if (declaracao.inicializador !== null) {
+            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
+        }
+
+        let valorFinal = null;
+        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
+                ? valorOuOutraVariavel.valor
+                : valorOuOutraVariavel;
+        }
+
+        return valorFinal;
     }
+
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+
+        let subtipo;
+        if (declaracao.tipo !== undefined) {
+            subtipo = declaracao.tipo;
+        }
+
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
+
+        return null;
+    }
+
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
