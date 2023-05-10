@@ -5,14 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "BIRL > Testes Lexador",
+            "name": "BIRL > Testes Interpretador",
             "type": "node",
             "request": "launch",
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "interpretador.test.ts",
-                "birl/lexador.test.ts",
+                "birl/interpretador.test.ts",
+                // "birl/lexador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",

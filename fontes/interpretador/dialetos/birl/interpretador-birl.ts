@@ -31,6 +31,7 @@ import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from '../../../quebras';
+import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 export class InterpretadorBirl implements InterpretadorInterface {
     diretorioBase: any;
@@ -46,6 +47,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     resultadoInterpretador: Array<string> = [];
 
+    regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
+
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         this.diretorioBase = diretorioBase;
 
@@ -54,6 +57,18 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         this.erros = [];
         this.declaracoes = [];
+
+        this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: [],
+            declaracaoAtual: 0,
+            ambiente: new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro',
+            emLacoRepeticao: false
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+
     }
 
     async avaliar(expressao: Construto | Declaracao): Promise<any> {
@@ -105,9 +120,60 @@ export class InterpretadorBirl implements InterpretadorInterface {
             })
         );
     }
-    visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        throw new Error('Método não implementado.');
+
+    /**
+     * Busca variáveis interpoladas.
+     * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
+     * @returns Uma lista de variáveis interpoladas.
+     */
+    private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
+        const variaveis = textoOriginal.match(this.regexInterpolacao);
+
+        return variaveis.map((s) => {
+            const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
+            return {
+                variavel: nomeVariavel,
+                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
+            };
+        });
     }
+
+     /**
+     * Retira a interpolação de um texto.
+     * @param {texto} texto O texto
+     * @param {any[]} variaveis A lista de variaveis interpoladas
+     * @returns O texto com o valor das variaveis.
+     */
+     private retirarInterpolacao(texto: string, variaveis: any[]): string {
+        const valoresVariaveis = variaveis.map((v) => ({
+            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
+            variavel: v.variavel,
+        }));
+
+        let textoFinal = texto;
+
+        valoresVariaveis.forEach((elemento) => {
+            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
+                ? elemento.valorResolvido.valor
+                : elemento.valorResolvido;
+
+            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
+        });
+
+        return textoFinal;
+    }
+
+
+    visitarExpressaoLiteral(expressao: Literal): any {
+        if (this.regexInterpolacao.test(expressao.valor)) {
+            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
+
+            return this.retirarInterpolacao(expressao.valor, variaveis);
+        }
+
+        return expressao.valor;
+    }
+
     visitarExpressaoLogica(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -259,8 +325,11 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+        let valor = null;
+        if (declaracao.valor != null) valor = await this.avaliar(declaracao.valor);
+
+        return new RetornoQuebra(valor);
     }
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error('Método não implementado.');

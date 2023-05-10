@@ -1,4 +1,5 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
+import { LexadorBirl } from '../../fontes/lexador/dialetos';
 import {
     Bloco,
     Continua,
@@ -11,7 +12,7 @@ import {
     Sustar,
     Var,
 } from '../../fontes/declaracoes';
-import { LexadorBirl } from '../../fontes/lexador/dialetos';
+
 import { Chamada, FuncaoConstruto } from '../../fontes/construtos';
 import { ErroAvaliadorSintatico } from '../../fontes/avaliador-sintatico/erro-avaliador-sintatico';
 
@@ -532,7 +533,7 @@ describe('Avaliador Sintático Birl', () => {
                         message: 'Esperado expressão `;` após a condição do `PARA`.',
                     })
                 );
-            })
+            });
 
             it('Falha - declaração - for - sem bloco e sem expressão', () => {
                 const retornoLexador = lexador.mapear([
@@ -566,7 +567,7 @@ describe('Avaliador Sintático Birl', () => {
                         message: 'Esperado expressão `;` após a condição do `PARA`.',
                     })
                 );
-            })
+            });
 
             it('Falha - declaração - while - sem expressão', () => {
                 const RetornoLexador = lexador.mapear([
@@ -580,7 +581,7 @@ describe('Avaliador Sintático Birl', () => {
                 ]);
 
                 expect(() => avaliadorSintatico.analisar(RetornoLexador, -1)).toThrow(TypeError);
-            })
+            });
 
             it('Falha - declaração - declaracao - sem nome de funcão', () => {
                 const retornoLexador = lexador.mapear([
@@ -598,7 +599,7 @@ describe('Avaliador Sintático Birl', () => {
                         message: 'Esperado nome da função apos a declaração do tipo.',
                     })
                 );
-            })
+            });
 
             it('Falha - declaração - declaracao - sem declaração', () => {
                 const retornoLexador = lexador.mapear([
@@ -616,7 +617,7 @@ describe('Avaliador Sintático Birl', () => {
                         message: 'Esperado nome da função apos a declaração do tipo.',
                     })
                 );
-            })
+            });
 
             it('Falha - declaração - chamarFuncao - sem identificador', () => {
                 const retornoLexador = lexador.mapear([
@@ -633,7 +634,7 @@ describe('Avaliador Sintático Birl', () => {
                         message: "Esperado ')' após a expressão.",
                     })
                 );
-            })
+            });
 
             it.skip('Falha - declaração - Variavel - numero recebendo string', () => {
                 const retornoLexador = lexador.mapear([
