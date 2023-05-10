@@ -78,6 +78,20 @@ describe('Primitivas de vetor', () => {
         });
     });
 
+    describe('encaixar() - adicionando item na posição 2', () => {
+        it('Trivial', () => {
+            const resultado = primitivasVetor.encaixar([1, 2, 3], 2, 0, 10);
+            expect(resultado).toStrictEqual([1, 2, 10, 3]);
+        });
+    });
+
+    describe('encaixar() - removendo item na posição 2', () => {
+        it('Trivial', () => {
+            const resultado = primitivasVetor.encaixar([1, 2, 3], 2, 1, 10);
+            expect(resultado).toStrictEqual([1, 2, 10]);
+        });
+    });
+
     describe('somar()', () => {
         it('Trivial', () => {
             const resultado = primitivasVetor.somar([1, 2, 3]);

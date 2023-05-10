@@ -10,6 +10,10 @@ export default {
         vetor.push(elemento);
         return vetor;
     },
+    encaixar: (vetor: Array<any>, posicaoInicio: number, excluirQuantidade: number, elemento: any = null) => {
+        vetor.splice(posicaoInicio, excluirQuantidade, elemento);
+        return vetor;
+    },
     fatiar: (vetor: Array<any>, inicio: number, fim: number) => vetor.slice(inicio, fim),
     inclui: (vetor: Array<any>, elemento: any) => vetor.includes(elemento),
     inverter: (vetor: Array<any>) => vetor.reverse(),
