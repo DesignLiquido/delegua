@@ -16,12 +16,12 @@ describe('Avaliador sintático (Portugol Studio)', () => {
             it('Sucesso - Olá Mundo', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'programa', 
-                        '{', 
-                        '    funcao inicio()', 
-                        '    {', 
-                        '        escreva("Olá Mundo")', 
-                        '    }', 
+                        'programa',
+                        '{',
+                        '    funcao inicio()',
+                        '    {',
+                        '        escreva("Olá Mundo")',
+                        '    }',
                         '}'
                     ],
                     -1
@@ -44,7 +44,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                         '        inteiro outra_variavel',
                         '        real altura = 1.79',
                         '        cadeia frase = "Isso é uma variável do tipo cadeia"',
-                        '        caracter inicial = \'P\'',  
+                        '        caracter inicial = \'P\'',
                         '        logico exemplo = verdadeiro',
                         '        escreva(altura)',
                         '    }',
@@ -121,7 +121,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
+
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
@@ -150,13 +150,13 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                     ],
                     -1
                 );
-    
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado, -1);
-    
+
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
-    
+
             it('Estruturas de repetição - Enquanto', () => {
                 const resultado = lexador.mapear([
                     'programa',
@@ -178,9 +178,9 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                     '    }',
                     '}'
                 ], -1);
-    
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado, -1);
-    
+
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
@@ -206,7 +206,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado, -1);
-    
+
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
@@ -223,7 +223,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado, -1);
-    
+
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
@@ -233,12 +233,12 @@ describe('Avaliador sintático (Portugol Studio)', () => {
             it('Falha - Função `inicio()` não definida', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'programa', 
-                        '{', 
-                        '    funcao teste()', 
-                        '    {', 
-                        '        escreva("Olá Mundo")', 
-                        '    }', 
+                        'programa',
+                        '{',
+                        '    funcao teste()',
+                        '    {',
+                        '        escreva("Olá Mundo")',
+                        '    }',
                         '}'
                     ],
                     -1
@@ -249,9 +249,74 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 };
 
                 expect(t).toThrow(ErroAvaliadorSintatico);
+                expect(t).toThrow(
+                    expect.objectContaining({
+                        name: 'Error',
+                        message: expect.stringContaining("Função 'inicio()' para iniciar o programa não foi definida.")
+                    })
+                )
             });
-        });
 
-        
+            it('Falha - Programa vazio', () => {
+                const retornoLexador = lexador.mapear([''], -1);
+
+                const t = () => {
+                    avaliadorSintatico.analisar(retornoLexador, -1);
+                }
+
+                expect(t).toThrow(ErroAvaliadorSintatico);
+                expect(t).toThrow(
+                    expect.objectContaining({
+                        name: 'Error',
+                        message: expect.stringContaining("Esperada expressão 'programa' para inicializar programa.")
+                    })
+                )
+            })
+
+            it('Falha - Programa escreva com string não finalizada', () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '    funcao inicio()',
+                    '    {',
+                    '        escreva("Olá Mundo)',
+                    '    }',
+                    '}'
+                ], -1)
+
+                const t = () => {
+                    avaliadorSintatico.analisar(retornoLexador, -1);
+                }
+
+                expect(t).toThrow(ErroAvaliadorSintatico);
+                // @FixMe - Mensagem de erro não está sendo exibida corretamente.
+                expect(t).toThrow(
+                    expect.objectContaining({
+                        name: 'Error',
+                        message: expect.stringContaining("Esperado ')' após os valores em escreva.")
+                    })
+                )
+            })
+
+            it.skip('Falha - Leia sem variável', () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '    funcao inicio()',
+                    '    {',
+                    '        leia()',
+                    '    }',
+                    '}'
+                ], -1);
+
+                const t = () => {
+                    avaliadorSintatico.analisar(retornoLexador, -1);
+                }
+
+                expect(t).toThrow(ErroAvaliadorSintatico);
+            })
+
+            
+        });
     });
 });
