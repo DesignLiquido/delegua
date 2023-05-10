@@ -66,7 +66,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
  * e de fato executa a lógica de programação descrita no código.
- * 
+ *
  * O Interpretador Base não contém dependências com o Node.js. É
  * recomendado para uso em execuções que ocorrem no navegador de internet.
  */
@@ -124,7 +124,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         /* if (expressao === null || expressao === undefined) {
             console.log('Aqui');
         } */
-        
+
         return await expressao.aceitar(this);
     }
 
@@ -236,10 +236,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                     if (expressao.operando instanceof Variavel) {
                         this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
                     }
-                    
+
                     return valor;
-                } 
-                
+                }
+
                 const valorAnteriorIncremento = valor;
                 this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
                 return valorAnteriorIncremento;
@@ -251,8 +251,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                     }
 
                     return valor;
-                } 
-                
+                }
+
                 const valorAnteriorDecremento = valor;
                 this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
                 return valorAnteriorDecremento;
@@ -369,19 +369,19 @@ export class InterpretadorBase implements InterpretadorInterface {
                 case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
                     if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
                         // Sem ambos os valores resolvem como texto, multiplica normal.
-                        // Se apenas um resolve como texto, o outro repete o 
+                        // Se apenas um resolve como texto, o outro repete o
                         // texto n vezes, sendo n o valor do outro.
                         if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
-                            return Number(valorEsquerdo) * Number(valorDireito);    
-                        } 
-                        
+                            return Number(valorEsquerdo) * Number(valorDireito);
+                        }
+
                         if (tipoEsquerdo === 'texto') {
                             return valorEsquerdo.repeat(Number(valorDireito));
                         }
 
                         return valorDireito.repeat(Number(valorEsquerdo));
                     }
-                    
+
                     return Number(valorEsquerdo) * Number(valorDireito);
 
                 case tiposDeSimbolos.MODULO:
@@ -638,7 +638,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         let retornoExecucao: any;
         const vetorResolvido = await this.avaliar(declaracao.vetor);
-        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ? 
+        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ?
             vetorResolvido.valor :
             vetorResolvido;
 
@@ -649,7 +649,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < valorVetorResolvido.length) {
             try {
                 this.pilhaEscoposExecucao.definirVariavel(
-                    declaracao.nomeVariavelIteracao, 
+                    declaracao.nomeVariavelIteracao,
                     valorVetorResolvido[declaracao.posicaoAtual]
                 );
 
@@ -729,7 +729,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ? 
+        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ?
             condicaoEscolha.valor :
             condicaoEscolha;
 
@@ -781,7 +781,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (retornoExecucao instanceof SustarQuebra) {
                     return null;
                 }
-                
+
                 if (retornoExecucao instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
@@ -952,7 +952,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
-        
+
         let subtipo;
         if (declaracao.tipo !== undefined) {
             subtipo = declaracao.tipo;
@@ -970,7 +970,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
-        
+
         let subtipo;
         if (declaracao.tipo !== undefined) {
             subtipo = declaracao.tipo;
@@ -1042,7 +1042,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     expressao.linha
                 )
             );
-        }        
+        }
     }
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
@@ -1056,7 +1056,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
-        
+
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
