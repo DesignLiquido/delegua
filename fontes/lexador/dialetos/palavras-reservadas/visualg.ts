@@ -44,6 +44,7 @@ export default {
     ou: tiposDeSimbolos.OU,
     outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
+    passo: tiposDeSimbolos.PASSO,
     pi: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     procedimento: tiposDeSimbolos.PROCEDIMENTO,
     quad: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
