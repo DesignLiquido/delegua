@@ -1,4 +1,4 @@
-import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super } from '../../../construtos';
+import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel } from '../../../construtos';
 import {
     Declaracao,
     Expressao,
@@ -25,7 +25,7 @@ import {
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { ObjetoPadrao } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface } from '../../../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
@@ -65,10 +65,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
     }
 
     async avaliar(expressao: Construto | Declaracao): Promise<any> {
@@ -100,8 +99,13 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoDeVariavel(expressao: any) {
-        throw new Error('Método não implementado.');
+
+    protected procurarVariavel(simbolo: SimboloInterface): any {
+        return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
+    }
+
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
+        return this.procurarVariavel(expressao.simbolo);
     }
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
@@ -138,13 +142,13 @@ export class InterpretadorBirl implements InterpretadorInterface {
         });
     }
 
-     /**
+    /**
      * Retira a interpolação de um texto.
      * @param {texto} texto O texto
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-     private retirarInterpolacao(texto: string, variaveis: any[]): string {
+    private retirarInterpolacao(texto: string, variaveis: any[]): string {
         const valoresVariaveis = variaveis.map((v) => ({
             valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
             variavel: v.variavel,
@@ -163,14 +167,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return textoFinal;
     }
 
-
     visitarExpressaoLiteral(expressao: Literal): any {
-        if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
-
-            return this.retirarInterpolacao(expressao.valor, variaveis);
-        }
-
         return expressao.valor;
     }
 
@@ -393,14 +390,22 @@ export class InterpretadorBirl implements InterpretadorInterface {
      *                         pelo modo LAIR.
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-        const resultado: any = await declaracao.aceitar(this);
-        if (mostrarResultado) {
-            this.funcaoDeRetorno(this.paraTexto(resultado));
+        let resultado: any = null;
+        if (declaracao instanceof Array) {
+            for (const decl of declaracao) {
+                resultado = await this.executar(decl, mostrarResultado);
+            }
+            return resultado;
+        } else {
+            resultado = await declaracao.aceitar(this);
+            if (mostrarResultado) {
+                this.funcaoDeRetorno(this.paraTexto(resultado));
+            }
+            if (resultado || typeof resultado === 'boolean') {
+                this.resultadoInterpretador.push(this.paraTexto(resultado));
+            }
+            return resultado;
         }
-        if (resultado || typeof resultado === 'boolean') {
-            this.resultadoInterpretador.push(this.paraTexto(resultado));
-        }
-        return resultado;
     }
 
     /**
