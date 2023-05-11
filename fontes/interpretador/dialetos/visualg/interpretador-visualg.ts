@@ -1,7 +1,7 @@
 import { Binario, Construto, Logico, Variavel } from '../../../construtos';
-import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
+import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
-import { ContinuarQuebra, Quebra } from '../../../quebras';
+import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
 import { registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/dialetos/visualg';
 
@@ -125,6 +125,44 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
             const valorLido = await promessaLeitura();
             this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);
         }
+    }
+
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        if (declaracao.inicializador !== null) {
+            await comum.resolverIncrementoPara(this, declaracao);
+            await this.avaliar(declaracao.inicializador);
+        }
+
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra)) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                break;
+            }
+
+            try {
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+
+            if (declaracao.incrementar !== null) {
+                await this.avaliar(declaracao.incrementar);
+            }
+        }
+
+        return retornoExecucao;
     }
 
     async visitarExpressaoBinaria(expressao: Binario | any): Promise<any> {
