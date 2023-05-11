@@ -3,7 +3,7 @@ import {
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
 import { AcessoIndiceVariavel, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const } from '../../../declaracoes';
+import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Classe, Para, Bloco } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
@@ -183,6 +183,55 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
             const valorLido = await promessaLeitura();
             await this.atribuirVariavel(argumento, valorLido);
+        }
+    }
+
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        const corpoExecucao = declaracao.corpo as Bloco;
+        if (declaracao.inicializador !== null && !declaracao.inicializada) {
+            await this.avaliar(declaracao.inicializador);
+            // O incremento vai ao final do bloco de escopo.
+            if (declaracao.incrementar !== null) {
+                await comum.resolverIncrementoPara(this, declaracao);
+                corpoExecucao.declaracoes.push(declaracao.incrementar);
+            }
+        }
+
+        declaracao.inicializada = true;
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        switch (this.comando) {
+            case "proximo":
+                if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    escopoAtual.emLacoRepeticao = true;
+                    
+                    const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
+                    return resultadoBloco;
+                }
+
+                escopoAtual.emLacoRepeticao = false;
+                return null;
+            default: 
+                let retornoExecucao: any;
+                while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
+                    if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                        break;
+                    }
+
+                    try {                        
+                        retornoExecucao = await this.executar(corpoExecucao);
+                        if (retornoExecucao instanceof SustarQuebra) {
+                            return null;
+                        }
+                        
+                        if (retornoExecucao instanceof ContinuarQuebra) {
+                            retornoExecucao = null;
+                        }
+                    } catch (erro: any) {
+                        return Promise.reject(erro);
+                    }
+                }
+                // escopoAtual.emLacoRepeticao = false;
+                return retornoExecucao;
         }
     }
 

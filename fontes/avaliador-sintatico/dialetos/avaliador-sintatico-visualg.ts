@@ -30,6 +30,7 @@ import {
     FuncaoConstruto,
     Literal,
     Logico,
+    Unario,
     Variavel,
 } from '../../construtos';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
@@ -715,6 +716,44 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const literalOuVariavelFim = this.adicaoOuSubtracao();
 
+        let operadorCondicao = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
+        let operadorCondicaoIncremento = new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo);
+
+        // Isso existe porque o laço `para` do VisuAlg pode ter o passo positivo ou negativo
+        // dependendo dos operandos de início e fim, que só são possíveis de determinar
+        // em tempo de execução. 
+        // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
+        // passo são considerados indefinidos aqui.
+        let passo: Construto;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
+            passo = this.unario();
+        } else {
+            if (literalOuVariavelInicio instanceof Literal && literalOuVariavelFim instanceof Literal) {
+                if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
+                    passo = new Unario(
+                        this.hashArquivo, 
+                        new Simbolo(
+                            tiposDeSimbolos.SUBTRACAO, 
+                            '-', 
+                            undefined, 
+                            simboloPara.linha, 
+                            simboloPara.hashArquivo
+                        ), 
+                        new Literal(this.hashArquivo, Number(simboloPara.linha), 1),
+                        "ANTES");
+                    operadorCondicao = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
+                    operadorCondicaoIncremento = new Simbolo(tiposDeSimbolos.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
+                } else {
+                    passo = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
+                }
+            } else {
+                // Passo e operador de condição precisam ser resolvidos em tempo de execução.
+                passo = undefined;
+                operadorCondicao = undefined;
+                operadorCondicaoIncremento = undefined;
+            }
+        }
+
         this.consumir(
             tiposDeSimbolos.FACA,
             "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para'."
@@ -752,7 +791,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
-                new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo),
+                operadorCondicao,
                 literalOuVariavelFim
             ),
             new FimPara(
@@ -761,7 +800,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 new Binario(
                     this.hashArquivo,
                     new Variavel(this.hashArquivo, variavelIteracao),
-                    new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo),
+                    operadorCondicaoIncremento,
                     literalOuVariavelFim
                 ),
                 new Expressao(
@@ -772,7 +811,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                             this.hashArquivo,
                             new Variavel(this.hashArquivo, variavelIteracao),
                             new Simbolo(tiposDeSimbolos.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo),
-                            new Literal(this.hashArquivo, Number(simboloPara.linha), 1)
+                            passo
                         )
                     )
                 )

@@ -1,4 +1,6 @@
-import { Binario, Construto, Logico } from "../../../construtos";
+import { Binario, Construto, FimPara, Literal, Logico, Unario } from "../../../construtos";
+import { Expressao, Para } from "../../../declaracoes";
+import { Simbolo } from "../../../lexador";
 import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { inferirTipoVariavel } from '../../inferenciador';
 
@@ -162,4 +164,46 @@ export async function visitarExpressaoLogica(interpretador: VisitanteComumInterf
     }
 
     return await avaliar(interpretador, expressao.direita);
+}
+
+/* Isso existe porque o laço `para` do VisuAlg pode ter o passo positivo ou negativo
+ * dependendo dos operandos de início e fim, que só são possíveis de determinar
+ * em tempo de execução. 
+ * Quando um dos operandos é uma variável, tanto a condição do laço quanto o
+ * passo são considerados indefinidos aqui.
+ */
+export async function resolverIncrementoPara(interpretador: VisitanteComumInterface, declaracao: Para): Promise<any> {
+    if (declaracao.condicao.operador === undefined) {
+        const operandoEsquerdo = await avaliar(interpretador, declaracao.condicao.esquerda);
+        const operandoDireito = await avaliar(interpretador, declaracao.condicao.direita);
+        const valorAtualEsquerdo = operandoEsquerdo.hasOwnProperty('valor') ?
+            operandoEsquerdo.valor :
+            operandoEsquerdo;
+        const valorAtualDireito = operandoDireito.hasOwnProperty('valor') ?
+            operandoDireito.valor :
+            operandoDireito;
+
+
+        if (valorAtualEsquerdo < valorAtualDireito) {
+            declaracao.condicao.operador = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(declaracao.linha), declaracao.hashArquivo);
+            (declaracao.incrementar as FimPara).condicaoPara.operador = new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(declaracao.linha), declaracao.hashArquivo);
+            ((declaracao.incrementar as FimPara).incremento as Expressao).expressao.valor.direita = 
+                new Literal(declaracao.hashArquivo, Number(declaracao.linha), 1);
+        } else {
+            declaracao.condicao.operador = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '', '', Number(declaracao.linha), declaracao.hashArquivo);
+            (declaracao.incrementar as FimPara).condicaoPara.operador = new Simbolo(tiposDeSimbolos.MAIOR, '', '', Number(declaracao.linha), declaracao.hashArquivo);
+            ((declaracao.incrementar as FimPara).incremento as Expressao).expressao.valor.direita = 
+            new Unario(
+                declaracao.hashArquivo, 
+                new Simbolo(
+                    tiposDeSimbolos.SUBTRACAO, 
+                    '-', 
+                    undefined, 
+                    declaracao.linha, 
+                    declaracao.hashArquivo
+                ), 
+                new Literal(declaracao.hashArquivo, Number(declaracao.linha), 1),
+                "ANTES");
+        }
+    }
 }
