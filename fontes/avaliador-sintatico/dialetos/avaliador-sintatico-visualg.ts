@@ -20,7 +20,7 @@ import {
 import {
     AcessoIndiceVariavel,
     Agrupamento,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -99,7 +99,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return dimensoes;
     }
 
-    private logicaComumParametroVisuAlg(): 
+    private logicaComumParametroVisuAlg():
         { identificadores: SimboloInterface[], tipo: string, simbolo: SimboloInterface }
     {
         const identificadores = [];
@@ -330,7 +330,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
     /**
      * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     atribuir(): Construto {
         const expressao = this.ou();
@@ -343,7 +343,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
                     expressao.entidadeChamada,
@@ -367,9 +367,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const declaracoes = [];
 
         while (![
-                tiposDeSimbolos.FIM_FUNCAO, 
+                tiposDeSimbolos.FIM_FUNCAO,
                 tiposDeSimbolos.FIM_PROCEDIMENTO
-            ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal()) 
+            ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal())
         {
             declaracoes.push(this.declaracao());
         }
@@ -427,9 +427,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             .concat(this.blocoEscopo());
 
         return new FuncaoConstruto(
-            this.hashArquivo, 
-            Number(simboloAnterior.linha), 
-            parametros, 
+            this.hashArquivo,
+            Number(simboloAnterior.linha),
+            parametros,
             corpo.filter(d => d)
         );
     }
@@ -462,10 +462,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimenquanto'.");
 
         return new Enquanto(
-            condicao, 
+            condicao,
             new Bloco(
-                simboloAtual.hashArquivo, 
-                Number(simboloAtual.linha), 
+                simboloAtual.hashArquivo,
+                Number(simboloAtual.linha),
                 declaracoes.filter(d => d)
             )
         );
@@ -539,7 +539,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         if (simboloAtualBlocoCaso.tipo !== tiposDeSimbolos.FIM_ESCOLHA) {
-            throw this.erro(this.simbolos[this.atual], 
+            throw this.erro(this.simbolos[this.atual],
                 "Esperado palavra-chave 'fimescolha' para fechamento de declaração 'escolha'.");
         }
 
@@ -559,8 +559,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
             this.avancarEDevolverAnterior();
             return [new FormatacaoEscrita(
-                this.hashArquivo, 
-                Number(simboloParenteses.linha), 
+                this.hashArquivo,
+                Number(simboloParenteses.linha),
                 new Literal(this.hashArquivo, Number(simboloParenteses.linha), ''))
             ]
         }
@@ -721,7 +721,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         // Isso existe porque o laço `para` do VisuAlg pode ter o passo positivo ou negativo
         // dependendo dos operandos de início e fim, que só são possíveis de determinar
-        // em tempo de execução. 
+        // em tempo de execução.
         // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
         // passo são considerados indefinidos aqui.
         let passo: Construto;
@@ -731,14 +731,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             if (literalOuVariavelInicio instanceof Literal && literalOuVariavelFim instanceof Literal) {
                 if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
                     passo = new Unario(
-                        this.hashArquivo, 
+                        this.hashArquivo,
                         new Simbolo(
-                            tiposDeSimbolos.SUBTRACAO, 
-                            '-', 
-                            undefined, 
-                            simboloPara.linha, 
+                            tiposDeSimbolos.SUBTRACAO,
+                            '-',
+                            undefined,
+                            simboloPara.linha,
                             simboloPara.hashArquivo
-                        ), 
+                        ),
                         new Literal(this.hashArquivo, Number(simboloPara.linha), 1),
                         "ANTES");
                     operadorCondicao = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
@@ -795,8 +795,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 literalOuVariavelFim
             ),
             new FimPara(
-                this.hashArquivo, 
-                Number(simboloPara.linha), 
+                this.hashArquivo,
+                Number(simboloPara.linha),
                 new Binario(
                     this.hashArquivo,
                     new Variavel(this.hashArquivo, variavelIteracao),
@@ -837,7 +837,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
             // Consumir parêntese direito
             this.consumir(
-                tiposDeSimbolos.PARENTESE_DIREITO, 
+                tiposDeSimbolos.PARENTESE_DIREITO,
                 "Esperado parêntese direito para finalização da leitura de parâmetros."
             )
         }
@@ -851,7 +851,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoProcedimento() {
         const simboloProcedimento: SimboloInterface = this.avancarEDevolverAnterior();
 
-        const nomeProcedimento = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+        const nomeProcedimento = this.consumir(tiposDeSimbolos.IDENTIFICADOR,
             "Esperado nome do procedimento após palavra-chave `procedimento`.");
 
         // Parâmetros
@@ -864,11 +864,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             .concat(this.blocoEscopo());
 
         return new FuncaoDeclaracao(
-            nomeProcedimento, 
+            nomeProcedimento,
             new FuncaoConstruto(
-                this.hashArquivo, 
-                Number(simboloProcedimento.linha), 
-                parametros, 
+                this.hashArquivo,
+                Number(simboloProcedimento.linha),
+                parametros,
                 corpo.filter(d => d)
             )
         );
@@ -994,8 +994,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * - O primeiro símbolo é `algoritmo`, seguido por um identificador e
      * uma quebra de linha.
      * - Os próximos símbolo pode `var`, que pode ser seguido por uma série de
-     * declarações de variáveis e finalizado por uma quebra de linha, 
-     * ou ainda `funcao` ou `procedimento`, seguidos dos devidos símbolos que definem 
+     * declarações de variáveis e finalizado por uma quebra de linha,
+     * ou ainda `funcao` ou `procedimento`, seguidos dos devidos símbolos que definem
      * os blocos.
      * - O penúltimo símbolo é `inicio`, seguido por uma quebra de linha.
      * Pode haver ou não declarações dentro do bloco.
@@ -1018,7 +1018,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         let declaracoes = [];
-        this.validarSegmentoAlgoritmo();        
+        this.validarSegmentoAlgoritmo();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
             const declaracao = this.declaracao();

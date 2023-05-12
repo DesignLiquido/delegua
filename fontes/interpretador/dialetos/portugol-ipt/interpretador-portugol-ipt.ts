@@ -15,13 +15,13 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 import { inferirTipoVariavel } from "../../inferenciador";
 
 export class InterpretadorPortugolIpt
-    implements InterpretadorInterface 
+    implements InterpretadorInterface
 {
     diretorioBase: any;
 
     funcaoDeRetorno: Function = null;
     funcaoDeRetornoMesmaLinha: Function = null;
-    
+
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any;
 
@@ -70,7 +70,7 @@ export class InterpretadorPortugolIpt
         if (expressao === null || expressao === undefined) {
             console.log('Aqui');
         }
-        
+
         return await expressao.aceitar(this);
     }
 
@@ -164,19 +164,19 @@ export class InterpretadorPortugolIpt
                 case tiposDeSimbolos.MULTIPLICACAO:
                     if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
                         // Sem ambos os valores resolvem como texto, multiplica normal.
-                        // Se apenas um resolve como texto, o outro repete o 
+                        // Se apenas um resolve como texto, o outro repete o
                         // texto n vezes, sendo n o valor do outro.
                         if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
-                            return Number(valorEsquerdo) * Number(valorDireito);    
-                        } 
-                        
+                            return Number(valorEsquerdo) * Number(valorDireito);
+                        }
+
                         if (tipoEsquerdo === 'texto') {
                             return valorEsquerdo.repeat(Number(valorDireito));
                         }
 
                         return valorDireito.repeat(Number(valorEsquerdo));
                     }
-                    
+
                     return Number(valorEsquerdo) * Number(valorDireito);
 
                 case tiposDeSimbolos.MODULO:
@@ -207,7 +207,7 @@ export class InterpretadorPortugolIpt
     visitarExpressaoDeVariavel(expressao: Variavel): any {
         return this.procurarVariavel(expressao.simbolo);
     }
-    
+
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error("Método não implementado");
     }
@@ -350,7 +350,7 @@ export class InterpretadorPortugolIpt
             });
         }
     }
-    
+
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
         throw new Error("Método não implementado");
     }
@@ -381,7 +381,7 @@ export class InterpretadorPortugolIpt
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
-        
+
         let subtipo;
         if (declaracao.tipo !== undefined) {
             subtipo = declaracao.tipo;
@@ -407,7 +407,7 @@ export class InterpretadorPortugolIpt
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error("Método não implementado");
     }
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error("Método não implementado");
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
@@ -437,7 +437,7 @@ export class InterpretadorPortugolIpt
     visitarExpressaoSuper(expressao: Super) {
         throw new Error("Método não implementado");
     }
-    
+
     paraTexto(objeto: any) {
         if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') {

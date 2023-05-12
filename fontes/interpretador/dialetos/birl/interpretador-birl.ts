@@ -33,7 +33,7 @@ import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from '../../../quebras';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
-import tiposDeSimbolos from '../../../tipos-de-simbolos/delegua';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 
 export class InterpretadorBirl implements InterpretadorInterface {
     diretorioBase: any;
@@ -83,7 +83,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         return await expressao.aceitar(this);
     }
-     /**
+    /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
      * executa as declarações empilhadas.
      * Se o retorno do último bloco foi uma exceção (normalmente um erro em tempo de execução),
@@ -92,14 +92,14 @@ export class InterpretadorBirl implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-     async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -333,14 +333,57 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
-        return expressao.valor;
+        if (expressao.valor === tiposDeSimbolos.ADICAO) {
+            return 1
+        } else if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
+            return -1
+        } else {
+            return expressao.valor;
+        }
     }
 
     visitarExpressaoLogica(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        if (declaracao.inicializador !== null) {
+            if (declaracao.inicializador instanceof Array) {
+                await this.avaliar(declaracao.inicializador[0]);
+            } else {
+                await this.avaliar(declaracao.inicializador);
+            }
+        }
+
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra)) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                break;
+            }
+
+            try {
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+
+            if (declaracao.incrementar !== null) {
+                await this.avaliar(declaracao.incrementar);
+            }
+        }
+
+        return retornoExecucao;
     }
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
@@ -496,7 +539,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {

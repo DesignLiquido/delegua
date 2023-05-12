@@ -4,7 +4,7 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     Agrupamento,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -451,7 +451,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             } else if (expressao instanceof AcessoMetodo) {
                 return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     0,
                     expressao.entidadeChamada,

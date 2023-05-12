@@ -57,7 +57,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
     visitarExpressaoDeleguaFuncao(expressao: any): any;
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any>;
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any>;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoDefinirValor(expressao: any): any;
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): any;

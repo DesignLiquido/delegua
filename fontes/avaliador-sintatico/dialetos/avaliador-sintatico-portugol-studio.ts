@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Chamada,
     Construto,
@@ -133,7 +133,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
                     expressao.entidadeChamada,

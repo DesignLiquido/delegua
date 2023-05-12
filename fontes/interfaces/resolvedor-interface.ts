@@ -34,7 +34,7 @@ export interface ResolvedorInterface {
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoContinua(declaracao?: any): any;
     visitarExpressaoSustar(declaracao?: any): any;
-    visitarExpressaoAtribuicaoSobrescrita(expressao?: any): any;
+    visitarExpressaoAtribuicaoPorIndice(expressao?: any): any;
     visitarExpressaoLiteral(expressao?: any): any;
     visitarExpressaoLogica(expressao?: any): any;
     visitarExpressaoUnaria(expressao?: any): any;

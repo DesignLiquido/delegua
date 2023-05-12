@@ -1,4 +1,4 @@
-import { AcessoIndiceVariavel, AcessoMetodo, AtribuicaoSobrescrita, Atribuir, Binario, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from "../../construtos";
+import { AcessoIndiceVariavel, AcessoMetodo, AtribuicaoPorIndice, Atribuir, Binario, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from "../../construtos";
 import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
@@ -68,7 +68,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
                 // return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     0,
                     expressao.entidadeChamada,

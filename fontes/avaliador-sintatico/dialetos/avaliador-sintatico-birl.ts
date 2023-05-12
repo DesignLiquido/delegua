@@ -2,7 +2,7 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     Agrupamento,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Chamada,
     DefinirValor,
@@ -137,7 +137,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     0,
                     expressao.entidadeChamada,
@@ -249,6 +249,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             Number(primeiroSimbolo.linha) + 1,
             incrementoValor as string
         );
+
         const corpo = new Bloco(
             this.hashArquivo,
             Number(primeiroSimbolo.linha) + 1,
