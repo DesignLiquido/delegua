@@ -92,6 +92,13 @@ describe('Primitivas de vetor', () => {
         });
     });
 
+    describe('encaixar() - não passando novo elemento', () => {
+        it('Trivial', () => {
+            const resultado = primitivasVetor.encaixar([1, 2, 3, 4], 3, 4, null, true);
+            expect(resultado).toStrictEqual([4]);
+        });
+    });
+
     describe('somar()', () => {
         it('Trivial', () => {
             const resultado = primitivasVetor.somar([1, 2, 3]);
