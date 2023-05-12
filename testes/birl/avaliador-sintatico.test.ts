@@ -70,7 +70,6 @@ describe('Avaliador Sintático Birl', () => {
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
                 ]);
-                //  FRANGO esta vindo como um indentificador
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -94,6 +93,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
+
             it('Sucesso - Variavel - short int', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
@@ -143,7 +143,7 @@ describe('Avaliador Sintático Birl', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     `  BICEPS FRANGO TD = 'test'; \n`,
-                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  CE QUER VER ESSA PORRA? (TD); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
                 ]);
@@ -152,6 +152,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
+
             it('Sucesso - declaração - if', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
@@ -167,6 +168,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
             });
+
             it('Sucesso - declaração - if else', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
