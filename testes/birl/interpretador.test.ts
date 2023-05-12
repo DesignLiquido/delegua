@@ -51,6 +51,22 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             })
+
+            it('Sucesso - Variavel - String', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    "   FRANGO FR = 'testes';\n",
+                    '   CE QUER VER ESSA PORRA? (FR); \n',
+                    '   BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+                //  FRANGO esta vindo como um indentificador
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });

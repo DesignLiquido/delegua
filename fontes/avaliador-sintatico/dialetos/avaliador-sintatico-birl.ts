@@ -308,9 +308,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado identificador após palavra reservada 'FRANGO'."
             );
-            inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto')
-            );
 
             // Inicialização de variáveis que podem ter valor definido;
             let valorInicializacao: string | Array<string>;
@@ -322,15 +319,19 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 );
                 this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para terminar o texto.");
                 valorInicializacao = String(literalInicializacao.literal);
+                inicializacoes.push(
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao),
+                        'texto'
+                    )
+                );
+            } else {
+                inicializacoes.push(
+                    new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto')
+                );
             }
 
-            inicializacoes.push(
-                new Var(
-                    identificador,
-                    new Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao),
-                    'texto'
-                )
-            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
