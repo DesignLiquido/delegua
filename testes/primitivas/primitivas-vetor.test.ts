@@ -94,8 +94,17 @@ describe('Primitivas de vetor', () => {
 
     describe('encaixar() - não passando novo elemento', () => {
         it('Trivial', () => {
-            const resultado = primitivasVetor.encaixar([1, 2, 3, 4], 3, 4, null, true);
-            expect(resultado).toStrictEqual([4]);
+            const resultado1 = primitivasVetor.encaixar([1, 2, 3, 4], 3, 4, null, true);
+            const resultado2 = primitivasVetor.encaixar([1, 2, 3, 4], 0, 3);
+            expect(resultado1).toStrictEqual([4]);
+            expect(resultado2).toStrictEqual([4]);
+        });
+    });
+
+    describe('encaixar() - não passando novo elemento', () => {
+        it('Trivial', () => {
+            const resultado1 = primitivasVetor.encaixar(["maçã", "banana", "morango", "laranja", "uva"], 0, 3, null, true);
+            expect(resultado1).toStrictEqual(["maçã", "banana", "morango"]);
         });
     });
 
