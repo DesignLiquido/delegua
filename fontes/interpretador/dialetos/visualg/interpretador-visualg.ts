@@ -1,4 +1,4 @@
-import { Binario, Construto, Logico, Variavel } from '../../../construtos';
+import { Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
 import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
@@ -107,6 +107,22 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         }
     }
 
+    async visitarExpressaoFimPara(declaracao: FimPara): Promise<any> {
+        if (!this.eVerdadeiro(await this.avaliar(declaracao.condicaoPara))) {
+            const escopoPara = this.pilhaEscoposExecucao.pilha[this.pilhaEscoposExecucao.pilha.length - 2];
+            escopoPara.declaracaoAtual++;
+            
+            escopoPara.emLacoRepeticao = false;
+            return new SustarQuebra();
+        }
+
+        if (declaracao.incremento === null || declaracao.incremento === undefined) {
+            return;
+        }
+
+        await this.executar(declaracao.incremento);
+    }
+
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
@@ -123,7 +139,7 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
             );
 
             const valorLido = await promessaLeitura();
-            this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);
+            await comum.atribuirVariavel(this, argumento, valorLido);
         }
     }
 
@@ -134,7 +150,8 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         }
 
         let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra)) {
+        let retornoIncremento: any;
+        while (!(retornoExecucao instanceof Quebra) && !(retornoIncremento instanceof Quebra)) {
             if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                 break;
             }
@@ -158,7 +175,7 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
             }
 
             if (declaracao.incrementar !== null) {
-                await this.avaliar(declaracao.incrementar);
+                retornoIncremento = await this.avaliar(declaracao.incrementar);
             }
         }
 

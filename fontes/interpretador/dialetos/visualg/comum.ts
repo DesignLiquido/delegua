@@ -1,13 +1,60 @@
-import { Binario, Construto, FimPara, Literal, Logico, Unario } from "../../../construtos";
+import { AcessoIndiceVariavel, Binario, Construto, FimPara, Literal, Logico, Unario, Variavel } from "../../../construtos";
 import { Expressao, Para } from "../../../declaracoes";
 import { Simbolo } from "../../../lexador";
-import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
+import { SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ErroEmTempoDeExecucao } from "../../../excecoes";
+import { InterpretadorBase } from "../../interpretador-base";
 
-async function avaliar(interpretador: VisitanteComumInterface, expressao: Construto): Promise<any> {
+export async function atribuirVariavel(interpretador: InterpretadorBase, expressao: Construto, valor: any): Promise<any> {
+    if (expressao instanceof Variavel) {
+        interpretador.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+        return;
+    }
+
+    if (expressao instanceof AcessoIndiceVariavel) {
+        const promises = await Promise.all([
+            interpretador.avaliar(expressao.entidadeChamada),
+            interpretador.avaliar(expressao.indice)
+        ]);
+
+        let alvo = promises[0];
+        let indice = promises[1];
+        const subtipo = alvo.hasOwnProperty('subtipo') ? 
+            alvo.subtipo :
+            undefined;
+
+        if (alvo.hasOwnProperty('valor')) {
+            alvo = alvo.valor;
+        }
+
+        if (indice.hasOwnProperty('valor')) {
+            indice = indice.valor;
+        }
+
+        let valorResolvido;
+        switch (subtipo) {
+            case 'texto':
+                valorResolvido = String(valor);
+                break;
+            case 'número':
+                valorResolvido = Number(valor);
+                break;
+            case 'lógico':
+                valorResolvido = Boolean(valor);
+                break;
+            default:
+                valorResolvido = valor;
+                break;
+        }
+
+        alvo[indice] = valorResolvido;
+    }
+}
+
+async function avaliar(interpretador: InterpretadorBase, expressao: Construto): Promise<any> {
     return await expressao.aceitar(interpretador);
 }
 
@@ -48,10 +95,15 @@ function verificarOperandosNumeros(
  * @param expressao A expressão binária.
  * @returns O resultado da resolução da expressão.
  */
-export async function visitarExpressaoBinaria(interpretador: VisitanteComumInterface, expressao: Binario | any): Promise<any> {
+export async function visitarExpressaoBinaria(interpretador: InterpretadorBase, expressao: Binario | any): Promise<any> {
     try {
-        const esquerda: VariavelInterface | any = await avaliar(interpretador, expressao.esquerda);
-        const direita: VariavelInterface | any = await avaliar(interpretador, expressao.direita);
+        const promises = await Promise.all([
+            avaliar(interpretador, expressao.esquerda),
+            avaliar(interpretador, expressao.direita)
+        ])
+
+        const esquerda: VariavelInterface | any = promises[0];
+        const direita: VariavelInterface | any = promises[1];
 
         let valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
         let valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
@@ -144,7 +196,7 @@ export async function visitarExpressaoBinaria(interpretador: VisitanteComumInter
     }
 }
 
-export async function visitarExpressaoLogica(interpretador: VisitanteComumInterface, expressao: Logico): Promise<any> {
+export async function visitarExpressaoLogica(interpretador: InterpretadorBase, expressao: Logico): Promise<any> {
     const esquerda = await avaliar(interpretador, expressao.esquerda);
 
     // se um estado for verdadeiro, retorna verdadeiro
@@ -172,10 +224,14 @@ export async function visitarExpressaoLogica(interpretador: VisitanteComumInterf
  * Quando um dos operandos é uma variável, tanto a condição do laço quanto o
  * passo são considerados indefinidos aqui.
  */
-export async function resolverIncrementoPara(interpretador: VisitanteComumInterface, declaracao: Para): Promise<any> {
-    if (declaracao.condicao.operador === undefined) {
-        const operandoEsquerdo = await avaliar(interpretador, declaracao.condicao.esquerda);
-        const operandoDireito = await avaliar(interpretador, declaracao.condicao.direita);
+export async function resolverIncrementoPara(interpretador: InterpretadorBase, declaracao: Para): Promise<any> {
+    if (declaracao.resolverIncrementoEmExecucao) {
+        const promises = await Promise.all([
+            avaliar(interpretador, declaracao.condicao.esquerda),
+            avaliar(interpretador, declaracao.condicao.direita)
+        ]);
+        const operandoEsquerdo = promises[0];
+        const operandoDireito = promises[1];
         const valorAtualEsquerdo = operandoEsquerdo.hasOwnProperty('valor') ?
             operandoEsquerdo.valor :
             operandoEsquerdo;
