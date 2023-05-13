@@ -1234,7 +1234,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto.componentes[expressao.simbolo.lexema] || null;
         }
 
-        switch (variavelObjeto.tipo) {
+        let tipoObjeto = variavelObjeto.tipo;
+        if (tipoObjeto === null || tipoObjeto === undefined) {
+            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+        }
+
+        switch (tipoObjeto) {
             case 'texto':
                 const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
                 if (metodoDePrimitivaTexto) {
@@ -1252,7 +1257,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 expressao.nome,
-                'Você só pode acessar métodos do objeto e dicionários.',
+                `Método para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
                 expressao.linha
             )
         );
