@@ -22,6 +22,14 @@ describe('Primitivas de texto', () => {
         });
     });
 
+    describe('concatenar()', () => {
+        it('Trivial', () => {
+            const mensagem = "Olá";
+            const resultado = primitivasTexto.concatenar(mensagem, ", mundo", "!!!");
+            expect(resultado).toStrictEqual('Olá, mundo!!!');
+        });
+    });
+
     describe('dividir()', () => {
         it('Trivial', () => {
             const resultado = primitivasTexto.dividir('123|456|789|0', '|', 4);
