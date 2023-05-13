@@ -1,4 +1,7 @@
 export default {
+    aparar: (texto: string) => texto.trim(),
+    apararFim: (texto: string) => texto.trimEnd(),
+    apararInicio: (texto: string) => texto.trimStart(),
     dividir: (texto: string, divisor: any, limite: number) => [...texto.split(divisor, limite)],
     fatiar: (texto: string, inicio: number, fim: number) => texto.slice(inicio, fim),
     inclui: (texto: string, elemento: any) => texto.includes(elemento),
