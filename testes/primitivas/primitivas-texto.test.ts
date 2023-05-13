@@ -1,6 +1,27 @@
 import primitivasTexto from '../../fontes/bibliotecas/primitivas-texto';
 
 describe('Primitivas de texto', () => {
+    describe('apararInicio()', () => {
+        it('Trivial', () => {
+            const resultado = primitivasTexto.apararInicio('  olá   ');
+            expect(resultado).toStrictEqual('olá   ');
+        });
+    });
+
+    describe('aparar()', () => {
+        it('Trivial', () => {
+            const resultado = primitivasTexto.aparar('  olá  ');
+            expect(resultado).toStrictEqual('olá');
+        });
+    });
+
+    describe('apararFim()', () => {
+        it('Trivial', () => {
+            const resultado = primitivasTexto.apararFim('  olá   ');
+            expect(resultado).toStrictEqual('  olá');
+        });
+    });
+
     describe('dividir()', () => {
         it('Trivial', () => {
             const resultado = primitivasTexto.dividir('123|456|789|0', '|', 4);
