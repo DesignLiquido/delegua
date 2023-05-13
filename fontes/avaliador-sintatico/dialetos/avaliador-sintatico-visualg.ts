@@ -725,6 +725,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
         // passo são considerados indefinidos aqui.
         let passo: Construto;
+        let resolverIncrementoEmExecucao = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
             passo = this.unario();
         } else {
@@ -751,6 +752,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 passo = undefined;
                 operadorCondicao = undefined;
                 operadorCondicaoIncremento = undefined;
+                resolverIncrementoEmExecucao = true;
             }
         }
 
@@ -819,6 +821,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             corpo
         );
         para.blocoPosExecucao = corpo;
+        para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
         return para;
     }
 

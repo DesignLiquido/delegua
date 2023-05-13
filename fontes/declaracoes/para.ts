@@ -14,6 +14,7 @@ export class Para extends Declaracao {
     corpo: Bloco;
     inicializada: boolean;
     blocoPosExecucao?: Bloco;
+    resolverIncrementoEmExecucao: boolean;
 
     constructor(
         hashArquivo: number,
@@ -30,6 +31,7 @@ export class Para extends Declaracao {
         this.corpo = corpo;
         this.inicializada = false;
         this.blocoPosExecucao = undefined;
+        this.resolverIncrementoEmExecucao = false;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

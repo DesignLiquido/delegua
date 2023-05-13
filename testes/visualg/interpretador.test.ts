@@ -171,6 +171,57 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - Para com passo dinâmico', async () => {
+                // Aqui vamos simular a resposta para doze variáveis de `leia()`.
+                const respostas = [
+                    2, 'S', 5, 'S', 6, 'S', 5, 'S', 3, 'S', 5, 'N'
+                ];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "semnome"',
+                    'var',
+                    '    li: vetor[0..9] de inteiro',
+                    '    i, j, k: inteiro',
+                    '    resposta: caractere',
+                    'inicio',
+                    '    i <- 0',
+                    '    k <- 0',
+                    '    enquanto resposta <> "N" faca',
+                    '        escreval("---------------------------")',
+                    '        escreval("Digite o", i + 1, "º numero: ")',
+                    '        leia(li[i])',
+                    '        se (i > 0) entao',
+                    '            para j de 0 ate i - 1 faca',
+                    '                se li[i] = li[j] entao',
+                    '                    escreval("Valores repetidos não serão computados.")',
+                    '                    i <- i - 1',
+                    '                    interrompa',
+                    '                fimse',
+                    '            fimpara',
+                    '        fimse',
+                    '        escreval ("Você deseja inserir mais um número? (S/N)")',
+                    '        leia(resposta)',
+                    '        se (resposta <> "N") entao',
+                    '            i <- i + 1',
+                    '        fimse',
+                    '    fimenquanto',
+                    '    para k de 0 ate i faca',
+                    '        escreva(li[k], " ")',
+                    '    fimPara',
+                    'fimAlgoritmo'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Procedimento', async () => {
                 // Aqui vamos simular a resposta para duas variáveis de `leia()`.
                 const respostas = [
