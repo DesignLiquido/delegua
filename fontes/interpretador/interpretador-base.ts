@@ -468,7 +468,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 for (const argumento of expressao.argumentos) {
                     const valorResolvido: any = await this.avaliar(argumento);
                     argumentosResolvidos.push(
-                        valorResolvido.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
+                        valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
                     );
                 }
                 return entidadeChamada.chamar(argumentosResolvidos);

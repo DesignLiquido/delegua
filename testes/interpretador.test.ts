@@ -593,6 +593,21 @@ describe('Interpretador', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Chamada de função primitiva com parametro nulo', async () => {
+                    const codigo = [
+                        "var frutas = [\"maçã\", \"banana\", \"morango\", \"laranja\", \"uva\"]",
+                        "var alimentos = frutas.encaixar(0, 3, nulo, verdadeiro);",
+                        "escreva(alimentos);",
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Fibonacci', async () => {
                     const codigo = [
                         "função fibonacci(n) {",
