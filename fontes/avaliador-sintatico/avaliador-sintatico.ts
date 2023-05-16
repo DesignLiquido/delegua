@@ -561,6 +561,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
+
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
         return declaracoes;
     }
 
