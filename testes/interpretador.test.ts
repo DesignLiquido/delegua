@@ -593,6 +593,22 @@ describe('Interpretador', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Chamada de função com retorno de vetor', async () => {
+                    const codigo = [
+                        "funcao executar() {",
+                        "   retorna [1, 2, \'3\']",
+                        "}",
+                        "escreva(executar())"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Chamada de função com inferência de tipos na passagem de parametros', async () => {
                     const codigo = [
                         "funcao escreverMensagem(vetor) {",

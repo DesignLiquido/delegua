@@ -696,16 +696,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         if (
             [
+                tiposDeSimbolos.COLCHETE_ESQUERDO,
+                tiposDeSimbolos.FALSO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
-                tiposDeSimbolos.TEXTO,
+                tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.NULO,
-                tiposDeSimbolos.VERDADEIRO,
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.FALSO,
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 tiposDeSimbolos.SUPER,
+                tiposDeSimbolos.TEXTO,
+                tiposDeSimbolos.VERDADEIRO,
             ].includes(this.simbolos[this.atual].tipo)
         ) {
             valor = this.expressao();
