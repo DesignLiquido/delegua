@@ -23,6 +23,6 @@ export class MetodoPrimitiva extends Chamavel {
     }
 
     async chamar(interpretador: VisitanteComumInterface, argumentos: any[] = []): Promise<any> {
-        return await this.metodo(this.primitiva, interpretador, ...argumentos);
+        return await this.metodo(interpretador, this.primitiva, ...argumentos);
     }
 }

@@ -789,7 +789,7 @@ describe('Interpretador', () => {
             });
 
             describe('Métodos de primitivas com dependência no Interpretador', () => {
-                it.only('ordenar() de vetor com parâmetro função', async () => {
+                it('ordenar() de vetor com parâmetro função', async () => {
                     const retornoLexador = lexador.mapear([
                         "var numeros = [4, 2, 12, 8];",
                         "numeros.ordenar(funcao(a, b) {",
@@ -801,7 +801,7 @@ describe('Interpretador', () => {
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             })
         });
