@@ -471,7 +471,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                         valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
                     );
                 }
-                return entidadeChamada.chamar(argumentosResolvidos);
+                
+                return await entidadeChamada.chamar(this, argumentosResolvidos);
             }
 
             let parametros: ParametroInterface[];
