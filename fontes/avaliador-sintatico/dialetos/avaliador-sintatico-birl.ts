@@ -8,6 +8,7 @@ import {
     DefinirValor,
     FuncaoConstruto,
     Literal,
+    Unario,
     Variavel,
 } from '../../construtos';
 import {
@@ -89,9 +90,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGATIVO))
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.POSITIVO))
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ADICAO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
@@ -127,7 +128,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            const igual = this.simboloAnterior();
+            const igual = this.simboloAtual();
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
@@ -137,13 +138,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoPorIndice(
-                    this.hashArquivo,
-                    0,
-                    expressao.entidadeChamada,
-                    expressao.indice,
-                    valor
-                );
+                return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -199,7 +194,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.'
         );
 
-        let declaracaoInicial: any = null;
+        let declaracaoInicial: Var | Expressao | null = null;
 
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
             this.consumir(
@@ -229,12 +224,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado expressão `;` após a condição do `PARA`.');
 
-        const incremento: Array<any> = [];
+        const incremento = this.declaracao();
 
-        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            incremento.push(this.simbolos[this.atual]);
-            this.avancarEDevolverAnterior();
-        }
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição do `PARA`.');
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 'Esperado expressão `QUEBRA_LINHA` após a condição do `PARA`.');
 
         const declaracoes = [];
 
@@ -242,26 +235,14 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             declaracoes.push(this.declaracao());
         }
 
-        const incrementoValor = this.tratarSimbolos(incremento);
-
-        const incrementoConstruto: Construto = new Literal(
-            this.hashArquivo,
-            Number(primeiroSimbolo.linha) + 1,
-            incrementoValor as string
-        );
-
-        const corpo = new Bloco(
-            this.hashArquivo,
-            Number(primeiroSimbolo.linha) + 1,
-            declaracoes.filter((d) => d)
-        );
+        const corpo = new Bloco(this.hashArquivo, this.simbolos[this.atual].linha, declaracoes);
 
         return new Para(
             this.hashArquivo,
-            Number(primeiroSimbolo.linha),
+            Number(this.simbolos[this.atual].linha),
             declaracaoInicial,
             condicao,
-            incrementoConstruto,
+            incremento,
             corpo
         );
     }
@@ -329,10 +310,13 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 );
             } else {
                 inicializacoes.push(
-                    new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto')
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0),
+                        'texto'
+                    )
                 );
             }
-
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -673,7 +657,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoChamaFuncao(): Chamada {
-
         const declaracaoInicio = this.consumir(tiposDeSimbolos.AJUDA, 'Esperado expressão `AJUDA`.');
         this.consumir(tiposDeSimbolos.O, 'Esperado expressão `O` após `AJUDA`.');
         this.consumir(tiposDeSimbolos.MALUCO, 'Esperado expressão `MALUCO` após `O`.');
@@ -693,14 +676,34 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após lista de parâmetros.');
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após a chamada de função.');
 
-
-
         return new Chamada(declaracaoInicio.hashArquivo, expressao, null, paramentros);
     }
 
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.ADICAO || tiposDeSimbolos.SUBTRACAO:
+                const adicionaOuSubtrai = this.consumir(
+                    tiposDeSimbolos.ADICAO || tiposDeSimbolos.SUBTRACAO,
+                    'Esperado expressão `ADICAO` ou `SUBTRACAO`.'
+                );
+                if ([tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO].includes(adicionaOuSubtrai.tipo)) {
+                    this.consumir(adicionaOuSubtrai.tipo, 'Esperado expressão `ADICAO` ou `SUBTRACAO`.');
+                    if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                        const identificador = this.consumir(
+                            tiposDeSimbolos.IDENTIFICADOR,
+                            'Esperado expressão `IDENTIFICADOR`.'
+                        );
+                        return new Unario(
+                            this.hashArquivo,
+                            adicionaOuSubtrai,
+                            new Variavel(this.hashArquivo, identificador),
+                            'ANTES'
+                        );
+                    }
+                    return;
+                }
+                return;
             case tiposDeSimbolos.BORA:
                 return this.declaracaoRetorna();
             case tiposDeSimbolos.SAI:
@@ -734,6 +737,23 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const simboloIdentificador: SimboloInterface = this.simbolos[this.atual];
+                if (
+                    this.simbolos[this.atual + 1] &&
+                    [tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO].includes(this.simbolos[this.atual + 1].tipo)
+                ) {
+                    this.avancarEDevolverAnterior();
+                    const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
+                    this.consumir(tiposDeSimbolos[simboloIncrementoDecremento.tipo], "Esperado operador '++' ou '--'.");
+
+                    return new Unario(
+                        this.hashArquivo,
+                        simboloIncrementoDecremento,
+                        new Variavel(this.hashArquivo, simboloIdentificador),
+                        'DEPOIS'
+                    );
+                }
             default:
                 return this.expressao();
         }

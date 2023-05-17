@@ -15,10 +15,10 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it.skip('Sucesso - declaração - for - incremento', async () => {
+            it.only('Sucesso - declaração - for - incremento', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; M++)',
+                    '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; M--)',
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',

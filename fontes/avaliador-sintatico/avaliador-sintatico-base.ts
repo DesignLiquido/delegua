@@ -48,7 +48,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return excecao;
     }
 
-    simboloAnterior(): SimboloInterface {
+    simboloAtual(): SimboloInterface {
         return this.simbolos[this.atual - 1];
     }
 
@@ -108,6 +108,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     abstract chamar(): Construto;
 
     unario(): Construto {
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();

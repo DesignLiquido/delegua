@@ -303,7 +303,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
      * e o retorno conta com apenas uma variável retornada.
      */
     declaracaoDeVariavel(): Var {
-        switch (this.simboloAnterior().tipo) {
+        switch (this.simboloAtual().tipo) {
             case tiposDeSimbolos.INTEIRO:
                 const identificador = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
