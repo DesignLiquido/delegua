@@ -11,8 +11,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "birl/interpretador.test.ts",
-                // "birl/lexador.test.ts",
+                "birl/avaliador-sintatico.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",

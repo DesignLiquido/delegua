@@ -313,7 +313,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Para);
             });
-            it.only('Sucesso - declaração - declaracaoFuncao', () => {
+            it('Sucesso - declaração - declaracaoFuncao', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   OH O HOME AI PO(MONSTRO NOMEFUNCAO(MONSTRO primeiro, MONSTRO segundo))\n',

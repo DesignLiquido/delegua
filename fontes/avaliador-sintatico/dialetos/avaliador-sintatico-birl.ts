@@ -745,7 +745,14 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 ) {
                     this.avancarEDevolverAnterior();
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
-                    this.consumir(tiposDeSimbolos[simboloIncrementoDecremento.tipo], "Esperado operador '++' ou '--'.");
+                    if ([tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO].includes(this.simbolos[this.atual].tipo)) {
+                        this.consumir(
+                            tiposDeSimbolos[simboloIncrementoDecremento.tipo],
+                            "Esperado operador '++' ou '--'."
+                        );
+                    } else {
+                        return this.expressao();
+                    }
 
                     return new Unario(
                         this.hashArquivo,
