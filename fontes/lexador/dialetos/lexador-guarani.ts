@@ -4,7 +4,7 @@ import { LexadorBase } from "../lexador-base";
 import { ErroLexador } from "../erro-lexador";
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
-import palavrasReservadas from './palavras-reservadas/guarani';
+import { palavrasReservadas } from './palavras-reservadas/guarani';
 
 export class LexadorGuarani extends LexadorBase {
     analisarTexto(delimitador: string): void {

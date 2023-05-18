@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/mapler';
 
-export default {
+export const palavrasReservadas = {
     ate: tiposDeSimbolos.ATE,
     cadeia: tiposDeSimbolos.CADEIA,
     caractere: tiposDeSimbolos.CARACTERE,

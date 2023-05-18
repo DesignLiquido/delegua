@@ -3,7 +3,7 @@ import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { ErroLexador } from '../erro-lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/mapler';
-import palavrasReservadas from './palavras-reservadas/mapler';
+import { palavrasReservadas } from './palavras-reservadas/mapler';
 
 export class LexadorMapler extends LexadorBaseLinhaUnica {
     analisarNumero(): void {

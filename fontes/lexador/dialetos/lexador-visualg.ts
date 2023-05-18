@@ -3,7 +3,7 @@ import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { ErroLexador } from '../erro-lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
-import palavrasReservadas from './palavras-reservadas/visualg';
+import { palavrasReservadas } from './palavras-reservadas/visualg';
 
 const dicionarioBibliotecaGlobal = {
     int: 'inteiro',
