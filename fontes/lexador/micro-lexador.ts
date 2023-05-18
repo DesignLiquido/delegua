@@ -86,6 +86,24 @@ export class MicroLexador {
         this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
     }
 
+    analisarTexto(delimitador = '"'): void {
+        while (this.codigo[this.atual] !== delimitador && this.atual < this.codigo.length) {
+            this.atual++;
+        }
+
+        if (this.atual >= this.codigo.length) {
+            this.erros.push({
+                linha: 1,
+                caractere: this.codigo[this.atual - 1],
+                mensagem: 'Texto não finalizado.',
+            } as ErroLexador);
+            return;
+        }
+
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
+        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
+    }
+
     identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.codigo[this.atual])) {
             this.atual++;
@@ -102,6 +120,74 @@ export class MicroLexador {
         const caractere = this.codigo[this.atual];
 
         switch (caractere) {
+            case '+':
+                this.inicioSimbolo = this.atual;
+                this.atual++;
+                if (this.codigo[this.atual] === '+') {
+                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
+                    this.atual++;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                }
+
+                break;
+            case '-':
+                this.inicioSimbolo = this.atual;
+                this.atual++;
+                if (this.codigo[this.atual] === '-') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
+                    this.atual++;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                }
+
+                break;
+            case '*':
+                this.inicioSimbolo = this.atual;
+                this.atual++;
+                switch (this.codigo[this.atual]) {
+                    case '*':
+                        this.atual++;
+                        this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                        break;
+                }
+
+                break;
+            case '/':
+                this.inicioSimbolo = this.atual;
+                this.atual++;
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                break;
+            case '%':
+                this.inicioSimbolo = this.atual;
+                this.atual++;
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                break;
+            case '\\':
+                this.inicioSimbolo = this.atual;
+                this.atual++;
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
+                break;
+            case ' ':
+            case '\0':
+            case '\r':
+            case '\t':
+                this.atual++;
+                break;
+            case '"':
+                this.atual++;
+                this.analisarTexto('"');
+                this.atual++;
+                break;
+
+            case "'":
+                this.atual++;
+                this.analisarTexto("'");
+                this.atual++;
+                break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
