@@ -2,7 +2,7 @@ import { SimboloInterface } from "../interfaces";
 import { RetornoLexador } from "../interfaces/retornos";
 import { ErroLexador } from "./erro-lexador";
 
-import { palavrasReservadasMicroGramatica as palavrasReservadas }  from './palavras-reservadas';
+import { palavrasReservadasMicroGramatica as palavrasReservadas } from './palavras-reservadas';
 import { Simbolo } from "./simbolo";
 
 import tiposDeSimbolos from "../tipos-de-simbolos/microgramaticas/delegua";
