@@ -44,5 +44,10 @@ export const palavrasReservadas = {
 };
 
 export const palavrasReservadasMicroGramatica = {
-    
+    e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
+    falso: tiposDeSimbolos.FALSO,
+    nulo: tiposDeSimbolos.NULO,
+    ou: tiposDeSimbolos.OU,
+    verdadeiro: tiposDeSimbolos.VERDADEIRO
 }

@@ -3,8 +3,9 @@ import { RetornoLexador } from "../interfaces/retornos";
 import { ErroLexador } from "./erro-lexador";
 
 import { palavrasReservadasMicroGramatica as palavrasReservadas }  from './palavras-reservadas';
-import tiposDeSimbolos from "../tipos-de-simbolos/microgramaticas/delegua";
 import { Simbolo } from "./simbolo";
+
+import tiposDeSimbolos from "../tipos-de-simbolos/microgramaticas/delegua";
 
 /**
  * O MicroLexador funciona apenas dentro de interpolações de texto. 
