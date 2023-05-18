@@ -216,7 +216,6 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    // expect(retornoInterpretador.resultado[0]).toBe('2');
                 });
             });
 
@@ -788,6 +787,23 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             });
+
+            describe('Métodos de primitivas com dependência no Interpretador', () => {
+                it('ordenar() de vetor com parâmetro função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var numeros = [4, 2, 12, 8];",
+                        "numeros.ordenar(funcao(a, b) {",
+                        "    retorna b - a;",
+                        "});",
+                        "escreva(numeros);"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            })
         });
 
         describe('Cenários de falha', () => {

@@ -1,14 +1,16 @@
+import { VisitanteComumInterface } from "../interfaces";
+
 export default {
-    aparar: (texto: string) => texto.trim(),
-    apararFim: (texto: string) => texto.trimEnd(),
-    apararInicio: (texto: string) => texto.trimStart(),
-    concatenar: (...texto: string[]) => "".concat(...texto),
-    dividir: (texto: string, divisor: any, limite: number) => texto.split(divisor || ' ', limite),
-    fatiar: (texto: string, inicio: number, fim: number) => texto.slice(inicio, fim),
-    inclui: (texto: string, elemento: any) => texto.includes(elemento),
-    maiusculo: (texto: string) => texto.toUpperCase(),
-    minusculo: (texto: string) => texto.toLowerCase(),
-    substituir: (texto: string, elemento: string, substituto: string) => texto.replace(elemento, substituto),
-    subtexto: (texto: string, inicio: number, fim: number) => texto.slice(inicio, fim),
-    tamanho: (texto: string) => texto.length,
+    aparar: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.trim()),
+    apararFim: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.trimEnd()),
+    apararInicio: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.trimStart()),
+    concatenar: (interpretador: VisitanteComumInterface, ...texto: string[]): Promise<any> => Promise.resolve("".concat(...texto)),
+    dividir: (interpretador: VisitanteComumInterface, texto: string, divisor: any, limite: number): Promise<any> => Promise.resolve(texto.split(divisor || ' ', limite)),
+    fatiar: (interpretador: VisitanteComumInterface, texto: string, inicio: number, fim: number): Promise<any> => Promise.resolve(texto.slice(inicio, fim)),
+    inclui: (interpretador: VisitanteComumInterface, texto: string, elemento: any): Promise<any> => Promise.resolve(texto.includes(elemento)),
+    maiusculo: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.toUpperCase()),
+    minusculo: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.toLowerCase()),
+    substituir: (interpretador: VisitanteComumInterface, texto: string, elemento: string, substituto: string): Promise<any> => Promise.resolve(texto.replace(elemento, substituto)),
+    subtexto: (interpretador: VisitanteComumInterface, texto: string, inicio: number, fim: number): Promise<any> => Promise.resolve(texto.slice(inicio, fim)),
+    tamanho: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.length),
 };
