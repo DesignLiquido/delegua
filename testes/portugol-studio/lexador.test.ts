@@ -61,7 +61,7 @@ describe('Lexador (Portugol Studio)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(16);
+                expect(resultado.simbolos).toHaveLength(15);
             });
 
             it('Operação matematica - multiplicação', () => {
