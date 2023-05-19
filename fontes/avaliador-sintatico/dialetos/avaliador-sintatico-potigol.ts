@@ -1,5 +1,5 @@
-import { Construto, FuncaoConstruto, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from "../../declaracoes";
+import { Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -11,6 +11,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.REAL:
+            case tiposDeSimbolos.TEXTO:
+                const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal);
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Variavel(this.hashArquivo, simboloIdentificador);
@@ -32,6 +37,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+    }
+
+    declaracaoImprima(): EscrevaMesmaLinha {
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        const argumentos: Construto[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
     blocoEscopo(): Declaracao[] {
@@ -61,6 +78,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.IMPRIMA:
+                return this.declaracaoImprima();
             default:
                 return this.expressao();
         }

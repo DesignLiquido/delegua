@@ -9,6 +9,7 @@ export default {
     ESCREVA: 'ESCREVA',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',
+    IMPRIMA: 'IMPRIMA',
     INTEIRO: 'INTEIRO',
     LOGICO: 'LOGICO',
     MAIOR: 'MAIOR',
