@@ -1,21 +1,11 @@
-import { RetornoLexador } from '../../interfaces/retornos';
-import { ErroLexador } from '../erro-lexador';
-import { LexadorBase } from '../lexador-base';
+import { RetornoLexador } from "../../interfaces/retornos";
+import { ErroLexador } from "../erro-lexador";
+import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
 
-import { palavrasReservadas } from './palavras-reservadas/portugol-studio';
-import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
+import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
+import { palavrasReservadas } from "./palavras-reservadas/potigol";
 
-/**
- * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
- * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
- * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
- * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- * 
- * O Lexador de Portugol Studio possui algumas particularidades:
- * - Aspas simples são para caracteres individuais, e aspas duplas para cadeias de caracteres.
- * - Literais de vetores usam chaves, e não colchetes.
- */
-export class LexadorPortugolStudio extends LexadorBase {
+export class LexadorPotigol extends LexadorBaseLinhaUnica {
     protected logicaComumCaracteres(delimitador: string) {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
@@ -36,12 +26,12 @@ export class LexadorPortugolStudio extends LexadorBase {
 
     analisarCaracter() {
         const valor = this.logicaComumCaracteres("'");
-        this.adicionarSimbolo(tiposDeSimbolos.CARACTER, valor);
+        this.adicionarSimbolo(tiposDeSimbolos.CARACTERE, valor);
     }
 
     analisarTexto(): void {
         const valor = this.logicaComumCaracteres('"');
-        this.adicionarSimbolo(tiposDeSimbolos.CADEIA, valor);
+        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
 
     analisarNumero(): void {
@@ -71,9 +61,8 @@ export class LexadorPortugolStudio extends LexadorBase {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-
-        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
+        const tipo = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
@@ -98,14 +87,14 @@ export class LexadorPortugolStudio extends LexadorBase {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
                 break;
-            case '{':
+            /* case '{':
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
                 this.avancar();
                 break;
             case '}':
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
                 this.avancar();
-                break;
+                break; */
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.avancar();
@@ -117,7 +106,8 @@ export class LexadorPortugolStudio extends LexadorBase {
             case '-':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
-                if (this.simboloAtual() === '=') {
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                /* if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
                     this.avancar();
                 } else if (this.simboloAtual() === '-') {
@@ -125,13 +115,13 @@ export class LexadorPortugolStudio extends LexadorBase {
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
-                }
-                
+                } */
                 break;
             case '+':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
-                if (this.simboloAtual() === '=') {
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                /* if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
                     this.avancar();
                 } else if (this.simboloAtual() === '+') {
@@ -139,18 +129,15 @@ export class LexadorPortugolStudio extends LexadorBase {
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
-                }
+                } */
 
                 break;
 
-            case '%':
-                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
-                this.avancar();
-                break;
             case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
-                switch (this.simboloAtual()) {
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                /* switch (this.simboloAtual()) {
                     case '=':
                         this.avancar();
                         this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
@@ -158,26 +145,17 @@ export class LexadorPortugolStudio extends LexadorBase {
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                         break;
-                }
-                break;
-            case '!':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
-                }
-
+                } */
                 break;
             case '=':
                 this.avancar();
-                if (this.simboloAtual() === '=') {
+                this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                /* if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
-                }
+                } */
 
                 break;
 
@@ -223,7 +201,7 @@ export class LexadorPortugolStudio extends LexadorBase {
 
             case '/':
                 this.avancar();
-                switch (this.simboloAtual()) {
+                /* switch (this.simboloAtual()) {
                     case '/':
                         this.avancarParaProximaLinha();
                         break;
@@ -232,12 +210,12 @@ export class LexadorPortugolStudio extends LexadorBase {
                         break;
                     case '=':
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
-                        this.avancar();
+                        this.avancar();s
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                         break;
-                }
+                } */
 
                 break;
 
@@ -284,12 +262,8 @@ export class LexadorPortugolStudio extends LexadorBase {
         this.atual = 0;
         this.linha = 0;
 
-        this.codigo = codigo || [''];
+        this.codigo = codigo.join('\n') || '';
         this.hashArquivo = hashArquivo;
-
-        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
-            this.codigo[iterador] += '\0';
-        }
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;

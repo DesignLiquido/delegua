@@ -645,20 +645,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários - VisuAlg",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "visualg",
-                "--runInBand"
-            ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "Testes unitários - Mapler",
             "type": "node",
             "request": "launch",
@@ -669,6 +655,23 @@
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Potigol",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "potigol",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -703,6 +706,20 @@
                 "<node_internals>/**",
                 "node_modules/**"
             ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - VisuAlg",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "visualg",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
