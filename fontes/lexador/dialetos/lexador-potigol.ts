@@ -20,7 +20,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
             return;
         }
 
-        const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
         return valor;
     }
 
@@ -49,7 +49,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
             }
         }
 
-        const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
 
         this.adicionarSimbolo(
             real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO,
