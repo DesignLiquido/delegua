@@ -4,7 +4,7 @@ import { Simbolo } from '../simbolo';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 
-import palavrasReservadas from './palavras-reservadas/egua-classico';
+import { palavrasReservadas } from './palavras-reservadas/egua-classico';
 import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
 /**

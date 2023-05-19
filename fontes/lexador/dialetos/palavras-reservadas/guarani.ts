@@ -1,5 +1,5 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/guarani';
 
-export default {
+export const palavrasReservadas = {
     hai: tiposDeSimbolos.HAI
 }

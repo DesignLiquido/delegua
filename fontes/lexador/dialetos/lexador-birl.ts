@@ -4,7 +4,7 @@ import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 import { Simbolo } from '../simbolo';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
-import palavrasReservadas from './palavras-reservadas/birl';
+import { palavrasReservadas } from './palavras-reservadas/birl';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {

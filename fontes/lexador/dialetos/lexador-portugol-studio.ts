@@ -2,7 +2,7 @@ import { RetornoLexador } from '../../interfaces/retornos';
 import { ErroLexador } from '../erro-lexador';
 import { LexadorBase } from '../lexador-base';
 
-import palavrasReservadas from './palavras-reservadas/portugol-studio';
+import { palavrasReservadas } from './palavras-reservadas/portugol-studio';
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 
 /**

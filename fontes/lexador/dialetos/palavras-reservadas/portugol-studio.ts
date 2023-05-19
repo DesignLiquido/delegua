@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-studio';
 
-export default {
+export const palavrasReservadas = {
     cadeia: tiposDeSimbolos.CADEIA,
     caracter: tiposDeSimbolos.CARACTER,
     const: tiposDeSimbolos.CONSTANTE,

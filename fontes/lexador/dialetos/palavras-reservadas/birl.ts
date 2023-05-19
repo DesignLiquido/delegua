@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 
-export default {
+export const palavrasReservadas = {
     // HORA_DO_SHOW: tiposDeSimbolos.HORA_DO_SHOW,
     // BIRL: tiposDeSimbolos.BIRL,
     // QUE_QUE_CE_QUER_MONSTRAO: tiposDeSimbolos.QUE_QUE_CE_QUER_MONSTRAO,

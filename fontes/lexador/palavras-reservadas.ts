@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
-export default {
+export const palavrasReservadas = {
     cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,
@@ -42,3 +42,12 @@ export default {
     variável: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };
+
+export const palavrasReservadasMicroGramatica = {
+    e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
+    falso: tiposDeSimbolos.FALSO,
+    nulo: tiposDeSimbolos.NULO,
+    ou: tiposDeSimbolos.OU,
+    verdadeiro: tiposDeSimbolos.VERDADEIRO
+}

@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
 
-export default {
+export const palavrasReservadas = {
     e: tiposDeSimbolos.E,
     em: tiposDeSimbolos.EM,
     caso: tiposDeSimbolos.CASO,
