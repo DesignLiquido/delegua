@@ -48,7 +48,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return excecao;
     }
 
-    simboloAtual(): SimboloInterface {
+    simboloAnterior(): SimboloInterface {
         return this.simbolos[this.atual - 1];
     }
 

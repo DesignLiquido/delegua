@@ -128,7 +128,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            const igual = this.simboloAtual();
+            const igual = this.simboloAnterior();
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
@@ -237,7 +237,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         const corpo = new Bloco(
             this.hashArquivo,
-            this.simbolos[this.atual].linha,
+            Number(this.simbolos[this.atual].linha) + 1,
             declaracoes.filter((d) => d)
         );
 
