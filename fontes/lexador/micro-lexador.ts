@@ -67,13 +67,9 @@ export class MicroLexador {
         return this.codigo.length <= this.atual;
     }
 
-    avancar(): void {
-        this.atual += 1;
-    }
-
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 0, -1));
+        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 1, -1));
     }
 
     proximoSimbolo(): string {
@@ -82,7 +78,7 @@ export class MicroLexador {
 
     analisarTexto(delimitador = '"'): void {
         while (this.codigo[this.atual] !== delimitador && !this.eFinalDoCodigo()) {
-            this.avancar();
+            this.atual++;
         }
 
         if (this.eFinalDoCodigo()) {
@@ -100,14 +96,14 @@ export class MicroLexador {
 
     analisarNumero(): void {
         while (this.eDigito(this.codigo[this.atual])) {
-            this.avancar();
+            this.atual++;
         }
 
         if (this.codigo[this.atual] == '.' && this.eDigito(this.proximoSimbolo())) {
-            this.avancar();
+            this.atual++;
 
             while (this.eDigito(this.codigo[this.atual])) {
-                this.avancar();
+                this.atual++;
             }
         }
 
@@ -118,7 +114,7 @@ export class MicroLexador {
 
     identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.codigo[this.atual])) {
-            this.avancar();
+            this.atual++;
         }
 
         const codigo: string = this.codigo.substring(this.inicioSimbolo, this.atual);
@@ -236,8 +232,6 @@ export class MicroLexador {
         this.simbolos = [];
         this.atual = 0;
         this.inicioSimbolo = 0;
-
-        this.codigo += '\0';
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
