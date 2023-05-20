@@ -224,7 +224,7 @@ export class Lexador implements LexadorInterface {
                 break;
             case '.':
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO);
-                this.avancar(); 
+                this.avancar();
                 break;
             case '-':
                 this.inicioSimbolo = this.atual;

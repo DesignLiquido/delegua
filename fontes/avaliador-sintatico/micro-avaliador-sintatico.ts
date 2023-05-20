@@ -13,6 +13,7 @@ export class MicroAvaliadorSintatico {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     atual: number;
+    linha: number;
 
     avancarEDevolverAnterior(): SimboloInterface {
         if (this.atual < this.simbolos.length) this.atual += 1;
@@ -58,7 +59,7 @@ export class MicroAvaliadorSintatico {
                 valores = [];
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    return new Dicionario(-1, Number(simboloAtual.linha), [], []);
+                    return new Dicionario(-1, Number(this.linha), [], []);
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
@@ -74,7 +75,7 @@ export class MicroAvaliadorSintatico {
                     }
                 }
 
-                return new Dicionario(-1, Number(simboloAtual.linha), chaves, valores); */
+                return new Dicionario(-1, Number(this.linha), chaves, valores); */
 
             // TODO: Verificar se vamos usar isso.
             /* case tiposDeSimbolos.COLCHETE_ESQUERDO:
@@ -82,7 +83,7 @@ export class MicroAvaliadorSintatico {
                 valores = [];
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(-1, Number(simboloAtual.linha), []);
+                    return new Vetor(-1, Number(this.linha), []);
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
@@ -93,12 +94,12 @@ export class MicroAvaliadorSintatico {
                     }
                 }
 
-                return new Vetor(-1, Number(simboloAtual.linha), valores);
+                return new Vetor(-1, Number(this.linha), valores);
             */
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(simboloAtual.linha), false);
+                return new Literal(-1, Number(this.linha), false);
 
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -122,23 +123,23 @@ export class MicroAvaliadorSintatico {
 
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(simboloAtual.linha), null);
+                return new Literal(-1, Number(this.linha), null);
 
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal);
+                return new Literal(-1, Number(this.linha), simboloNumeroTexto.literal);
 
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.ou();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
-                return new Agrupamento(-1, Number(simboloAtual.linha), expressao);
+                return new Agrupamento(-1, Number(this.linha), expressao);
 
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(simboloAtual.linha), true);
+                return new Literal(-1, Number(this.linha), true);
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -362,9 +363,10 @@ export class MicroAvaliadorSintatico {
         return this.ou();
     }
 
-    analisar(retornoLexador: RetornoLexador): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador, linha: number): RetornoAvaliadorSintatico {
         this.erros = [];
         this.atual = 0;
+        this.linha = linha;
 
         this.simbolos = retornoLexador?.simbolos || [];
 
