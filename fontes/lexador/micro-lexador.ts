@@ -76,27 +76,19 @@ export class MicroLexador {
         this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 0, -1));
     }
 
-    simboloAtual(): string {
-        return this.codigo[this.atual];
-    }
-
     proximoSimbolo(): string {
         return this.codigo[this.atual + 1];
     }
 
-    simboloAnterior(): string {
-        return this.codigo[this.atual - 1];
-    }
-
     analisarTexto(delimitador = '"'): void {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
+        while (this.codigo[this.atual] !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
 
         if (this.eFinalDoCodigo()) {
             this.erros.push({
-                linha: 0,
-                caractere: this.simboloAnterior(),
+                linha: 1,
+                caractere: this.codigo[this.atual - 1],
                 mensagem: 'Texto não finalizado.',
             } as ErroLexador);
             return;
@@ -107,14 +99,14 @@ export class MicroLexador {
     }
 
     analisarNumero(): void {
-        while (this.eDigito(this.simboloAtual())) {
+        while (this.eDigito(this.codigo[this.atual])) {
             this.avancar();
         }
 
-        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
+        if (this.codigo[this.atual] == '.' && this.eDigito(this.proximoSimbolo())) {
             this.avancar();
 
-            while (this.eDigito(this.simboloAtual())) {
+            while (this.eDigito(this.codigo[this.atual])) {
                 this.avancar();
             }
         }
@@ -125,7 +117,7 @@ export class MicroLexador {
     }
 
     identificarPalavraChave(): void {
-        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+        while (this.eAlfabetoOuDigito(this.codigo[this.atual])) {
             this.avancar();
         }
 
