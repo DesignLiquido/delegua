@@ -3,6 +3,9 @@ import hrtime from 'browser-process-hrtime';
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
 
+import { MicroLexador } from './../../fontes/lexador/micro-lexador';
+import { MicroAvaliadorSintatico } from './../../fontes/avaliador-sintatico/micro-avaliador-sintatico';
+
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import {
@@ -81,8 +84,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any = null;
+    microLexador: MicroLexador = new MicroLexador();
+    microAvaliadorSintatico: MicroAvaliadorSintatico = new MicroAvaliadorSintatico();
 
-    regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
+    regexInterpolacao = /\$\{([a-z_0-9][\w \,\+\-\(\)\*\/\^]*)\}/gi;
 
     constructor(
         diretorioBase: string,
@@ -149,7 +154,14 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-    private retirarInterpolacao(texto: string, variaveis: any[]): string {
+    private async retirarInterpolacao(texto: string, variaveis: any[]): Promise<string> {
+
+        const promises = await Promise.all([
+            this.avaliar(variaveis[0].valor),
+        ]);
+
+        let a = promises[0];
+
         const valoresVariaveis = variaveis.map((v) => ({
             valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
             variavel: v.variavel,
@@ -176,13 +188,24 @@ export class InterpretadorBase implements InterpretadorInterface {
     private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        return variaveis.map((s) => {
-            const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
+        let declaracoes = null;
+        let abc = variaveis.map((s) => {
+            const nomeVariavel: string = s.replace(/[\$\{\}]*/gm, '');
+
+            let microLexador = this.microLexador.mapear(nomeVariavel);
+            declaracoes = this.microAvaliadorSintatico.analisar(microLexador);
+
+            let valor = new Promise(resolve => {
+                resolve(this.avaliar(declaracoes.declaracoes[0]))
+            })
+
             return {
                 variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
+                valor//: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
             };
         });
+
+        return abc;
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {

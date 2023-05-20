@@ -49,7 +49,7 @@ import {
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
-import { RetornoDeclaracao, RetornoResolverDeclaracao } from './retornos';
+import { RetornoDeclaracao } from './retornos';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
