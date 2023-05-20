@@ -72,10 +72,6 @@ export class MicroLexador {
         this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 1, -1));
     }
 
-    proximoSimbolo(): string {
-        return this.codigo[this.atual + 1];
-    }
-
     analisarTexto(delimitador = '"'): void {
         while (this.codigo[this.atual] !== delimitador && !this.eFinalDoCodigo()) {
             this.atual++;
@@ -99,7 +95,7 @@ export class MicroLexador {
             this.atual++;
         }
 
-        if (this.codigo[this.atual] == '.' && this.eDigito(this.proximoSimbolo())) {
+        if (this.codigo[this.atual] == '.' && this.eDigito(this.codigo[this.atual + 1])) {
             this.atual++;
 
             while (this.eDigito(this.codigo[this.atual])) {
