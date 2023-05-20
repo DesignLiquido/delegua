@@ -87,7 +87,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintatico = new MicroAvaliadorSintatico();
 
-    regexInterpolacao = /\$\{([a-z_0-9][\w \,\+\-\(\)\*\/\^]*)\}/gi;
+    regexInterpolacao = /\$\{([a-z_0-9][\w \.\,\+\-\(\)\*\/\^]*)\}/gi;
 
     constructor(
         diretorioBase: string,
