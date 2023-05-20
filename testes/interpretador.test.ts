@@ -81,6 +81,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Interpolação de Texto/Função/Expressão', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao somar(num1, num2) {",
+                        "retorna num1 + num2;",
+                        "}",
+                        "escreva('somar: ${somar(5, 3)} = ${4 + 5 - 1}');",
+                        "escreva('somar com ponto flutuante: ${somar(5.7, 3.3)} = ${5 + 5 - 1}');",
+                        "escreva('${4 - 2 / 1}');",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Incremento e decremento após variável ou literal', async () => {
                     const retornoLexador = lexador.mapear([
                         'var a = 1',

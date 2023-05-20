@@ -3,6 +3,9 @@ import hrtime from 'browser-process-hrtime';
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
 
+import { MicroLexador } from './../../fontes/lexador/micro-lexador';
+import { MicroAvaliadorSintatico } from './../../fontes/avaliador-sintatico/micro-avaliador-sintatico';
+
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import {
@@ -81,8 +84,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     declaracoes: Declaracao[];
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any = null;
+    microLexador: MicroLexador = new MicroLexador();
+    microAvaliadorSintatico: MicroAvaliadorSintatico = new MicroAvaliadorSintatico();
 
-    regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
+    regexInterpolacao = /\$\{([a-z_0-9][\w \.\,\+\-\(\)\*\/\^]*)\}/gi;
 
     constructor(
         diretorioBase: string,
@@ -149,23 +154,14 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-    private retirarInterpolacao(texto: string, variaveis: any[]): string {
-        const valoresVariaveis = variaveis.map((v) => ({
-            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
-            variavel: v.variavel,
-        }));
-
+    private async retirarInterpolacao(texto: string, variaveis: any[]): Promise<string> {
         let textoFinal = texto;
-
-        valoresVariaveis.forEach((elemento) => {
-            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
-                ? elemento.valorResolvido.valor
-                : elemento.valorResolvido;
-
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
+        variaveis.forEach((elemento) => {
+            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento.valor)
         });
 
         return textoFinal;
+
     }
 
     /**
@@ -173,21 +169,38 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
      * @returns Uma lista de variáveis interpoladas.
      */
-    private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
+    private async buscarVariaveisInterpolacao(textoOriginal: string, linha: number): Promise<any[]> {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        return variaveis.map((s) => {
-            const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
+        let resultadosAvaliacaoSintatica = variaveis.map((s) => {
+            const nomeVariavel: string = s.replace(/[\$\{\}]*/gm, '');
+
+            let microLexador = this.microLexador.mapear(nomeVariavel);
+            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(microLexador, linha);
+
             return {
-                variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
+                nomeVariavel,
+                resultadoMicroAvaliadorSintatico
             };
+        });
+
+        //TODO verificar erros do resultadosAvaliacaoSintatica
+
+        const resolucoesPromises = await Promise.all(resultadosAvaliacaoSintatica.flatMap(r => r.resultadoMicroAvaliadorSintatico.declaracoes).map(d => {
+            return this.avaliar(d)
+        }))
+
+        return resolucoesPromises.map((item, indice) => {
+            return {
+                variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
+                valor: item,
+            }
         });
     }
 
-    visitarExpressaoLiteral(expressao: Literal): any {
+    async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
         if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
+            const variaveis = await this.buscarVariaveisInterpolacao(expressao.valor, expressao.linha);
 
             return this.retirarInterpolacao(expressao.valor, variaveis);
         }

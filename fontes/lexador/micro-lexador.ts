@@ -63,9 +63,31 @@ export class MicroLexador {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
+    eFinalDoCodigo(): boolean {
+        return this.codigo.length <= this.atual;
+    }
+
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
         this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 1, -1));
+    }
+
+    analisarTexto(delimitador = '"'): void {
+        while (this.codigo[this.atual] !== delimitador && !this.eFinalDoCodigo()) {
+            this.atual++;
+        }
+
+        if (this.eFinalDoCodigo()) {
+            this.erros.push({
+                linha: 1,
+                caractere: this.codigo[this.atual - 1],
+                mensagem: 'Texto não finalizado.',
+            } as ErroLexador);
+            return;
+        }
+
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
+        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
     }
 
     analisarNumero(): void {
@@ -86,24 +108,6 @@ export class MicroLexador {
         this.adicionarSimbolo(tiposDeSimbolos.NUMERO, parseFloat(numeroCompleto));
     }
 
-    analisarTexto(delimitador = '"'): void {
-        while (this.codigo[this.atual] !== delimitador && this.atual < this.codigo.length) {
-            this.atual++;
-        }
-
-        if (this.atual >= this.codigo.length) {
-            this.erros.push({
-                linha: 1,
-                caractere: this.codigo[this.atual - 1],
-                mensagem: 'Texto não finalizado.',
-            } as ErroLexador);
-            return;
-        }
-
-        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
-    }
-
     identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.codigo[this.atual])) {
             this.atual++;
@@ -120,8 +124,19 @@ export class MicroLexador {
         const caractere = this.codigo[this.atual];
 
         switch (caractere) {
+            case '(':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.atual++;
+                break;
+            case ')':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.atual++;
+                break;
+            case ',':
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.atual++;
+                break;
             case '+':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 if (this.codigo[this.atual] === '+') {
                     this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
@@ -132,7 +147,6 @@ export class MicroLexador {
 
                 break;
             case '-':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 if (this.codigo[this.atual] === '-') {
                     this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
@@ -143,7 +157,6 @@ export class MicroLexador {
 
                 break;
             case '*':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 switch (this.codigo[this.atual]) {
                     case '*':
@@ -157,17 +170,14 @@ export class MicroLexador {
 
                 break;
             case '/':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 break;
             case '%':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case '\\':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                 break;
@@ -213,7 +223,8 @@ export class MicroLexador {
         this.atual = 0;
         this.inicioSimbolo = 0;
 
-        while (this.atual < codigo.length) {
+        while (!this.eFinalDoCodigo()) {
+            this.inicioSimbolo = this.atual;
             this.analisarToken();
         }
 
