@@ -63,19 +63,12 @@ export class MicroLexador {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
-    eFinalDaLinha(): boolean {
-        return this.atual >= this.codigo.length;
-    }
-
     eFinalDoCodigo(): boolean {
         return this.codigo.length <= this.atual;
     }
 
     avancar(): void {
         this.atual += 1;
-        if (this.eFinalDaLinha()) {
-            this.atual = 0;
-        }
     }
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
@@ -84,7 +77,6 @@ export class MicroLexador {
     }
 
     simboloAtual(): string {
-        if (this.eFinalDaLinha()) return '\0';
         return this.codigo[this.atual];
     }
 
