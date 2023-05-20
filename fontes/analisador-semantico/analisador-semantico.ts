@@ -155,7 +155,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
         return Promise.resolve();
     }
-    
+
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
@@ -195,7 +195,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoDeleguaFuncao(expressao: any) {
         return Promise.resolve();
     }
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         return Promise.resolve();
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {

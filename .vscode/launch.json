@@ -12,7 +12,6 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "birl/interpretador.test.ts",
-                // "birl/lexador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",

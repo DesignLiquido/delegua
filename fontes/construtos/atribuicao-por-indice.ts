@@ -1,7 +1,7 @@
 import { VisitanteComumInterface } from '../interfaces'
 import { Construto } from './construto';
 
-export class AtribuicaoSobrescrita implements Construto {
+export class AtribuicaoPorIndice implements Construto {
     linha: number;
     hashArquivo: number;
 
@@ -19,6 +19,6 @@ export class AtribuicaoSobrescrita implements Construto {
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoAtribuicaoSobrescrita(this);
+        return await visitante.visitarExpressaoAtribuicaoPorIndice(this);
     }
 }

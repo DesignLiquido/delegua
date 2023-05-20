@@ -1001,7 +1001,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return new DeleguaFuncao(null, declaracao);
     }
 
-    async visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+    async visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         const promises = await Promise.all([
             this.avaliar(expressao.objeto),
             this.avaliar(expressao.indice),

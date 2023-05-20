@@ -1,4 +1,4 @@
-import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super } from '../../../construtos';
+import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel, Unario } from '../../../construtos';
 import {
     Declaracao,
     Expressao,
@@ -25,13 +25,15 @@ import {
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { ObjetoPadrao } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface } from '../../../interfaces';
+import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from '../../../quebras';
+import { inferirTipoVariavel } from '../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 
 export class InterpretadorBirl implements InterpretadorInterface {
     diretorioBase: any;
@@ -65,10 +67,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
     }
 
     async avaliar(expressao: Construto | Declaracao): Promise<any> {
@@ -80,19 +81,231 @@ export class InterpretadorBirl implements InterpretadorInterface {
             console.log('Aqui');
         } */
 
-        return await expressao.aceitar(this);
+        return await expressao. aceitar(this);
     }
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
-        throw new Error('Método não implementado.');
+    /**
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
+     * executa as declarações empilhadas.
+     * Se o retorno do último bloco foi uma exceção (normalmente um erro em tempo de execução),
+     * atira a exceção daqui.
+     * Isso é usado, por exemplo, em blocos tente ... pegue ... finalmente.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     */
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+        const escopoExecucao: EscopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: ambiente || new EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro',
+            emLacoRepeticao: false,
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
+        if (retornoUltimoEscopo instanceof ErroEmTempoDeExecucao) {
+            return Promise.reject(retornoUltimoEscopo);
+        }
+        return retornoUltimoEscopo;
     }
     visitarExpressaoAgrupamento(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoUnaria(expressao: any) {
-        throw new Error('Método não implementado.');
+
+    protected verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
+        if (typeof operando === 'number' || operando.tipo === 'número') return;
+        throw new ErroEmTempoDeExecucao(operador, 'Operando precisa ser um número.', Number(operador.linha));
     }
-    visitarExpressaoBinaria(expressao: any) {
-        throw new Error('Método não implementado.');
+
+    async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
+        const operando = await this.avaliar(expressao.operando);
+        let valor: any = operando.hasOwnProperty('valor') ? operando.valor : operando;
+
+        switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.SUBTRACAO:
+                this.verificarOperandoNumero(expressao.operador, valor);
+                return -valor;
+            case tiposDeSimbolos.NEGACAO:
+                return !this.eVerdadeiro(valor);
+            case tiposDeSimbolos.BIT_NOT:
+                return ~valor;
+            // Para incrementar e decrementar, primeiro precisamos saber se o operador
+            // veio antes do literal ou variável.
+            // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
+            // armazenar o valor da variável pra só então devolver o valor.
+            case tiposDeSimbolos.INCREMENTAR:
+                if (expressao.incidenciaOperador === 'ANTES') {
+                    valor++;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                    }
+
+                    return valor;
+                }
+
+                const valorAnteriorIncremento = valor;
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
+                return valorAnteriorIncremento;
+            case tiposDeSimbolos.DECREMENTAR:
+                if (expressao.incidenciaOperador === 'ANTES') {
+                    valor--;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                    }
+
+                    return valor;
+                }
+
+                const valorAnteriorDecremento = valor;
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
+                return valorAnteriorDecremento;
+        }
+
+        return null;
+    }
+
+    protected eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+        if (esquerda === null && direita === null) return true;
+        if (esquerda === null) return false;
+        return esquerda === direita;
+    }
+
+    /**
+     * Verifica se operandos são números, que podem ser tanto variáveis puras do JavaScript
+     * (neste caso, `number`), ou podem ser variáveis de Delégua com inferência (`VariavelInterface`).
+     * @param operador O símbolo do operador.
+     * @param direita O operando direito.
+     * @param esquerda O operando esquerdo.
+     * @returns Se ambos os operandos são números ou não.
+     */
+    protected verificarOperandosNumeros(
+        operador: SimboloInterface,
+        direita: VariavelInterface | any,
+        esquerda: VariavelInterface | any
+    ): void {
+        const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
+        const tipoEsquerda: string = esquerda.tipo
+            ? esquerda.tipo
+            : typeof esquerda === 'number'
+            ? 'número'
+            : String(NaN);
+        if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
+        throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
+    }
+
+    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+        try {
+            const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
+            const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
+            const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+            const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
+            const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
+                ? esquerda.tipo
+                : inferirTipoVariavel(esquerda);
+            const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.EXPONENCIACAO:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Math.pow(valorEsquerdo, valorDireito);
+
+                case tiposDeSimbolos.MAIOR:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) > Number(valorDireito);
+
+                case tiposDeSimbolos.MAIOR_IGUAL:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) >= Number(valorDireito);
+
+                case tiposDeSimbolos.MENOR:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) < Number(valorDireito);
+
+                case tiposDeSimbolos.MENOR_IGUAL:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) <= Number(valorDireito);
+
+                case tiposDeSimbolos.SUBTRACAO:
+                case tiposDeSimbolos.MENOS_IGUAL:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) - Number(valorDireito);
+
+                case tiposDeSimbolos.ADICAO:
+                case tiposDeSimbolos.MAIS_IGUAL:
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(valorEsquerdo) + Number(valorDireito);
+                    } else {
+                        return String(valorEsquerdo) + String(valorDireito);
+                    }
+
+                case tiposDeSimbolos.DIVISAO:
+                case tiposDeSimbolos.DIVISAO_IGUAL:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) / Number(valorDireito);
+
+                case tiposDeSimbolos.DIVISAO_INTEIRA:
+                case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
+
+                case tiposDeSimbolos.MULTIPLICACAO:
+                case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+                    if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
+                        // Sem ambos os valores resolvem como texto, multiplica normal.
+                        // Se apenas um resolve como texto, o outro repete o
+                        // texto n vezes, sendo n o valor do outro.
+                        if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
+                            return Number(valorEsquerdo) * Number(valorDireito);
+                        }
+
+                        if (tipoEsquerdo === 'texto') {
+                            return valorEsquerdo.repeat(Number(valorDireito));
+                        }
+
+                        return valorDireito.repeat(Number(valorEsquerdo));
+                    }
+
+                    return Number(valorEsquerdo) * Number(valorDireito);
+
+                case tiposDeSimbolos.MODULO:
+                case tiposDeSimbolos.MODULO_IGUAL:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) % Number(valorDireito);
+
+                case tiposDeSimbolos.BIT_AND:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) & Number(valorDireito);
+
+                case tiposDeSimbolos.BIT_XOR:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) ^ Number(valorDireito);
+
+                case tiposDeSimbolos.BIT_OR:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) | Number(valorDireito);
+
+                case tiposDeSimbolos.MENOR_MENOR:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) << Number(valorDireito);
+
+                case tiposDeSimbolos.MAIOR_MAIOR:
+                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                    return Number(valorEsquerdo) >> Number(valorDireito);
+
+                case tiposDeSimbolos.DIFERENTE:
+                    return !this.eIgual(valorEsquerdo, valorDireito);
+
+                case tiposDeSimbolos.IGUAL_IGUAL:
+                    return this.eIgual(valorEsquerdo, valorDireito);
+            }
+        } catch (erro: any) {
+            this.erros.push({
+                erroInterno: erro,
+                linha: expressao.linha,
+                hashArquivo: expressao.hashArquivo,
+            });
+            return Promise.reject(erro);
+        }
     }
     visitarExpressaoDeChamada(expressao: any) {
         throw new Error('Método não implementado.');
@@ -100,8 +313,13 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoDeVariavel(expressao: any) {
-        throw new Error('Método não implementado.');
+
+    protected procurarVariavel(simbolo: SimboloInterface): any {
+        return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
+    }
+
+    visitarExpressaoDeVariavel(expressao: Variavel): any {
+        return this.procurarVariavel(expressao.simbolo);
     }
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
@@ -138,13 +356,13 @@ export class InterpretadorBirl implements InterpretadorInterface {
         });
     }
 
-     /**
+    /**
      * Retira a interpolação de um texto.
      * @param {texto} texto O texto
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-     private retirarInterpolacao(texto: string, variaveis: any[]): string {
+    private retirarInterpolacao(texto: string, variaveis: any[]): string {
         const valoresVariaveis = variaveis.map((v) => ({
             valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
             variavel: v.variavel,
@@ -163,22 +381,58 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return textoFinal;
     }
 
-
     visitarExpressaoLiteral(expressao: Literal): any {
-        if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
-
-            return this.retirarInterpolacao(expressao.valor, variaveis);
+        if (expressao.valor === tiposDeSimbolos.ADICAO) {
+            return 1
+        } else if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
+            return -1
+        } else {
+            return expressao.valor;
         }
-
-        return expressao.valor;
     }
 
     visitarExpressaoLogica(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        if (declaracao.inicializador !== null) {
+            if (declaracao.inicializador instanceof Array) {
+                await this.avaliar(declaracao.inicializador[0]);
+            } else {
+                await this.avaliar(declaracao.inicializador);
+            }
+        }
+
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra)) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                break;
+            }
+
+            try {
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+
+            if (declaracao.incrementar !== null) {
+                await this.avaliar(declaracao.incrementar);
+            }
+        }
+
+        return retornoExecucao;
     }
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
@@ -278,14 +532,14 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
+        return await this.executarBloco(declaracao.declaracoes);
     }
 
     protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = await this. avaliar(declaracao.inicializador);
         }
 
         let valorFinal = null;
@@ -334,7 +588,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAtribuicaoSobrescrita(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
@@ -393,14 +647,23 @@ export class InterpretadorBirl implements InterpretadorInterface {
      *                         pelo modo LAIR.
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-        const resultado: any = await declaracao.aceitar(this);
-        if (mostrarResultado) {
-            this.funcaoDeRetorno(this.paraTexto(resultado));
+        let resultado: any = null;
+        // Tratar caso Bloco
+        if (declaracao instanceof Array) {
+            for (const decl of declaracao) {
+                resultado = await this.executar(decl, mostrarResultado);
+            }
+            return resultado;
+        } else {
+            resultado = await declaracao.aceitar(this);
+            if (mostrarResultado) {
+                this.funcaoDeRetorno(this.paraTexto(resultado));
+            }
+            if (resultado || typeof resultado === 'boolean') {
+                this.resultadoInterpretador.push(this.paraTexto(resultado));
+            }
+            return resultado;
         }
-        if (resultado || typeof resultado === 'boolean') {
-            this.resultadoInterpretador.push(this.paraTexto(resultado));
-        }
-        return resultado;
     }
 
     /**

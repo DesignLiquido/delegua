@@ -1,4 +1,4 @@
-import { AcessoIndiceVariavel, AtribuicaoSobrescrita, Atribuir, Construto, FormatacaoEscrita, FuncaoConstruto, Literal, Variavel } from "../../construtos";
+import { AcessoIndiceVariavel, AtribuicaoPorIndice, Atribuir, Construto, FormatacaoEscrita, FuncaoConstruto, Literal, Variavel } from "../../construtos";
 import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Var, Leia } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
@@ -41,7 +41,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
                     expressao.entidadeChamada,

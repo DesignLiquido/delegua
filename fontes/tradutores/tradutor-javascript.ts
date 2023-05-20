@@ -2,7 +2,7 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     Agrupamento,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -371,7 +371,7 @@ export class TradutorJavaScript implements TradutorInterface {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
-        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `; 
+        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ") ";
 
@@ -548,20 +548,20 @@ export class TradutorJavaScript implements TradutorInterface {
         return `${direita} ${operador} ${esquerda}`;
     }
 
-    traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
+    traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         let resultado = '';
 
-        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+        resultado += AtribuicaoPorIndice.objeto.simbolo.lexema + '[';
         resultado +=
-            this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) +
             ']';
         resultado += ' = ';
 
-        if (atribuicaoSobrescrita?.valor?.simbolo?.lexema) {
-            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
+        if (AtribuicaoPorIndice?.valor?.simbolo?.lexema) {
+            resultado += `${AtribuicaoPorIndice.valor.simbolo.lexema}`;
         } else {
-            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](
-                atribuicaoSobrescrita.valor
+            resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
+                AtribuicaoPorIndice.valor
             );
         }
 
@@ -616,7 +616,7 @@ export class TradutorJavaScript implements TradutorInterface {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-        AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
+        AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),

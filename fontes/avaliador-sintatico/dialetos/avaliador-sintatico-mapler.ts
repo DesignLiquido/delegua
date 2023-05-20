@@ -17,7 +17,7 @@ import {
 import {
     AcessoIndiceVariavel,
     Agrupamento,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -72,7 +72,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         return dimensoes;
     }
 
-    private logicaComumParametroMapler(): 
+    private logicaComumParametroMapler():
         { identificadores: SimboloInterface[], tipo: string, simbolo: SimboloInterface }
     {
         const identificadores = [];
@@ -115,7 +115,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
 
             const simboloAtual = this.simbolos[this.atual];
-            
+
             switch (simboloAtual.tipo) {
                 // case tiposDeSimbolos.PROCEDIMENTO:
                 //     const dadosProcedimento = this.declaracaoProcedimento();
@@ -259,7 +259,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
     /**
      * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     atribuir(): Construto {
         const expressao = this.ou();
@@ -272,7 +272,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
                     expressao.entidadeChamada,
@@ -296,9 +296,9 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const declaracoes = [];
 
         // while (![
-        //         tiposDeSimbolos.FIM_FUNCAO, 
+        //         tiposDeSimbolos.FIM_FUNCAO,
         //         tiposDeSimbolos.FIM_PROCEDIMENTO
-        //     ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal()) 
+        //     ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal())
         // {
         //     declaracoes.push(this.declaracao());
         // }
@@ -380,10 +380,10 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         );
 
         return new Enquanto(
-            condicao, 
+            condicao,
             new Bloco(
-                simboloAtual.hashArquivo, 
-                Number(simboloAtual.linha), 
+                simboloAtual.hashArquivo,
+                Number(simboloAtual.linha),
                 declaracoes.filter(d => d)
             )
         );
@@ -599,7 +599,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
     //         // Consumir parêntese direito
     //         this.consumir(
-    //             tiposDeSimbolos.PARENTESE_DIREITO, 
+    //             tiposDeSimbolos.PARENTESE_DIREITO,
     //             "Esperado parêntese direito para finalização da leitura de parâmetros."
     //         )
     //     }
@@ -613,7 +613,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     // declaracaoProcedimento() {
     //     const simboloProcedimento: SimboloInterface = this.avancarEDevolverAnterior();
 
-    //     const nomeProcedimento = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+    //     const nomeProcedimento = this.consumir(tiposDeSimbolos.IDENTIFICADOR,
     //         "Esperado nome do procedimento após palavra-chave `procedimento`.");
 
     //     // Parâmetros
@@ -626,9 +626,9 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
     //     return new FuncaoDeclaracao(
     //         nomeProcedimento, new FuncaoConstruto(
-    //             this.hashArquivo, 
-    //             Number(simboloProcedimento.linha), 
-    //             parametros, 
+    //             this.hashArquivo,
+    //             Number(simboloProcedimento.linha),
+    //             parametros,
     //             corpo.filter(d => d)
     //         )
     //     );
@@ -650,19 +650,19 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
                 const simboloSenao = this.simbolos[this.atual - 1];
                 const declaracoesSenao = [];
-    
+
                 do {
                     declaracoesSenao.push(this.declaracao());
                 } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
                         && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
-    
+
                 caminhoSenao = new Bloco(
                     this.hashArquivo,
                     Number(simboloSenao.linha),
                     declaracoesSenao.filter((d) => d)
                 );
             }
-        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo) 
+        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
                 && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
 
         this.consumir(

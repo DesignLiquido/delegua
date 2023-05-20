@@ -3,7 +3,7 @@ import hrtime from 'browser-process-hrtime';
 
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -458,7 +458,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
     /**
      * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     atribuir(): Construto {
         const expressao = this.ou();
@@ -487,7 +487,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 // return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
                     expressao.entidadeChamada,
@@ -595,12 +595,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
-        const nomeVariavelIteracao = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+        const nomeVariavelIteracao = this.consumir(tiposDeSimbolos.IDENTIFICADOR,
             "Esperado identificador de variável de iteração para instrução 'para cada'.");
-        
+
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
             throw this.erro(
-                this.simbolos[this.atual], 
+                this.simbolos[this.atual],
                 "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
             );
         }
@@ -609,10 +609,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const corpo = this.resolverDeclaracao();
 
         return new ParaCada(
-            this.hashArquivo, 
-            Number(simboloPara.linha), 
-            nomeVariavelIteracao.lexema, 
-            vetor, 
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            nomeVariavelIteracao.lexema,
+            vetor,
             corpo
         );
     }
@@ -663,7 +663,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
                 return this.declaracaoParaCada(simboloPara);
-            } 
+            }
 
             return this.declaracaoParaTradicional(simboloPara);
         } finally {

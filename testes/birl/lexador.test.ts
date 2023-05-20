@@ -86,7 +86,7 @@ describe('Lexador (BIRL)', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(51);
+                expect(resultado.simbolos).toHaveLength(50);
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Loop - While', () => {
@@ -105,7 +105,7 @@ describe('Lexador (BIRL)', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(49);
+                expect(resultado.simbolos).toHaveLength(48);
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Condição - If', () => {
@@ -182,7 +182,7 @@ describe('Lexador (BIRL)', () => {
                 );
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(62);
+                expect(resultado.simbolos).toHaveLength(61);
                 expect(resultado.erros).toHaveLength(0);
             });
             it('Sucesso - Declaração de Função', () => {

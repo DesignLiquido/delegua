@@ -66,11 +66,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
@@ -448,7 +448,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoAtribuicaoSobrescrita(expressao?: any): any {
+    visitarExpressaoAtribuicaoPorIndice(expressao?: any): any {
         return null;
     }
 
