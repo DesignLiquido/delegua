@@ -16,7 +16,6 @@ export class MicroLexador {
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
     inicioSimbolo: number;
-    linha: number = 0;
     atual: number = 0;
     codigo: string;
 
@@ -65,9 +64,6 @@ export class MicroLexador {
     }
 
     eFinalDaLinha(): boolean {
-        if (this.codigo.length === this.linha) {
-            return true;
-        }
         return this.atual >= this.codigo.length;
     }
 
@@ -78,14 +74,13 @@ export class MicroLexador {
     avancar(): void {
         this.atual += 1;
         if (this.eFinalDaLinha()) {
-            this.linha++;
             this.atual = 0;
         }
     }
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, -1));
+        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 0, -1));
     }
 
     simboloAtual(): string {
@@ -93,17 +88,12 @@ export class MicroLexador {
         return this.codigo[this.atual];
     }
 
-    avancarParaProximaLinha(): void {
-        this.linha++;
-        this.atual = 0;
-    }
-
     proximoSimbolo(): string {
-        return this.codigo[this.linha].charAt(this.atual + 1);
+        return this.codigo[this.atual + 1];
     }
 
     simboloAnterior(): string {
-        return this.codigo[this.linha].charAt(this.atual - 1);
+        return this.codigo[this.atual - 1];
     }
 
     analisarTexto(delimitador = '"'): void {
@@ -113,7 +103,7 @@ export class MicroLexador {
 
         if (this.eFinalDoCodigo()) {
             this.erros.push({
-                linha: this.linha + 1,
+                linha: 0,
                 caractere: this.simboloAnterior(),
                 mensagem: 'Texto não finalizado.',
             } as ErroLexador);
