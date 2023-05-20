@@ -123,10 +123,22 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case '+':
+                if (this.proximoSimbolo() === '+') {
+                    this.avancar();
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
+                    break;
+                }
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 this.avancar();
                 break;
             case '-':
+                if (this.proximoSimbolo() === '-') {
+                    this.avancar();
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
+                    break;
+                }
                 this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 this.avancar();
                 break;

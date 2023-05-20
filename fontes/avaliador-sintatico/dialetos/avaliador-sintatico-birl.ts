@@ -235,7 +235,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             declaracoes.push(this.declaracao());
         }
 
-        const corpo = new Bloco(this.hashArquivo, this.simbolos[this.atual].linha, declaracoes);
+        const corpo = new Bloco(
+            this.hashArquivo,
+            this.simbolos[this.atual].linha,
+            declaracoes.filter((d) => d)
+        );
 
         return new Para(
             this.hashArquivo,
@@ -682,26 +686,26 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     declaracao(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
-            case tiposDeSimbolos.ADICAO || tiposDeSimbolos.SUBTRACAO:
-                const adicionaOuSubtrai = this.consumir(
-                    tiposDeSimbolos.ADICAO || tiposDeSimbolos.SUBTRACAO,
-                    'Esperado expressão `ADICAO` ou `SUBTRACAO`.'
-                );
-                if ([tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO].includes(adicionaOuSubtrai.tipo)) {
-                    this.consumir(adicionaOuSubtrai.tipo, 'Esperado expressão `ADICAO` ou `SUBTRACAO`.');
-                    if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
-                        const identificador = this.consumir(
-                            tiposDeSimbolos.IDENTIFICADOR,
-                            'Esperado expressão `IDENTIFICADOR`.'
-                        );
-                        return new Unario(
-                            this.hashArquivo,
-                            adicionaOuSubtrai,
-                            new Variavel(this.hashArquivo, identificador),
-                            'ANTES'
-                        );
-                    }
-                    return;
+            case tiposDeSimbolos.INCREMENTAR:
+            case tiposDeSimbolos.DECREMENTAR:
+                let adicionaOuSubtrai;
+                if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(simboloAtual.tipo)) {
+                    adicionaOuSubtrai = this.consumir(
+                        tiposDeSimbolos[simboloAtual.tipo],
+                        'Esperado expressão `INCREMENTAR` ou `DECREMENTAR`.'
+                    );
+                }
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    const identificador = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        'Esperado expressão `IDENTIFICADOR`.'
+                    );
+                    return new Unario(
+                        this.hashArquivo,
+                        adicionaOuSubtrai,
+                        new Variavel(this.hashArquivo, identificador),
+                        'ANTES'
+                    );
                 }
                 return;
             case tiposDeSimbolos.BORA:
@@ -741,26 +745,22 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 const simboloIdentificador: SimboloInterface = this.simbolos[this.atual];
                 if (
                     this.simbolos[this.atual + 1] &&
-                    [tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO].includes(this.simbolos[this.atual + 1].tipo)
+                    [tiposDeSimbolos.DECREMENTAR, tiposDeSimbolos.INCREMENTAR].includes(
+                        this.simbolos[this.atual + 1].tipo
+                    )
                 ) {
                     this.avancarEDevolverAnterior();
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
-                    if ([tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO].includes(this.simbolos[this.atual].tipo)) {
-                        this.consumir(
-                            tiposDeSimbolos[simboloIncrementoDecremento.tipo],
-                            "Esperado operador '++' ou '--'."
-                        );
-                    } else {
-                        return this.expressao();
-                    }
-
                     return new Unario(
                         this.hashArquivo,
                         simboloIncrementoDecremento,
                         new Variavel(this.hashArquivo, simboloIdentificador),
                         'DEPOIS'
                     );
+                } else {
+                    return this.expressao();
                 }
+
             default:
                 return this.expressao();
         }

@@ -1,4 +1,4 @@
-import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel } from '../../../construtos';
+import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel, Unario } from '../../../construtos';
 import {
     Declaracao,
     Expressao,
@@ -81,7 +81,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             console.log('Aqui');
         } */
 
-        return await expressao.aceitar(this);
+        return await expressao. aceitar(this);
     }
     /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
@@ -111,8 +111,57 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoAgrupamento(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoUnaria(expressao: any) {
-        throw new Error('Método não implementado.');
+
+    protected verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
+        if (typeof operando === 'number' || operando.tipo === 'número') return;
+        throw new ErroEmTempoDeExecucao(operador, 'Operando precisa ser um número.', Number(operador.linha));
+    }
+
+    async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
+        const operando = await this.avaliar(expressao.operando);
+        let valor: any = operando.hasOwnProperty('valor') ? operando.valor : operando;
+
+        switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.SUBTRACAO:
+                this.verificarOperandoNumero(expressao.operador, valor);
+                return -valor;
+            case tiposDeSimbolos.NEGACAO:
+                return !this.eVerdadeiro(valor);
+            case tiposDeSimbolos.BIT_NOT:
+                return ~valor;
+            // Para incrementar e decrementar, primeiro precisamos saber se o operador
+            // veio antes do literal ou variável.
+            // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
+            // armazenar o valor da variável pra só então devolver o valor.
+            case tiposDeSimbolos.INCREMENTAR:
+                if (expressao.incidenciaOperador === 'ANTES') {
+                    valor++;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                    }
+
+                    return valor;
+                }
+
+                const valorAnteriorIncremento = valor;
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
+                return valorAnteriorIncremento;
+            case tiposDeSimbolos.DECREMENTAR:
+                if (expressao.incidenciaOperador === 'ANTES') {
+                    valor--;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                    }
+
+                    return valor;
+                }
+
+                const valorAnteriorDecremento = valor;
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
+                return valorAnteriorDecremento;
+        }
+
+        return null;
     }
 
     protected eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
@@ -490,7 +539,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = await this. avaliar(declaracao.inicializador);
         }
 
         let valorFinal = null;
@@ -599,6 +648,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
         let resultado: any = null;
+        // Tratar caso Bloco
         if (declaracao instanceof Array) {
             for (const decl of declaracao) {
                 resultado = await this.executar(decl, mostrarResultado);
