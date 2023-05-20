@@ -16,7 +16,7 @@ export class MicroLexador {
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
     inicioSimbolo: number;
-    atual: number = 0;
+    atual: number;
     codigo: string;
 
     eDigito(caractere: string): boolean {
@@ -137,7 +137,6 @@ export class MicroLexador {
                 this.atual++;
                 break;
             case '+':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 if (this.codigo[this.atual] === '+') {
                     this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
@@ -148,7 +147,6 @@ export class MicroLexador {
 
                 break;
             case '-':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 if (this.codigo[this.atual] === '-') {
                     this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
@@ -159,7 +157,6 @@ export class MicroLexador {
 
                 break;
             case '*':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 switch (this.codigo[this.atual]) {
                     case '*':
@@ -173,17 +170,14 @@ export class MicroLexador {
 
                 break;
             case '/':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 break;
             case '%':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 break;
             case '\\':
-                this.inicioSimbolo = this.atual;
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                 break;
