@@ -56,6 +56,12 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
             parseFloat(numeroCompleto));
     }
 
+    avancarParaProximaLinha(): void {
+        while (this.codigo[this.atual] !== '\n') {
+            this.atual++;
+        }
+    }
+
     identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
@@ -95,6 +101,10 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
                 this.avancar();
                 break; */
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
+                break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.avancar();
@@ -132,7 +142,6 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 } */
 
                 break;
-
             case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
@@ -147,6 +156,10 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                         break;
                 } */
                 break;
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                this.avancar();
+                break;
             case '=':
                 this.avancar();
                 this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
@@ -157,6 +170,9 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
                 } */
 
+                break;
+            case '#':
+                this.avancarParaProximaLinha();
                 break;
 
             /* case '&':
@@ -181,12 +197,20 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
 
             case '<':
                 this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                        this.avancar();
+                        break;
+                    case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                        break;
                 }
+
                 break;
 
             case '>':

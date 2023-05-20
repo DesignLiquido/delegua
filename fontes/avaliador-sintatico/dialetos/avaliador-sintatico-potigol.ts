@@ -86,6 +86,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     atribuir(): Construto {
+        
         return this.ou();
     }
 
