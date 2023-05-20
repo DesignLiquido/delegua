@@ -26,5 +26,13 @@ describe('Avaliador sintático', () => {
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
+
+        it('Sucesso - Chamada de função', () => {
+            const retornoLexador = microLexador.mapear("somar(2, 3)");
+            const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
     });
 });
