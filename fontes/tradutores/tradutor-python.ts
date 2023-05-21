@@ -1,40 +1,82 @@
-import { CharStreams, CommonTokenStream } from 'antlr4ts';
-import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
+
+import { CharStreams, CodePointCharStream, CommonTokenStream } from 'antlr4ts';
 
 import { Python3Lexer } from './python/python3-lexer';
 import { Python3Listener } from './python/python3-listener';
-import { Import_nameContext, ExprContext, Python3Parser } from './python/python3-parser';
+import { ExprContext, Python3Parser, StmtContext, AnnassignContext, Expr_stmtContext, Simple_assignContext } from './python/python3-parser';
+import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 
 /**
  * Esse teste verifica o código passado dentro de `CharStreams.fromString()`.
  * Aqui apenas testamos quais seções da gramática estamos passando. 
  */
-class TesteListenerPython implements Python3Listener {
-    enterImport_name(ctx: Import_nameContext): void {
-        console.log(`Linha do import: ${ctx._start.line}`);
+export class TradutorPython implements Python3Listener {
+    inputStream: CodePointCharStream;
+    lexer: Python3Lexer;
+    parser: Python3Parser;
+    tokenStream: CommonTokenStream;
+    resultado: string;
+
+    /**
+     * Aqui é preciso contar se o contexto tem filhos. 
+     * Há alguns casos em que este código é executado mais
+     * de uma vez por algum motivo.
+     * @param ctx O contexto da atribuição.
+     */
+    enterSimple_assign(ctx: Simple_assignContext): void {
+        if (ctx.childCount > 0) {
+            this.resultado += ' = ';
+        }
     }
 
-    exitImport_name(ctx: Import_nameContext): void {
-        console.log(`Saiu do import: ${ctx._stop.text}`);
+    /**
+     * Aparentemente é o melhor lugar para escrever quebras de linha. 
+     * @param ctx Contexto da instrução.
+     */
+    exitStmt(ctx: StmtContext): void {
+        this.resultado += ctx.stop.text;
+    }
+
+    enterExpr_stmt(ctx: Expr_stmtContext): void {
+        // console.log(ctx.start.text);
     }
 
     enterExpr(ctx: ExprContext): void {
-        console.log(`Linha de expressão ${ctx._start.line}`);
+        switch (ctx.start.text) {
+            case 'input':
+                this.resultado += 'leia(';
+                break;
+            case 'print':
+                this.resultado += 'escreva(';
+                break;
+            default:
+                this.resultado += ctx.start.text;
+                break;
+        }
+    }
+
+    exitExpr(ctx: ExprContext): void {
+        switch (ctx.start.text) {
+            case 'input':
+            case 'print':
+                this.resultado += ')';
+                break;
+            default:
+                break;
+        }
+    }
+
+    traduzir(codigo: string) {
+        this.inputStream = CharStreams.fromString(codigo);
+        this.lexer = new Python3Lexer(this.inputStream);
+        this.tokenStream = new CommonTokenStream(this.lexer);
+        this.parser = new Python3Parser(this.tokenStream);
+        this.resultado = "";
+
+        // Aqui achei três bons pontos de entrada:
+        // single_input, file_input e eval_input. O que funcionou melhor foi o file_input.
+        let tree = this.parser.file_input();
+        ParseTreeWalker.DEFAULT.walk(this as any, tree);
+        return this.resultado;
     }
 }
-
-// Criamos um Lexador e um avaliador sintático aqui.
-let inputStream = CharStreams.fromString("import json\nimport os\nimport sys\n");
-let lexer = new Python3Lexer(inputStream);
-let tokenStream = new CommonTokenStream(lexer);
-let parser = new Python3Parser(tokenStream);
-
-// Aqui criamos o Listener, que apenas fala por onde o caminhante de árvore sintática
-// passou. Neste caso, testamos o ponto de entrada (file_input) e um método de 
-// importação.
-let listener = new TesteListenerPython();
-
-// Aqui achei três bons pontos de entrada:
-// single_input, file_input e eval_input. O que funcionou melhor foi o file_input.
-let tree = parser.file_input();
-ParseTreeWalker.DEFAULT.walk(listener as any, tree);

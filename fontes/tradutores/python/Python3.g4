@@ -210,8 +210,9 @@ expr_stmt:
 	testlist_star_expr (
 		annassign
 		| augassign (yield_expr | testlist)
-		| ('=' (yield_expr | testlist_star_expr))*
+		| simple_assign
 	);
+simple_assign: ('=' (yield_expr | testlist_star_expr))*;
 annassign: ':' test ('=' test)?;
 testlist_star_expr: (test | star_expr) (',' (test | star_expr))* (
 		','
