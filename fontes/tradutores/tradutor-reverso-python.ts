@@ -1,16 +1,17 @@
 
 import { CharStreams, CodePointCharStream, CommonTokenStream } from 'antlr4ts';
+import { ExprContext, Python3Parser, StmtContext, Expr_stmtContext, Simple_assignContext } from './python/python3-parser';
+import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 
 import { Python3Lexer } from './python/python3-lexer';
 import { Python3Listener } from './python/python3-listener';
-import { ExprContext, Python3Parser, StmtContext, AnnassignContext, Expr_stmtContext, Simple_assignContext } from './python/python3-parser';
-import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 
 /**
- * Esse teste verifica o código passado dentro de `CharStreams.fromString()`.
- * Aqui apenas testamos quais seções da gramática estamos passando. 
+ * Tradutor reverso de Python para Delégua. 
+ * Utiliza o ecossistema do ANTLR para percorrer código em
+ * Python e traduzir para Delégua. 
  */
-export class TradutorPython implements Python3Listener {
+export class TradutorReversoPython implements Python3Listener {
     inputStream: CodePointCharStream;
     lexer: Python3Lexer;
     parser: Python3Parser;
