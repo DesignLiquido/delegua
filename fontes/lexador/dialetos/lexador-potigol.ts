@@ -150,21 +150,14 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                /* switch (this.simboloAtual()) {
-                    case '=':
-                        this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
-                        break;
-                    default:
-                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                        break;
-                } */
                 break;
             case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                 break;
             case '=':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
                 this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
                 /* if (this.simboloAtual() === '=') {
@@ -193,11 +186,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
                 this.avancar();
                 break;
-
-            case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
-                this.avancar();
-                break; */
+             */
 
             case '<':
                 this.avancar();
@@ -228,7 +217,9 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 break;
 
             case '/':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 /* switch (this.simboloAtual()) {
                     case '/':
                         this.avancarParaProximaLinha();
@@ -241,7 +232,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                         this.avancar();s
                         break;
                     default:
-                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                        
                         break;
                 } */
 

@@ -141,7 +141,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
