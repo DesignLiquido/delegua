@@ -7,6 +7,10 @@ import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
 import { SimboloInterface } from "../../interfaces";
 import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
 
+/**
+ * TODO: Pensar numa forma de avaliar múltiplas constantes sem
+ * transformar o retorno de `primario()` em um vetor. 
+ */
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     tiposPotigolParaDelegua = {
         'Caractere': 'texto',
@@ -37,7 +41,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return new Literal(this.hashArquivo, Number(simboloVariavel.linha), simboloVariavel.literal);
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Variavel(this.hashArquivo, simboloIdentificador);
+                return new Constante(this.hashArquivo, simboloIdentificador);
         }
     }
 
@@ -144,48 +148,51 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
+    protected logicaAtribuicaoComDica(expressao: Constante) {
+        // A dica de tipo é opcional.
+        // Só que, se a avaliação entra na dica, só
+        // podemos ter uma constante apenas.
+        this.avancarEDevolverAnterior();
+        if (![
+            tiposDeSimbolos.CARACTERE,
+            tiposDeSimbolos.INTEIRO,
+            tiposDeSimbolos.LOGICO,
+            tiposDeSimbolos.REAL,
+            tiposDeSimbolos.TEXTO
+        ].includes(this.simbolos[this.atual].tipo)) {
+            throw this.erro(
+                this.simbolos[this.atual], 
+                "Esperado tipo após dois-pontos e nome de identificador."
+            );
+        }
+
+        const tipoVariavel = this.avancarEDevolverAnterior();
+        const valorAtribuicaoConstante = this.ou();
+        return new Const(
+            (expressao as Constante).simbolo, 
+            valorAtribuicaoConstante, 
+            this.tiposPotigolParaDelegua[tipoVariavel.lexema] as TiposDadosInterface
+        );
+    }
+
     atribuir(): Construto {
         const expressao = this.ou();
 
-        if (expressao instanceof Variavel) {
+        if (expressao instanceof Constante) {
             // Atribuição constante.
-            let tipoVariavel;
-            switch (this.simbolos[this.atual].tipo) {
-                case tiposDeSimbolos.DOIS_PONTOS:
-                    // A dica de tipo é opcional.
-                    this.avancarEDevolverAnterior();
-                    if (![
-                        tiposDeSimbolos.CARACTERE,
-                        tiposDeSimbolos.INTEIRO,
-                        tiposDeSimbolos.LOGICO,
-                        tiposDeSimbolos.REAL,
-                        tiposDeSimbolos.TEXTO
-                    ].includes(this.simbolos[this.atual].tipo)) {
-                        throw this.erro(
-                            this.simbolos[this.atual], 
-                            "Esperado tipo após dois-pontos e nome de identificador."
-                        );
-                    }
-
-                    // Aqui não tem `break` de propósito.
-                    // O código deve continuar executando como abaixo.
-                case tiposDeSimbolos.IGUAL:
-                    this.avancarEDevolverAnterior();
-                    const valorAtribuicaoConstante = this.ou();
-                    return new Const(
-                        (expressao as Constante).simbolo, 
-                        valorAtribuicaoConstante, 
-                        this.tiposPotigolParaDelegua[tipoVariavel.lexema] as TiposDadosInterface
-                    );
-                case tiposDeSimbolos.REATRIBUIR:
-                    // O símbolo de reatribuição em Potigol é ':='.
-                    this.avancarEDevolverAnterior();
-                    const valorAtribuicao = this.ou();
-                    return new Atribuir(
-                        this.hashArquivo,
-                        (expressao as Constante).simbolo, 
-                        valorAtribuicao
-                    );
+            
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                return this.logicaAtribuicaoComDica(expressao);
+            } else {
+                // case tiposDeSimbolos.REATRIBUIR:
+                // O símbolo de reatribuição em Potigol é ':='.
+                this.avancarEDevolverAnterior();
+                const valorAtribuicao = this.ou();
+                return new Atribuir(
+                    this.hashArquivo,
+                    (expressao as Constante).simbolo, 
+                    valorAtribuicao
+                );
             }
         }
 
