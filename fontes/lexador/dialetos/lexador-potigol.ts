@@ -5,6 +5,10 @@ import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
 import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
 import { palavrasReservadas } from "./palavras-reservadas/potigol";
 
+/**
+ * Lexador para o dialeto Potigol.
+ * Este dialeto é sensível a tamanho de caixa. `Inteiro` é aceito. `inteiro` não.
+ */
 export class LexadorPotigol extends LexadorBaseLinhaUnica {
     protected logicaComumCaracteres(delimitador: string) {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {

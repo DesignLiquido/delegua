@@ -1,4 +1,4 @@
-import { Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
+import { Agrupamento, Atribuir, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
 import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
@@ -11,11 +11,19 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const expressao = this.expressao();
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+
+                return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+            case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.LOGICO:
             case tiposDeSimbolos.REAL:
             case tiposDeSimbolos.TEXTO:
-                const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal);
+                const simboloVariavel: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloVariavel.linha), simboloVariavel.literal);
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Variavel(this.hashArquivo, simboloIdentificador);
@@ -86,8 +94,35 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     atribuir(): Construto {
-        
-        return this.ou();
+        const expressao = this.ou();
+
+        if (expressao instanceof Variavel) {
+            switch (this.simbolos[this.atual].tipo) {
+                case tiposDeSimbolos.DOIS_PONTOS:
+                    this.avancarEDevolverAnterior();
+                    if (![
+                        tiposDeSimbolos.CARACTERE,
+                        tiposDeSimbolos.INTEIRO,
+                        tiposDeSimbolos.LOGICO,
+                        tiposDeSimbolos.REAL,
+                        tiposDeSimbolos.TEXTO
+                    ].includes(this.simbolos[this.atual].tipo)) {
+                        throw this.erro(
+                            this.simbolos[this.atual], 
+                            "Esperado tipo após dois-pontos e nome de identificador."
+                        );
+                    }
+
+                    const tipoVariavel = this.avancarEDevolverAnterior();
+                    this.consumir(tiposDeSimbolos.IGUAL, 
+                        "Esperado sinal de igual após tipo de variável.");
+
+                    const valorAtribuicao = this.ou();
+                    return new Atribuir(this.hashArquivo, (expressao as Variavel).simbolo, valorAtribuicao);
+            }
+        }
+
+        return expressao;
     }
 
     analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
