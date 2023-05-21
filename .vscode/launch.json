@@ -757,6 +757,23 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
+            "name": "Testes unitários - Tradutor Portugol IPT para Delégua",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-portugol-ipt.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Testes unitários - Tradutor Visualg para Delégua",
             "type": "node",
             "request": "launch",
