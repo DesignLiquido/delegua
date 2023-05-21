@@ -106,8 +106,15 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break; */
             case ':':
-                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.REATRIBUIR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                }
+                
                 break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
@@ -159,13 +166,13 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
             case '=':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
-                this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
-                /* if (this.simboloAtual() === '=') {
+
+                if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
-                } */
+                }
 
                 break;
             case '#':

@@ -14,5 +14,6 @@ export const palavrasReservadas = {
     nao: tiposDeSimbolos.NEGACAO,
     não: tiposDeSimbolos.NEGACAO,
     Real: tiposDeSimbolos.REAL,
-    Texto: tiposDeSimbolos.TEXTO
+    Texto: tiposDeSimbolos.TEXTO,
+    var: tiposDeSimbolos.VARIAVEL
 }

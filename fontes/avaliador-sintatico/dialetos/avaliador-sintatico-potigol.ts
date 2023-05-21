@@ -1,12 +1,23 @@
-import { Agrupamento, Atribuir, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha } from "../../declaracoes";
+import { Agrupamento, Atribuir, Binario, Constante, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
 import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
 import { SimboloInterface } from "../../interfaces";
+import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
 
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
+    tiposPotigolParaDelegua = {
+        'Caractere': 'texto',
+        'Inteiro': 'numero',
+        'Logico': 'lógico',
+        'Lógico': 'lógico',
+        'Real': 'numero',
+        'Texto': 'texto',
+        undefined: undefined
+    }
+
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -34,6 +45,17 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return this.primario();
     }
     
+    comparacaoIgualdade(): Construto {
+        let expressao = this.comparar();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.comparar();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
 
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.avancarEDevolverAnterior();
@@ -77,6 +99,33 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     declaracaoFazer(): Fazer {
         throw new Error("Método não implementado.");
     }
+
+    declaracaoDeVariaveis(): Var[] {
+        const simboloVar = this.avancarEDevolverAnterior();
+        const identificadores: SimboloInterface[] = [];
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        
+        this.consumir(tiposDeSimbolos.REATRIBUIR, "Esperado ':=' após identificador em instrução 'var'.");
+
+        const inicializadores = [];
+        do {
+            inicializadores.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (identificadores.length !== inicializadores.length) {
+            throw this.erro(simboloVar, "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
+        }
+
+        const retorno = [];
+        for (let [indice, identificador] of identificadores.entries()) {
+            retorno.push(new Var(identificador, inicializadores[indice]));
+        }
+
+        return retorno;
+    }
+    
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         throw new Error("Método não implementado.");
     }
@@ -88,6 +137,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.IMPRIMA:
                 return this.declaracaoImprima();
+            case tiposDeSimbolos.VARIAVEL:
+                return this.declaracaoDeVariaveis();
             default:
                 return this.expressao();
         }
@@ -97,8 +148,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const expressao = this.ou();
 
         if (expressao instanceof Variavel) {
+            // Atribuição constante.
+            let tipoVariavel;
             switch (this.simbolos[this.atual].tipo) {
                 case tiposDeSimbolos.DOIS_PONTOS:
+                    // A dica de tipo é opcional.
                     this.avancarEDevolverAnterior();
                     if (![
                         tiposDeSimbolos.CARACTERE,
@@ -113,12 +167,25 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         );
                     }
 
-                    const tipoVariavel = this.avancarEDevolverAnterior();
-                    this.consumir(tiposDeSimbolos.IGUAL, 
-                        "Esperado sinal de igual após tipo de variável.");
-
+                    // Aqui não tem `break` de propósito.
+                    // O código deve continuar executando como abaixo.
+                case tiposDeSimbolos.IGUAL:
+                    this.avancarEDevolverAnterior();
+                    const valorAtribuicaoConstante = this.ou();
+                    return new Const(
+                        (expressao as Constante).simbolo, 
+                        valorAtribuicaoConstante, 
+                        this.tiposPotigolParaDelegua[tipoVariavel.lexema] as TiposDadosInterface
+                    );
+                case tiposDeSimbolos.REATRIBUIR:
+                    // O símbolo de reatribuição em Potigol é ':='.
+                    this.avancarEDevolverAnterior();
                     const valorAtribuicao = this.ou();
-                    return new Atribuir(this.hashArquivo, (expressao as Variavel).simbolo, valorAtribuicao);
+                    return new Atribuir(
+                        this.hashArquivo,
+                        (expressao as Constante).simbolo, 
+                        valorAtribuicao
+                    );
             }
         }
 
@@ -133,9 +200,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
 
-        const declaracoes: Declaracao[] = [];
+        let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao() as Declaracao);
+            const retornoDeclaracao = this.declaracao();
+            if (Array.isArray(retornoDeclaracao)) {
+                declaracoes = declaracoes.concat(retornoDeclaracao);
+            } else {
+                declaracoes.push(retornoDeclaracao as Declaracao);
+            }
         }
 
         return {
