@@ -57,12 +57,12 @@ export default {
         return Promise.resolve(vetor);
     },
     removerPrimeiro: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
-        vetor.shift();
-        return Promise.resolve(vetor);
+        let elemento = vetor.shift();
+        return Promise.resolve(elemento);
     },
     removerUltimo: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
-        vetor.pop();
-        return Promise.resolve(vetor);
+        let elemento = vetor.pop();
+        return Promise.resolve(elemento);
     },
     somar: (interpretador: VisitanteComumInterface, vetor: Array<number>): Promise<any> => Promise.resolve(vetor.reduce((a, b) => a + b)),
     tamanho: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
