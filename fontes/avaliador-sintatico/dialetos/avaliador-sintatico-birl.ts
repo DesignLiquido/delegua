@@ -401,27 +401,33 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 "Esperado identificador após palavra reservada 'TRAPEZIO'."
             );
 
-            inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), 0), 'numero')
-            );
+            let valorInicializacao: any = 0x00;
 
-            // Inicializações de variáveis que podem ter valores definidos
-            let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(
-                    tiposDeSimbolos.NUMERO,
-                    'Esperado literal de TRAPEZIO após símbolo de igual em declaração de variavel.'
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    valorInicializacao = this.declaracao();
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    valorInicializacao = this.declaracao();
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
+                    const literalInicializacao = this.consumir(
+                        tiposDeSimbolos.NUMERO,
+                        "Esperado literal de 'TRAPEZIO' após símbolo de igual em declaração de variável."
+                    );
+                    valorInicializacao = parseFloat(literalInicializacao.literal);
+                } else {
+                    throw new Error(
+                        `Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`
+                    )
+                }
+            } else {
+                inicializacoes.push(
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloFloat.linha), 0),
+                        'numero'
+                    )
                 );
-                valorInicializacao = parseFloat(literalInicializacao.literal);
             }
-
-            inicializacoes.push(
-                new Var(
-                    identificador,
-                    new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao),
-                    'numero'
-                )
-            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return inicializacoes;
     }

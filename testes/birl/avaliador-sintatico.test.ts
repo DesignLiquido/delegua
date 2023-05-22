@@ -683,6 +683,26 @@ describe('Avaliador Sintático Birl', () => {
                     })
                 );
             });
+
+            it('Falha - Variavel - Float - Recebendo string', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'HORA DO SHOW \n',
+                        '  TRAPEZIO M1 = "teste"; \n',
+                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  BORA CUMPADE 0; \n',
+                        'BIRL \n',
+                    ],
+                    -1
+                );
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: "Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.",
+                    })
+                );
+            });
         });
     });
 });
