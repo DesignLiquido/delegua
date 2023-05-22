@@ -65,7 +65,7 @@ describe('Avaliador Sintático Birl', () => {
             it('Sucesso - Variavel - String', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    "   FRANGO FR = 'testes';\n",
+                    '   FRANGO FR = "testes";\n',
                     '   CE QUER VER ESSA PORRA? (FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
@@ -142,7 +142,7 @@ describe('Avaliador Sintático Birl', () => {
             it('Sucesso - Variavel - unsigned char', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    `  BICEPS FRANGO TD = 'test'; \n`,
+                    `  BICEPS FRANGO TD = "test"; \n`,
                     '  CE QUER VER ESSA PORRA? (TD); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
@@ -661,7 +661,25 @@ describe('Avaliador Sintático Birl', () => {
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
                     expect.objectContaining({
-                        message: "Simbolo passado para inicialização de variável do tipo MONSTRINHO não é válido."
+                        message: 'Simbolo passado para inicialização de variável do tipo MONSTRINHO não é válido.',
+                    })
+                );
+            });
+
+            it('Falha - declaração - Variavel - string recebendo numero', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '  FRANGO M1 = 1; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message:
+                            'Erro ao declarar variável do tipo texto. Verifique se esta atribuindo um valor do tipo texto.',
                     })
                 );
             });
