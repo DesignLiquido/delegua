@@ -295,16 +295,23 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 "Esperado identificador após palavra reservada 'FRANGO'."
             );
 
-            // Inicialização de variáveis que podem ter valor definido;
             let valorInicializacao: string | Array<string>;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para começar o texto.");
-                const literalInicializacao = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    'Esperado literal de FRANGO após símbolo de igual em declaração de variável.'
-                );
-                this.consumir(tiposDeSimbolos.TEXTO, "Esperado ' para terminar o texto.");
-                valorInicializacao = String(literalInicializacao.literal);
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    valorInicializacao = this.declaracao();
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    valorInicializacao = this.declaracao();
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.TEXTO)) {
+                    const literalInicializacao = this.consumir(
+                        tiposDeSimbolos.TEXTO,
+                        "Esperado ' para começar o texto."
+                    );
+                    valorInicializacao = String(literalInicializacao.literal);
+                } else {
+                    throw new Error(
+                        'Erro ao declarar variável do tipo texto. Verifique se esta atribuindo um valor do tipo texto.'
+                    );
+                }
                 inicializacoes.push(
                     new Var(
                         identificador,
@@ -362,7 +369,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 } else {
                     throw new Error(
                         `Simbolo passado para inicialização de variável do tipo ${simboloInteiro.lexema} não é válido.`
-                    )
+                    );
                 }
                 inicializacoes.push(
                     new Var(
@@ -394,27 +401,40 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 "Esperado identificador após palavra reservada 'TRAPEZIO'."
             );
 
-            inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), 0), 'numero')
-            );
+            let valorInicializacao: any = 0x00;
 
-            // Inicializações de variáveis que podem ter valores definidos
-            let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(
-                    tiposDeSimbolos.NUMERO,
-                    'Esperado literal de TRAPEZIO após símbolo de igual em declaração de variavel.'
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    valorInicializacao = this.declaracao();
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    valorInicializacao = this.declaracao();
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
+                    const literalInicializacao = this.consumir(
+                        tiposDeSimbolos.NUMERO,
+                        "Esperado literal de 'TRAPEZIO' após símbolo de igual em declaração de variável."
+                    );
+                    valorInicializacao = parseFloat(literalInicializacao.literal);
+                } else {
+                    throw new Error(
+                        `Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`
+                    )
+                }
+                inicializacoes.push(
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao),
+                        'numero'
+                    )
                 );
-                valorInicializacao = parseFloat(literalInicializacao.literal);
+            } else {
+                inicializacoes.push(
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloFloat.linha), 0),
+                        'numero'
+                    )
+                );
             }
-
-            inicializacoes.push(
-                new Var(
-                    identificador,
-                    new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao),
-                    'numero'
-                )
-            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return inicializacoes;
     }

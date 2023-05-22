@@ -153,7 +153,7 @@ describe('Interpretador', () => {
             it('Sucesso - Variavel - String', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    "   FRANGO FR = 'testes';\n",
+                    '   FRANGO FR = "testes";\n',
                     '   CE QUER VER ESSA PORRA? (FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
