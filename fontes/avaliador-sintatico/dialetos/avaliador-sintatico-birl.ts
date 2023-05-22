@@ -415,9 +415,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                     );
                     valorInicializacao = parseFloat(literalInicializacao.literal);
                 } else {
-                    throw new Error(
-                        `Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`
-                    )
+                    throw new Error(`Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`);
                 }
                 inicializacoes.push(
                     new Var(
@@ -428,11 +426,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 );
             } else {
                 inicializacoes.push(
-                    new Var(
-                        identificador,
-                        new Literal(this.hashArquivo, Number(simboloFloat.linha), 0),
-                        'numero'
-                    )
+                    new Var(identificador, new Literal(this.hashArquivo, Number(simboloFloat.linha), 0), 'numero')
                 );
             }
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -442,7 +436,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     declaracaoRetorna(): Retorna {
         const primeiroSimbolo = this.consumir(tiposDeSimbolos.BORA, 'Esperado expressão `BORA` para retornar valor.');
         this.consumir(tiposDeSimbolos.CUMPADE, 'Esperado expressão `CUMPADE` após `BORA` para retornar valor.');
-        // this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.INTERROGACAO)) {
+            this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
+        }
 
         const valor = this.declaracao();
 
