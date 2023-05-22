@@ -326,17 +326,20 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
-    declaracaoInteiros(): Var[] {
-        let simboloInteiro: SimboloInterface;
+    validarTipoDeclaracaoInteiro(): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRO)) {
-            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRO, '');
+            return this.consumir(tiposDeSimbolos.MONSTRO, '');
         } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRINHO)) {
-            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRINHO, '');
+            return this.consumir(tiposDeSimbolos.MONSTRINHO, '');
         } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MONSTRAO)) {
-            simboloInteiro = this.consumir(tiposDeSimbolos.MONSTRAO, '');
+            return this.consumir(tiposDeSimbolos.MONSTRAO, '');
         } else {
             throw new Error('Simbolo referente a inteiro não especificado.');
         }
+    }
+
+    declaracaoInteiros(): Var[] {
+        let simboloInteiro: SimboloInterface = this.validarTipoDeclaracaoInteiro();
 
         const inicializacoes = [];
         do {
@@ -344,12 +347,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.IDENTIFICADOR,
                 `Esperado identificador após palavra reservada '${simboloInteiro.lexema}'.`
             );
-            let valorInicializacao = 0x00;
+            let valorInicializacao: any = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
                     valorInicializacao = this.declaracao();
-                }
-                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
                     const literalInicializacao = this.consumir(
@@ -357,6 +359,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         `Esperado literal de ${simboloInteiro.lexema} após símbolo de igual em declaração de variável.`
                     );
                     valorInicializacao = Number(literalInicializacao.literal);
+                } else {
+                    throw new Error(
+                        `Simbolo passado para inicialização de variável do tipo ${simboloInteiro.lexema} não é válido.`
+                    )
                 }
                 inicializacoes.push(
                     new Var(

@@ -649,7 +649,7 @@ describe('Avaliador Sintático Birl', () => {
                 );
             });
 
-            it.skip('Falha - declaração - Variavel - numero recebendo string', () => {
+            it('Falha - declaração - Variavel - numero recebendo string', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '  MONSTRINHO M1 = "Teste"; \n',
@@ -658,7 +658,12 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL \n',
                 ]);
 
-                console.log(avaliadorSintatico.analisar(retornoLexador, -1));
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: "Simbolo passado para inicialização de variável do tipo MONSTRINHO não é válido."
+                    })
+                );
             });
         });
     });
