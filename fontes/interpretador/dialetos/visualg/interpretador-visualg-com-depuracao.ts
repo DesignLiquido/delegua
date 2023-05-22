@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
@@ -119,52 +121,6 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         await this.executar(declaracao.incremento);
     }
 
-    async atribuirVariavel(expressao: Construto, valor: any): Promise<any> {
-        if (expressao instanceof Variavel) {
-            this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
-            return;
-        }
-
-        if (expressao instanceof AcessoIndiceVariavel) {
-            const promises = await Promise.all([
-                this.avaliar(expressao.entidadeChamada),
-                this.avaliar(expressao.indice)
-            ]);
-
-            let alvo = promises[0];
-            let indice = promises[1];
-            const subtipo = alvo.hasOwnProperty('subtipo') ? 
-                alvo.subtipo :
-                undefined;
-
-            if (alvo.hasOwnProperty('valor')) {
-                alvo = alvo.valor;
-            }
-
-            if (indice.hasOwnProperty('valor')) {
-                indice = indice.valor;
-            }
-
-            let valorResolvido;
-            switch (subtipo) {
-                case 'texto':
-                    valorResolvido = String(valor);
-                    break;
-                case 'número':
-                    valorResolvido = Number(valor);
-                    break;
-                case 'lógico':
-                    valorResolvido = Boolean(valor);
-                    break;
-                default:
-                    valorResolvido = valor;
-                    break;
-            }
-
-            alvo[indice] = valorResolvido;
-        }
-    }
-
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.
@@ -182,26 +138,28 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                 );
 
             const valorLido = await promessaLeitura();
-            await this.atribuirVariavel(argumento, valorLido);
+            await comum.atribuirVariavel(this, argumento, valorLido);
         }
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        const corpoExecucao = declaracao.corpo as Bloco;
-        if (declaracao.inicializador !== null && !declaracao.inicializada) {
-            await this.avaliar(declaracao.inicializador);
+        // const cloneDeclaracao = JSON.parse(JSON.stringify(declaracao)) as Para;
+        const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
+        const corpoExecucao = cloneDeclaracao.corpo as Bloco;
+        if (cloneDeclaracao.inicializador !== null) {
+            await this.avaliar(cloneDeclaracao.inicializador);
             // O incremento vai ao final do bloco de escopo.
-            if (declaracao.incrementar !== null) {
-                await comum.resolverIncrementoPara(this, declaracao);
-                corpoExecucao.declaracoes.push(declaracao.incrementar);
+            if (cloneDeclaracao.incrementar !== null) {
+                await comum.resolverIncrementoPara(this, cloneDeclaracao);
+                corpoExecucao.declaracoes.push(cloneDeclaracao.incrementar);
             }
         }
 
-        declaracao.inicializada = true;
+        // cloneDeclaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
             case "proximo":
-                if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                if (cloneDeclaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
                     
                     const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
@@ -209,11 +167,12 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                 }
 
                 escopoAtual.emLacoRepeticao = false;
+                // declaracao.inicializada = false;
                 return null;
             default: 
                 let retornoExecucao: any;
                 while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
-                    if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    if (cloneDeclaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
                         break;
                     }
 
@@ -231,6 +190,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                     }
                 }
                 // escopoAtual.emLacoRepeticao = false;
+                // declaracao.inicializada = false;
                 return retornoExecucao;
         }
     }

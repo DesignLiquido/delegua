@@ -81,6 +81,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Interpolação de Texto/Função/Expressão', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao somar(num1, num2) {",
+                        "retorna num1 + num2;",
+                        "}",
+                        "escreva('somar: ${somar(5, 3)} = ${4 + 5 - 1}');",
+                        "escreva('somar com ponto flutuante: ${somar(5.7, 3.3)} = ${5 + 5 - 1}');",
+                        "escreva('${4 - 2 / 1}');",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Incremento e decremento após variável ou literal', async () => {
                     const retornoLexador = lexador.mapear([
                         'var a = 1',
@@ -216,7 +232,6 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    // expect(retornoInterpretador.resultado[0]).toBe('2');
                 });
             });
 
@@ -593,6 +608,55 @@ describe('Interpretador', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Chamada de função com retorno de vetor', async () => {
+                    const codigo = [
+                        "funcao executar() {",
+                        "   retorna [1, 2, \'3\']",
+                        "}",
+                        "escreva(executar())"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de função com inferência de tipos na passagem de parametros', async () => {
+                    const codigo = [
+                        "funcao escreverMensagem(vetor) {",
+                        "   se (vetor.inclui('mundo')) {",
+                        "       escreva(vetor);",
+                        "   }",
+                        "}",
+                        "escreverMensagem([\"Olá\", \"mundo\"]);"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de função primitiva com parametro nulo', async () => {
+                    const codigo = [
+                        "var frutas = [\"maçã\", \"banana\", \"morango\", \"laranja\", \"uva\"]",
+                        "var alimentos = frutas.encaixar(0, 3, nulo, verdadeiro);",
+                        "escreva(alimentos);",
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Fibonacci', async () => {
                     const codigo = [
                         "função fibonacci(n) {",
@@ -739,6 +803,23 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             });
+
+            describe('Métodos de primitivas com dependência no Interpretador', () => {
+                it('ordenar() de vetor com parâmetro função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var numeros = [4, 2, 12, 8];",
+                        "numeros.ordenar(funcao(a, b) {",
+                        "    retorna b - a;",
+                        "});",
+                        "escreva(numeros);"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            })
         });
 
         describe('Cenários de falha', () => {

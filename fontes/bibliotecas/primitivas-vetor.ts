@@ -1,37 +1,69 @@
+import { DeleguaFuncao } from "../estruturas";
+import { VisitanteComumInterface } from "../interfaces";
+
 export default {
-    adicionar: (vetor: Array<any>, elemento: any) => {
+    adicionar: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
         vetor.push(elemento);
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    concatenar: (vetor: Array<any>, outroVetor: Array<any>) => {
-        return vetor.concat(outroVetor)
+    concatenar: (interpretador: VisitanteComumInterface, vetor: Array<any>, outroVetor: Array<any>): Promise<any> => {
+        return Promise.resolve(vetor.concat(outroVetor));
     },
-    empilhar: (vetor: Array<any>, elemento: any) => {
+    empilhar: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
         vetor.push(elemento);
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    encaixar: (vetor: Array<any>, posicaoInicio: number, excluirQuantidade: number, elemento: any = null) => {
-        vetor.splice(posicaoInicio, excluirQuantidade, elemento);
-        return vetor;
+    encaixar: (
+        interpretador: VisitanteComumInterface, 
+        vetor: Array<any>,
+        posicaoInicio: number,
+        excluirQuantidade: number,
+        elemento: any = null,
+        obterElementosExcluidos: boolean = false
+    ): Promise<any> => {
+        let elementosExcluidos = elemento
+            ? vetor.splice(posicaoInicio, excluirQuantidade, elemento)
+            : vetor.splice(posicaoInicio, excluirQuantidade);
+
+        if (obterElementosExcluidos) {
+            return Promise.resolve(elementosExcluidos);
+        }
+        return Promise.resolve(vetor);
     },
-    fatiar: (vetor: Array<any>, inicio: number, fim: number) => vetor.slice(inicio, fim),
-    inclui: (vetor: Array<any>, elemento: any) => vetor.includes(elemento),
-    inverter: (vetor: Array<any>) => vetor.reverse(),
-    juntar: (vetor: Array<any>, separador: string) => vetor.join(separador),
-    ordenar: (vetor: Array<any>) => vetor.sort(),
-    remover: (vetor: Array<any>, elemento: any) => {
+    fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),
+    inclui: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => Promise.resolve(vetor.includes(elemento)),
+    inverter: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.reverse()),
+    juntar: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> => Promise.resolve(vetor.join(separador)),
+    ordenar: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcaoOrdenacao: DeleguaFuncao): Promise<any> => {
+        if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
+            for (let i = 0; i < vetor.length - 1; i++) {
+                for (let j = 1; j < vetor.length; j++) {
+                    if (await funcaoOrdenacao.chamar(interpretador, [vetor[j - 1], vetor[j]]) > 0) {
+                        const aux = vetor[j];
+                        vetor[j] = vetor[j - 1];
+                        vetor[j - 1] = aux;
+                    }
+                }
+            }
+
+            return vetor;
+        }
+
+        return vetor.sort((a, b) => a - b);
+    },
+    remover: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
         const index = vetor.indexOf(elemento);
         if (index !== -1) vetor.splice(index, 1);
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    removerPrimeiro: (vetor: Array<any>) => {
-        vetor.shift();
-        return vetor;
+    removerPrimeiro: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
+        let elemento = vetor.shift();
+        return Promise.resolve(elemento);
     },
-    removerUltimo: (vetor: Array<any>) => {
-        vetor.pop();
-        return vetor;
+    removerUltimo: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
+        let elemento = vetor.pop();
+        return Promise.resolve(elemento);
     },
-    somar: (vetor: Array<number>) => vetor.reduce((a, b) => a + b),
-    tamanho: (vetor: Array<any>) => vetor.length,
+    somar: (interpretador: VisitanteComumInterface, vetor: Array<number>): Promise<any> => Promise.resolve(vetor.reduce((a, b) => a + b)),
+    tamanho: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
 };

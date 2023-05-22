@@ -3,7 +3,7 @@ import { RetornoLexador } from "../../interfaces/retornos";
 import { ErroLexador } from "../erro-lexador";
 import { Simbolo } from "../simbolo";
 
-import palavrasReservadas from "./palavras-reservadas/portugol-ipt";
+import { palavrasReservadas } from "./palavras-reservadas/portugol-ipt";
 import tiposDeSimbolos from "../../tipos-de-simbolos/portugol-ipt";
 
 export class LexadorPortugolIpt implements LexadorInterface {

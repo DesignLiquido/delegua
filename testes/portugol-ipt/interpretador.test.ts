@@ -16,7 +16,7 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorPortugolIpt(process.cwd());
             });
 
-            it.skip('Trivial', async () => {
+            it('Trivial', async () => {
                 const retornoLexador = lexador.mapear([
                     'inicio',
                     'escrever "Olá mundo"',

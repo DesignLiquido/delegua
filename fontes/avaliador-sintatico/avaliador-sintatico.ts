@@ -1,5 +1,6 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import hrtime from 'browser-process-hrtime';
+
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
     AtribuicaoPorIndice,
@@ -48,10 +49,10 @@ import {
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
-import { RetornoDeclaracao, RetornoResolverDeclaracao } from './retornos';
+import { RetornoDeclaracao } from './retornos';
 
 /**
- * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
@@ -561,6 +562,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
+
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
         return declaracoes;
     }
 
@@ -693,16 +697,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         if (
             [
+                tiposDeSimbolos.COLCHETE_ESQUERDO,
+                tiposDeSimbolos.FALSO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
-                tiposDeSimbolos.TEXTO,
+                tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.NULO,
-                tiposDeSimbolos.VERDADEIRO,
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.FALSO,
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 tiposDeSimbolos.SUPER,
+                tiposDeSimbolos.TEXTO,
+                tiposDeSimbolos.VERDADEIRO,
             ].includes(this.simbolos[this.atual].tipo)
         ) {
             valor = this.expressao();

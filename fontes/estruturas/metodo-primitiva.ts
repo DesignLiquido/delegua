@@ -1,3 +1,4 @@
+import { VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 
 /**
@@ -14,14 +15,14 @@ export class MetodoPrimitiva extends Chamavel {
     primitiva: any;
     metodo: Function;
 
-    constructor(primitiva: any, metodo: Function) {
+    constructor(primitiva: any, metodo: Function, requerInterpretador: boolean = false) {
         super();
         this.primitiva = primitiva;
         this.metodo = metodo;
         this.valorAridade = metodo.length - 1;
     }
 
-    chamar(argumentos: any[] = []) {
-        return this.metodo(this.primitiva, ...argumentos);
+    async chamar(interpretador: VisitanteComumInterface, argumentos: any[] = []): Promise<any> {
+        return await this.metodo(interpretador, this.primitiva, ...argumentos);
     }
 }

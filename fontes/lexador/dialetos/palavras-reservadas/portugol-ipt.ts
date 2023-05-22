@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 
-export default {
+export const palavrasReservadas = {
     entao: tiposDeSimbolos.ENTAO,
     então: tiposDeSimbolos.ENTAO,
     escrever: tiposDeSimbolos.ESCREVER,

@@ -50,6 +50,8 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
+ * 
+ * Esta implementação tenta seguir à risca o que está atualmente em https://github.com/eguatech/egua/blob/master/src/parser.js.
  */
 export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
@@ -78,7 +80,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
             switch (this.simboloAtual().tipo) {
                 case tiposDeSimbolos.CLASSE:
-                case tiposDeSimbolos.FUNÇÃO:
+                case tiposDeSimbolos.FUNCAO:
                 case tiposDeSimbolos.VARIAVEL:
                 case tiposDeSimbolos.PARA:
                 case tiposDeSimbolos.SE:
@@ -187,7 +189,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             }
             return new Dicionario(this.hashArquivo, 0, chaves, valores);
         }
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNÇÃO)) return this.corpoDaFuncao('função');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO)) return this.corpoDaFuncao('função');
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO)) return new Literal(this.hashArquivo, 0, false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, 0, true);
@@ -811,10 +813,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     declaracao(): RetornoDeclaracao {
         try {
             if (
-                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO) &&
+                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) &&
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
-                this.consumir(tiposDeSimbolos.FUNÇÃO, null);
+                this.consumir(tiposDeSimbolos.FUNCAO, null);
                 return this.funcao('função');
             }
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariavel();

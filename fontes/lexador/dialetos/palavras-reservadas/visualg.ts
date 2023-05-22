@@ -1,6 +1,6 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 
-export default {
+export const palavrasReservadas = {
     abs: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     algoritmo: tiposDeSimbolos.ALGORITMO,
     arccos: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,

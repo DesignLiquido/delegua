@@ -27,6 +27,7 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -366,7 +367,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
-    traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
+    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
@@ -602,8 +603,13 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirConstrutoUnario(unario: Unario): string {
         let resultado = '';
-        resultado += this.traduzirSimboloOperador(unario.operador);
-        resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
+        if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(unario.operador.tipo)) {
+            resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
+            resultado += unario.operador.tipo === tiposDeSimbolos.INCREMENTAR ? '++' : '--';
+        } else {
+            resultado += this.traduzirSimboloOperador(unario.operador);
+            resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
+        }
         return resultado;
     }
 

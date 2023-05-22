@@ -303,6 +303,24 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/}/i);
         });
 
+        it('para -> for i++ / i--', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'para (var i = 0; i < 5; i = i++) {', 'escreva(i);', '}',
+                    'para (var i = 5; i > 0; i = i--) {', 'escreva(i);', '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/for \(let i = 0; i < 5; i = i\+\+\) {/i);
+            expect(resultado).toMatch(/for \(let i = 5; i > 0; i = i\-\-\) {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
         it('\'para\' sem parenteses -> for', () => {
             const retornoLexador = lexador.mapear(
                 ['para var i = 0; i < 5; i = i + 1 {', 'escreva(i);', '}'],
