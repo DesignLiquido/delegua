@@ -419,6 +419,13 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         `Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`
                     )
                 }
+                inicializacoes.push(
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao),
+                        'numero'
+                    )
+                );
             } else {
                 inicializacoes.push(
                     new Var(
