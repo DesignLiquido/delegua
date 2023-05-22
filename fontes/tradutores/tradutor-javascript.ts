@@ -27,6 +27,7 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -366,7 +367,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
-    traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
+    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
