@@ -903,7 +903,7 @@ describe('Interpretador', () => {
                 });
             });
 
-            describe.only('Falhar', () => {
+            describe('Falhar', () => {
                 it('Trivial', async () => {
                     const retornoLexador = lexador.mapear([
                         "falhar 'teste de falha'"
