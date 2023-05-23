@@ -19,6 +19,7 @@ import {
     Escreva,
     EscrevaMesmaLinha,
     Expressao,
+    Falhar,
     Fazer,
     FuncaoDeclaracao,
     Importar,
@@ -116,6 +117,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
+        throw new ErroEmTempoDeExecucao(expressao.simbolo, expressao.explicacao, expressao.linha);
     }
 
     visitarExpressaoFimPara(declaracao: FimPara) {

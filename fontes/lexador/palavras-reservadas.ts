@@ -14,6 +14,7 @@ export const palavrasReservadas = {
     enquanto: tiposDeSimbolos.ENQUANTO,
     escolha: tiposDeSimbolos.ESCOLHA,
     escreva: tiposDeSimbolos.ESCREVA,
+    falhar: tiposDeSimbolos.FALHAR,
     falso: tiposDeSimbolos.FALSO,
     fazer: tiposDeSimbolos.FAZER,
     finalmente: tiposDeSimbolos.FINALMENTE,

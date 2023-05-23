@@ -1,4 +1,5 @@
 import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
+import { ErroEmTempoDeExecucao } from "../fontes/excecoes";
 import { InterpretadorBase } from "../fontes/interpretador";
 import { Lexador } from "../fontes/lexador";
 
@@ -896,6 +897,19 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            });
+
+            describe('Falhar', () => {
+                it('Trivial', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "falhar 'teste de falha'"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
