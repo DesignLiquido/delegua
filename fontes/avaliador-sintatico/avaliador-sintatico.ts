@@ -72,6 +72,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.erros = [];
         this.performance = performance;
     }
+    
+    declaracaoDeVariavel(): Var {
+        throw new Error("Método não implementado.");
+    }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
@@ -555,10 +559,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     blocoEscopo(): Array<RetornoDeclaracao> {
-        const declaracoes: Array<RetornoDeclaracao> = [];
+        let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            const retornoDeclaracao = this.declaracao();
+            if (Array.isArray(retornoDeclaracao)) {
+                declaracoes = declaracoes.concat(retornoDeclaracao);
+            } else {
+                declaracoes.push(retornoDeclaracao as Declaracao);
+            }
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
@@ -624,9 +633,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
             inicializador = null;
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
-            inicializador = this.declaracaoDeVariavel();
+            inicializador = this.declaracaoDeVariaveis();
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
-            inicializador = this.declaracaoDeConstante();
+            inicializador = this.declaracaoDeConstantes();
         } else {
             inicializador = this.declaracaoExpressao();
         }
@@ -919,31 +928,72 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
      */
-    declaracaoDeVariavel(): Var {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
-        let inicializador = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            inicializador = this.expressao();
+    declaracaoDeVariaveis(): any {
+        const identificadores: SimboloInterface[] = [];
+        let retorno: Declaracao[] = [];
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            for (let [indice, identificador] of identificadores.entries()) {
+                retorno.push(new Var(identificador, null));
+            }
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+            return retorno;
         }
 
-        // Ponto-e-vírgula é opcional aqui.
+        //this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
+
+        const inicializadores = [];
+        do {
+            inicializadores.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (identificadores.length !== inicializadores.length) {
+            throw this.erro(this.simboloAtual(), "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
+        }
+
+        for (let [indice, identificador] of identificadores.entries()) {
+            retorno.push(new Var(identificador, inicializadores[indice]));
+        }
+
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Var(simbolo, inicializador);
+
+        return retorno;
     }
 
     /**
      * Caso símbolo atual seja `const, constante ou fixo`, devolve uma declaração de const.
      * @returns Um Construto do tipo Const.
      */
-    declaracaoDeConstante(): Const {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de constante.');
-        let inicializador = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            inicializador = this.expressao();
+    declaracaoDeConstantes(): any {
+        const identificadores: SimboloInterface[] = [];
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
+
+        const inicializadores = [];
+        do {
+            inicializadores.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (identificadores.length !== inicializadores.length) {
+            throw this.erro(this.simboloAtual(), "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
+        }
+
+        let retorno: Declaracao[] = [];
+        for (let [indice, identificador] of identificadores.entries()) {
+            retorno.push(new Const(identificador, inicializadores[indice]));
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Const(simbolo, inicializador);
+
+        return retorno;
     }
 
     funcao(tipo: string): FuncaoDeclaracao {
@@ -1040,8 +1090,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 this.avancarEDevolverAnterior();
                 return this.funcao('funcao');
             }
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariavel();
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) return this.declaracaoDeConstante();
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariaveis();
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) return this.declaracaoDeConstantes();
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();
@@ -1089,9 +1139,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
 
-        const declaracoes: Declaracao[] = [];
+        let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao() as Declaracao);
+            const retornoDeclaracao = this.declaracao();
+            if (Array.isArray(retornoDeclaracao)) {
+                declaracoes = declaracoes.concat(retornoDeclaracao);
+            } else {
+                declaracoes.push(retornoDeclaracao as Declaracao);
+            }
         }
 
         if (this.performance) {

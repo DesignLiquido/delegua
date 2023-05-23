@@ -39,6 +39,7 @@ import {
     Tente,
     Var,
     Leia,
+    Const,
 } from '../../declaracoes';
 
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
@@ -64,6 +65,14 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         this.atual = 0;
         this.blocos = 0;
+    }
+    
+    declaracaoDeConstantes(): Const[] {
+        throw new Error('Método não implementado.');
+    }
+
+    declaracaoDeVariaveis(): Var[] {
+        throw new Error('Método não implementado.');
     }
 
     declaracaoLeia(): Leia {

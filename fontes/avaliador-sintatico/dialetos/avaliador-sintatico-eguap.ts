@@ -39,6 +39,7 @@ import {
     Bloco,
     Sustar,
     Leia,
+    Const,
 } from '../../declaracoes';
 
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
@@ -75,6 +76,14 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         this.blocos = 0;
         this.performance = performance;
         this.escopos = [];
+    }
+    
+    declaracaoDeConstantes(): Const[] {
+        throw new Error("Método não implementado.");
+    }
+
+    declaracaoDeVariaveis(): Var[] {
+        throw new Error("Método não implementado.");
     }
 
     sincronizar(): void {
