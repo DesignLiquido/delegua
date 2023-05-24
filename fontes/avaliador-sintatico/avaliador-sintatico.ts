@@ -930,7 +930,22 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
      * @returns Um Construto do tipo Var.
      */
     declaracaoDeVariavel(): Var {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
+        let simbolo: SimboloInterface = null;
+
+        //TODO: @Samuel
+        if (
+            [
+                tiposDeSimbolos.E,
+                tiposDeSimbolos.OU,
+                tiposDeSimbolos.EM,
+                tiposDeSimbolos.CADA,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            simbolo = this.consumir(this.simbolos[this.atual].tipo, 'Esperado nome de variável.');
+        } else {
+            simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
+        }
+
         let inicializador = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             inicializador = this.expressao();
@@ -946,7 +961,22 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
      * @returns Um Construto do tipo Const.
      */
     declaracaoDeConstante(): Const {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de constante.');
+        let simbolo: SimboloInterface = null;
+
+        //TODO: @Samuel
+        if (
+            [
+                tiposDeSimbolos.E,
+                tiposDeSimbolos.OU,
+                tiposDeSimbolos.EM,
+                tiposDeSimbolos.CADA,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            simbolo = this.consumir(this.simbolos[this.atual].tipo, 'Esperado nome de constante.');
+        } else {
+            simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de constante.');
+        }
+
         let inicializador = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             inicializador = this.expressao();
