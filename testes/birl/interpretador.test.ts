@@ -15,6 +15,23 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
+            it.skip('Sucesso - declaração - while', async () => {
+                const RetornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MONSTRO X = 5;\n',
+                    '   NEGATIVA BAMBAM (X > 2)',
+                    '       CE QUER VER ESSA PORRA? ("teste");\n',
+                    '       X--;\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(RetornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - maior igual - 1 <= 2', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',

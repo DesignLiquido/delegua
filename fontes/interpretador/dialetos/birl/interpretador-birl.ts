@@ -85,7 +85,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             console.log('Aqui');
         } */
 
-        return await expressao. aceitar(this);
+        return await expressao.aceitar(this);
     }
     /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
@@ -387,9 +387,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     visitarExpressaoLiteral(expressao: Literal): any {
         if (expressao.valor === tiposDeSimbolos.ADICAO) {
-            return 1
+            return 1;
         } else if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
-            return -1
+            return -1;
         } else {
             return expressao.valor;
         }
@@ -543,7 +543,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = await this. avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
 
         let valorFinal = null;
@@ -652,22 +652,15 @@ export class InterpretadorBirl implements InterpretadorInterface {
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
         let resultado: any = null;
-        // Tratar caso Bloco
-        if (declaracao instanceof Array) {
-            for (const decl of declaracao) {
-                resultado = await this.executar(decl, mostrarResultado);
-            }
-            return resultado;
-        } else {
-            resultado = await declaracao.aceitar(this);
-            if (mostrarResultado) {
-                this.funcaoDeRetorno(this.paraTexto(resultado));
-            }
-            if (resultado || typeof resultado === 'boolean') {
-                this.resultadoInterpretador.push(this.paraTexto(resultado));
-            }
-            return resultado;
+
+        resultado = await declaracao.aceitar(this);
+        if (mostrarResultado) {
+            this.funcaoDeRetorno(this.paraTexto(resultado));
         }
+        if (resultado || typeof resultado === 'boolean') {
+            this.resultadoInterpretador.push(this.paraTexto(resultado));
+        }
+        return resultado;
     }
 
     /**
