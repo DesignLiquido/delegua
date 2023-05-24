@@ -1,5 +1,5 @@
 import { Agrupamento, Atribuir, Binario, Chamada, Literal, Logico, Variavel, Vetor } from "../construtos";
-import { Bloco, Declaracao, Escreva, Expressao, FuncaoDeclaracao, Leia, Para, ParaCada, Retorna, Var } from "../declaracoes";
+import { Bloco, Declaracao, Escreva, Expressao, FuncaoDeclaracao, Leia, ParaCada, Retorna, Se, Var } from "../declaracoes";
 import { SimboloInterface, TradutorInterface } from "../interfaces";
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -148,6 +148,43 @@ export class TradutorPython implements TradutorInterface {
         return resultado;
     }
 
+    traduzirDeclaracaoSe(declaracaoSe: Se): string {
+        let resultado = 'if ';
+
+        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
+
+        resultado += condicao;
+
+        resultado += ':\n';
+        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+
+        if (declaracaoSe.caminhoSenao !== null) {
+            resultado += ' '.repeat(this.indentacao);
+            // resultado += 'else ';
+            const se = declaracaoSe?.caminhoSenao as Se;
+            if (se?.caminhoEntao) {
+                resultado += 'elif ';
+                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+                resultado += ':\n';
+                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+                resultado += ' '.repeat(this.indentacao);
+                if (se?.caminhoSenao) {
+                    resultado += 'else:\n';
+                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
+                    return resultado;
+                }
+            } else {
+                resultado += 'else:\n';
+            }
+
+            resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
+                declaracaoSe.caminhoSenao
+            );
+        }
+
+        return resultado;
+    }
+
     traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
 
@@ -268,6 +305,7 @@ export class TradutorPython implements TradutorInterface {
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),
+        Se: this.traduzirDeclaracaoSe.bind(this),
         Sustar: () => 'break',
         Var: this.traduzirDeclaracaoVar.bind(this),
     }
