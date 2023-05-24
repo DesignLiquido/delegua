@@ -50,6 +50,7 @@ describe('Tradutor Delégua -> Python', () => {
                     'var c = verdadeiro',
                     'var d = falso',
                     'var f = nulo',
+                    'const g = \'olá\'',
                     '2 * 2'
                 ], 
                 -1
@@ -65,6 +66,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/c = True/i);
             expect(resultado).toMatch(/d = False/i);
             expect(resultado).toMatch(/f = None/i);
+            expect(resultado).toMatch(/g = \'olá\'/i);
             expect(resultado).toMatch(/2 \* 2/i);
         });
 
@@ -151,7 +153,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(\'Valor: \', elemento\)/i);
         });
 
-        it('função com retorno nulo -> function', () => {
+        it('função com retorno nulo -> def', () => {
             const codigo = ['funcao minhaFuncao() { retorna nulo }'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -162,7 +164,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/return None/i);
         });
 
-        it('função com retorno lógico de texto e número -> function', () => {
+        it('função com retorno lógico de texto e número -> def', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == 1 }"];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -173,7 +175,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/return '1' == 1/i);
         });
 
-        it('função com retorno lógico de número -> function', () => {
+        it('função com retorno lógico de número -> def', () => {
             const codigo = ['funcao minhaFuncao() { retorna 1 == 1 }'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -184,7 +186,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/return 1 == 1/i);
         });
 
-        it('função com retorno lógico de texto -> function', () => {
+        it('função com retorno lógico de texto -> def', () => {
             const codigo = ["funcao minhaFuncao() { retorna '1' == '1' }"];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -195,7 +197,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/return '1' == '1'/i);
         });
 
-        it('função com retorno número -> function', () => {
+        it('função com retorno número -> def', () => {
             const codigo = ['funcao minhaFuncao() { retorna 10 }'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -206,7 +208,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/return 10/i);
         });
 
-        it('função com retorno texto -> function', () => {
+        it('função com retorno texto -> def', () => {
             const codigo = ["funcao minhaFuncao() { retorna 'Ola Mundo!!!' }"];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -217,7 +219,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/return 'Ola Mundo!!!'/i);
         });
 
-        it('função com retorno -> function', () => {
+        it('função com retorno -> def', () => {
             const codigo = ["funcao minhaFuncao() { retorna 'Ola Mundo!!!' }"];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -226,6 +228,47 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/def minhaFuncao\(\):/i);
             expect(resultado).toMatch(/return 'Ola Mundo!!!'/i);
+        });
+
+        it('função com retorno -> def', () => {
+            const codigo = ["funcao minhaFuncao() { retorna 'Ola Mundo!!!' }"];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/def minhaFuncao\(\):/i);
+            expect(resultado).toMatch(/return 'Ola Mundo!!!'/i);
+        });
+
+        it('chamada de função -> def', () => {
+            const codigo = [
+                "funcao minhaFuncao() { retorna 'Ola Mundo!!!' }",
+                "minhaFuncao()",
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/def minhaFuncao\(\):/i);
+            expect(resultado).toMatch(/return 'Ola Mundo!!!'/i);
+            expect(resultado).toMatch(/minhaFuncao\(\)/i);
+        });
+
+        it('chamada de função com parametros-> def', () => {
+            const codigo = [
+                "funcao minhaFuncao(textoQualquer) { retorna textoQualquer }",
+                "minhaFuncao('Olá Mundo!!!')",
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/def minhaFuncao\(textoQualquer\):/i);
+            expect(resultado).toMatch(/return textoQualquer/i);
+            expect(resultado).toMatch(/minhaFuncao\(\'Olá Mundo!!!\'\)/i);
         });
 
         it('se -> if, código', () => {
@@ -307,6 +350,64 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(30\)/i);
             expect(resultado).toMatch(/else:/i);
             expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30'\)/i);
+        });
+
+        it('isto -> this', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Teste {',
+                    'construtor(abc){',
+                    'isto.valor = abc',
+                    '}',
+                    'mostrarValor() {',
+                    'escreva(isto.valor)',
+                    '}',
+                    '}',
+                    'var teste = Teste(100);',
+                    'teste.mostrarValor()',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/class Teste:/i);
+            expect(resultado).toMatch(/def __init__\(self, abc\):/i);
+            expect(resultado).toMatch(/self.valor = abc/i);
+            expect(resultado).toMatch(/def mostrarValor\(self\):/i);
+            expect(resultado).toMatch(/print\(self.valor\)/i);
+            expect(resultado).toMatch(/teste = Teste\(100\)/i);
+            expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
+        });
+
+        it('tente - pegue - finalmente -> try - except - finally', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'tente { ',
+                    '   1 > "2";',
+                    '   escreva("sucesso");',
+                    '}',
+                    'pegue {',
+                    '   escreva("Ocorreu uma exceção.");',
+                    '} finalmente {',
+                    '   escreva("Ocorrendo exceção ou não, eu sempre executo");',
+                    '}',
+                ],
+                -1
+            );
+            
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/try:/i);
+            expect(resultado).toMatch(/1 > \'2\'/i);
+            expect(resultado).toMatch(/print\('sucesso'\)/i);
+            expect(resultado).toMatch(/except:/i);
+            expect(resultado).toMatch(/print\('Ocorreu uma exceção.'\)/i);
+            expect(resultado).toMatch(/finally:/i);
+            expect(resultado).toMatch(/print\('Ocorrendo exceção ou não, eu sempre executo'\)/i);
         });
     });
 });
