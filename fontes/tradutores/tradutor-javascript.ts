@@ -646,9 +646,9 @@ export class TradutorJavaScript implements TradutorInterface {
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
-        Sustar: () => 'break',
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
+        Sustar: () => 'break',
         Tente: this.traduzirDeclaracaoTente.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
     };

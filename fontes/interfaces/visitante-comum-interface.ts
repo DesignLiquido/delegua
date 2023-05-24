@@ -1,5 +1,4 @@
-import { EspacoVariaveis } from '../espaco-variaveis';
-import { Atribuir, Construto, FimPara, Literal, Super } from '../construtos';
+import { Atribuir, FimPara, Literal, Super } from '../construtos';
 import {
     Bloco,
     Classe,
