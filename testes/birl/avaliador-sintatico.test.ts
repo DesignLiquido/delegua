@@ -233,7 +233,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Para);
-                const declaracao1 = retornoAvaliadorSintatico.declaracoes[0][0] as Var;
+                const declaracao1 = retornoAvaliadorSintatico.declaracoes[0] as Var;
                 expect(declaracao1.inicializador.valor).toBe(0);
                 expect(declaracao1.simbolo.lexema).toBe('M');
                 expect((retornoAvaliadorSintatico.declaracoes[1] as Para).corpo.declaracoes[0]).toBeInstanceOf(Escreva);
@@ -253,7 +253,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.declaracoes[1].assinaturaMetodo).toBe('<principal>');
                 expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Para);
-                const declaracao1 = retornoAvaliadorSintatico.declaracoes[0][0] as Var;
+                const declaracao1 = retornoAvaliadorSintatico.declaracoes[0] as Var;
                 expect(declaracao1.inicializador.valor).toBe(0);
                 expect(declaracao1.simbolo.lexema).toBe('M');
                 expect((retornoAvaliadorSintatico.declaracoes[1] as Para).corpo.declaracoes[0]).toBeInstanceOf(Escreva);
@@ -349,10 +349,10 @@ describe('Avaliador Sintático Birl', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
-                const declaracao3 = retornoAvaliadorSintatico.declaracoes[2] as unknown as Array<Var>;
-                expect(declaracao3[0].tipo).toBe('numero');
-                expect(declaracao3[0].assinaturaMetodo).toBe('<principal>');
-                expect(declaracao3[0].inicializador.valor).toBeInstanceOf(Chamada);
+                const declaracao3 = retornoAvaliadorSintatico.declaracoes[2] as Var;
+                expect(declaracao3.tipo).toBe('numero');
+                expect(declaracao3.assinaturaMetodo).toBe('<principal>');
+                expect(declaracao3.inicializador.valor).toBeInstanceOf(Chamada);
             });
         });
         describe('Cenários de erro', () => {
