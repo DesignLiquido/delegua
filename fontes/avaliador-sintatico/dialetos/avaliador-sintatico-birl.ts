@@ -794,12 +794,17 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.atual = 0;
 
         this.simbolos = retornoLexador.simbolos;
-        const declaracoes = [];
+        let declaracoes = [];
 
         this.validarSegmentoHoraDoShow();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.BIRL) {
-            declaracoes.push(this.declaracao());
+            const declaracaoVetor = this.declaracao();
+            if (Array.isArray(declaracaoVetor)) {
+                declaracoes = declaracoes.concat(declaracaoVetor);
+            } else {
+                declaracoes.push(declaracaoVetor);
+            }
         }
 
         this.validarSegmentoBirlFinal();
