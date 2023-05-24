@@ -49,7 +49,8 @@ describe('Tradutor Delégua -> Python', () => {
                     'var b = \'1\'',
                     'var c = verdadeiro',
                     'var d = falso',
-                    'var e = nulo'
+                    'var e = nulo',
+                    '2 * 2'
                 ], 
                 -1
             );
@@ -64,6 +65,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/c = True/i);
             expect(resultado).toMatch(/d = False/i);
             expect(resultado).toMatch(/e = None/i);
+            expect(resultado).toMatch(/2 \* 2/i);
         });
 
         it('Escreva verdadeiro e falso com operadores lógicos', () => {
