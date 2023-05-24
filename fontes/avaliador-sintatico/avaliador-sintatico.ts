@@ -930,7 +930,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
      * @returns Um Construto do tipo Var.
      */
     declaracaoDeVariavel(): Var {
-        let simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');;
+        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');;
 
         let inicializador = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
@@ -947,7 +947,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
      * @returns Um Construto do tipo Const.
      */
     declaracaoDeConstante(): Const {
-        let simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de constante.');;
+        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de constante.');;
 
         let inicializador = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
