@@ -49,7 +49,7 @@ describe('Tradutor Delégua -> Python', () => {
                     'var b = \'1\'',
                     'var c = verdadeiro',
                     'var d = falso',
-                    'var e = nulo',
+                    'var f = nulo',
                     '2 * 2'
                 ], 
                 -1
@@ -64,7 +64,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/b = \'1\'/i);
             expect(resultado).toMatch(/c = True/i);
             expect(resultado).toMatch(/d = False/i);
-            expect(resultado).toMatch(/e = None/i);
+            expect(resultado).toMatch(/f = None/i);
             expect(resultado).toMatch(/2 \* 2/i);
         });
 
