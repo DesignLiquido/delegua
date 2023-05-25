@@ -15,7 +15,7 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it.only('Sucesso - declaração - continue', async () => {
+            it('Sucesso - declaração - continue', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MONSTRO M;\n',

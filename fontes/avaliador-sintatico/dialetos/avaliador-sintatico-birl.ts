@@ -215,7 +215,12 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 'numero'
             );
         } else {
-            declaracaoInicial = this.declaracao(); // inicialização da variável de controle
+            const declaracaoVetor = this.declaracao(); // inicialização da variável de controle
+            if (Array.isArray(declaracaoVetor)) {
+                declaracaoInicial = declaracaoVetor[0];
+            } else {
+                declaracaoInicial = declaracaoVetor;
+            }
         }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado expressão `;` após a inicialização do `PARA`.');
