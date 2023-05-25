@@ -595,8 +595,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error('Método não implementado.');
+        return new ContinuarQuebra();
     }
     visitarExpressaoSustar(declaracao?: any): SustarQuebra {
         return new SustarQuebra();
