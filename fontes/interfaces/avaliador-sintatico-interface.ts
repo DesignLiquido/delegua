@@ -3,6 +3,7 @@ import { RetornoAvaliadorSintatico } from './retornos/retorno-avaliador-sintatic
 import { Construto, FuncaoConstruto } from '../construtos';
 import {
     Classe,
+    Const,
     Continua,
     Enquanto,
     Escolha,
@@ -70,6 +71,8 @@ export interface AvaliadorSintaticoInterface {
     declaracaoTente(): Tente;
     declaracaoFazer(): Fazer;
     resolverDeclaracao(): any;
+    declaracaoDeConstantes(): Const[];
+    declaracaoDeVariaveis(): Var[];
     declaracaoDeVariavel(): Var;
     funcao(tipo: string): FuncaoDeclaracao;
     corpoDaFuncao(tipo: string): FuncaoConstruto;

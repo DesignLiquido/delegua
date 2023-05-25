@@ -21,7 +21,8 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "var a = 1",
                         "variavel b = 2",
-                        "variável c = 3"
+                        "variável c = 3",
+                        "var a1, a2, a3 = 1, 2, 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -34,7 +35,8 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "const a = 1",
                         "constante b = \"b\"",
-                        "fixo c = 3"
+                        "fixo c = 3",
+                        "const a1, a2, a3 = 1, 2, 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

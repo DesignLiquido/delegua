@@ -1,6 +1,7 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
     Classe,
+    Const,
     Continua,
     Declaracao,
     Enquanto,
@@ -36,6 +37,14 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     hashArquivo: number;
     atual: number;
     blocos: number;
+
+    declaracaoDeConstantes(): Const[] {
+        throw new Error("Método não implementado.");
+    }
+    
+    declaracaoDeVariaveis(): Var[] {
+        throw new Error("Método não implementado.");
+    }
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
