@@ -1,5 +1,4 @@
 import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
-import { ErroEmTempoDeExecucao } from "../fontes/excecoes";
 import { InterpretadorBase } from "../fontes/interpretador";
 import { Lexador } from "../fontes/lexador";
 
