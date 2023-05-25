@@ -400,11 +400,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-            if (declaracao.inicializador instanceof Array) {
-                await this.avaliar(declaracao.inicializador[0]);
-            } else {
+
                 await this.avaliar(declaracao.inicializador);
-            }
         }
 
         let retornoExecucao: any;
@@ -601,8 +598,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error('Método não implementado.');
+    visitarExpressaoSustar(declaracao?: any): SustarQuebra {
+        return new SustarQuebra();
     }
     async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         let valor = null;
