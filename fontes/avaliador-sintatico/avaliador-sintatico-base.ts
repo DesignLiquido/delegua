@@ -1,6 +1,7 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
     Classe,
+    Const,
     Continua,
     Declaracao,
     Enquanto,
@@ -36,6 +37,14 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     hashArquivo: number;
     atual: number;
     blocos: number;
+
+    declaracaoDeConstantes(): Const[] {
+        throw new Error("Método não implementado.");
+    }
+    
+    declaracaoDeVariaveis(): Var[] {
+        throw new Error("Método não implementado.");
+    }
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
@@ -108,6 +117,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     abstract chamar(): Construto;
 
     unario(): Construto {
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
@@ -194,7 +204,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL)) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);

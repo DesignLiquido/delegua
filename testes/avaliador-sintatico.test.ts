@@ -121,6 +121,26 @@ describe('Avaliador sintático', () => {
         });
 
         describe('Cenários de falha', () => {
+            it('Falha - declaração de variáveis com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
+                const retornoLexador = lexador.mapear(['var a, b, c = 1, 2'], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                    "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita."
+                );
+            });
+
+            it('Falha - declaração de constantes com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
+                const retornoLexador = lexador.mapear(['const a, b, c = 1, 2'], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                    "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita."
+                );
+            });
+
             it('Falha - sustar fora de laço de repetição', async () => {
                 const retornoLexador = lexador.mapear(['sustar;'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

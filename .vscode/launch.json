@@ -12,7 +12,6 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "birl/interpretador.test.ts",
-                // "birl/lexador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -637,7 +636,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "micro-avaliador-sintatico",
+                "interpretador",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
@@ -758,6 +757,23 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
+            "name": "Testes unitários - Tradutor Portugol IPT para Delégua",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-portugol-ipt.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Testes unitários - Tradutor Visualg para Delégua",
             "type": "node",
             "request": "launch",
@@ -765,6 +781,23 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "tradutor-visualg.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Tradutor Delégua para Python",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-python.test.ts",
                 "--runInBand"
             ],
             "skipFiles": [
@@ -1333,23 +1366,6 @@
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Tradutores > Python",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}fontes${pathSeparator}tradutores${pathSeparator}tradutor-python.ts"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
+        }
     ]
 }

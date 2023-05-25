@@ -20,7 +20,8 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "var a = 1",
                         "variavel b = 2",
-                        "variável c = 3"
+                        "variável c = 3",
+                        "var a1, a2, a3 = 1, 2, 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -33,7 +34,8 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "const a = 1",
                         "constante b = \"b\"",
-                        "fixo c = 3"
+                        "fixo c = 3",
+                        "const a1, a2, a3 = 1, 2, 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -73,6 +75,22 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "var comidaFavorita = 'strogonoff'",
                         'escreva("Minha comida favorita é ${comidaFavorita}")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Interpolação de Texto/Função/Expressão', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao somar(num1, num2) {",
+                        "retorna num1 + num2;",
+                        "}",
+                        "escreva('somar: ${somar(5, 3)} = ${4 + 5 - 1}');",
+                        "escreva('somar com ponto flutuante: ${somar(5.7, 3.3)} = ${5 + 5 - 1}');",
+                        "escreva('${4 - 2 / 1}');",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -880,6 +898,19 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            });
+
+            describe('Falhar', () => {
+                it('Trivial', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "falhar 'teste de falha'"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);

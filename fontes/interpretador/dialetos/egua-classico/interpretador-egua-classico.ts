@@ -86,15 +86,19 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
-    
+
+    visitarExpressaoFalhar(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
@@ -651,7 +655,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return new DeleguaFuncao(null, expressao);
     }
 
-    async visitarExpressaoAtribuicaoSobrescrita(expressao: any) {
+    async visitarExpressaoAtribuicaoPorIndice(expressao: any) {
         const objeto = await this.avaliar(expressao.objeto);
         let indice = await this.avaliar(expressao.indice);
         const valor = await this.avaliar(expressao.valor);

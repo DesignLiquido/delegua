@@ -414,20 +414,20 @@ export class TradutorVisualg {
         return `${direita} ${operador} ${esquerda}`;
     }
 
-    // traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
+    // traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
     //     let resultado = '';
 
-    //     resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+    //     resultado += AtribuicaoPorIndice.objeto.simbolo.lexema + '[';
     //     resultado +=
-    //         this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+    //         this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) +
     //         ']';
     //     resultado += ' = ';
 
-    //     if (atribuicaoSobrescrita?.valor?.simbolo?.lexema) {
-    //         resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
+    //     if (AtribuicaoPorIndice?.valor?.simbolo?.lexema) {
+    //         resultado += `${AtribuicaoPorIndice.valor.simbolo.lexema}`;
     //     } else {
-    //         resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](
-    //             atribuicaoSobrescrita.valor
+    //         resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
+    //             AtribuicaoPorIndice.valor
     //         );
     //     }
 
@@ -477,7 +477,7 @@ export class TradutorVisualg {
         // AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         // AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-        // AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
+        // AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         // Chamada: this.traduzirConstrutoChamada.bind(this),
         FimPara: this.traduzirConstrutoFimPara.bind(this),

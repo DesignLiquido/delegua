@@ -1,4 +1,3 @@
-import { DeleguaModulo } from '../estruturas';
 
 export function inferirTipoVariavel(variavel: string | number | Array<any> | boolean | null | undefined) {
     const tipo = typeof variavel;

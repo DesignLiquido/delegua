@@ -43,6 +43,13 @@ describe('Lexador', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(7);
             });
+
+            it('Sucesso - Operações matemáticas encadeadas', () => {
+                const resultado = microLexador.mapear('somar(2, 3)');
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(6);
+            });
         });
     });
 });

@@ -76,15 +76,19 @@ describe('Primitivas de vetor', () => {
 
     describe('removerPrimeiro()', () => {
         it('Trivial', async () => {
-            const resultado = await primitivasVetor.removerPrimeiro(interpretador, [1, 2, 3]);
-            expect(resultado).toStrictEqual([2, 3]);
+            let vetor = [1, 2, 3];
+            const resultado = await primitivasVetor.removerPrimeiro(interpretador, vetor);
+            expect(resultado).toBe(1);
+            expect(vetor).toStrictEqual([2, 3]);
         });
     });
 
     describe('removerUltimo()', () => {
         it('Trivial', async () => {
-            const resultado = await primitivasVetor.removerUltimo(interpretador, [1, 2, 3]);
-            expect(resultado).toStrictEqual([1, 2]);
+            let vetor = [1, 2, 3];
+            const resultado = await primitivasVetor.removerUltimo(interpretador, vetor);
+            expect(resultado).toBe(3);
+            expect(vetor).toStrictEqual([1, 2]);
         });
     });
 

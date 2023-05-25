@@ -144,6 +144,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
                     'const a = 1;',
                     'constante b = 2;',
                     'fixo c = 3;',
+                    'const d, f, g = 1, 2, 3'
                 ],
                 -1
             );
@@ -154,13 +155,17 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/const a = 1;/i);
             expect(resultado).toMatch(/const b = 2;/i);
             expect(resultado).toMatch(/const c = 3;/i);
+            expect(resultado).toMatch(/const d = 1;/i);
+            expect(resultado).toMatch(/const f = 2;/i);
+            expect(resultado).toMatch(/const g = 3;/i);
         });
 
         it('declarando variável não inicializada', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var a;',
-                    'variavel b;'
+                    'variavel b;',
+                    'var c, d, f = 1, 2, 3'
                 ],
                 -1
             );
@@ -170,6 +175,9 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/let a;/i);
             expect(resultado).toMatch(/let b;/i);
+            expect(resultado).toMatch(/let c = 1;/i);
+            expect(resultado).toMatch(/let d = 2;/i);
+            expect(resultado).toMatch(/let f = 3;/i);
         });
 
         it('definindo funcao com variavel', () => {

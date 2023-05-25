@@ -1,4 +1,4 @@
-export * from './atribuicao-sobrescrita';
+export * from './atribuicao-por-indice';
 export * from './atribuir';
 export * from './binario';
 export * from './chamada';

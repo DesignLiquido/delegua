@@ -4,7 +4,7 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     Agrupamento,
-    AtribuicaoSobrescrita,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -39,6 +39,7 @@ import {
     Bloco,
     Sustar,
     Leia,
+    Const,
 } from '../../declaracoes';
 
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
@@ -75,6 +76,14 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
         this.blocos = 0;
         this.performance = performance;
         this.escopos = [];
+    }
+    
+    declaracaoDeConstantes(): Const[] {
+        throw new Error("Método não implementado.");
+    }
+
+    declaracaoDeVariaveis(): Var[] {
+        throw new Error("Método não implementado.");
     }
 
     sincronizar(): void {
@@ -451,7 +460,7 @@ export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
             } else if (expressao instanceof AcessoMetodo) {
                 return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoSobrescrita(
+                return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     0,
                     expressao.entidadeChamada,
