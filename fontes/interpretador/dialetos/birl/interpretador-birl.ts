@@ -494,8 +494,29 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            try {
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        return retornoExecucao;
     }
     visitarDeclaracaoImportar(declaracao: Importar) {
         throw new Error('Método não implementado.');
