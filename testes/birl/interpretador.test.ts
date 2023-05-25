@@ -15,6 +15,72 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
+            it('Sucesso - maior igual - 1 <= 2', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   ELE QUE A GENTE QUER? (1 <= 2)\n',
+                    '     CE QUER VER ESSA PORRA? ("ativo");\n',
+                    '   NAO VAI DAR NAO\n',
+                    '     CE QUER VER ESSA PORRA? ("desativo");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - maior igual - 1 >= 2', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   ELE QUE A GENTE QUER? (1 >= 2)\n',
+                    '     CE QUER VER ESSA PORRA? ("desativo");\n',
+                    '   NAO VAI DAR NAO\n',
+                    '     CE QUER VER ESSA PORRA? ("ativo");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - maior igual - 1 == 2', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   ELE QUE A GENTE QUER? (1 == 2)\n',
+                    '     CE QUER VER ESSA PORRA? ("desativo");\n',
+                    '   NAO VAI DAR NAO\n',
+                    '     CE QUER VER ESSA PORRA? ("ativo");\n',
+                    '   BIRL\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - Teste - Hello World', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW\n',
+                    '   CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");\n',
+                    '   BORA CUMPADE? 0;\n',
+                    'BIRL'
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            })
+
             it('Sucesso - declaração - for - decremento - depois', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
@@ -153,7 +219,7 @@ describe('Interpretador', () => {
             it('Sucesso - Variavel - String', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    "   FRANGO FR = 'testes';\n",
+                    '   FRANGO FR = "testes";\n',
                     '   CE QUER VER ESSA PORRA? (FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',

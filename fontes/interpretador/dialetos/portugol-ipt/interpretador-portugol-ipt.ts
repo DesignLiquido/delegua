@@ -55,6 +55,10 @@ export class InterpretadorPortugolIpt
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
 
+    visitarExpressaoFalhar(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error("Método não implementado.");
     }

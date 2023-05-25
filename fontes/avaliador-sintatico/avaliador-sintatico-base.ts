@@ -204,7 +204,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL)) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);

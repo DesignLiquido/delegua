@@ -65,7 +65,7 @@ describe('Avaliador Sintático Birl', () => {
             it('Sucesso - Variavel - String', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    "   FRANGO FR = 'testes';\n",
+                    '   FRANGO FR = "testes";\n',
                     '   CE QUER VER ESSA PORRA? (FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
@@ -142,7 +142,7 @@ describe('Avaliador Sintático Birl', () => {
             it('Sucesso - Variavel - unsigned char', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
-                    `  BICEPS FRANGO TD = 'test'; \n`,
+                    `  BICEPS FRANGO TD = "test"; \n`,
                     '  CE QUER VER ESSA PORRA? (TD); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
@@ -337,7 +337,31 @@ describe('Avaliador Sintático Birl', () => {
                 expect(funcao.corpo[0]).toBeInstanceOf(Array<Var>);
             });
 
-            it('Sucesso - declaração - chamarFuncao', () => {
+            it('Sucesso - declaração - chamarFuncao - string', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   FRANGO resultado = AJUDA O MALUCO TA DOENTE SOMAR();\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Sucesso - declaração - chamarFuncao - float', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   TRAPEZIO resultado = AJUDA O MALUCO TA DOENTE SOMAR();\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Sucesso - declaração - chamarFuncao - numero', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MONSTRO primeiro = 5;\n',
@@ -649,7 +673,7 @@ describe('Avaliador Sintático Birl', () => {
                 );
             });
 
-            it.skip('Falha - declaração - Variavel - numero recebendo string', () => {
+            it('Falha - declaração - Variavel - numero recebendo string', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '  MONSTRINHO M1 = "Teste"; \n',
@@ -658,7 +682,50 @@ describe('Avaliador Sintático Birl', () => {
                     'BIRL \n',
                 ]);
 
-                console.log(avaliadorSintatico.analisar(retornoLexador, -1));
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: 'Simbolo passado para inicialização de variável do tipo MONSTRINHO não é válido.',
+                    })
+                );
+            });
+
+            it('Falha - declaração - Variavel - string recebendo numero', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '  FRANGO M1 = 1; \n',
+                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  BORA CUMPADE 0; \n',
+                    'BIRL \n',
+                ]);
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message:
+                            'Erro ao declarar variável do tipo texto. Verifique se esta atribuindo um valor do tipo texto.',
+                    })
+                );
+            });
+
+            it('Falha - Variavel - Float - Recebendo string', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'HORA DO SHOW \n',
+                        '  TRAPEZIO M1 = "teste"; \n',
+                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  BORA CUMPADE 0; \n',
+                        'BIRL \n',
+                    ],
+                    -1
+                );
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        message: "Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.",
+                    })
+                );
             });
         });
     });

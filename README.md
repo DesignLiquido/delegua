@@ -58,6 +58,7 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br), [Portugol Studio](http://lite.acad.univali.br/portugol/), [Portugol Mapler](https://portugol.sourceforge.io/) e [Portugol IPT](http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html). 
 - **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha.
 - **Portável.** Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.
+- **Traduzível.** Traduza de Delégua para Python ou JavaScript, ou ainda de Python ou JavaScript para Delégua.
 
 ## Aplicações
 
@@ -76,7 +77,6 @@ Para instalar no seu computador, veja o projeto [`@designliquido/delegua-node`](
 
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki).
 - [A documentação técnica (gerada por TypeDoc) pode ser encontrada aqui](https://designliquido.github.io/delegua/).
-- Para acessar a documentação da linguagem Égua, visite https://egua.tech/docs.
 
 ## Contribuições e Comunidade
 

@@ -950,31 +950,6 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/delegua-estatistica@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-estatistica/-/delegua-estatistica-0.0.5.tgz#d1b0a6353e2f194849bff7797b4dec23efc96d5e"
-  integrity sha512-d5z7CQUuc0a2o0NaAGh9H2whs7TG4EVh8B31EbuPtKr6XVJNk0YiXNyPB8MEIUCkD7FpfslWiU2ytMK0u/3cqw==
-
-"@designliquido/delegua-fisica@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-fisica/-/delegua-fisica-0.0.2.tgz#182423e733b376b2d2853cbede66af33917f9466"
-  integrity sha512-7Sp+Vg7SBy/5M9vH7pXOw4udHIdGWThGxAtAWdBZBO9GzUjJGczfZi6+vJLj/pFfn/345l9ffN3rtSqYgbQM8w==
-
-"@designliquido/delegua-json@^0.0.0":
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-json/-/delegua-json-0.0.0.tgz#0864f84e572694e9b15b9517a08105af04f92c3d"
-  integrity sha512-fwrAyEL/g9vF3w3SWZpWx2FIGc7i3QfY2i6txEWtq3snihdbHfGQejf2P6s1UJIDrRGXpTgP2dUTEpk6QZy9/A==
-
-"@designliquido/delegua-matematica@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
-  integrity sha512-QG10FBbo7i+wW50+8s9lASBzJ8MdgPPcbfpsxFSU+7PEDGTrOalPtT6WbdhbWpV/meKl6q1lP7isLkeiF40WCQ==
-
-"@designliquido/delegua-tempo@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.0.1.tgz#964834d127354857cda1c388f5de9327735b6747"
-  integrity sha512-/O1/eXlTXPTWSZGZ862i6uHHKCW0cmP6KnOV29zK4d4hgn03QjcNDeFKVC9L9vz3OJ6pPY0d/S8ANJkgBnnoaQ==
-
 "@eslint/eslintrc@^1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-1.4.1.tgz#af58772019a2d271b7e2d4c23ff4ddcba3ccfb3e"

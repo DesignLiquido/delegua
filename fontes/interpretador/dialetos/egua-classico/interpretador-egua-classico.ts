@@ -87,6 +87,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
+    visitarExpressaoFalhar(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }

@@ -8,6 +8,7 @@ export * from './escolha';
 export * from './escreva';
 export * from './escreva-mesma-linha';
 export * from './expressao';
+export * from './falhar';
 export * from './fazer';
 export * from './funcao';
 export * from './importar';

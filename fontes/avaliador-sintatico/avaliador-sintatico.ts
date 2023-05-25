@@ -46,6 +46,7 @@ import {
     Leia,
     Const,
     ParaCada,
+    Falhar,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -793,6 +794,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
+    declaracaoFalhar(): Falhar {
+        const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
+        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, "Esperado texto para explicar falha.");
+        return new Falhar(simboloFalha, textoFalha.literal);
+    }
+
     declaracaoImportar(): Importar {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
 
@@ -881,6 +888,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             case tiposDeSimbolos.ESCREVA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.FALHAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoFalhar();
             case tiposDeSimbolos.FAZER:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFazer();

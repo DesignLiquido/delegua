@@ -72,6 +72,10 @@ export class InterpretadorBirl implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
 
+    visitarExpressaoFalhar(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     async avaliar(expressao: Construto | Declaracao): Promise<any> {
         // @todo: Implementar validação mais inteligente.
         // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.

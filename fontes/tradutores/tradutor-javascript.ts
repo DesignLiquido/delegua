@@ -27,6 +27,7 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -366,7 +367,7 @@ export class TradutorJavaScript implements TradutorInterface {
         return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
-    traduzirDeclaracaoLeia(declaracaoImportar: Importar) {
+    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
@@ -645,9 +646,9 @@ export class TradutorJavaScript implements TradutorInterface {
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
-        Sustar: () => 'break',
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
+        Sustar: () => 'break',
         Tente: this.traduzirDeclaracaoTente.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
     };
