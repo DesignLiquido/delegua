@@ -23,7 +23,7 @@ import {
     Classe,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
-import { ObjetoPadrao } from '../../../estruturas';
+import { DeleguaFuncao, ObjetoPadrao } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
@@ -621,7 +621,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        throw new Error('Método não implementado.');
+        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
     visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado.');
