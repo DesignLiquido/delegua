@@ -15,6 +15,22 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
+            // @Todo verificar isso
+            it('Sucesso - declaração - chamarFuncao', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   MONSTRO primeiro = 5;\n',
+                    '   MONSTRO segundo = 10;\n',
+                    '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE SOMAR(primeiro, segundo);\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - declaração - declaracaoFuncao', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
