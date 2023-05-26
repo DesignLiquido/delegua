@@ -15,7 +15,7 @@ describe('Interpretador', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            describe('Atribuições', () => {                
+            describe('Atribuições', () => {
                 it('Trivial var/variavel', async () => {
                     const retornoLexador = lexador.mapear([
                         "var a = 1",
@@ -202,9 +202,11 @@ describe('Interpretador', () => {
                         "var f = funcao(algumTexto) { }",
                         "var a;",
                         "var c = 1",
+                        "var d = \'2\'",
                         "escreva(tipo de f)",
                         "escreva(tipo de a)",
                         "escreva(tipo de c)",
+                        "escreva(tipo de d)",
                         "escreva(tipo de 4 + 2)",
                         "escreva(tipo de 4 * 2 + (3 ^ 2))",
                     ], -1);
