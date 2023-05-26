@@ -1,5 +1,5 @@
 import { Agrupamento, Atribuir, Binario, Constante, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var } from "../../declaracoes";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -37,8 +37,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LOGICO:
             case tiposDeSimbolos.REAL:
             case tiposDeSimbolos.TEXTO:
-                const simboloVariavel: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloVariavel.linha), simboloVariavel.literal);
+                const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal);
+            case tiposDeSimbolos.FALSO:
+            case tiposDeSimbolos.VERDADEIRO:
+                const simboloVerdadeiroFalso: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(
+                    this.hashArquivo, 
+                    Number(simboloVerdadeiroFalso.linha), 
+                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO
+                );
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Constante(this.hashArquivo, simboloIdentificador);
@@ -88,9 +96,49 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     blocoEscopo(): Declaracao[] {
         throw new Error("Método não implementado.");
     }
+
     declaracaoSe(): Se {
-        throw new Error("Método não implementado.");
+        const simboloSe: SimboloInterface = this.avancarEDevolverAnterior();
+
+        const condicao = this.expressao();
+
+        this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
+
+        const declaracoes = [];
+        do {
+            declaracoes.push(this.declaracao());
+        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+
+        let caminhoSenao = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+            const simboloSenao = this.simbolos[this.atual - 1];
+            const declaracoesSenao = [];
+
+            do {
+                declaracoesSenao.push(this.declaracao());
+            } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+
+            caminhoSenao = new Bloco(
+                this.hashArquivo,
+                Number(simboloSenao.linha),
+                declaracoesSenao.filter((d) => d)
+            );
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'se'.");
+
+        return new Se(
+            condicao,
+            new Bloco(
+                this.hashArquivo,
+                Number(simboloSe.linha),
+                declaracoes.filter((d) => d)
+            ),
+            [],
+            caminhoSenao
+        );
     }
+    
     declaracaoEnquanto(): Enquanto {
         throw new Error("Método não implementado.");
     }
@@ -132,20 +180,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         throw new Error("Método não implementado.");
-    }
-
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case tiposDeSimbolos.ESCREVA:
-                return this.declaracaoEscreva();
-            case tiposDeSimbolos.IMPRIMA:
-                return this.declaracaoImprima();
-            case tiposDeSimbolos.VARIAVEL:
-                return this.declaracaoDeVariaveis();
-            default:
-                return this.expressao();
-        }
     }
 
     protected logicaAtribuicaoComDica(expressao: Constante) {
@@ -197,6 +231,22 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         return expressao;
+    }
+
+    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.ESCREVA:
+                return this.declaracaoEscreva();
+            case tiposDeSimbolos.IMPRIMA:
+                return this.declaracaoImprima();
+            case tiposDeSimbolos.SE:
+                return this.declaracaoSe();
+            case tiposDeSimbolos.VARIAVEL:
+                return this.declaracaoDeVariaveis();
+            default:
+                return this.expressao();
+        }
     }
 
     analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
