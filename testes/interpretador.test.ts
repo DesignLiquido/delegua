@@ -213,6 +213,7 @@ describe('Interpretador', () => {
                         "escreva(tipo de Teste)",
                         "classe OutroTeste {}",
                         "escreva(tipo de OutroTeste)",
+                        "escreva(tipo de nulo)",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

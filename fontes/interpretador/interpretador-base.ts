@@ -131,7 +131,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
         }
 
-        return inferirTipoVariavel(tipoDe.valores || tipoDe)
+        return inferirTipoVariavel(tipoDe?.valores || tipoDe)
     }
 
     visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
