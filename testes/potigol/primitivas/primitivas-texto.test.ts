@@ -30,6 +30,11 @@ describe('Primitivas de texto - Potigol', () => {
             const resultado = await primitivasTexto.contém(interpretador, 'abc', 'b');
             expect(resultado).toBe(true);
         });
+
+        it('Elemento inexistente', async () => {
+            const resultado = await primitivasTexto.contém(interpretador, 'abc', 'f');
+            expect(resultado).toBe(false);
+        });
     });
 
     describe('descarte()', () => {
