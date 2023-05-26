@@ -38,6 +38,7 @@ export const palavrasReservadas = {
     super: tiposDeSimbolos.SUPER,
     sustar: tiposDeSimbolos.SUSTAR,
     tente: tiposDeSimbolos.TENTE,
+    tipo: tiposDeSimbolos.TIPO,
     var: tiposDeSimbolos.VARIAVEL,
     variavel: tiposDeSimbolos.VARIAVEL,
     variável: tiposDeSimbolos.VARIAVEL,

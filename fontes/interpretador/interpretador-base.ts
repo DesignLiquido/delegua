@@ -44,6 +44,7 @@ import {
     AcessoIndiceVariavel,
     Agrupamento,
     Atribuir,
+    Binario,
     Chamada,
     Construto,
     FimPara,
@@ -51,6 +52,7 @@ import {
     Literal,
     Logico,
     Super,
+    TipoDe,
     Unario,
     Variavel,
 } from '../construtos';
@@ -117,6 +119,19 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    
+    }
+
+    async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
+        let tipoDe = expressao.valor;
+        
+        if(expressao.valor instanceof Variavel 
+            || expressao.valor instanceof Binario) {
+            tipoDe = await this.avaliar(expressao.valor);
+            return tipoDe.tipo || inferirTipoVariavel(tipoDe);
+        }
+
+        return inferirTipoVariavel(tipoDe.valores || tipoDe)
     }
 
     visitarExpressaoFalhar(expressao: Falhar): Promise<any> {

@@ -15,6 +15,7 @@ export function inferirTipoVariavel(variavel: string | number | Array<any> | boo
         case 'object':
             if (Array.isArray(variavel)) return 'vetor';
             if (variavel === null) return 'nulo';
+            if (variavel.constructor.name === 'DeleguaFuncao') return 'função';
             if (variavel.constructor.name === 'DeleguaModulo') return 'módulo';
             return 'dicionário';
         case 'function':
