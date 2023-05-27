@@ -7,6 +7,8 @@ export const palavrasReservadas = {
     entao: tiposDeSimbolos.ENTAO,
     então: tiposDeSimbolos.ENTAO,
     escreva: tiposDeSimbolos.ESCREVA,
+    faca: tiposDeSimbolos.FACA,
+    faça: tiposDeSimbolos.FACA,
     falso: tiposDeSimbolos.FALSO,
     fim: tiposDeSimbolos.FIM,
     imprima: tiposDeSimbolos.IMPRIMA,

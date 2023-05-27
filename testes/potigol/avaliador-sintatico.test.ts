@@ -223,6 +223,22 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
             });
+
+            describe.only('Estruturas de repetição', () => {
+                it('Enquanto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var i := 0',
+                        'enquanto i<=10 faça',
+                        '  escreva i',
+                        '  i := i + 1',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+            });
         });
 
         describe('Cenários de Falha', () => {

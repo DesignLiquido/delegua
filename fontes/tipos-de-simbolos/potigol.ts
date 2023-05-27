@@ -12,6 +12,7 @@ export default {
     ESCREVA: 'ESCREVA',
     EXPONENCIACAO: 'EXPONENCIACAO',
     FALSO: 'FALSO',
+    FACA: 'FACA',
     FIM: 'FIM',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',
