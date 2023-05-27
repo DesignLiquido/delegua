@@ -279,6 +279,16 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
+
+                it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
+                    const retornoLexador = lexador.mapear([
+                        'soma(x: Inteiro, y: Inteiro): Inteiro = x + y'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
             });
         });
 

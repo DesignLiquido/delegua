@@ -26,10 +26,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     funcaoPotigol(simbolo: SimboloInterface): FuncaoDeclaracao {
-        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(simbolo.lexema));
-    }
-
-    corpoDaFuncao(nomeFuncao: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma. 
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
@@ -40,11 +36,41 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        
+        // Pode haver uma dica do tipo de retorno ou não.
+        let tipoRetorno = undefined;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            this.verificacaoTipo("Esperado tipo válido após dois-pontos como retorno de função.");
+
+            tipoRetorno = this.simbolos[this.atual - 1];
+        }
+        
+        const corpo = this.corpoDaFuncao(simbolo.lexema, parenteseEsquerdo, parametros);
+        return new FuncaoDeclaracao(simbolo, corpo, tipoRetorno);
+    }
+
+    corpoDaFuncao(nomeFuncao: string, simboloPragma?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
         this.consumir(tiposDeSimbolos.IGUAL, `Esperado '=' antes do escopo da função ${nomeFuncao}.`);
 
         const corpo = this.blocoEscopo();
 
-        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, Number(simboloPragma.linha), parametros, corpo);
+    }
+
+    /**
+     * Verificação comum de tipos.
+     * Avança o símbolo se não houver erros.
+     * @param mensagemErro A mensagem de erro caso o símbolo atual não seja de tipo.
+     */
+    protected verificacaoTipo(mensagemErro: string) {
+        if (!this.verificarSeSimboloAtualEIgualA(
+            tiposDeSimbolos.INTEIRO,
+            tiposDeSimbolos.LOGICO,
+            tiposDeSimbolos.REAL,
+            tiposDeSimbolos.TEXTO
+        )) {
+            this.erro(this.simbolos[this.atual], mensagemErro);
+        }
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -69,14 +95,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado dois-pontos após nome de argumento para função.");
 
-            if (!this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.INTEIRO,
-                tiposDeSimbolos.LOGICO,
-                tiposDeSimbolos.REAL,
-                tiposDeSimbolos.TEXTO
-            )) {
-                this.erro(this.simbolos[this.atual], "Esperado tipo do argumento após dois-pontos, em definição de função.");
-            }
+            this.verificacaoTipo("Esperado tipo do argumento após dois-pontos, em definição de função.");
 
             const tipoParametro = this.simbolos[this.atual - 1];
             parametro.tipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
