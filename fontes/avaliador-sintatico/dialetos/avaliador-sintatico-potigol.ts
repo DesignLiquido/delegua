@@ -140,8 +140,35 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
     
     declaracaoEnquanto(): Enquanto {
-        throw new Error("Método não implementado.");
+        const simboloAtual = this.avancarEDevolverAnterior();
+
+        const condicao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.FACA,
+            "Esperado paravra reservada 'faca' após condição de continuidade em declaracão 'enquanto'."
+        );
+
+        const declaracoes = [];
+        do {
+            declaracoes.push(this.declaracao());
+        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+
+        this.consumir(
+            tiposDeSimbolos.FIM,
+            "Esperado palavra-chave 'fimenquanto' para fechamento de declaração 'enquanto'."
+        );
+
+        return new Enquanto(
+            condicao,
+            new Bloco(
+                simboloAtual.hashArquivo,
+                Number(simboloAtual.linha),
+                declaracoes.filter(d => d)
+            )
+        );
     }
+
     declaracaoPara(): Para {
         throw new Error("Método não implementado.");
     }
@@ -236,6 +263,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.ENQUANTO:
+                return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.IMPRIMA:

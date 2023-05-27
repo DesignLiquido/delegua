@@ -6,6 +6,7 @@ export const palavrasReservadas = {
     e: tiposDeSimbolos.E,
     entao: tiposDeSimbolos.ENTAO,
     então: tiposDeSimbolos.ENTAO,
+    enquanto: tiposDeSimbolos.ENQUANTO,
     escreva: tiposDeSimbolos.ESCREVA,
     faca: tiposDeSimbolos.FACA,
     faça: tiposDeSimbolos.FACA,
