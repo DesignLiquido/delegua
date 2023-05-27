@@ -384,9 +384,13 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
-        resultado +=
+        if(declaracaoPara.inicializador.constructor.name === 'Array') {
+            resultado +=
             this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0]) +
             ' ';
+        } else {
+            resultado += this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+        }
 
         resultado += !resultado.includes(';') ? ';' : '';
 
