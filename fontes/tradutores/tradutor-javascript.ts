@@ -11,6 +11,7 @@ import {
     Isto,
     Literal,
     Logico,
+    TipoDe,
     Unario,
     Variavel,
     Vetor,
@@ -24,6 +25,7 @@ import {
     Escolha,
     Escreva,
     Expressao,
+    Falhar,
     Fazer,
     FuncaoDeclaracao,
     Importar,
@@ -601,6 +603,20 @@ export class TradutorJavaScript implements TradutorInterface {
         return resultado;
     }
 
+    traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
+        let resultado = 'typeof ';
+
+        if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
+        else if (tipoDe.valor instanceof Vetor) resultado += this.traduzirConstrutoVetor(tipoDe.valor);
+        else resultado += tipoDe.valor;        
+
+        return resultado;
+    }
+
+    traduzirDeclaracaoFalhar(falhar: Falhar) {
+        return `throw '${falhar.explicacao}'`;
+    }
+
     traduzirConstrutoUnario(unario: Unario): string {
         let resultado = '';
         if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(unario.operador.tipo)) {
@@ -626,6 +642,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        TipoDe: this.traduzirConstrutoTipoDe.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
@@ -641,6 +658,7 @@ export class TradutorJavaScript implements TradutorInterface {
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         Fazer: this.traduzirDeclaracaoFazer.bind(this),
+        Falhar: this.traduzirDeclaracaoFalhar.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
         Importar: this.traduzirDeclaracaoImportar.bind(this),
         Leia: this.traduzirDeclaracaoLeia.bind(this),

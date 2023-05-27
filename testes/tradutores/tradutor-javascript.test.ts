@@ -72,6 +72,42 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/nome.toLowerCase\(\)/i);
         });
 
+        it('falhar - throw', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'falhar \"erro inesperado!\"',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/throw 'erro inesperado!'/i);
+        });
+
+        it('tipo de - typeof', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'escreva(tipo de 1)',
+                    'escreva(tipo de \'2\')',
+                    'escreva(tipo de nulo)',
+                    'escreva(tipo de [1, 2, 3])',
+                    // 'classe Cachorro {}',
+                    // 'escreva(tipo de Cachorro)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/typeof 1/i);
+            expect(resultado).toMatch(/typeof \'2\'/i);
+            expect(resultado).toMatch(/typeof null/i);
+            expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
+        });
+
         it('bit a bit', () => {
             const retornoLexador = lexador.mapear(
                 [
