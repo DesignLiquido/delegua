@@ -1,13 +1,14 @@
 import { Agrupamento, Atribuir, Binario, Constante, Construto, FimPara, FuncaoConstruto, Literal, Unario, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco, Expressao } from "../../declaracoes";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco, Expressao, FuncaoDeclaracao } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
 import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
-import { SimboloInterface } from "../../interfaces";
+import { ParametroInterface, SimboloInterface } from "../../interfaces";
 import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
 import { Simbolo } from "../../lexador";
 import { ErroAvaliadorSintatico } from "../erro-avaliador-sintatico";
+import { RetornoDeclaracao } from "../retornos";
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -22,6 +23,75 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         'Real': 'numero',
         'Texto': 'texto',
         undefined: undefined
+    }
+
+    funcaoPotigol(simbolo: SimboloInterface): FuncaoDeclaracao {
+        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(simbolo.lexema));
+    }
+
+    corpoDaFuncao(nomeFuncao: string): FuncaoConstruto {
+        // O parêntese esquerdo é considerado o símbolo inicial para
+        // fins de pragma. 
+        const parenteseEsquerdo = this.avancarEDevolverAnterior();
+
+        let parametros = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            parametros = this.logicaComumParametros();
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.IGUAL, `Esperado '=' antes do escopo da função ${nomeFuncao}.`);
+
+        const corpo = this.blocoEscopo();
+
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+    }
+
+    protected logicaComumParametros(): ParametroInterface[] {
+        const parametros: ParametroInterface[] = [];
+
+        if (parametros.length >= 255) {
+            this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
+        }
+
+        do {
+            const parametro: Partial<ParametroInterface> = {};
+
+            // TODO: verificar se Potigol trabalha com número variável de parâmetros.
+            /* if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
+                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
+                parametro.abrangencia = 'multiplo';
+            } else {
+                parametro.abrangencia = 'padrao';
+            } */
+
+            parametro.abrangencia = 'padrao';
+            parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado dois-pontos após nome de argumento para função.");
+
+            if (!this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.INTEIRO,
+                tiposDeSimbolos.LOGICO,
+                tiposDeSimbolos.REAL,
+                tiposDeSimbolos.TEXTO
+            )) {
+                this.erro(this.simbolos[this.atual], "Esperado tipo do argumento após dois-pontos, em definição de função.");
+            }
+
+            const tipoParametro = this.simbolos[this.atual - 1];
+            parametro.tipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
+
+            // TODO: Verificar se Potigol trabalha com valores padrão em argumentos.
+            /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                parametro.valorPadrao = this.primario();
+            } */
+
+            parametros.push(parametro as ParametroInterface);
+
+            // if (parametro.abrangencia === 'multiplo') break;
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return parametros;
     }
 
     primario(): Construto {
@@ -51,6 +121,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+                if (!this.estaNoFinal() && this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
+                    return this.funcaoPotigol(simboloIdentificador);
+                }
+
                 return new Constante(this.hashArquivo, simboloIdentificador);
         }
     }
@@ -95,8 +169,19 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
-    blocoEscopo(): Declaracao[] {
-        throw new Error("Método não implementado.");
+    blocoEscopo(): Array<RetornoDeclaracao> {
+        let declaracoes: Array<RetornoDeclaracao> = [];
+
+        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
+            const retornoDeclaracao = this.declaracao();
+            if (Array.isArray(retornoDeclaracao)) {
+                declaracoes = declaracoes.concat(retornoDeclaracao);
+            } else {
+                declaracoes.push(retornoDeclaracao as Declaracao);
+            }
+        }
+
+        return declaracoes;
     }
 
     declaracaoSe(): Se {
@@ -158,7 +243,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.consumir(
             tiposDeSimbolos.FIM,
-            "Esperado palavra-chave 'fimenquanto' para fechamento de declaração 'enquanto'."
+            "Esperado palavra-chave 'fim' para fechamento de declaração 'enquanto'."
         );
 
         return new Enquanto(
@@ -377,10 +462,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         return retorno;
-    }
-    
-    corpoDaFuncao(tipo: string): FuncaoConstruto {
-        throw new Error("Método não implementado.");
     }
 
     protected logicaAtribuicaoComDica(expressao: Constante) {

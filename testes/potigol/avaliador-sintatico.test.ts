@@ -268,6 +268,18 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
             });
+
+            describe('Declarações de funções', () => {
+                it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', () => {
+                    const retornoLexador = lexador.mapear([
+                        'soma(x: Inteiro, y: Inteiro) = x + y'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+            });
         });
 
         describe('Cenários de Falha', () => {

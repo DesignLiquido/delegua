@@ -40,6 +40,7 @@ export default {
     PONTO: 'PONTO',
     REAL: 'REAL',
     REATRIBUIR: 'REATRIBUIR',
+    RETORNE: 'RETORNE',
     SE: 'SE',
     SENAO: 'SENAO',
     SETA: 'SETA',
