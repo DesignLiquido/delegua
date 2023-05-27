@@ -97,6 +97,8 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
                 break;
+            // Até então encontradas apenas em interpolações de texto.
+            // Por ora não necessárias.
             /* case '{':
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
                 this.avancar();

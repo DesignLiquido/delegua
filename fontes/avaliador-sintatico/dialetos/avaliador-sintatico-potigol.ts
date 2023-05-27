@@ -1,11 +1,12 @@
-import { Agrupamento, Atribuir, Binario, Constante, Construto, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco } from "../../declaracoes";
+import { Agrupamento, Atribuir, Binario, Constante, Construto, FimPara, FuncaoConstruto, Literal, Unario, Variavel } from "../../construtos";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco, Expressao } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
 import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
 import { SimboloInterface } from "../../interfaces";
 import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
+import { Simbolo } from "../../lexador";
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -170,11 +171,131 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     declaracaoPara(): Para {
-        throw new Error("Método não implementado.");
+        const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
+
+        const variavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para'."
+        );
+
+        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
+
+        const literalOuVariavelInicio = this.adicaoOuSubtracao();
+
+        this.consumir(
+            tiposDeSimbolos.ATE,
+            "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'."
+        );
+
+        const literalOuVariavelFim = this.adicaoOuSubtracao();
+
+        let operadorCondicao = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
+        let operadorCondicaoIncremento = new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo);
+
+        // Isso existe porque o laço `para` do Potigol pode ter o passo positivo ou negativo
+        // dependendo dos operandos de início e fim, que só são possíveis de determinar
+        // em tempo de execução.
+        // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
+        // passo são considerados indefinidos aqui.
+        let passo: Construto;
+        let resolverIncrementoEmExecucao = false;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
+            passo = this.unario();
+        } else {
+            if (literalOuVariavelInicio instanceof Literal && literalOuVariavelFim instanceof Literal) {
+                if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
+                    passo = new Unario(
+                        this.hashArquivo,
+                        new Simbolo(
+                            tiposDeSimbolos.SUBTRACAO,
+                            '-',
+                            undefined,
+                            simboloPara.linha,
+                            simboloPara.hashArquivo
+                        ),
+                        new Literal(this.hashArquivo, Number(simboloPara.linha), 1),
+                        "ANTES");
+                    operadorCondicao = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
+                    operadorCondicaoIncremento = new Simbolo(tiposDeSimbolos.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
+                } else {
+                    passo = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
+                }
+            } else {
+                // Passo e operador de condição precisam ser resolvidos em tempo de execução.
+                passo = undefined;
+                operadorCondicao = undefined;
+                operadorCondicaoIncremento = undefined;
+                resolverIncrementoEmExecucao = true;
+            }
+        }
+
+        this.consumir(
+            tiposDeSimbolos.FACA,
+            "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para'."
+        );
+
+        const declaracoesBlocoPara = [];
+        let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
+        while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM) {
+            declaracoesBlocoPara.push(this.declaracao());
+            simboloAtualBlocoPara = this.simbolos[this.atual];
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, '');
+        
+        const corpo = new Bloco(
+            this.hashArquivo,
+            Number(simboloPara.linha) + 1,
+            declaracoesBlocoPara.filter((d) => d)
+        );
+
+        const para = new Para(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Atribuir(
+                this.hashArquivo,
+                variavelIteracao,
+                literalOuVariavelInicio
+            ),
+            new Binario(
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, variavelIteracao),
+                operadorCondicao,
+                literalOuVariavelFim
+            ),
+            new FimPara(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                new Binario(
+                    this.hashArquivo,
+                    new Variavel(this.hashArquivo, variavelIteracao),
+                    operadorCondicaoIncremento,
+                    literalOuVariavelFim
+                ),
+                new Expressao(
+                    new Atribuir(
+                        this.hashArquivo,
+                        variavelIteracao,
+                        new Binario(
+                            this.hashArquivo,
+                            new Variavel(this.hashArquivo, variavelIteracao),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo),
+                            passo
+                        )
+                    )
+                )
+            ),
+            corpo
+        );
+        para.blocoPosExecucao = corpo;
+        para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
+        return para;
     }
+
     declaracaoEscolha(): Escolha {
         throw new Error("Método não implementado.");
     }
+
     declaracaoFazer(): Fazer {
         throw new Error("Método não implementado.");
     }
@@ -269,6 +390,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.IMPRIMA:
                 return this.declaracaoImprima();
+            case tiposDeSimbolos.PARA:
+                return this.declaracaoPara();
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
             case tiposDeSimbolos.VARIAVEL:

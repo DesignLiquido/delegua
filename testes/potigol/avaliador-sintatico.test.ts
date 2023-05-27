@@ -209,7 +209,7 @@ describe('Avaliador sintático', () => {
             });
             
             describe('Estruturas de decisão', () => {
-                it('Se', async () => {
+                it('Se', () => {
                     const retornoLexador = lexador.mapear([
                         'se verdadeiro então',
                         '  escreva "verdadeiro"',
@@ -224,8 +224,8 @@ describe('Avaliador sintático', () => {
                 });
             });
 
-            describe.only('Estruturas de repetição', () => {
-                it('Enquanto', async () => {
+            describe('Estruturas de repetição', () => {
+                it('Enquanto', () => {
                     const retornoLexador = lexador.mapear([
                         'var i := 0',
                         'enquanto i <= 10 faça',
@@ -237,6 +237,20 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Para', () => {
+                    const retornoLexador = lexador.mapear([
+                        'var soma := 0',
+                        'para i de 1 até 10 faça',
+                        '  soma := soma + i',
+                        'fim',
+                        'escreva "A soma é {soma}."'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
             });
         });

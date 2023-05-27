@@ -1,7 +1,10 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/potigol';
 
 export const palavrasReservadas = {
+    ate: tiposDeSimbolos.ATE,
+    até: tiposDeSimbolos.ATE,
     Caractere: tiposDeSimbolos.CARACTERE,
+    de: tiposDeSimbolos.DE,
     div: tiposDeSimbolos.DIVISAO_INTEIRA,
     e: tiposDeSimbolos.E,
     entao: tiposDeSimbolos.ENTAO,
@@ -20,6 +23,8 @@ export const palavrasReservadas = {
     ou: tiposDeSimbolos.OU,
     nao: tiposDeSimbolos.NEGACAO,
     não: tiposDeSimbolos.NEGACAO,
+    para: tiposDeSimbolos.PARA,
+    passo: tiposDeSimbolos.PASSO,
     Real: tiposDeSimbolos.REAL,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
