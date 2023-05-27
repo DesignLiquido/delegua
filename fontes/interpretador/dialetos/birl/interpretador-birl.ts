@@ -1,4 +1,4 @@
-import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel, Unario } from '../../../construtos';
+import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel, Unario, TipoDe } from '../../../construtos';
 import {
     Declaracao,
     Expressao,
@@ -70,6 +70,10 @@ export class InterpretadorBirl implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoFalhar(expressao: any): Promise<any> {

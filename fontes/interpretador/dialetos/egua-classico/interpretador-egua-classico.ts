@@ -37,6 +37,7 @@ import {
     FormatacaoEscrita,
     Literal,
     Super,
+    TipoDe,
     Variavel,
 } from '../../../construtos';
 import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
@@ -85,6 +86,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoFalhar(expressao: any): Promise<any> {

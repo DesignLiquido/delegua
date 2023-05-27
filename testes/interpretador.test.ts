@@ -189,6 +189,38 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Tipo de', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva(tipo de verdadeiro)",
+                        "escreva(tipo de falso)",
+                        "escreva(tipo de 123)",
+                        "escreva(tipo de \"123\")",
+                        "escreva(tipo de [1,2,3])",
+                        "escreva(tipo de [])",
+                        "escreva(tipo de [1, '2'])",
+                        "var f = funcao(algumTexto) { }",
+                        "var a;",
+                        "var c = 1",
+                        "var d = \'2\'",
+                        "escreva(tipo de f)",
+                        "escreva(tipo de a)",
+                        "escreva(tipo de c)",
+                        "escreva(tipo de d)",
+                        "escreva(tipo de 4 + 2)",
+                        "escreva(tipo de 4 * 2 + (3 ^ 2))",
+                        "classe Teste {}",
+                        "escreva(tipo de Teste)",
+                        "classe OutroTeste {}",
+                        "escreva(tipo de OutroTeste)",
+                        "escreva(tipo de nulo)",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Operações matemáticas', () => {

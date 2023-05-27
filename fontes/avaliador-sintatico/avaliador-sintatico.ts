@@ -3,24 +3,25 @@ import hrtime from 'browser-process-hrtime';
 
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
+    AcessoMetodo as AcessoMetodo,
+    Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
+    Construto,
     Dicionario,
     DefinirValor,
     FuncaoConstruto,
-    AcessoMetodo as AcessoMetodo,
-    Agrupamento,
     Literal,
     Logico,
     AcessoIndiceVariavel,
     Super,
+    TipoDe,
     Unario,
     Variavel,
     Vetor,
     Isto,
-    Construto,
 } from '../construtos';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
@@ -235,6 +236,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
+
+            case tiposDeSimbolos.TIPO:
+                this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
+                const _expressao = this.expressao() as any;
+                return new TipoDe(this.hashArquivo, simboloAtual, _expressao instanceof Literal ? _expressao.valor : _expressao);
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
