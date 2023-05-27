@@ -77,6 +77,7 @@ export default {
     SUSTAR: 'SUSTAR',
     TENTE: 'TENTE',
     TEXTO: 'TEXTO',
+    TIPO: 'TIPO',
     VARIAVEL: 'VARIAVEL',
     VERDADEIRO: 'VERDADEIRO',
     VIRGULA: 'VIRGULA',

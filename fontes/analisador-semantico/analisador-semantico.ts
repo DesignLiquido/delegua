@@ -1,4 +1,4 @@
-import { Literal, Atribuir, FimPara, FormatacaoEscrita, Super } from '../construtos';
+import { Literal, Atribuir, FimPara, FormatacaoEscrita, Super, TipoDe } from '../construtos';
 import {
     Declaracao,
     Expressao,
@@ -56,6 +56,10 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.erros = [];
+    }
+    
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        return Promise.resolve();
     }
     
     visitarExpressaoFalhar(expressao: any): Promise<any> {

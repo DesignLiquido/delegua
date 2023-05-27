@@ -16,6 +16,7 @@ export * from './literal';
 export * from './logico';
 export * from './acesso-indice-variavel';
 export * from './super';
+export * from './tipo-de';
 export * from './unario';
 export * from './variavel';
 export * from './vetor';
