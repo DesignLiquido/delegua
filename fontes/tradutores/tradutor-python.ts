@@ -6,6 +6,10 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export class TradutorPython implements TradutorInterface {
     indentacao: number = 0;
 
+    traduzirNomeVariavel(variavel: string): string {
+        return variavel.replace(/\.?([A-Z]+)/g, (x,y) => "_" + y.toLowerCase()).replace(/^_/, "")
+    }
+
     traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
             case tiposDeSimbolos.ADICAO:
@@ -321,32 +325,45 @@ export class TradutorPython implements TradutorInterface {
 
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = '';
-        resultado += declaracaoVar.simbolo.lexema;
+        resultado += this.traduzirNomeVariavel(declaracaoVar.simbolo.lexema);
         resultado += ' = ';
-        if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
-            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
-        } else {
-            resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
-                declaracaoVar.inicializador
-            );
+        const inicializador = declaracaoVar.inicializador;
+        if(inicializador) {
+            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            }
+            else {
+                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            }
+        } else { 
+            resultado += "None" 
         }
+
         return resultado;
     }
 
     traduzirDeclaracaoConst(declaracaoConst: Const): string {
         let resultado = '';
-        resultado += declaracaoConst.simbolo.lexema;
+        resultado += this.traduzirNomeVariavel(declaracaoConst.simbolo.lexema);
         resultado += ' = ';
-        if (this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name]) {
-            resultado += this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name](
-                declaracaoConst.inicializador
-            );
+        const inicializador = declaracaoConst.inicializador;
+        if(inicializador) {
+            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name](
+                    declaracaoConst.inicializador
+                );
+            }
+            else {
+                resultado += this.dicionarioDeclaracoes[declaracaoConst.inicializador.constructor.name](
+                    declaracaoConst.inicializador
+                );
+            }
         } else {
-            resultado += this.dicionarioDeclaracoes[declaracaoConst.inicializador.constructor.name](
-                declaracaoConst.inicializador
-            );
+            resultado += 'None'
         }
         
         return resultado;
