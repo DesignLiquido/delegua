@@ -42,6 +42,33 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(\(2 \* 3\) \+ \(4 \^ 2\)\)/i);
         });
 
+        it('Nome variáveis', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var NOME1;',
+                    'var nomeCompleto1;',
+                    'var NomeCompleto2;',
+
+                    'const NOME2 = \'delegua\';',
+                    'const nomeCompleto3 = \'delegua completo3\';',
+                    'const NomeCompleto4 = \'delegua completo4\';',
+                ], 
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/nome1/i);
+            expect(resultado).toMatch(/nome_completo1/i);
+            expect(resultado).toMatch(/nome_completo2/i);
+            expect(resultado).toMatch(/nome2/i);
+            expect(resultado).toMatch(/nome_completo3/i);
+            expect(resultado).toMatch(/nome_completo4/i);
+        });
+
         it('Atribuir', () => {
             const retornoLexador = lexador.mapear(
                 [
