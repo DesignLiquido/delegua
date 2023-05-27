@@ -169,11 +169,18 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
 
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                        this.avancar();
+                        break;    
+                    case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.SETA);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                        break;
                 }
 
                 break;
@@ -267,6 +274,12 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.avancar();
                 this.analisarCaracter();
                 this.avancar();
+                break;
+
+            case '_':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.TRACO_BAIXO);
                 break;
 
             default:

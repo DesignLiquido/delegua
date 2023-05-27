@@ -209,6 +209,21 @@ describe('Avaliador sintático', () => {
             });
             
             describe('Estruturas de decisão', () => {
+                it('Escolha', () => {
+                    const retornoLexador = lexador.mapear([
+                        'escolha x',
+                        '  caso 1 => escreva "Um"',
+                        '  caso 2 => escreva "Dois"',
+                        '  caso 3 => escreva "Três"',
+                        '  caso _ => escreva "Outro valor"',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
                 it('Se', () => {
                     const retornoLexador = lexador.mapear([
                         'se verdadeiro então',

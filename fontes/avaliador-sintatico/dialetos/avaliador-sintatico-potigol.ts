@@ -7,6 +7,7 @@ import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
 import { SimboloInterface } from "../../interfaces";
 import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
 import { Simbolo } from "../../lexador";
+import { ErroAvaliadorSintatico } from "../erro-avaliador-sintatico";
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -293,7 +294,59 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error("Método não implementado.");
+        this.avancarEDevolverAnterior();
+
+        const condicao = this.expressao();
+
+        const caminhos = [];
+        let caminhoPadrao = null;
+
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FIM)) {
+            this.consumir(tiposDeSimbolos.CASO, "Esperado palavra reservada 'caso' após condição de 'escolha'.");
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TRACO_BAIXO)) {
+                // Caso padrão
+                if (caminhoPadrao !== null) {
+                    const excecao = new ErroAvaliadorSintatico(
+                        this.simbolos[this.atual],
+                        "Você só pode ter um caminho padrão em cada declaração de 'escolha'."
+                    );
+                    this.erros.push(excecao);
+                    throw excecao;
+                }
+
+                this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
+                const declaracoesPadrao = [this.declaracao()];
+            
+                // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
+                /* const declaracoesPadrao = [];
+                do {
+                    declaracoesPadrao.push(this.declaracao());
+                } while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO, tiposDeSimbolos.FIM)); */
+                
+                caminhoPadrao = {
+                    declaracoes: declaracoesPadrao
+                };
+
+                continue;
+            }
+
+            const caminhoCondicoes = [this.expressao()];
+            this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
+            const declaracoes = [this.declaracao()];
+
+            // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
+            /* const declaracoes = [];
+            do {
+                declaracoes.push(this.declaracao());
+            } while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO, tiposDeSimbolos.FIM)); */
+
+            caminhos.push({
+                condicoes: caminhoCondicoes,
+                declaracoes,
+            });
+        }
+
+        return new Escolha(condicao, caminhos, caminhoPadrao);
     }
 
     declaracaoFazer(): Fazer {
@@ -363,18 +416,17 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         if (expressao instanceof Constante) {
             // Atribuição constante.
             
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
-                return this.logicaAtribuicaoComDica(expressao);
-            } else {
-                // case tiposDeSimbolos.REATRIBUIR:
-                // O símbolo de reatribuição em Potigol é ':='.
-                this.avancarEDevolverAnterior();
-                const valorAtribuicao = this.ou();
-                return new Atribuir(
-                    this.hashArquivo,
-                    (expressao as Constante).simbolo, 
-                    valorAtribuicao
-                );
+            switch (this.simbolos[this.atual].tipo) {
+                case tiposDeSimbolos.DOIS_PONTOS:
+                    return this.logicaAtribuicaoComDica(expressao);
+                case tiposDeSimbolos.IGUAL:
+                    this.avancarEDevolverAnterior();
+                    const valorAtribuicao = this.ou();
+                    return new Atribuir(
+                        this.hashArquivo,
+                        (expressao as Constante).simbolo, 
+                        valorAtribuicao
+                    );
             }
         }
 
@@ -386,6 +438,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.IMPRIMA:
