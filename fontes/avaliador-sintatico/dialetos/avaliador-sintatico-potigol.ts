@@ -3,12 +3,14 @@ import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLi
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
-import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
 import { ParametroInterface, SimboloInterface } from "../../interfaces";
 import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
 import { Simbolo } from "../../lexador";
 import { ErroAvaliadorSintatico } from "../erro-avaliador-sintatico";
 import { RetornoDeclaracao } from "../retornos";
+
+import tiposDeSimbolos from "../../tipos-de-simbolos/potigol";
+import { SeletorTuplas, Tupla } from "../../construtos/tuplas";
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -120,9 +122,22 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                switch (this.simbolos[this.atual].tipo) {
+                    case tiposDeSimbolos.VIRGULA:
+                        // Tupla
+                        const argumentos = [expressao];
+                        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
+                            this.avancarEDevolverAnterior();
+                            argumentos.push(this.expressao());
+                        }
 
-                return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                        return new SeletorTuplas(...argumentos) as Tupla;
+                    default:
+                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                        return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+                }
+                
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:

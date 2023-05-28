@@ -290,6 +290,98 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
             });
+
+            describe.only('Declarações de tuplas', () => {
+                it('Dupla', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Trio', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Quarteto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Quinteto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4, 5)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Sexteto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4, 5, 6)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Septeto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4, 5, 6, 7)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Octeto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4, 5, 6, 7, 8)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Noneto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4, 5, 6, 7, 8, 9)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Deceto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var t := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+            });
         });
 
         describe('Cenários de Falha', () => {
