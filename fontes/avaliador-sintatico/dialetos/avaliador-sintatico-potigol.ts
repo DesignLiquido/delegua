@@ -1,5 +1,5 @@
 import { Agrupamento, Atribuir, Binario, Constante, Construto, FimPara, FuncaoConstruto, Literal, Unario, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco, Expressao, FuncaoDeclaracao } from "../../declaracoes";
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Const, Var, Bloco, Expressao, FuncaoDeclaracao, Classe, PropriedadeClasse } from "../../declaracoes";
 import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
 import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
 
@@ -468,10 +468,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Escolha(condicao, caminhos, caminhoPadrao);
     }
 
-    declaracaoFazer(): Fazer {
-        throw new Error("Método não implementado.");
-    }
-
     declaracaoDeVariaveis(): Var[] {
         const simboloVar = this.avancarEDevolverAnterior();
         const identificadores: SimboloInterface[] = [];
@@ -525,6 +521,59 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         );
     }
 
+    declaracaoFazer(): Fazer {
+        throw new Error("Método não implementado.");
+    }
+
+    /**
+     * Uma declaração de tipo nada mais é do que um declaração de classe.
+     * Em Potigol, classe e tipo são praticamente a mesma coisa.
+     */
+    declaracaoTipo(): Classe {
+        this.avancarEDevolverAnterior();
+        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do tipo.');
+
+        // TODO: Verificar se Potigol trabalha com herança.
+        /* let superClasse = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
+            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
+        } */
+
+        const metodos = [];
+        const propriedades = [];
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
+            const identificador: SimboloInterface = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR, 
+                'Esperado nome de propriedade ou método.'
+            );
+
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
+                // Método
+                metodos.push(this.funcaoPotigol(simbolo));
+            } else {
+                // Propriedade
+                this.consumir(
+                    tiposDeSimbolos.DOIS_PONTOS, 
+                    "Esperado dois-pontos após nome de propriedade em declaração de tipo."
+                );
+
+                this.verificacaoTipo("Esperado tipo do argumento após dois-pontos, em definição de função.");
+
+                const tipoPropriedade = this.simbolos[this.atual - 1];
+                propriedades.push(
+                    new PropriedadeClasse(
+                        identificador,
+                        this.tiposPotigolParaDelegua[tipoPropriedade.lexema]
+                    )
+                );
+            }
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o escopo do tipo.");
+        return new Classe(simbolo, undefined, metodos, propriedades);
+    }
+
     atribuir(): Construto {
         const expressao = this.ou();
 
@@ -563,6 +612,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return this.declaracaoPara();
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
+            case tiposDeSimbolos.TIPO:
+                return this.declaracaoTipo();
             case tiposDeSimbolos.VARIAVEL:
                 return this.declaracaoDeVariaveis();
             default:

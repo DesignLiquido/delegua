@@ -45,6 +45,7 @@ export default {
     SENAO: 'SENAO',
     SETA: 'SETA',
     SUBTRACAO: 'SUBTRACAO',
+    TIPO: 'TIPO',
     TRACO_BAIXO: 'TRACO_BAIXO',
     TEXTO: 'TEXTO',
     VERDADEIRO: 'VERDADEIRO',

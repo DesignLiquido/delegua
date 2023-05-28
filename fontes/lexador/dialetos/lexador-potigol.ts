@@ -2,8 +2,9 @@ import { RetornoLexador } from "../../interfaces/retornos";
 import { ErroLexador } from "../erro-lexador";
 import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
 import { palavrasReservadas } from "./palavras-reservadas/potigol";
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
 
 /**
  * Lexador para o dialeto Potigol.
