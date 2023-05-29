@@ -379,6 +379,22 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30'\)/i);
         });
 
+        it('leia -> input', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var nome = leia(\'Digite seu nome: \')',
+                    'escreva(nome)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/nome = input\(\'Digite seu nome: \'\)/i);
+            expect(resultado).toMatch(/print\(nome\)/i);
+        });
+
         it('isto -> this', () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -406,6 +422,56 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(self.valor\)/i);
             expect(resultado).toMatch(/teste = Teste\(100\)/i);
             expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
+        });
+
+        it('herda', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    'corre() {',
+                    'escreva("correndo");',
+                    '}',
+                    '}',
+                    'classe Cachorro herda Animal {}',
+                    'var thor = Cachorro();',
+                    'thor.corre();',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/class Animal:/i);
+            expect(resultado).toMatch(/def corre\(self\):/i);
+            expect(resultado).toMatch(/print\('correndo'\)/i);
+            expect(resultado).toMatch(/class Cachorro\(Animal\):/i);
+            expect(resultado).toMatch(/pass/i);
+            expect(resultado).toMatch(/thor = Cachorro\(\)/i);
+            expect(resultado).toMatch(/thor.corre\(\)/i);
+        });
+
+        it('método de classe vazio - metodo de classe vazio com \'pass\'', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Cachorro {',
+                    'corre() {',
+                    '}',
+                    '}',
+                    'var thor = Cachorro();',
+                    'thor.corre();',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/class Cachorro:/i);
+            expect(resultado).toMatch(/def corre\(self\):/i);
+            expect(resultado).toMatch(/pass/i);
+            expect(resultado).toMatch(/thor = Cachorro\(\)/i);
+            expect(resultado).toMatch(/thor.corre\(\)/i);
         });
 
         it('tente - pegue - finalmente -> try - except - finally', () => {
