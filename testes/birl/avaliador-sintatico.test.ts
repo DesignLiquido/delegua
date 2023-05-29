@@ -27,6 +27,21 @@ describe('Avaliador Sintático Birl', () => {
         });
 
         describe('Cenários de sucesso', () => {
+            it('Sucesso - Ler da tela', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW',
+                    '   MONSTRO X;',
+                    '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
+                    '   BORA CUMPADE 0;',
+                    'BIRL',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
+
             it('Sucesso - Hello, World! Porra!', () => {
                 const retornoLexador = lexador.mapear(
                     [

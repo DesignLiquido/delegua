@@ -450,6 +450,30 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return new Retorna(primeiroSimbolo, valor);
     }
 
+    protected validaTipoDeclaracaoLeia(caracteres: string): string {
+        const tipoCaractere = caracteres.charAt(1);
+
+        const tipos = {
+            d: 'numero',
+            i: 'numero',
+            u: 'numero',
+            f: 'numero',
+            F: 'numero',
+            e: 'numero',
+            E: 'numero',
+            g: 'numero',
+            G: 'numero',
+            x: 'numero',
+            X: 'numero',
+            o: 'numero',
+            c: 'texto',
+            s: 'texto',
+            p: 'texto',
+        };
+
+        return tipos[tipoCaractere] || 'desconhecido';
+    }
+
     declaracaoLeia(): Leia {
         const primeiroSimbolo = this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` para ler valor.');
         this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `QUE` para ler valor.');
@@ -461,21 +485,28 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             'Esperado parêntese esquerdo após interrogação para ler valor.'
         );
-        const simbolo = this.consumir(tiposDeSimbolos.TEXTO, 'Esperado texto após parêntese esquerdo para ler valor.');
-        const ponteiro = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR,
-            'Esperado identificador após texto para ler valor.'
+        const textoOuSimbolo = this.consumir(
+            tiposDeSimbolos.TEXTO,
+            'Esperado texto após parêntese esquerdo para ler valor.'
         );
+        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula após texto para ler valor.');
+        this.consumir(tiposDeSimbolos.PONTEIRO, 'Esperado expressão `&` após texto para ler valor.');
+        const variavel = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'Esperado identificador após `&` para ler valor.'
+        );
+
+        const tipo = this.validaTipoDeclaracaoLeia(textoOuSimbolo.literal);
+
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             'Esperado parêntese direito após identificador para ler valor.'
         );
-        this.consumir(
-            tiposDeSimbolos.PONTO_E_VIRGULA,
-            'Esperado ponto e vírgula após parêntese direito para ler valor.'
-        );
 
-        return new Leia(Number(primeiroSimbolo.linha), this.hashArquivo, []);
+        return new Leia(Number(primeiroSimbolo.linha), this.hashArquivo, [
+            new Variavel(this.hashArquivo, variavel),
+            new Literal(this.hashArquivo, Number(textoOuSimbolo.linha), tipo),
+        ]);
     }
 
     declaracaoSe(): Se {
