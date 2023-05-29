@@ -379,6 +379,22 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30'\)/i);
         });
 
+        it('leia -> input', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var nome = leia(\'Digite seu nome: \')',
+                    'escreva(nome)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/nome = input\(\'Digite seu nome: \'\)/i);
+            expect(resultado).toMatch(/print\(nome\)/i);
+        });
+
         it('isto -> this', () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -408,7 +424,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
         });
 
-        it.only('herda', () => {
+        it('herda', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
