@@ -3,12 +3,25 @@ import { VariavelInterface } from "../../../interfaces";
 import { InterpretadorBase } from "../../interpretador-base";
 import { inferirTipoVariavel } from "./inferenciador";
 
+import { ErroEmTempoDeExecucao } from "../../../excecoes";
+import { registrarBibliotecaGlobalPotigol } from "../../../bibliotecas/dialetos/potigol/biblioteca-global";
+
 import primitivasNumero from "../../../bibliotecas/dialetos/potigol/primitivas-numero";
 import primitivasTexto from "../../../bibliotecas/dialetos/potigol/primitivas-texto";
 import primitivasVetor from "../../../bibliotecas/dialetos/potigol/primitivas-vetor";
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
 
 export class InterpretadorPotigol extends InterpretadorBase {
+    constructor(
+        diretorioBase: string,
+        performance = false,
+        funcaoDeRetorno: Function = null,
+        funcaoDeRetornoMesmaLinha: Function = null
+    ) {
+        super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
+
+        registrarBibliotecaGlobalPotigol(this, this.pilhaEscoposExecucao);
+    }
+
     /**
      * Executa um acesso a método, normalmente de um objeto de classe.
      * @param expressao A expressão de acesso.
@@ -50,6 +63,13 @@ export class InterpretadorPotigol extends InterpretadorBase {
         }
 
         switch (tipoObjeto) {
+            case 'numero':
+            case 'número':
+                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
+                if (metodoDePrimitivaNumero) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                }
+                break;
             case 'texto':
                 const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
                 if (metodoDePrimitivaTexto) {
