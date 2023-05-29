@@ -249,6 +249,13 @@ export class TradutorPython implements TradutorInterface {
         }
 
         resultado += '):\n';
+        if (metodoClasse.funcao.corpo.length === 0) {
+            resultado += ' '.repeat(this.indentacao + 4);
+            resultado += 'pass\n'
+            this.indentacao -= 4;
+            return resultado;
+        }
+
         resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
         resultado += ' '.repeat(this.indentacao) + '\n';
 
@@ -260,8 +267,10 @@ export class TradutorPython implements TradutorInterface {
         let resultado = 'class ';
 
         if (declaracaoClasse.superClasse)
-            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`;
+            resultado += `${declaracaoClasse.simbolo.lexema}(${declaracaoClasse.superClasse.simbolo.lexema}):\n`;
         else resultado += declaracaoClasse.simbolo.lexema + ':\n';
+
+        if(declaracaoClasse.metodos.length === 0) return resultado += '    pass\n'
 
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
