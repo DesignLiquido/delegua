@@ -383,7 +383,7 @@ describe('Avaliador sintático', () => {
                 });
             });
 
-            describe.only('Tipos', () => {
+            describe('Tipos', () => {
                 it('Trivial', () => {
                     const retornoLexador = lexador.mapear([
                         'tipo Quadrado',
