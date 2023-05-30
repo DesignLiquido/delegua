@@ -58,14 +58,39 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     };
 
     /**
-     * Retorna uma declaração de função.
+     * Retorna uma declaração de função iniciada por igual, 
+     * ou seja, com apenas uma instrução.
      * @param simboloPrimario O símbolo que identifica a função (nome).
      * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
      * @param parametros A lista de parâmetros da função.
      * @param tipoRetorno O tipo de retorno da função.
      * @returns Um construto do tipo `FuncaoDeclaracao`.
      */
-    protected declaracaoFuncaoPotigol(
+    protected declaracaoFuncaoPotigolIniciadaPorIgual(
+        simboloPrimario: SimboloInterface,
+        parenteseEsquerdo: SimboloInterface,
+        parametros: ParametroInterface[],
+        tipoRetorno?: SimboloInterface
+    ): FuncaoDeclaracao {
+        const corpo = new FuncaoConstruto(
+            simboloPrimario.hashArquivo, 
+            simboloPrimario.linha,
+            parametros,
+            [this.expressao()] 
+        );
+        return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
+    }
+
+    /**
+     * Retorna uma declaração de função terminada por fim, 
+     * ou seja, com mais de uma instrução.
+     * @param simboloPrimario O símbolo que identifica a função (nome).
+     * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
+     * @param parametros A lista de parâmetros da função.
+     * @param tipoRetorno O tipo de retorno da função.
+     * @returns Um construto do tipo `FuncaoDeclaracao`.
+     */
+    protected declaracaoFuncaoPotigolTerminadaPorFim(
         simboloPrimario: SimboloInterface,
         parenteseEsquerdo: SimboloInterface,
         parametros: ParametroInterface[],
@@ -76,7 +101,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     corpoDaFuncao(nomeFuncao: string, simboloPragma?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
-        this.consumir(tiposDeSimbolos.IGUAL, `Esperado '=' antes do escopo da função ${nomeFuncao}.`);
+        // this.consumir(tiposDeSimbolos.IGUAL, `Esperado '=' antes do escopo da função ${nomeFuncao}.`);
 
         const corpo = this.blocoEscopo();
 
@@ -87,6 +112,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
+        let éDeclaracao = false;
 
         // Como só é possível descobrir se o símbolo primário
         // é uma declaração ou chamada após o fechamento dos
@@ -99,7 +125,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let parametros: ParametroInterface[] = [];
         if (simbolosEntreParenteses.length > 0) {
-            parametros = this.logicaComumParametrosDeclaracaoFuncao(simbolosEntreParenteses);
+            const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
+            // A melhor forma de detectar se é uma declaração de função ou
+            // uma chamada é através dos parâmetros da função, cujos tipos
+            // são obrigatórios numa declaração.
+            if (resolucaoParametros.tipagemDefinida) {
+                éDeclaracao = true;
+                parametros = resolucaoParametros.parametros;
+            }
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
@@ -111,14 +144,31 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             this.verificacaoTipo(this.simbolos[this.atual], 'Esperado tipo válido após dois-pontos como retorno de função.');
 
             tipoRetorno = this.simbolos[this.atual - 1];
+            éDeclaracao = true;
         }
 
         // Se houver símbolo de igual, seja após fechamento de parênteses,
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
-            return this.declaracaoFuncaoPotigol(simboloPrimario, parenteseEsquerdo, parametros, tipoRetorno);
+            this.avancarEDevolverAnterior();
+            return this.declaracaoFuncaoPotigolIniciadaPorIgual(
+                simboloPrimario, 
+                parenteseEsquerdo, 
+                parametros, 
+                tipoRetorno
+            );
         }
 
+        if (éDeclaracao) {
+            return this.declaracaoFuncaoPotigolTerminadaPorFim(
+                simboloPrimario, 
+                parenteseEsquerdo, 
+                parametros, 
+                tipoRetorno
+            );
+        }
+
+        // Se chegou até aqui, é chamada de função.
         return undefined;
     }
 
@@ -140,9 +190,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    protected logicaComumParametrosDeclaracaoFuncao(simbolos: SimboloInterface[]): ParametroInterface[] {
+    protected logicaComumParametrosPotigol(
+        simbolos: SimboloInterface[]
+    ): { parametros: ParametroInterface[], tipagemDefinida: boolean } {
         const parametros: ParametroInterface[] = [];
         let indice = 0;
+        let tipagemDefinida = false;
 
         while (indice < simbolos.length) {
             if (parametros.length >= 255) {
@@ -167,15 +220,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             parametro.nome = simbolos[indice];
             indice++;
 
-            if (simbolos[indice].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
-                throw this.erro(simbolos[indice], 'Esperado dois-pontos após nome de argumento para função.');
+            if (simbolos[indice].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                // throw this.erro(simbolos[indice], 'Esperado dois-pontos após nome de argumento para função.');
+
+                indice++;
+                this.verificacaoTipo(simbolos[indice], 'Esperado tipo do argumento após dois-pontos, em definição de função.');
+
+                const tipoParametro = simbolos[indice];
+                parametro.tipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
+                tipagemDefinida = true;
             }
-
-            indice++;
-            this.verificacaoTipo(simbolos[indice], 'Esperado tipo do argumento após dois-pontos, em definição de função.');
-
-            const tipoParametro = simbolos[indice];
-            parametro.tipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
 
             // TODO: Verificar se Potigol trabalha com valores padrão em argumentos.
             /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
@@ -193,7 +247,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             indice++;
         };
 
-        return parametros;
+        return { 
+            parametros, 
+            tipagemDefinida
+        };
     }
 
     primario(): Construto {
@@ -318,6 +375,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
+    /**
+     * Blocos de escopo em Potigol existem quando:
+     * 
+     * - Em uma declaração de função ou método, após fecha parênteses, o próximo 
+     * símbolo obrigatório não é `=` e há pelo menos um `fim` até o final do código;
+     * - Em uma declaração `se`;
+     * - Em uma declaração `enquanto`;
+     * - Em uma declaração `para`.
+     * @returns Um vetor de `Declaracao`.
+     */
     blocoEscopo(): Array<RetornoDeclaracao> {
         let declaracoes: Array<RetornoDeclaracao> = [];
 
@@ -698,7 +765,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     'Esperado tipo do argumento após dois-pontos, em definição de função.'
                 );
 
-                const tipoPropriedade = this.simbolos[this.atual - 1];
+                const tipoPropriedade = this.avancarEDevolverAnterior();
                 propriedades.push(
                     new PropriedadeClasse(identificador, this.tiposPotigolParaDelegua[tipoPropriedade.lexema])
                 );
