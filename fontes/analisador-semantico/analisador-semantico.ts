@@ -57,7 +57,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.atual = 0;
         this.erros = [];
     }
-    
+
     visitarExpressaoFalhar(expressao: any): Promise<any> {
         return Promise.resolve();
     }
