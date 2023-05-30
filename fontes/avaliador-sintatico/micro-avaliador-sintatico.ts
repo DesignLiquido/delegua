@@ -5,15 +5,16 @@ import { RetornoAvaliadorSintatico, RetornoLexador } from "../interfaces/retorno
 import { ErroAvaliadorSintatico } from "./erro-avaliador-sintatico";
 
 import tiposDeSimbolos from "../tipos-de-simbolos/microgramaticas/delegua";
+import { MicroAvaliadorSintaticoBase } from "./micro-avaliador-sintatico-base";
 
 /**
  * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto. 
  */
-export class MicroAvaliadorSintatico {
-    simbolos: SimboloInterface[];
-    erros: ErroAvaliadorSintatico[];
-    atual: number;
-    linha: number;
+export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
+    // simbolos: SimboloInterface[];
+    // erros: ErroAvaliadorSintatico[];
+    // atual: number;
+    // linha: number;
 
     avancarEDevolverAnterior(): SimboloInterface {
         if (this.atual < this.simbolos.length) this.atual += 1;
@@ -356,10 +357,6 @@ export class MicroAvaliadorSintatico {
     }
 
     declaracao(): Declaracao | Construto {
-        /* switch (this.simbolos[this.atual].tipo) {
-
-        } */
-
         return this.ou();
     }
 
