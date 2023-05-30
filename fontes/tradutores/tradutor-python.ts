@@ -196,13 +196,17 @@ export class TradutorPython implements TradutorInterface {
         return resultado;
     }
 
-    traduzirDeclaracaoSe(declaracaoSe: Se): string {
-        let resultado = 'if ';
+
+    traduzirDeclaracaoSe(declaracaoSe: Se, iniciarComIf: boolean = true): string {
+        let resultado = '';
+        if (iniciarComIf) {
+            resultado += 'if ';
+        } else {
+            resultado += 'elif '
+        }
 
         const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
-
         resultado += condicao;
-
         resultado += ':\n';
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
@@ -211,19 +215,23 @@ export class TradutorPython implements TradutorInterface {
             const se = declaracaoSe?.caminhoSenao as Se;
             if (se?.caminhoEntao) {
                 resultado += 'elif ';
-                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao, false);
                 resultado += ':\n';
                 resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
                 resultado += ' '.repeat(this.indentacao);
                 if (se?.caminhoSenao) {
-                    resultado += 'else:\n';
-                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
-                    return resultado;
+                    if (se.caminhoSenao instanceof Bloco){
+                        resultado += 'else:\n';
+                        resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao, false);
+                        return resultado;
+                    } else {
+                        resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao, false);
+                        return resultado;
+                    }
                 }
-            } else {
-                resultado += 'else:\n';
             }
-
+            resultado += 'else:\n';
+            resultado += ' '.repeat(this.indentacao);
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
                 declaracaoSe.caminhoSenao
             );

@@ -323,7 +323,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(20\)/i);
         });
 
-        it('se senão 01 -> if else, código', () => {
+        it('se senão 01 -> if/else, código', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var a = 20',
@@ -349,7 +349,7 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\('Não é 10 e não é 20'\)/i);
         });
 
-        it.skip('se senão 02 -> if else, código', () => {
+        it('se senão 02 -> if/elif/else, código', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var a = 20',
@@ -359,8 +359,11 @@ describe('Tradutor Delégua -> Python', () => {
                     '   escreva(20)',
                     '} senão se (a == 30) {',
                     '   escreva(30)',
-                    '} senão {',
-                    "   escreva('Não é nenhum desses valores: 10, 20, 30')",
+                    '} senão se (a == \'40\') {',
+                    '   escreva(\'40\')',
+                    '}',
+                    'senão {',
+                    "   escreva('Não é nenhum desses valores: 10, 20, 30, 40')",
                     '}',
                 ],
                 -1
@@ -375,8 +378,10 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(20\)/i);
             expect(resultado).toMatch(/elif a \=\= 30:/i);
             expect(resultado).toMatch(/print\(30\)/i);
+            expect(resultado).toMatch(/elif a \=\= \'40\':/i);
+            expect(resultado).toMatch(/print\(\'40\'\)/i);
             expect(resultado).toMatch(/else:/i);
-            expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30'\)/i);
+            expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30, 40'\)/i);
         });
 
         it('leia -> input', () => {
