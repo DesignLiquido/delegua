@@ -42,12 +42,15 @@ import { RetornoDeclaracao } from '../../retornos';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/potigol';
 import { SeletorTuplas, Tupla } from '../../../construtos/tuplas';
+import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
  * transformar o retorno de `primario()` em um vetor.
  */
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
+    microAvaliadorSintatico: MicroAvaliadorSintaticoPotigol;
+
     tiposPotigolParaDelegua = {
         Caractere: 'texto',
         Inteiro: 'numero',
@@ -153,7 +156,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // é uma declaração ou chamada após o fechamento dos
         // parênteses, precisamos acumular os símbolos até o 
         // fechamento dos parênteses e analisá-los depois.
-        const simbolosEntreParenteses = [];
+        const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
         }
@@ -218,16 +221,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // Se chegou até aqui, é chamada de função ou construtor de tipo.
         // Primeiro, resolver todos os símbolos entre parênteses como
         // expressões.
-        /* let atual = 0;
-        do {
-
-        } while (atual < simbolosEntreParenteses.length) */
+        const argumentos = this.microAvaliadorSintatico.analisar(
+            { simbolos: simbolosEntreParenteses } as any,
+            construtoPrimario.linha
+        )
 
         return new Chamada(
             this.hashArquivo, 
             new Constante(construtoPrimario.hashArquivo, construtoPrimario.simbolo), 
             parenteseDireito, 
-            [] // Argumentos
+            argumentos.declaracoes.filter(d => d)
         );
     }
 
@@ -364,24 +367,23 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     chamar(): Construto {
         let expressao = this.primario();
 
-        if (expressao instanceof ConstanteOuVariavel) {
-            if (this.estaNoFinal()) {
-                return new Constante(expressao.hashArquivo, expressao.simbolo);
+        while (true) {
+            /* if (this.estaNoFinal()) {
+                expressao = new Constante(expressao.hashArquivo, expressao.simbolo);
+                break;
             }
 
             switch (this.simbolos[this.atual].tipo) {
                 case tiposDeSimbolos.PARENTESE_ESQUERDO:
                     return this.funcaoOuMetodoOuChamada(expressao);
+                case tiposDeSimbolos.PONTO:
+
                 default:
                     return new Constante(expressao.hashArquivo, expressao.simbolo);
-            }
-        }
+            } */
 
-        return expressao;
-
-        /* while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
+                expressao = this.funcaoOuMetodoOuChamada(expressao as ConstanteOuVariavel);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
                 expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
@@ -393,9 +395,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
                 expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
             } else {
+                if (expressao instanceof ConstanteOuVariavel) {
+                    expressao = new Constante(expressao.hashArquivo, (expressao as any).simbolo);
+                }
+                
                 break;
             }
-        } */
+        }
+
+        return expressao;
     }
 
     comparacaoIgualdade(): Construto {
@@ -880,6 +888,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+        this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(hashArquivo);
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;

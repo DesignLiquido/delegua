@@ -1196,7 +1196,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
         let superClasse = null;
-        if (declaracao.superClasse !== null) {
+        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
             const variavelSuperClasse: VariavelInterface = await this.avaliar(declaracao.superClasse);
             superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DeleguaClasse)) {
