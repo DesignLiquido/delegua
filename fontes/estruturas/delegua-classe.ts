@@ -23,8 +23,20 @@ export class DeleguaClasse extends Chamavel {
             return this.metodos[nome];
         }
 
-        if (this.superClasse !== null) {
+        if (this.superClasse !== null && this.superClasse !== undefined) {
             return this.superClasse.encontrarMetodo(nome);
+        }
+
+        return undefined;
+    }
+
+    encontrarPropriedade(nome: string): PropriedadeClasse {
+        if (nome in this.propriedades) {
+            return this.propriedades[nome];
+        }
+
+        if (this.superClasse !== null && this.superClasse !== undefined) {
+            return this.superClasse.encontrarPropriedade(nome);
         }
 
         return undefined;
@@ -44,7 +56,7 @@ export class DeleguaClasse extends Chamavel {
 
         const inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
-            inicializador.definirInstancia(instancia).chamar(visitante, argumentos);
+            inicializador.funcaoPorMetodoDeClasse(instancia).chamar(visitante, argumentos);
         }
 
         return instancia;

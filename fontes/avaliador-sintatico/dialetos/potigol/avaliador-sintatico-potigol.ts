@@ -146,38 +146,17 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new FuncaoConstruto(this.hashArquivo, Number(simboloPragma.linha), parametros, corpo);
     }
 
-    protected funcaoOuMetodoOuChamada(construtoPrimario: ConstanteOuVariavel): Construto {
+    protected declaracaoDeFuncaoOuMetodo(construtoPrimario: ConstanteOuVariavel): FuncaoDeclaracao {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
-        let éDeclaracao = false;
-
-        // Como só é possível descobrir se o símbolo primário
-        // é uma declaração ou chamada após o fechamento dos
-        // parênteses, precisamos acumular os símbolos até o 
-        // fechamento dos parênteses e analisá-los depois.
+        
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
         }
 
-        let testePrimeiroParametro = false;
-        if (simbolosEntreParenteses.length > 0) {
-            testePrimeiroParametro = this.testePrimeiroParametro(simbolosEntreParenteses);
-        }
-
-        let parametros: ParametroInterface[] = [];
-        if (testePrimeiroParametro) {
-            const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
-            // A melhor forma de detectar se é uma declaração de função ou
-            // uma chamada é através dos parâmetros da função, cujos tipos
-            // são obrigatórios numa declaração.
-            if (resolucaoParametros.tipagemDefinida) {
-                éDeclaracao = true;
-                parametros = resolucaoParametros.parametros;
-            }
-        }
-
+        const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
         const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         // Pode haver uma dica do tipo de retorno ou não.
@@ -187,9 +166,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             this.verificacaoTipo(this.simbolos[this.atual], 'Esperado tipo válido após dois-pontos como retorno de função.');
 
             tipoRetorno = this.simbolos[this.atual - 1];
-            éDeclaracao = true;
         }
-
+        
         // Se houver símbolo de igual, seja após fechamento de parênteses,
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
@@ -198,37 +176,38 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             return this.declaracaoFuncaoPotigolIniciadaPorIgual(
                 construtoPrimario.simbolo, 
                 parenteseEsquerdo, 
-                parametros, 
+                resolucaoParametros.parametros, 
                 tipoRetorno
             );
         }
 
-        // Caso excepcional: declaração não possui parâmetros.
-        // A única forma de testar isso é se o identificador nunca foi 
-        // usado antes. 
-        // Como Potigol funciona apenas com um arquivo, isso é possível de 
-        // ser testado.
-        if (éDeclaracao || !(construtoPrimario.simbolo.lexema in this.declaracoesAnteriores)) {
-            this.declaracoesAnteriores[construtoPrimario.simbolo.lexema] = [];
-            return this.declaracaoFuncaoPotigolTerminadaPorFim(
-                construtoPrimario.simbolo, 
-                parenteseEsquerdo, 
-                parametros, 
-                tipoRetorno
-            );
+        return this.declaracaoFuncaoPotigolTerminadaPorFim(
+            construtoPrimario.simbolo, 
+            parenteseEsquerdo, 
+            resolucaoParametros.parametros, 
+            tipoRetorno
+        );
+    }
+
+    finalizarChamada(entidadeChamada: Construto): Construto {
+        // Parêntese esquerdo 
+        // this.avancarEDevolverAnterior();
+
+        const simbolosEntreParenteses: SimboloInterface[] = [];
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
         }
 
-        // Se chegou até aqui, é chamada de função ou construtor de tipo.
-        // Primeiro, resolver todos os símbolos entre parênteses como
-        // expressões.
+        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+
         const argumentos = this.microAvaliadorSintatico.analisar(
             { simbolos: simbolosEntreParenteses } as any,
-            construtoPrimario.linha
+            entidadeChamada.linha
         )
 
         return new Chamada(
             this.hashArquivo, 
-            new Constante(construtoPrimario.hashArquivo, construtoPrimario.simbolo), 
+            entidadeChamada, 
             parenteseDireito, 
             argumentos.declaracoes.filter(d => d)
         );
@@ -372,7 +351,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.funcaoOuMetodoOuChamada(expressao as ConstanteOuVariavel);
+                if (expressao instanceof ConstanteOuVariavel) {
+                    expressao = new Constante(expressao.hashArquivo, expressao.simbolo);
+                }
+                expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
                 const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
@@ -812,7 +794,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
                 // Método
                 const construtoMetodo = new Constante(identificador.hashArquivo, identificador);
-                metodos.push(this.funcaoOuMetodoOuChamada(construtoMetodo));
+                metodos.push(this.declaracaoDeFuncaoOuMetodo(construtoMetodo));
             } else {
                 // Propriedade
                 this.consumir(
@@ -855,6 +837,33 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    /**
+     * Em Potigol, uma definição de função normalmente começa com um 
+     * identificador - que não é uma palavra reservada - seguido de parênteses.
+     * Este ponto de entrada verifica o símbolo atual e o próximo.
+     * 
+     * Diferentemente dos demais dialetos, verificamos logo de cara se
+     * temos uma definição ou chamada de função, isto porque definições
+     * nunca aparecem do lado direito de uma atribuição, a não ser que
+     * estejam entre parênteses (_currying_). 
+     * 
+     * Se o próximo símbolo for parênteses, ou é uma definiçao de função, 
+     * ou uma chamada de função.
+     */
+    expressaoOuDefinicaoFuncao() {
+        if (!this.estaNoFinal() && this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            if (this.atual + 1 < this.simbolos.length) {
+                switch (this.simbolos[this.atual + 1].tipo) {
+                    case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                        const construtoPrimario = this.primario();
+                        return this.declaracaoDeFuncaoOuMetodo(construtoPrimario as ConstanteOuVariavel);
+                }
+            }
+        }
+
+        return this.atribuir();
+    }
+
     declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -875,7 +884,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.VARIAVEL:
                 return this.declaracaoDeVariaveis();
             default:
-                return this.expressao();
+                return this.expressaoOuDefinicaoFuncao();
         }
     }
 

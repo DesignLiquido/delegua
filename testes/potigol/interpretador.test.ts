@@ -34,8 +34,8 @@ describe('Interpretador', () => {
                     '  perimetro() = 4 * lado',
                     'fim',
                     'q1 = Quadrado(10)',
-                    'escreva q1.area',
-                    'escreva q1.perimetro'
+                    'escreva q1.area()',
+                    'escreva q1.perimetro()'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     

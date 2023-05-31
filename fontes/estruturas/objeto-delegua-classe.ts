@@ -17,7 +17,7 @@ export class ObjetoDeleguaClasse {
         }
 
         const metodo = this.classe.encontrarMetodo(simbolo.lexema);
-        if (metodo) return metodo.definirInstancia(this);
+        if (metodo) return metodo.funcaoPorMetodoDeClasse(this);
 
         throw new ErroEmTempoDeExecucao(simbolo, 'Método indefinido não recuperado.');
     }
