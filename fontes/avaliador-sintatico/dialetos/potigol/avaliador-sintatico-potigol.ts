@@ -362,38 +362,29 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Em Potigol, só é possível determinar a diferença entre uma chamada e uma
      * declaração de função depois dos argumentos.
-     * @returns
+     * 
+     * Chamadas não aceitam dicas de tipos de parâmetros. 
+     * @returns Um construto do tipo `AcessoMetodo`, `AcessoIndiceVariavel` ou `Constante`,
+     * dependendo dos símbolos encontrados.
      */
     chamar(): Construto {
         let expressao = this.primario();
 
         while (true) {
-            /* if (this.estaNoFinal()) {
-                expressao = new Constante(expressao.hashArquivo, expressao.simbolo);
-                break;
-            }
-
-            switch (this.simbolos[this.atual].tipo) {
-                case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                    return this.funcaoOuMetodoOuChamada(expressao);
-                case tiposDeSimbolos.PONTO:
-
-                default:
-                    return new Constante(expressao.hashArquivo, expressao.simbolo);
-            } */
-
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.funcaoOuMetodoOuChamada(expressao as ConstanteOuVariavel);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
+                const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
+                expressao = new AcessoMetodo(this.hashArquivo, variavelMetodo, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
+                const variavelVetor = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
+                expressao = new AcessoIndiceVariavel(this.hashArquivo, variavelVetor, indice, simboloFechamento);
             } else {
                 if (expressao instanceof ConstanteOuVariavel) {
                     expressao = new Constante(expressao.hashArquivo, (expressao as any).simbolo);
@@ -820,7 +811,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
                 // Método
-                metodos.push(this.funcaoOuMetodoOuChamada(construto));
+                const construtoMetodo = new Constante(identificador.hashArquivo, identificador);
+                metodos.push(this.funcaoOuMetodoOuChamada(construtoMetodo));
             } else {
                 // Propriedade
                 this.consumir(
@@ -856,7 +848,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 case tiposDeSimbolos.IGUAL:
                     this.avancarEDevolverAnterior();
                     const valorAtribuicao = this.ou();
-                    return new Atribuir(this.hashArquivo, (expressao as Constante).simbolo, valorAtribuicao);
+                    return new Const(expressao.simbolo, valorAtribuicao);
             }
         }
 

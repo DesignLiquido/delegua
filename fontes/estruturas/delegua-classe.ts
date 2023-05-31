@@ -1,3 +1,4 @@
+import { PropriedadeClasse } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces'
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
@@ -7,12 +8,14 @@ export class DeleguaClasse extends Chamavel {
     nome: string;
     superClasse: DeleguaClasse;
     metodos: { [nome: string]: DeleguaFuncao };
+    propriedades: PropriedadeClasse[]
 
-    constructor(nome?: string, superClasse?: any, metodos?: any) {
+    constructor(nome?: string, superClasse?: any, metodos?: any, propriedades?: PropriedadeClasse[]) {
         super();
         this.nome = nome;
         this.superClasse = superClasse;
-        this.metodos = metodos;
+        this.metodos = metodos || {};
+        this.propriedades = propriedades || [];
     }
 
     encontrarMetodo(nome: string): DeleguaFuncao {
