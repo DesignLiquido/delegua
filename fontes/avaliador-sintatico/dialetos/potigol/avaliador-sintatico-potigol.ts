@@ -8,8 +8,10 @@ import {
     Constante,
     ConstanteOuVariavel,
     Construto,
+    DefinirValor,
     FimPara,
     FuncaoConstruto,
+    Isto,
     Literal,
     Unario,
     Variavel,
@@ -770,10 +772,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Uma declaração de tipo nada mais é do que um declaração de classe.
      * Em Potigol, classe e tipo são praticamente a mesma coisa.
+     * 
+     * @returns Um construto do tipo `Classe`.
      */
     declaracaoTipo(): Classe {
-        this.avancarEDevolverAnterior();
-        // const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do tipo.');
+        const simboloTipo = this.avancarEDevolverAnterior();
         const construto: ConstanteOuVariavel = this.primario() as ConstanteOuVariavel;
 
         // TODO: Verificar se Potigol trabalha com herança.
@@ -783,8 +786,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         } */
 
-        const metodos = [];
-        const propriedades = [];
+        const metodos: FuncaoDeclaracao[] = [];
+        const propriedades: PropriedadeClasse[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
             const identificador: SimboloInterface = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
@@ -815,6 +818,61 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o escopo do tipo.");
+
+        // Depois de verificadas todas as propriedades anotadas com tipo, 
+        // Precisamos gerar um construtor com todas elas na ordem em que
+        // foram lidas.
+        const instrucoesConstrutor = [];
+        for (let propriedade of propriedades) {
+            instrucoesConstrutor.push(
+                new Expressao(
+                    new DefinirValor(
+                        propriedade.hashArquivo,
+                        propriedade.linha,
+                        new Isto(
+                            propriedade.hashArquivo,
+                            propriedade.linha,
+                            new Simbolo(
+                                tiposDeSimbolos.ISTO,
+                                'isto',
+                                undefined,
+                                simboloTipo.linha,
+                                simboloTipo.hashArquivo
+                            )
+                        ),
+                        propriedade.nome,
+                        new Variavel(
+                            propriedade.hashArquivo,
+                            propriedade.nome
+                        )
+                    )
+                )
+            );
+        }
+
+        const construtorConstruto = new FuncaoConstruto(
+            simboloTipo.hashArquivo, 
+            simboloTipo.linha,
+            propriedades.map(p => ({
+                abrangencia: 'padrao',
+                nome: p.nome
+            } as ParametroInterface)),
+            instrucoesConstrutor
+        );
+
+        const construtor = new FuncaoDeclaracao(
+            new Simbolo(
+                tiposDeSimbolos.CONSTRUTOR, 
+                'construtor', 
+                undefined, 
+                simboloTipo.hashArquivo,
+                simboloTipo.linha
+            ),
+            construtorConstruto,
+            undefined
+        );
+
+        metodos.unshift(construtor);
         return new Classe(construto.simbolo, undefined, metodos, propriedades);
     }
 

@@ -2,12 +2,12 @@ import { SimboloInterface, VisitanteComumInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 export class PropriedadeClasse extends Declaracao {
-    nome: string;
+    nome: SimboloInterface;
     tipo?: string;
 
-    constructor(simboloNome: SimboloInterface, tipo?: string) {
-        super(Number(simboloNome.linha), simboloNome.hashArquivo);
-        this.nome = simboloNome.lexema;
+    constructor(nome: SimboloInterface, tipo?: string) {
+        super(Number(nome.linha), nome.hashArquivo);
+        this.nome = nome;
         this.tipo = tipo;
     }
 

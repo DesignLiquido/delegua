@@ -265,6 +265,11 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
 
+            case '\n':
+                this.linha++;
+                this.avancar();
+                break;
+
             case '"':
                 this.avancar();
                 this.analisarTexto();
