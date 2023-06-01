@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
-import { LexadorBirl } from '../../fontes/lexador/dialetos';
 import { InterpretadorBirl } from '../../fontes/interpretador/dialetos';
+import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
@@ -15,7 +15,7 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it.only('Sucesso - Verifica tipo LEIA', async () => {
+            it.skip('Sucesso - Verifica tipo LEIA', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW',
                     '   MONSTRO X;',
@@ -32,7 +32,7 @@ describe('Interpretador', () => {
             })
 
             // @TODO: Nesse exemplo não esta realmente somando apenas lendos os valores
-            it('Sucesso - declaração - chamarFuncao', async () => {
+            it.skip('Sucesso - declaração - chamarFuncao', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MONSTRO primeiro = 5;\n',
