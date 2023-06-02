@@ -640,14 +640,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.only('Construtor', async () => {
+                it('Construtor', async () => {
                     const codigo = [
                         'classe Quadrado {',
                         '  construtor(lado) {',
                         '    isto.lado = lado',
                         '  }',
+                        '  area() {',
+                        '    retorna lado * lado',
+                        '  }',
+                        '  perimetro() {',
+                        '    retorna 4 * lado',
+                        '  }',
                         '}',
-                        'var q1 = Quadrado(10)'
+                        'var q1 = Quadrado(10)',
+                        'escreva(q1.area())',
+                        'escreva(q1.perimetro())',
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);

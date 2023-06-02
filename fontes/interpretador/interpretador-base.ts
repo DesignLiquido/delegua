@@ -512,8 +512,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof DeleguaFuncao) {
                 parametros = entidadeChamada.declaracao.parametros;
             } else if (entidadeChamada instanceof DeleguaClasse) {
-                parametros = entidadeChamada.metodos.inicializacao
-                    ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+                parametros = entidadeChamada.metodos.construtor
+                    ? entidadeChamada.metodos.construtor.declaracao.parametros
                     : [];
             } else {
                 parametros = [];
@@ -552,7 +552,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             if (entidadeChamada instanceof Chamavel) {
-                return entidadeChamada.chamar(this, argumentos);
+                const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
+                return retornoEntidadeChamada;
             }
 
             // A função chamada pode ser de uma biblioteca JavaScript.
@@ -1410,8 +1411,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
-            if (manterAmbiente) {
-                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+
+            /* if ('isto' in escopoAnterior.ambiente.valores) {
+
+            } */
+
+            if (manterAmbiente) {    
                 escopoAnterior.ambiente.valores = Object.assign(
                     escopoAnterior.ambiente.valores,
                     ultimoEscopo.ambiente.valores
