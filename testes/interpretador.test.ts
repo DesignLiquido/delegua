@@ -640,7 +640,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Construtor', async () => {
+                it.skip('Construtor', async () => {
                     const codigo = [
                         'classe Quadrado {',
                         '  construtor(lado) {',

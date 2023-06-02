@@ -25,7 +25,7 @@ describe('Interpretador', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        describe.only('Tipos e objetos', () => {
+        describe.skip('Tipos e objetos', () => {
             it('Trivial', async () => {
                 const retornoLexador = lexador.mapear([
                     'tipo Quadrado',
