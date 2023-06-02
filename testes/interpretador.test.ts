@@ -593,7 +593,7 @@ describe('Interpretador', () => {
                 });
             });
 
-            describe('Classes', () => {
+            describe.only('Classes', () => {
                 it('Super Classe precisa ser uma classe', async () => {
                     const codigo = [
                         "funcao A(data) { }",
@@ -630,6 +630,32 @@ describe('Interpretador', () => {
                         "nomeDoCachorro.correr()",
                         "nomeDoCachorro.latir()",
                         "escreva('Classe: OK!')"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it.skip('Construtor', async () => {
+                    const codigo = [
+                        'classe Quadrado {',
+                        '  construtor(lado) {',
+                        '    isto.lado = lado',
+                        '  }',
+                        '  area() {',
+                        '    retorna lado * lado',
+                        '  }',
+                        '  perimetro() {',
+                        '    retorna 4 * lado',
+                        '  }',
+                        '}',
+                        'var q1 = Quadrado(10)',
+                        'escreva(q1.area())',
+                        'escreva(q1.perimetro())',
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);

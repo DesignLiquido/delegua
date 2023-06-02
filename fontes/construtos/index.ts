@@ -3,6 +3,7 @@ export * from './atribuir';
 export * from './binario';
 export * from './chamada';
 export * from './constante';
+export * from './constante-ou-variavel';
 export * from './definir-valor';
 export * from './dicionario';
 export * from './construto';

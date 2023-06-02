@@ -5,7 +5,7 @@ export class Chamavel {
         return this.valorAridade;
     }
 
-    chamar(interpretador?: any, argumentos?: any, simbolo?: any): any {
-        throw new Error('Este método não deveria ser chamado.');
+    async chamar(interpretador?: any, argumentos?: any, simbolo?: any): Promise<any> {
+        return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }

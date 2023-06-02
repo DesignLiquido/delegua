@@ -9,7 +9,7 @@ import { Declaracao } from './declaracao';
 export class Const extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
-    tipo: TiposDadosInterface
+    tipo: TiposDadosInterface;
 
     constructor(
         simbolo: SimboloInterface,

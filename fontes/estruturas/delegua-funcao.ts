@@ -78,7 +78,7 @@ export class DeleguaFuncao extends Chamavel {
         return retornoBloco;
     }
 
-    definirInstancia(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
+    funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
         return new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
     }
 }

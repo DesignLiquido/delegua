@@ -2,9 +2,14 @@ import { RetornoLexador } from "../../interfaces/retornos";
 import { ErroLexador } from "../erro-lexador";
 import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
 import { palavrasReservadas } from "./palavras-reservadas/potigol";
 
+import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
+
+/**
+ * Lexador para o dialeto Potigol.
+ * Este dialeto é sensível a tamanho de caixa. `Inteiro` é aceito. `inteiro` não.
+ */
 export class LexadorPotigol extends LexadorBaseLinhaUnica {
     protected logicaComumCaracteres(delimitador: string) {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
@@ -56,6 +61,12 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
             parseFloat(numeroCompleto));
     }
 
+    avancarParaProximaLinha(): void {
+        while (this.codigo[this.atual] !== '\n') {
+            this.atual++;
+        }
+    }
+
     identificarPalavraChave(): void {
         while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
@@ -87,6 +98,8 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
                 break;
+            // Até então encontradas apenas em interpolações de texto.
+            // Por ora não necessárias.
             /* case '{':
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
                 this.avancar();
@@ -95,6 +108,17 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
                 this.avancar();
                 break; */
+            case ':':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.REATRIBUIR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                }
+                
+                break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.avancar();
@@ -132,31 +156,37 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 } */
 
                 break;
-
             case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                /* switch (this.simboloAtual()) {
-                    case '=':
-                        this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
-                        break;
-                    default:
-                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
-                        break;
-                } */
+                break;
+            case '^':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                 break;
             case '=':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
-                this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
-                /* if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
-                } */
 
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                        this.avancar();
+                        break;    
+                    case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.SETA);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                        break;
+                }
+
+                break;
+            case '#':
+                this.avancarParaProximaLinha();
                 break;
 
             /* case '&':
@@ -173,20 +203,24 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
                 this.avancar();
                 break;
-
-            case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
-                this.avancar();
-                break; */
+             */
 
             case '<':
                 this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                        this.avancar();
+                        break;
+                    case '>':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                        break;
                 }
+
                 break;
 
             case '>':
@@ -200,7 +234,9 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 break;
 
             case '/':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 /* switch (this.simboloAtual()) {
                     case '/':
                         this.avancarParaProximaLinha();
@@ -213,7 +249,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                         this.avancar();s
                         break;
                     default:
-                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                        
                         break;
                 } */
 
@@ -229,6 +265,11 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
 
+            case '\n':
+                this.linha++;
+                this.avancar();
+                break;
+
             case '"':
                 this.avancar();
                 this.analisarTexto();
@@ -239,6 +280,12 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.avancar();
                 this.analisarCaracter();
                 this.avancar();
+                break;
+
+            case '_':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.TRACO_BAIXO);
                 break;
 
             default:

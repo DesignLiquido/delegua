@@ -206,16 +206,16 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         //TODO verificar erros do resultadosAvaliacaoSintatica
 
-        const resolucoesPromises = await Promise.all(resultadosAvaliacaoSintatica.flatMap(r => r.resultadoMicroAvaliadorSintatico.declaracoes).map(d => {
-            return this.avaliar(d)
-        }))
+        const resolucoesPromises = await Promise.all(
+            resultadosAvaliacaoSintatica
+                .flatMap(r => r.resultadoMicroAvaliadorSintatico.declaracoes)
+                .map(d => this.avaliar(d))
+        );
 
-        return resolucoesPromises.map((item, indice) => {
-            return {
-                variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
-                valor: item,
-            }
-        });
+        return resolucoesPromises.map((item, indice) => ({
+            variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
+            valor: item
+        }));
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
@@ -512,8 +512,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof DeleguaFuncao) {
                 parametros = entidadeChamada.declaracao.parametros;
             } else if (entidadeChamada instanceof DeleguaClasse) {
-                parametros = entidadeChamada.metodos.inicializacao
-                    ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+                parametros = entidadeChamada.metodos.construtor
+                    ? entidadeChamada.metodos.construtor.declaracao.parametros
                     : [];
             } else {
                 parametros = [];
@@ -552,7 +552,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             if (entidadeChamada instanceof Chamavel) {
-                return entidadeChamada.chamar(this, argumentos);
+                const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
+                return retornoEntidadeChamada;
             }
 
             // A função chamada pode ser de uma biblioteca JavaScript.
@@ -1196,7 +1197,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
         let superClasse = null;
-        if (declaracao.superClasse !== null) {
+        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
             const variavelSuperClasse: VariavelInterface = await this.avaliar(declaracao.superClasse);
             superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DeleguaClasse)) {
@@ -1210,7 +1211,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
 
-        if (declaracao.superClasse !== null) {
+        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
@@ -1223,7 +1224,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
-        const deleguaClasse: DeleguaClasse = new DeleguaClasse(declaracao.simbolo.lexema, superClasse, metodos);
+        const deleguaClasse: DeleguaClasse = new DeleguaClasse(
+            declaracao.simbolo.lexema, 
+            superClasse, 
+            metodos,
+            declaracao.propriedades
+        );
 
         // TODO: Recolocar isso se for necessário.
         /* if (superClasse !== null) {
@@ -1405,8 +1411,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
-            if (manterAmbiente) {
-                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+
+            /* if ('isto' in escopoAnterior.ambiente.valores) {
+
+            } */
+
+            if (manterAmbiente) {    
                 escopoAnterior.ambiente.valores = Object.assign(
                     escopoAnterior.ambiente.valores,
                     ultimoEscopo.ambiente.valores
