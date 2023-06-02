@@ -593,7 +593,7 @@ describe('Interpretador', () => {
                 });
             });
 
-            describe.only('Classes', () => {
+            describe('Classes', () => {
                 it('Super Classe precisa ser uma classe', async () => {
                     const codigo = [
                         "funcao A(data) { }",
