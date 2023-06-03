@@ -454,6 +454,6 @@ export class TradutorPython implements TradutorInterface {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         }
 
-        return resultado;
+        return resultado.replace(/\n{2,}/g, '\n');;
     }
 }
