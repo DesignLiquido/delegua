@@ -2,6 +2,7 @@ import {
     AcessoIndiceVariavel,
     AtribuicaoPorIndice,
     Atribuir,
+    Binario,
     Chamada,
     Construto,
     FuncaoConstruto,
@@ -67,6 +68,18 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         declaracoes.push(
             new Expressao(new Chamada(declaracaoInicio.hashArquivo, (declaracaoInicio as any).funcao, null, []))
         );
+    }
+
+    comparacaoIgualdade(): Construto {
+        let expressao = this.comparar();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
+            const simboloAnterior = this.simbolos[this.atual - 1];
+            const direito = this.comparar();
+            expressao = new Binario(this.hashArquivo, expressao, simboloAnterior, direito);
+        }
+
+        return expressao;
     }
 
     primario(): Construto {
