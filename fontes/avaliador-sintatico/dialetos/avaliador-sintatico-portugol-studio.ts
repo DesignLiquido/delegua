@@ -569,7 +569,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
             default:
-                return this.expressao();
+                return this.declaracaoExpressao();
         }
     }
 

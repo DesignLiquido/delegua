@@ -1,5 +1,5 @@
 import { Variavel } from "../../../construtos";
-import { Leia } from "../../../declaracoes";
+import { Expressao, Leia } from "../../../declaracoes";
 import { PilhaEscoposExecucaoInterface } from "../../../interfaces/pilha-escopos-execucao-interface";
 
 /**
@@ -22,6 +22,7 @@ export async function visitarExpressaoLeiaComum(
         );
 
         const valorLido = await promessaLeitura();
-        pilhaEscoposExecucao.definirVariavel((<Variavel>argumento).simbolo.lexema, valorLido);
+        const simbolo = argumento instanceof Expressao ? (<Variavel>(<Expressao>argumento).expressao).simbolo : (<Variavel>argumento).simbolo
+        pilhaEscoposExecucao.definirVariavel(simbolo.lexema, valorLido);
     }
 }

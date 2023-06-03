@@ -60,6 +60,79 @@ describe('Interpretador (Portugol Studio)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('Sucesso - Leia com condicional se', async () => {
+                const respostas = [1];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.pop());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro n',
+                    '        leia(n)',
+                    '        se(n == 1) {',
+                    '           escreva("É igual a 1")',
+                    '        }',
+                    '        senao {',
+                    '           escreva("Não é igual a 1")',
+                    '        }',
+                    '    }',
+                    '}'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Atribuição variaveis com soma', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '   ', 
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro a = 2',
+                    '        inteiro b = 3',
+                    '        a = a + b',
+                    '        escreva("O resultado é: ", a)',
+                    '    }',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it.skip('Trivial', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '   ', 
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro a = 2',
+                    '        inteiro b = a',
+                    '        escreva("variáveis a:",a," b:",b)',
+                    '    }',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });
