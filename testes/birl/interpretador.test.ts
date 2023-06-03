@@ -15,22 +15,6 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it.skip('Sucesso - Verifica tipo LEIA', async () => {
-                const retornoLexador = lexador.mapear([
-                    'HORA DO SHOW',
-                    '   MONSTRO X;',
-                    '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
-                    '   BORA CUMPADE 0;',
-                    'BIRL',
-                ]);
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoInterpretador).toBeTruthy();
-                expect(retornoInterpretador.erros).toHaveLength(0);
-            })
-
             // @TODO: Nesse exemplo não esta realmente somando apenas lendos os valores
             it.skip('Sucesso - declaração - chamarFuncao', async () => {
                 const retornoLexador = lexador.mapear([
@@ -44,6 +28,28 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - Verifica tipo LEIA', async () => {
+                const respostas = ['5'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    },
+                };
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW',
+                    '   MONSTRO X;',
+                    '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
+                    '   BORA CUMPADE 0;',
+                    'BIRL',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador).toBeTruthy();
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 

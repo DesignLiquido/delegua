@@ -1,38 +1,37 @@
 import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, Variavel } from '../../construtos';
 import {
-    Declaracao,
+    Bloco,
     Classe,
     Const,
-    Expressao,
-    FuncaoDeclaracao,
+    Continua,
+    Declaracao,
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
+    Expressao,
     Fazer,
+    FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
     ParaCada,
+    Retorna,
     Se,
+    Sustar,
     Tente,
     Var,
-    Bloco,
-    Continua,
-    EscrevaMesmaLinha,
-    Leia,
-    Retorna,
-    Sustar,
 } from '../../declaracoes';
 import { AnalisadorSemanticoInterface } from '../../interfaces/analisador-semantico-interface';
 import { ErroAnalisadorSemantico } from '../../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
-import { Simbolo } from '../../lexador';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 import { PilhaVariaveis } from '../pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
     tipo:
         | 'texto'
-        | 'numero'
+        | 'número'
         | 'longo'
         | 'vetor'
         | 'dicionário'
@@ -42,7 +41,7 @@ interface VariavelHipoteticaInterface {
         | 'símbolo'
         | 'objeto'
         | 'módulo';
-    subtipo?: 'texto' | 'numero' | 'longo' | 'lógico';
+    subtipo?: 'texto' | 'número' | 'longo' | 'lógico';
     imutavel: boolean;
 }
 
@@ -122,7 +121,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
-            tipo: 'numero',
+            tipo: 'número',
         };
 
         return Promise.resolve();

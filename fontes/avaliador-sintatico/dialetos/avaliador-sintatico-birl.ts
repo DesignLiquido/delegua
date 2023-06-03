@@ -31,10 +31,10 @@ import {
 import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
-import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { Construto } from '../../construtos/construto';
+import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
+import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
@@ -328,7 +328,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0),
+                        new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), ""),
                         'texto'
                     )
                 );
@@ -454,18 +454,18 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const tipoCaractere = caracteres.charAt(1);
 
         const tipos = {
-            d: 'numero',
-            i: 'numero',
-            u: 'numero',
-            f: 'numero',
-            F: 'numero',
-            e: 'numero',
-            E: 'numero',
-            g: 'numero',
-            G: 'numero',
-            x: 'numero',
-            X: 'numero',
-            o: 'numero',
+            d: 'número',
+            i: 'número',
+            u: 'número',
+            f: 'número',
+            F: 'número',
+            e: 'número',
+            E: 'número',
+            g: 'número',
+            G: 'número',
+            x: 'número',
+            X: 'número',
+            o: 'número',
             c: 'texto',
             s: 'texto',
             p: 'texto',

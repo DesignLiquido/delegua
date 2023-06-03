@@ -1,26 +1,25 @@
-import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel, Unario } from '../../../construtos';
+import { Atribuir, Construto, FimPara, FormatacaoEscrita, Literal, Super, Unario, Variavel } from '../../../construtos';
 import {
+    Bloco,
+    Classe,
+    Const,
+    Continua,
     Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    EscrevaMesmaLinha,
     Expressao,
+    Fazer,
+    FuncaoDeclaracao,
+    Importar,
     Leia,
     Para,
     ParaCada,
-    Se,
-    Fazer,
-    Escolha,
-    Tente,
-    Enquanto,
-    Importar,
-    Escreva,
-    EscrevaMesmaLinha,
-    Bloco,
-    Var,
-    Const,
-    Continua,
-    Sustar,
     Retorna,
-    FuncaoDeclaracao,
-    Classe,
+    Se,
+    Tente,
+    Var,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { DeleguaFuncao, ObjetoPadrao } from '../../../estruturas';
@@ -30,10 +29,11 @@ import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador'
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
-import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from '../../../quebras';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
-import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
+import * as comum from './comum';
 
 export class InterpretadorBirl implements InterpretadorInterface {
     diretorioBase: any;
@@ -335,12 +335,22 @@ export class InterpretadorBirl implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        return new Promise((resolucao) =>
-            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(resposta);
-            })
-        );
+        // const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
+        /**
+         * Em Birl não se usa mensagem junto com o prompt, normalmente se usa um Escreva antes.
+         */
+        const mensagem = '> ';
+        const promessaLeitura: Function = () =>
+            new Promise((resolucao) =>
+                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                    resolucao(resposta);
+                })
+            );
+
+        const valorLido = await promessaLeitura();
+        await comum.atribuirVariavel(this, expressao.argumentos[0], valorLido, expressao.argumentos[1].valor);
+
+        return;
     }
 
     /**
@@ -400,8 +410,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-
-                await this.avaliar(declaracao.inicializador);
+            await this.avaliar(declaracao.inicializador);
         }
 
         let retornoExecucao: any;
