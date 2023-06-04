@@ -9,6 +9,7 @@ import {
     Literal,
     Unario,
     Variavel,
+    Vetor,
 } from '../../construtos';
 import {
     Escreva,
@@ -391,6 +392,51 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return new Expressao(expressao);
     }
 
+    protected declaracaoVetorInteiros(
+        simboloInteiro: SimboloInterface, 
+        identificador: SimboloInterface,
+        posicoes: number
+    ) {
+        let valorInicializacao: Vetor = new Vetor(this.hashArquivo, Number(simboloInteiro.linha), []);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            this.consumir(
+                tiposDeSimbolos.CHAVE_ESQUERDA, 
+                "Esperado chave esquerda após sinal de igual em lado direito da atribuição de vetor."
+            );
+
+            const valores = [];
+            do {
+                valores.push(this.primario());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+            this.consumir(
+                tiposDeSimbolos.CHAVE_DIREITA, 
+                "Esperado chave direita após valores de vetor em lado direito da atribuição de vetor."
+            );
+
+            if (posicoes !== valores.length) {
+                throw this.erro(
+                    simboloInteiro, 
+                    `Esperado ${posicoes} números, mas foram fornecidos ${valores.length} valores do lado direito da atribuição.`
+                );
+            }
+            
+            valorInicializacao.valores = valores;
+        }
+
+        return new Var(identificador, valorInicializacao);
+    }
+
+    protected declaracaoTrivialInteiro(simboloInteiro: SimboloInterface, identificador: SimboloInterface) {
+        // Inicializações de variáveis podem ter valores definidos.
+        let valorInicializacao: Construto = new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            valorInicializacao = this.expressao();
+        }
+
+        return new Var(identificador, valorInicializacao);
+    }
+
     declaracaoInteiros(): Var[] {
         const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
 
@@ -401,13 +447,22 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 "Esperado identificador após palavra reservada 'inteiro'."
             );
 
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao: Construto = new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0);
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                valorInicializacao = this.expressao();
-            }
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                // TODO
+                const numeroPosicoes = this.consumir(
+                    tiposDeSimbolos.INTEIRO, 
+                    "Esperado número inteiro para definir quantas posições terá o vetor."
+                );
 
-            inicializacoes.push(new Var(identificador, valorInicializacao));
+                this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO, 
+                    "Esperado fechamento de identificação de número de posições de uma declaração de vetor."
+                );
+
+                inicializacoes.push(this.declaracaoVetorInteiros(simboloInteiro, identificador, Number(numeroPosicoes.literal)));
+            } else {
+                inicializacoes.push(this.declaracaoTrivialInteiro(simboloInteiro, identificador));
+            }
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
