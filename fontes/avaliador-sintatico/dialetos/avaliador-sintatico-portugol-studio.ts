@@ -397,7 +397,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         identificador: SimboloInterface,
         posicoes: number
     ) {
-        let valorInicializacao: Construto = new Vetor(this.hashArquivo, Number(simboloInteiro.linha), []);
+        let valorInicializacao: Vetor = new Vetor(this.hashArquivo, Number(simboloInteiro.linha), []);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             this.consumir(
                 tiposDeSimbolos.CHAVE_ESQUERDA, 
@@ -421,7 +421,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 );
             }
             
-            valorInicializacao.valor = valores;
+            valorInicializacao.valores = valores;
         }
 
         return new Var(identificador, valorInicializacao);

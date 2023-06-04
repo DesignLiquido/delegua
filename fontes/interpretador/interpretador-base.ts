@@ -55,6 +55,7 @@ import {
     TipoDe,
     Unario,
     Variavel,
+    Vetor,
 } from '../construtos';
 import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
@@ -1318,7 +1319,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return dicionario;
     }
 
-    async visitarExpressaoVetor(expressao: any): Promise<any> {
+    async visitarExpressaoVetor(expressao: Vetor): Promise<any> {
         const valores = [];
         for (let i = 0; i < expressao.valores.length; i++) {
             valores.push(await this.avaliar(expressao.valores[i]));
