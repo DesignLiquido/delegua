@@ -402,14 +402,12 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao: Construto = new Literal(this.hashArquivo, Number(simboloInteiro.linha), 0);
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO,
-                    'Esperado literal inteiro após símbolo de igual em declaração de variável.');
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = this.expressao();
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)));
+            inicializacoes.push(new Var(identificador, valorInicializacao));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
