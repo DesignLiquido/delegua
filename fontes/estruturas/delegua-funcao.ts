@@ -37,7 +37,7 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: any): Promise<any> {
+    async chamar(visitante: VisitanteComumInterface, argumentos: Array<any>): Promise<any> {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros;
 
