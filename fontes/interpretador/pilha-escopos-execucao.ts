@@ -59,7 +59,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             inferirTipoVariavel(valor);
 
         let elementoAlvo: VariavelInterface = {
-            valor,
+            valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
             imutavel: true
@@ -79,7 +79,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             inferirTipoVariavel(valor);
 
         let elementoAlvo: VariavelInterface = {
-            valor,
+            valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
             imutavel: false
