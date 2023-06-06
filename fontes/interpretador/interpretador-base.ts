@@ -1327,7 +1327,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         return valores;
     }
 
-    // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
     visitarExpressaoSuper(expressao: Super): any {
         const superClasse: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
         const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
@@ -1338,7 +1337,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             throw new ErroEmTempoDeExecucao(expressao.metodo, 'Método chamado indefinido.', expressao.linha);
         }
 
-        return metodo.definirInstancia(objeto.valor);
+        metodo.instancia = objeto.valor;
+
+        return metodo;
     }
 
     paraTexto(objeto: any) {
@@ -1413,10 +1414,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-
-            /* if ('isto' in escopoAnterior.ambiente.valores) {
-
-            } */
 
             if (manterAmbiente) {    
                 escopoAnterior.ambiente.valores = Object.assign(
