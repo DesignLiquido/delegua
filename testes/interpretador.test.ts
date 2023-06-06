@@ -640,7 +640,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Chamanda de método com `super`', async () => {
+                it('Chamada de método com `super`', async () => {
                     const codigo = [
                         "classe A {",
                             "data(data) {",
@@ -663,7 +663,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Chamanda de método com `super` e definição de propriedade com `isto`', async () => {
+                it.skip('Cahamada de método com `super` e definição de propriedade com `isto`', async () => {
                     const codigo = [
                         "classe A {",
                             "construtor() {",
