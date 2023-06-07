@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, Variavel } from '../../construtos';
+import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../construtos';
 import {
     Bloco,
     Classe,
@@ -56,6 +56,9 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.erros = [];
+    }
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Method not implemented.');
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
@@ -180,11 +183,11 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     visitarExpressaoLeia(expressao: Leia) {
         if (!this.variaveis.hasOwnProperty((expressao.argumentos[0] as Variavel).simbolo.lexema)) {
             this.erros.push({
-                simbolo: (expressao.argumentos[0]as Variavel).simbolo,
-                mensagem: `A variável ${(expressao.argumentos[0]as Variavel).simbolo.lexema} não foi declarada.`,
+                simbolo: (expressao.argumentos[0] as Variavel).simbolo,
+                mensagem: `A variável ${(expressao.argumentos[0] as Variavel).simbolo.lexema} não foi declarada.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
-            })
+            });
             return Promise.resolve();
         }
 
@@ -193,11 +196,13 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
 
         if (tipoVariavelExpressão !== tipoVariavelArgumento) {
             this.erros.push({
-                simbolo: (expressao.argumentos[0]as Variavel).simbolo,
-                mensagem: `A variável ${(expressao.argumentos[0]as Variavel).simbolo.lexema} não é do tipo ${tipoVariavelArgumento}.`,
+                simbolo: (expressao.argumentos[0] as Variavel).simbolo,
+                mensagem: `A variável ${
+                    (expressao.argumentos[0] as Variavel).simbolo.lexema
+                } não é do tipo ${tipoVariavelArgumento}.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
-            })
+            });
             return Promise.resolve();
         }
 
