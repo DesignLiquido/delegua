@@ -37,6 +37,22 @@ import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
+    private validarEscopoPrograma(): Declaracao[] {
+        let declaracoes: Declaracao[] = [];
+        this.validarSegmentoHoraDoShow();
+
+        while (!this.estaNoFinal()) {
+            const declaracaoVetor = this.declaracao();
+            if (Array.isArray(declaracaoVetor)) {
+                declaracoes = declaracoes.concat(declaracaoVetor);
+            } else {
+                declaracoes.push(declaracaoVetor);
+            }
+        }
+
+        this.validarSegmentoBirlFinal();
+        return declaracoes
+    }
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
         let identificador = 0,
             adicao = 0,
@@ -83,6 +99,15 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     validarSegmentoBirlFinal(): void {
+        this.regredirEDevolverAtual();
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+            this.consumir(
+                tiposDeSimbolos.QUEBRA_LINHA,
+                'Esperado expressão `QUEBRA_LINHA` após a declaração de variáveis'
+            );
+            this.regredirEDevolverAtual();
+            this.regredirEDevolverAtual();
+        }
         this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechamento do programa');
         this.blocos -= 1;
     }
@@ -328,7 +353,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), ""),
+                        new Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), ''),
                         'texto'
                     )
                 );
@@ -797,6 +822,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.PONTO_E_VIRGULA:
             case tiposDeSimbolos.QUEBRA_LINHA:
+            case tiposDeSimbolos.BIRL:
                 this.avancarEDevolverAnterior();
                 return null;
             case tiposDeSimbolos.IDENTIFICADOR:
@@ -830,20 +856,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.atual = 0;
 
         this.simbolos = retornoLexador.simbolos;
-        let declaracoes = [];
-
-        this.validarSegmentoHoraDoShow();
-
-        while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.BIRL) {
-            const declaracaoVetor = this.declaracao();
-            if (Array.isArray(declaracaoVetor)) {
-                declaracoes = declaracoes.concat(declaracaoVetor);
-            } else {
-                declaracoes.push(declaracaoVetor);
-            }
-        }
-
-        this.validarSegmentoBirlFinal();
+        const declaracoes: Declaracao[] = this.validarEscopoPrograma();
 
         return {
             declaracoes: declaracoes.filter((d) => d),
