@@ -51,7 +51,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         }
 
         this.validarSegmentoBirlFinal();
-        return declaracoes
+        return declaracoes;
     }
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
         let identificador = 0,
@@ -318,6 +318,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const simboloCaractere = this.consumir(tiposDeSimbolos.FRANGO, '');
 
         const inicializacoes = [];
+        let eLiteral = true;
 
         do {
             const identificador = this.consumir(
@@ -328,8 +329,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             let valorInicializacao: string | Array<string>;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.TEXTO)) {
                     const literalInicializacao = this.consumir(
@@ -345,7 +348,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao),
+                        eLiteral
+                            ? new Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao)
+                            : (valorInicializacao as any),
                         'texto'
                     )
                 );
@@ -377,7 +382,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
     declaracaoInteiros(): Var[] {
         let simboloInteiro: SimboloInterface = this.validarTipoDeclaracaoInteiro();
-
+        let eLiteral = true;
         const inicializacoes = [];
         do {
             const identificador = this.consumir(
@@ -387,8 +392,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             let valorInicializacao: any = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
                     const literalInicializacao = this.consumir(
@@ -404,7 +411,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao),
+                        eLiteral
+                            ? new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)
+                            : valorInicializacao,
                         'numero'
                     )
                 );
@@ -422,7 +431,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DESCENDENTE)) {
             this.consumir(tiposDeSimbolos.DESCENDENTE, '');
         }
-
+        let eLiteral = true;
         const inicializacoes = [];
 
         do {
@@ -435,8 +444,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
                     const literalInicializacao = this.consumir(
@@ -450,7 +461,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao),
+                        eLiteral
+                            ? new Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao)
+                            : valorInicializacao,
                         'numero'
                     )
                 );
@@ -650,7 +663,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         let paramentros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            paramentros.push(this.logicaComumParamentros());
+            paramentros = this.logicaComumParamentros();
         }
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
@@ -658,7 +671,12 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         let corpo = [];
 
         do {
-            corpo.push(this.declaracao());
+            const declaracaoVetor = this.declaracao();
+            if (Array.isArray(declaracaoVetor)) {
+                corpo = corpo.concat(declaracaoVetor);
+            } else {
+                corpo.push(declaracaoVetor);
+            }
         } while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo));
 
         return new FuncaoConstruto(

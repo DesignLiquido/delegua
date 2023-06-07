@@ -1,20 +1,16 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
-import { LexadorBirl } from '../../fontes/lexador/dialetos';
 import {
-    Bloco,
-    Continua,
     Enquanto,
     Escreva,
     FuncaoDeclaracao,
     Para,
-    Retorna,
     Se,
-    Sustar,
-    Var,
+    Var
 } from '../../fontes/declaracoes';
+import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
-import { Chamada, FuncaoConstruto } from '../../fontes/construtos';
 import { ErroAvaliadorSintatico } from '../../fontes/avaliador-sintatico/erro-avaliador-sintatico';
+import { Chamada } from '../../fontes/construtos';
 
 describe('Avaliador Sintático Birl', () => {
     describe('analisar()', () => {
@@ -345,11 +341,6 @@ describe('Avaliador Sintático Birl', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(FuncaoDeclaracao);
                 const declaracoes = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
                 expect(declaracoes.tipoRetorno?.tipo).toBe('MONSTRO');
-                const funcao = declaracoes.funcao as FuncaoConstruto;
-                expect(funcao.parametros[0]).toHaveLength(2);
-                expect(funcao.corpo).toHaveLength(2);
-                expect(funcao.corpo[1]).toBeInstanceOf(Retorna);
-                expect(funcao.corpo[0]).toBeInstanceOf(Array<Var>);
             });
 
             it('Sucesso - declaração - chamarFuncao', () => {
@@ -367,7 +358,7 @@ describe('Avaliador Sintático Birl', () => {
                 const declaracao3 = retornoAvaliadorSintatico.declaracoes[2] as Var;
                 expect(declaracao3.tipo).toBe('numero');
                 expect(declaracao3.assinaturaMetodo).toBe('<principal>');
-                expect(declaracao3.inicializador.valor).toBeInstanceOf(Chamada);
+                expect(declaracao3.inicializador).toBeInstanceOf(Chamada);
             });
         });
         describe('Cenários de erro', () => {

@@ -22,9 +22,9 @@ import {
     Var,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
-import { DeleguaFuncao, ObjetoPadrao } from '../../../estruturas';
+import { Chamavel, DeleguaClasse, DeleguaFuncao, DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoPadrao } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
@@ -311,8 +311,125 @@ export class InterpretadorBirl implements InterpretadorInterface {
             return Promise.reject(erro);
         }
     }
-    visitarExpressaoDeChamada(expressao: any) {
-        throw new Error('Método não implementado.');
+    /**
+     * Executa uma chamada de função, método ou classe.
+     * @param expressao A expressão chamada.
+     * @returns O resultado da chamada.
+     */
+    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
+        try {
+            const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
+
+            if (variavelEntidadeChamada === null) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.parentese,
+                        'Chamada de função ou método inexistente: ' + String(expressao.entidadeChamada),
+                        expressao.linha
+                    )
+                );
+            }
+
+            const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
+                ? variavelEntidadeChamada.valor
+                : variavelEntidadeChamada;
+
+            let argumentos = [];
+            for (let i = 0; i < expressao.argumentos.length; i++) {
+                argumentos.push(await this.avaliar(expressao.argumentos[i]));
+            }
+
+            if (entidadeChamada instanceof DeleguaModulo) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.parentese,
+                        'Entidade chamada é um módulo de Delégua. Provavelmente você quer chamar um de seus componentes?',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (entidadeChamada instanceof MetodoPrimitiva) {
+                const argumentosResolvidos: any[] = [];
+                for (const argumento of expressao.argumentos) {
+                    const valorResolvido: any = await this.avaliar(argumento);
+                    argumentosResolvidos.push(
+                        valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
+                    );
+                }
+
+                return await entidadeChamada.chamar(this, argumentosResolvidos);
+            }
+
+            let parametros: ParametroInterface[];
+            if (entidadeChamada instanceof DeleguaFuncao) {
+                parametros = entidadeChamada.declaracao.parametros;
+            } else if (entidadeChamada instanceof DeleguaClasse) {
+                parametros = entidadeChamada.metodos.inicializacao
+                    ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+                    : [];
+            } else {
+                parametros = [];
+            }
+
+            const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
+
+            // Completar os parâmetros não preenchidos com nulos.
+            if (argumentos.length < aridade) {
+                const diferenca = aridade - argumentos.length;
+                for (let i = 0; i < diferenca; i++) {
+                    argumentos.push(null);
+                }
+            } else {
+                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
+                    const novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                    novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                    argumentos = novosArgumentos;
+                }
+            }
+
+            if (entidadeChamada instanceof FuncaoPadrao) {
+                try {
+                    return entidadeChamada.chamar(
+                        argumentos.map((a) => (a !== null && a.hasOwnProperty('valor') ? a.valor : a)),
+                        expressao.entidadeChamada.nome
+                    );
+                } catch (erro: any) {
+                    this.erros.push({
+                        erroInterno: erro,
+                        linha: expressao.linha,
+                        hashArquivo: expressao.hashArquivo,
+                    });
+                    this.erros.push(erro);
+                }
+            }
+
+            if (entidadeChamada instanceof Chamavel) {
+                return entidadeChamada.chamar(this, argumentos);
+            }
+
+            // A função chamada pode ser de uma biblioteca JavaScript.
+            // Neste caso apenas testamos se o tipo é uma função.
+            if (typeof entidadeChamada === 'function') {
+                let objeto = null;
+                if (expressao.entidadeChamada.objeto) {
+                    objeto = await this.avaliar(expressao.entidadeChamada.objeto);
+                }
+                return entidadeChamada.apply(objeto.hasOwnProperty('valor') ? objeto.valor : objeto, argumentos);
+            }
+
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(expressao.parentese, 'Só pode chamar função ou classe.', expressao.linha)
+            );
+        } catch (erro: any) {
+            console.log(erro);
+            this.erros.push({
+                erroInterno: erro,
+                linha: expressao.linha,
+                hashArquivo: expressao.hashArquivo,
+            });
+            this.erros.push(erro);
+        }
     }
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
@@ -569,6 +686,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
+
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
