@@ -15,10 +15,13 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            // @TODO: Nesse exemplo não esta realmente somando apenas lendos os valores
-            it.skip('Sucesso - declaração - chamarFuncao', async () => {
+            it('Sucesso - declaração - chamarFuncao', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
+                    '   OH O HOME AI PO (MONSTRO SOMAR(MONSTRO primeiroParametro, MONSTRO segundoParametro))\n',
+                    '       MONSTRO resultado = primeiroParametro + segundoParametro;\n',
+                    '       BORA CUMPADE resultado;',
+                    '   BIRL',
                     '   MONSTRO primeiro = 5;\n',
                     '   MONSTRO segundo = 10;\n',
                     '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE SOMAR(primeiro, segundo);\n',
