@@ -1,31 +1,31 @@
-import { Literal, Atribuir, FimPara, FormatacaoEscrita, Super, TipoDe } from '../construtos';
+import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe } from '../construtos';
 import {
+    Bloco,
+    Classe,
+    Const,
+    Continua,
     Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    EscrevaMesmaLinha,
     Expressao,
+    Fazer,
+    FuncaoDeclaracao,
+    Importar,
     Leia,
     Para,
     ParaCada,
-    Se,
-    Fazer,
-    Escolha,
-    Tente,
-    Enquanto,
-    Importar,
-    Escreva,
-    EscrevaMesmaLinha,
-    Bloco,
-    Var,
-    Const,
-    Continua,
-    Sustar,
     Retorna,
-    FuncaoDeclaracao,
-    Classe,
+    Se,
+    Sustar,
+    Tente,
+    Var,
 } from '../declaracoes';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { ErroAnalisadorSemantico } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
-import { ContinuarQuebra, SustarQuebra, RetornoQuebra } from '../quebras';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaVariaveis } from './pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
@@ -57,11 +57,11 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.atual = 0;
         this.erros = [];
     }
-    
+
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         return Promise.resolve();
     }
-    
+
     visitarExpressaoFalhar(expressao: any): Promise<any> {
         return Promise.resolve();
     }

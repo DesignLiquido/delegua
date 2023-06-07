@@ -1,39 +1,39 @@
-import { Construto, Atribuir, Literal, FimPara, FormatacaoEscrita, Super, Variavel, Unario, TipoDe } from '../../../construtos';
+import { Atribuir, Construto, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Unario, Variavel } from '../../../construtos';
 import {
+    Bloco,
+    Classe,
+    Const,
+    Continua,
     Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    EscrevaMesmaLinha,
     Expressao,
+    Fazer,
+    FuncaoDeclaracao,
+    Importar,
     Leia,
     Para,
     ParaCada,
-    Se,
-    Fazer,
-    Escolha,
-    Tente,
-    Enquanto,
-    Importar,
-    Escreva,
-    EscrevaMesmaLinha,
-    Bloco,
-    Var,
-    Const,
-    Continua,
-    Sustar,
     Retorna,
-    FuncaoDeclaracao,
-    Classe,
+    Se,
+    Tente,
+    Var,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
-import { ObjetoPadrao } from '../../../estruturas';
+import { Chamavel, DeleguaClasse, DeleguaFuncao, DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoPadrao } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
-import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from '../../../quebras';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
-import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
+import * as comum from './comum';
 
 export class InterpretadorBirl implements InterpretadorInterface {
     diretorioBase: any;
@@ -89,7 +89,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             console.log('Aqui');
         } */
 
-        return await expressao. aceitar(this);
+        return await expressao.aceitar(this);
     }
     /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
@@ -315,8 +315,125 @@ export class InterpretadorBirl implements InterpretadorInterface {
             return Promise.reject(erro);
         }
     }
-    visitarExpressaoDeChamada(expressao: any) {
-        throw new Error('Método não implementado.');
+    /**
+     * Executa uma chamada de função, método ou classe.
+     * @param expressao A expressão chamada.
+     * @returns O resultado da chamada.
+     */
+    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
+        try {
+            const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
+
+            if (variavelEntidadeChamada === null) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.parentese,
+                        'Chamada de função ou método inexistente: ' + String(expressao.entidadeChamada),
+                        expressao.linha
+                    )
+                );
+            }
+
+            const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
+                ? variavelEntidadeChamada.valor
+                : variavelEntidadeChamada;
+
+            let argumentos = [];
+            for (let i = 0; i < expressao.argumentos.length; i++) {
+                argumentos.push(await this.avaliar(expressao.argumentos[i]));
+            }
+
+            if (entidadeChamada instanceof DeleguaModulo) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.parentese,
+                        'Entidade chamada é um módulo de Delégua. Provavelmente você quer chamar um de seus componentes?',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (entidadeChamada instanceof MetodoPrimitiva) {
+                const argumentosResolvidos: any[] = [];
+                for (const argumento of expressao.argumentos) {
+                    const valorResolvido: any = await this.avaliar(argumento);
+                    argumentosResolvidos.push(
+                        valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
+                    );
+                }
+
+                return await entidadeChamada.chamar(this, argumentosResolvidos);
+            }
+
+            let parametros: ParametroInterface[];
+            if (entidadeChamada instanceof DeleguaFuncao) {
+                parametros = entidadeChamada.declaracao.parametros;
+            } else if (entidadeChamada instanceof DeleguaClasse) {
+                parametros = entidadeChamada.metodos.inicializacao
+                    ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+                    : [];
+            } else {
+                parametros = [];
+            }
+
+            const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
+
+            // Completar os parâmetros não preenchidos com nulos.
+            if (argumentos.length < aridade) {
+                const diferenca = aridade - argumentos.length;
+                for (let i = 0; i < diferenca; i++) {
+                    argumentos.push(null);
+                }
+            } else {
+                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
+                    const novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                    novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                    argumentos = novosArgumentos;
+                }
+            }
+
+            if (entidadeChamada instanceof FuncaoPadrao) {
+                try {
+                    return entidadeChamada.chamar(
+                        argumentos.map((a) => (a !== null && a.hasOwnProperty('valor') ? a.valor : a)),
+                        expressao.entidadeChamada.nome
+                    );
+                } catch (erro: any) {
+                    this.erros.push({
+                        erroInterno: erro,
+                        linha: expressao.linha,
+                        hashArquivo: expressao.hashArquivo,
+                    });
+                    this.erros.push(erro);
+                }
+            }
+
+            if (entidadeChamada instanceof Chamavel) {
+                return entidadeChamada.chamar(this, argumentos);
+            }
+
+            // A função chamada pode ser de uma biblioteca JavaScript.
+            // Neste caso apenas testamos se o tipo é uma função.
+            if (typeof entidadeChamada === 'function') {
+                let objeto = null;
+                if (expressao.entidadeChamada.objeto) {
+                    objeto = await this.avaliar(expressao.entidadeChamada.objeto);
+                }
+                return entidadeChamada.apply(objeto.hasOwnProperty('valor') ? objeto.valor : objeto, argumentos);
+            }
+
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(expressao.parentese, 'Só pode chamar função ou classe.', expressao.linha)
+            );
+        } catch (erro: any) {
+            console.log(erro);
+            this.erros.push({
+                erroInterno: erro,
+                linha: expressao.linha,
+                hashArquivo: expressao.hashArquivo,
+            });
+            this.erros.push(erro);
+        }
     }
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
@@ -339,12 +456,22 @@ export class InterpretadorBirl implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        return new Promise((resolucao) =>
-            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(resposta);
-            })
-        );
+        // const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
+        /**
+         * Em Birl não se usa mensagem junto com o prompt, normalmente se usa um Escreva antes.
+         */
+        const mensagem = '> ';
+        const promessaLeitura: Function = () =>
+            new Promise((resolucao) =>
+                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                    resolucao(resposta);
+                })
+            );
+
+        const valorLido = await promessaLeitura();
+        await comum.atribuirVariavel(this, expressao.argumentos[0], valorLido, expressao.argumentos[1].valor);
+
+        return;
     }
 
     /**
@@ -391,9 +518,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     visitarExpressaoLiteral(expressao: Literal): any {
         if (expressao.valor === tiposDeSimbolos.ADICAO) {
-            return 1
+            return 1;
         } else if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
-            return -1
+            return -1;
         } else {
             return expressao.valor;
         }
@@ -404,11 +531,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-            if (declaracao.inicializador instanceof Array) {
-                await this.avaliar(declaracao.inicializador[0]);
-            } else {
-                await this.avaliar(declaracao.inicializador);
-            }
+            await this.avaliar(declaracao.inicializador);
         }
 
         let retornoExecucao: any;
@@ -498,8 +621,29 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        let retornoExecucao: any;
+        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            try {
+                retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        return retornoExecucao;
     }
     visitarDeclaracaoImportar(declaracao: Importar) {
         throw new Error('Método não implementado.');
@@ -546,8 +690,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
+
         if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = await this. avaliar(declaracao.inicializador);
+            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
 
         let valorFinal = null;
@@ -581,11 +726,12 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error('Método não implementado.');
+        return new ContinuarQuebra();
     }
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error('Método não implementado.');
+    visitarExpressaoSustar(declaracao?: any): SustarQuebra {
+        return new SustarQuebra();
     }
     async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         let valor = null;
@@ -606,7 +752,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        throw new Error('Método não implementado.');
+        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
     visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado.');
@@ -656,22 +803,15 @@ export class InterpretadorBirl implements InterpretadorInterface {
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
         let resultado: any = null;
-        // Tratar caso Bloco
-        if (declaracao instanceof Array) {
-            for (const decl of declaracao) {
-                resultado = await this.executar(decl, mostrarResultado);
-            }
-            return resultado;
-        } else {
-            resultado = await declaracao.aceitar(this);
-            if (mostrarResultado) {
-                this.funcaoDeRetorno(this.paraTexto(resultado));
-            }
-            if (resultado || typeof resultado === 'boolean') {
-                this.resultadoInterpretador.push(this.paraTexto(resultado));
-            }
-            return resultado;
+
+        resultado = await declaracao.aceitar(this);
+        if (mostrarResultado) {
+            this.funcaoDeRetorno(this.paraTexto(resultado));
         }
+        if (resultado || typeof resultado === 'boolean') {
+            this.resultadoInterpretador.push(this.paraTexto(resultado));
+        }
+        return resultado;
     }
 
     /**

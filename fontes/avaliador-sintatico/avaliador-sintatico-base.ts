@@ -79,6 +79,11 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return this.simbolos[this.atual - 1];
     }
 
+    regredirEDevolverAtual(): SimboloInterface {
+        if (this.atual > 0) this.atual -= 1;
+        return this.simbolos[this.atual];
+    }
+
     verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
