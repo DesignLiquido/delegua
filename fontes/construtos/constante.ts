@@ -18,4 +18,3 @@ export class Constante implements Construto {
         return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
     }
 }
-

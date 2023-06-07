@@ -31,9 +31,36 @@ export default {
         return Promise.resolve(vetor);
     },
     fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),
+    filtrarPor: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if(funcao === undefined || funcao === null){
+            return Promise.reject("É necessário passar uma função para o método \'filtrarPor\'");
+        }
+
+        const retorno = [];
+        for(let elemento of vetor) {
+            if (await funcao.chamar(interpretador, [elemento])) {
+                retorno.push(elemento);
+            }
+        }
+
+        return retorno;
+    },
     inclui: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => Promise.resolve(vetor.includes(elemento)),
     inverter: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.reverse()),
     juntar: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> => Promise.resolve(vetor.join(separador)),
+    mapear: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if(funcao === undefined || funcao === null){
+            return Promise.reject("É necessário passar uma função para o método \'mapear\'");
+        }
+
+        const retorno = [];
+        for(let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elemento])
+            retorno.push(resultado);
+        }
+
+        return retorno;
+    },
     ordenar: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcaoOrdenacao: DeleguaFuncao): Promise<any> => {
         if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
             for (let i = 0; i < vetor.length - 1; i++) {

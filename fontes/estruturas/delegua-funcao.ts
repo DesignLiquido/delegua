@@ -37,7 +37,7 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: any): Promise<any> {
+    async chamar(visitante: VisitanteComumInterface, argumentos: Array<any>): Promise<any> {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros;
 
@@ -78,7 +78,7 @@ export class DeleguaFuncao extends Chamavel {
         return retornoBloco;
     }
 
-    definirInstancia(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
+    funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
         return new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
     }
 }

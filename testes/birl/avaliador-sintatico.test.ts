@@ -343,7 +343,31 @@ describe('Avaliador Sintático Birl', () => {
                 expect(declaracoes.tipoRetorno?.tipo).toBe('MONSTRO');
             });
 
-            it('Sucesso - declaração - chamarFuncao', () => {
+            it('Sucesso - declaração - chamarFuncao - string', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   FRANGO resultado = AJUDA O MALUCO TA DOENTE SOMAR();\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Sucesso - declaração - chamarFuncao - float', () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW \n',
+                    '   TRAPEZIO resultado = AJUDA O MALUCO TA DOENTE SOMAR();\n',
+                    'BIRL\n',
+                ]);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Sucesso - declaração - chamarFuncao - numero', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MONSTRO primeiro = 5;\n',

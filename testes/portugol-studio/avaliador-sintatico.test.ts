@@ -227,6 +227,39 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
+
+            it('Atribuição de Variáveis', () => {
+                const resultado = lexador.mapear([
+                    'programa {',
+                    '    funcao inicio() {',
+                    '        inteiro a = 2',
+                    '        inteiro b = a',
+                    '        escreva("variáveis a:",a," b:",b)',
+                    '    }',
+                    '}'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
+
+            it('Atribuição de Vetores', () => {
+                const resultado = lexador.mapear([
+                    'programa {',
+                    '    funcao inicio() {',
+                    '        inteiro numeros[5] = {23,42,10,24,66}',
+                    '        escreva("zero:", numeros[5])',
+                    '    }',
+                    '}'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultado, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
         });
 
         describe('Casos de Falha', () => {

@@ -1,5 +1,4 @@
 import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
-import { ErroEmTempoDeExecucao } from "../fontes/excecoes";
 import { InterpretadorBase } from "../fontes/interpretador";
 import { Lexador } from "../fontes/lexador";
 
@@ -21,7 +20,8 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "var a = 1",
                         "variavel b = 2",
-                        "variável c = 3"
+                        "variável c = 3",
+                        "var a1, a2, a3 = 1, 2, 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -34,7 +34,8 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear([
                         "const a = 1",
                         "constante b = \"b\"",
-                        "fixo c = 3"
+                        "fixo c = 3",
+                        "const a1, a2, a3 = 1, 2, 3"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -182,6 +183,38 @@ describe('Interpretador', () => {
 
                 it('falso', async () => {
                     const retornoLexador = lexador.mapear(["escreva(falso)"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Tipo de', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva(tipo de verdadeiro)",
+                        "escreva(tipo de falso)",
+                        "escreva(tipo de 123)",
+                        "escreva(tipo de \"123\")",
+                        "escreva(tipo de [1,2,3])",
+                        "escreva(tipo de [])",
+                        "escreva(tipo de [1, '2'])",
+                        "var f = funcao(algumTexto) { }",
+                        "var a;",
+                        "var c = 1",
+                        "var d = \'2\'",
+                        "escreva(tipo de f)",
+                        "escreva(tipo de a)",
+                        "escreva(tipo de c)",
+                        "escreva(tipo de d)",
+                        "escreva(tipo de 4 + 2)",
+                        "escreva(tipo de 4 * 2 + (3 ^ 2))",
+                        "classe Teste {}",
+                        "escreva(tipo de Teste)",
+                        "classe OutroTeste {}",
+                        "escreva(tipo de OutroTeste)",
+                        "escreva(tipo de nulo)",
+                    ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -597,6 +630,81 @@ describe('Interpretador', () => {
                         "nomeDoCachorro.correr()",
                         "nomeDoCachorro.latir()",
                         "escreva('Classe: OK!')"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de método com `super`', async () => {
+                    const codigo = [
+                        "classe A {",
+                            "data(data) {",
+                              "escreva(data);",
+                            "}",
+                        "}",                          
+                        "classe B herda A {",
+                            "construtor(data) {",
+                              "super.data(data);",
+                            "}",
+                        "}",                          
+                        "var a = B(\"13/12/1981\");",
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it.skip('Chamada de método com `super` e definição de propriedade com `isto`', async () => {
+                    const codigo = [
+                        "classe A {",
+                            "construtor() {",
+                            "   isto.dataA = \'01/01/2001\'",
+                            "}",
+                            "data(data1) {",
+                              "escreva(isto.dataA + \" - \", data1)",
+                            "}",
+                        "}",                          
+                        "classe B herda A {",
+                            "construtor(data) {",
+                              "super.data(data);",
+                            "}",
+                        "}",                          
+                        "var a = B(\"13/12/1981\");",
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it.skip('Construtor', async () => {
+                    const codigo = [
+                        'classe Quadrado {',
+                        '  construtor(lado) {',
+                        '    isto.lado = lado',
+                        '  }',
+                        '  area() {',
+                        '    retorna lado * lado',
+                        '  }',
+                        '  perimetro() {',
+                        '    retorna 4 * lado',
+                        '  }',
+                        '}',
+                        'var q1 = Quadrado(10)',
+                        'escreva(q1.area())',
+                        'escreva(q1.perimetro())',
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);

@@ -1,4 +1,4 @@
-import { Literal, Construto, Atribuir, FimPara, FormatacaoEscrita, Super, Variavel } from "../../../construtos";
+import { Literal, Construto, Atribuir, FimPara, FormatacaoEscrita, Super, Variavel, TipoDe } from "../../../construtos";
 import { Declaracao, Expressao, Leia, Se, Para, Fazer, Escolha, Tente, Enquanto, Importar, Escreva, EscrevaMesmaLinha, Bloco, Var, Const, Continua, Sustar, Retorna, FuncaoDeclaracao, Classe, ParaCada } from "../../../declaracoes";
 import { EspacoVariaveis } from "../../../espaco-variaveis";
 import { ObjetoPadrao } from "../../../estruturas";
@@ -53,6 +53,10 @@ export class InterpretadorPortugolIpt
             emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoFalhar(expressao: any): Promise<any> {

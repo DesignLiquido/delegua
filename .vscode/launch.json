@@ -808,6 +808,23 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
+            "name": "Testes unitários - Tradutor Python para Delégua",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutor-reverso-python.test.ts",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Todos os Testes de Delégua",

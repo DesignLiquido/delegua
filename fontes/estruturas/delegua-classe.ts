@@ -1,3 +1,4 @@
+import { PropriedadeClasse } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces'
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
@@ -7,12 +8,14 @@ export class DeleguaClasse extends Chamavel {
     nome: string;
     superClasse: DeleguaClasse;
     metodos: { [nome: string]: DeleguaFuncao };
+    propriedades: PropriedadeClasse[]
 
-    constructor(nome?: string, superClasse?: any, metodos?: any) {
+    constructor(nome?: string, superClasse?: any, metodos?: any, propriedades?: PropriedadeClasse[]) {
         super();
         this.nome = nome;
         this.superClasse = superClasse;
-        this.metodos = metodos;
+        this.metodos = metodos || {};
+        this.propriedades = propriedades || [];
     }
 
     encontrarMetodo(nome: string): DeleguaFuncao {
@@ -20,8 +23,20 @@ export class DeleguaClasse extends Chamavel {
             return this.metodos[nome];
         }
 
-        if (this.superClasse !== null) {
+        if (this.superClasse !== null && this.superClasse !== undefined) {
             return this.superClasse.encontrarMetodo(nome);
+        }
+
+        return undefined;
+    }
+
+    encontrarPropriedade(nome: string): PropriedadeClasse {
+        if (nome in this.propriedades) {
+            return this.propriedades[nome];
+        }
+
+        if (this.superClasse !== null && this.superClasse !== undefined) {
+            return this.superClasse.encontrarPropriedade(nome);
         }
 
         return undefined;
@@ -36,12 +51,13 @@ export class DeleguaClasse extends Chamavel {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    chamar(visitante: VisitanteComumInterface, argumentos: any[]): ObjetoDeleguaClasse {
+    async chamar(visitante: VisitanteComumInterface, argumentos: any[]): Promise<ObjetoDeleguaClasse> {
         const instancia = new ObjetoDeleguaClasse(this);
 
         const inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
-            inicializador.definirInstancia(instancia).chamar(visitante, argumentos);
+            const metodoConstrutor = inicializador.funcaoPorMetodoDeClasse(instancia);
+            await metodoConstrutor.chamar(visitante, argumentos);
         }
 
         return instancia;
