@@ -221,6 +221,18 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Ordem lexicográfica de textos', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva('batata' > 'arroz')",
+                        "escreva('batata' < 'arroz')"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Operações matemáticas', () => {
