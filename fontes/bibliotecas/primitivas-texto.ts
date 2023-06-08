@@ -5,7 +5,7 @@ export default {
     apararFim: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.trimEnd()),
     apararInicio: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.trimStart()),
     concatenar: (interpretador: VisitanteComumInterface, ...texto: string[]): Promise<any> => Promise.resolve("".concat(...texto)),
-    dividir: (interpretador: VisitanteComumInterface, texto: string, divisor: any, limite?: number): Promise<any> => {
+    dividir: (interpretador: VisitanteComumInterface, texto: string, divisor: any, limite?: number): Promise<string[]> => {
         if (limite) {
             return Promise.resolve(texto.split(divisor, limite))
         }
