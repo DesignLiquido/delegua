@@ -45,6 +45,11 @@ describe('Primitivas de texto', () => {
             const resultado = await primitivasTexto.dividir(interpretador, '123|456|789|0', '|', 4);
             expect(resultado).toStrictEqual(['123', '456', '789', '0']);
         });
+
+        it('Trivial', async () => {
+            const resultado = await primitivasTexto.dividir(interpretador, 'TEXTO', '');
+            expect(resultado).toStrictEqual(['T', 'E', 'X', 'T', 'O']);
+        });
     });
 
     describe('fatiar()', () => {

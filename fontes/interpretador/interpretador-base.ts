@@ -361,16 +361,22 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return Math.pow(valorEsquerdo, valorDireito);
 
                 case tiposDeSimbolos.MAIOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) > Number(valorDireito);
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(valorEsquerdo) > Number(valorDireito);
+                    } else {
+                        return String(valorEsquerdo) > String(valorDireito);
+                    }
 
                 case tiposDeSimbolos.MAIOR_IGUAL:
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                     return Number(valorEsquerdo) >= Number(valorDireito);
 
                 case tiposDeSimbolos.MENOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) < Number(valorDireito);
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(valorEsquerdo) < Number(valorDireito);
+                    } else {
+                        return String(valorEsquerdo) < String(valorDireito);
+                    }
 
                 case tiposDeSimbolos.MENOR_IGUAL:
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);

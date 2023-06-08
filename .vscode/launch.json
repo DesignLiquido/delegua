@@ -24,7 +24,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "interpretador.test.ts",
+                "birl/avaliador-sintatico.test.ts",
                 "birl",
                 "--runInBand"
             ],
