@@ -362,7 +362,6 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 case tiposDeSimbolos.MAIOR:
                     if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                        this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                         return Number(valorEsquerdo) > Number(valorDireito);
                     } else {
                         return String(valorEsquerdo) > String(valorDireito);
@@ -374,7 +373,6 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 case tiposDeSimbolos.MENOR:
                     if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                        this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                         return Number(valorEsquerdo) < Number(valorDireito);
                     } else {
                         return String(valorEsquerdo) < String(valorDireito);
