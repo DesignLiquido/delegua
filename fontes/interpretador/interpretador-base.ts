@@ -126,10 +126,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let tipoDe = expressao.valor;
         
-        if(expressao.valor instanceof Binario
-            || expressao.valor instanceof Variavel
-            || expressao.valor instanceof TipoDe) {
-            tipoDe = await this.avaliar(expressao.valor);
+        if(tipoDe instanceof Binario
+            || tipoDe instanceof Variavel
+            || tipoDe instanceof TipoDe) {
+            tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
         }
 
