@@ -76,7 +76,7 @@ export default {
             return vetor;
         }
 
-        return vetor.sort((a, b) => a - b);
+        return vetor.sort();
     },
     remover: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
         const index = vetor.indexOf(elemento);

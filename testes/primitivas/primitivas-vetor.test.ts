@@ -61,9 +61,19 @@ describe('Primitivas de vetor', () => {
     });
 
     describe('ordenar()', () => {
-        it('Trivial', async () => {
+        it('Números', async () => {
             const resultado = await primitivasVetor.ordenar(interpretador, [3, 2, 7, 1, 5], undefined as any);
             expect(resultado).toStrictEqual([1, 2, 3, 5, 7]);
+        });
+
+        it('Textos', async () => {
+            const resultado = await primitivasVetor.ordenar(interpretador, ["Erika", "Ana", "Carlos", "Daniel", "Bianca"], undefined as any);
+            expect(resultado).toStrictEqual(["Ana", "Bianca", "Carlos", "Daniel", "Erika"]);
+        });
+
+        it('Números e Textos', async () => {
+            const resultado = await primitivasVetor.ordenar(interpretador, ["Ana", "Carlos", "Bianca", 5, 3, 6], undefined as any);
+            expect(resultado).toStrictEqual([3, 5, 6, "Ana", "Bianca", "Carlos"]);
         });
     });
 
