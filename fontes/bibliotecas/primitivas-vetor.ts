@@ -76,6 +76,10 @@ export default {
             return vetor;
         }
 
+        if (!vetor.every(v => typeof v === 'number')) {
+            return vetor.sort();
+        }
+
         return vetor.sort((a, b) => a - b);
     },
     remover: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
