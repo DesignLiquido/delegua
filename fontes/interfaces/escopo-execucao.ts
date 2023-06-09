@@ -5,6 +5,10 @@ export type TipoEscopoExecucao = 'funcao' | 'repeticao' | 'outro';
 
 export interface EscopoExecucao {
     declaracoes: Declaracao[];
+    preCondicao?: Declaracao;
+    preCondicaoExecutada?: boolean;
+    posCondicao?: Declaracao;
+    posCondicaoExecutada?: boolean;
     declaracaoAtual: number;
     ambiente: EspacoVariaveis;
     finalizado: boolean;

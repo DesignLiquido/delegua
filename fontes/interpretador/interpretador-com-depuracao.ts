@@ -1,5 +1,5 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna, Var } from '../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Para, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
@@ -124,6 +124,10 @@ export class InterpretadorComDepuracao
     }
 
     /**
+     * O `while` do Node.js é bloqueante, sendo impossível pausar a execução. 
+     * Por isso neste interpretador temos `enquanto` implementado de modo recursivo
+     * com `setTimeout`, permitindo ao Node oportunidades para troca de contexto
+     * e execução de outros processos no meio de uma execução de código Delégua.
      * Motivação: https://medium.com/@maxdignan/making-blocking-functions-non-blocking-in-javascript-dfeb9501301c
      */
     protected async enquantoRecursivo(
@@ -169,9 +173,18 @@ export class InterpretadorComDepuracao
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         escopoAtual.emLacoRepeticao = true;
+        escopoAtual.declaracaoAtual++;
         this.proximoEscopo = 'repeticao';
 
-        switch (this.comando) {
+        return await this.executarBloco(
+            (declaracao.corpo as Bloco).declaracoes, 
+            undefined,
+            new Expressao(declaracao.condicao),
+            undefined
+        );
+        // new Expressao(declaracao.condicao)
+
+        /* switch (this.comando) {
             case "proximo":
                 if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     return this.executarBloco((declaracao.corpo as Bloco).declaracoes);
@@ -202,8 +215,8 @@ export class InterpretadorComDepuracao
                 }
         
                 escopoAtual.emLacoRepeticao = false;
-                return retornoExecucao; */
-        }
+                return retornoExecucao; *
+        } */
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
@@ -243,6 +256,127 @@ export class InterpretadorComDepuracao
         }
     }
 
+    protected async fazerRecursivo(
+        escopoAtual: EscopoExecucao, 
+        retornoExecucao: any, 
+        declaracao: Fazer
+    ): Promise<any> {
+        if (!(retornoExecucao instanceof Quebra) && 
+            this.comando === 'continuar' &&
+            !this.pontoDeParadaAtivo &&
+            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
+        ) {
+            return new Promise((resolve, reject) => {
+                setTimeout(async () => {
+                    try {
+                        retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                        if (retornoExecucao instanceof SustarQuebra) {
+                            return null;
+                        }
+        
+                        if (retornoExecucao instanceof ContinuarQuebra) {
+                            retornoExecucao = null;
+                        }
+                    } catch (erro: any) {
+                        return reject(erro);
+                    }
+        
+                    const resultadoRecursivo = await this.fazerRecursivo(escopoAtual, retornoExecucao, declaracao);
+                    resolve(resultadoRecursivo);
+                }, 0);
+            });
+        }
+
+        return this.posFazerRecursivo(escopoAtual, retornoExecucao);
+    }
+
+    protected posFazerRecursivo(escopoAtual: EscopoExecucao, retornoExecucao: any) {
+        // TODO
+    }
+
+    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        escopoAtual.emLacoRepeticao = true;
+        this.proximoEscopo = 'repeticao';
+
+        switch (this.comando) {
+            case "proximo":
+                const retornoBloco = this.executarBloco((declaracao.caminhoFazer as Bloco).declaracoes)
+                /* if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    return this.executarBloco((declaracao.corpo as Bloco).declaracoes);
+                }
+
+                escopoAtual.emLacoRepeticao = false;
+                this.proximoEscopo = undefined;
+                return null; */
+            default:
+                let retornoExecucao: any;
+                return await this.fazerRecursivo(escopoAtual, retornoExecucao, declaracao);
+        }
+
+        /* let retornoExecucao: any;
+        do {
+            try {
+                retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof SustarQuebra) {
+                    return null;
+                }
+
+                if (retornoExecucao instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        } while (
+            !(retornoExecucao instanceof Quebra) &&
+            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
+        ); */
+    }
+
+    protected async paraRecursivo(
+        escopoAtual: EscopoExecucao, 
+        retornoExecucao: any, 
+        declaracao: Enquanto
+    ): Promise<any> {
+        if (!(retornoExecucao instanceof Quebra) && 
+            this.comando === 'continuar' &&
+            !this.pontoDeParadaAtivo &&
+            this.eVerdadeiro(await this.avaliar(declaracao.condicao))
+        ) {
+            return new Promise((resolve, reject) => {
+                setTimeout(async () => {
+                    try {
+                        retornoExecucao = await this.executar(declaracao.corpo);
+                        if (retornoExecucao instanceof SustarQuebra) {
+                            return null;
+                        }
+        
+                        if (retornoExecucao instanceof ContinuarQuebra) {
+                            retornoExecucao = null;
+                        }
+                    } catch (erro: any) {
+                        return reject(erro);
+                    }
+        
+                    const resultadoRecursivo = await this.paraRecursivo(escopoAtual, retornoExecucao, declaracao);
+                    resolve(resultadoRecursivo);
+                }, 0);
+            });
+        }
+
+        return this.posParaRecursivo(escopoAtual, retornoExecucao);
+    }
+
+    protected posParaRecursivo(escopoAtual: EscopoExecucao, retornoExecucao: any) {
+        // TODO
+    }
+
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         const corpoExecucao = declaracao.corpo as Bloco;
         if (declaracao.inicializador !== null && !declaracao.inicializada) {
@@ -268,7 +402,7 @@ export class InterpretadorComDepuracao
                 return null;
             default: 
                 let retornoExecucao: any;
-                while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
+                /* while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
                     if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                         break;
                     }
@@ -287,7 +421,7 @@ export class InterpretadorComDepuracao
                     }
                 }
                 // escopoAtual.emLacoRepeticao = false;
-                return retornoExecucao;
+                return retornoExecucao; */
         }
     }
 
@@ -329,9 +463,15 @@ export class InterpretadorComDepuracao
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    async executarBloco(
+        declaracoes: Declaracao[], 
+        ambiente?: EspacoVariaveis,
+        preCondicao?: Declaracao,
+        posCondicao?: Declaracao
+    ): Promise<any> {
         // Se o escopo atual não é o último.
-        if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
+        // Até então nunca foi visto executando.
+        /* if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
             const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
             let retornoExecucao: any;
@@ -369,19 +509,29 @@ export class InterpretadorComDepuracao
             this.pilhaEscoposExecucao.removerUltimo();
             this.escopoAtual--;
             return retornoExecucao;
-        } else {
-            this.abrirNovoBlocoEscopo(declaracoes, ambiente, this.proximoEscopo || 'outro');
-            const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-            if (this.idChamadaAtual) {
-                ultimoEscopo.idChamada = this.idChamadaAtual;
-                this.idChamadaAtual = undefined;
-            }
-            this.proximoEscopo = undefined;
+        } else { */
+        this.abrirNovoBlocoEscopo(declaracoes, ambiente, this.proximoEscopo || 'outro');
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
 
-            if (this.comando !== 'adentrarEscopo') {
-                return await this.executarUltimoEscopo();
-            }
+        if (preCondicao !== undefined && preCondicao !== null) {
+            ultimoEscopo.preCondicao = preCondicao;
         }
+
+        if (posCondicao !== undefined && posCondicao !== null) {
+            ultimoEscopo.posCondicao = posCondicao;
+        }
+
+        if (this.idChamadaAtual) {
+            ultimoEscopo.idChamada = this.idChamadaAtual;
+            this.idChamadaAtual = undefined;
+        }
+
+        this.proximoEscopo = undefined;
+
+        if (this.comando !== 'adentrarEscopo') {
+            return await this.executarUltimoEscopo();
+        }
+        // }
     }
 
     /**
@@ -428,6 +578,10 @@ export class InterpretadorComDepuracao
         }
     }
 
+    /**
+     * Descarta todos os escopos finalizados, do topo até a base, até achar
+     * um escopo que ainda não finalizou.
+     */
     private descartarTodosEscoposFinalizados() {
         let i = this.pilhaEscoposExecucao.pilha.length - 1;
         while (i > 0) {
@@ -469,18 +623,40 @@ export class InterpretadorComDepuracao
         this.escopoAtual--;
     }
 
+    private async execucaoInternaEscopo(escopo: EscopoExecucao): Promise<any> {
+        if (escopo.preCondicao !== undefined && !escopo.preCondicaoExecutada) {
+            escopo.preCondicaoExecutada = true;
+            const resultadoPreCondicao = await this.executar(escopo.preCondicao);
+            if (!resultadoPreCondicao) {
+                escopo.finalizado = true;
+            }
+            return resultadoPreCondicao;
+        }
+
+        if (escopo.declaracaoAtual === escopo.declaracoes.length &&
+            escopo.posCondicao !== undefined &&
+            !escopo.posCondicaoExecutada
+        ) {
+            escopo.posCondicaoExecutada = true;
+            const resultadoPosCondicao = await this.executar(escopo.posCondicao);
+            return resultadoPosCondicao;
+        }
+
+        return await this.executar(escopo.declaracoes[escopo.declaracaoAtual]);
+    }
+
     private async executarUmPassoNoEscopo() {
-        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: any;
         if (this.passos > 0) {
             this.passos--;
-            retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            retornoExecucao = await this.execucaoInternaEscopo(escopoAtual);
 
-            if (!this.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao) {
-                ultimoEscopo.declaracaoAtual++;
+            if (!this.pontoDeParadaAtivo && !escopoAtual.emLacoRepeticao) {
+                escopoAtual.declaracaoAtual++;
             }
 
-            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
+            if (escopoAtual.declaracaoAtual >= escopoAtual.declaracoes.length || escopoAtual.finalizado) {
                 if (retornoExecucao instanceof RetornoQuebra) {
                     this.descartarEscopoPorRetornoFuncao();
                 } else {
@@ -664,7 +840,7 @@ export class InterpretadorComDepuracao
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: tipoEscopo,
-            emLacoRepeticao: this.proximoEscopo === 'repeticao'
+            emLacoRepeticao: false
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
@@ -700,7 +876,6 @@ export class InterpretadorComDepuracao
 
         const retorno = {
             erros: this.erros,
-            // resultado: this.resultadoInterpretador // Removido para simplificar `this.executar()`.
             resultado: [resultado],
         } as RetornoInterpretador;
 
