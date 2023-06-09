@@ -62,8 +62,8 @@ describe('Primitivas de vetor', () => {
 
     describe('ordenar()', () => {
         it('Números', async () => {
-            const resultado = await primitivasVetor.ordenar(interpretador, [3, 2, 7, 1, 5], undefined as any);
-            expect(resultado).toStrictEqual([1, 2, 3, 5, 7]);
+            const resultado = await primitivasVetor.ordenar(interpretador, [2, 3, 5, 1, 10, 9], undefined as any);
+            expect(resultado).toStrictEqual([1, 2, 3, 5, 9, 10]);
         });
 
         it('Textos', async () => {
