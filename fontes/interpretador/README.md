@@ -2,9 +2,11 @@
 
 O interpretador é o componente de Delégua que efetivamente executa todo o código fornecido. Pode ser uma ou várias linhas.
 
-Normalmente dialetos derivam do interpretador de Delégua e variações podem ocorrer. Por exemplo, o interpretador de VisuAlg herda o interpretador de Delégua mas executa várias partes de forma diferente, como as instruções `escreva()` e `para`, cujo passo de repetição é dinâmico.
+Normalmente dialetos derivam do interpretador base de Delégua e variações podem ocorrer. Por exemplo, o interpretador de VisuAlg herda o interpretador de Delégua mas executa várias partes de forma diferente, como as instruções `escreva()` e `para`, sendo esta último com um passo de repetição dinâmico.
 
 A única exceção até então é o interpretador de Égua Clássico. O motivo é a forma como o interpretador original da linguagem Égua importa diferentes arquivos durante a execução, além de uma etapa de "resolução de variáveis", que os demais dialetos não possuem.
+
+Demais informações sobre as particularidades de cada dialeto podem ser encontradas no diretório `dialetos`.
 
 ## Interpretador, Construtos e Declarações
 
