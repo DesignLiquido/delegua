@@ -182,7 +182,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         variaveis.forEach((elemento) => {
             //TODO:
             if (elemento?.valor?.tipo === 'lógico') {
-                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor ? 'verdadeiro' : 'falso')
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor))
             } else {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor)
             }
