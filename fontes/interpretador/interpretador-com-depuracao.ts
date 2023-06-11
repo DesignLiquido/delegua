@@ -172,7 +172,9 @@ export class InterpretadorComDepuracao
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
-        escopoAtual.emLacoRepeticao = true;
+        // Laço de repetição passa a estar no escopo de cima, e
+        // não mais aqui.
+        // escopoAtual.emLacoRepeticao = true;
         escopoAtual.declaracaoAtual++;
         this.proximoEscopo = 'repeticao';
 
@@ -512,6 +514,9 @@ export class InterpretadorComDepuracao
         } else { */
         this.abrirNovoBlocoEscopo(declaracoes, ambiente, this.proximoEscopo || 'outro');
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        if (this.proximoEscopo === 'repeticao') {
+            ultimoEscopo.emLacoRepeticao = true;
+        }
 
         if (preCondicao !== undefined && preCondicao !== null) {
             ultimoEscopo.preCondicao = preCondicao;
@@ -624,7 +629,11 @@ export class InterpretadorComDepuracao
     }
 
     private async execucaoInternaEscopo(escopo: EscopoExecucao): Promise<any> {
-        if (escopo.preCondicao !== undefined && !escopo.preCondicaoExecutada) {
+        if (
+            escopo.preCondicao !== undefined && 
+            !escopo.preCondicaoExecutada &&
+            escopo.declaracaoAtual === 0
+        ) {
             escopo.preCondicaoExecutada = true;
             const resultadoPreCondicao = await this.executar(escopo.preCondicao);
             if (!resultadoPreCondicao) {
@@ -633,12 +642,18 @@ export class InterpretadorComDepuracao
             return resultadoPreCondicao;
         }
 
-        if (escopo.declaracaoAtual === escopo.declaracoes.length &&
+        if (
             escopo.posCondicao !== undefined &&
-            !escopo.posCondicaoExecutada
+            !escopo.posCondicaoExecutada &&
+            escopo.declaracaoAtual >= escopo.declaracoes.length
         ) {
             escopo.posCondicaoExecutada = true;
             const resultadoPosCondicao = await this.executar(escopo.posCondicao);
+            if (!resultadoPosCondicao) {
+                escopo.finalizado = true;
+            } else {
+                escopo.declaracaoAtual == 0;
+            }
             return resultadoPosCondicao;
         }
 
@@ -648,25 +663,54 @@ export class InterpretadorComDepuracao
     private async executarUmPassoNoEscopo() {
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: any;
-        if (this.passos > 0) {
-            this.passos--;
-            retornoExecucao = await this.execucaoInternaEscopo(escopoAtual);
 
-            if (!this.pontoDeParadaAtivo && !escopoAtual.emLacoRepeticao) {
-                escopoAtual.declaracaoAtual++;
+        if (this.passos <= 0) {
+            return retornoExecucao;
+        }
+
+        this.passos--;
+        let emPreCondicao = false;
+        if (escopoAtual.preCondicao !== undefined && 
+            !escopoAtual.preCondicaoExecutada &&
+            escopoAtual.declaracaoAtual === 0
+        ) {
+            emPreCondicao = true;
+        }
+
+        retornoExecucao = await this.execucaoInternaEscopo(escopoAtual);
+
+        if (!emPreCondicao && !this.pontoDeParadaAtivo) {
+            escopoAtual.declaracaoAtual++;
+        }
+
+        if (escopoAtual.finalizado) {
+            if (retornoExecucao instanceof RetornoQuebra) {
+                this.descartarEscopoPorRetornoFuncao();
+            } else {
+                this.descartarTodosEscoposFinalizados();
             }
-
-            if (escopoAtual.declaracaoAtual >= escopoAtual.declaracoes.length || escopoAtual.finalizado) {
-                if (retornoExecucao instanceof RetornoQuebra) {
-                    this.descartarEscopoPorRetornoFuncao();
-                } else {
-                    this.descartarTodosEscoposFinalizados();
+        } else if (escopoAtual.declaracaoAtual >= escopoAtual.declaracoes.length) {
+            if (escopoAtual.emLacoRepeticao) {
+                if (escopoAtual.posCondicao !== undefined &&
+                    escopoAtual.posCondicaoExecutada
+                ) {
+                    if (retornoExecucao) {
+                        escopoAtual.declaracaoAtual = 0;
+                        escopoAtual.posCondicaoExecutada = false;
+                    } else {
+                        this.descartarTodosEscoposFinalizados();
+                    }
+                } else if (escopoAtual.preCondicao !== undefined) {
+                    escopoAtual.declaracaoAtual = 0;
+                    escopoAtual.preCondicaoExecutada = false;
                 }
+            } else {
+                this.descartarTodosEscoposFinalizados();
             }
+        }
 
-            if (this.pilhaEscoposExecucao.elementos() === 1) {
-                this.finalizacaoDaExecucao();
-            }
+        if (this.pilhaEscoposExecucao.elementos() === 1) {
+            this.finalizacaoDaExecucao();
         }
 
         return retornoExecucao;

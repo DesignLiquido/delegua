@@ -54,7 +54,7 @@ describe('Interpretador com suporte a depuração', () => {
         });
     });
 
-    describe.only('instrucaoPasso()', () => {
+    describe('instrucaoPasso()', () => {
         it('Trivial', async () => {
             const retornoLexador = lexador.mapear([
                 "escreva('Olá mundo')"
@@ -75,6 +75,7 @@ describe('Interpretador com suporte a depuração', () => {
                 "var a = 1",
                 "enquanto (a < 10) {",
                 "    a += 1",
+                "    escreva(a)",
                 "}"
             ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -88,14 +89,41 @@ describe('Interpretador com suporte a depuração', () => {
             await interpretador.instrucaoPasso(); // var a = 1
             await interpretador.instrucaoPasso(); // empilha enquanto (a < 10)
             await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 1
-            expect(InterpretadorComDepuracao.prototype.executar).toHaveBeenCalledTimes(3);
+            await interpretador.instrucaoPasso(); // executa a += 1, a == 2
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 2
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 3
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 3
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 4
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 4
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 5
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 5
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 6
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 6
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 7
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 7
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 8
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 8
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 9
+            await interpretador.instrucaoPasso(); // escreva(a)
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 9
+            await interpretador.instrucaoPasso(); // executa executa a += 1, a == 10
+            await interpretador.instrucaoPasso(); // escreva(a)
+            expect(InterpretadorComDepuracao.prototype.executar).toHaveBeenCalledTimes(29);
         });
 
-        it.only('Enquanto, pré-condição nunca satisfeita', async () => {
+        it('Enquanto, pré-condição nunca satisfeita', async () => {
             const retornoLexador = lexador.mapear([
                 "var a = 10",
-                "enquanto (a < 10) {",
+                "enquanto a < 10 {",
                 "    a += 1",
+                "    escreva(a)",
                 "}"
             ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -108,7 +136,7 @@ describe('Interpretador com suporte a depuração', () => {
             interpretador.comando = 'proximo';
             await interpretador.instrucaoPasso(); // var a = 10
             await interpretador.instrucaoPasso(); // empilha enquanto (a < 10)
-            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 10
+            await interpretador.instrucaoPasso(); // executa enquanto (a < 10), a == 10, escopo não é executado.
             expect(InterpretadorComDepuracao.prototype.executar).toHaveBeenCalledTimes(3);
         });
     });
