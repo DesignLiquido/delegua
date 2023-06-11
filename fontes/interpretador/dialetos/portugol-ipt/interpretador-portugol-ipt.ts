@@ -322,7 +322,7 @@ export class InterpretadorPortugolIpt
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
 
     /**

@@ -900,7 +900,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
 
     /**

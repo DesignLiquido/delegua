@@ -168,7 +168,7 @@ export class InterpretadorComDepuracao
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
 
     /**

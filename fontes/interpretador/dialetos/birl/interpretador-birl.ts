@@ -659,7 +659,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
 
     /**
