@@ -91,6 +91,9 @@ describe('Interpretador', () => {
                         "escreva('somar: ${somar(5, 3)} = ${4 + 5 - 1}');",
                         "escreva('somar com ponto flutuante: ${somar(5.7, 3.3)} = ${5 + 5 - 1}');",
                         "escreva('${4 - 2 / 1}');",
+                        "var logico1 = falso",
+                        "var logico2 = verdadeiro",
+                        "escreva('Valor: ${logico1} e ${logico2}')",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

@@ -178,8 +178,14 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     private async retirarInterpolacao(texto: string, variaveis: any[]): Promise<string> {
         let textoFinal = texto;
+
         variaveis.forEach((elemento) => {
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor)
+            //TODO:
+            if (elemento?.valor?.tipo === 'lógico') {
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor ? 'verdadeiro' : 'falso')
+            } else {
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor)
+            }
         });
 
         return textoFinal;
