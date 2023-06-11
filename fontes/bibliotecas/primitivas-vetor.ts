@@ -1,6 +1,18 @@
 import { DeleguaFuncao } from "../estruturas";
 import { VisitanteComumInterface } from "../interfaces";
 
+class MetodosVetor extends Array {
+    constructor(...items: any[]) {
+        super();
+        this.push(...items);
+    }
+
+    encaixar(start, deleteCount) {
+        let r = this.splice(start, deleteCount)
+        return r;
+    }
+}
+
 export default {
     adicionar: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
         vetor.push(elemento);
