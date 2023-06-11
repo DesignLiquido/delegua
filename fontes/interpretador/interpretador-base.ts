@@ -180,7 +180,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         let textoFinal = texto;
 
         variaveis.forEach((elemento) => {
-            //TODO:
             if (elemento?.valor?.tipo === 'lógico') {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor))
             } else {
