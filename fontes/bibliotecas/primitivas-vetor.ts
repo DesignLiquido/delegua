@@ -18,16 +18,8 @@ export default {
         vetor: Array<any>,
         posicaoInicio: number,
         excluirQuantidade: number,
-        elemento: any = null,
-        obterElementosExcluidos: boolean = false
+        items: any = null,
     ): Promise<any> => {
-        let elementosExcluidos = elemento
-            ? vetor.splice(posicaoInicio, excluirQuantidade, elemento)
-            : vetor.splice(posicaoInicio, excluirQuantidade);
-
-        if (obterElementosExcluidos) {
-            return Promise.resolve(elementosExcluidos);
-        }
         return Promise.resolve(vetor);
     },
     fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),

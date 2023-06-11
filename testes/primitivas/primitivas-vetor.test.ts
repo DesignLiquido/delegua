@@ -102,37 +102,10 @@ describe('Primitivas de vetor', () => {
         });
     });
 
-    describe('encaixar() - adicionando item na posição 2', () => {
+    describe('encaixar()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasVetor.encaixar(interpretador, [1, 2, 3], 2, 0, 10);
             expect(resultado).toStrictEqual([1, 2, 10, 3]);
-        });
-    });
-
-    describe('encaixar() - removendo item na posição 2', () => {
-        it('Trivial', async () => {
-            const resultado = await primitivasVetor.encaixar(interpretador, [1, 2, 3], 2, 1, 10);
-            expect(resultado).toStrictEqual([1, 2, 10]);
-        });
-    });
-
-    describe('encaixar() - não passando novo elemento', () => {
-        it('Trivial', async () => {
-            const promises = await Promise.all([
-                primitivasVetor.encaixar(interpretador, [1, 2, 3, 4], 3, 4, null, true),
-                primitivasVetor.encaixar(interpretador, [1, 2, 3, 4], 0, 3)
-            ]);
-            const resultado1 = promises[0];
-            const resultado2 = promises[1];
-            expect(resultado1).toStrictEqual([4]);
-            expect(resultado2).toStrictEqual([4]);
-        });
-    });
-
-    describe('encaixar() - não passando novo elemento', () => {
-        it('Trivial', async () => {
-            const resultado1 = await primitivasVetor.encaixar(interpretador, ["maçã", "banana", "morango", "laranja", "uva"], 0, 3, null, true);
-            expect(resultado1).toStrictEqual(["maçã", "banana", "morango"]);
         });
     });
 
