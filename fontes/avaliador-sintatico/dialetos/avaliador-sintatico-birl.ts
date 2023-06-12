@@ -285,6 +285,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
+
+
     declaracaoEscreva(): Escreva {
         const primeiroSimbolo = this.consumir(tiposDeSimbolos.CE, 'Esperado expressão `CE` para escrever mensagem.');
         this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `CE` para escrever mensagem.');
@@ -296,15 +298,24 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             'Esperado parêntese esquerdo após interrogação para escrever mensagem.'
         );
+        const argumentos = [];
 
-        const argumento = this.declaracao();
+        argumentos.push(this.declaracao());
+
+        while(!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                const variavelParaEscrita = this.declaracao();
+                argumentos.push(variavelParaEscrita);
+            }
+
+        }
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             'Esperado parêntese direito após argumento para escrever mensagem.'
         );
 
-        return new Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, [argumento]);
+        return new Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, argumentos);
     }
 
     declaracaoFazer(): Fazer {
