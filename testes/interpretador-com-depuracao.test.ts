@@ -40,6 +40,7 @@ describe('Interpretador com suporte a depuração', () => {
                 "var a = 1",
                 "enquanto (a < 10) {",
                 "    a += 1",
+                "    escreva(a)",
                 "}"
             ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -50,7 +51,7 @@ describe('Interpretador com suporte a depuração', () => {
             jest.spyOn(InterpretadorComDepuracao.prototype, 'executar');
             
             await interpretador.instrucaoContinuarInterpretacao();
-            expect(InterpretadorComDepuracao.prototype.executar).toHaveBeenCalledTimes(2);
+            expect(InterpretadorComDepuracao.prototype.executar).toHaveBeenCalledTimes(30);
         });
     });
 

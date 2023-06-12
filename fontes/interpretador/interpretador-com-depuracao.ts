@@ -735,11 +735,7 @@ export class InterpretadorComDepuracao
         let retornoExecucao: any;
 
         try {
-            for (
-                ;
-                !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
-                ultimoEscopo.declaracaoAtual++
-            ) {
+            while (!(retornoExecucao instanceof Quebra)) {
                 if (naoVerificarPrimeiraExecucao) {
                     naoVerificarPrimeiraExecucao = false;
                 } else {
@@ -753,7 +749,15 @@ export class InterpretadorComDepuracao
                     }
                 }
 
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                let emPreCondicao = false;
+                if (ultimoEscopo.preCondicao !== undefined && 
+                    !ultimoEscopo.preCondicaoExecutada &&
+                    ultimoEscopo.declaracaoAtual === 0
+                ) {
+                    emPreCondicao = true;
+                }
+
+                retornoExecucao = await this.execucaoInternaEscopo(ultimoEscopo);
 
                 // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
                 // Por isso verificamos outra parada aqui para evitar que
@@ -761,6 +765,32 @@ export class InterpretadorComDepuracao
                 if (this.pontoDeParadaAtivo) {
                     this.avisoPontoParadaAtivado();
                     break;
+                }
+
+                if (!emPreCondicao) {
+                    ultimoEscopo.declaracaoAtual++;
+                }
+
+                if (ultimoEscopo.finalizado) {
+                    break;
+                }
+
+                if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length) {
+                    if (ultimoEscopo.emLacoRepeticao) {
+                        if (ultimoEscopo.posCondicao !== undefined &&
+                            ultimoEscopo.posCondicaoExecutada
+                        ) {
+                            if (retornoExecucao) {
+                                ultimoEscopo.declaracaoAtual = 0;
+                                ultimoEscopo.posCondicaoExecutada = false;
+                            }
+                        } else if (ultimoEscopo.preCondicao !== undefined) {
+                            ultimoEscopo.declaracaoAtual = 0;
+                            ultimoEscopo.preCondicaoExecutada = false;
+                        }
+                    } else {
+                        break;
+                    }
                 }
             }
 
