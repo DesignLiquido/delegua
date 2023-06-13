@@ -131,19 +131,38 @@ export class InterpretadorComDepuracao
      * Motivação: https://medium.com/@maxdignan/making-blocking-functions-non-blocking-in-javascript-dfeb9501301c
      */
     protected async enquantoRecursivo(
-        escopoAtual: EscopoExecucao, 
+        escopoBloco: EscopoExecucao, 
         retornoExecucao: any, 
         declaracao: Enquanto
     ): Promise<any> {
         if (!(retornoExecucao instanceof Quebra) && 
-            this.comando === 'continuar' &&
-            !this.pontoDeParadaAtivo &&
-            this.eVerdadeiro(await this.avaliar(declaracao.condicao))
+            this.comando !== 'pausar' &&
+            !this.pontoDeParadaAtivo
+            // this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
             return new Promise((resolve, reject) => {
                 setTimeout(async () => {
                     try {
-                        retornoExecucao = await this.executar(declaracao.corpo);
+                        // retornoExecucao = await this.executar(declaracao.corpo);
+                        if (escopoBloco === undefined) {
+                            this.configurarBlocoEscopo(
+                                (declaracao.corpo as Bloco).declaracoes, 
+                                undefined,
+                                new Expressao(declaracao.condicao),
+                                undefined 
+                            );
+                            escopoBloco = this.pilhaEscoposExecucao.topoDaPilha();
+                        }
+
+                        let emPreCondicao = false;
+                        if (escopoBloco.preCondicao !== undefined && 
+                            !escopoBloco.preCondicaoExecutada &&
+                            escopoBloco.declaracaoAtual === 0
+                        ) {
+                            emPreCondicao = true;
+                        }
+                        
+                        retornoExecucao = await this.execucaoInternaEscopo(escopoBloco);
                         if (retornoExecucao instanceof SustarQuebra) {
                             return null;
                         }
@@ -151,17 +170,19 @@ export class InterpretadorComDepuracao
                         if (retornoExecucao instanceof ContinuarQuebra) {
                             retornoExecucao = null;
                         }
+
+
                     } catch (erro: any) {
                         return reject(erro);
                     }
         
-                    const resultadoRecursivo = await this.enquantoRecursivo(escopoAtual, retornoExecucao, declaracao);
+                    const resultadoRecursivo = await this.enquantoRecursivo(escopoBloco, retornoExecucao, declaracao);
                     resolve(resultadoRecursivo);
                 }, 0);
             });
         }
 
-        return this.posEnquantoRecursivo(escopoAtual, retornoExecucao);
+        return this.posEnquantoRecursivo(escopoBloco, retornoExecucao);
     }
 
     protected posEnquantoRecursivo(escopoAtual: EscopoExecucao, retornoExecucao: any): any {
@@ -178,13 +199,18 @@ export class InterpretadorComDepuracao
         escopoAtual.declaracaoAtual++;
         this.proximoEscopo = 'repeticao';
 
-        return await this.executarBloco(
-            (declaracao.corpo as Bloco).declaracoes, 
-            undefined,
-            new Expressao(declaracao.condicao),
-            undefined
-        );
-        // new Expressao(declaracao.condicao)
+        let retornoExecucao: any;
+        switch (this.comando) {
+            case 'proximo':
+                return await this.executarBloco(
+                    (declaracao.corpo as Bloco).declaracoes, 
+                    undefined,
+                    new Expressao(declaracao.condicao),
+                    undefined
+                );
+            default:
+                return await this.enquantoRecursivo(undefined, retornoExecucao, declaracao);
+        }
 
         /* switch (this.comando) {
             case "proximo":
@@ -456,62 +482,19 @@ export class InterpretadorComDepuracao
     }
 
     /**
-     * Se bloco de execução já foi instanciado antes (por exemplo, quando há um ponto de parada e a
-     * execução do código é retomada pelo depurador), retoma a execução do bloco do ponto em que havia parado.
-     * Se bloco de execução ainda não foi instanciado, empilha declarações na pilha de escopos de execução,
-     * cria um novo ambiente e executa as declarações empilhadas.
-     * Se depurador comandou uma instrução 'adentrar-escopo', execução do bloco não ocorre, mas
-     * ponteiros de escopo e execução são atualizados.
+     * Configuração comum de blocos de escopos, tanto por passo (genérica)
+     * quanto por execução geral (normalmente envolvendo recursão).
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     * @param preCondicao A pré-condição do bloco.
+     * @param posCondicao A pós-condição do bloco. 
      */
-    async executarBloco(
+    protected configurarBlocoEscopo(
         declaracoes: Declaracao[], 
         ambiente?: EspacoVariaveis,
         preCondicao?: Declaracao,
         posCondicao?: Declaracao
-    ): Promise<any> {
-        // Se o escopo atual não é o último.
-        // Até então nunca foi visto executando.
-        /* if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
-            this.escopoAtual++;
-            const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
-            let retornoExecucao: any;
-
-            // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
-            retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
-            proximoEscopo.declaracaoAtual++;
-
-            for (
-                ;
-                !(retornoExecucao instanceof Quebra) &&
-                proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
-                proximoEscopo.declaracaoAtual++
-            ) {
-                this.pontoDeParadaAtivo = this.verificarPontoParada(
-                    proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
-                );
-
-                if (this.pontoDeParadaAtivo) {
-                    this.avisoPontoParadaAtivado();
-                    break;
-                }
-
-                retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
-
-                // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
-                // Por isso verificamos outra parada aqui para evitar que
-                // `this.declaracaoAtual` seja incrementado.
-                if (this.pontoDeParadaAtivo) {
-                    this.avisoPontoParadaAtivado();
-                    break;
-                }
-            }
-
-            this.pilhaEscoposExecucao.removerUltimo();
-            this.escopoAtual--;
-            return retornoExecucao;
-        } else { */
+    ) {
         this.abrirNovoBlocoEscopo(declaracoes, ambiente, this.proximoEscopo || 'outro');
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         if (this.proximoEscopo === 'repeticao') {
@@ -532,11 +515,29 @@ export class InterpretadorComDepuracao
         }
 
         this.proximoEscopo = undefined;
+    }
+
+    /**
+     * Empilha declarações na pilha de escopos de execução,
+     * cria um novo ambiente e executa as declarações empilhadas.
+     * Se depurador comandou uma instrução 'adentrar-escopo', execução do bloco não ocorre, mas
+     * ponteiros de escopo e execução são atualizados.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     * @param preCondicao A pré-condição do bloco.
+     * @param posCondicao A pós-condição do bloco.
+     */
+    async executarBloco(
+        declaracoes: Declaracao[], 
+        ambiente?: EspacoVariaveis,
+        preCondicao?: Declaracao,
+        posCondicao?: Declaracao
+    ): Promise<any> {
+        this.configurarBlocoEscopo(declaracoes, ambiente, preCondicao, posCondicao);
 
         if (this.comando !== 'adentrarEscopo') {
             return await this.executarUltimoEscopo();
         }
-        // }
     }
 
     /**
