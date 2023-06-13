@@ -103,9 +103,31 @@ describe('Primitivas de vetor', () => {
     });
 
     describe('encaixar()', () => {
-        it('Trivial', async () => {
-            const resultado = await primitivasVetor.encaixar(interpretador, [1, 2, 3], 2, 0, 10);
-            expect(resultado).toStrictEqual([1, 2, 10, 3]);
+        it('Inserindo novo elemento', async () => {
+            let vetor = [1, 2, 3]
+            await primitivasVetor.encaixar(interpretador, vetor, 2, 0, 10);
+            expect(vetor).toStrictEqual([1, 2, 10, 3]);
+        });
+
+        it('Removendo elemento na posição 2', async () => {
+            let vetor = [1, 2, 3]
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 2, 1, 10);
+            expect(vetor).toStrictEqual([1, 2, 10]);
+            expect(resultado).toStrictEqual([3]);
+        });
+
+        it('Um elemento', async () => {
+            let vetor = [1, 2, 3, 4, 5]
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 1, 3, "texto");
+            expect(vetor).toStrictEqual([1, 'texto', 5]);
+            expect(resultado).toStrictEqual([2, 3, 4]);
+        });
+
+        it('Mais de um elemento', async () => {
+            let vetor = [1, 2, 3, 4, 5]
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 1, 3, "texto1", "texto2");
+            expect(vetor).toStrictEqual([1, 'texto1', 5]);
+            expect(resultado).toStrictEqual([2, 3, 4]);
         });
     });
 

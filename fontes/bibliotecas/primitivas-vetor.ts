@@ -1,18 +1,6 @@
 import { DeleguaFuncao } from "../estruturas";
 import { VisitanteComumInterface } from "../interfaces";
 
-class MetodosVetor extends Array {
-    constructor(...items: any[]) {
-        super();
-        this.push(...items);
-    }
-
-    encaixar(start, deleteCount) {
-        let r = this.splice(start, deleteCount)
-        return r;
-    }
-}
-
 export default {
     adicionar: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
         vetor.push(elemento);
@@ -28,11 +16,12 @@ export default {
     encaixar: (
         interpretador: VisitanteComumInterface, 
         vetor: Array<any>,
-        posicaoInicio: number,
+        inicio: number,
         excluirQuantidade: number,
-        items: any = null,
+        ...items: any[]
     ): Promise<any> => {
-        return Promise.resolve(vetor);
+        const elementos = !items.length ? vetor.splice(inicio, excluirQuantidade) : vetor.splice(inicio, excluirQuantidade, ...items)
+        return Promise.resolve(elementos);
     },
     fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),
     filtrarPor: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
