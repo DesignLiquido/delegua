@@ -126,7 +126,7 @@ describe('Primitivas de vetor', () => {
         it('Mais de um elemento', async () => {
             let vetor = [1, 2, 3, 4, 5]
             const resultado = await primitivasVetor.encaixar(interpretador, vetor, 1, 3, "texto1", "texto2");
-            expect(vetor).toStrictEqual([1, 'texto1', 5]);
+            expect(vetor).toStrictEqual([1, 'texto1', 'texto2', 5]);
             expect(resultado).toStrictEqual([2, 3, 4]);
         });
     });
