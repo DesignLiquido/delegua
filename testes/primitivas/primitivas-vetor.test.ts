@@ -102,37 +102,32 @@ describe('Primitivas de vetor', () => {
         });
     });
 
-    describe('encaixar() - adicionando item na posição 2', () => {
-        it('Trivial', async () => {
-            const resultado = await primitivasVetor.encaixar(interpretador, [1, 2, 3], 2, 0, 10);
-            expect(resultado).toStrictEqual([1, 2, 10, 3]);
+    describe('encaixar()', () => {
+        it('Inserindo novo elemento', async () => {
+            let vetor = [1, 2, 3]
+            await primitivasVetor.encaixar(interpretador, vetor, 2, 0, 10);
+            expect(vetor).toStrictEqual([1, 2, 10, 3]);
         });
-    });
 
-    describe('encaixar() - removendo item na posição 2', () => {
-        it('Trivial', async () => {
-            const resultado = await primitivasVetor.encaixar(interpretador, [1, 2, 3], 2, 1, 10);
-            expect(resultado).toStrictEqual([1, 2, 10]);
+        it('Removendo elemento na posição 2', async () => {
+            let vetor = [1, 2, 3]
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 2, 1, 10);
+            expect(vetor).toStrictEqual([1, 2, 10]);
+            expect(resultado).toStrictEqual([3]);
         });
-    });
 
-    describe('encaixar() - não passando novo elemento', () => {
-        it('Trivial', async () => {
-            const promises = await Promise.all([
-                primitivasVetor.encaixar(interpretador, [1, 2, 3, 4], 3, 4, null, true),
-                primitivasVetor.encaixar(interpretador, [1, 2, 3, 4], 0, 3)
-            ]);
-            const resultado1 = promises[0];
-            const resultado2 = promises[1];
-            expect(resultado1).toStrictEqual([4]);
-            expect(resultado2).toStrictEqual([4]);
+        it('Um elemento', async () => {
+            let vetor = [1, 2, 3, 4, 5]
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 1, 3, "texto");
+            expect(vetor).toStrictEqual([1, 'texto', 5]);
+            expect(resultado).toStrictEqual([2, 3, 4]);
         });
-    });
 
-    describe('encaixar() - não passando novo elemento', () => {
-        it('Trivial', async () => {
-            const resultado1 = await primitivasVetor.encaixar(interpretador, ["maçã", "banana", "morango", "laranja", "uva"], 0, 3, null, true);
-            expect(resultado1).toStrictEqual(["maçã", "banana", "morango"]);
+        it('Mais de um elemento', async () => {
+            let vetor = [1, 2, 3, 4, 5]
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 1, 3, "texto1", "texto2");
+            expect(vetor).toStrictEqual([1, 'texto1', 'texto2', 5]);
+            expect(resultado).toStrictEqual([2, 3, 4]);
         });
     });
 

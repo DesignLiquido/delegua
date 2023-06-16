@@ -16,19 +16,12 @@ export default {
     encaixar: (
         interpretador: VisitanteComumInterface, 
         vetor: Array<any>,
-        posicaoInicio: number,
+        inicio: number,
         excluirQuantidade: number,
-        elemento: any = null,
-        obterElementosExcluidos: boolean = false
+        ...items: any[]
     ): Promise<any> => {
-        let elementosExcluidos = elemento
-            ? vetor.splice(posicaoInicio, excluirQuantidade, elemento)
-            : vetor.splice(posicaoInicio, excluirQuantidade);
-
-        if (obterElementosExcluidos) {
-            return Promise.resolve(elementosExcluidos);
-        }
-        return Promise.resolve(vetor);
+        const elementos = !items.length ? vetor.splice(inicio, excluirQuantidade) : vetor.splice(inicio, excluirQuantidade, ...items)
+        return Promise.resolve(elementos);
     },
     fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),
     filtrarPor: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
