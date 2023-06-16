@@ -1,4 +1,14 @@
-import { Atribuir, Construto, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Unario, Variavel } from '../../../construtos';
+import {
+    Atribuir,
+    Construto,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    Super,
+    TipoDe,
+    Unario,
+    Variavel,
+} from '../../../construtos';
 import {
     Bloco,
     Classe,
@@ -22,7 +32,15 @@ import {
     Var,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
-import { Chamavel, DeleguaClasse, DeleguaFuncao, DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoPadrao } from '../../../estruturas';
+import {
+    Chamavel,
+    DeleguaClasse,
+    DeleguaFuncao,
+    DeleguaModulo,
+    FuncaoPadrao,
+    MetodoPrimitiva,
+    ObjetoPadrao,
+} from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
@@ -385,7 +403,11 @@ export class InterpretadorBirl implements InterpretadorInterface {
                     argumentos.push(null);
                 }
             } else {
-                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
+                if (
+                    parametros &&
+                    parametros.length > 0 &&
+                    parametros[parametros.length - 1].abrangencia === 'multiplo'
+                ) {
                     const novosArgumentos = argumentos.slice(0, parametros.length - 1);
                     novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
                     argumentos = novosArgumentos;
@@ -531,7 +553,14 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-            await this.avaliar(declaracao.inicializador);
+            if (declaracao.inicializador instanceof Array) {
+                if (declaracao.inicializador[0] instanceof Variavel) {
+                    const valor = await this.avaliar(declaracao.inicializador[1]);
+                    this.pilhaEscoposExecucao.atribuirVariavel(declaracao.inicializador[0].simbolo, valor);
+                }
+            } else {
+                await this.avaliar(declaracao.inicializador);
+            }
         }
 
         let retornoExecucao: any;

@@ -118,6 +118,12 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
                 break;
             case '&':
+                if (this.proximoSimbolo() === '&') {
+                    this.avancar();
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.E);
+                    break;
+                }
                 // Ler o simbolo porem não é tratado.
                 this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
                 this.avancar();

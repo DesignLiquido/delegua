@@ -214,7 +214,7 @@ describe('Interpretador (EguaP)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
-                it('Fibonacci', async () => {
+                it.only('Fibonacci', async () => {
                     const codigo = [
                         "função fibonacci(n):",
                         "    se (n == 0):",

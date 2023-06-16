@@ -219,10 +219,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.'
         );
 
-        let declaracaoInicial: Var | Expressao | null = null;
+        let declaracaoInicial: Variavel | Expressao | null | any[] = null;
 
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
-            this.consumir(
+            const variavelLoop = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado expressão `IDENTIFICADOR` após `(` para iniciar o bloco `PARA`.'
             );
@@ -234,11 +234,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.NUMERO,
                 'Esperado expressão `NUMERO` após `=` para iniciar o bloco `PARA`.'
             );
-            declaracaoInicial = new Var(
-                this.simbolos[this.atual],
-                new Literal(this.simbolos[this.atual].linha, this.hashArquivo, valor.literal),
-                'numero'
-            );
+            declaracaoInicial = [
+                new Variavel(this.hashArquivo, variavelLoop),
+                new Literal(this.hashArquivo, Number(valor.linha), Number(valor.literal)),
+            ];
         } else {
             const declaracaoVetor = this.declaracao(); // inicialização da variável de controle
             if (Array.isArray(declaracaoVetor)) {
@@ -547,71 +546,109 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         ]);
     }
 
+    protected consomeSeSenao() {
+        this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `SE`.');
+        this.consumir(tiposDeSimbolos.NAO, 'Esperado expressão `NAO` após `QUE`.');
+        this.consumir(tiposDeSimbolos.VAI, 'Esperado expressão `VAI` após `NAO`.');
+        this.consumir(tiposDeSimbolos.DAR, 'Esperado expressão `DAR` após `VAI`.');
+        this.consumir(tiposDeSimbolos.O, 'Esperado expressão `O` após `DAR`.');
+        this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `O`.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado expressão `?` após `QUE`.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
+        const condicaoSeSenao = this.declaracao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
+
+        return {
+            condicaoSeSenao,
+        };
+    }
+
+    protected consomeSe() {
+        const simboloSe: SimboloInterface = this.consumir(tiposDeSimbolos.ELE, 'Esperado expressão `ELE`.');
+        this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `ELE`.');
+        this.consumir(tiposDeSimbolos.A, 'Esperado expressão `A` após `QUE`.');
+        this.consumir(tiposDeSimbolos.GENTE, 'Esperado expressão `GENTE` após `A`.');
+        this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `GENTE`.');
+        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado expressão `?` após `QUER`.');
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
+        const condicaoSe = this.declaracao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
+
+        return {
+            simboloSe,
+            condicaoSe,
+        };
+    }
+
+    consumeSenao() {
+        this.consumir(tiposDeSimbolos.NAO, 'Esperado expressão `NAO` após `SE`.');
+        this.consumir(tiposDeSimbolos.VAI, 'Esperado expressão `VAI` após `NAO`.');
+        this.consumir(tiposDeSimbolos.DAR, 'Esperado expressão `DAR` após `VAI`.');
+        this.consumir(tiposDeSimbolos.NAO, 'Esperado expressão `NAO` após `DAR`.');
+    }
+
     declaracaoSe(): Se {
-        const simboloSe: SimboloInterface = this.consumir(
-            tiposDeSimbolos.ELE,
-            'Esperado expressão `ELE` para condição.'
-        );
-        this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `ELE` para condição.');
-        this.consumir(tiposDeSimbolos.A, 'Esperado expressão `A` após `QUE` para condição.');
-        this.consumir(tiposDeSimbolos.GENTE, 'Esperado expressão `GENTE` após `A` para condição.');
-        this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `GENTE` para condição.');
-        this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `QUER` para condição.');
-        this.consumir(
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            'Esperado parêntese esquerdo após interrogação para condição.'
-        );
+        const { simboloSe, condicaoSe } = this.consomeSe();
 
-        const condicao = this.declaracao();
+        let declaracoesSe = [];
+        let declaracaoSeSeNao = [];
+        let declaracoesSenao = [];
 
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após condição.');
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            'Esperado quebra de linha após expressão de condição para condição.'
-        );
-        const declaracoes = [];
-        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUEBRA_LINHA)) {
-            this.consumir(tiposDeSimbolos.QUEBRA_LINHA, '');
-        }
-        let caminhoSenao = null;
-        do {
-            declaracoes.push(this.declaracao());
-
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)) {
-                const simboloSenao: SimboloInterface = this.consumir(
-                    tiposDeSimbolos.NAO,
-                    'Esperado expressão `NAO` após expressão de condição.'
-                );
-                this.consumir(tiposDeSimbolos.VAI, 'Esperado expressão `VAI` após `NAO`.');
-                this.consumir(tiposDeSimbolos.DAR, 'Esperado expressão `DAR` após `VAI`.');
-                this.consumir(tiposDeSimbolos.NAO, 'Esperado expressão `NAO` após `DAR`.');
-
-                const declaracaoSenao = [];
-
-                do {
-                    declaracaoSenao.push(this.declaracao());
-                } while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo));
-
-                caminhoSenao = new Bloco(
-                    this.hashArquivo,
-                    Number(simboloSe.linha),
-                    declaracaoSenao.filter((d) => d)
-                );
-                break;
+        while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo)) {
+            if (
+                this.verificarTipoSimboloAtual(tiposDeSimbolos.QUE) &&
+                !this.verificarTipoProximoSimbolo(tiposDeSimbolos.QUE)
+            ) {
+                let declaracoes = [];
+                const { condicaoSeSenao } = this.consomeSeSenao();
+                while (
+                    !(
+                        this.verificarTipoSimboloAtual(tiposDeSimbolos.QUE) &&
+                        !this.verificarTipoProximoSimbolo(tiposDeSimbolos.QUE)
+                    ) &&
+                    !this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)
+                ) {
+                    const declaracaoVetor = this.declaracao();
+                    if (Array.isArray(declaracaoVetor)) {
+                        declaracoes = declaracoes.concat(declaracaoVetor);
+                    } else {
+                        declaracoes.push(declaracaoVetor);
+                    }
+                }
+                declaracaoSeSeNao.push(new Se(condicaoSeSenao, new Bloco(this.hashArquivo, 0, declaracoes)));
+            } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)) {
+                this.consumeSenao();
+                while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+                    const declaracaoVetor = this.declaracao();
+                    if (Array.isArray(declaracaoVetor)) {
+                        declaracoesSenao = declaracoesSenao.concat(declaracaoVetor);
+                    } else {
+                        declaracoesSenao.push(declaracaoVetor);
+                    }
+                }
+            } else {
+                const declaracaoVetor = this.declaracao();
+                if (Array.isArray(declaracaoVetor)) {
+                    declaracoesSe = declaracoesSe.concat(declaracaoVetor);
+                } else {
+                    declaracoesSe.push(declaracaoVetor);
+                }
             }
-        } while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo));
-
-        this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` após expressão de condição.');
+        }
 
         return new Se(
-            condicao,
+            condicaoSe,
             new Bloco(
                 this.hashArquivo,
                 Number(simboloSe.linha),
-                declaracoes.filter((d) => d)
+                declaracoesSe.filter((d) => d)
             ),
-            [],
-            caminhoSenao
+            declaracaoSeSeNao,
+            new Bloco(
+                this.hashArquivo,
+                Number(simboloSe.linha),
+                declaracoesSenao.filter((d) => d)
+            )
         );
     }
 
