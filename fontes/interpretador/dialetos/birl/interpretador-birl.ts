@@ -4,6 +4,7 @@ import {
     FimPara,
     FormatacaoEscrita,
     Literal,
+    Logico,
     Super,
     TipoDe,
     Unario,
@@ -548,9 +549,34 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoLogica(expressao: any) {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoLogica(expressao: Logico): Promise<any> {
+        const esquerda = await this.avaliar(expressao.esquerda);
+
+        if (expressao.operador.tipo === tiposDeSimbolos.EM) {
+            const direita = await this.avaliar(expressao.direita);
+
+            if (Array.isArray(direita) || typeof direita === 'string') {
+                return direita.includes(esquerda);
+            } else if (direita.constructor === Object) {
+                return esquerda in direita;
+            } else {
+                throw new ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
+            }
+        }
+
+        // se um estado for verdadeiro, retorna verdadeiro
+        if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+            if (this.eVerdadeiro(esquerda)) return esquerda;
+        }
+
+        // se um estado for falso, retorna falso
+        if (expressao.operador.tipo === tiposDeSimbolos.E) {
+            if (!this.eVerdadeiro(esquerda)) return esquerda;
+        }
+
+        return await this.avaliar(expressao.direita);
     }
+
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
             if (declaracao.inicializador instanceof Array) {

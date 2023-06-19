@@ -284,8 +284,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-
-
     declaracaoEscreva(): Escreva {
         const primeiroSimbolo = this.consumir(tiposDeSimbolos.CE, 'Esperado expressão `CE` para escrever mensagem.');
         this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `CE` para escrever mensagem.');
@@ -301,12 +299,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         argumentos.push(this.declaracao());
 
-        while(!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
                 const variavelParaEscrita = this.declaracao();
                 argumentos.push(variavelParaEscrita);
             }
-
         }
 
         this.consumir(
@@ -626,7 +623,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         declaracoes.push(declaracaoVetor);
                     }
                 }
-                declaracaoSeSeNao.push(new Se(condicaoSeSenao, new Bloco(this.hashArquivo, 0, declaracoes)));
+                declaracaoSeSeNao.push(new Se(condicaoSeSenao, new Bloco(this.hashArquivo, 0, declaracoes), []));
             } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)) {
                 this.consumeSenao();
                 while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
