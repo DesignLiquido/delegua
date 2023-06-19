@@ -17,7 +17,10 @@ describe('Interpretador (EguaP)', () => {
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
                 it('Trivial', async () => {
-                    const retornoLexador = lexador.mapear(["var a = 1;"], -1);
+                    const retornoLexador = lexador.mapear([
+                        "var a = 1",
+                        "var b, c = 1, 2"
+                    ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
