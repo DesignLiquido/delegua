@@ -155,7 +155,7 @@ describe('Interpretador (EguaP)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                
+
             });
 
             describe('Laços de repetição', () => {
@@ -216,7 +216,7 @@ describe('Interpretador (EguaP)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
-                it.only('Fibonacci', async () => {
+                it('Fibonacci', async () => {
                     const codigo = [
                         "função fibonacci(n):",
                         "    se (n == 0):",
