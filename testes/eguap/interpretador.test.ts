@@ -157,6 +157,8 @@ describe('Interpretador (EguaP)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+
             });
 
             describe('Laços de repetição', () => {

@@ -15,14 +15,24 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it('Sucesso - declaração - escreva com variavel', async () => {
+            it('Sucesso - fizzbuzz', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW\n',
-                    '   FRANGO X = "testeeeeeeeeeeeeeeeeeeeeee";\n',
-                    '   CE QUER VER ESSA PORRA? ("A variavel X tem valor: %s\n", X);\n',
-                    '   BORA CUMPADE 0;\n',
+                    '    MONSTRO M;\n',
+                    '    MAIS QUERO MAIS (M = 1; M <= 100; M++)\n',
+                    '        ELE QUE A GENTE QUER? (M % 5 == 0 && M % 3 == 0)\n',
+                    '            CE QUER VER ESSA PORRA?("FizzBuzz\n");\n',
+                    '        QUE NAO VAI DAR O QUE? (M % 3 == 0)\n',
+                    '            CE QUER VER ESSA PORRA?("Fizz\n");\n',
+                    '        QUE NAO VAI DAR O QUE? (M % 5 == 0)\n',
+                    '            CE QUER VER ESSA PORRA?("Buzz\n");\n',
+                    '        NAO VAI DAR NAO\n',
+                    '            CE QUER VER ESSA PORRA?("%d\n", M);\n',
+                    '        BIRL\n',
+                    '    BIRL\n',
+                    '    BORA CUMPADE 0;\n',
                     'BIRL\n',
-                ])
+                ]);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -30,7 +40,7 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador).toBeTruthy();
                 expect(retornoInterpretador.erros).toHaveLength(0);
-            })
+            });
 
             it('Sucesso - declaração - chamarFuncao', async () => {
                 const retornoLexador = lexador.mapear([
