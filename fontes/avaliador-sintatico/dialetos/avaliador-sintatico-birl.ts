@@ -579,6 +579,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado expressão `?` após `QUER`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
         const condicaoSe = this.declaracao();
+        // @TODO: Verificar se é possível consumir os dois símbolos juntos.
+        // Consumindo n == 1 || n == 2 separado.
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
 
         return {
