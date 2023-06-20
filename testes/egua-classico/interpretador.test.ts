@@ -159,7 +159,7 @@ describe('Interpretador (Égua Clássico)', () => {
             describe('Laços de repetição', () => {
                 it('Laços de repetição - enquanto', async () => {
                     const retornoLexador = lexador.mapear(["var a = 0;\nenquanto (a < 10) { a = a + 1; }"]);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);""
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
