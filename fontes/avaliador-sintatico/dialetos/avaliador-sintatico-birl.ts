@@ -33,7 +33,6 @@ import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 import { Construto } from '../../construtos/construto';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
-import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
@@ -595,72 +594,68 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.NAO, 'Esperado expressão `NAO` após `DAR`.');
     }
 
-    declaracaoSe(): Se {
-        const { simboloSe, condicaoSe } = this.consomeSe();
-
-        let declaracoesSe = [];
-        let declaracaoSeSeNao = [];
-        let declaracoesSenao = [];
-
-        while (![tiposDeSimbolos.BIRL].includes(this.simbolos[this.atual].tipo)) {
-            if (
-                this.verificarTipoSimboloAtual(tiposDeSimbolos.QUE) &&
-                !this.verificarTipoProximoSimbolo(tiposDeSimbolos.QUE)
-            ) {
-                let declaracoes = [];
-                const { condicaoSeSenao } = this.consomeSeSenao();
-                while (
-                    !(
-                        this.verificarTipoSimboloAtual(tiposDeSimbolos.QUE) &&
-                        !this.verificarTipoProximoSimbolo(tiposDeSimbolos.QUE)
-                    ) &&
-                    !this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)
-                ) {
-                    const declaracaoVetor = this.declaracao();
-                    if (Array.isArray(declaracaoVetor)) {
-                        declaracoes = declaracoes.concat(declaracaoVetor);
-                    } else {
-                        declaracoes.push(declaracaoVetor);
+    resolveCaminhoSe() {
+        let controle: boolean = true;
+        const declaracoesEntao = [];
+        while (controle) {
+            switch (this.simbolos[this.atual].tipo) {
+                case tiposDeSimbolos.BIRL:
+                case tiposDeSimbolos.NAO:
+                    controle = false;
+                    break;
+                case tiposDeSimbolos.QUE:
+                    if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.NAO)) {
+                        controle = false;
+                        break;
                     }
-                }
-                declaracaoSeSeNao.push(new Se(condicaoSeSenao, new Bloco(this.hashArquivo, 0, declaracoes), []));
-            } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)) {
-                this.consumeSenao();
-                while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
-                    const declaracaoVetor = this.declaracao();
-                    if (Array.isArray(declaracaoVetor)) {
-                        declaracoesSenao = declaracoesSenao.concat(declaracaoVetor);
-                    } else {
-                        declaracoesSenao.push(declaracaoVetor);
-                    }
-                }
-            } else {
-                const declaracaoVetor = this.declaracao();
-                if (Array.isArray(declaracaoVetor)) {
-                    declaracoesSe = declaracoesSe.concat(declaracaoVetor);
-                } else {
-                    declaracoesSe.push(declaracaoVetor);
-                }
+                default:
+                    declaracoesEntao.push(this.declaracao());
             }
         }
 
-        return new Se(
-            condicaoSe,
-            new Bloco(
-                this.hashArquivo,
-                Number(simboloSe.linha),
-                declaracoesSe.filter((d) => d)
-            ),
-            declaracaoSeSeNao,
-            new Bloco(
-                this.hashArquivo,
-                Number(simboloSe.linha),
-                declaracoesSenao.filter((d) => d)
-            )
+        return new Bloco(
+            this.hashArquivo,
+            Number(this.simbolos[this.atual].linha),
+            declaracoesEntao.filter((d) => d)
         );
     }
 
-    resolveSimboloInterfaceParaTiposDadosInterface(simbolo: SimboloInterface): TiposDadosInterface {
+    declaracaoSe(): Se {
+        const { condicaoSe, simboloSe } = this.consomeSe();
+
+        const caminhoEntão = this.resolveCaminhoSe();
+
+        const caminhoSeSenao = [];
+
+        while (
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL) &&
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)
+        ) {
+            const { condicaoSeSenao } = this.consomeSeSenao();
+
+            const caminho = this.resolveCaminhoSe();
+
+            caminhoSeSenao.push({
+                condicao: condicaoSeSenao,
+                caminho: caminho,
+            });
+        }
+
+        let caminhoSenao = null;
+
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NAO)) {
+            this.consumeSenao();
+            const declaraçõesSenao = [];
+            while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+                declaraçõesSenao.push(this.declaracao());
+            }
+            caminhoSenao = new Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
+        }
+
+        return new Se(condicaoSe, caminhoEntão, caminhoSeSenao, caminhoSenao);
+    }
+
+    resolveSimboloInterfaceParaTiposDadosInterface(simbolo: SimboloInterface) {
         switch (simbolo.tipo) {
             case tiposDeSimbolos.TRAPEZIO:
                 this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DESCENDENTE);
