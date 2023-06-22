@@ -654,6 +654,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             caminhoSenao = new Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
         }
 
+        if(this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+            this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` após `SE`.')
+        }
+
         return new Se(condicaoSe, caminhoEntão, caminhoSeSenao, caminhoSenao);
     }
 
