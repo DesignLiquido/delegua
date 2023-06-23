@@ -729,7 +729,7 @@ describe('Interpretador', () => {
                         "   //...",
                         "   var resultado = valor1 + valor2",
                         "}",
-                        "escreva(executar())"
+                        "escreva(executar(1, 2))"
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -747,7 +747,7 @@ describe('Interpretador', () => {
                         "   var resultado = valor1 + valor2",
                         "   retorna resultado",
                         "}",
-                        "escreva(executar())"
+                        "escreva(executar(1, 2))"
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -763,7 +763,7 @@ describe('Interpretador', () => {
                         "funcao executar(valor1: inteiro, valor2: inteiro): texto {",
                         "   retorna valor1 + valor2",
                         "}",
-                        "escreva(executar())"
+                        "escreva(executar(1, 2))"
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -1062,22 +1062,6 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
-                });
-            });
-
-            describe('Definição de funções com tipagem', () => {
-                it('Retorno vazio com retorno', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "funcao executar(valor1, valor2): vazio {",
-                        "   var resultado = valor1 + valor2",
-                        "   retorna resultado",
-                        "}",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);

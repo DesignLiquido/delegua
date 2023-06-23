@@ -958,8 +958,16 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         let retorno: Declaracao[] = [];
 
         do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const tipos = ['inteiro', 'real', 'texto']
+            if (!tipos.includes(this.simboloAtual().lexema)) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            }
+            this.avancarEDevolverAnterior();
+        }
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             for (let [indice, identificador] of identificadores.entries()) {
@@ -997,10 +1005,18 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         const identificadores: SimboloInterface[] = [];
 
         do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const tipos = ['inteiro', 'real', 'texto']
+            if (!tipos.includes(this.simboloAtual().lexema)) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            }
+            this.avancarEDevolverAnterior();
+        }
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
 
         const inicializadores = [];
         do {
@@ -1126,7 +1142,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     }
                 }
             } else {
-                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido dentro da função.`)
+                if(tipoRetorno !== 'vazio'){
+                    this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                }
             }
         }
 
