@@ -38,7 +38,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             avaliadorSintatico = new AvaliadorSintatico();
         })
 
-        it.only('escreva -> console.log', () => {
+        it('escreva -> console.log', () => {
             const retornoLexador = lexador.mapear([
                 'escreva("Olá, mundo!")',
             ], -1);
@@ -49,6 +49,73 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/console\.log\('Olá, mundo!'\)/i);
+        })
+
+        describe('Variáveis', () => {
+            it('var -> let -> number -> f64', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a = 1',
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a: f64 = 1/i);
+            })
+
+            it('var -> let -> string -> string', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a = "teste"',
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a: string = 'teste'/i);
+            })
+
+            it.skip('var -> let -> BigInt -> i64', () => {
+                const bigInt = BigInt(123456789012345678901234567890);
+
+                const retornoLexador = lexador.mapear([
+                    'var a = ' + bigInt,
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+            })
+
+            it('var -> let -> boolean -> bool', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a = verdadeiro'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a: bool = true/i);
+            })
+            it('var -> sem inicializador -> let', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a;'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a/i);
+            })
         })
     })
 })
