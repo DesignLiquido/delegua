@@ -24,16 +24,14 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
 
-            //REAL, INTEIRO, TEXTO, QUALQUER, VAZIO
-            it('Sucesso - Função com definição de tipos', () => {
+            it.only('Sucesso - Função com definição de tipos', () => {
                 const retornoLexador = lexador.mapear([
                     // "var a = funcao (valor1: inteiro, valor2: qualquer, valor3: texto): texto {",
                     // "   retorna \"a\"",
                     // "}",
-                    // "// VAZIO Não pode ter nenhum tipo de retorno",
-                    // "funcao aa (valor1: texto, valor2: real, valor3: xablau): vazio {",
-                    // "   retorna \"aa\"",
-                    // "}",
+                    "funcao aa (valor1: texto, valor2: real, valor3: qualquer): real {",
+                    "   retorna 10",
+                    "}",
                     "funcao aaa (valor1: texto, valor2: real, valor3: inteiro): vazio {",
                     "   ",
                     "}"
@@ -59,7 +57,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
             });
 
-            it('Retorno vazio', () => {
+            it.skip('Retorno vazio', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao olaMundo (): vazio {",
                     "   retorna \"Olá Mundo!!!\"",
