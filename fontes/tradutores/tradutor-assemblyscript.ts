@@ -1,6 +1,6 @@
 import { Literal } from '../construtos';
 import {
-    Classe, Declaracao, Escreva, Var
+    Classe, Const, Declaracao, Escreva, Var
 } from '../declaracoes';
 
 export class TradutorAssemblyScript {
@@ -24,7 +24,7 @@ export class TradutorAssemblyScript {
         return literal.valor;
     }
 
-    resolveTipoDeclaracaoVar(literal: Literal): string {
+    resolveTipoDeclaracaoVarEContante(literal: Literal): string {
         switch(typeof literal.valor){
             case 'string':
                 return ': string'
@@ -47,7 +47,7 @@ export class TradutorAssemblyScript {
         resultado += declaracaoVar.simbolo.lexema;
         if (!declaracaoVar?.inicializador) resultado += ';';
         else {
-            resultado += this.resolveTipoDeclaracaoVar(declaracaoVar.inicializador as Literal)
+            resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVar.inicializador as Literal)
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
                 resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
@@ -56,6 +56,27 @@ export class TradutorAssemblyScript {
             } else {
                 resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
                     declaracaoVar.inicializador
+                );
+            }
+            resultado += ';';
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoConst(declaracaoConst: Const): string {
+        let resultado = 'const ';
+        resultado += declaracaoConst.simbolo.lexema;
+        if (!declaracaoConst?.inicializador) resultado += ';';
+        else {
+            resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConst.inicializador as Literal)
+            resultado += ' = ';
+            if (this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name](
+                    declaracaoConst.inicializador
+                );
+            } else {
+                resultado += this.dicionarioDeclaracoes[declaracaoConst.inicializador.constructor.name](
+                    declaracaoConst.inicializador
                 );
             }
             resultado += ';';
@@ -84,10 +105,8 @@ export class TradutorAssemblyScript {
 
     dicionarioDeclaracoes = {
         // Bloco: this.traduzirDeclaracaoBloco.bind(this),
-        // Classe: this.traduzirDeclaracaoClasse.bind(this),
-        // Const : this.traduzirDeclaracaoConst.bind(this),
-        Continua: () => 'continue',
         // Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        Continua: () => 'continue',
         // Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         // Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         // Fazer: this.traduzirDeclaracaoFazer.bind(this),
@@ -101,6 +120,8 @@ export class TradutorAssemblyScript {
         // Se: this.traduzirDeclaracaoSe.bind(this),
         // Sustar: () => 'break',
         // Tente: this.traduzirDeclaracaoTente.bind(this),
+        // Classe: this.traduzirDeclaracaoClasse.bind(this),
+        Const : this.traduzirDeclaracaoConst.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
     };

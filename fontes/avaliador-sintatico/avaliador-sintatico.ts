@@ -74,7 +74,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.erros = [];
         this.performance = performance;
     }
-    
+
     declaracaoDeVariavel(): Var {
         throw new Error("Método não implementado.");
     }
@@ -992,7 +992,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'."); // @TODO: Deveria ser constante no lugar de var
 
         const inicializadores = [];
         do {

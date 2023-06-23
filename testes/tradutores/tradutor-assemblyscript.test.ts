@@ -116,6 +116,66 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a/i);
             })
+            it('constante -> const -> number -> f64', () => {
+                const retornoLexador = lexador.mapear([
+                    'constante a = 1'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/const a: f64 = 1/i);
+            })
+            it('constante -> const -> string -> string', () => {
+                const retornoLexador = lexador.mapear([
+                    'constante a = "teste"',
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/const a: string = 'teste'/i);
+            })
+
+            it.skip('constante -> const -> BigInt -> i64', () => {
+                const bigInt = BigInt(123456789012345678901234567890);
+
+                const retornoLexador = lexador.mapear([
+                    'constante a = ' + bigInt,
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+            })
+
+            it('constante -> const -> boolean -> bool', () => {
+                const retornoLexador = lexador.mapear([
+                    'constante a = verdadeiro'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/const a: bool = true/i);
+            })
+            it.skip('constante -> sem inicializador -> const', () => {
+                const retornoLexador = lexador.mapear([
+                    'constante a;'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+
+                expect(tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)).toThrow()
+            })
         })
     })
 })
