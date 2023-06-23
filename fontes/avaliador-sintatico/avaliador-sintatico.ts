@@ -1125,7 +1125,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             let funcaoContemRetorno = corpo.find(c => c instanceof Retorna) as Retorna;
             if(funcaoContemRetorno){
                 if(tipoRetorno === 'vazio') {
-                    this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)                    
+                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)                    
                 }
 
                 const tipoValor = typeof funcaoContemRetorno.valor.valor;

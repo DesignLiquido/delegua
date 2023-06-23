@@ -223,7 +223,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros[0].message).toBe('Não pode haver mais de 255 parâmetros');
                 });
 
-                it('Retorno vazio mas com retorno de função', () => {
+                it('Retorno vazio mas com retorno de valor', () => {
                     const retornoLexador = lexador.mapear([
                         "funcao executar(valor1, valor2): vazio {",
                         "   var resultado = valor1 + valor2",
