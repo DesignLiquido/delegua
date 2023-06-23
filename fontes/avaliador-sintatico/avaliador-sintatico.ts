@@ -99,6 +99,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
+    verificarDefinicaoTipoAtual(): string {
+        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio']
+
+        const contemTipo = tipos.find(tipo => tipo === this.simboloAtual().lexema.toLowerCase())
+
+        return contemTipo;
+    }
+
     simboloAtual(): SimboloInterface {
         return this.simbolos[this.atual];
     }
@@ -1052,6 +1060,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             parametros.push(parametro as ParametroInterface);
 
             if (parametro.abrangencia === 'multiplo') break;
+
+            if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                let comtemDefinicaoTipo = this.verificarDefinicaoTipoAtual();
+
+                if(!comtemDefinicaoTipo) {
+                    this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`)
+                } else {
+                    this.avancarEDevolverAnterior();
+                }
+            }
+
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }
@@ -1070,9 +1089,46 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+
+        let tipoRetorno = null;
+        if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            tipoRetorno = this.verificarDefinicaoTipoAtual();
+
+            if(!tipoRetorno){
+                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido após ':'`)
+            }
+
+            this.avancarEDevolverAnterior();
+        }
+
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
+
+        if(tipoRetorno){
+            let funcaoContemRetorno = corpo.find(c => c instanceof Retorna) as Retorna;
+            if(funcaoContemRetorno){
+                if(tipoRetorno === 'vazio') {
+                    this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)                    
+                }
+
+                const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                if (!['qualquer'].includes(tipoRetorno)) {
+                    if(tipoValor === 'string') {
+                        if(tipoRetorno != 'texto'){
+                            this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                        }
+                    }
+                    if (tipoValor === 'number') {
+                        if (!['inteiro', 'real'].includes(tipoRetorno)) {
+                            this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                        }
+                    }
+                }
+            } else {
+                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido dentro da função.`)
+            }
+        }
 
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     }
