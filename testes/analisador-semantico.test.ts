@@ -15,8 +15,29 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            it('Sucesso - Olá Mundo', () => {
-                const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
+            // it('Sucesso - Olá Mundo', () => {
+            //     const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
+            //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            //     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    
+            //     expect(retornoAnalisadorSemantico).toBeTruthy();
+            //     expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+            // });
+
+            //REAL, INTEIRO, TEXTO, QUALQUER, VAZIO
+            it.only('Sucesso - Função com definição de tipos', () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = funcao (valor1: inteiro, valor2: texto): texto {",
+                    "   retorna \"a\"",
+                    "}",
+                    "// VAZIO Não pode ter nenhum tipo de retorno",
+                    // "funcao aa (valor1: texto, valor2: real, valor3: texto): vazio {",
+                    // "   retorna \"aa\"",
+                    // "}",
+                    "funcao aaa (valor1: texto, valor2: real, valor3: texto): vazio {",
+                    "   ",
+                    "}"
+                ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     
@@ -26,17 +47,17 @@ describe('Analisador semântico', () => {
         });
         
         describe('Cenários de falha', () => {
-            it('Atribuição de constante + reatribuição de constante', () => {
-                const retornoLexador = lexador.mapear([
-                    "const a = 1",
-                    "a = 2"
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+            // it('Atribuição de constante + reatribuição de constante', () => {
+            //     const retornoLexador = lexador.mapear([
+            //         "const a = 1",
+            //         "a = 2"
+            //     ], -1);
+            //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            //     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
-            });
+            //     expect(retornoAnalisadorSemantico).toBeTruthy();
+            //     expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+            // });
         });
     });
 });

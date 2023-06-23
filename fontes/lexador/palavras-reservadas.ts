@@ -23,6 +23,7 @@ export const palavrasReservadas = {
     função: tiposDeSimbolos.FUNÇÃO,
     herda: tiposDeSimbolos.HERDA,
     importar: tiposDeSimbolos.IMPORTAR,
+    // inteiro: tiposDeSimbolos.INTEIRO,
     isto: tiposDeSimbolos.ISTO,
     leia: tiposDeSimbolos.LEIA,
     nulo: tiposDeSimbolos.NULO,
@@ -31,6 +32,8 @@ export const palavrasReservadas = {
     para: tiposDeSimbolos.PARA,
     pausa: tiposDeSimbolos.PAUSA,
     pegue: tiposDeSimbolos.PEGUE,
+    qualquer: tiposDeSimbolos.QUALQUER,
+    // real: tiposDeSimbolos.REAL,
     retorna: tiposDeSimbolos.RETORNA,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
@@ -38,11 +41,13 @@ export const palavrasReservadas = {
     super: tiposDeSimbolos.SUPER,
     sustar: tiposDeSimbolos.SUSTAR,
     tente: tiposDeSimbolos.TENTE,
+    // texto: tiposDeSimbolos.TEXTO,
     tipo: tiposDeSimbolos.TIPO,
     var: tiposDeSimbolos.VARIAVEL,
     variavel: tiposDeSimbolos.VARIAVEL,
     variável: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
+    vazio: tiposDeSimbolos.VAZIO
 };
 
 export const palavrasReservadasMicroGramatica = {

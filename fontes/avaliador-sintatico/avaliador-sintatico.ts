@@ -1052,6 +1052,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             parametros.push(parametro as ParametroInterface);
 
             if (parametro.abrangencia === 'multiplo') break;
+
+            if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                let comtemDefinicaoTipo = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO, tiposDeSimbolos.QUALQUER, tiposDeSimbolos.VAZIO)
+    
+                if(!comtemDefinicaoTipo) {
+                    this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado um tipo válido para a variável.`);
+                }
+            }
+
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }
@@ -1070,9 +1079,25 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+
+        // let contemTipoRetornoVazio = false;
+        // if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+        //     let comtemTipoRetorno = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO, tiposDeSimbolos.QUALQUER)
+
+        //     contemTipoRetornoVazio = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAZIO);
+
+        //     if(!contemTipoRetornoVazio && !comtemTipoRetorno) {
+        //         this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado um tipo de retorno válido para a função.`);
+        //     }
+        // }
+
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
+
+        // if(contemTipoRetornoVazio && corpo.some(c => c instanceof Retorna)) {
+        //     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Função definida com retorno 'vazio', não pode ter nenhum tipo de retorno dentro da função`);
+        // }
 
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     }
