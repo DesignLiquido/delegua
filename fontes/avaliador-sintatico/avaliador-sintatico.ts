@@ -99,6 +99,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
+    verificarDefinicaoTipoAtual(): string {
+        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio']
+
+        const contemTipo = tipos.find(tipo => tipo === this.simboloAtual().lexema.toLowerCase())
+
+        return contemTipo;
+    }
+
     simboloAtual(): SimboloInterface {
         return this.simbolos[this.atual];
     }
@@ -1054,10 +1062,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             if (parametro.abrangencia === 'multiplo') break;
 
             if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                let comtemDefinicaoTipo = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO, tiposDeSimbolos.QUALQUER, tiposDeSimbolos.VAZIO)
-    
+                let comtemDefinicaoTipo = this.verificarDefinicaoTipoAtual();
+
                 if(!comtemDefinicaoTipo) {
-                    this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado um tipo válido para a variável.`);
+                    this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`)
+                } else {
+                    this.avancarEDevolverAnterior();
                 }
             }
 
@@ -1080,24 +1090,45 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
-        // let contemTipoRetornoVazio = false;
-        // if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-        //     let comtemTipoRetorno = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO, tiposDeSimbolos.QUALQUER)
+        let tipoRetorno = null;
+        if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            tipoRetorno = this.verificarDefinicaoTipoAtual();
 
-        //     contemTipoRetornoVazio = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAZIO);
+            if(!tipoRetorno){
+                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido após ':'`)
+            }
 
-        //     if(!contemTipoRetornoVazio && !comtemTipoRetorno) {
-        //         this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado um tipo de retorno válido para a função.`);
-        //     }
-        // }
+            this.avancarEDevolverAnterior();
+        }
 
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
 
-        // if(contemTipoRetornoVazio && corpo.some(c => c instanceof Retorna)) {
-        //     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Função definida com retorno 'vazio', não pode ter nenhum tipo de retorno dentro da função`);
-        // }
+        if(tipoRetorno){
+            let funcaoContemRetorno = corpo.find(c => c instanceof Retorna) as Retorna;
+            if(funcaoContemRetorno){
+                if(tipoRetorno === 'vazio') {
+                    this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)                    
+                }
+
+                const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                if (!['qualquer'].includes(tipoRetorno)) {
+                    if(tipoValor === 'string') {
+                        if(tipoRetorno != 'texto'){
+                            this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                        }
+                    }
+                    if (tipoValor === 'number') {
+                        if (!['inteiro', 'real'].includes(tipoRetorno)) {
+                            this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                        }
+                    }
+                }
+            } else {
+                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido dentro da função.`)
+            }
+        }
 
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     }
