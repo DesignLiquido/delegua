@@ -24,7 +24,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
 
-            it.only('Sucesso - Função com definição de tipos', () => {
+            it('Sucesso - Função com definição de tipos', () => {
                 const retornoLexador = lexador.mapear([
                     // "var a = funcao (valor1: inteiro, valor2: qualquer, valor3: texto): texto {",
                     // "   retorna \"a\"",
