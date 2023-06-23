@@ -31,7 +31,6 @@ export const palavrasReservadas = {
     para: tiposDeSimbolos.PARA,
     pausa: tiposDeSimbolos.PAUSA,
     pegue: tiposDeSimbolos.PEGUE,
-    qualquer: tiposDeSimbolos.QUALQUER,
     retorna: tiposDeSimbolos.RETORNA,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
@@ -44,7 +43,6 @@ export const palavrasReservadas = {
     variavel: tiposDeSimbolos.VARIAVEL,
     variável: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
-    vazio: tiposDeSimbolos.VAZIO
 };
 
 export const palavrasReservadasMicroGramatica = {

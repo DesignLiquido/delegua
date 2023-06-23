@@ -69,7 +69,6 @@ export default {
     PEGUE: 'PEGUE',
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
-    QUALQUER: 'QUALQUER',
     REAL: 'REAL',
     RETORNA: 'RETORNA',
     SUBTRACAO: 'SUBTRACAO',
@@ -82,7 +81,6 @@ export default {
     TEXTO: 'TEXTO',
     TIPO: 'TIPO',
     VARIAVEL: 'VARIAVEL',
-    VAZIO: 'VAZIO',
     VERDADEIRO: 'VERDADEIRO',
     VIRGULA: 'VIRGULA',
 };
