@@ -63,7 +63,8 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 
 ## Aplicações
 
-- [Escrita de aplicações para Internet, usando o ferramentário (_framework_) liquido](https://github.com/DesignLiquido/liquido).
+- [Escrita de aplicações para Internet, usando o ferramentário (_framework_) liquido](https://github.com/DesignLiquido/liquido);
+- [Aplicações em React Native](https://github.com/0thigs/StarDust).
 
 ## Instalação
 
