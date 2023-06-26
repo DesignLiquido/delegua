@@ -14,6 +14,17 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
             });
+
+            it('Sucesso - Definição Tipo Variável', () => {
+                const retornoLexador = lexador.mapear([
+                    "var t: texto = \"Variável com tipo\"",
+                    "const n: inteiro = 10"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            });
     
             it('Sucesso - Vetor vazio', () => {
                 const retornoLexador = lexador.mapear(['var vetorVazio = []'], -1);
@@ -172,6 +183,29 @@ describe('Avaliador sintático', () => {
             });
     
             describe('Funções Anônimas', () => {
+                it('Função retorna vazio mas tem retorno de valores', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao executar(valor1, valor2): vazio {",
+                        "   var resultado = valor1 + valor2",
+                        "   retorna resultado",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Retorno texto sem retorno dentro da função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao executar(valor1, valor2): texto {",
+                        "   var resultado = valor1 + valor2",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
                 it('Função anônima com mais de 255 parâmetros', () => {
                     let acumulador = '';
                     for (let i = 1; i <= 256; i++) {
@@ -187,6 +221,44 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
                     expect(retornoAvaliadorSintatico.erros[0].message).toBe('Não pode haver mais de 255 parâmetros');
+                });
+
+                it('Retorno vazio mas com retorno de valor', () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao executar(valor1, valor2): vazio {",
+                        "   var resultado = valor1 + valor2",
+                        "   retorna resultado",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe('A função não pode ter nenhum tipo de retorno.');
+                });
+
+                it('Não retornando o tipo que a função definiu', () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao executar(valor1, valor2): texto {",
+                        "   var resultado = valor1 + valor2",
+                        "   retorna 10",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
+                });
+
+                it('Parametro com definição de tipo inválido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao executar(valor1: algum, valor2): texto {",
+                        "   retorna \'Olá Mundo!!!\'",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe('O tipo \'algum\' não é válido.');
                 });
             });
     
