@@ -9,7 +9,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
     const tradutor: TradutorAssemblyScript = new TradutorAssemblyScript();
 
     describe('Programático', () => {
-        it.skip('se -> if, programático', () => {
+        it('se -> if, programático', () => {
             const se = new Se(
                 new Binario(
                     -1,
@@ -209,6 +209,120 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: f64 = 1.1/i);
             })
+            it('falhar - throw', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'falhar \"erro inesperado!\"',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/throw 'erro inesperado!'/i);
+            });
+            it('tipo de - typeof', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'escreva(tipo de 1)',
+                        'escreva(tipo de \'2\')',
+                        'escreva(tipo de nulo)',
+                        'escreva(tipo de [1, 2, 3])',
+                        // 'classe Cachorro {}',
+                        // 'escreva(tipo de Cachorro)'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/typeof 1/i);
+                expect(resultado).toMatch(/typeof \'2\'/i);
+                expect(resultado).toMatch(/typeof null/i);
+                expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
+            });
+
+            it('bit a bit', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'escreva(8 | 1)',
+                        'escreva(8 & 1)',
+                        'escreva(8 ^ 1)',
+                        'escreva(~2)',
+                        'var a = 3',
+                        'var c = -a + 3'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/console\.log\(8 | 1\)/i);
+                expect(resultado).toMatch(/console\.log\(8 & 1\)/i);
+                expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
+                expect(resultado).toMatch(/console\.log\(~2\)/i);
+                expect(resultado).toMatch(/let a: f64 = 3/i);
+                expect(resultado).toMatch(/let c = -a \+ 3/i);
+            });
+            it.skip('vetor acesso indice -> array/index', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var vetor = [1, \'2\']',
+                        'vetor[0] = 3',
+                        'vetor[1] = vetor[0]'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let vetor: f64[] = \[1, \'2\'\];/i);
+                expect(resultado).toMatch(/vetor\[0\] = 3/i);
+                expect(resultado).toMatch(/vetor\[1\] = vetor\[0\]/i);
+            });
+            it('declarando variável const/constante/fixo', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'const a = 1;',
+                        'constante b = 2;',
+                        'fixo c = 3;',
+                        'const d, f, g = 1, 2, 3'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/const a: f64 = 1;/i);
+                expect(resultado).toMatch(/const b: f64 = 2;/i);
+                expect(resultado).toMatch(/const c: f64 = 3;/i);
+                expect(resultado).toMatch(/const d: f64 = 1;/i);
+                expect(resultado).toMatch(/const f: f64 = 2;/i);
+                expect(resultado).toMatch(/const g: f64 = 3;/i);
+            });
+            it.skip('definindo funcao com variavel', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var a = funcao(parametro1: inteiro, parametro2: inteiro) { escreva(\'Oi\')\nescreva(\'Olá\') }',
+                        'a(1, 2)'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a = function\(parametro1, parametro2\) {/i);
+                expect(resultado).toMatch(/console\.log\('Oi'\)/i);
+                expect(resultado).toMatch(/console\.log\('Olá'\)/i);
+                expect(resultado).toMatch(/a\(1, 2\)/i);
+            });
         })
+
     })
 })
