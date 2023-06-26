@@ -176,6 +176,39 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
                 expect(tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)).toThrow()
             })
+            it('var -> let com tipo iniciado -> number -> f64', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a: inteiro = 1'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a: f64 = 1/i);
+            })
+            it('var -> let com tipo iniciado -> string -> string', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a: texto = "teste"'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a: string = 'teste'/i);
+            })
+            it('var -> let com tipo iniciado -> real -> f64', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a: real = 1.1'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a: f64 = 1.1/i);
+            })
         })
     })
 })
