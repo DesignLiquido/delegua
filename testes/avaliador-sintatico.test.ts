@@ -262,6 +262,17 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros[0].message).toBe('O tipo \'algum\' não é válido.');
                 });
+
+                it('Função com retorno de vetor', () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao executar(): texto[] {",
+                        "   retorna [\"1\", \"2\"]",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
             });
     
             it('Declaração `tente`', () => {

@@ -100,9 +100,31 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     }
 
     verificarDefinicaoTipoAtual(): string {
-        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio']
+        const tipos = [
+            'inteiro',
+            'qualquer',
+            'real',
+            'texto',
+            'vazio'
+        ]
 
-        const contemTipo = tipos.find(tipo => tipo === this.simboloAtual().lexema.toLowerCase())
+        const lexema = this.simboloAtual().lexema.toLowerCase();
+        const contemTipo = tipos.find(tipo => tipo === lexema);
+
+        if(contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]']
+            this.avancarEDevolverAnterior();
+
+            if(!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                throw this.erro(this.simbolos[this.atual], 'Esperado símbolo de fechamento do vetor \']\'.');
+            }
+
+            const contemTipoVetor = tiposVetores.find(tipo => tipo === `${lexema}[]`);
+
+            this.avancarEDevolverAnterior();
+
+            return contemTipoVetor
+        }
 
         return contemTipo;
     }
