@@ -978,15 +978,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 if(inicializador instanceof Vetor) {
                     const vetor = inicializador as Vetor;
                     if(tipo === 'inteiro[]') {
-                        for(let e of vetor.valores) {
-                            if(typeof e.valor !== 'number') {
+                        for(let elemento of vetor.valores) {
+                            if(typeof elemento.valor !== 'number') {
                                 throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de \'inteiros\' ou \'real\'.");
                             }
                         }
                     }
                     if(tipo === 'texto[]'){
-                        for(let e of vetor.valores) {
-                            if(typeof e.valor !== 'string') {
+                        for(let elemento of vetor.valores) {
+                            if(typeof elemento.valor !== 'string') {
                                 throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de texto.");
                             }
                         }
@@ -1036,7 +1036,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             for (let [indice, identificador] of identificadores.entries()) {
-                retorno.push(new Var(identificador, null));
+                retorno.push(new Var(identificador, null, tipo));
             }
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
             return retorno;
