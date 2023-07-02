@@ -15,7 +15,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
             });
 
-            it.only('Sucesso - Definição Tipo Variável', () => {
+            it('Sucesso - Definição Tipo Variável', () => {
                 const retornoLexador = lexador.mapear([
                     "var t: texto = \"Variável com tipo\"",
                     "const n: inteiro = 10",
