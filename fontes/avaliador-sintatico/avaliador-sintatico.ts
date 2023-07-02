@@ -972,7 +972,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.declaracaoExpressao();
     }
 
-    verificarAtribuicao(tipo: string, inicializador: any) {
+    verificarTipoAtribuido(tipo: string, inicializador: any) {
         if(tipo) {
             if(['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(tipo)) {
                 if(inicializador instanceof Vetor) {
@@ -1057,7 +1057,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             const inicializador = inicializadores[indice];
 
-            this.verificarAtribuicao(tipo, inicializador);
+            this.verificarTipoAtribuido(tipo, inicializador);
 
             retorno.push(new Var(identificador, inicializador, tipo));
         }
@@ -1104,7 +1104,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
             const inicializador = inicializadores[indice];
 
-            this.verificarAtribuicao(tipo, inicializador);
+            this.verificarTipoAtribuido(tipo, inicializador);
 
             retorno.push(new Const(identificador, inicializadores[indice], tipo));
         }
