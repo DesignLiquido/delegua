@@ -980,19 +980,19 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                     if(tipo === 'inteiro[]') {
                         for(let elemento of vetor.valores) {
                             if(typeof elemento.valor !== 'number') {
-                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de \'inteiros\' ou \'real\'.");
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de \'inteiros\' ou \'real\'.");
                             }
                         }
                     }
                     if(tipo === 'texto[]'){
                         for(let elemento of vetor.valores) {
                             if(typeof elemento.valor !== 'string') {
-                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de texto.");
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de \'texto\'.");
                             }
                         }
                     }
                 } else {
-                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de elementos.");
+                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de elementos.");
                 }
             }
 
@@ -1000,12 +1000,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 const literal = inicializador as Literal;
                 if(tipo === 'texto') {
                     if(typeof literal.valor !== 'string') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um texto.");
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um \'texto\'.");
                     }
                 }
                 if(['inteiro', 'real'].includes(tipo)) {
                     if(typeof literal.valor !== 'number') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um número.");
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um \'número\'.");
                     }
                 }
             }
