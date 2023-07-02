@@ -105,7 +105,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             'qualquer',
             'real',
             'texto',
-            'vazio'
+            'vazio',
+            'vetor'
         ]
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
@@ -971,6 +972,46 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return this.declaracaoExpressao();
     }
 
+    verificarAtribuicao(tipo: string, inicializador: any) {
+        if(tipo) {
+            if(['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(tipo)) {
+                if(inicializador instanceof Vetor) {
+                    const vetor = inicializador as Vetor;
+                    if(tipo === 'inteiro[]') {
+                        for(let e of vetor.valores) {
+                            if(typeof e.valor !== 'number') {
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de \'inteiros\' ou \'real\'.");
+                            }
+                        }
+                    }
+                    if(tipo === 'texto[]'){
+                        for(let e of vetor.valores) {
+                            if(typeof e.valor !== 'string') {
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de texto.");
+                            }
+                        }
+                    }
+                } else {
+                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de elementos.");
+                }
+            }
+
+            if(inicializador instanceof Literal) {
+                const literal = inicializador as Literal;
+                if(tipo === 'texto') {
+                    if(typeof literal.valor !== 'string') {
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um texto.");
+                    }
+                }
+                if(['inteiro', 'real'].includes(tipo)) {
+                    if(typeof literal.valor !== 'number') {
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um número.");
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
@@ -985,12 +1026,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipos = ['inteiro', 'real', 'texto', 'vetor']
-            const lexema = this.simboloAtual().lexema;
-            if (!tipos.includes(lexema)) {
-                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            const tipoVariavel = this.verificarDefinicaoTipoAtual();
+            if (!tipoVariavel) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na variável não é válido.");
             }
-            tipo = lexema;
+            tipo = tipoVariavel;
             this.avancarEDevolverAnterior();
         }
 
@@ -1014,7 +1054,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Var(identificador, inicializadores[indice], tipo));
+
+            const inicializador = inicializadores[indice];
+
+            this.verificarAtribuicao(tipo, inicializador);
+
+            retorno.push(new Var(identificador, inicializador, tipo));
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -1035,12 +1080,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipos = ['inteiro', 'real', 'texto', 'vetor'];
-            const lexema = this.simboloAtual().lexema;
-            if (!tipos.includes(this.simboloAtual().lexema)) {
-                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            const tipoConstante = this.verificarDefinicaoTipoAtual();
+            if (!tipoConstante) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na constante não é válido.");
             }
-            tipo = lexema;
+            tipo = tipoConstante;
             this.avancarEDevolverAnterior();
         }
 
@@ -1057,6 +1101,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         let retorno: Declaracao[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
+
+            const inicializador = inicializadores[indice];
+
+            this.verificarAtribuicao(tipo, inicializador);
+
             retorno.push(new Const(identificador, inicializadores[indice], tipo));
         }
 
