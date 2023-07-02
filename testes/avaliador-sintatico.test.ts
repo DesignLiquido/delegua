@@ -18,12 +18,14 @@ describe('Avaliador sintático', () => {
             it('Sucesso - Definição Tipo Variável', () => {
                 const retornoLexador = lexador.mapear([
                     "var t: texto = \"Variável com tipo\"",
-                    "const n: inteiro = 10"
+                    "const n: inteiro = 10",
+                    "var v1: vetor = [1, 2, 3]",
+                    "const v2: vetor = [1, 2, 3]"
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
     
             it('Sucesso - Vetor vazio', () => {

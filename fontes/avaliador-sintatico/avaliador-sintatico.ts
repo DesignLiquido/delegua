@@ -956,16 +956,19 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
     declaracaoDeVariaveis(): any {
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
+        let tipo: any = null;
 
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipos = ['inteiro', 'real', 'texto']
-            if (!tipos.includes(this.simboloAtual().lexema)) {
+            const tipos = ['inteiro', 'real', 'texto', 'vetor']
+            const lexema = this.simboloAtual().lexema;
+            if (!tipos.includes(lexema)) {
                 throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
             }
+            tipo = lexema;
             this.avancarEDevolverAnterior();
         }
 
@@ -989,7 +992,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Var(identificador, inicializadores[indice]));
+            retorno.push(new Var(identificador, inicializadores[indice], tipo));
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -1003,16 +1006,19 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
      */
     declaracaoDeConstantes(): any {
         const identificadores: SimboloInterface[] = [];
+        let tipo: any = null;
 
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipos = ['inteiro', 'real', 'texto']
+            const tipos = ['inteiro', 'real', 'texto', 'vetor'];
+            const lexema = this.simboloAtual().lexema;
             if (!tipos.includes(this.simboloAtual().lexema)) {
                 throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
             }
+            tipo = lexema;
             this.avancarEDevolverAnterior();
         }
 
@@ -1029,7 +1035,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
 
         let retorno: Declaracao[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Const(identificador, inicializadores[indice]));
+            retorno.push(new Const(identificador, inicializadores[indice], tipo));
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
