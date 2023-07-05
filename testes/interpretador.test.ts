@@ -21,7 +21,14 @@ describe('Interpretador', () => {
                         "var a = 1",
                         "variavel b = 2",
                         "variável c = 3",
-                        "var a1, a2, a3 = 1, 2, 3"
+                        "var a1, a2, a3 = 1, 2, 3",
+                        "var bb1, bb2, bb3: vetor = [1, 2, 3], ['1', '2', '3'], ['Olá Mundo!']",
+
+                        "const aa = 1",
+                        "constante bb = 2",
+                        "fixo cc = 3",
+                        "const aa1, aa2, aa3 = 1, 2, 3",
+                        "const bb1, bb2, bb3: vetor = [1, 2, 3], ['1', '2', '3'], ['Olá Mundo!']",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
