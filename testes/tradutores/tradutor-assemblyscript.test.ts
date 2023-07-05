@@ -54,7 +54,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
         describe('Variáveis', () => {
             it('var -> let -> number -> f64', () => {
                 const retornoLexador = lexador.mapear([
-                    'var a = 1',
+                    'var a: inteiro;',
                 ], -1)
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
@@ -323,6 +323,5 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/a\(1, 2\)/i);
             });
         })
-
     })
 })
