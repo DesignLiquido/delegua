@@ -1,4 +1,21 @@
-import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoPorIndice, Atribuir, Binario, Chamada, DefinirValor, FuncaoConstruto, Isto, Literal, Logico, TipoDe, Unario, Variavel, Vetor } from '../construtos';
+import {
+    AcessoIndiceVariavel,
+    AcessoMetodo,
+    Agrupamento,
+    AtribuicaoPorIndice,
+    Atribuir,
+    Binario,
+    Chamada,
+    DefinirValor,
+    FuncaoConstruto,
+    Isto,
+    Literal,
+    Logico,
+    TipoDe,
+    Unario,
+    Variavel,
+    Vetor,
+} from '../construtos';
 import {
     Bloco,
     Classe,
@@ -77,7 +94,7 @@ export class TradutorAssemblyScript {
             case 'empilhar':
                 return 'push';
             case 'concatenar':
-                return 'concat'
+                return 'concat';
             case 'fatiar':
                 return 'slice';
             case 'inclui':
@@ -122,30 +139,35 @@ export class TradutorAssemblyScript {
         return literal.valor;
     }
 
-    resolveTipoDeclaracaoVarEContante(literal: Literal): string {
-        switch (typeof literal.valor) {
-            case 'string':
+    resolveTipoDeclaracaoVarEContante(tipo: string): string {
+        switch (tipo) {
+            case 'texto':
                 return ': string';
-            case 'number':
+            case 'inteiro':
+            case 'real':
                 return ': f64';
-            case 'boolean':
+            case 'logico':
                 return ': bool';
-            case 'bigint':
-                return ': i64';
-            case 'function':
-            case 'object':
-            case 'undefined':
+            case 'nulo':
+                return ': null';
+            case 'inteiro[]':
+            case 'real[]':
+                return ': f64[]';
+            case 'texto[]':
+                return ': string[]';
+            case 'logico[]':
+                return ': bool[]';
             default:
-                return '';
+                return ': any';
         }
     }
 
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema;
+        resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVar.tipo);
         if (!declaracaoVar?.inicializador) resultado += ';';
         else {
-            resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVar.inicializador as Literal);
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
                 resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
@@ -164,9 +186,9 @@ export class TradutorAssemblyScript {
     traduzirDeclaracaoConst(declaracaoConst: Const): string {
         let resultado = 'const ';
         resultado += declaracaoConst.simbolo.lexema;
+        resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConst.tipo);
         if (!declaracaoConst?.inicializador) resultado += ';';
         else {
-            resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConst.inicializador as Literal);
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name]) {
                 resultado += this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name](
@@ -593,8 +615,7 @@ export class TradutorAssemblyScript {
 
         resultado += AtribuicaoPorIndice.objeto.simbolo.lexema + '[';
         resultado +=
-            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) +
-            ']';
+            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) + ']';
         resultado += ' = ';
 
         if (AtribuicaoPorIndice?.valor?.simbolo?.lexema) {

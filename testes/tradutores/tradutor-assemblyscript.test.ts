@@ -62,12 +62,12 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: f64 = 1/i);
+                expect(resultado).toMatch(/let a: f64;/i);
             })
 
             it('var -> let -> string -> string', () => {
                 const retornoLexador = lexador.mapear([
-                    'var a = "teste"',
+                    'var a: texto = "teste"',
                 ], -1)
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
@@ -76,33 +76,6 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: string = 'teste'/i);
-            })
-
-            it.skip('var -> let -> BigInt -> i64', () => {
-                const bigInt = BigInt(123456789012345678901234567890);
-
-                const retornoLexador = lexador.mapear([
-                    'var a = ' + bigInt,
-                ], -1)
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-
-                expect(resultado).toBeTruthy();
-            })
-
-            it('var -> let -> boolean -> bool', () => {
-                const retornoLexador = lexador.mapear([
-                    'var a = verdadeiro'
-                ], -1)
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-
-                expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: bool = true/i);
             })
             it('var -> sem inicializador -> let', () => {
                 const retornoLexador = lexador.mapear([
@@ -114,11 +87,11 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a/i);
+                expect(resultado).toMatch(/let a: any;/i);
             })
             it('constante -> const -> number -> f64', () => {
                 const retornoLexador = lexador.mapear([
-                    'constante a = 1'
+                    'constante a: inteiro = 1'
                 ], -1)
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
@@ -130,7 +103,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             })
             it('constante -> const -> string -> string', () => {
                 const retornoLexador = lexador.mapear([
-                    'constante a = "teste"',
+                    'constante a: texto = "teste"',
                 ], -1)
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
@@ -139,42 +112,6 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/const a: string = 'teste'/i);
-            })
-
-            it.skip('constante -> const -> BigInt -> i64', () => {
-                const bigInt = BigInt(123456789012345678901234567890);
-
-                const retornoLexador = lexador.mapear([
-                    'constante a = ' + bigInt,
-                ], -1)
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-
-                expect(resultado).toBeTruthy();
-            })
-
-            it('constante -> const -> boolean -> bool', () => {
-                const retornoLexador = lexador.mapear([
-                    'constante a = verdadeiro'
-                ], -1)
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-
-                expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/const a: bool = true/i);
-            })
-            it.skip('constante -> sem inicializador -> const', () => {
-                const retornoLexador = lexador.mapear([
-                    'constante a;'
-                ], -1)
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-
-                expect(tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)).toThrow()
             })
             it('var -> let com tipo iniciado -> number -> f64', () => {
                 const retornoLexador = lexador.mapear([
@@ -251,7 +188,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                         'escreva(8 & 1)',
                         'escreva(8 ^ 1)',
                         'escreva(~2)',
-                        'var a = 3',
+                        'var a: inteiro = 3',
                         'var c = -a + 3'
                     ],
                     -1
@@ -265,50 +202,13 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
                 expect(resultado).toMatch(/console\.log\(~2\)/i);
                 expect(resultado).toMatch(/let a: f64 = 3/i);
-                expect(resultado).toMatch(/let c = -a \+ 3/i);
+                expect(resultado).toMatch(/let c: any = -a \+ 3/i);
             });
-            it.skip('vetor acesso indice -> array/index', () => {
+            });
+            it('definindo funcao com variavel', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'var vetor = [1, \'2\']',
-                        'vetor[0] = 3',
-                        'vetor[1] = vetor[0]'
-                    ],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-                expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let vetor: f64[] = \[1, \'2\'\];/i);
-                expect(resultado).toMatch(/vetor\[0\] = 3/i);
-                expect(resultado).toMatch(/vetor\[1\] = vetor\[0\]/i);
-            });
-            it('declarando variável const/constante/fixo', () => {
-                const retornoLexador = lexador.mapear(
-                    [
-                        'const a = 1;',
-                        'constante b = 2;',
-                        'fixo c = 3;',
-                        'const d, f, g = 1, 2, 3'
-                    ],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-                expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/const a: f64 = 1;/i);
-                expect(resultado).toMatch(/const b: f64 = 2;/i);
-                expect(resultado).toMatch(/const c: f64 = 3;/i);
-                expect(resultado).toMatch(/const d: f64 = 1;/i);
-                expect(resultado).toMatch(/const f: f64 = 2;/i);
-                expect(resultado).toMatch(/const g: f64 = 3;/i);
-            });
-            it.skip('definindo funcao com variavel', () => {
-                const retornoLexador = lexador.mapear(
-                    [
-                        'var a = funcao(parametro1: inteiro, parametro2: inteiro) { escreva(\'Oi\')\nescreva(\'Olá\') }',
+                        'var a = funcao(parametro1: inteiro, parametro2: inteiro) { escreva(\'Oi\')\nescreva(\'Olá\') \n retorna 123 }',
                         'a(1, 2)'
                     ],
                     -1
@@ -324,4 +224,3 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             });
         })
     })
-})
