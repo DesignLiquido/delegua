@@ -1,4 +1,15 @@
-import { Atribuir, Construto, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Unario, Variavel } from '../../../construtos';
+import {
+    Atribuir,
+    Construto,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    Logico,
+    Super,
+    TipoDe,
+    Unario,
+    Variavel,
+} from '../../../construtos';
 import {
     Bloco,
     Classe,
@@ -22,7 +33,15 @@ import {
     Var,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
-import { Chamavel, DeleguaClasse, DeleguaFuncao, DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoPadrao } from '../../../estruturas';
+import {
+    Chamavel,
+    DeleguaClasse,
+    DeleguaFuncao,
+    DeleguaModulo,
+    FuncaoPadrao,
+    MetodoPrimitiva,
+    ObjetoPadrao,
+} from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
@@ -385,7 +404,11 @@ export class InterpretadorBirl implements InterpretadorInterface {
                     argumentos.push(null);
                 }
             } else {
-                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
+                if (
+                    parametros &&
+                    parametros.length > 0 &&
+                    parametros[parametros.length - 1].abrangencia === 'multiplo'
+                ) {
                     const novosArgumentos = argumentos.slice(0, parametros.length - 1);
                     novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
                     argumentos = novosArgumentos;
@@ -526,12 +549,44 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoLogica(expressao: any) {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoLogica(expressao: Logico): Promise<any> {
+        const esquerda = await this.avaliar(expressao.esquerda);
+
+        if (expressao.operador.tipo === tiposDeSimbolos.EM) {
+            const direita = await this.avaliar(expressao.direita);
+
+            if (Array.isArray(direita) || typeof direita === 'string') {
+                return direita.includes(esquerda);
+            } else if (direita.constructor === Object) {
+                return esquerda in direita;
+            } else {
+                throw new ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
+            }
+        }
+
+        // se um estado for verdadeiro, retorna verdadeiro
+        if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+            if (this.eVerdadeiro(esquerda)) return esquerda;
+        }
+
+        // se um estado for falso, retorna falso
+        if (expressao.operador.tipo === tiposDeSimbolos.E) {
+            if (!this.eVerdadeiro(esquerda)) return esquerda;
+        }
+
+        return await this.avaliar(expressao.direita);
     }
+
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-            await this.avaliar(declaracao.inicializador);
+            if (declaracao.inicializador instanceof Array) {
+                if (declaracao.inicializador[0] instanceof Variavel) {
+                    const valor = await this.avaliar(declaracao.inicializador[1]);
+                    this.pilhaEscoposExecucao.atribuirVariavel(declaracao.inicializador[0].simbolo, valor);
+                }
+            } else {
+                await this.avaliar(declaracao.inicializador);
+            }
         }
 
         let retornoExecucao: any;
@@ -649,17 +704,75 @@ export class InterpretadorBirl implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
+    protected async substituirValor(
+        stringOriginal: string,
+        novoValor: number | string,
+        simboloTipo: string
+    ): Promise<string> {
+        let substituida = false;
+        let resultado = '';
+
+        for (let i = 0; i < stringOriginal.length; i++) {
+            if (stringOriginal[i] === '%' && stringOriginal[i + 1] === simboloTipo && !substituida) {
+                switch (simboloTipo) {
+                    case 'd':
+                    case 'i':
+                    case 'u':
+                    case 'f':
+                    case 'F':
+                    case 'e':
+                    case 'E':
+                    case 'g':
+                    case 'G':
+                    case 'x':
+                    case 'X':
+                    case 'o':
+                    case 'c':
+                    case 's':
+                    case 'p':
+                        resultado += novoValor.toString();
+                        break;
+                    default:
+                        resultado += stringOriginal[i];
+                        break;
+                }
+                substituida = true;
+                i++;
+            } else {
+                resultado += stringOriginal[i];
+            }
+        }
+
+        return resultado;
+    }
+
+    protected async resolverInterpolacao(formatoTexto: string, valor: number | string, tipo: string): Promise<string> {
+        switch (tipo) {
+            case 'número':
+                return await this.substituirValor(formatoTexto, valor as number, 'd');
+            case 'texto':
+                return await this.substituirValor(formatoTexto, valor as string, 's');
+            default:
+                return formatoTexto;
+        }
+    }
+
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-
-            formatoTexto += `${this.paraTexto(valor)} `;
+            let valor = null;
+            if (argumento instanceof Variavel) {
+                valor = await this.avaliar(argumento);
+                formatoTexto = await this.resolverInterpolacao(formatoTexto, valor.valor, valor.tipo);
+            } else {
+                const resultadoAvaliacao = await this.avaliar(argumento);
+                valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+                formatoTexto += `${this.paraTexto(valor)} `;
+            }
         }
 
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
 
     /**

@@ -636,7 +636,8 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "interpretador-com-depuracao",
+                // "analisador-semantico",
+                "interpretador",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],

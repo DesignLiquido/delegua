@@ -142,6 +142,18 @@ describe('Interpretador (Égua Clássico)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Condicionais - senão se', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var a = 1;', 'se (a > 2) { escreva("Nunca acontece"); } senão se (a == 1) { escreva("Um é igual a um"); } senão { escreva("Nunca acontece"); }']
+                    )
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1)
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes)
+
+                    expect(retornoInterpretador.erros).toHaveLength(0)
+                })
             });
 
             describe('Laços de repetição', () => {

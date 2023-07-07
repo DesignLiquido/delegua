@@ -22,6 +22,24 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('Oi'\)/i);
         });
 
+        it('trim/trimStart/trimEnd -> aparar/apararInicio/apararFim', () => {
+            const codigo = `
+            let a = '  abc   '
+            let b = '  abc'
+            let c = 'abc   '
+            
+            a = a.trim()
+            b = b.trimStart()
+            c = c.trimEnd()
+            `;
+
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/a = a.aparar\(\)/i);
+            expect(resultado).toMatch(/b = b.apararInicio\(\)/i);
+            expect(resultado).toMatch(/c = c.apararFim\(\)/i);
+        });
+
         it('funções nativas', () => {
             const codigo = `
                 var vetor = [1, 2]; 

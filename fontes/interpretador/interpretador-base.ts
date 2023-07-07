@@ -91,7 +91,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintatico = new MicroAvaliadorSintatico();
 
-    regexInterpolacao = /\$\{([a-z_0-9][\w \.\,\+\-\(\)\*\/\^]*)\}/gi;
+    regexInterpolacao = /\${(.*?)}/g;
 
     constructor(
         diretorioBase: string,
@@ -126,9 +126,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let tipoDe = expressao.valor;
         
-        if(expressao.valor instanceof Variavel 
-            || expressao.valor instanceof Binario) {
-            tipoDe = await this.avaliar(expressao.valor);
+        if(tipoDe instanceof Binario
+            || tipoDe instanceof Variavel
+            || tipoDe instanceof TipoDe) {
+            tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
         }
 
@@ -177,8 +178,13 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     private async retirarInterpolacao(texto: string, variaveis: any[]): Promise<string> {
         let textoFinal = texto;
+
         variaveis.forEach((elemento) => {
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento.valor)
+            if (elemento?.valor?.tipo === 'lógico') {
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor))
+            } else {
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor)
+            }
         });
 
         return textoFinal;
@@ -899,7 +905,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
 
     /**

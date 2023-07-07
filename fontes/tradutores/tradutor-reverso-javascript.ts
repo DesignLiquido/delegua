@@ -48,34 +48,40 @@ export class TradutorReversoJavaScript {
     //TODO: @Samuel
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
-            case 'push':
-                return 'adicionar';
             case 'concat':
                 return 'concatenar'
-            case 'slice':
-                return 'fatiar';
             case 'includes':
                 return 'inclui';
-            case 'reverse':
-                return 'inverter';
             case 'join':
                 return 'juntar';
+            case 'length':
+                return 'tamanho()';
+            case 'log':
+                return 'escreva';
+            case 'pop':
+                return 'removerUltimo';
+            case 'push':
+                return 'adicionar';
+            case 'replace':
+                return 'substituir';
+            case 'reverse':
+                return 'inverter';
             case 'sort':
                 return 'ordenar';
             case 'shift':
                 return 'removerPrimeiro';
-            case 'pop':
-                return 'removerUltimo';
-            case 'length':
-                return 'tamanho()';
-            case 'log':
-                return 'escreva'
+            case 'slice':
+                return 'fatiar';
+            case 'trim':
+                return 'aparar';
+            case 'trimstart':
+                return 'apararInicio';
+            case 'trimend':
+                return 'apararFim';
             case 'touppercase':
                 return 'maiusculo';
             case 'tolowercase':
                 return 'minusculo';
-            case 'replace':
-                return 'substituir';
             default:
                 return metodo;
         }
@@ -128,6 +134,11 @@ export class TradutorReversoJavaScript {
     traduzirExpressao(expressao: MemberExpression): string {
         let objeto = this.dicionarioConstrutos[expressao.object.type](expressao.object);
         let propriedade = this.dicionarioConstrutos[expressao.property.type](expressao.property);
+
+        if (objeto === 'console') {
+            return `${this.traduzirFuncoesNativas(propriedade)}`;
+        }
+
         return `${objeto}.${this.traduzirFuncoesNativas(propriedade)}`;
     }
 

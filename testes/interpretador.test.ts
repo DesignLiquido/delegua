@@ -21,7 +21,14 @@ describe('Interpretador', () => {
                         "var a = 1",
                         "variavel b = 2",
                         "variável c = 3",
-                        "var a1, a2, a3 = 1, 2, 3"
+                        "var a1, a2, a3 = 1, 2, 3",
+                        "var bb1, bb2, bb3: vetor = [1, 2, 3], ['1', '2', '3'], ['Olá Mundo!']",
+
+                        "const aa = 1",
+                        "constante bb = 2",
+                        "fixo cc = 3",
+                        "const aa1, aa2, aa3 = 1, 2, 3",
+                        "const bb1, bb2, bb3: vetor = [1, 2, 3], ['1', '2', '3'], ['Olá Mundo!']",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -71,26 +78,19 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Interpolação de Texto', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var comidaFavorita = 'strogonoff'",
-                        'escreva("Minha comida favorita é ${comidaFavorita}")'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
                 it('Interpolação de Texto/Função/Expressão', async () => {
                     const retornoLexador = lexador.mapear([
+                        "var comidaFavorita = 'strogonoff'",
+                        'escreva("Minha comida favorita é ${comidaFavorita}")',
                         "funcao somar(num1, num2) {",
                         "retorna num1 + num2;",
                         "}",
                         "escreva('somar: ${somar(5, 3)} = ${4 + 5 - 1}');",
                         "escreva('somar com ponto flutuante: ${somar(5.7, 3.3)} = ${5 + 5 - 1}');",
                         "escreva('${4 - 2 / 1}');",
+                        "var logico1 = falso",
+                        "var logico2 = verdadeiro",
+                        "escreva('Valor: ${logico1} e ${logico2}')",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -214,6 +214,7 @@ describe('Interpretador', () => {
                         "classe OutroTeste {}",
                         "escreva(tipo de OutroTeste)",
                         "escreva(tipo de nulo)",
+                        "escreva(tipo de tipo de tipo de \"a\")",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -729,6 +730,57 @@ describe('Interpretador', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Chamada de função com retorno \'vazio\'', async () => {
+                    const codigo = [
+                        "funcao executar(valor1, valor2): vazio {",
+                        "   //...",
+                        "   var resultado = valor1 + valor2",
+                        "}",
+                        "escreva(executar(1, 2))"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de função com retorno \'qualquer\'', async () => {
+                    const codigo = [
+                        "funcao executar(valor1, valor2): qualquer {",
+                        "   //...",
+                        "   var resultado = valor1 + valor2",
+                        "   retorna resultado",
+                        "}",
+                        "escreva(executar(1, 2))"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de função com definição de tipos inteiros e retorno texto', async () => {
+                    const codigo = [
+                        "funcao executar(valor1: inteiro, valor2: inteiro): texto {",
+                        "   retorna valor1 + valor2",
+                        "}",
+                        "escreva(executar(1, 2))"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Chamada de função com retorno de vetor', async () => {
                     const codigo = [
                         "funcao executar() {",
