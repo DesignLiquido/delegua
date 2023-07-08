@@ -133,7 +133,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip("Sucesso - Média de Vetor", async () => {
+            it("Sucesso - Média de Vetor", async () => {
                 // Aqui vamos simular a resposta para duas variáveis de `leia()`.
                 const respostas = [
                     90, 80, 50, 100, 60, 70, 75, 85, 89, 91, 
