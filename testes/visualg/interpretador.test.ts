@@ -171,6 +171,39 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - Para com passo negativo', async () => {
+                // Aqui vamos simular a resposta para uma variável de `leia()`.
+                const respostas = [
+                    10
+                ];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "valoresPares"',
+                    '',
+                    'var',
+                    'Cont, V: Inteiro',
+                    '',
+                    'inicio',
+                    '    escreval("Digite um valor: ")',
+                    '    Leia(V)',
+                    '    para CONT de V ate 0 passo -2 faca',
+                    '        Escreval(CONT)',
+                    '    Fimpara',
+                    '',
+                    'fimalgoritmo'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Para com passo dinâmico', async () => {
                 // Aqui vamos simular a resposta para doze variáveis de `leia()`.
                 const respostas = [
