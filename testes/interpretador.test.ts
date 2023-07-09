@@ -21,7 +21,14 @@ describe('Interpretador', () => {
                         "var a = 1",
                         "variavel b = 2",
                         "variável c = 3",
-                        "var a1, a2, a3 = 1, 2, 3"
+                        "var a1, a2, a3 = 1, 2, 3",
+                        "var bb1, bb2, bb3: vetor = [1, 2, 3], ['1', '2', '3'], ['Olá Mundo!']",
+
+                        "const aa = 1",
+                        "constante bb = 2",
+                        "fixo cc = 3",
+                        "const aa1, aa2, aa3 = 1, 2, 3",
+                        "const bb1, bb2, bb3: vetor = [1, 2, 3], ['1', '2', '3'], ['Olá Mundo!']",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -723,6 +730,57 @@ describe('Interpretador', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Chamada de função com retorno \'vazio\'', async () => {
+                    const codigo = [
+                        "funcao executar(valor1, valor2): vazio {",
+                        "   //...",
+                        "   var resultado = valor1 + valor2",
+                        "}",
+                        "escreva(executar(1, 2))"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de função com retorno \'qualquer\'', async () => {
+                    const codigo = [
+                        "funcao executar(valor1, valor2): qualquer {",
+                        "   //...",
+                        "   var resultado = valor1 + valor2",
+                        "   retorna resultado",
+                        "}",
+                        "escreva(executar(1, 2))"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Chamada de função com definição de tipos inteiros e retorno texto', async () => {
+                    const codigo = [
+                        "funcao executar(valor1: inteiro, valor2: inteiro): texto {",
+                        "   retorna valor1 + valor2",
+                        "}",
+                        "escreva(executar(1, 2))"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Chamada de função com retorno de vetor', async () => {
                     const codigo = [
                         "funcao executar() {",
