@@ -757,6 +757,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
     }
 
+    // TODO(Italo): Repensar essa lógica pra `printf("\nmaximum of %d and %d is = %d",a,b,c);`.
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
 

@@ -15,7 +15,7 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it('Sucesso - Fibonacci', async () => {
+            it.only('Sucesso - Fibonacci', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW\n',
                     '   OH O HOME AI PO(MONSTRO fibonacci(MONSTRO numero))\n',

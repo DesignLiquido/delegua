@@ -119,6 +119,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ADICAO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
+        // Simplesmente avança o símbolo por enquanto.
+        // O `if` de baixo irá tratar a referência.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTEIRO);
+        
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
@@ -142,6 +146,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
+
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     chamar(): Construto {
@@ -298,11 +304,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         argumentos.push(this.declaracao());
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
-                const variavelParaEscrita = this.declaracao();
-                argumentos.push(variavelParaEscrita);
-            }
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+            this.avancarEDevolverAnterior(); // Vírgula
+            const variavelParaEscrita = this.declaracao();
+            argumentos.push(variavelParaEscrita);
         }
 
         this.consumir(
