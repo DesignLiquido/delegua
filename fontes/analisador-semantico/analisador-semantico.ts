@@ -25,23 +25,13 @@ import {
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { ErroAnalisadorSemantico } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
+import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaVariaveis } from './pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
-    tipo:
-        | 'texto'
-        | 'número'
-        | 'longo'
-        | 'vetor'
-        | 'dicionário'
-        | 'nulo'
-        | 'lógico'
-        | 'função'
-        | 'símbolo'
-        | 'objeto'
-        | 'módulo';
-    subtipo?: 'texto' | 'número' | 'longo' | 'lógico';
+    tipo: TiposDadosInterface;
+    subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
     imutavel: boolean;
 }
 
@@ -167,7 +157,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
-            tipo: 'número',
+            tipo: declaracao.tipo,
         };
 
         return Promise.resolve();
@@ -184,7 +174,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         } else {
             this.variaveis[declaracao.simbolo.lexema] = {
                 imutavel: true,
-                tipo: 'número',
+                tipo: declaracao.tipo,
             };
         }
 
