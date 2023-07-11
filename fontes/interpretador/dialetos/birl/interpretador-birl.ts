@@ -70,6 +70,24 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
 
+    expressoesStringC = {
+        '%d': 'inteiro',
+        '%i': 'inteiro',
+        '%u': 'inteiro',
+        '%f': 'real',
+        '%F': 'real',
+        '%e': 'real',
+        '%E': 'real',
+        '%g': 'real',
+        '%G': 'real',
+        '%x': 'inteiro',
+        '%X': 'inteiro',
+        '%o': 'inteiro',
+        '%s': 'texto',
+        '%c': 'texto',
+        '%p': 'texto',
+    }
+
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         this.diretorioBase = diretorioBase;
 
@@ -214,8 +232,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-            ? 'número'
-            : String(NaN);
+                ? 'número'
+                : String(NaN);
         if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
@@ -341,6 +359,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
      */
     async visitarExpressaoDeChamada(expressao: any): Promise<any> {
         try {
+            // @TODO(Italo): Bug nessa linha a baixo, não está resolvendo variavel que recebe função apenas retorna a estrutura funcao.
             const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
 
             if (variavelEntidadeChamada === null) {
@@ -746,32 +765,61 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return resultado;
     }
 
-    protected async resolverInterpolacao(formatoTexto: string, valor: number | string, tipo: string): Promise<string> {
-        switch (tipo) {
-            case 'número':
-                return await this.substituirValor(formatoTexto, valor as number, 'd');
-            case 'texto':
-                return await this.substituirValor(formatoTexto, valor as string, 's');
-            default:
-                return formatoTexto;
-        }
+
+    protected async resolveQuantidadeDeInterpolacoes(texto: Literal): Promise<RegExpMatchArray> {
+        const stringOriginal: string = texto.valor;
+        const regex = /%[a-zA-Z]/g;
+
+        const matches = stringOriginal.match(regex);
+
+        return matches
     }
 
-    // TODO(Italo): Repensar essa lógica pra `printf("\nmaximum of %d and %d is = %d",a,b,c);`.
+    // protected async verificaTipoDaInterpolação(valor: any, tipo: string): Promise<boolean> {
+
+    // }
+
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
+        let quantidadeInterpolacoes: RegExpMatchArray;
 
-        for (const argumento of argumentos) {
-            let valor = null;
-            if (argumento instanceof Variavel) {
-                valor = await this.avaliar(argumento);
-                formatoTexto = await this.resolverInterpolacao(formatoTexto, valor.valor, valor.tipo);
-            } else {
-                const resultadoAvaliacao = await this.avaliar(argumento);
-                valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-                formatoTexto += `${this.paraTexto(valor)} `;
-            }
+        if (argumentos.length < 1) {
+            throw new Error('Escreva precisa de pelo menos um argumento.');
         }
+        if (!(argumentos[0] instanceof Literal)) {
+            throw new Error('O primeiro argumento de Escreva precisa ser uma string.');
+        }
+        quantidadeInterpolacoes = await this.resolveQuantidadeDeInterpolacoes(argumentos[0] as Literal);
+
+        if (quantidadeInterpolacoes.length < 0) {
+            const resultadoAvaliacao = await this.avaliar(argumentos[0]);
+            const valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+            return valor
+        }
+
+        if (!(argumentos.length - 1 === quantidadeInterpolacoes.length)) {
+            throw new Error('Quantidade de argumentos não bate com quantidade de interpolacoes.');
+        }
+
+        for (let i = 0; i < quantidadeInterpolacoes.length; i++) {
+            const dados = {
+                tipo: quantidadeInterpolacoes[i].replace('%', ''),
+                valor: await this.avaliar(argumentos[i + 1])
+            }
+            console.log(dados);
+        }
+
+        // for (const argumento of argumentos) {
+        //     let valor = null;
+        //     if (argumento instanceof Variavel) {
+        //         valor = await this.avaliar(argumento);
+        //         formatoTexto = await this.resolverInterpolacao(formatoTexto, valor.valor, valor.tipo);
+        //     } else {
+        //         const resultadoAvaliacao = await this.avaliar(argumento);
+        //         valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+        //         formatoTexto += `${this.paraTexto(valor)} `;
+        //     }
+        // }
 
         return formatoTexto.trimEnd();
     }
