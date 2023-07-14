@@ -562,11 +562,13 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoLiteral(expressao: Literal): any {
         if (expressao.valor === tiposDeSimbolos.ADICAO) {
             return 1;
-        } else if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
-            return -1;
-        } else {
-            return expressao.valor;
         }
+
+        if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
+            return -1;
+        } 
+
+        return expressao.valor;
     }
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
@@ -964,7 +966,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
      */
-    async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+    async executar(declaracao: Declaracao, mostrarResultado: boolean = false): Promise<any> {
         let resultado: any = null;
 
         resultado = await declaracao.aceitar(this);

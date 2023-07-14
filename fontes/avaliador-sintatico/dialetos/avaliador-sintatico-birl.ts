@@ -35,6 +35,9 @@ import { Construto } from '../../construtos/construto';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
+/**
+ * Avaliador Sintático de BIRL
+ */
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     private validarEscopoPrograma(): Declaracao[] {
         let declaracoes: Declaracao[] = [];
@@ -52,6 +55,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.validarSegmentoBirlFinal();
         return declaracoes;
     }
+
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
         let identificador = 0,
             adicao = 0,
@@ -151,7 +155,28 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     chamar(): Construto {
-        return this.primario();
+        let expressao = this.primario();
+
+        // TODO(Italo): Terminar
+        /* while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                expressao = this.finalizarChamada(expressao);
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
+                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                const indice = this.expressao();
+                const simboloFechamento = this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após escrita do indice."
+                );
+                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
+            } else {
+                break;
+            }
+        } */
+
+        return expressao;
     }
 
     atribuir(): Construto {
@@ -910,9 +935,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         new Variavel(this.hashArquivo, simboloIdentificador),
                         'DEPOIS'
                     );
-                } else {
-                    return this.expressao();
                 }
+    
+                return this.expressao();
 
             default:
                 return this.expressao();
