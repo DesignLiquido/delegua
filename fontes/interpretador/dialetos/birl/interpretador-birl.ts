@@ -153,8 +153,9 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
         return retornoUltimoEscopo;
     }
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        throw new Error('Método não implementado.');
+
+    async visitarExpressaoAgrupamento(expressao: any): Promise<any> {
+        return await this.avaliar(expressao.expressao);
     }
 
     protected verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
