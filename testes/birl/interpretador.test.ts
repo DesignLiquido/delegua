@@ -15,7 +15,24 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
-            it.only('Sucesso - Fibonacci', async () => {
+            it('Sucesso - varias argumentos no escreva', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW',
+                    '   MONSTRO X = 10;',
+                    '   FRANGO FR = "teste";',
+                    '   CE QUER VER ESSA PORRA? ("teste %d %s\n", &X, &FR);',
+                    '   BORA CUMPADE 0;',
+                    'BIRL',
+                ])
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador).toBeTruthy();
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            })
+
+            it('Sucesso - Fibonacci', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW\n',
                     '   OH O HOME AI PO(MONSTRO fibonacci(MONSTRO numero))\n',
@@ -23,7 +40,6 @@ describe('Interpretador', () => {
                     '           BORA CUMPADE 1;\n',
                     '       BIRL\n',
                     '       BORA CUMPADE fibonacci(numero - 1) + fibonacci(numero - 2);\n',
-                    // '       BORA CUMPADE 2;\n',
                     '   BIRL\n',
                     '   MONSTRO numero = 10;\n',
                     '   MONSTRO fiboResultado = AJUDA O MALUCO TA DOENTE fibonacci(numero);\n',
@@ -51,7 +67,7 @@ describe('Interpretador', () => {
                     '        QUE NAO VAI DAR O QUE? (M % 5 == 0)\n',
                     '            CE QUER VER ESSA PORRA?("Buzz\n");\n',
                     '        NAO VAI DAR NAO\n',
-                    '            CE QUER VER ESSA PORRA?("%d\n", M);\n',
+                    '            CE QUER VER ESSA PORRA?("%d\n", &M);\n',
                     '        BIRL\n',
                     '    BIRL\n',
                     '    BORA CUMPADE 0;\n',
@@ -264,7 +280,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS (MONSTRO M = 10; M > 5; --M)',
-                    '       CE QUER VER ESSA PORRA? (M);\n',
+                    '       CE QUER VER ESSA PORRA? ("%d\n", &M);\n',
                     '   BIRL\n',
                     'BIRL\n',
                 ]);
@@ -280,7 +296,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; M++)',
-                    '       CE QUER VER ESSA PORRA? (M);\n',
+                    '       CE QUER VER ESSA PORRA? ("%d\n", &M);\n',
                     '   BIRL\n',
                     'BIRL\n',
                 ]);
@@ -296,7 +312,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS (MONSTRO M = 0; M < 5; ++M)',
-                    '       CE QUER VER ESSA PORRA? (M);\n',
+                    '       CE QUER VER ESSA PORRA? ("%d\n", &M);\n',
                     '   BIRL\n',
                     'BIRL\n',
                 ]);
@@ -365,7 +381,7 @@ describe('Interpretador', () => {
                     [
                         'HORA DO SHOW \n',
                         '  MONSTRO M1 = 1; \n',
-                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  CE QUER VER ESSA PORRA? ("%d\n", &M1); \n',
                         '  BORA CUMPADE 0; \n',
                         'BIRL \n',
                     ],
@@ -383,7 +399,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   FRANGO FR = "testes";\n',
-                    '   CE QUER VER ESSA PORRA? (FR); \n',
+                    '   CE QUER VER ESSA PORRA? ("%s\n", &FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
                 ]);
@@ -400,7 +416,7 @@ describe('Interpretador', () => {
                     [
                         'HORA DO SHOW \n',
                         '  TRAPEZIO M1 = 1.03; \n',
-                        '  CE QUER VER ESSA PORRA? (M1); \n',
+                        '  CE QUER VER ESSA PORRA? ("%d\n", &M1); \n',
                         '  BORA CUMPADE 0; \n',
                         'BIRL \n',
                     ],
@@ -418,7 +434,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '  MONSTRINHO M1 = 1.03; \n',
-                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  CE QUER VER ESSA PORRA? ("%d\n", &M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
                 ]);
@@ -434,7 +450,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '  MONSTRAO M1 = 16666666; \n',
-                    '  CE QUER VER ESSA PORRA? (M1); \n',
+                    '  CE QUER VER ESSA PORRA? ("%d\n", &M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
                 ]);
@@ -450,7 +466,7 @@ describe('Interpretador', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '  TRAPEZIO DESCENDENTE TD = 0.37; \n',
-                    '  CE QUER VER ESSA PORRA? (TD); \n',
+                    '  CE QUER VER ESSA PORRA? ("%d\n", &TD); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
                 ]);

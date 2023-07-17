@@ -813,7 +813,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         const resultadoAvaliacaoLiteral = await this.avaliar(argumentos[0]);
 
-        if (quantidadeInterpolacoes.length < 0) {
+        if (quantidadeInterpolacoes === null) {
             formatoTexto = resultadoAvaliacaoLiteral?.hasOwnProperty('valor') ? resultadoAvaliacaoLiteral.valor : resultadoAvaliacaoLiteral;
             return formatoTexto
         }
@@ -822,6 +822,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
             throw new Error('Quantidade de argumentos não bate com quantidade de interpolacoes.');
         }
 
+        formatoTexto = resultadoAvaliacaoLiteral;
+
         for (let i = 0; i < quantidadeInterpolacoes.length; i++) {
             const dados = {
                 tipo: quantidadeInterpolacoes[i].replace('%', ''),
@@ -829,7 +831,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             }
 
             if (this.verificaTipoDaInterpolação(dados)) {
-                formatoTexto = await this.substituirValor(resultadoAvaliacaoLiteral, dados.valor, dados.tipo);
+                formatoTexto = await this.substituirValor(formatoTexto, dados.valor, dados.tipo);
             }
         }
 
