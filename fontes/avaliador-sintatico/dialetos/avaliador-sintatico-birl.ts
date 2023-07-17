@@ -157,23 +157,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     chamar(): Construto {
         let expressao = this.primario();
 
-        // TODO(Italo): Terminar
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
-            } 
-            // else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-            //     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-            //     expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
-            // } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-            //     const indice = this.expressao();
-            //     const simboloFechamento = this.consumir(
-            //         tiposDeSimbolos.COLCHETE_DIREITO,
-            //         "Esperado ']' após escrita do indice."
-            //     );
-            //     expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
-            // } 
-            else {
+            } else {
                 break;
             }
         }
