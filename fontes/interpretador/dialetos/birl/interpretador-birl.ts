@@ -360,7 +360,6 @@ export class InterpretadorBirl implements InterpretadorInterface {
      */
     async visitarExpressaoDeChamada(expressao: any): Promise<any> {
         try {
-            // @TODO(Italo): Bug nessa linha a baixo, não está resolvendo variavel que recebe função apenas retorna a estrutura funcao.
             const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
 
             if (variavelEntidadeChamada === null) {
@@ -566,7 +565,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
             return -1;
-        } 
+        }
 
         return expressao.valor;
     }
@@ -728,7 +727,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
     protected async substituirValor(
         stringOriginal: string,
-        novoValor: number | string,
+        novoValor: number | string | any,
         simboloTipo: string
     ): Promise<string> {
         let substituida = false;
@@ -752,7 +751,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
                     case 'c':
                     case 's':
                     case 'p':
-                        resultado += novoValor.toString();
+                        resultado += novoValor.hasOwnProperty('valor') ? novoValor.valor : novoValor;
                         break;
                     default:
                         resultado += stringOriginal[i];
@@ -778,9 +777,27 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return matches
     }
 
-    // protected async verificaTipoDaInterpolação(valor: any, tipo: string): Promise<boolean> {
-
-    // }
+   async verificaTipoDaInterpolação(dados: {tipo: string, valor: any}) {
+        switch(dados.tipo) {
+            case 'd':
+            case 'i':
+            case 'u':
+                const valor = dados.valor.hasOwnProperty('valor') ? dados.valor.valor : dados.valor;
+                if (typeof valor !== 'number') {
+                    throw new Error('O valor interpolado não é um número.')
+                }
+                return true;
+            case 'c':
+            case 's':
+                const valorString = dados.valor.hasOwnProperty('valor') ? dados.valor.valor : dados.valor;
+                if (typeof valorString !== 'string') {
+                    throw new Error('O valor interpolado não é um caractere.')
+                }
+                return true;
+            default:
+                throw new Error('Tipo de interpolação não suportado.')
+        }
+   }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
@@ -794,10 +811,11 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
         quantidadeInterpolacoes = await this.resolveQuantidadeDeInterpolacoes(argumentos[0] as Literal);
 
+        const resultadoAvaliacaoLiteral = await this.avaliar(argumentos[0]);
+
         if (quantidadeInterpolacoes.length < 0) {
-            const resultadoAvaliacao = await this.avaliar(argumentos[0]);
-            const valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-            return valor
+            formatoTexto = resultadoAvaliacaoLiteral?.hasOwnProperty('valor') ? resultadoAvaliacaoLiteral.valor : resultadoAvaliacaoLiteral;
+            return formatoTexto
         }
 
         if (!(argumentos.length - 1 === quantidadeInterpolacoes.length)) {
@@ -809,20 +827,11 @@ export class InterpretadorBirl implements InterpretadorInterface {
                 tipo: quantidadeInterpolacoes[i].replace('%', ''),
                 valor: await this.avaliar(argumentos[i + 1])
             }
-            console.log(dados);
-        }
 
-        // for (const argumento of argumentos) {
-        //     let valor = null;
-        //     if (argumento instanceof Variavel) {
-        //         valor = await this.avaliar(argumento);
-        //         formatoTexto = await this.resolverInterpolacao(formatoTexto, valor.valor, valor.tipo);
-        //     } else {
-        //         const resultadoAvaliacao = await this.avaliar(argumento);
-        //         valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-        //         formatoTexto += `${this.paraTexto(valor)} `;
-        //     }
-        // }
+            if (this.verificaTipoDaInterpolação(dados)) {
+                formatoTexto = await this.substituirValor(resultadoAvaliacaoLiteral, dados.valor, dados.tipo);
+            }
+        }
 
         return formatoTexto.trimEnd();
     }

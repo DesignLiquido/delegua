@@ -126,7 +126,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         // Simplesmente avança o símbolo por enquanto.
         // O `if` de baixo irá tratar a referência.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTEIRO);
-        
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
@@ -158,23 +158,25 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         let expressao = this.primario();
 
         // TODO(Italo): Terminar
-        /* while (true) {
+        while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                const indice = this.expressao();
-                const simboloFechamento = this.consumir(
-                    tiposDeSimbolos.COLCHETE_DIREITO,
-                    "Esperado ']' após escrita do indice."
-                );
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
-            } else {
+            } 
+            // else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
+            //     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+            //     expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
+            // } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+            //     const indice = this.expressao();
+            //     const simboloFechamento = this.consumir(
+            //         tiposDeSimbolos.COLCHETE_DIREITO,
+            //         "Esperado ']' após escrita do indice."
+            //     );
+            //     expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
+            // } 
+            else {
                 break;
             }
-        } */
+        }
 
         return expressao;
     }
@@ -684,7 +686,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             caminhoSenao = new Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
         }
 
-        if(this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
             this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` após `SE`.')
         }
 
@@ -936,7 +938,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         'DEPOIS'
                     );
                 }
-    
+
                 return this.expressao();
 
             default:
