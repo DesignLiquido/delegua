@@ -24,6 +24,33 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
 
+            it('Sucesso - Atribuindo variável que não existe', () => {
+                const retornoLexador = lexador.mapear([
+                    "b = 1"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+            });
+
+            it('Sucesso - Atribuindo tipos válidos para variáveis', () => {
+                const retornoLexador = lexador.mapear([
+                    "var a: inteiro = 1",
+                    "a = 123",
+                    "var b: texto = 'abc'",
+                    "b = 'cde'",
+                    "var c = 'Olá Mundo!!!'",
+                    "c = 321"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Função com definição de tipos', () => {
                 const retornoLexador = lexador.mapear([
                     // "var a = funcao (valor1: inteiro, valor2: qualquer, valor3: texto): texto {",
@@ -55,6 +82,20 @@ describe('Analisador semântico', () => {
     
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+            });
+
+            it('Sucesso - Atribuindo tipos inválidos para variáveis', () => {
+                const retornoLexador = lexador.mapear([
+                    "var a: inteiro = 123",
+                    "a = 'abc'",
+                    "var b: texto = 'abc'",
+                    "b = 123"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros).toHaveLength(2);
             });
 
             it.skip('Retorno vazio', () => {
