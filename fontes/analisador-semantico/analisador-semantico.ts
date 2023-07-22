@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe } from '../construtos';
+import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Vetor } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -22,6 +22,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
+import { SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { ErroAnalisadorSemantico } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
@@ -46,6 +47,15 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.erros = [];
+    }
+
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
+        this.erros.push({
+            simbolo: simbolo,
+            mensagem: mensagemDeErro,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+        });
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
@@ -74,25 +84,59 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        if (!this.variaveis.hasOwnProperty(expressao.simbolo.lexema)) {
-            this.erros.push({
-                simbolo: expressao.simbolo,
-                mensagem: `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`,
-                hashArquivo: expressao.hashArquivo,
-                linha: expressao.linha,
-            });
-
+        let valor = this.variaveis[expressao.simbolo.lexema];
+        if (!valor) {
+            this.erro(expressao.simbolo, `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`)
             return Promise.resolve();
         }
 
-        if (this.variaveis[expressao.simbolo.lexema].imutavel) {
-            this.erros.push({
-                simbolo: expressao.simbolo,
-                mensagem: `Constante ${expressao.simbolo.lexema} não pode ser modificada.`,
-                hashArquivo: expressao.hashArquivo,
-                linha: expressao.linha,
-            });
+        if (valor.tipo) {            
+            if(expressao.valor instanceof Literal && valor.tipo.includes('[]')) {
+                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`)
+                return Promise.resolve();                
+            }
+            if(expressao.valor instanceof Vetor && !valor.tipo.includes('[]')) {
+                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`)
+                return Promise.resolve();                
+            }
+            if (expressao.valor instanceof Literal) {
+                let valorLiteral = typeof (expressao.valor as Literal).valor;
+                if (!['qualquer'].includes(valor.tipo)) {
+                    if(valorLiteral === 'string') {
+                        if(valor.tipo != 'texto') {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
+                    }
+                    if (valorLiteral === 'number') {
+                        if (!['inteiro', 'real'].includes(valor.tipo)) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
+                    }
+                }
+            }
+            if (expressao.valor instanceof Vetor) {
+                let valores = (expressao.valor as Vetor).valores;
+                if (!['qualquer[]'].includes(valor.tipo)) {
+                    if (valor.tipo === 'texto[]') {
+                        if (!valores.every(v => typeof v.valor === 'string')) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
+                    }
+                    if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
+                        if(!valores.every(v => typeof v.valor === 'number')) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
+                    }
+                }
+            }
+        }
 
+        if (valor.imutavel) {
+            this.erro(expressao.simbolo, `Constante ${expressao.simbolo.lexema} não pode ser modificada.`)
             return Promise.resolve();
         }
     }
