@@ -1227,7 +1227,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             }
         }
 
-        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
     }
 
     declaracaoDeClasse(): Classe {
