@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe } from '../construtos';
+import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Vetor } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -90,22 +90,49 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             return Promise.resolve();
         }
 
-        if (valor.tipo) {
-            let literal = expressao.valor as Literal;
-            const tipoValor = typeof literal.valor;
-            if (!['qualquer'].includes(valor.tipo)) {
-                if(tipoValor === 'string') {
-                    if(valor.tipo != 'texto') {
-                        this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+        if (valor.tipo) {            
+            if(expressao.valor instanceof Literal && valor.tipo.includes('[]')) {
+                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`)
+                return Promise.resolve();                
+            }
+            if(expressao.valor instanceof Vetor && !valor.tipo.includes('[]')) {
+                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`)
+                return Promise.resolve();                
+            }
+            if (expressao.valor instanceof Literal) {
+                let valorLiteral = typeof (expressao.valor as Literal).valor;
+                if (!['qualquer'].includes(valor.tipo)) {
+                    if(valorLiteral === 'string') {
+                        if(valor.tipo != 'texto') {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
                     }
-                }
-                if (tipoValor === 'number') {
-                    if (!['inteiro', 'real'].includes(valor.tipo)) {
-                        this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                    if (valorLiteral === 'number') {
+                        if (!['inteiro', 'real'].includes(valor.tipo)) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
                     }
                 }
             }
-            return Promise.resolve();
+            if (expressao.valor instanceof Vetor) {
+                let valores = (expressao.valor as Vetor).valores;
+                if (!['qualquer[]'].includes(valor.tipo)) {
+                    if (valor.tipo === 'texto[]') {
+                        if (!valores.every(v => typeof v.valor === 'string')) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
+                    }
+                    if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
+                        if(!valores.every(v => typeof v.valor === 'number')) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            return Promise.resolve();
+                        }
+                    }
+                }
+            }
         }
 
         if (valor.imutavel) {

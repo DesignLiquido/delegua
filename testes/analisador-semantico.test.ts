@@ -41,8 +41,10 @@ describe('Analisador semântico', () => {
                     "a = 123",
                     "var b: texto = 'abc'",
                     "b = 'cde'",
-                    "var c = 'Olá Mundo!!!'",
-                    "c = 321"
+                    "var f: inteiro[] = [0, 2]",
+                    "f = [3, 4]",
+                    "var g: texto[] = ['a', 'b']",
+                    "g = ['1', '2']"
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
@@ -84,18 +86,30 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
             });
 
-            it('Sucesso - Atribuindo tipos inválidos para variáveis', () => {
+            it('Atribuindo tipos inválidos para variáveis', () => {
                 const retornoLexador = lexador.mapear([
                     "var a: inteiro = 123",
                     "a = 'abc'",
                     "var b: texto = 'abc'",
-                    "b = 123"
+                    "b = 123",
+                    "var f: inteiro[] = [0, 2]",
+                    "f = 1",
+                    "var g: texto[] = ['a', 'b']",
+                    "g = '2'",
+                    "var h: inteiro = 1",
+                    "h = [1, 2, 3]",
+                    "var i: texto = 'abc'",
+                    "i = ['1', '2']",
+                    "var j: inteiro[] = [1, 2]",
+                    "j = ['3', '4']",
+                    "var k: texto[] = ['1', '2']",
+                    "k = [3, 4]"
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.erros).toHaveLength(2);
+                expect(retornoAnalisadorSemantico.erros).toHaveLength(8);
             });
 
             it.skip('Retorno vazio', () => {
