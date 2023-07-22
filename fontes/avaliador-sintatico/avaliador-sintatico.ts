@@ -52,6 +52,7 @@ import {
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao } from './retornos';
+import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -1150,19 +1151,20 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
                 parametro.valorPadrao = this.primario();
             }
 
-            parametros.push(parametro as ParametroInterface);
-
             if (parametro.abrangencia === 'multiplo') break;
 
             if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                let comtemDefinicaoTipo = this.verificarDefinicaoTipoAtual();
+                let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
 
-                if(!comtemDefinicaoTipo) {
+                if(!tipoDadoParametro) {
                     this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`)
                 } else {
+                    parametro.tipo = tipoDadoParametro as TiposDadosInterface;
                     this.avancarEDevolverAnterior();
                 }
             }
+
+            parametros.push(parametro as ParametroInterface);
 
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
