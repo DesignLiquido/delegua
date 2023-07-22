@@ -24,17 +24,6 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - Atribuindo variável que não existe', () => {
-                const retornoLexador = lexador.mapear([
-                    "b = 1"
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
-            });
-
             it('Sucesso - Atribuindo tipos válidos para variáveis', () => {
                 const retornoLexador = lexador.mapear([
                     "var a: inteiro = 1",
@@ -74,6 +63,17 @@ describe('Analisador semântico', () => {
         });
         
         describe('Cenários de falha', () => {
+            it('Atribuindo variável que não existe', () => {
+                const retornoLexador = lexador.mapear([
+                    "b = 1"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+            });
+
             it('Atribuição de constante + reatribuição de constante', () => {
                 const retornoLexador = lexador.mapear([
                     "const a = 1",
