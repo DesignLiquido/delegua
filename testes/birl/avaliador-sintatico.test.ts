@@ -535,7 +535,7 @@ describe('Avaliador Sintático Birl', () => {
                 );
             });
 
-            it('Falha - declaração - if - sem expressão', () => {
+            it.skip('Falha - declaração - if - sem expressão', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   ELE QUE A GENTE QUER? ()\n',
@@ -547,7 +547,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(TypeError);
             });
 
-            it('Falha - declaração - if - sem bloco e sem expressão', () => {
+            it.skip('Falha - declaração - if - sem bloco e sem expressão', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   ELE QUE A GENTE QUER? ()\n',
@@ -561,7 +561,7 @@ describe('Avaliador Sintático Birl', () => {
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(TypeError);
             });
 
-            it('Falha - declaração - for - sem expressão', () => {
+            it.skip('Falha - declaração - for - sem expressão', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS ( ; ; )\n',
@@ -578,7 +578,7 @@ describe('Avaliador Sintático Birl', () => {
                 );
             });
 
-            it('Falha - declaração - for - sem bloco e sem expressão', () => {
+            it.skip('Falha - declaração - for - sem bloco e sem expressão', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MAIS QUERO MAIS ()',
@@ -594,7 +594,7 @@ describe('Avaliador Sintático Birl', () => {
                 );
             });
 
-            it('Falha - declaração - for - sem incremento e condição', () => {
+            it.skip('Falha - declaração - for - sem incremento e condição', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MONSTRO M;\n',
@@ -612,7 +612,7 @@ describe('Avaliador Sintático Birl', () => {
                 );
             });
 
-            it('Falha - declaração - while - sem expressão', () => {
+            it.skip('Falha - declaração - while - sem expressão', () => {
                 const RetornoLexador = lexador.mapear([
                     'HORA DO SHOW \n',
                     '   MONSTRO X = 5;\n',

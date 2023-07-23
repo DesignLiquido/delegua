@@ -35,6 +35,9 @@ import { Construto } from '../../construtos/construto';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
+/**
+ * Avaliador Sintático de BIRL
+ */
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     private validarEscopoPrograma(): Declaracao[] {
         let declaracoes: Declaracao[] = [];
@@ -52,6 +55,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.validarSegmentoBirlFinal();
         return declaracoes;
     }
+
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
         let identificador = 0,
             adicao = 0,
@@ -119,6 +123,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ADICAO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
+        // Simplesmente avança o símbolo por enquanto.
+        // O `if` de baixo irá tratar a referência.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTEIRO);
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
@@ -142,10 +150,22 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
+
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     chamar(): Construto {
-        return this.primario();
+        let expressao = this.primario();
+
+        while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                expressao = this.finalizarChamada(expressao);
+            } else {
+                break;
+            }
+        }
+
+        return expressao;
     }
 
     atribuir(): Construto {
@@ -298,11 +318,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         argumentos.push(this.declaracao());
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
-                const variavelParaEscrita = this.declaracao();
-                argumentos.push(variavelParaEscrita);
-            }
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+            this.avancarEDevolverAnterior(); // Vírgula
+            const variavelParaEscrita = this.declaracao();
+            argumentos.push(variavelParaEscrita);
         }
 
         this.consumir(
@@ -579,6 +598,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado expressão `?` após `QUER`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
         const condicaoSe = this.declaracao();
+        // @TODO: Verificar se é possível consumir os dois símbolos juntos.
+        // Consumindo n == 1 || n == 2 separado.
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
 
         return {
@@ -650,6 +671,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 declaraçõesSenao.push(this.declaracao());
             }
             caminhoSenao = new Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
+        }
+
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+            this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` após `SE`.')
         }
 
         return new Se(condicaoSe, caminhoEntão, caminhoSeSenao, caminhoSenao);
@@ -899,9 +924,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         new Variavel(this.hashArquivo, simboloIdentificador),
                         'DEPOIS'
                     );
-                } else {
-                    return this.expressao();
                 }
+
+                return this.expressao();
 
             default:
                 return this.expressao();
