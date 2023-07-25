@@ -118,35 +118,40 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
                 break;
             case '&':
-                if (this.proximoSimbolo() === '&') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '&') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.E);
-                    break;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
                 }
-                // Ler o simbolo porem não é tratado.
-                this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
-                this.avancar();
                 break;
             case '+':
-                if (this.proximoSimbolo() === '+') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '+') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
-                    break;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 }
-                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
-                this.avancar();
                 break;
             case '-':
-                if (this.proximoSimbolo() === '-') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '-') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
-                    break;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 }
-                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                break;
+            case '|':
                 this.avancar();
+                if (this.simboloAtual() === '|') {
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.OU);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.OU);
+                }
                 break;
             case '|':
                 if (this.proximoSimbolo() === '|') {
