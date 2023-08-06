@@ -153,16 +153,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                     this.adicionarSimbolo(tiposDeSimbolos.OU);
                 }
                 break;
-            case '|':
-                if (this.proximoSimbolo() === '|') {
-                    this.avancar();
-                    this.avancar();
-                    this.adicionarSimbolo(tiposDeSimbolos.OU);
-                    break;
-                }
-                // Ler o simbolo porem não é tratado.
-                this.avancar();
-                break;
             case '*':
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 this.avancar();
