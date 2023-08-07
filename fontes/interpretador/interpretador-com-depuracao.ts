@@ -29,9 +29,9 @@ import { InterpretadorBase } from './interpretador-base';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao 
-        extends InterpretadorBase 
-        implements InterpretadorComDepuracaoInterface 
+export class InterpretadorComDepuracao
+        extends InterpretadorBase
+        implements InterpretadorComDepuracaoInterface
 {
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
@@ -136,7 +136,7 @@ export class InterpretadorComDepuracao
                 return null;
             default:
                 let retornoExecucao: any;
-                while (!(retornoExecucao instanceof Quebra) && 
+                while (!(retornoExecucao instanceof Quebra) &&
                         !this.pontoDeParadaAtivo &&
                         this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
@@ -153,7 +153,7 @@ export class InterpretadorComDepuracao
                         return Promise.reject(erro);
                     }
                 }
-        
+
                 escopoAtual.emLacoRepeticao = false;
                 return retornoExecucao;
         }
@@ -212,26 +212,26 @@ export class InterpretadorComDepuracao
             case "proximo":
                 if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
-                    
+
                     const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
                     return resultadoBloco;
                 }
 
                 escopoAtual.emLacoRepeticao = false;
                 return null;
-            default: 
+            default:
                 let retornoExecucao: any;
                 while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
                     if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                         break;
                     }
 
-                    try {                        
+                    try {
                         retornoExecucao = await this.executar(corpoExecucao);
                         if (retornoExecucao instanceof SustarQuebra) {
                             return null;
                         }
-                        
+
                         if (retornoExecucao instanceof ContinuarQuebra) {
                             retornoExecucao = null;
                         }
@@ -570,7 +570,7 @@ export class InterpretadorComDepuracao
             if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
                 this.pilhaEscoposExecucao.removerUltimo();
             }
-    
+
             if (this.pilhaEscoposExecucao.elementos() === 1) {
                 return this.finalizacaoDaExecucao();
             }

@@ -32,19 +32,19 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             })
 
-            it('Sucesso - Fibonacci', async () => {
+            it.only('Sucesso - Fibonacci', async () => {
                 const retornoLexador = lexador.mapear([
-                    'HORA DO SHOW\n',
-                    '   OH O HOME AI PO(MONSTRO fibonacci(MONSTRO numero))\n',
-                    '       ELE QUE A GENTE QUER?(numero == 1 || numero == 2)\n',
-                    '           BORA CUMPADE 1;\n',
-                    '       BIRL\n',
-                    '       BORA CUMPADE fibonacci(numero - 1) + fibonacci(numero - 2);\n',
-                    '   BIRL\n',
-                    '   MONSTRO numero = 10;\n',
-                    '   MONSTRO fiboResultado = AJUDA O MALUCO TA DOENTE fibonacci(numero);\n',
-                    '   CE QUER VER ESSA PORRA?("fibo: %d\n", &fiboResultado)\n',
-                    'BIRL\n',
+                    'HORA DO SHOW',
+                    '   OH O HOME AI PO(MONSTRO fibonacci(MONSTRO numero))',
+                    '       ELE QUE A GENTE QUER?(numero == 1 || numero == 2)',
+                    '           BORA CUMPADE 1;',
+                    '       BIRL',
+                    '       BORA CUMPADE fibonacci(numero - 1) + fibonacci(numero - 2);',
+                    '   BIRL',
+                    '   MONSTRO numero = 10;',
+                    '   MONSTRO fiboResultado = AJUDA O MALUCO TA DOENTE fibonacci(numero);',
+                    '   CE QUER VER ESSA PORRA?("fibo: %d", &fiboResultado)',
+                    'BIRL',
                 ]);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

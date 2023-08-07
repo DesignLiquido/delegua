@@ -51,10 +51,12 @@ import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { InterpretadorBase } from '../../interpretador-base';
+import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import * as comum from './comum';
 
-export class InterpretadorBirl implements InterpretadorInterface {
+export class InterpretadorBirl extends InterpretadorComDepuracao implements InterpretadorInterface {
     diretorioBase: any;
 
     funcaoDeRetorno: Function = null;
@@ -89,6 +91,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
 
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
+        super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.diretorioBase = diretorioBase;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -477,7 +480,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             this.erros.push(erro);
         }
     }
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
     }
 
@@ -488,7 +491,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoDeVariavel(expressao: Variavel): any {
         return this.procurarVariavel(expressao.simbolo);
     }
-    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
     }
     /**
@@ -516,47 +519,47 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return;
     }
 
-    /**
-     * Busca variáveis interpoladas.
-     * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
-     * @returns Uma lista de variáveis interpoladas.
-     */
-    private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
-        const variaveis = textoOriginal.match(this.regexInterpolacao);
+    // /**
+    //  * Busca variáveis interpoladas.
+    //  * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
+    //  * @returns Uma lista de variáveis interpoladas.
+    //  */
+    // private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
+    //     const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        return variaveis.map((s) => {
-            const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
-            return {
-                variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
-            };
-        });
-    }
+    //     return variaveis.map((s) => {
+    //         const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
+    //         return {
+    //             variavel: nomeVariavel,
+    //             valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
+    //         };
+    //     });
+    // }
 
-    /**
-     * Retira a interpolação de um texto.
-     * @param {texto} texto O texto
-     * @param {any[]} variaveis A lista de variaveis interpoladas
-     * @returns O texto com o valor das variaveis.
-     */
-    private retirarInterpolacao(texto: string, variaveis: any[]): string {
-        const valoresVariaveis = variaveis.map((v) => ({
-            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
-            variavel: v.variavel,
-        }));
+    // /**
+    //  * Retira a interpolação de um texto.
+    //  * @param {texto} texto O texto
+    //  * @param {any[]} variaveis A lista de variaveis interpoladas
+    //  * @returns O texto com o valor das variaveis.
+    //  */
+    // private retirarInterpolacao(texto: string, variaveis: any[]): string {
+    //     const valoresVariaveis = variaveis.map((v) => ({
+    //         valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
+    //         variavel: v.variavel,
+    //     }));
 
-        let textoFinal = texto;
+    //     let textoFinal = texto;
 
-        valoresVariaveis.forEach((elemento) => {
-            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
-                ? elemento.valorResolvido.valor
-                : elemento.valorResolvido;
+    //     valoresVariaveis.forEach((elemento) => {
+    //         const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
+    //             ? elemento.valorResolvido.valor
+    //             : elemento.valorResolvido;
 
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
-        });
+    //         textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
+    //     });
 
-        return textoFinal;
-    }
+    //     return textoFinal;
+    // }
 
     visitarExpressaoLiteral(expressao: Literal): any {
         if (expressao.valor === tiposDeSimbolos.ADICAO) {
@@ -682,19 +685,19 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara) {
+    async visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoFazer(declaracao: Fazer) {
+    async visitarDeclaracaoFazer(declaracao: Fazer) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+    // async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+    //     throw new Error('Método não implementado.');
+    // }
+    async visitarDeclaracaoEscolha(declaracao: Escolha) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoEscolha(declaracao: Escolha) {
-        throw new Error('Método não implementado.');
-    }
-    visitarDeclaracaoTente(declaracao: Tente) {
+    async visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error('Método não implementado.');
     }
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -720,9 +723,6 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
 
         return retornoExecucao;
-    }
-    visitarDeclaracaoImportar(declaracao: Importar) {
-        throw new Error('Método não implementado.');
     }
 
     protected async substituirValor(
@@ -799,7 +799,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
         }
    }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected async avaliarArgumentosEscrevaBirl(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
         let quantidadeInterpolacoes: RegExpMatchArray;
 
@@ -846,7 +846,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
      */
     async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
-            const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
+            const formatoTexto: string = await this.avaliarArgumentosEscrevaBirl(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
@@ -857,7 +857,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             });
         }
     }
-    visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         throw new Error('Método não implementado.');
     }
     async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
@@ -915,35 +915,35 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         return new RetornoQuebra(valor);
     }
-    visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error('Método não implementado.');
-    }
+    // async visitarExpressaoDeleguaFuncao(expressao: any) {
+    //     throw new Error('Método não implementado.');
+    // }
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
+    async visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoDefinirValor(expressao: any) {
+    async visitarExpressaoDefinirValor(expressao: any) {
         throw new Error('Método não implementado.');
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
-    visitarDeclaracaoClasse(declaracao: Classe) {
+    async visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAcessoMetodo(expressao: any) {
+    async visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoIsto(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoDicionario(expressao: any) {
+    async visitarExpressaoDicionario(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoVetor(expressao: any) {
+    async visitarExpressaoVetor(expressao: any) {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoSuper(expressao: Super) {
