@@ -23,7 +23,6 @@ import {
     Expressao,
     Fazer,
     FuncaoDeclaracao,
-    Importar,
     Leia,
     Para,
     ParaCada,
@@ -56,7 +55,7 @@ import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import * as comum from './comum';
 
-export class InterpretadorBirl extends InterpretadorComDepuracao implements InterpretadorInterface {
+export class InterpretadorBirl extends InterpretadorBase implements InterpretadorInterface {
     diretorioBase: any;
 
     funcaoDeRetorno: Function = null;
@@ -91,7 +90,7 @@ export class InterpretadorBirl extends InterpretadorComDepuracao implements Inte
     }
 
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
-        super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
+        super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.diretorioBase = diretorioBase;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -501,76 +500,11 @@ export class InterpretadorBirl extends InterpretadorComDepuracao implements Inte
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        // const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        /**
-         * Em Birl não se usa mensagem junto com o prompt, normalmente se usa um Escreva antes.
-         */
-        const mensagem = '> ';
-        const promessaLeitura: Function = () =>
-            new Promise((resolucao) =>
-                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                    resolucao(resposta);
-                })
-            );
-
-        const valorLido = await promessaLeitura();
-        await comum.atribuirVariavel(this, expressao.argumentos[0], valorLido, expressao.argumentos[1].valor);
-
-        return;
+       await comum.visitarExpressaoLeia(expressao);
     }
 
-    // /**
-    //  * Busca variáveis interpoladas.
-    //  * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
-    //  * @returns Uma lista de variáveis interpoladas.
-    //  */
-    // private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
-    //     const variaveis = textoOriginal.match(this.regexInterpolacao);
-
-    //     return variaveis.map((s) => {
-    //         const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
-    //         return {
-    //             variavel: nomeVariavel,
-    //             valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
-    //         };
-    //     });
-    // }
-
-    // /**
-    //  * Retira a interpolação de um texto.
-    //  * @param {texto} texto O texto
-    //  * @param {any[]} variaveis A lista de variaveis interpoladas
-    //  * @returns O texto com o valor das variaveis.
-    //  */
-    // private retirarInterpolacao(texto: string, variaveis: any[]): string {
-    //     const valoresVariaveis = variaveis.map((v) => ({
-    //         valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
-    //         variavel: v.variavel,
-    //     }));
-
-    //     let textoFinal = texto;
-
-    //     valoresVariaveis.forEach((elemento) => {
-    //         const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
-    //             ? elemento.valorResolvido.valor
-    //             : elemento.valorResolvido;
-
-    //         textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
-    //     });
-
-    //     return textoFinal;
-    // }
-
-    visitarExpressaoLiteral(expressao: Literal): any {
-        if (expressao.valor === tiposDeSimbolos.ADICAO) {
-            return 1;
-        }
-
-        if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
-            return -1;
-        }
-
-        return expressao.valor;
+    async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
+       return comum.visitarExpressaoLiteral(expressao);
     }
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
@@ -602,48 +536,9 @@ export class InterpretadorBirl extends InterpretadorComDepuracao implements Inte
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        if (declaracao.inicializador !== null) {
-            if (declaracao.inicializador instanceof Array) {
-                if (declaracao.inicializador[0] instanceof Variavel) {
-                    const valor = await this.avaliar(declaracao.inicializador[1]);
-                    this.pilhaEscoposExecucao.atribuirVariavel(declaracao.inicializador[0].simbolo, valor);
-                }
-            } else {
-                await this.avaliar(declaracao.inicializador);
-            }
-        }
-
-        let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra)) {
-            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-                break;
-            }
-
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof SustarQuebra) {
-                    return null;
-                }
-
-                if (retornoExecucao instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
-                }
-            } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
-                return Promise.reject(erro);
-            }
-
-            if (declaracao.incrementar !== null) {
-                await this.avaliar(declaracao.incrementar);
-            }
-        }
-
-        return retornoExecucao;
+        return comum.visitarDeclaracaoPara(declaracao);
     }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -725,117 +620,25 @@ export class InterpretadorBirl extends InterpretadorComDepuracao implements Inte
         return retornoExecucao;
     }
 
-    protected async substituirValor(
+    async substituirValor(
         stringOriginal: string,
         novoValor: number | string | any,
         simboloTipo: string
     ): Promise<string> {
-        let substituida = false;
-        let resultado = '';
-
-        for (let i = 0; i < stringOriginal.length; i++) {
-            if (stringOriginal[i] === '%' && stringOriginal[i + 1] === simboloTipo && !substituida) {
-                switch (simboloTipo) {
-                    case 'd':
-                    case 'i':
-                    case 'u':
-                    case 'f':
-                    case 'F':
-                    case 'e':
-                    case 'E':
-                    case 'g':
-                    case 'G':
-                    case 'x':
-                    case 'X':
-                    case 'o':
-                    case 'c':
-                    case 's':
-                    case 'p':
-                        resultado += novoValor.hasOwnProperty('valor') ? novoValor.valor : novoValor;
-                        break;
-                    default:
-                        resultado += stringOriginal[i];
-                        break;
-                }
-                substituida = true;
-                i++;
-            } else {
-                resultado += stringOriginal[i];
-            }
-        }
-
-        return resultado;
+       return comum.substituirValor(stringOriginal, novoValor, simboloTipo);
     }
 
 
-    protected async resolveQuantidadeDeInterpolacoes(texto: Literal): Promise<RegExpMatchArray> {
-        const stringOriginal: string = texto.valor;
-        const regex = /%[a-zA-Z]/g;
-
-        const matches = stringOriginal.match(regex);
-
-        return matches
+    async resolveQuantidadeDeInterpolacoes(texto: Literal): Promise<RegExpMatchArray> {
+        return comum.resolveQuantidadeDeInterpolacoes(texto);
     }
 
    async verificaTipoDaInterpolação(dados: {tipo: string, valor: any}) {
-        switch(dados.tipo) {
-            case 'd':
-            case 'i':
-            case 'u':
-                const valor = dados.valor.hasOwnProperty('valor') ? dados.valor.valor : dados.valor;
-                if (typeof valor !== 'number') {
-                    throw new Error('O valor interpolado não é um número.')
-                }
-                return true;
-            case 'c':
-            case 's':
-                const valorString = dados.valor.hasOwnProperty('valor') ? dados.valor.valor : dados.valor;
-                if (typeof valorString !== 'string') {
-                    throw new Error('O valor interpolado não é um caractere.')
-                }
-                return true;
-            default:
-                throw new Error('Tipo de interpolação não suportado.')
-        }
+        return comum.verificaTipoDaInterpolação(dados);
    }
 
-    protected async avaliarArgumentosEscrevaBirl(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-        let quantidadeInterpolacoes: RegExpMatchArray;
-
-        if (argumentos.length < 1) {
-            throw new Error('Escreva precisa de pelo menos um argumento.');
-        }
-        if (!(argumentos[0] instanceof Literal)) {
-            throw new Error('O primeiro argumento de Escreva precisa ser uma string.');
-        }
-        quantidadeInterpolacoes = await this.resolveQuantidadeDeInterpolacoes(argumentos[0] as Literal);
-
-        const resultadoAvaliacaoLiteral = await this.avaliar(argumentos[0]);
-
-        if (quantidadeInterpolacoes === null) {
-            formatoTexto = resultadoAvaliacaoLiteral?.hasOwnProperty('valor') ? resultadoAvaliacaoLiteral.valor : resultadoAvaliacaoLiteral;
-            return formatoTexto
-        }
-
-        if (!(argumentos.length - 1 === quantidadeInterpolacoes.length)) {
-            throw new Error('Quantidade de argumentos não bate com quantidade de interpolacoes.');
-        }
-
-        formatoTexto = resultadoAvaliacaoLiteral;
-
-        for (let i = 0; i < quantidadeInterpolacoes.length; i++) {
-            const dados = {
-                tipo: quantidadeInterpolacoes[i].replace('%', ''),
-                valor: await this.avaliar(argumentos[i + 1])
-            }
-
-            if (this.verificaTipoDaInterpolação(dados)) {
-                formatoTexto = await this.substituirValor(formatoTexto, dados.valor, dados.tipo);
-            }
-        }
-
-        return formatoTexto.trimEnd();
+    async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+       return comum.avaliarArgumentosEscreva(this,  argumentos);
     }
 
     /**
@@ -846,7 +649,7 @@ export class InterpretadorBirl extends InterpretadorComDepuracao implements Inte
      */
     async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
-            const formatoTexto: string = await this.avaliarArgumentosEscrevaBirl(declaracao.argumentos);
+            const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
