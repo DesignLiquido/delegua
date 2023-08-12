@@ -62,7 +62,7 @@ export default function (interpretador: VisitanteComumInterface, pilhaEscoposExe
         'aleatorioEntre',
         new FuncaoPadrao(1, async function (minimo: VariavelInterface | number, maximo: VariavelInterface | number) {
             // eslint-disable-next-line prefer-rest-params
-            if (!arguments[0]) {
+            if (arguments.length <= 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.')
                 );
