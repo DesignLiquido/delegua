@@ -1,11 +1,11 @@
-import { LexadorEguaP } from '../../fontes/lexador/dialetos';
+import { LexadorPitugues } from '../../fontes/lexador/dialetos';
 
-describe('Lexador (EguaP)', () => {
+describe('Lexador (Pituguês)', () => {
     describe('mapear()', () => {
-        let lexador: LexadorEguaP;
+        let lexador: LexadorPitugues;
 
         beforeEach(() => {
-            lexador = new LexadorEguaP();
+            lexador = new LexadorPitugues();
         });
 
         describe('Cenários de sucesso', () => {

@@ -1134,7 +1134,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bhaskara",
+            "name": "Pituguês > Bhaskara",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1144,8 +1144,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/bhaskara.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/bhaskara.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1157,7 +1157,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Enquanto",
+            "name": "Pituguês > Bloco Enquanto",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1167,8 +1167,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/estruturas-de-repeticao/enquanto.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/estruturas-de-repeticao/enquanto.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1180,7 +1180,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Escolha",
+            "name": "Pituguês > Bloco Escolha",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1190,8 +1190,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/condicionais/escolha.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/condicionais/escolha.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1203,7 +1203,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Fazer ... Enquanto",
+            "name": "Pituguês > Bloco Fazer ... Enquanto",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1213,8 +1213,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/estruturas-de-repeticao/fazer-enquanto.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/estruturas-de-repeticao/fazer-enquanto.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1226,7 +1226,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Para",
+            "name": "Pituguês > Bloco Para",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1236,8 +1236,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/estruturas-de-repeticao/para.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/estruturas-de-repeticao/para.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1249,7 +1249,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Se",
+            "name": "Pituguês > Bloco Se",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1259,8 +1259,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/condicionais/se.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/condicionais/se.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1272,7 +1272,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Classes",
+            "name": "Pituguês > Classes",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1282,8 +1282,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/classes/teste-classe.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/classes/teste-classe.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1295,7 +1295,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Classes > Construtor",
+            "name": "Pituguês > Classes > Construtor",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1305,8 +1305,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/classes/construtor-classe.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/classes/construtor-classe.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1318,7 +1318,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > FizzBuzz",
+            "name": "Pituguês > FizzBuzz",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1328,8 +1328,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/fizzbuzz.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/fizzbuzz.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1341,7 +1341,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Média",
+            "name": "Pituguês > Média",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1351,8 +1351,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/media.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/media.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1364,7 +1364,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > REPL",
+            "name": "Pituguês > REPL",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1374,7 +1374,7 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap"
+                "pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
