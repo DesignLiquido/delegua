@@ -728,6 +728,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         let resolverIncrementoEmExecucao = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
             passo = this.unario();
+            if (passo.hasOwnProperty('operador') && (passo as Unario).operador.tipo === tiposDeSimbolos.SUBTRACAO) {
+                operadorCondicao = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
+                operadorCondicaoIncremento = new Simbolo(tiposDeSimbolos.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
+            }
         } else {
             if (literalOuVariavelInicio instanceof Literal && literalOuVariavelFim instanceof Literal) {
                 if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
@@ -785,17 +789,20 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const para = new Para(
             this.hashArquivo,
             Number(simboloPara.linha),
+            // Inicialização.
             new Atribuir(
                 this.hashArquivo,
                 variavelIteracao,
                 literalOuVariavelInicio
             ),
+            // Condição.
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
                 operadorCondicao,
                 literalOuVariavelFim
             ),
+            // Incremento, feito em construto especial `FimPara`.
             new FimPara(
                 this.hashArquivo,
                 Number(simboloPara.linha),
