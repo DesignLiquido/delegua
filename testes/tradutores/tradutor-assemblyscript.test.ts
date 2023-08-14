@@ -205,7 +205,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/let c: any = -a \+ 3/i);
             });
             });
-            it.only('definindo funcao com variavel', () => {
+            it('definindo funcao com variavel', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'var a = funcao(parametro1: inteiro, parametro2: inteiro) { escreva(\'Oi\')\nescreva(\'Olá\') \n retorna 123 }',
@@ -217,7 +217,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a = function\(parametro1, parametro2\) {/i);
+                expect(resultado).toMatch(/let a: any = function\(parametro1: f64, parametro2: f64\) {/i);
                 expect(resultado).toMatch(/console\.log\('Oi'\)/i);
                 expect(resultado).toMatch(/console\.log\('Olá'\)/i);
                 expect(resultado).toMatch(/a\(1, 2\)/i);
