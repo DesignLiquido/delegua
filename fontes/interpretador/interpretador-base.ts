@@ -120,12 +120,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
-    
+
     }
 
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let tipoDe = expressao.valor;
-        
+
         if(tipoDe instanceof Binario
             || tipoDe instanceof Variavel
             || tipoDe instanceof TipoDe) {
@@ -239,7 +239,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.avaliar(expressao.expressao);
     }
 
-    protected eVerdadeiro(objeto: any): boolean {
+    eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
         if (objeto.hasOwnProperty('valor')) {
@@ -517,7 +517,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
                     );
                 }
-                
+
                 return await entidadeChamada.chamar(this, argumentosResolvidos);
             }
 
@@ -1238,8 +1238,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         const deleguaClasse: DeleguaClasse = new DeleguaClasse(
-            declaracao.simbolo.lexema, 
-            superClasse, 
+            declaracao.simbolo.lexema,
+            superClasse,
             metodos,
             declaracao.propriedades
         );
@@ -1427,7 +1427,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
-            if (manterAmbiente) {    
+            if (manterAmbiente) {
                 escopoAnterior.ambiente.valores = Object.assign(
                     escopoAnterior.ambiente.valores,
                     ultimoEscopo.ambiente.valores

@@ -1,19 +1,22 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { Construto } from '../construtos';
-import {
-    Declaracao
-} from '../declaracoes';
+import { Declaracao } from '../declaracoes';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
 import { RetornoInterpretador } from './retornos/retorno-interpretador';
 import { VisitanteComumInterface } from './visitante-comum-interface';
+import { ErroInterpretador } from '../interpretador';
 
 export interface InterpretadorInterface extends VisitanteComumInterface {
+    erros: ErroInterpretador[];
     diretorioBase: any;
     funcaoDeRetorno: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any;
+    resultadoInterpretador: Array<string>;
+    executarUltimoEscopo(manterAmbiente?: boolean): Promise<any>;
 
+    eVerdadeiro(objeto: any): boolean;
     avaliar(expressao: Construto | Declaracao): any;
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any>;
     paraTexto(objeto: any): any;

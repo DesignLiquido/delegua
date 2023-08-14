@@ -43,6 +43,7 @@ import {
 } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
@@ -87,7 +88,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
         '%s': 'texto',
         '%c': 'texto',
         '%p': 'texto',
-    }
+    };
 
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
@@ -235,8 +236,8 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-                ? 'número'
-                : String(NaN);
+            ? 'número'
+            : String(NaN);
         if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
@@ -500,11 +501,11 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-       await comum.visitarExpressaoLeia(expressao);
+        await comum.visitarExpressaoLeia(this, expressao);
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-       return comum.visitarExpressaoLiteral(expressao);
+        return comum.visitarExpressaoLiteral(expressao);
     }
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
@@ -536,14 +537,14 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        return comum.visitarDeclaracaoPara(declaracao);
+        return comum.visitarDeclaracaoPara(this, declaracao);
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
-    protected eVerdadeiro(objeto: any): boolean {
+    eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
         if (objeto.hasOwnProperty('valor')) {
@@ -625,20 +626,19 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
         novoValor: number | string | any,
         simboloTipo: string
     ): Promise<string> {
-       return comum.substituirValor(stringOriginal, novoValor, simboloTipo);
+        return comum.substituirValor(stringOriginal, novoValor, simboloTipo);
     }
-
 
     async resolveQuantidadeDeInterpolacoes(texto: Literal): Promise<RegExpMatchArray> {
         return comum.resolveQuantidadeDeInterpolacoes(texto);
     }
 
-   async verificaTipoDaInterpolação(dados: {tipo: string, valor: any}) {
+    async verificaTipoDaInterpolação(dados: { tipo: string; valor: any }) {
         return comum.verificaTipoDaInterpolação(dados);
-   }
+    }
 
     async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-       return comum.avaliarArgumentosEscreva(this,  argumentos);
+        return comum.avaliarArgumentosEscreva(this, argumentos);
     }
 
     /**
@@ -837,37 +837,6 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
     }
 
     async interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador> {
-        this.erros = [];
-
-        const escopoExecucao: EscopoExecucao = {
-            declaracoes: declaracoes,
-            declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
-            finalizado: false,
-            tipo: 'outro',
-            emLacoRepeticao: false,
-        };
-        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
-        try {
-            const retornoOuErro = await this.executarUltimoEscopo(manterAmbiente);
-            if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
-                this.erros.push(retornoOuErro);
-            }
-        } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: -1,
-                hashArquivo: -1,
-            });
-        } finally {
-            const retorno = {
-                erros: this.erros,
-                resultado: this.resultadoInterpretador,
-            } as RetornoInterpretador;
-
-            this.resultadoInterpretador = [];
-            return retorno;
-        }
+        return comum.interpretar(this, declaracoes, manterAmbiente);
     }
 }

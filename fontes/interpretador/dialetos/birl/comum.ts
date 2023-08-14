@@ -1,10 +1,13 @@
 import { AcessoIndiceVariavel, Construto, Literal, Variavel } from '../../../construtos';
-import { Leia, Para } from '../../../declaracoes';
-import { InterpretadorInterface } from '../../../interfaces';
+import { Declaracao, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
 import { InterpretadorBirl } from './interpretador-birl';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
+import { RetornoInterpretador } from '../../../interfaces/retornos';
+import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { EspacoVariaveis } from '../../../espaco-variaveis';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 function converteTipoOuEstouraError(valor: any, tipo: string) {
     try {
@@ -29,7 +32,7 @@ function converteTipoOuEstouraError(valor: any, tipo: string) {
 }
 
 export async function atribuirVariavel(
-    interpretador: InterpretadorBirl,
+    interpretador: InterpretadorBirlInterface,
     expressao: Construto,
     valor: any,
     tipo: string
@@ -196,7 +199,7 @@ export async function substituirValor(
     return resultado;
 }
 
-export async function visitarExpressaoLeia(expressao: Leia): Promise<any> {
+export async function visitarExpressaoLeia(interpretador: InterpretadorBirlInterface, expressao: Leia): Promise<any> {
     // const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
     /**
      * Em Birl não se usa mensagem junto com o prompt, normalmente se usa um Escreva antes.
@@ -204,13 +207,13 @@ export async function visitarExpressaoLeia(expressao: Leia): Promise<any> {
     const mensagem = '> ';
     const promessaLeitura: Function = () =>
         new Promise((resolucao) =>
-            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+            interpretador.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
                 resolucao(resposta);
             })
         );
 
     const valorLido = await promessaLeitura();
-    await atribuirVariavel(this, expressao.argumentos[0], valorLido, expressao.argumentos[1].valor);
+    await atribuirVariavel(interpretador, expressao.argumentos[0], valorLido, expressao.argumentos[1].valor);
 
     return;
 }
@@ -227,26 +230,29 @@ export async function visitarExpressaoLiteral(expressao: Literal): Promise<any> 
     return expressao.valor;
 }
 
-export async function visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+export async function visitarDeclaracaoPara(interpretador: InterpretadorBirlInterface, declaracao: Para): Promise<any> {
     if (declaracao.inicializador !== null) {
         if (declaracao.inicializador instanceof Array) {
             if (declaracao.inicializador[0] instanceof Variavel) {
-                const valor = await this.avaliar(declaracao.inicializador[1]);
-                this.pilhaEscoposExecucao.atribuirVariavel(declaracao.inicializador[0].simbolo, valor);
+                const valor = await interpretador.avaliar(declaracao.inicializador[1]);
+                interpretador.pilhaEscoposExecucao.atribuirVariavel(declaracao.inicializador[0].simbolo, valor);
             }
         } else {
-            await this.avaliar(declaracao.inicializador);
+            await interpretador.avaliar(declaracao.inicializador);
         }
     }
 
     let retornoExecucao: any;
     while (!(retornoExecucao instanceof Quebra)) {
-        if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+        if (
+            declaracao.condicao !== null &&
+            !interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicao))
+        ) {
             break;
         }
 
         try {
-            retornoExecucao = await this.executar(declaracao.corpo);
+            retornoExecucao = await interpretador.executar(declaracao.corpo, false);
             if (retornoExecucao instanceof SustarQuebra) {
                 return null;
             }
@@ -255,7 +261,7 @@ export async function visitarDeclaracaoPara(declaracao: Para): Promise<any> {
                 retornoExecucao = null;
             }
         } catch (erro: any) {
-            this.erros.push({
+            interpretador.erros.push({
                 erroInterno: erro,
                 linha: declaracao.linha,
                 hashArquivo: declaracao.hashArquivo,
@@ -264,9 +270,48 @@ export async function visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         }
 
         if (declaracao.incrementar !== null) {
-            await this.avaliar(declaracao.incrementar);
+            await interpretador.avaliar(declaracao.incrementar);
         }
     }
 
     return retornoExecucao;
+}
+
+export async function interpretar(
+    interpretador: InterpretadorBirlInterface,
+    declaracoes: Declaracao[],
+    manterAmbiente?: boolean
+): Promise<RetornoInterpretador> {
+    interpretador.erros = [];
+
+    const escopoExecucao: EscopoExecucao = {
+        declaracoes: declaracoes,
+        declaracaoAtual: 0,
+        ambiente: new EspacoVariaveis(),
+        finalizado: false,
+        tipo: 'outro',
+        emLacoRepeticao: false,
+    };
+    interpretador.pilhaEscoposExecucao.empilhar(escopoExecucao);
+
+    try {
+        const retornoOuErro = await interpretador.executarUltimoEscopo(manterAmbiente);
+        if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
+            interpretador.erros.push(retornoOuErro);
+        }
+    } catch (erro: any) {
+        interpretador.erros.push({
+            erroInterno: erro,
+            linha: -1,
+            hashArquivo: -1,
+        });
+    } finally {
+        const retorno = {
+            erros: interpretador.erros,
+            resultado: interpretador.resultadoInterpretador,
+        } as RetornoInterpretador;
+
+        interpretador.resultadoInterpretador = [];
+        return retorno;
+    }
 }

@@ -1,6 +1,7 @@
 import { Construto, Literal } from '../../../construtos';
-import { Leia, Para } from '../../../declaracoes';
+import { Declaracao, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
+import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import * as comum from './comum';
 
@@ -8,6 +9,16 @@ export class InterpretadorBirlComDepuracao extends InterpretadorComDepuracao imp
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
     }
+
+    async atribuirVariavel(
+        interpretador: InterpretadorBirlInterface,
+        expressao: Construto,
+        valor: any,
+        tipo: string
+    ): Promise<any> {
+        return comum.atribuirVariavel(interpretador, expressao, valor, tipo);
+    }
+
     async resolveQuantidadeDeInterpolacoes(expressao: Literal): Promise<RegExpMatchArray> {
         return comum.resolveQuantidadeDeInterpolacoes(expressao);
     }
@@ -25,7 +36,7 @@ export class InterpretadorBirlComDepuracao extends InterpretadorComDepuracao imp
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        await comum.visitarExpressaoLeia(expressao);
+        await comum.visitarExpressaoLeia(this, expressao);
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
@@ -33,12 +44,14 @@ export class InterpretadorBirlComDepuracao extends InterpretadorComDepuracao imp
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        return comum.visitarDeclaracaoPara(declaracao);
+        return comum.visitarDeclaracaoPara(this, declaracao);
     }
 
-    async avaliarArgumentosEscreva(
-        argumentos: Construto[]
-    ): Promise<string> {
+    async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         return comum.avaliarArgumentosEscreva(this, argumentos);
+    }
+
+    async interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador> {
+        return comum.interpretar(this, declaracoes, manterAmbiente);
     }
 }

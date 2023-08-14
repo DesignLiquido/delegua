@@ -6,4 +6,5 @@ export interface InterpretadorBirlInterface extends InterpretadorInterface {
     verificaTipoDaInterpolação(dados: {tipo: string, valor: any}): Promise<boolean>;
     substituirValor(stringOriginal: string, novoValor: number | string | any, simboloTipo: string): Promise<string>;
     avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string>;
+    
 }
