@@ -5,6 +5,7 @@ import { Simbolo } from '../simbolo';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { palavrasReservadas } from './palavras-reservadas/birl';
+import { SimboloInterface } from '../../interfaces';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
@@ -229,7 +230,7 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         return [...codigoComeco, ...codigoPosPosição];
     }
 
-    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -248,6 +249,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

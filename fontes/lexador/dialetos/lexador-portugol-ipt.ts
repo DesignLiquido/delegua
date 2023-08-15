@@ -6,7 +6,7 @@ import { Simbolo } from "../simbolo";
 import { palavrasReservadas } from "./palavras-reservadas/portugol-ipt";
 import tiposDeSimbolos from "../../tipos-de-simbolos/portugol-ipt";
 
-export class LexadorPortugolIpt implements LexadorInterface {
+export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
     hashArquivo: number;
@@ -268,7 +268,7 @@ export class LexadorPortugolIpt implements LexadorInterface {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         this.simbolos = [];
         this.erros = [];
 
@@ -287,6 +287,6 @@ export class LexadorPortugolIpt implements LexadorInterface {
         return {
             simbolos: this.simbolos,
             erros: this.erros
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

@@ -1,4 +1,5 @@
 import { AvaliadorSintaticoEguaClassico } from "../../fontes/avaliador-sintatico/dialetos";
+import { SimboloInterface } from "../../fontes/interfaces";
 import { RetornoLexador } from "../../fontes/interfaces/retornos/retorno-lexador";
 import { LexadorEguaClassico } from "../../fontes/lexador/dialetos";
 
@@ -21,7 +22,7 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         });
 
         it('Falha - Vetor vazio', () => {
-            expect(() => avaliadorSintatico.analisar({ simbolos: [] } as unknown as RetornoLexador, -1)).toThrow(TypeError);
+            expect(() => avaliadorSintatico.analisar({ simbolos: [] } as any as RetornoLexador<SimboloInterface>, -1)).toThrow(TypeError);
         });
 
         it('Falha - Undefined', () => {

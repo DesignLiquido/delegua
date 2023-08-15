@@ -1,7 +1,7 @@
 import { RetornoLexador } from './retornos/retorno-lexador';
 import { SimboloInterface } from './simbolo-interface';
 
-export interface LexadorInterface {
+export interface LexadorInterface<T> {
     simbolos: SimboloInterface[];
     codigo: string | string[];
     inicioSimbolo: number;
@@ -21,5 +21,5 @@ export interface LexadorInterface {
     analisarNumero(): void;
     identificarPalavraChave(): void;
     analisarToken(): void;
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador;
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<T>;
 }

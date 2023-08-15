@@ -4,6 +4,7 @@ import { LexadorBase } from '../lexador-base';
 
 import { palavrasReservadas } from './palavras-reservadas/portugol-studio';
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
+import { SimboloInterface } from '../../interfaces';
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -277,7 +278,7 @@ export class LexadorPortugolStudio extends LexadorBase {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -299,6 +300,6 @@ export class LexadorPortugolStudio extends LexadorBase {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

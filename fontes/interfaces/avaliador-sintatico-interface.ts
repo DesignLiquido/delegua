@@ -23,17 +23,15 @@ import {
 } from '../declaracoes';
 import { RetornoLexador } from './retornos/retorno-lexador';
 
-import { SimboloInterface } from './simbolo-interface';
-
-export interface AvaliadorSintaticoInterface {
-    simbolos: SimboloInterface[];
+export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
+    simbolos: TSimbolo[];
     erros: ErroAvaliadorSintatico[];
 
     atual: number;
     blocos: number;
 
     consumir(tipo: any, mensagemDeErro: string): any;
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico;
+    erro(simbolo: TSimbolo, mensagemDeErro: string): ErroAvaliadorSintatico;
     verificarTipoSimboloAtual(tipo: string): boolean;
     verificarTipoProximoSimbolo(tipo: string): boolean;
     estaNoFinal(): boolean;
@@ -78,5 +76,5 @@ export interface AvaliadorSintaticoInterface {
     corpoDaFuncao(tipo: string): FuncaoConstruto;
     declaracaoDeClasse(): Classe;
     declaracao(): any;
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico;
+    analisar(retornoLexador: RetornoLexador<TSimbolo>, hashArquivo: number): RetornoAvaliadorSintatico<TDeclaracao>;
 }

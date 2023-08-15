@@ -216,7 +216,7 @@ export class MicroLexador {
      * Lê apenas uma linha de código e a transforma em símbolos.
      * @param codigo O código
      */
-    mapear(codigo: string): RetornoLexador {
+    mapear(codigo: string): RetornoLexador<SimboloInterface> {
         this.codigo = codigo;
         this.erros = [];
         this.simbolos = [];
@@ -231,6 +231,6 @@ export class MicroLexador {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }
