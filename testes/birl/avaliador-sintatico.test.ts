@@ -1,12 +1,5 @@
 import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
-import {
-    Enquanto,
-    Escreva,
-    FuncaoDeclaracao,
-    Para,
-    Se,
-    Var
-} from '../../fontes/declaracoes';
+import { Enquanto, Escreva, FuncaoDeclaracao, Para, Se, Var } from '../../fontes/declaracoes';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 import { ErroAvaliadorSintatico } from '../../fontes/avaliador-sintatico/erro-avaliador-sintatico';

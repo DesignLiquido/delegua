@@ -75,7 +75,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         this.erros = [];
         this.performance = performance;
     }
-    
+
     declaracaoDeVariavel(): Var {
         throw new Error("Método não implementado.");
     }
@@ -1204,7 +1204,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
             let funcaoContemRetorno = corpo.find(c => c instanceof Retorna) as Retorna;
             if(funcaoContemRetorno){
                 if(tipoRetorno === 'vazio') {
-                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)                    
+                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)
                 }
 
                 const tipoValor = typeof funcaoContemRetorno.valor.valor;

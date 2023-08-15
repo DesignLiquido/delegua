@@ -1,16 +1,16 @@
-import { AvaliadorSintaticoEguaP } from "../../fontes/avaliador-sintatico/dialetos";
+import { AvaliadorSintaticoPitugues } from "../../fontes/avaliador-sintatico/dialetos";
 import { InterpretadorBase } from "../../fontes/interpretador";
-import { LexadorEguaP } from "../../fontes/lexador/dialetos";
+import { LexadorPitugues } from "../../fontes/lexador/dialetos";
 
-describe('Interpretador (EguaP)', () => {
+describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
-        let lexador: LexadorEguaP;
-        let avaliadorSintatico: AvaliadorSintaticoEguaP;
+        let lexador: LexadorPitugues;
+        let avaliadorSintatico: AvaliadorSintaticoPitugues;
         let interpretador: InterpretadorBase;
 
         beforeEach(() => {
-            lexador = new LexadorEguaP();
-            avaliadorSintatico = new AvaliadorSintaticoEguaP();
+            lexador = new LexadorPitugues();
+            avaliadorSintatico = new AvaliadorSintaticoPitugues();
             interpretador = new InterpretadorBase(process.cwd());
         });
 

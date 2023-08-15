@@ -1,14 +1,14 @@
-import { AvaliadorSintaticoEguaP } from "../../fontes/avaliador-sintatico/dialetos";
-import { LexadorEguaP } from "../../fontes/lexador/dialetos";
+import { AvaliadorSintaticoPitugues } from "../../fontes/avaliador-sintatico/dialetos";
+import { LexadorPitugues } from "../../fontes/lexador/dialetos";
 
-describe('Avaliador sintático (EguaP)', () => {
+describe('Avaliador sintático (Pituguês)', () => {
     describe('analisar()', () => {
-        let lexador: LexadorEguaP;
-        let avaliadorSintatico: AvaliadorSintaticoEguaP;
+        let lexador: LexadorPitugues;
+        let avaliadorSintatico: AvaliadorSintaticoPitugues;
 
         beforeEach(() => {
-            lexador = new LexadorEguaP();
-            avaliadorSintatico = new AvaliadorSintaticoEguaP();
+            lexador = new LexadorPitugues();
+            avaliadorSintatico = new AvaliadorSintaticoPitugues();
         });
 
         it('Sucesso - Olá Mundo', () => {

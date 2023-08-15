@@ -46,7 +46,7 @@ yarn testes-unitarios
 
 ### Testando o servidor do depurador
 
-Para testar o servidor do depurador, execute
+Para testar o servidor do depurador, para depuração remota, execute:
 
 ```bash
 yarn testes:servidor-depuracao

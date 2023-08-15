@@ -23,14 +23,14 @@ describe('Interpretador', () => {
                     '   CE QUER VER ESSA PORRA? ("teste %d %s\n", &X, &FR);',
                     '   BORA CUMPADE 0;',
                     'BIRL',
-                ])
+                ]);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador).toBeTruthy();
                 expect(retornoInterpretador.erros).toHaveLength(0);
-            })
+            });
 
             it.only('Sucesso - Fibonacci', async () => {
                 const retornoLexador = lexador.mapear([

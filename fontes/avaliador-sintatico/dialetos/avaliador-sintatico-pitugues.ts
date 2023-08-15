@@ -49,7 +49,7 @@ import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/eguap';
+import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 import { Simbolo } from '../../lexador';
 
 /**
@@ -60,7 +60,7 @@ import { Simbolo } from '../../lexador';
  * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
-export class AvaliadorSintaticoEguaP implements AvaliadorSintaticoInterface {
+export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
