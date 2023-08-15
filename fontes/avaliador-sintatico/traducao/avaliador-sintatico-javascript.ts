@@ -224,6 +224,9 @@ export class AvaliadorSintaticoJavaScript
         retornoLexador: RetornoLexador<Statement | Directive | ModuleDeclaration>,
         hashArquivo: number
     ): RetornoAvaliadorSintatico<Statement | Directive | ModuleDeclaration> {
-        throw new Error('Método não implementado.');
+        return { 
+            declaracoes: retornoLexador.simbolos,
+            erros: []
+        };
     }
 }
