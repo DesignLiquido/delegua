@@ -946,7 +946,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(hashArquivo);
         this.erros = [];
         this.atual = 0;
@@ -969,6 +969,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

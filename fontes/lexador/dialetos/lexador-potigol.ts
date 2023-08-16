@@ -5,6 +5,7 @@ import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
 import { palavrasReservadas } from "./palavras-reservadas/potigol";
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
+import { SimboloInterface } from "../../interfaces";
 
 /**
  * Lexador para o dialeto Potigol.
@@ -302,7 +303,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -320,6 +321,6 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

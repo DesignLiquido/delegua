@@ -59,7 +59,7 @@ import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
-export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
+export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -1300,7 +1300,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -1327,6 +1327,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

@@ -169,5 +169,5 @@ export abstract class MicroAvaliadorSintaticoBase {
         return this.ou();
     }
 
-    abstract analisar(retornoLexador: RetornoLexador, linha: number): RetornoAvaliadorSintatico;
+    abstract analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao>;
 }

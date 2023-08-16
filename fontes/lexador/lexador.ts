@@ -14,7 +14,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-export class Lexador implements LexadorInterface {
+export class Lexador implements LexadorInterface<SimboloInterface> {
     codigo: string[];
     hashArquivo: number;
     simbolos: SimboloInterface[];
@@ -434,7 +434,7 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
         this.erros = [];
         this.simbolos = [];
@@ -462,6 +462,6 @@ export class Lexador implements LexadorInterface {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

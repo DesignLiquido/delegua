@@ -30,7 +30,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface {
+export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -346,5 +346,5 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     abstract declaracao(): Declaracao;
 
-    abstract analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico;
+    abstract analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao>;
 }

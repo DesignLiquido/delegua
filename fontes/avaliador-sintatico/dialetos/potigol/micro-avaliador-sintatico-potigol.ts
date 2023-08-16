@@ -67,7 +67,7 @@ export class MicroAvaliadorSintaticoPotigol
         return this.primario();
     }
 
-    analisar(retornoLexador: RetornoLexador, linha: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;
@@ -82,6 +82,6 @@ export class MicroAvaliadorSintaticoPotigol
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

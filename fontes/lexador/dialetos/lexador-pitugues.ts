@@ -18,7 +18,7 @@ import { Pragma } from './pragma';
  * por exemplo quantos espaços há na frente de cada linha. Assim como a linguagem Python, os blocos de
  * escopo são definidos pelo número de espaços à frente do código.
  */
-export class LexadorPitugues implements LexadorInterface {
+export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
     codigo: string[];
     hashArquivo: number;
     simbolos: SimboloInterface[];
@@ -435,7 +435,7 @@ export class LexadorPitugues implements LexadorInterface {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
         this.simbolos = [];
         this.erros = [];
@@ -464,6 +464,6 @@ export class LexadorPitugues implements LexadorInterface {
             simbolos: this.simbolos,
             erros: this.erros,
             pragmas: this.pragmas,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }
