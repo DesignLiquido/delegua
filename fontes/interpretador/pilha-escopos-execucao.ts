@@ -54,9 +54,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirConstante(nomeConstante: string, valor: any, subtipo?: string): void {
         const constante = this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante];
-        const tipo = constante && constante.hasOwnProperty('tipo') ? 
-            constante.tipo : 
-            inferirTipoVariavel(valor);
+        const tipo = constante && constante.hasOwnProperty('tipo') ? constante.tipo : inferirTipoVariavel(valor);
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
@@ -74,9 +72,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirVariavel(nomeVariavel: string, valor: any, subtipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
-        const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
-            variavel.tipo : 
-            inferirTipoVariavel(valor);
+        const tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
@@ -94,7 +90,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
-        if(ambienteAncestral.valores[simbolo.lexema].imutavel) {
+        if (ambienteAncestral.valores[simbolo.lexema].imutavel) {
             throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
         }
         ambienteAncestral.valores[simbolo.lexema] = {
@@ -109,12 +105,13 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 const variavel = ambiente.valores[simbolo.lexema];
-                if(variavel.imutavel){
-                    throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
+                if (variavel.imutavel) {
+                    throw new ErroEmTempoDeExecucao(
+                        simbolo,
+                        `Constante '${simbolo.lexema}' não pode receber novos valores.`
+                    );
                 }
-                const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
-                    variavel.tipo : 
-                    inferirTipoVariavel(valor);
+                const tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
 
                 const valorResolvido = this.converterValor(tipo, valor);
                 ambiente.valores[simbolo.lexema] = {

@@ -6,4 +6,5 @@ export interface ParametroInterface {
     nome: SimboloInterface;
     tipo?: TiposDadosInterface;
     valorPadrao?: any;
+    referencia?: boolean;
 }

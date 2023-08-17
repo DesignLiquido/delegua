@@ -843,7 +843,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
                         abrangencia: 'padrao',
-                        nome: parametro
+                        nome: parametro,
+                        referencia: dadosParametros.referencia
                     });
                 }
             }

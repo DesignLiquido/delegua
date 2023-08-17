@@ -1,3 +1,5 @@
+import { ArgumentoInterface } from "../interpretador/argumento-interface";
+
 export class Chamavel {
     valorAridade: number;
 
@@ -5,7 +7,7 @@ export class Chamavel {
         return this.valorAridade;
     }
 
-    async chamar(interpretador?: any, argumentos?: any, simbolo?: any): Promise<any> {
+    async chamar(interpretador?: any, argumentos?: ArgumentoInterface[], simbolo?: any): Promise<any> {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }
