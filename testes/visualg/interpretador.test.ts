@@ -299,6 +299,30 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it.only('Sucesso - Procedimento com passagem por referência', async () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Exemplo Parametros Referencia"',
+                    'var',
+                    '   m,n,res: inteiro',
+                    '   procedimento soma (x,y: inteiro; var result: inteiro)',
+                    '   inicio',
+                    '       result <- x + y',
+                    '   fimprocedimento',
+                    'inicio',
+                    '   n <- 4',
+                    '   m <- -9',
+                    '   soma(n,m,res)',
+                    '   escreva(res)',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            })
+
             it('Sucesso - Operadores Lógicos', async () => {
                 const retornoLexador = lexador.mapear([
                     'algoritmo "Exemplo Xou"',

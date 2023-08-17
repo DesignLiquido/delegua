@@ -1,5 +1,5 @@
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
-import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
+import { AvaliadorSintaticoBase } from '../../avaliador-sintatico-base';
 import {
     Bloco,
     Declaracao,
@@ -16,7 +16,7 @@ import {
     Se,
     Sustar,
     Var,
-} from '../../declaracoes';
+} from '../../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -32,11 +32,12 @@ import {
     Logico,
     Unario,
     Variavel,
-} from '../../construtos';
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
-import { Simbolo } from '../../lexador';
+} from '../../../construtos';
+import { ParametroInterface, SimboloInterface } from '../../../interfaces';
+import { Simbolo } from '../../../lexador';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
+import { ParametroVisuAlg } from './parametro-visualg';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -99,10 +100,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return dimensoes;
     }
 
-    private logicaComumParametroVisuAlg():
-        { identificadores: SimboloInterface[], tipo: string, simbolo: SimboloInterface }
+    private logicaComumParametroVisuAlg(): ParametroVisuAlg
     {
         const identificadores = [];
+        let referencia: boolean = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAR);
+
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -127,7 +129,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return {
             identificadores,
             tipo: tipoVariavel,
-            simbolo: simboloAnterior
+            simbolo: simboloAnterior,
+            referencia: referencia
         };
     }
 
