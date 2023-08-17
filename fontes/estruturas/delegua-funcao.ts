@@ -52,13 +52,7 @@ export class DeleguaFuncao extends Chamavel {
                 argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
             }
 
-            let valor: VariavelInterface = {
-                imutavel: false,
-                valor: argumento.valor,
-                tipo: 'texto'
-            };
-
-            ambiente.valores[nome] = valor;
+            ambiente.valores[nome] = argumento.valor;
         }
 
         if (this.instancia !== undefined) {
@@ -83,7 +77,7 @@ export class DeleguaFuncao extends Chamavel {
             }
         }).filter(r => r);
         const pilha = interpretador.pilhaEscoposExecucao as PilhaEscoposExecucaoInterface;
-        
+
         for (let referencia of referencias) {
             let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
             pilha.atribuirVariavel(
