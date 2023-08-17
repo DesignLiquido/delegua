@@ -10,12 +10,14 @@ export class Var extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
     tipo: TiposDadosInterface;
+    referencia: boolean;
 
     constructor(simbolo: SimboloInterface, inicializador: Construto, tipo: TiposDadosInterface = undefined) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
         this.tipo = tipo;
+        this.referencia = false;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

@@ -14,4 +14,5 @@ export interface VariavelInterface {
         | 'módulo';
     subtipo?: 'texto' | 'número' | 'longo' | 'lógico';
     imutavel: boolean;
+    nomeReferencia?: string;
 }

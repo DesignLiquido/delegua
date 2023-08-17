@@ -69,6 +69,7 @@ import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
+import { ArgumentoInterface } from './argumento-interface';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -494,9 +495,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                 ? variavelEntidadeChamada.valor
                 : variavelEntidadeChamada;
 
-            let argumentos = [];
+            let argumentos: ArgumentoInterface[] = [];
             for (let i = 0; i < expressao.argumentos.length; i++) {
-                argumentos.push(await this.avaliar(expressao.argumentos[i]));
+                const variavelArgumento = expressao.argumentos[i];
+                argumentos.push({
+                    nome: variavelArgumento.simbolo.lexema,
+                    valor: await this.avaliar(variavelArgumento)
+                });
             }
 
             if (entidadeChamada instanceof DeleguaModulo) {
@@ -542,8 +547,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
             } else {
                 if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
-                    const novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                    novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                    let novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                    novosArgumentos = novosArgumentos.concat(argumentos.slice(parametros.length - 1, argumentos.length));
                     argumentos = novosArgumentos;
                 }
             }
@@ -978,7 +983,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.executarBloco(declaracao.declaracoes);
     }
 
-    protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
+    protected async avaliacaoDeclaracaoVar(declaracao: Var | Const): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
@@ -1427,7 +1432,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
-            if (manterAmbiente) {    
+            if (manterAmbiente) {
                 escopoAnterior.ambiente.valores = Object.assign(
                     escopoAnterior.ambiente.valores,
                     ultimoEscopo.ambiente.valores
