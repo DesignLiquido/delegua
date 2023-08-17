@@ -299,7 +299,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.only('Sucesso - Procedimento com passagem por referência', async () => {
+            it('Sucesso - Procedimento com passagem por referência', async () => {
                 const retornoLexador = lexador.mapear([
                     'algoritmo "Exemplo Parametros Referencia"',
                     'var',
