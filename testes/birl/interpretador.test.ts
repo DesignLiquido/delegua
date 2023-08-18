@@ -15,6 +15,18 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
+            it.skip('Validando string no escreva', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW',
+                    '   CE QUER VER ESSA PORRA? (1);',
+                    'BIRL'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(async () => await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes)).toThrow(Error);
+            })
+
             it('Sucesso - varias argumentos no escreva', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW',

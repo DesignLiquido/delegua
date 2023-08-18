@@ -1,13 +1,12 @@
 import { AcessoIndiceVariavel, Construto, Literal, Variavel } from '../../../construtos';
 import { Declaracao, Leia, Para } from '../../../declaracoes';
-import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
-import { InterpretadorBirl } from './interpretador-birl';
-import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
-import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
-import { RetornoInterpretador } from '../../../interfaces/retornos';
-import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
+import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { RetornoInterpretador } from '../../../interfaces/retornos';
+import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 
 function converteTipoOuEstouraError(valor: any, tipo: string) {
     try {
@@ -92,7 +91,7 @@ export async function avaliarArgumentosEscreva(
     if (argumentos.length < 1) {
         throw new Error('Escreva precisa de pelo menos um argumento.');
     }
-    if (!(argumentos[0] instanceof Literal)) {
+    if (typeof argumentos[0].valor !== 'string') {
         throw new Error('O primeiro argumento de Escreva precisa ser uma string.');
     }
     quantidadeInterpolacoes = await interpretador.resolveQuantidadeDeInterpolacoes(argumentos[0] as Literal);
