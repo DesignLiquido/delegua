@@ -60,7 +60,7 @@ import { Simbolo } from '../../lexador';
  * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
-export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface {
+export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
@@ -984,7 +984,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -1013,6 +1013,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

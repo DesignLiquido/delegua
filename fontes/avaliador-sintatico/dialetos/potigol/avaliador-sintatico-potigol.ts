@@ -519,7 +519,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             "Esperado identificador de variável após 'para'."
         );
 
-        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
+        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
 
         const literalOuVariavelInicio = this.adicaoOuSubtracao();
 
@@ -946,7 +946,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(hashArquivo);
         this.erros = [];
         this.atual = 0;
@@ -969,6 +969,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

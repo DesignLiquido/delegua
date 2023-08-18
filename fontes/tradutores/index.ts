@@ -3,4 +3,4 @@ export * from './tradutor-portugol-ipt';
 export * from './tradutor-python';
 export * from './tradutor-reverso-javascript';
 export * from './tradutor-reverso-python';
-export * from './tradutor-visualg';
+export * from './tradutor-reverso-visualg';

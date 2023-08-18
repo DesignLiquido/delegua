@@ -937,7 +937,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.blocos = 0;
         this.atual = 0;
@@ -948,6 +948,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

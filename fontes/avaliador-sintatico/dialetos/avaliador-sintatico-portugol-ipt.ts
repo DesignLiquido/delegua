@@ -8,8 +8,6 @@ import { SimboloInterface } from "../../interfaces";
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     primario(): Construto {
-        const simboloAtual = this.simbolos[this.atual];
-
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -186,7 +184,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         );
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -213,6 +211,6 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

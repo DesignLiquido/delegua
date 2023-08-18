@@ -5,4 +5,4 @@ export * from './avaliador-sintatico-mapler';
 export * from './potigol/avaliador-sintatico-potigol';
 export * from './avaliador-sintatico-portugol-ipt';
 export * from './avaliador-sintatico-portugol-studio';
-export * from './avaliador-sintatico-visualg';
+export * from './visualg/avaliador-sintatico-visualg';

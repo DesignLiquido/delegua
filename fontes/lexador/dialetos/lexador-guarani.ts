@@ -5,6 +5,7 @@ import { ErroLexador } from "../erro-lexador";
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
 import { palavrasReservadas } from './palavras-reservadas/guarani';
+import { SimboloInterface } from "../../interfaces";
 
 export class LexadorGuarani extends LexadorBase {
     analisarTexto(delimitador: string): void {
@@ -104,7 +105,7 @@ export class LexadorGuarani extends LexadorBase {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -126,7 +127,6 @@ export class LexadorGuarani extends LexadorBase {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
-    
 }

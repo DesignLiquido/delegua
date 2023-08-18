@@ -1,5 +1,5 @@
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
-import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
+import { AvaliadorSintaticoBase } from '../../avaliador-sintatico-base';
 import {
     Bloco,
     Declaracao,
@@ -16,7 +16,7 @@ import {
     Se,
     Sustar,
     Var,
-} from '../../declaracoes';
+} from '../../../declaracoes';
 import {
     AcessoIndiceVariavel,
     Agrupamento,
@@ -32,11 +32,12 @@ import {
     Logico,
     Unario,
     Variavel,
-} from '../../construtos';
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
-import { Simbolo } from '../../lexador';
+} from '../../../construtos';
+import { ParametroInterface, SimboloInterface } from '../../../interfaces';
+import { Simbolo } from '../../../lexador';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
+import { ParametroVisuAlg } from './parametro-visualg';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -99,10 +100,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return dimensoes;
     }
 
-    private logicaComumParametroVisuAlg():
-        { identificadores: SimboloInterface[], tipo: string, simbolo: SimboloInterface }
+    private logicaComumParametroVisuAlg(): ParametroVisuAlg
     {
         const identificadores = [];
+        let referencia: boolean = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAR);
+
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -127,7 +129,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return {
             identificadores,
             tipo: tipoVariavel,
-            simbolo: simboloAnterior
+            simbolo: simboloAnterior,
+            referencia: referencia
         };
     }
 
@@ -705,7 +708,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado identificador de variável após 'para'."
         );
 
-        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
+        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
 
         const literalOuVariavelInicio = this.adicaoOuSubtracao();
 
@@ -840,7 +843,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
                         abrangencia: 'padrao',
-                        nome: parametro
+                        nome: parametro,
+                        referencia: dadosParametros.referencia
                     });
                 }
             }
@@ -1014,7 +1018,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @param retornoLexador Os símbolos entendidos pelo Lexador.
      * @param hashArquivo Obrigatório por interface mas não usado aqui.
      */
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -1042,6 +1046,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }
