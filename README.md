@@ -43,7 +43,7 @@
 
 ## Introdução
 
-Delégua é uma linguagem de programação baseada na língua portuguesa, cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.tech), usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
+Delégua é uma linguagem de programação baseada na língua portuguesa, cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.dev),usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
 
 Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
 
@@ -56,7 +56,7 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 - **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação. Temos diferentes pacotes e bibliotecas para física, matemática, etc.
 - **Modular.** Escreva múltiplos fontes e os reuse em seu código.
 - **Orientada a Objetos.** Classes, objetos e herança são implementados em Delégua e Pituguês.
-- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](http://visualg3.com.br), [Portugol Studio](http://lite.acad.univali.br/portugol/), [Portugol Mapler](https://portugol.sourceforge.io/) e [Portugol IPT](http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html). 
+- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](https://pt.wikipedia.org/wiki/Visualg), [Portugol Studio](http://lite.acad.univali.br/portugol/), [Portugol Mapler](https://portugol.sourceforge.io/) e [Portugol IPT](http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html). 
 - **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha.
 - **Portável.** Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.
 - **Traduzível.** Traduza de Delégua para Python ou JavaScript, ou ainda de Python ou JavaScript para Delégua.
@@ -73,7 +73,7 @@ Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, com
 - [Dentro do Visual Studio Code, instale a extensão da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode). [Aprenda como executar e depurar seu programa aqui](https://www.youtube.com/watch?v=TQxLekzvBv8);
 - [Utilize nosso editor online](https://designliquido.github.io/delegua-web/).
 
-Para instalar no seu computador, veja o projeto [`@designliquido/delegua-node`](https://github.com/DesignLiquido/delegua-node). 
+Para instalar no seu computador, veja o projeto [@designliquido/delegua-node](https://github.com/DesignLiquido/delegua-node). 
 
 ## Documentação
 
@@ -82,6 +82,6 @@ Para instalar no seu computador, veja o projeto [`@designliquido/delegua-node`](
 
 ## Contribuições e Comunidade
 
-* Para contribuições, por favor, leia o nosso [Guia de Contribuição](.github/CONTRIBUTING.md) antes de submeter uma _Pull Request_.
+* Para contribuições, por favor, leia o nosso [Guia de Contribuição](./CONTRIBUINDO.md) antes de submeter uma _Pull Request_.
 * [Veja nossas discussões atuais](https://github.com/DesignLiquido/delegua/discussions).
 * [Temos um grupo no Discord](https://discord.gg/4tBxWSSbdV).
