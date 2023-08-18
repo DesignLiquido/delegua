@@ -708,7 +708,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             "Esperado identificador de variável após 'para'."
         );
 
-        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
+        this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
 
         const literalOuVariavelInicio = this.adicaoOuSubtracao();
 
