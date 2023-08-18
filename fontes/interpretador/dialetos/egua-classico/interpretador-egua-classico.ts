@@ -1,14 +1,23 @@
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 
 import { Chamavel } from '../../../estruturas/chamavel';
-import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../../../estruturas/delegua-classe';
 import { DeleguaFuncao } from '../../../estruturas/delegua-funcao';
-import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
+import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
 import { DeleguaModulo } from '../../../estruturas/modulo';
+import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
 
-import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../../interfaces';
+import {
+    AcessoIndiceVariavel,
+    Atribuir,
+    Construto,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    Super,
+    TipoDe,
+    Variavel
+} from '../../../construtos';
 import {
     Classe,
     Const,
@@ -28,29 +37,18 @@ import {
     Tente,
     Var,
 } from '../../../declaracoes';
-import {
-    AcessoIndiceVariavel,
-    Atribuir,
-    Chamada,
-    Construto,
-    FimPara,
-    FormatacaoEscrita,
-    Literal,
-    Super,
-    TipoDe,
-    Variavel,
-} from '../../../construtos';
-import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
-import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
 
 import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classico/biblioteca-global';
-import { carregarModuloPorNome } from '../../../bibliotecas/dialetos/egua-classico';
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
 
 /**

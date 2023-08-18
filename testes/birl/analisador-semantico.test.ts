@@ -1,6 +1,6 @@
-import { LexadorBirl } from '../../fontes/lexador/dialetos';
-import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
 import { AnalisadorSemanticoBirl } from '../../fontes/analisador-semantico/dialetos';
+import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
+import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 describe('Analisador semântico', () => {
     let lexador: LexadorBirl;
@@ -38,7 +38,7 @@ describe('Analisador semântico', () => {
                     '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
                     '   BORA CUMPADE 0;',
                     'BIRL',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);

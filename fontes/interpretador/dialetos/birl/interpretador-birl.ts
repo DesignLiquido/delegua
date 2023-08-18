@@ -46,6 +46,7 @@ import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelI
 import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { InterpretadorInterfaceBirl } from '../../../interfaces/interpretador-interface-birl';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
@@ -56,7 +57,7 @@ import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import * as comum from './comum';
 
-export class InterpretadorBirl extends InterpretadorBase implements InterpretadorInterface {
+export class InterpretadorBirl extends InterpretadorBase implements InterpretadorInterfaceBirl {
     diretorioBase: any;
 
     funcaoDeRetorno: Function = null;
