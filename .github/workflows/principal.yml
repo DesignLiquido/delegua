@@ -20,6 +20,9 @@ jobs:
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '16'
+    - name: NPM - Dependências
+      run: |
+        sudo npm install
     - name: Testes unitários
       run: |
         sudo npm run testes-unitarios
