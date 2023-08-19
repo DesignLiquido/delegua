@@ -744,7 +744,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "visualg/interpretador",
+                "visualg",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],

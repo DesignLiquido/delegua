@@ -217,9 +217,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             return Promise.reject(erro);
         }
     }
+    
     visitarExpressaoDeChamada(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado');
     }

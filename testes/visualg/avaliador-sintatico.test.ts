@@ -161,6 +161,25 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
             });
 
+            it('Sucesso - Para (usando seta de ateribuiÇão)', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Numeros de 1 a 10"',
+                        'var j: inteiro',
+                        'inicio',
+                        '    para j <- 1 ate 10 faca',
+                        '        escreva (j)',
+                        '    fimpara',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            });
+
             it('Sucesso - Procedimento', () => {
                 const retornoLexador = lexador.mapear(
                     [
