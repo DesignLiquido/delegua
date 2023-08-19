@@ -50,8 +50,10 @@ export function registrarBibliotecaNumericaVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'exp',
-        new FuncaoPadrao(2, function(base: number, expoente: number) {
-            return Math.pow(base, expoente);
+        new FuncaoPadrao(2, function(base: any, expoente: any) {
+            const baseResolvida = base.hasOwnProperty('valor') ? base.valor : base;
+            const expoenteResolvido = base.hasOwnProperty('valor') ? expoente.valor : expoente;
+            return Math.pow(baseResolvida, expoenteResolvido);
         })
     );
 
@@ -92,8 +94,9 @@ export function registrarBibliotecaNumericaVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'quad',
-        new FuncaoPadrao(1, function(valor: number) {
-            return valor * valor;
+        new FuncaoPadrao(1, function(valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return valorResolvido * valorResolvido;
         })
     );
 
@@ -106,8 +109,9 @@ export function registrarBibliotecaNumericaVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'raizq',
-        new FuncaoPadrao(1, function(valor: number) {
-            return Math.sqrt(valor);
+        new FuncaoPadrao(1, function(valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return Math.sqrt(valorResolvido);
         })
     );
 

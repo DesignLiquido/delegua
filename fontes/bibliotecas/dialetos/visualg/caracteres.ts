@@ -8,8 +8,9 @@ export function registrarBibliotecaCaracteresVisuAlg(
 {
     pilhaEscoposExecucao.definirVariavel(
         'asc', 
-        new FuncaoPadrao(1, function(valor: string) {
-            return valor.charCodeAt(0);
+        new FuncaoPadrao(1, function(valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return String(valorResolvido).charCodeAt(0);
         })
     );
 
@@ -22,15 +23,17 @@ export function registrarBibliotecaCaracteresVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'caracpnum',
-        new FuncaoPadrao(1, function(valor: string) {
-            return Number(valor);
+        new FuncaoPadrao(1, function(valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return Number(valorResolvido);
         })
     );
 
     pilhaEscoposExecucao.definirVariavel(
         'compr',
-        new FuncaoPadrao(1, function(valor: string) {
-            return valor.length;
+        new FuncaoPadrao(1, function(valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return String(valorResolvido).length;
         })
     );
 
@@ -43,8 +46,9 @@ export function registrarBibliotecaCaracteresVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'maiusc',
-        new FuncaoPadrao(1, function(valor: string) {
-            return valor.toUpperCase();
+        new FuncaoPadrao(1, function(valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return String(valorResolvido).toUpperCase();
         })
     );
 
@@ -64,8 +68,9 @@ export function registrarBibliotecaCaracteresVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'pos',
-        new FuncaoPadrao(2, function(busca: string, valor: string) {
-            return valor.indexOf(busca) + 1;
+        new FuncaoPadrao(2, function(busca: string, valor: any) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            return String(valorResolvido).indexOf(busca) + 1;
         })
     );
 }

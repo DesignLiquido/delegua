@@ -197,7 +197,7 @@ describe('Biblioteca Numérica', () => {
             interpretador = new InterpretadorVisuAlg(process.cwd());
         });
         
-        it.skip('Chamadas diversas', async () => {
+        it('Chamadas diversas', async () => {
             const retornoLexador = lexador.mapear([
                 'Algoritmo "exemplo_funcoes"',
                 'var a, b, c : real',
@@ -288,7 +288,7 @@ describe('Biblioteca de caracteres', () => {
             interpretador = new InterpretadorVisuAlg(process.cwd());
         });
         
-        it.skip('Chamadas diversas', async () => {
+        it('Chamadas diversas', async () => {
             const retornoLexador = lexador.mapear([
                 'Algoritmo "exemplo_funcoes2"',
                 'var',
