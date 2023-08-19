@@ -13,19 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # - name: Teste de verificação de PR de origem
-    #   run: |
-    #    echo "${{ github.event.pull_request.head.repo.full_name }}"
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '16'
+    # Maneira tradicional de build, sem cobertura.
     - name: NPM - Dependências
       run: |
         sudo npm install
     - name: Testes unitários
       run: |
         sudo npm run testes-unitarios
+    # Cobertura de código: Trava o GitHub Actions inteiro por algum motivo.
+    # Reabilitar quando conseguirmos descobrir a causa.
     # - uses: ArtiomTr/jest-coverage-report-action@v2
     #   id: coverage
     #   if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'DesignLiquido/delegua' }}
