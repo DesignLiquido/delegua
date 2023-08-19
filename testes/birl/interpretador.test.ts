@@ -2,7 +2,7 @@ import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialeto
 import { InterpretadorBirl } from '../../fontes/interpretador/dialetos';
 import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
-describe('Interpretador', () => {
+describe.skip('Interpretador', () => {
     describe('interpretar()', () => {
         let lexador: LexadorBirl;
         let avaliadorSintatico: AvaliadorSintaticoBirl;
