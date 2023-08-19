@@ -9,10 +9,10 @@
         "lair": "ts-node execucao.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
-        "testes-unitarios": "jest --coverage --detectOpenHandles",
+        "testes-unitarios": "jest --coverage",
         "testes-unitarios:insignias": "jest-coverage-badges --output ./recursos/imagens",
         "observar-testes-unitarios": "jest --watchAll",
-        "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll --detectOpenHandles",
+        "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",
         "prettier-format": "prettier --config .prettierrc 'fontes/**/*.ts' --write"
     },
