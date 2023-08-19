@@ -9,7 +9,7 @@ import { SimboloInterface } from '../../interfaces';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
-        this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, -1));
+        this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, this.hashArquivo));
     }
 
     proximoIgualA(esperado: string): boolean {
@@ -184,13 +184,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
 
-            case '\0':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
                 this.avancar();
                 this.linha++;
                 break;
             case ' ':
+            case '\0':
             case '\r':
             case '\t':
             case '':
@@ -229,13 +229,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
         return [...codigoComeco, ...codigoPosPosição];
     }
-
     mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 1;
+        this.hashArquivo = hashArquivo;
 
         this.codigo = codigo.join('\n') || '';
 

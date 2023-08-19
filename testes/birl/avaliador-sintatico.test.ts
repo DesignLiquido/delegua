@@ -23,7 +23,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
                     '   BORA CUMPADE 0;',
                     'BIRL',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -73,7 +73,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   CE QUER VER ESSA PORRA? (FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -105,7 +105,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -120,7 +120,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -135,7 +135,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -150,7 +150,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (TD); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -164,7 +164,7 @@ describe('Avaliador Sintático Birl', () => {
                     '     CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -182,7 +182,7 @@ describe('Avaliador Sintático Birl', () => {
                     '     CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -197,7 +197,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -213,7 +213,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -230,7 +230,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -250,7 +250,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -271,7 +271,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       X--;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const RetornoAvaliadorSintatico = avaliadorSintatico.analisar(RetornoLexador, -1);
                 expect(RetornoAvaliadorSintatico).toBeTruthy();
@@ -288,7 +288,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       SAI FILHO DA PUTA;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -309,7 +309,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       BIRL\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -325,7 +325,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       BORA CUMPADE C;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -341,7 +341,7 @@ describe('Avaliador Sintático Birl', () => {
                     'HORA DO SHOW \n',
                     '   FRANGO resultado = AJUDA O MALUCO TA DOENTE SOMAR();\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -353,7 +353,7 @@ describe('Avaliador Sintático Birl', () => {
                     'HORA DO SHOW \n',
                     '   TRAPEZIO resultado = AJUDA O MALUCO TA DOENTE SOMAR();\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -367,7 +367,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   MONSTRO segundo = 10;\n',
                     '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE SOMAR(primeiro, segundo);\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -393,7 +393,7 @@ describe('Avaliador Sintático Birl', () => {
             });
 
             it('Falha - declaração - variavel = "=" no lugar do identificador', () => {
-                const retornoLexador = lexador.mapear(['HORA DO SHOW \n', '   MONSTRO =;\n', 'BIRL\n']);
+                const retornoLexador = lexador.mapear(['HORA DO SHOW \n', '   MONSTRO =;\n', 'BIRL\n'], -1);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
                     expect.objectContaining({
@@ -403,7 +403,7 @@ describe('Avaliador Sintático Birl', () => {
             });
 
             it('Falha - declaração - variavel - sem identificador', () => {
-                const retornoLexador = lexador.mapear(['HORA DO SHOW \n', '   MONSTRO \n', 'BIRL\n']);
+                const retornoLexador = lexador.mapear(['HORA DO SHOW \n', '   MONSTRO \n', 'BIRL\n'], -1);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
                     expect.objectContaining({
@@ -433,7 +433,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   CE QUER VER ESSA PORRA? (FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -450,7 +450,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -467,7 +467,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -484,7 +484,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -501,7 +501,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -518,7 +518,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -535,7 +535,7 @@ describe('Avaliador Sintático Birl', () => {
                     '     CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(TypeError);
             });
@@ -549,7 +549,7 @@ describe('Avaliador Sintático Birl', () => {
                     '     \n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(TypeError);
             });
@@ -561,7 +561,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -577,7 +577,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   MAIS QUERO MAIS ()',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -595,7 +595,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -614,7 +614,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       X--;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(RetornoLexador, -1)).toThrow(TypeError);
             });
@@ -627,7 +627,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       BORA CUMPADE C;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -645,7 +645,7 @@ describe('Avaliador Sintático Birl', () => {
                     '       BORA CUMPADE C;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -662,7 +662,7 @@ describe('Avaliador Sintático Birl', () => {
                     '   MONSTRO segundo = 10;\n',
                     '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE (primeiro, segundo);\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -679,7 +679,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
@@ -696,7 +696,7 @@ describe('Avaliador Sintático Birl', () => {
                     '  CE QUER VER ESSA PORRA? (M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(Error);
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(

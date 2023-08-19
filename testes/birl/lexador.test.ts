@@ -270,7 +270,7 @@ describe('Lexador (BIRL)', () => {
                 });
             });
             it('Error - caractere inesperado', () => {
-                const resultado = lexador.mapear(['平']);
+                const resultado = lexador.mapear(['平'], -1);
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(1);
                 expect(resultado.erros).toHaveLength(1);

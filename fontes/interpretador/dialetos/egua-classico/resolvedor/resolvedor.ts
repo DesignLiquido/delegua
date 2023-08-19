@@ -1,13 +1,13 @@
-import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
-import { PilhaEscopos } from './pilha-escopos';
-import { ErroResolvedor } from './erro-resolvedor';
-import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
-import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, ParaCada, Se } from '../../../../declaracoes';
 import { AcessoMetodo, Construto, FimPara, FormatacaoEscrita, Super, TipoDe, Variavel } from '../../../../construtos';
-import { RetornoResolvedor } from './retorno-resolvedor';
+import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, ParaCada, Se } from '../../../../declaracoes';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
+import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
+import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
 import { RetornoInterpretador } from '../../../../interfaces/retornos';
+import { ErroResolvedor } from './erro-resolvedor';
+import { PilhaEscopos } from './pilha-escopos';
+import { RetornoResolvedor } from './retorno-resolvedor';
 
 const TipoFuncao = {
     NENHUM: 'NENHUM',
@@ -62,7 +62,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
     }
-    
+
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         throw new Error('Método não implementado.');
     }

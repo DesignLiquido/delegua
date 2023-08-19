@@ -15,6 +15,18 @@ describe('Interpretador', () => {
                 interpretador = new InterpretadorBirl(process.cwd());
             });
 
+            it.skip('Validando string no escreva', async () => {
+                const retornoLexador = lexador.mapear([
+                    'HORA DO SHOW',
+                    '   CE QUER VER ESSA PORRA? (1);',
+                    'BIRL'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(async () => await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes)).toThrow(Error);
+            })
+
             it('Sucesso - varias argumentos no escreva', async () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW',
@@ -23,7 +35,7 @@ describe('Interpretador', () => {
                     '   CE QUER VER ESSA PORRA? ("teste %d %s\n", &X, &FR);',
                     '   BORA CUMPADE 0;',
                     'BIRL',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -34,18 +46,18 @@ describe('Interpretador', () => {
 
             it('Sucesso - Fibonacci', async () => {
                 const retornoLexador = lexador.mapear([
-                    'HORA DO SHOW\n',
-                    '   OH O HOME AI PO(MONSTRO fibonacci(MONSTRO numero))\n',
-                    '       ELE QUE A GENTE QUER?(numero == 1 || numero == 2)\n',
-                    '           BORA CUMPADE 1;\n',
-                    '       BIRL\n',
-                    '       BORA CUMPADE fibonacci(numero - 1) + fibonacci(numero - 2);\n',
-                    '   BIRL\n',
-                    '   MONSTRO numero = 10;\n',
-                    '   MONSTRO fiboResultado = AJUDA O MALUCO TA DOENTE fibonacci(numero);\n',
-                    '   CE QUER VER ESSA PORRA?("fibo: %d\n", &fiboResultado)\n',
-                    'BIRL\n',
-                ]);
+                    'HORA DO SHOW',
+                    '   OH O HOME AI PO(MONSTRO fibonacci(MONSTRO numero))',
+                    '       ELE QUE A GENTE QUER?(numero == 1 || numero == 2)',
+                    '           BORA CUMPADE 1;',
+                    '       BIRL',
+                    '       BORA CUMPADE fibonacci(numero - 1) + fibonacci(numero - 2);',
+                    '   BIRL',
+                    '   MONSTRO numero = 10;',
+                    '   MONSTRO fiboResultado = AJUDA O MALUCO TA DOENTE fibonacci(numero);',
+                    '   CE QUER VER ESSA PORRA?("fibo: %d", &fiboResultado)',
+                    'BIRL',
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -72,7 +84,7 @@ describe('Interpretador', () => {
                     '    BIRL\n',
                     '    BORA CUMPADE 0;\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -93,7 +105,7 @@ describe('Interpretador', () => {
                     '   MONSTRO segundo = 10;\n',
                     '   MONSTRO resultado = AJUDA O MALUCO TA DOENTE SOMAR(primeiro, segundo);\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -114,7 +126,7 @@ describe('Interpretador', () => {
                     '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
                     '   BORA CUMPADE 0;',
                     'BIRL',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -131,7 +143,7 @@ describe('Interpretador', () => {
                     '       BORA CUMPADE C;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -152,7 +164,7 @@ describe('Interpretador', () => {
                     '       BIRL\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -169,7 +181,7 @@ describe('Interpretador', () => {
                     '       SAI FILHO DA PUTA;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -186,7 +198,7 @@ describe('Interpretador', () => {
                     '       X--;\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(RetornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -203,7 +215,7 @@ describe('Interpretador', () => {
                     '     CE QUER VER ESSA PORRA? ("desativo");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -220,7 +232,7 @@ describe('Interpretador', () => {
                     '     CE QUER VER ESSA PORRA? ("ativo");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -237,7 +249,7 @@ describe('Interpretador', () => {
                     '     CE QUER VER ESSA PORRA? ("ativo");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -251,7 +263,7 @@ describe('Interpretador', () => {
                     '   CE QUER VER ESSA PORRA? ("Hello, World! Porra!\n");\n',
                     '   BORA CUMPADE? 0;\n',
                     'BIRL',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -267,7 +279,7 @@ describe('Interpretador', () => {
                     '       CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -283,7 +295,7 @@ describe('Interpretador', () => {
                     '       CE QUER VER ESSA PORRA? ("%d\n", &M);\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -299,7 +311,7 @@ describe('Interpretador', () => {
                     '       CE QUER VER ESSA PORRA? ("%d\n", &M);\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -315,7 +327,7 @@ describe('Interpretador', () => {
                     '       CE QUER VER ESSA PORRA? ("%d\n", &M);\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -333,7 +345,7 @@ describe('Interpretador', () => {
                     '     CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -349,7 +361,7 @@ describe('Interpretador', () => {
                     '     CE QUER VER ESSA PORRA? ("teste");\n',
                     '   BIRL\n',
                     'BIRL\n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -402,7 +414,7 @@ describe('Interpretador', () => {
                     '   CE QUER VER ESSA PORRA? ("%s\n", &FR); \n',
                     '   BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -437,7 +449,7 @@ describe('Interpretador', () => {
                     '  CE QUER VER ESSA PORRA? ("%d\n", &M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -453,7 +465,7 @@ describe('Interpretador', () => {
                     '  CE QUER VER ESSA PORRA? ("%d\n", &M1); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -469,7 +481,7 @@ describe('Interpretador', () => {
                     '  CE QUER VER ESSA PORRA? ("%d\n", &TD); \n',
                     '  BORA CUMPADE 0; \n',
                     'BIRL \n',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

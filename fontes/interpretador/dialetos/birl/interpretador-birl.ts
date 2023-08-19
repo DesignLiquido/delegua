@@ -23,7 +23,6 @@ import {
     Expressao,
     Fazer,
     FuncaoDeclaracao,
-    Importar,
     Leia,
     Para,
     ParaCada,
@@ -44,17 +43,21 @@ import {
 } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { InterpretadorInterfaceBirl } from '../../../interfaces/interpretador-interface-birl';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { InterpretadorBase } from '../../interpretador-base';
+import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import * as comum from './comum';
 
-export class InterpretadorBirl implements InterpretadorInterface {
+export class InterpretadorBirl extends InterpretadorBase implements InterpretadorInterfaceBirl {
     diretorioBase: any;
 
     funcaoDeRetorno: Function = null;
@@ -86,9 +89,10 @@ export class InterpretadorBirl implements InterpretadorInterface {
         '%s': 'texto',
         '%c': 'texto',
         '%p': 'texto',
-    }
+    };
 
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
+        super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.diretorioBase = diretorioBase;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -233,8 +237,8 @@ export class InterpretadorBirl implements InterpretadorInterface {
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-                ? 'número'
-                : String(NaN);
+            ? 'número'
+            : String(NaN);
         if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
@@ -477,7 +481,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             this.erros.push(erro);
         }
     }
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
     }
 
@@ -488,7 +492,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
     visitarExpressaoDeVariavel(expressao: Variavel): any {
         return this.procurarVariavel(expressao.simbolo);
     }
-    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
     }
     /**
@@ -498,76 +502,11 @@ export class InterpretadorBirl implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        // const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        /**
-         * Em Birl não se usa mensagem junto com o prompt, normalmente se usa um Escreva antes.
-         */
-        const mensagem = '> ';
-        const promessaLeitura: Function = () =>
-            new Promise((resolucao) =>
-                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                    resolucao(resposta);
-                })
-            );
-
-        const valorLido = await promessaLeitura();
-        await comum.atribuirVariavel(this, expressao.argumentos[0], valorLido, expressao.argumentos[1].valor);
-
-        return;
+        await comum.visitarExpressaoLeia(this, expressao);
     }
 
-    /**
-     * Busca variáveis interpoladas.
-     * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
-     * @returns Uma lista de variáveis interpoladas.
-     */
-    private buscarVariaveisInterpolacao(textoOriginal: string): any[] {
-        const variaveis = textoOriginal.match(this.regexInterpolacao);
-
-        return variaveis.map((s) => {
-            const nomeVariavel: string = s.replace(/[\$\{\}]*/g, '');
-            return {
-                variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
-            };
-        });
-    }
-
-    /**
-     * Retira a interpolação de um texto.
-     * @param {texto} texto O texto
-     * @param {any[]} variaveis A lista de variaveis interpoladas
-     * @returns O texto com o valor das variaveis.
-     */
-    private retirarInterpolacao(texto: string, variaveis: any[]): string {
-        const valoresVariaveis = variaveis.map((v) => ({
-            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
-            variavel: v.variavel,
-        }));
-
-        let textoFinal = texto;
-
-        valoresVariaveis.forEach((elemento) => {
-            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
-                ? elemento.valorResolvido.valor
-                : elemento.valorResolvido;
-
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
-        });
-
-        return textoFinal;
-    }
-
-    visitarExpressaoLiteral(expressao: Literal): any {
-        if (expressao.valor === tiposDeSimbolos.ADICAO) {
-            return 1;
-        }
-
-        if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
-            return -1;
-        }
-
-        return expressao.valor;
+    async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
+        return comum.visitarExpressaoLiteral(expressao);
     }
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
@@ -599,53 +538,14 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        if (declaracao.inicializador !== null) {
-            if (declaracao.inicializador instanceof Array) {
-                if (declaracao.inicializador[0] instanceof Variavel) {
-                    const valor = await this.avaliar(declaracao.inicializador[1]);
-                    this.pilhaEscoposExecucao.atribuirVariavel(declaracao.inicializador[0].simbolo, valor);
-                }
-            } else {
-                await this.avaliar(declaracao.inicializador);
-            }
-        }
-
-        let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra)) {
-            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-                break;
-            }
-
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof SustarQuebra) {
-                    return null;
-                }
-
-                if (retornoExecucao instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
-                }
-            } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
-                return Promise.reject(erro);
-            }
-
-            if (declaracao.incrementar !== null) {
-                await this.avaliar(declaracao.incrementar);
-            }
-        }
-
-        return retornoExecucao;
+        return comum.visitarDeclaracaoPara(this, declaracao);
     }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
-    protected eVerdadeiro(objeto: any): boolean {
+    eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
         if (objeto.hasOwnProperty('valor')) {
@@ -682,19 +582,19 @@ export class InterpretadorBirl implements InterpretadorInterface {
         return null;
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara) {
+    async visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoFazer(declaracao: Fazer) {
+    async visitarDeclaracaoFazer(declaracao: Fazer) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+    // async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+    //     throw new Error('Método não implementado.');
+    // }
+    async visitarDeclaracaoEscolha(declaracao: Escolha) {
         throw new Error('Método não implementado.');
     }
-    visitarDeclaracaoEscolha(declaracao: Escolha) {
-        throw new Error('Método não implementado.');
-    }
-    visitarDeclaracaoTente(declaracao: Tente) {
+    async visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error('Método não implementado.');
     }
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -721,121 +621,25 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         return retornoExecucao;
     }
-    visitarDeclaracaoImportar(declaracao: Importar) {
-        throw new Error('Método não implementado.');
-    }
 
-    protected async substituirValor(
+    async substituirValor(
         stringOriginal: string,
         novoValor: number | string | any,
         simboloTipo: string
     ): Promise<string> {
-        let substituida = false;
-        let resultado = '';
-
-        for (let i = 0; i < stringOriginal.length; i++) {
-            if (stringOriginal[i] === '%' && stringOriginal[i + 1] === simboloTipo && !substituida) {
-                switch (simboloTipo) {
-                    case 'd':
-                    case 'i':
-                    case 'u':
-                    case 'f':
-                    case 'F':
-                    case 'e':
-                    case 'E':
-                    case 'g':
-                    case 'G':
-                    case 'x':
-                    case 'X':
-                    case 'o':
-                    case 'c':
-                    case 's':
-                    case 'p':
-                        resultado += novoValor.hasOwnProperty('valor') ? novoValor.valor : novoValor;
-                        break;
-                    default:
-                        resultado += stringOriginal[i];
-                        break;
-                }
-                substituida = true;
-                i++;
-            } else {
-                resultado += stringOriginal[i];
-            }
-        }
-
-        return resultado;
+        return comum.substituirValor(stringOriginal, novoValor, simboloTipo);
     }
 
-
-    protected async resolveQuantidadeDeInterpolacoes(texto: Literal): Promise<RegExpMatchArray> {
-        const stringOriginal: string = texto.valor;
-        const regex = /%[a-zA-Z]/g;
-
-        const matches = stringOriginal.match(regex);
-
-        return matches
+    async resolveQuantidadeDeInterpolacoes(texto: Literal): Promise<RegExpMatchArray> {
+        return comum.resolveQuantidadeDeInterpolacoes(texto);
     }
 
-   async verificaTipoDaInterpolação(dados: {tipo: string, valor: any}) {
-        switch(dados.tipo) {
-            case 'd':
-            case 'i':
-            case 'u':
-                const valor = dados.valor.hasOwnProperty('valor') ? dados.valor.valor : dados.valor;
-                if (typeof valor !== 'number') {
-                    throw new Error('O valor interpolado não é um número.')
-                }
-                return true;
-            case 'c':
-            case 's':
-                const valorString = dados.valor.hasOwnProperty('valor') ? dados.valor.valor : dados.valor;
-                if (typeof valorString !== 'string') {
-                    throw new Error('O valor interpolado não é um caractere.')
-                }
-                return true;
-            default:
-                throw new Error('Tipo de interpolação não suportado.')
-        }
-   }
+    async verificaTipoDaInterpolação(dados: { tipo: string; valor: any }) {
+        return comum.verificaTipoDaInterpolação(dados);
+    }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-        let quantidadeInterpolacoes: RegExpMatchArray;
-
-        if (argumentos.length < 1) {
-            throw new Error('Escreva precisa de pelo menos um argumento.');
-        }
-        if (!(argumentos[0] instanceof Literal)) {
-            throw new Error('O primeiro argumento de Escreva precisa ser uma string.');
-        }
-        quantidadeInterpolacoes = await this.resolveQuantidadeDeInterpolacoes(argumentos[0] as Literal);
-
-        const resultadoAvaliacaoLiteral = await this.avaliar(argumentos[0]);
-
-        if (quantidadeInterpolacoes === null) {
-            formatoTexto = resultadoAvaliacaoLiteral?.hasOwnProperty('valor') ? resultadoAvaliacaoLiteral.valor : resultadoAvaliacaoLiteral;
-            return formatoTexto
-        }
-
-        if (!(argumentos.length - 1 === quantidadeInterpolacoes.length)) {
-            throw new Error('Quantidade de argumentos não bate com quantidade de interpolacoes.');
-        }
-
-        formatoTexto = resultadoAvaliacaoLiteral;
-
-        for (let i = 0; i < quantidadeInterpolacoes.length; i++) {
-            const dados = {
-                tipo: quantidadeInterpolacoes[i].replace('%', ''),
-                valor: await this.avaliar(argumentos[i + 1])
-            }
-
-            if (this.verificaTipoDaInterpolação(dados)) {
-                formatoTexto = await this.substituirValor(formatoTexto, dados.valor, dados.tipo);
-            }
-        }
-
-        return formatoTexto.trimEnd();
+    async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+        return comum.avaliarArgumentosEscreva(this, argumentos);
     }
 
     /**
@@ -857,7 +661,7 @@ export class InterpretadorBirl implements InterpretadorInterface {
             });
         }
     }
-    visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         throw new Error('Método não implementado.');
     }
     async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
@@ -915,35 +719,35 @@ export class InterpretadorBirl implements InterpretadorInterface {
 
         return new RetornoQuebra(valor);
     }
-    visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error('Método não implementado.');
-    }
+    // async visitarExpressaoDeleguaFuncao(expressao: any) {
+    //     throw new Error('Método não implementado.');
+    // }
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
+    async visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoDefinirValor(expressao: any) {
+    async visitarExpressaoDefinirValor(expressao: any) {
         throw new Error('Método não implementado.');
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
-    visitarDeclaracaoClasse(declaracao: Classe) {
+    async visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAcessoMetodo(expressao: any) {
+    async visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoIsto(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoDicionario(expressao: any) {
+    async visitarExpressaoDicionario(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoVetor(expressao: any) {
+    async visitarExpressaoVetor(expressao: any) {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoSuper(expressao: Super) {
@@ -1034,37 +838,6 @@ export class InterpretadorBirl implements InterpretadorInterface {
     }
 
     async interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador> {
-        this.erros = [];
-
-        const escopoExecucao: EscopoExecucao = {
-            declaracoes: declaracoes,
-            declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
-            finalizado: false,
-            tipo: 'outro',
-            emLacoRepeticao: false,
-        };
-        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
-        try {
-            const retornoOuErro = await this.executarUltimoEscopo(manterAmbiente);
-            if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
-                this.erros.push(retornoOuErro);
-            }
-        } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: -1,
-                hashArquivo: -1,
-            });
-        } finally {
-            const retorno = {
-                erros: this.erros,
-                resultado: this.resultadoInterpretador,
-            } as RetornoInterpretador;
-
-            this.resultadoInterpretador = [];
-            return retorno;
-        }
+        return comum.interpretar(this, declaracoes, manterAmbiente);
     }
 }
