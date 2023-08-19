@@ -1,5 +1,6 @@
 import {
     Atribuir,
+    Binario,
     Construto,
     FimPara,
     FormatacaoEscrita,
@@ -51,6 +52,7 @@ import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
+import { ArgumentoInterface } from '../../argumento-interface';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { InterpretadorBase } from '../../interpretador-base';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
@@ -243,15 +245,10 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 
-    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+    async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
         try {
-            const promises = await Promise.all([
-                this.avaliar(expressao.esquerda),
-                this.avaliar(expressao.direita)
-            ]);
-
-            const esquerda: VariavelInterface | any = promises[0];
-            const direita: VariavelInterface | any = promises[1];
+            const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
+            const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
             const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
             const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
             const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
@@ -385,16 +382,25 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
                 ? variavelEntidadeChamada.valor
                 : variavelEntidadeChamada;
 
-            let argumentos = [];
+            let argumentos: ArgumentoInterface[] = [];
             for (let i = 0; i < expressao.argumentos.length; i++) {
-                argumentos.push(await this.avaliar(expressao.argumentos[i]));
+                const variavelArgumento = expressao.argumentos[i];
+                const nomeArgumento = 
+                    variavelArgumento.hasOwnProperty('simbolo') ?
+                    variavelArgumento.simbolo.lexema :
+                    undefined;
+
+                argumentos.push({
+                    nome: nomeArgumento,
+                    valor: await this.avaliar(variavelArgumento)
+                });
             }
 
             if (entidadeChamada instanceof DeleguaModulo) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         expressao.parentese,
-                        'Entidade chamada é um módulo de Delégua. Provavelmente você quer chamar um de seus componentes?',
+                        'Entidade chamada é um módulo de Birl. Provavelmente você quer chamar um de seus componentes?',
                         expressao.linha
                     )
                 );
@@ -437,8 +443,8 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
                     parametros.length > 0 &&
                     parametros[parametros.length - 1].abrangencia === 'multiplo'
                 ) {
-                    const novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                    novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                    let novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                    novosArgumentos = novosArgumentos.concat(argumentos.slice(parametros.length - 1, argumentos.length));
                     argumentos = novosArgumentos;
                 }
             }
@@ -501,6 +507,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
     async visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
     }
+
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.

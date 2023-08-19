@@ -498,8 +498,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             let argumentos: ArgumentoInterface[] = [];
             for (let i = 0; i < expressao.argumentos.length; i++) {
                 const variavelArgumento = expressao.argumentos[i];
+                const nomeArgumento = 
+                    variavelArgumento.hasOwnProperty('simbolo') ?
+                    variavelArgumento.simbolo.lexema :
+                    undefined;
+
                 argumentos.push({
-                    nome: variavelArgumento.simbolo.lexema,
+                    nome: nomeArgumento,
                     valor: await this.avaliar(variavelArgumento)
                 });
             }

@@ -50,6 +50,7 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
 
 import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classico/biblioteca-global';
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
+import { ArgumentoInterface } from '../../argumento-interface';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -300,9 +301,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ? variavelEntidadeChamada.valor
             : variavelEntidadeChamada;
 
-        let argumentos = [];
+        let argumentos: ArgumentoInterface[] = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
-            argumentos.push(await this.avaliar(expressao.argumentos[i]));
+            const variavelArgumento = expressao.argumentos[i];
+            const nomeArgumento = 
+                    variavelArgumento.hasOwnProperty('simbolo') ?
+                    variavelArgumento.simbolo.lexema :
+                    undefined;
+
+            argumentos.push({
+                nome: variavelArgumento,
+                valor: await this.avaliar(variavelArgumento)
+            });
         }
 
         if (!(entidadeChamada instanceof Chamavel)) {
@@ -328,8 +338,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
         } else {
             if (parametros && parametros.length > 0 && parametros[parametros.length - 1]['tipo'] === 'multiplo') {
-                const novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                let novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                novosArgumentos = novosArgumentos.concat(argumentos.slice(parametros.length - 1, argumentos.length));
                 argumentos = novosArgumentos;
             }
         }

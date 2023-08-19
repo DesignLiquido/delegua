@@ -218,15 +218,17 @@ export async function visitarExpressaoLeia(interpretador: InterpretadorBirlInter
 }
 
 export async function visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-    if (expressao.valor === tiposDeSimbolos.ADICAO) {
+    // TODO(Ítalo): Essa lógica não me parece correta.
+    // Além disso, o `return` deveria ser com `Promise.resolve`.
+    /* if (expressao.valor === tiposDeSimbolos.ADICAO) {
         return 1;
     }
 
     if (expressao.valor === tiposDeSimbolos.SUBTRACAO) {
         return -1;
-    }
+    } */
 
-    return expressao.valor;
+    return Promise.resolve(expressao.valor);
 }
 
 export async function visitarDeclaracaoPara(interpretador: InterpretadorBirlInterface, declaracao: Para): Promise<any> {
