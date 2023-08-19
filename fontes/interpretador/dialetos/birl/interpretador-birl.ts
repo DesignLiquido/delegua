@@ -245,8 +245,13 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
 
     async visitarExpressaoBinaria(expressao: any): Promise<any> {
         try {
-            const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
-            const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
+            const promises = await Promise.all([
+                this.avaliar(expressao.esquerda),
+                this.avaliar(expressao.direita)
+            ]);
+
+            const esquerda: VariavelInterface | any = promises[0];
+            const direita: VariavelInterface | any = promises[1];
             const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
             const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
             const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
@@ -492,6 +497,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
     visitarExpressaoDeVariavel(expressao: Variavel): any {
         return this.procurarVariavel(expressao.simbolo);
     }
+
     async visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         throw new Error('Método não implementado.');
     }
