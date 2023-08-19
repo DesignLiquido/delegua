@@ -52,7 +52,9 @@ export class DeleguaFuncao extends Chamavel {
                 argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
             }
 
-            ambiente.valores[nome] = argumento.valor;
+            ambiente.valores[nome] = argumento.hasOwnProperty('valor') ? 
+                argumento.valor :
+                argumento;
         }
 
         if (this.instancia !== undefined) {

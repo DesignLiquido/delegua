@@ -449,13 +449,14 @@ export default function (interpretador: VisitanteComumInterface, pilhaEscoposExe
                 );
             }
 
-            const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                (await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]])) &&
-                    resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]));
+                const valorResolvido = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
+                if (valorResolvido !== null) {
+                    return valorResolvido;
+                }
             }
 
-            return resultados[0];
+            return undefined;
         })
     );
 
