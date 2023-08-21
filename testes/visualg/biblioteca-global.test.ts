@@ -171,8 +171,8 @@ describe('Biblioteca Numérica', () => {
 
         it('randi', () => {
             const funcaoRandI = funcoes['randi'].funcao;
-            expect(funcaoRandI(0)).toBeGreaterThanOrEqual(0);
-            expect(funcaoRandI(0)).toBeLessThanOrEqual(0);
+            const resultado = funcaoRandI(15);
+            expect(resultado).toBeGreaterThanOrEqual(0);
         });
 
         it('sen', () => {

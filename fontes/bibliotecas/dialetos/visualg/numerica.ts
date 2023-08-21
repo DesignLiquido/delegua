@@ -49,6 +49,13 @@ export function registrarBibliotecaNumericaVisuAlg(
     );
 
     pilhaEscoposExecucao.definirVariavel(
+        'erro',
+        new FuncaoPadrao(0, function(valor: number) {
+            throw new Error('Essa função atira erro. É usada para testes variados.');
+        })
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
         'exp',
         new FuncaoPadrao(2, function(base: any, expoente: any) {
             const baseResolvida = base.hasOwnProperty('valor') ? base.valor : base;
