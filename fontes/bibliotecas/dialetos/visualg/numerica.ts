@@ -48,9 +48,11 @@ export function registrarBibliotecaNumericaVisuAlg(
         })
     );
 
+    // Esse método não existe na biblioteca padrão. É usado para outros
+    // projetos montarem lógicas de tratamento de erro.
     pilhaEscoposExecucao.definirVariavel(
         'erro',
-        new FuncaoPadrao(0, function(valor: number) {
+        new FuncaoPadrao(0, function() {
             throw new Error('Essa função atira erro. É usada para testes variados.');
         })
     );
