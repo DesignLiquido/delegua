@@ -561,7 +561,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
                     return entidadeChamada.chamar(
-                        argumentos.map((a) => (a !== null && a.valor.hasOwnProperty('valor') ? a.valor.valor : a.valor)),
+                        argumentos.map((a) => (a && a.valor && a.valor.hasOwnProperty('valor') ? a.valor.valor : a?.valor)),
                         expressao.entidadeChamada.nome
                     );
                 } catch (erro: any) {
