@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
 import { registrarBibliotecaCaracteresVisuAlg, registrarBibliotecaNumericaVisuAlg } from '../../fontes/bibliotecas/dialetos/visualg';
-import { DeleguaFuncao, FuncaoPadrao } from '../../fontes/estruturas';
+import { DeleguaFuncao } from '../../fontes/estruturas';
 import { SimboloInterface, VariavelInterface } from '../../fontes/interfaces';
 import { EscopoExecucao } from '../../fontes/interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../fontes/interfaces/pilha-escopos-execucao-interface';
@@ -195,6 +195,26 @@ describe('Biblioteca Numérica', () => {
             lexador = new LexadorVisuAlg();
             avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
             interpretador = new InterpretadorVisuAlg(process.cwd());
+        });
+
+        it('Argumentos como variáveis', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo "número aleatório"',
+                'var',
+                '    k: inteiro',
+                '    l: inteiro',
+                'inicio',
+                '    l <- 10',
+                '    k <- randi(l)',
+                '    escreva (k)',
+                'fimalgoritmo'
+            ], -1);
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
         });
         
         it('Chamadas diversas', async () => {
