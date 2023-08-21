@@ -133,7 +133,7 @@ export function registrarBibliotecaNumericaVisuAlg(
 
     pilhaEscoposExecucao.definirVariavel(
         'randi',
-        new FuncaoPadrao(2, function(limite: number) {
+        new FuncaoPadrao(1, function(limite: number) {
             return Math.floor(Math.random() * limite);
         })
     );
