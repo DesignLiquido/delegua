@@ -148,7 +148,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         return this.atribuir();
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.HAI:
@@ -168,7 +168,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
 
         const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao() as Declaracao);
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco() as Declaracao);
         }
 
         return {

@@ -75,6 +75,6 @@ export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
     funcao(tipo: string): FuncaoDeclaracao;
     corpoDaFuncao(tipo: string): FuncaoConstruto;
     declaracaoDeClasse(): Classe;
-    declaracao(): any;
+    resolverDeclaracaoForaDeBloco(): any;
     analisar(retornoLexador: RetornoLexador<TSimbolo>, hashArquivo: number): RetornoAvaliadorSintatico<TDeclaracao>;
 }

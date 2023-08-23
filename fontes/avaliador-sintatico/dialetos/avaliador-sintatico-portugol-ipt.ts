@@ -63,7 +63,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         // const argumentos = this.logicaComumEscreva();
         const argumentos: FormatacaoEscrita[] = [];
         do {
-            const valor = this.declaracao();
+            const valor = this.resolverDeclaracaoForaDeBloco();
 
             argumentos.push(
                 new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -83,14 +83,14 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'então' ou 'entao' após condição do se.");
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se.");
 
-        const caminhoEntao = this.declaracao();
+        const caminhoEntao = this.resolverDeclaracaoForaDeBloco();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'senão' ou 'senao' em instrução se.");
-            caminhoSenao = this.declaracao();
+            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
         }
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se.");
@@ -148,7 +148,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
         const argumentos = [];
         do {
-            argumentos.push(this.declaracao());
+            argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
@@ -158,7 +158,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         throw new Error("Método não implementado.");
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVER:
@@ -200,7 +200,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.validarSegmentoInicio();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            const resolucaoDeclaracao = this.declaracao();
+            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);
             } else {

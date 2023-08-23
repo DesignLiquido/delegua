@@ -431,7 +431,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
-            const retornoDeclaracao = this.declaracao();
+            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {
@@ -451,7 +451,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
@@ -460,7 +460,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             const declaracoesSenao = [];
 
             do {
-                declaracoesSenao.push(this.declaracao());
+                declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
             } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
             caminhoSenao = new Bloco(
@@ -496,7 +496,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'enquanto'.");
@@ -603,7 +603,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const declaracoesBlocoPara = [];
         let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM) {
-            declaracoesBlocoPara.push(this.declaracao());
+            declaracoesBlocoPara.push(this.resolverDeclaracaoForaDeBloco());
             simboloAtualBlocoPara = this.simbolos[this.atual];
         }
 
@@ -676,7 +676,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 }
 
                 this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
-                const declaracoesPadrao = [this.declaracao()];
+                const declaracoesPadrao = [this.resolverDeclaracaoForaDeBloco()];
 
                 // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
                 /* const declaracoesPadrao = [];
@@ -693,7 +693,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             const caminhoCondicoes = [this.expressao()];
             this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
-            const declaracoes = [this.declaracao()];
+            const declaracoes = [this.resolverDeclaracaoForaDeBloco()];
 
             // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
             /* const declaracoes = [];
@@ -922,7 +922,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return this.atribuir();
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
@@ -958,7 +958,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            const retornoDeclaracao = this.declaracao();
+            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {

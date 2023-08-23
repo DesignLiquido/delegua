@@ -564,7 +564,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
 
         if (simboloAtual.linha === simboloAnterior.linha) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } else {
             // Situação 2: símbolo atual fica na próxima linha.
             //
@@ -588,7 +588,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                 // Significa que o código acabou, então o bloco também acabou.
                 const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
                 while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
-                    const retornoDeclaracao = this.declaracao();
+                    const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
                     if (Array.isArray(retornoDeclaracao)) {
                         declaracoes = declaracoes.concat(retornoDeclaracao);
                     } else {
@@ -992,7 +992,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
      * ou uma expressão.
      * @returns Objeto do tipo `Declaracao`.
      */
-    declaracao(): RetornoDeclaracao {
+    resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
         try {
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
@@ -1025,7 +1025,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            const retornoDeclaracao = this.declaracao();
+            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {

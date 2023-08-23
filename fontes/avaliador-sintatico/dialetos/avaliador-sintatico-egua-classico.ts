@@ -480,7 +480,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         const declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
@@ -820,7 +820,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return new Classe(nome, superClasse, metodos);
     }
 
-    declaracao(): RetornoDeclaracao {
+    resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
         try {
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) &&
@@ -849,7 +849,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         const declaracoes = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         return {

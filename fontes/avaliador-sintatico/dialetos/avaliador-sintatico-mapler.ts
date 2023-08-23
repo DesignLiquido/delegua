@@ -360,7 +360,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
                 && ![tiposDeSimbolos.ENQUANTO].includes(this.simbolos[this.atual + 1].tipo));
 
@@ -398,7 +398,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const argumentos: FormatacaoEscrita[] = [];
 
         do {
-            const valor = this.declaracao();
+            const valor = this.resolverDeclaracaoForaDeBloco();
 
             argumentos.push(
                 new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -436,7 +436,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(
@@ -490,7 +490,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         const argumentos = [];
         do {
-            argumentos.push(this.declaracao());
+            argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_VIRGULA));
 
         // this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
@@ -645,14 +645,14 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         let caminhoSenao = null;
 
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
                 const simboloSenao = this.simbolos[this.atual - 1];
                 const declaracoesSenao = [];
 
                 do {
-                    declaracoesSenao.push(this.declaracao());
+                    declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
                 } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
                         && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
 
@@ -692,7 +692,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
@@ -739,7 +739,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.INICIO, `Esperado expressão 'inicio' para marcar o inicio do programa.`);
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         return {
