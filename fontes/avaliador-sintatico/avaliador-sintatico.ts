@@ -915,6 +915,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case tiposDeSimbolos.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
@@ -949,6 +952,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
+            case tiposDeSimbolos.VARIAVEL:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeVariaveis();
         }
 
         const simboloAtual = this.simbolos[this.atual];
@@ -1252,6 +1258,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
     declaracao(): RetornoDeclaracao {
         try {
+
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                     this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
@@ -1260,8 +1267,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 this.avancarEDevolverAnterior();
                 return this.funcao('funcao');
             }
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariaveis();
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) return this.declaracaoDeConstantes();
+
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();
