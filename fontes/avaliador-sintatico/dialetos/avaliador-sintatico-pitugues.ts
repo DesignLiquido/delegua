@@ -40,6 +40,7 @@ import {
     Sustar,
     Leia,
     Const,
+    Falhar,
 } from '../../declaracoes';
 
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
@@ -721,32 +722,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     declaracaoSe(): Se {
         const condicao = this.expressao();
 
-        // this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após condição de declaração 'se'.");
-
         const caminhoEntao = this.resolverDeclaracao();
-        // const caminhoEntao = this.blocoEscopo();
-
-        // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
-        // funciona do jeito que deveria.
-        // Marcando este código para ser removido em versões futuras.
-        /* while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
-            const condicaoSeSenao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
-
-            const caminho = this.resolverDeclaracao();
-
-            caminhosSeSenao.push({
-                condicao: condicaoSeSenao,
-                caminho: caminho,
-            });
-        } */
-
-        // Se há algum escopo aberto, conferir antes do senão se símbolo
-        // atual é um espaço de indentação
-        /* if (this.escopos.length > 0) {
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESPACO_INDENTACAO);
-        } */
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
@@ -857,7 +833,53 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     }
 
     resolverDeclaracao(): any {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
+            case tiposDeSimbolos.CONTINUA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoContinua();
+            case tiposDeSimbolos.DOIS_PONTOS:
+                this.avancarEDevolverAnterior();
+                const simboloInicioBloco: SimboloInterface = this.simboloAnterior();
+                return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case tiposDeSimbolos.ENQUANTO:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscolha();
+            case tiposDeSimbolos.ESCREVA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscreva();
+            case tiposDeSimbolos.FALHAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoFalhar();
+            case tiposDeSimbolos.FAZER:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoFazer();
+            case tiposDeSimbolos.PARA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoPara();
+            case tiposDeSimbolos.PAUSA:
+            case tiposDeSimbolos.SUSTAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoSustar();
+            case tiposDeSimbolos.SE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoSe();
+            case tiposDeSimbolos.RETORNA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoRetorna();
+            case tiposDeSimbolos.TENTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoTente();
+            case tiposDeSimbolos.VARIAVEL:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeVariaveis();
+        }
+        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE)) return this.declaracaoTente();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
@@ -874,7 +896,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             const simboloInicioBloco: SimboloInterface = this.simboloAnterior();
             return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
-        }
+        } */
 
         return this.declaracaoExpressao();
     }
@@ -959,6 +981,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         return new Classe(simbolo, superClasse, metodos);
     }
 
+    declaracaoFalhar(): Falhar {
+        const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
+        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, "Esperado texto para explicar falha.");
+        return new Falhar(simboloFalha, textoFalha.literal);
+    }
+
     /**
      * Consome o símbolo atual, verificando se é uma declaração de função, variável, classe
      * ou uma expressão.
@@ -974,7 +1002,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                 this.avancarEDevolverAnterior();
                 return this.funcao('funcao');
             }
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariaveis();
+
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();

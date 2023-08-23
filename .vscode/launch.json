@@ -5,20 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Tradutor > Delégua para AssemblyScript",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "tradutores/tradutor-assemblyscript.test.ts",
-                // "birl",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "BIRL > Testes Interpretador",
             "type": "node",
             "request": "launch",
@@ -680,6 +666,20 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "mapler",
+                "--runInBand"
+            ],
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Pituguês",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "pitugues/interpretador",
                 "--runInBand"
             ],
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
@@ -1412,6 +1412,19 @@
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+        {
+            "name": "Tradutor > Delégua para AssemblyScript",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutores/tradutor-assemblyscript.test.ts",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }
