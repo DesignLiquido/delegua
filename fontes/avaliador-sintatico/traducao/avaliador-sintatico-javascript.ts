@@ -216,7 +216,7 @@ export class AvaliadorSintaticoJavaScript
         throw new Error('Método não implementado.');
     }
 
-    declaracao() {
+    resolverDeclaracaoForaDeBloco() {
         throw new Error('Método não implementado.');
     }
 

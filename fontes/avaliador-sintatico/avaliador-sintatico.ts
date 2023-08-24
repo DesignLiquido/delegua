@@ -77,7 +77,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     declaracaoDeVariavel(): Var {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
@@ -101,31 +101,24 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     verificarDefinicaoTipoAtual(): string {
-        const tipos = [
-            'inteiro',
-            'qualquer',
-            'real',
-            'texto',
-            'vazio',
-            'vetor'
-        ]
+        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor'];
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
-        const contemTipo = tipos.find(tipo => tipo === lexema);
+        const contemTipo = tipos.find((tipo) => tipo === lexema);
 
-        if(contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]']
+        if (contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]'];
             this.avancarEDevolverAnterior();
 
-            if(!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                throw this.erro(this.simbolos[this.atual], 'Esperado símbolo de fechamento do vetor \']\'.');
+            if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                throw this.erro(this.simbolos[this.atual], "Esperado símbolo de fechamento do vetor ']'.");
             }
 
-            const contemTipoVetor = tiposVetores.find(tipo => tipo === `${lexema}[]`);
+            const contemTipoVetor = tiposVetores.find((tipo) => tipo === `${lexema}[]`);
 
             this.avancarEDevolverAnterior();
 
-            return contemTipoVetor
+            return contemTipoVetor;
         }
 
         return contemTipo;
@@ -273,7 +266,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 this.avancarEDevolverAnterior();
                 this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
                 const _expressao = this.expressao() as any;
-                return new TipoDe(this.hashArquivo, simboloAtual, _expressao instanceof Literal ? _expressao.valor : _expressao);
+                return new TipoDe(
+                    this.hashArquivo,
+                    simboloAtual,
+                    _expressao instanceof Literal ? _expressao.valor : _expressao
+                );
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -602,7 +599,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            const retornoDeclaracao = this.declaracao();
+            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {
@@ -644,8 +641,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
-        const nomeVariavelIteracao = this.consumir(tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado identificador de variável de iteração para instrução 'para cada'.");
+        const nomeVariavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável de iteração para instrução 'para cada'."
+        );
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
             throw this.erro(
@@ -657,13 +656,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const vetor = this.expressao();
         const corpo = this.resolverDeclaracao();
 
-        return new ParaCada(
-            this.hashArquivo,
-            Number(simboloPara.linha),
-            nomeVariavelIteracao.lexema,
-            vetor,
-            corpo
-        );
+        return new ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, corpo);
     }
 
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
@@ -787,9 +780,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
                     }
 
-                    const declaracoes = [];
+                    let declaracoes = [];
                     do {
-                        declaracoes.push(this.resolverDeclaracao());
+                        const retornoDeclaracao = this.resolverDeclaracao();
+                        if (Array.isArray(retornoDeclaracao)) {
+                            declaracoes = declaracoes.concat(retornoDeclaracao);
+                        } else {
+                            declaracoes.push(retornoDeclaracao as Declaracao);
+                        }
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
@@ -835,7 +833,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
     declaracaoFalhar(): Falhar {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
-        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, "Esperado texto para explicar falha.");
+        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, 'Esperado texto para explicar falha.');
         return new Falhar(simboloFalha, textoFalha.literal);
     }
 
@@ -910,6 +908,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
     }
 
+    /**
+     * Todas as resoluções triviais da linguagem, ou seja, todas as
+     * resoluções que podem ocorrer dentro ou fora de um bloco.
+     * @returns Normalmente uma `Declaracao`, mas há casos em que
+     * outros objetos podem ser retornados.
+     * @see resolverDeclaracaoForaDeBloco para as declarações que não podem
+     * ocorrer em blocos de escopo elementares.
+     */
     resolverDeclaracao(): any {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
@@ -980,39 +986,45 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     verificarTipoAtribuido(tipo: string, inicializador: any) {
-        if(tipo) {
-            if(['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(tipo)) {
-                if(inicializador instanceof Vetor) {
+        if (tipo) {
+            if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(tipo)) {
+                if (inicializador instanceof Vetor) {
                     const vetor = inicializador as Vetor;
-                    if(tipo === 'inteiro[]') {
-                        for(let elemento of vetor.valores) {
-                            if(typeof elemento.valor !== 'number') {
-                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de \'inteiros\' ou \'real\'.");
+                    if (tipo === 'inteiro[]') {
+                        for (let elemento of vetor.valores) {
+                            if (typeof elemento.valor !== 'number') {
+                                throw this.erro(
+                                    this.simboloAtual(),
+                                    "Atribuição inválida, é esperado um vetor de 'inteiros' ou 'real'."
+                                );
                             }
                         }
                     }
-                    if(tipo === 'texto[]'){
-                        for(let elemento of vetor.valores) {
-                            if(typeof elemento.valor !== 'string') {
-                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de \'texto\'.");
+                    if (tipo === 'texto[]') {
+                        for (let elemento of vetor.valores) {
+                            if (typeof elemento.valor !== 'string') {
+                                throw this.erro(
+                                    this.simboloAtual(),
+                                    "Atribuição inválida, é esperado um vetor de 'texto'."
+                                );
                             }
                         }
                     }
                 } else {
-                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de elementos.");
+                    throw this.erro(this.simboloAtual(), 'Atribuição inválida, é esperado um vetor de elementos.');
                 }
             }
 
-            if(inicializador instanceof Literal) {
+            if (inicializador instanceof Literal) {
                 const literal = inicializador as Literal;
-                if(tipo === 'texto') {
-                    if(typeof literal.valor !== 'string') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um \'texto\'.");
+                if (tipo === 'texto') {
+                    if (typeof literal.valor !== 'string') {
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um 'texto'.");
                     }
                 }
-                if(['inteiro', 'real'].includes(tipo)) {
-                    if(typeof literal.valor !== 'number') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um \'número\'.");
+                if (['inteiro', 'real'].includes(tipo)) {
+                    if (typeof literal.valor !== 'number') {
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um 'número'.");
                     }
                 }
             }
@@ -1035,7 +1047,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             const tipoVariavel = this.verificarDefinicaoTipoAtual();
             if (!tipoVariavel) {
-                throw this.erro(this.simboloAtual(), "Tipo definido na variável não é válido.");
+                throw this.erro(this.simboloAtual(), 'Tipo definido na variável não é válido.');
             }
             tipo = tipoVariavel;
             this.avancarEDevolverAnterior();
@@ -1049,19 +1061,19 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             return retorno;
         }
 
-        //this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
-
         const inicializadores = [];
         do {
             inicializadores.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {
-            throw this.erro(this.simboloAtual(), "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
+            throw this.erro(
+                this.simboloAtual(),
+                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+            );
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-
             const inicializador = inicializadores[indice];
 
             this.verificarTipoAtribuido(tipo, inicializador);
@@ -1089,7 +1101,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             const tipoConstante = this.verificarDefinicaoTipoAtual();
             if (!tipoConstante) {
-                throw this.erro(this.simboloAtual(), "Tipo definido na constante não é válido.");
+                throw this.erro(this.simboloAtual(), 'Tipo definido na constante não é válido.');
             }
             tipo = tipoConstante;
             this.avancarEDevolverAnterior();
@@ -1103,12 +1115,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {
-            throw this.erro(this.simboloAtual(), "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
+            throw this.erro(
+                this.simboloAtual(),
+                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+            );
         }
 
         let retorno: Declaracao[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-
             const inicializador = inicializadores[indice];
 
             this.verificarTipoAtribuido(tipo, inicializador);
@@ -1159,11 +1173,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
             if (parametro.abrangencia === 'multiplo') break;
 
-            if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
 
-                if(!tipoDadoParametro) {
-                    this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`)
+                if (!tipoDadoParametro) {
+                    this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`);
                 } else {
                     parametro.tipo = tipoDadoParametro as TiposDadosInterface;
                     this.avancarEDevolverAnterior();
@@ -1171,7 +1185,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             }
 
             parametros.push(parametro as ParametroInterface);
-
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }
@@ -1192,11 +1205,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         let tipoRetorno = null;
-        if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipoRetorno = this.verificarDefinicaoTipoAtual();
 
-            if(!tipoRetorno){
-                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido após ':'`)
+            if (!tipoRetorno) {
+                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido após ':'`);
             }
 
             this.avancarEDevolverAnterior();
@@ -1206,29 +1219,35 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         const corpo = this.blocoEscopo();
 
-        if(tipoRetorno){
-            let funcaoContemRetorno = corpo.find(c => c instanceof Retorna) as Retorna;
-            if(funcaoContemRetorno){
-                if(tipoRetorno === 'vazio') {
-                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`)
+        if (tipoRetorno) {
+            let funcaoContemRetorno = corpo.find((c) => c instanceof Retorna) as Retorna;
+            if (funcaoContemRetorno) {
+                if (tipoRetorno === 'vazio') {
+                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`);
                 }
 
                 const tipoValor = typeof funcaoContemRetorno.valor.valor;
                 if (!['qualquer'].includes(tipoRetorno)) {
-                    if(tipoValor === 'string') {
-                        if(tipoRetorno != 'texto'){
-                            this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                    if (tipoValor === 'string') {
+                        if (tipoRetorno != 'texto') {
+                            this.erro(
+                                this.simboloAtual(),
+                                `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`
+                            );
                         }
                     }
                     if (tipoValor === 'number') {
                         if (!['inteiro', 'real'].includes(tipoRetorno)) {
-                            this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                            this.erro(
+                                this.simboloAtual(),
+                                `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`
+                            );
                         }
                     }
                 }
             } else {
-                if(tipoRetorno !== 'vazio'){
-                    this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`)
+                if (tipoRetorno !== 'vazio') {
+                    this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`);
                 }
             }
         }
@@ -1256,9 +1275,16 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return new Classe(simbolo, superClasse, metodos);
     }
 
-    declaracao(): RetornoDeclaracao {
+    /**
+     * Declarações fora de bloco precisam ser verificadas primeiro porque
+     * não é possível declarar uma classe/função dentro de um bloco `enquanto`,
+     * `fazer ... enquanto`, `para`, `escolha`, etc.
+     * @returns Uma função ou classe se o símbolo atual resolver aqui.
+     *          O retorno de `resolverDeclaracao()` em caso contrário.
+     * @see resolverDeclaracao
+     */
+    resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
         try {
-
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                     this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
@@ -1306,7 +1332,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -1317,7 +1346,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            const retornoDeclaracao = this.declaracao();
+            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {

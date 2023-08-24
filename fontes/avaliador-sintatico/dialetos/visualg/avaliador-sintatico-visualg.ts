@@ -374,7 +374,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.FIM_PROCEDIMENTO
             ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal())
         {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         // Se chegou até aqui, simplesmente consome o símbolo.
@@ -454,7 +454,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.FIM_ENQUANTO].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(
@@ -508,7 +508,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
             const declaracoes = [];
             do {
-                declaracoes.push(this.declaracao());
+                declaracoes.push(this.resolverDeclaracaoForaDeBloco());
             } while (
                 ![tiposDeSimbolos.CASO, tiposDeSimbolos.OUTRO_CASO, tiposDeSimbolos.FIM_ESCOLHA].includes(
                     this.simbolos[this.atual].tipo
@@ -531,7 +531,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (simboloAtualBlocoCaso.tipo === tiposDeSimbolos.OUTRO_CASO) {
             const declaracoes = [];
             do {
-                declaracoes.push(this.declaracao());
+                declaracoes.push(this.resolverDeclaracaoForaDeBloco());
             } while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM_ESCOLHA));
 
             caminhoPadrao = {
@@ -569,7 +569,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         do {
-            const valor = this.declaracao();
+            const valor = this.resolverDeclaracaoForaDeBloco();
 
             let espacos = 0;
             let casasDecimais = 0;
@@ -633,7 +633,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(
@@ -687,7 +687,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const argumentos = [];
         do {
-            argumentos.push(this.declaracao());
+            argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
@@ -778,7 +778,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const declaracoesBlocoPara = [];
         let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM_PARA) {
-            declaracoesBlocoPara.push(this.declaracao());
+            declaracoesBlocoPara.push(this.resolverDeclaracaoForaDeBloco());
             simboloAtualBlocoPara = this.simbolos[this.atual];
         }
 
@@ -925,7 +925,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
@@ -934,7 +934,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             const declaracoesSenao = [];
 
             do {
-                declaracoesSenao.push(this.declaracao());
+                declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
             } while (![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
 
             caminhoSenao = new Bloco(
@@ -960,7 +960,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
@@ -1037,7 +1037,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.validarSegmentoAlgoritmo();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
-            const declaracao = this.declaracao();
+            const declaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(declaracao)) {
                 declaracoes = declaracoes.concat(declaracao);
             } else {

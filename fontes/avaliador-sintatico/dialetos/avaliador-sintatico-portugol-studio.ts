@@ -49,7 +49,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         );
 
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         if (this.simbolos[this.atual - 1].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
@@ -184,7 +184,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            const declaracaoOuVetor: any = this.declaracao();
+            const declaracaoOuVetor: any = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(declaracaoOuVetor)) {
                 declaracoes = declaracoes.concat(declaracaoOuVetor);
             } else {
@@ -202,11 +202,11 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         const condicao = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
 
-        const caminhoEntao = this.declaracao();
+        const caminhoEntao = this.resolverDeclaracaoForaDeBloco();
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            caminhoSenao = this.declaracao();
+            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -220,7 +220,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição.");
-            const corpo = this.declaracao();
+            const corpo = this.resolverDeclaracaoForaDeBloco();
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -240,7 +240,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.declaracao();
+            const caminhoFazer = this.resolverDeclaracaoForaDeBloco();
 
             this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
@@ -479,7 +479,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         const argumentos = [];
         do {
-            argumentos.push(this.declaracao());
+            argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
@@ -541,7 +541,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
 
-            const corpo = this.declaracao();
+            const corpo = this.resolverDeclaracaoForaDeBloco();
 
             return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
         } finally {
@@ -600,7 +600,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CADEIA:

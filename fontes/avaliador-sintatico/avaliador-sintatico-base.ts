@@ -344,7 +344,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return parametros;
     }
 
-    abstract declaracao(): Declaracao;
+    abstract resolverDeclaracaoForaDeBloco(): Declaracao;
 
     abstract analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao>;
 }
