@@ -18,7 +18,7 @@
   <h3 align="center">Linguagem Delégua</h3>
 
   <p align="center">
-    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como Portugol VisuAlg e BIRL.</a>
+    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como Portugol VisuAlg, Portugol Studio, Mapler e BIRL.</a>
   </p>
 
   <p align="center">
@@ -38,6 +38,7 @@
     <a href="https://www.npmjs.com/package/@designliquido/delegua" target="_blank">
       <img src="https://img.shields.io/npm/v/@designliquido/delegua" />
     </a>
+    <img src="https://img.shields.io/npm/dw/@designliquido/delegua" />
     <img src="https://img.shields.io/github/license/Designliquido/delegua" />
   </p>
 
@@ -58,7 +59,7 @@
 <a href="#introdução" id="introdução" style="color: inherit; text-decoration: none;">
   <h2>Introdução</h2>
 </a>
-<p>Delégua é uma linguagem de programação baseada na língua portuguesa, cujo código começou como uma variação (<em>fork</em>) da <a href="https://egua.tech">linguagem Égua</a>, usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.</p>
+<p>Delégua é uma linguagem de programação baseada na língua portuguesa, cujo código começou como uma variação (<em>fork</em>) da <a href="https://egua.dev">linguagem Égua</a>, usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.</p>
 <p>Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extensão de arquivo (<code>.egua</code>). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, <a href="https://github.com/DesignLiquido/delegua/wiki">conforme mencionado em documentação</a>.</p>
 
 <a href="#características" id="características" style="color: inherit; text-decoration: none;">
@@ -66,22 +67,24 @@
 </a>
 <ul>
 <li><strong>Simples e Completa.</strong> Podendo ser usada por pessoas com ou sem experiência em programação.</li>
-<li><strong>Totalmente em Português.</strong> Desenvolvida totalmente em português para quebrar a barreira do inglês.</li>
-<li><strong>Grátis.</strong> Sem planos, sem limitações e sem propaganda.</li>
-<li><strong>Código aberto (<em>open source</em>).</strong> Todo o código fonte disponível para estudar, modificar e contribuir.</li>
-<li><strong>Linguagem Científica.</strong> Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação.</li>
+<li><strong>Totalmente em Português.</strong> Desenvolvida totalmente em português (mesmo) para quebrar a barreira do inglês.</li>
+<li><strong>Grátis.</strong> Sem planos, sem limitações e sem propaganda. A licença é MIT.</li>
+<li><strong>Código aberto (<em>open source</em>).</strong> Todo o código fonte disponível para estudar, modificar e contribuir. Usamos 100% TypeScript. As gramáticas são escritas em ANTLR4.</li>
+<li><strong>Linguagem Científica.</strong> Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação. Temos diferentes pacotes e bibliotecas para física, matemática, etc.</li>
 <li><strong>Modular.</strong> Escreva múltiplos fontes e os reuse em seu código.</li>
-<li><strong>Orientada a Objetos.</strong> Classes, objetos e herança são implementados em Delégua e EguaP.</li>
-<li><strong>Multidialetos.</strong> Execute algoritmos em <a href="http://visualg3.com.br">Portugol VisuAlg</a> e <a href="http://lite.acad.univali.br/portugol/">Portugol Studio</a>.</li>
-<li><strong>Depurável.</strong> Usando um editor com suporte à depuração como o <a href="https://code.visualstudio.com">Visual Studio Code</a>, você pode inspecionar o seu programa, suas variáveis e executar linha por linha</li>
+<li><strong>Orientada a Objetos.</strong> Classes, objetos e herança são implementados em Delégua e Pituguês.</li>
+<li><strong>Multidialetos.</strong> Execute algoritmos em <a href="https://pt.wikipedia.org/wiki/Visualg">Portugol VisuAlg</a>, <a href="http://lite.acad.univali.br/portugol/">Portugol Studio</a>, <a href="https://portugol.sourceforge.io/">Portugol Mapler</a> e <a href="http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html">Portugol IPT</a>. </li>
+<li><strong>Depurável.</strong> Usando um editor com suporte à depuração como o <a href="https://code.visualstudio.com">Visual Studio Code</a>, você pode inspecionar o seu programa, suas variáveis e executar linha por linha.</li>
 <li><strong>Portável.</strong> Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.</li>
+<li><strong>Traduzível.</strong> Traduza de Delégua para Python ou JavaScript, ou ainda de Python ou JavaScript para Delégua.</li>
 </ul>
 
 <a href="#aplicações" id="aplicações" style="color: inherit; text-decoration: none;">
   <h2>Aplicações</h2>
 </a>
 <ul>
-<li><a href="https://github.com/DesignLiquido/liquido">Escrita de aplicações para Internet, usando o ferramentário (<em>framework</em>) liquido</a>.</li>
+<li><a href="https://github.com/DesignLiquido/liquido">Escrita de aplicações para Internet, usando o ferramentário (<em>framework</em>) liquido</a>;</li>
+<li><a href="https://github.com/0thigs/StarDust">Aplicações em React Native</a>.</li>
 </ul>
 
 <a href="#instalação" id="instalação" style="color: inherit; text-decoration: none;">
@@ -92,7 +95,7 @@
 <li><a href="https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode">Dentro do Visual Studio Code, instale a extensão da Design Líquido</a>. <a href="https://www.youtube.com/watch?v=TQxLekzvBv8">Aprenda como executar e depurar seu programa aqui</a>;</li>
 <li><a href="https://designliquido.github.io/delegua-web/">Utilize nosso editor online</a>.</li>
 </ul>
-<p>Para instalar no seu computador, veja o projeto <a href="https://github.com/DesignLiquido/delegua-node"><code>@designliquido/delegua-node</code></a>. </p>
+<p>Para instalar no seu computador, veja o projeto <a href="https://github.com/DesignLiquido/delegua-node">@designliquido/delegua-node</a>. </p>
 
 <a href="#documentação" id="documentação" style="color: inherit; text-decoration: none;">
   <h2>Documentação</h2>
@@ -100,14 +103,13 @@
 <ul>
 <li><a href="https://github.com/DesignLiquido/delegua/wiki">Delégua é documentada na Wiki deste GitHub</a>.</li>
 <li><a href="https://designliquido.github.io/delegua/">A documentação técnica (gerada por TypeDoc) pode ser encontrada aqui</a>.</li>
-<li>Para acessar a documentação da linguagem Égua, visite <a href="https://egua.tech/docs">https://egua.tech/docs</a>.</li>
 </ul>
 
 <a href="#contribuições-e-comunidade" id="contribuições-e-comunidade" style="color: inherit; text-decoration: none;">
   <h2>Contribuições e Comunidade</h2>
 </a>
 <ul>
-<li>Para contribuições, por favor, leia o nosso <a href=".github/CONTRIBUTING.md">Guia de Contribuição</a> antes de submeter uma <em>Pull Request</em>.</li>
+<li>Para contribuições, por favor, leia o nosso <a href="./CONTRIBUINDO.md">Guia de Contribuição</a> antes de submeter uma <em>Pull Request</em>.</li>
 <li><a href="https://github.com/DesignLiquido/delegua/discussions">Veja nossas discussões atuais</a>.</li>
 <li><a href="https://discord.gg/4tBxWSSbdV">Temos um grupo no Discord</a>.</li>
 </ul>
@@ -132,19 +134,15 @@
 <div class="tsd-accordion-details">
 <ul>
 <li class="current selected"><a href="modules.html">@designliquido/delegua</a>
-<ul></ul></li></ul></div></details></nav>
+<ul>
+<li class="tsd-kind-namespace"><a href="modules/avaliadores.html">avaliadores</a></li>
+<li class="tsd-kind-namespace"><a href="modules/formatadores.html">formatadores</a></li>
+<li class="tsd-kind-namespace"><a href="modules/interpretadores.html">interpretadores</a></li>
+<li class="tsd-kind-namespace"><a href="modules/lexadores.html">lexadores</a></li>
+<li class="tsd-kind-namespace"><a href="modules/tradutores.html">tradutores</a></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">
 <ul>
-<li class="tsd-kind-class"><a href="classes/AvaliadorSintatico.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg>Avaliador<wbr/>Sintatico</a></li>
-<li class="tsd-kind-class"><a href="classes/ErroAvaliadorSintatico.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Erro<wbr/>Avaliador<wbr/>Sintatico</a></li>
-<li class="tsd-kind-class"><a href="classes/FormatadorDelegua.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Formatador<wbr/>Delegua</a></li>
-<li class="tsd-kind-class"><a href="classes/InterpretadorBase.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Interpretador<wbr/>Base</a></li>
-<li class="tsd-kind-class"><a href="classes/InterpretadorComDepuracao.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Interpretador<wbr/>Com<wbr/>Depuracao</a></li>
-<li class="tsd-kind-class"><a href="classes/Lexador.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Lexador</a></li>
-<li class="tsd-kind-class"><a href="classes/Simbolo.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Simbolo</a></li>
-<li class="tsd-kind-interface"><a href="interfaces/ErroInterpretador.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg>Erro<wbr/>Interpretador</a></li>
-<li class="tsd-kind-interface"><a href="interfaces/PontoParada.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Ponto<wbr/>Parada</a></li>
-<li class="tsd-kind-interface"><a href="interfaces/RetornoInterpretador.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Retorno<wbr/>Interpretador</a></li>
+<li class="tsd-kind-interface"><a href="interfaces/PontoParada.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg>Ponto<wbr/>Parada</a></li>
 <li class="tsd-kind-function"><a href="functions/cyrb53.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg>cyrb53</a></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
