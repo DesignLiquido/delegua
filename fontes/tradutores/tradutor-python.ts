@@ -3,7 +3,7 @@ import { Bloco, Classe, Const, Declaracao, Escreva, Expressao, FuncaoDeclaracao,
 import { SimboloInterface, TradutorInterface } from "../interfaces";
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
-export class TradutorPython implements TradutorInterface {
+export class TradutorPython implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
 
     traduzirNomeVariavel(variavel: string): string {

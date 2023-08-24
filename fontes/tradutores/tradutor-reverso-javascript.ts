@@ -4,6 +4,7 @@ import {
     BinaryExpression,
     BlockStatement,
     ClassDeclaration,
+    Directive,
     DoWhileStatement,
     ForInStatement,
     ForOfStatement,
@@ -13,19 +14,22 @@ import {
     Literal,
     MemberExpression,
     MethodDefinition,
+    ModuleDeclaration,
     NewExpression,
     ReturnStatement,
+    Statement,
     SwitchStatement,
     TryStatement,
     UpdateExpression,
     VariableDeclaration,
     WhileStatement,
 } from 'estree';
+import { TradutorInterface } from '../interfaces';
 
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
  */
-export class TradutorReversoJavaScript {
+export class TradutorReversoJavaScript implements TradutorInterface<Statement | Directive | ModuleDeclaration> {
     indentacao: number = 0;
 
     constructor() {
@@ -454,11 +458,10 @@ export class TradutorReversoJavaScript {
         }
     }
 
-    traduzir(codigo): string {
+    traduzir(declaracoes: (Statement | Directive | ModuleDeclaration)[]): string {
         let resultado = '';
-        const declaracoes = parseScript(codigo);
 
-        for (let declaracao of declaracoes.body) {
+        for (let declaracao of declaracoes) {
             resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
         }
 
