@@ -47,7 +47,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * instruções em Delégua como `leia()` e `importar()` não são suportadas.
  * O tradutor levantará erro toda vez que essas instruções são encontradas.
  */
-export class TradutorJavaScript implements TradutorInterface {
+export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
     declaracoesDeClasses: Classe[];
 

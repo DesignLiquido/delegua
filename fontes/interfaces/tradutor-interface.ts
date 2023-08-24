@@ -1,5 +1,3 @@
-import { Declaracao } from '../declaracoes';
-
-export interface TradutorInterface {
-    traduzir(declaracoes: Declaracao[]): any;
+export interface TradutorInterface<T> {
+    traduzir(declaracoes: T[]): string;
 }
