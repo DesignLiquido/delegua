@@ -24,7 +24,19 @@ describe('Tradutor Delégua -> AssemblyX64', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)
 
             expect(resultado).toBeTruthy();
-
+            expect(resultado).toMatch(/section \.bss/);
+            expect(resultado).toMatch(/section \.data/);
+            expect(resultado).toMatch(/Delegua_\d+ db 'Olá, mundo!', 0/);
+            expect(resultado).toMatch(/tam_Delegua_\d+ equ \$ - Delegua_\d+/);
+            expect(resultado).toMatch(/section \.text/);
+            expect(resultado).toMatch(/global _start/);
+            expect(resultado).toMatch(/mov edx, tam_Delegua_\d+/);
+            expect(resultado).toMatch(/mov ecx, Delegua_\d+/);
+            expect(resultado).toMatch(/mov ebx, 1/);
+            expect(resultado).toMatch(/mov eax, 4/);
+            expect(resultado).toMatch(/int 0x80/);
+            expect(resultado).toMatch(/mov eax, 1/);
+            expect(resultado).toMatch(/int 0x80/);
         })
 
     })

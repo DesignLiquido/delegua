@@ -1,5 +1,5 @@
 import { Literal } from '../construtos';
-import { Classe, Declaracao, Escreva } from '../declaracoes';
+import { Classe, Declaracao, Escreva, Leia } from '../declaracoes';
 
 export class TradutorAssemblyX64 {
     indentacao: number = 0;
@@ -89,7 +89,9 @@ _start:`;
     // traduzirDeclaracaoFalhar(): void {}
     // traduzirDeclaracaoFuncao(): void {}
     // traduzirDeclaracaoImportar(): void {}
-    // traduzirDeclaracaoLeia(): void {}
+    traduzirDeclaracaoLeia(declaracaoLeia: Leia): void {
+
+    }
     // traduzirDeclaracaoPara(): void {}
     // traduzirDeclaracaoParaCada(): void {}
     // traduzirDeclaracaoRetorna(): void {}
