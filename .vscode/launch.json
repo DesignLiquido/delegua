@@ -358,7 +358,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fila-estatica.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/fila-estatica.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -485,7 +488,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/leia.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/leia.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -524,7 +530,11 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--codigo", "escreva(2+1)"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--codigo",
+                "escreva(2+1)"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -542,7 +552,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/perceptron.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/perceptron.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -560,7 +573,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/primitivas/texto/minusculo.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/primitivas/texto/minusculo.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -599,7 +615,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/teste-classe.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/classes/teste-classe.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -639,7 +658,10 @@
                 "birl/interpretador",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -654,7 +676,10 @@
                 "interpretador",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -668,7 +693,10 @@
                 "mapler",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -682,7 +710,10 @@
                 "pitugues/interpretador",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -747,7 +778,10 @@
                 "visualg",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -1114,7 +1148,12 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua", "./exemplos/testes.egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./exemplos/testes.egua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -1401,7 +1440,10 @@
             "type": "node",
             "request": "launch",
             "name": "Portugol Studio > Olá Mundo",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -1411,7 +1453,11 @@
                 "./exemplos/dialetos/portugol-studio/ola-mundo.por"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
         },
         {
             "name": "Tradutor > Delégua para AssemblyScript",
@@ -1421,6 +1467,19 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "tradutores/tradutor-assemblyscript.test.ts",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Tradutor > Delégua para Assembly x64",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutores/tradutor-assembly-x64.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
