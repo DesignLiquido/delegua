@@ -38,6 +38,16 @@ describe('Tradutor Delégua -> AssemblyX64', () => {
             expect(resultado).toMatch(/mov eax, 1/);
             expect(resultado).toMatch(/int 0x80/);
         })
+        it.only('leia -> saida padrão', () => {
+            const retornoLexador = lexador.mapear([
+                'leia()',
+            ], -1)
 
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1)
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)
+
+            expect(resultado).toBeTruthy();
+        })
     })
 })

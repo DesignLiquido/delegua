@@ -90,7 +90,7 @@ _start:`;
     // traduzirDeclaracaoFuncao(): void {}
     // traduzirDeclaracaoImportar(): void {}
     traduzirDeclaracaoLeia(declaracaoLeia: Leia): void {
-
+        console.log(declaracaoLeia)
     }
     // traduzirDeclaracaoPara(): void {}
     // traduzirDeclaracaoParaCada(): void {}
