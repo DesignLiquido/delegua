@@ -42,6 +42,7 @@ import { ParametroVisuAlg } from './parametro-visualg';
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
     dicionarioTiposPrimitivos = {
+        'caracter': 'texto',
         'caractere': 'texto',
         'inteiro': 'número',
         'logico': 'lógico',
@@ -113,6 +114,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         if (
             !this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.CARACTER,
                 tiposDeSimbolos.CARACTERE,
                 tiposDeSimbolos.INTEIRO,
                 tiposDeSimbolos.LOGICO,
@@ -173,6 +175,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                     // Devem ser declaradas com um valor inicial padrão.
                     for (let identificador of dadosVariaveis.identificadores) {
                         switch (dadosVariaveis.tipo) {
+                            case tiposDeSimbolos.CARACTER:
                             case tiposDeSimbolos.CARACTERE:
                                 inicializacoes.push(
                                     new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''))
@@ -207,7 +210,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
                                 const simboloTipo = this.simbolos[this.atual];
                                 if (
-                                    ![tiposDeSimbolos.CARACTERE,
+                                    ![
+                                        tiposDeSimbolos.CARACTER,
+                                        tiposDeSimbolos.CARACTERE,
                                         tiposDeSimbolos.INTEIRO,
                                         tiposDeSimbolos.LOGICO,
                                         tiposDeSimbolos.REAL,
@@ -292,7 +297,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.CARACTERE)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.CARACTER, tiposDeSimbolos.CARACTERE)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
@@ -417,7 +422,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
         // Tipo retornado pela função.
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTERE, tiposDeSimbolos.REAL, tiposDeSimbolos.LOGICO)) {
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.CARACTER, tiposDeSimbolos.CARACTERE, tiposDeSimbolos.REAL, tiposDeSimbolos.LOGICO)) {
             throw this.erro(this.simbolos[this.atual], 'Esperado um tipo válido para retorno de função');
         }
 
