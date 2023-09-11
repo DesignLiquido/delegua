@@ -23,6 +23,27 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
             });
 
+            it('Sucesso - Atribuição', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Atribuição"',
+                        'var a: inteiro',
+                        'var b: caracter',
+                        'inicio',
+                        'a <- 1',
+                        'b := "b"',
+                        'escreva (a)',
+                        'escreva (b)',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
+            });
+
             it('Sucesso - Enquanto', () => {
                 const retornoLexador = lexador.mapear(
                     [
