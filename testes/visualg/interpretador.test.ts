@@ -28,6 +28,28 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it.only('Sucesso - Atribuição', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Atribuição"',
+                        'var a: inteiro',
+                        'var b: caracter',
+                        'inicio',
+                        'a <- 1',
+                        'b := "b"',
+                        'escreva (a)',
+                        'escreva (b)',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it("Sucesso - Enquanto", async () => {
                 // Aqui vamos simular a resposta para três variáveis de `leia()`.
                 const respostas = [

@@ -41,6 +41,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
             });
 
