@@ -122,7 +122,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.VETOR
             )
         ) {
-            throw this.erro(this.simbolos[this.atual], 'Tipo de variável não conhecido.');
+            throw this.erro(this.simbolos[this.atual], `Tipo de variável não conhecido: ${this.simbolos[this.atual].lexema}`);
         }
 
         const simboloAnterior = this.simbolos[this.atual - 1];
