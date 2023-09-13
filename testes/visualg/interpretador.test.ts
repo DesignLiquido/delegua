@@ -28,7 +28,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.only('Sucesso - Atribuição', async () => {
+            it('Sucesso - Atribuição', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'algoritmo "Atribuição"',
