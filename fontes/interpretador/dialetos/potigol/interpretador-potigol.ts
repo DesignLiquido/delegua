@@ -9,7 +9,11 @@ import { registrarBibliotecaGlobalPotigol } from "../../../bibliotecas/dialetos/
 import primitivasNumero from "../../../bibliotecas/dialetos/potigol/primitivas-numero";
 import primitivasTexto from "../../../bibliotecas/dialetos/potigol/primitivas-texto";
 import primitivasVetor from "../../../bibliotecas/dialetos/potigol/primitivas-vetor";
+import { AcessoMetodo } from "../../../construtos";
 
+/**
+ * Uma implementação do interpretador de Potigol.
+ */
 export class InterpretadorPotigol extends InterpretadorBase {
     constructor(
         diretorioBase: string,
@@ -18,6 +22,7 @@ export class InterpretadorPotigol extends InterpretadorBase {
         funcaoDeRetornoMesmaLinha: Function = null
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
+        this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;
 
         registrarBibliotecaGlobalPotigol(this, this.pilhaEscoposExecucao);
     }
@@ -27,7 +32,7 @@ export class InterpretadorPotigol extends InterpretadorBase {
      * @param expressao A expressão de acesso.
      * @returns O resultado da execução.
      */
-    async visitarExpressaoAcessoMetodo(expressao: any): Promise<any> {
+    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
@@ -86,7 +91,7 @@ export class InterpretadorPotigol extends InterpretadorBase {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                expressao.nome,
+                expressao.simbolo,
                 `Método para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
                 expressao.linha
             )
