@@ -7,6 +7,7 @@ import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
 import { ArgumentoInterface } from '../interpretador/argumento-interface';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { inferirTipoVariavel } from '../interpretador/inferenciador';
 
 /**
  * Qualquer função declarada em código é uma DeleguaFuncao.
@@ -63,6 +64,16 @@ export class DeleguaFuncao extends Chamavel {
                 tipo: 'objeto',
                 imutavel: false
             };
+
+            if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis) {
+                for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.campos)) {
+                    ambiente.valores[nomeCampo] = {
+                        valor: valorCampo,
+                        tipo: inferirTipoVariavel(valorCampo as any),
+                        imutavel: false
+                    };
+                }
+            }
         }
 
         // TODO: Repensar essa dinâmica para análise semântica.

@@ -81,14 +81,19 @@ import { ArgumentoInterface } from './argumento-interface';
 export class InterpretadorBase implements InterpretadorInterface {
     diretorioBase: string;
     erros: ErroInterpretador[];
+    declaracoes: Declaracao[];
+    resultadoInterpretador: Array<string> = [];
+
+    expandirPropriedadesDeObjetosEmEspacoVariaveis: boolean;
+
     performance: boolean;
     funcaoDeRetorno: Function = null;
     funcaoDeRetornoMesmaLinha: Function = null;
     interfaceDeEntrada: any = null; // Originalmente é `readline.Interface`
-    resultadoInterpretador: Array<string> = [];
-    declaracoes: Declaracao[];
-    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any = null;
+    
+    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintatico = new MicroAvaliadorSintatico();
 
@@ -108,6 +113,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         this.erros = [];
         this.declaracoes = [];
+        this.resultadoInterpretador = [];
+
+        // Isso existe por causa de Potigol.
+        // Para acessar uma variável de classe, não é preciso a palavra `isto`.
+        this.expandirPropriedadesDeObjetosEmEspacoVariaveis = false;
 
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
         const escopoExecucao: EscopoExecucao = {
@@ -121,7 +131,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
-
     }
 
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
@@ -1232,6 +1241,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
         }
 
+        // TODO: Precisamos disso?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
 
         if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
@@ -1253,6 +1263,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             metodos,
             declaracao.propriedades
         );
+
+        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = 
+            this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
 
         // TODO: Recolocar isso se for necessário.
         /* if (superClasse !== null) {
