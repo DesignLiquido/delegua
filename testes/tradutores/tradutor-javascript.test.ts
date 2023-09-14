@@ -90,6 +90,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'escreva(tipo de 1)',
+                    'escreva(tipo de -1)',
                     'escreva(tipo de \'2\')',
                     'escreva(tipo de nulo)',
                     'escreva(tipo de [1, 2, 3])',
@@ -103,6 +104,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/typeof 1/i);
+            expect(resultado).toMatch(/typeof -1/i);
             expect(resultado).toMatch(/typeof \'2\'/i);
             expect(resultado).toMatch(/typeof null/i);
             expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
