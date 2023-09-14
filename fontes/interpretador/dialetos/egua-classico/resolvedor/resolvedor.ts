@@ -1,5 +1,5 @@
 import { AcessoMetodo, Construto, FimPara, FormatacaoEscrita, Super, TipoDe, Variavel } from '../../../../construtos';
-import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, ParaCada, Se } from '../../../../declaracoes';
+import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, LeiaMultiplo, ParaCada, Se } from '../../../../declaracoes';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
@@ -115,7 +115,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoLeia(expressao: Leia) {
+    visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

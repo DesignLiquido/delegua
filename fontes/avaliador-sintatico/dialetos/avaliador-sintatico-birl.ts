@@ -566,7 +566,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             'Esperado parêntese direito após identificador para ler valor.'
         );
 
-        return new Leia(Number(primeiroSimbolo.linha), this.hashArquivo, [
+        return new Leia(primeiroSimbolo, [
             new Variavel(this.hashArquivo, variavel),
             new Literal(this.hashArquivo, Number(textoOuSimbolo.linha), tipo),
         ]);

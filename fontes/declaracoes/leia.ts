@@ -1,6 +1,6 @@
 import { Construto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
-import { VisitanteComumInterface } from '../interfaces'
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces'
 import { Declaracao } from './declaracao';
 
 /**
@@ -8,12 +8,13 @@ import { Declaracao } from './declaracao';
  * configurada no início da aplicação (por exemplo, o console).
  */
 export class Leia extends Declaracao {
+    simbolo: SimboloInterface;
     id: string;
     argumentos: Construto[];
     tipo?: string;
 
-    constructor(linha: number, hashArquivo: number, argumentos: Construto[]) {
-        super(linha, hashArquivo);
+    constructor(simbolo: SimboloInterface, argumentos: Construto[]) {
+        super(simbolo.linha, simbolo.hashArquivo);
         this.id = uuidv4();
         this.argumentos = argumentos;
     }

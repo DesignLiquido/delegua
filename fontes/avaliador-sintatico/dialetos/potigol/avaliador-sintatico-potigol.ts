@@ -343,7 +343,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LEIA_TEXTO:
             case tiposDeSimbolos.LEIA_TEXTOS:
                 const simboloLeia: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Leia(simboloLeia.linha, simboloLeia.hashArquivo, []);
+                return new Leia(simboloLeia, []);
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
@@ -741,7 +741,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const inicializadores = [];
         do {
-            inicializadores.push(this.expressao());
+            let inicializador = this.expressao();
+            if (inicializador instanceof Leia && identificadores.length > 1) {
+                inicializador = new LeiaMultiplo(inicializador.simbolo, inicializador.argumentos);
+            }
+            inicializadores.push(inicializador);
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {

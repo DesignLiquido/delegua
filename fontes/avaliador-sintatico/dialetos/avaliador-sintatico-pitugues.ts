@@ -538,7 +538,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     }
 
     declaracaoLeia(): Leia {
-        const simboloAtual = this.simbolos[this.atual];
+        const simboloLeia = this.simbolos[this.atual];
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
 
@@ -550,7 +550,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+        return new Leia(simboloLeia, argumentos);
     }
 
     blocoEscopo(): any[] {

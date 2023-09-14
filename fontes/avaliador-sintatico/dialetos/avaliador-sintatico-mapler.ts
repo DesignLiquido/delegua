@@ -390,7 +390,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     private logicaComumEscreva(): FormatacaoEscrita[] {
@@ -414,7 +414,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscreva(): Escreva {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
@@ -500,11 +500,11 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         //     'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         // );
 
-        return new Leia(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new Leia(simboloAtual, argumentos);
     }
 
     declaracaoPara(): Para {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
 
         // const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
 
