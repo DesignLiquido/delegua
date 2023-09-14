@@ -1056,9 +1056,9 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Sempre retorna nulo.
      */
     async visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
-        const valoresFinais = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+        const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        for (let [valor, indice] of valoresFinais) {
+        for (let [indice, valor] of valoresFinais.entries()) {
             let subtipo;
             if (declaracao.tipo !== undefined) {
                 subtipo = declaracao.tipo;
@@ -1424,7 +1424,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        for (let [valor, indice] of valoresFinais) {
+        for (let [indice, valor] of valoresFinais.entries()) {
             let subtipo;
             if (declaracao.tipo !== undefined) {
                 subtipo = declaracao.tipo;
