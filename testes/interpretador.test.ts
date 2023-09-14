@@ -195,6 +195,7 @@ describe('Interpretador', () => {
                         "escreva(tipo de verdadeiro)",
                         "escreva(tipo de falso)",
                         "escreva(tipo de 123)",
+                        "escreva(tipo de -1)",
                         "escreva(tipo de \"123\")",
                         "escreva(tipo de [1,2,3])",
                         "escreva(tipo de [])",
