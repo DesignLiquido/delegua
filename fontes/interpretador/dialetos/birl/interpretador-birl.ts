@@ -3,7 +3,6 @@ import {
     Binario,
     Construto,
     FimPara,
-    FormatacaoEscrita,
     Literal,
     Logico,
     Super,
@@ -43,8 +42,7 @@ import {
     ObjetoPadrao,
 } from '../../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
-import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
+import { ParametroInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { InterpretadorInterfaceBirl } from '../../../interfaces/interpretador-interface-birl';
@@ -55,8 +53,8 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/birl';
 import { ArgumentoInterface } from '../../argumento-interface';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { InterpretadorBase } from '../../interpretador-base';
-import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
+
 import * as comum from './comum';
 
 export class InterpretadorBirl extends InterpretadorBase implements InterpretadorInterfaceBirl {

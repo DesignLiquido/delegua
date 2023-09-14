@@ -13,6 +13,7 @@ export * from './fazer';
 export * from './funcao';
 export * from './importar';
 export * from './leia';
+export * from './leia-multiplo';
 export * from './para';
 export * from './para-cada';
 export * from './propriedade-classe';

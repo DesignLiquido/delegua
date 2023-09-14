@@ -4,10 +4,10 @@ import { VisitanteComumInterface } from '../interfaces'
 import { Declaracao } from './declaracao';
 
 /**
- * Declaração que pede a leitura de uma informação pela entrada
+ * Declaração que pede a leitura de várias informações pela entrada
  * configurada no início da aplicação (por exemplo, o console).
  */
-export class Leia extends Declaracao {
+export class LeiaMultiplo extends Declaracao {
     id: string;
     argumentos: Construto[];
     tipo?: string;
@@ -19,6 +19,6 @@ export class Leia extends Declaracao {
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoLeia(this);
+        return await visitante.visitarExpressaoLeiaMultiplo(this);
     }
 }

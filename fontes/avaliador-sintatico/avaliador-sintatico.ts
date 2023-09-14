@@ -525,8 +525,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                // return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
-                return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+                return new DefinirValor(this.hashArquivo, igual.linha, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
@@ -1035,7 +1034,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
      */
-    declaracaoDeVariaveis(): any {
+    protected declaracaoDeVariaveis(): any {
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
         let tipo: any = null;

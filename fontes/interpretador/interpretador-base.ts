@@ -24,6 +24,7 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
@@ -172,6 +173,21 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
+        return new Promise((resolucao) =>
+            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                resolucao(resposta);
+            })
+        );
+    }
+
+    /**
+     * Execução da leitura de valores da entrada configurada no
+     * início da aplicação.
+     * @param expressao Expressão do tipo `LeiaMultiplo`.
+     * @returns Promise com o resultado da leitura.
+     */
+    async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
         return new Promise((resolucao) =>
             this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {

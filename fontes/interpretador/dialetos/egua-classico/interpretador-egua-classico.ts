@@ -31,6 +31,7 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Se,
@@ -116,6 +117,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

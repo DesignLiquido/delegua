@@ -24,6 +24,7 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 import { EscrevaMesmaLinha } from '../declaracoes/escreva-mesma-linha';
 import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
+import { LeiaMultiplo } from '../declaracoes/leia-multiplo';
 
 export interface VisitanteComumInterface {
     visitarDeclaracaoClasse(declaracao: Classe): any;
@@ -58,7 +59,8 @@ export interface VisitanteComumInterface {
     visitarExpressaoFimPara(declaracao: FimPara): any;
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): any;
     visitarExpressaoIsto(expressao: any): any;
-    visitarExpressaoLeia(expressao: Leia): any;
+    visitarExpressaoLeia(expressao: Leia): Promise<any>;
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any>
     visitarExpressaoLiteral(expressao: Literal): Promise<any>;
     visitarExpressaoLogica(expressao: any): any;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;

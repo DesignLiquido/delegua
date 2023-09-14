@@ -14,6 +14,7 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
@@ -101,6 +102,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     visitarExpressaoAgrupamento(expressao: any): Promise<any> {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoUnaria(expressao: any) {
         throw new Error('Método não implementado');
     }
@@ -251,6 +253,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                 resolucao(resposta);
             })
         );
+    }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
+        throw new Error('Método não implementado');
     }
 
     visitarExpressaoLogica(expressao: any) {
