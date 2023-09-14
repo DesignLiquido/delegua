@@ -137,9 +137,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         let tipoDe = expressao.valor;
 
         if (tipoDe instanceof Binario
-            || tipoDe instanceof Variavel
+            || tipoDe instanceof TipoDe
             || tipoDe instanceof Unario
-            || tipoDe instanceof TipoDe) {
+            || tipoDe instanceof Variavel) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
         }
