@@ -3,6 +3,7 @@ import {
     Bloco,
     Classe,
     Const,
+    ConstMultiplo,
     Continua,
     Declaracao,
     Enquanto,
@@ -22,6 +23,7 @@ import {
     Sustar,
     Tente,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
@@ -217,15 +219,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        this.variaveis[declaracao.simbolo.lexema] = {
-            imutavel: false,
-            tipo: declaracao.tipo,
-        };
-
-        return Promise.resolve();
-    }
-
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         if (this.variaveis.hasOwnProperty(declaracao.simbolo.lexema)) {
             this.erros.push({
@@ -241,6 +234,23 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             };
         }
 
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        this.variaveis[declaracao.simbolo.lexema] = {
+            imutavel: false,
+            tipo: declaracao.tipo,
+        };
+
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
         return Promise.resolve();
     }
 

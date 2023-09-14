@@ -1,5 +1,5 @@
 import { AcessoMetodo, Construto, FimPara, FormatacaoEscrita, Super, TipoDe, Variavel } from '../../../../construtos';
-import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, LeiaMultiplo, ParaCada, Se } from '../../../../declaracoes';
+import { Bloco, Const, ConstMultiplo, Declaracao, EscrevaMesmaLinha, Expressao, Leia, LeiaMultiplo, ParaCada, Se, Var, VarMultiplo } from '../../../../declaracoes';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
@@ -76,6 +76,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -195,13 +199,17 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarDeclaracaoVar(declaracao: any): any {
+    visitarDeclaracaoVar(declaracao: Var): any {
         this.declarar(declaracao.simbolo);
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
         }
         this.definir(declaracao.simbolo);
         return null;
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: any): any {

@@ -34,6 +34,7 @@ import {
     PropriedadeClasse,
     Leia,
     LeiaMultiplo,
+    ConstMultiplo,
 } from '../../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../../avaliador-sintatico-base';
@@ -720,7 +721,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Escolha(condicao, caminhos, caminhoPadrao);
     }
 
-    protected declaracaoDeConstantes(): Declaracao[] {
+    protected declaracaoDeConstantes(): ConstMultiplo | Const[] {
         const identificadores: SimboloInterface[] = [];
         let tipo: any = null;
 
@@ -750,7 +751,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         if (identificadores.length !== inicializadores.length) {
             // Pode ser que a inicialização seja feita por uma das 
-            // funções `leia`. Neste caso, não deve dar erro.
+            // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
             if (!(inicializadores.length === 1 && inicializadores[0] instanceof LeiaMultiplo)) {
                 throw this.erro(
                     this.simbolos[this.atual],
@@ -758,9 +759,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
             }
             
+            return new ConstMultiplo(
+                identificadores, 
+                inicializadores[0]
+            );
         }
 
-        let retorno: Declaracao[] = [];
+        let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
             // const inicializador = inicializadores[indice];
             // this.verificarTipoAtribuido(tipo, inicializador);

@@ -679,7 +679,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
         return await this.executarBloco(declaracao.declaracoes);
     }
 
-    protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
+    protected async avaliacaoDeclaracaoVarOuConst(declaracao: Var): Promise<any> {
         let valorOuOutraVariavel = null;
 
         if (declaracao.inicializador !== null) {
@@ -702,7 +702,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
      * @returns Sempre retorna nulo.
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
         let subtipo;
         if (declaracao.tipo !== undefined) {

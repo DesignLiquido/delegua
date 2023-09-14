@@ -1,6 +1,7 @@
 export * from './bloco';
 export * from './classe';
 export * from './const';
+export * from './const-multiplo';
 export * from './continua';
 export * from './declaracao';
 export * from './enquanto';
@@ -22,3 +23,4 @@ export * from './retorna';
 export * from './se';
 export * from './tente';
 export * from './var';
+export * from './var-multiplo';

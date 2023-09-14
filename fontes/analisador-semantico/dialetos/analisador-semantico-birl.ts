@@ -3,6 +3,7 @@ import {
     Bloco,
     Classe,
     Const,
+    ConstMultiplo,
     Continua,
     Declaracao,
     Enquanto,
@@ -22,6 +23,7 @@ import {
     Sustar,
     Tente,
     Var,
+    VarMultiplo,
 } from '../../declaracoes';
 import { AnalisadorSemanticoInterface } from '../../interfaces/analisador-semantico-interface';
 import { ErroAnalisadorSemantico } from '../../interfaces/erros';
@@ -68,6 +70,10 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         return Promise.resolve();
     }
 
@@ -143,6 +149,10 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
             tipo: 'número',
         };
 
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
         return Promise.resolve();
     }
 

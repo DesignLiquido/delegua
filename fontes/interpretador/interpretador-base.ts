@@ -12,6 +12,7 @@ import {
     Bloco,
     Classe,
     Const,
+    ConstMultiplo,
     Continua,
     Declaracao,
     Enquanto,
@@ -31,6 +32,7 @@ import {
     Se,
     Tente,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
 import {
     Chamavel,
@@ -1014,7 +1016,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.executarBloco(declaracao.declaracoes);
     }
 
-    protected async avaliacaoDeclaracaoVar(declaracao: Var | Const): Promise<any> {
+    protected async avaliacaoDeclaracaoVarOuConst(declaracao: Const | ConstMultiplo | Var | VarMultiplo): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
@@ -1031,30 +1033,12 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
-     * Executa expressão de definição de variável.
-     * @param declaracao A declaração Var
-     * @returns Sempre retorna nulo.
-     */
-    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
-
-        let subtipo;
-        if (declaracao.tipo !== undefined) {
-            subtipo = declaracao.tipo;
-        }
-
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
-
-        return null;
-    }
-
-    /**
      * Executa expressão de definição de constante.
      * @param declaracao A declaração `Const`.
      * @returns Sempre retorna nulo.
      */
     async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
         let subtipo;
         if (declaracao.tipo !== undefined) {
@@ -1062,6 +1046,26 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, subtipo);
+
+        return null;
+    }
+
+    /**
+     * Executa expressão de definição de múltiplas constantes.
+     * @param declaracao A declaração `ConstMultiplo`.
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        const valoresFinais = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+
+        for (let [valor, indice] of valoresFinais) {
+            let subtipo;
+            if (declaracao.tipo !== undefined) {
+                subtipo = declaracao.tipo;
+            }
+    
+            this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, subtipo);
+        }
 
         return null;
     }
@@ -1392,6 +1396,44 @@ export class InterpretadorBase implements InterpretadorInterface {
         metodo.instancia = objeto.valor;
 
         return metodo;
+    }
+
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+
+        let subtipo;
+        if (declaracao.tipo !== undefined) {
+            subtipo = declaracao.tipo;
+        }
+
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
+
+        return null;
+    }
+
+    /**
+     * Executa expressão de definição de múltiplas variáveis.
+     * @param declaracao A declaração `VarMultiplo`.
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+        const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+
+        for (let [valor, indice] of valoresFinais) {
+            let subtipo;
+            if (declaracao.tipo !== undefined) {
+                subtipo = declaracao.tipo;
+            }
+    
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, subtipo);
+        }
+
+        return null;
     }
 
     paraTexto(objeto: any) {

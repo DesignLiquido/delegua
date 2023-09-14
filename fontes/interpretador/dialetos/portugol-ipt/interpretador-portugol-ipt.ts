@@ -3,6 +3,7 @@ import {
     Bloco,
     Classe,
     Const,
+    ConstMultiplo,
     Continua,
     Declaracao,
     Enquanto,
@@ -22,6 +23,7 @@ import {
     Sustar,
     Tente,
     Var,
+    VarMultiplo,
 } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { ObjetoPadrao } from '../../../estruturas';
@@ -424,48 +426,70 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return null;
     }
 
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+        throw new Error('Método não implementado');
+    }
+
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado');
     }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        throw new Error('Método não implementado');
+    }
+
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoDefinirValor(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         throw new Error('Método não implementado');
     }
+
     visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoIsto(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoDicionario(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoVetor(expressao: any) {
         throw new Error('Método não implementado');
     }
+
     visitarExpressaoSuper(expressao: Super) {
         throw new Error('Método não implementado');
     }
