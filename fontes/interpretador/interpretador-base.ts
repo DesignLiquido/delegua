@@ -191,7 +191,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
         return new Promise((resolucao) =>
             this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(resposta);
+                resolucao(String(resposta).split(/(\s+)/).filter(r => !/(\s+)/.test(r)));
             })
         );
     }
@@ -1047,9 +1047,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
-        /**
+    /**
      * Executa expressão de definição de constante.
-     * @param declaracao A declaração Const
+     * @param declaracao A declaração `Const`.
      * @returns Sempre retorna nulo.
      */
     async visitarDeclaracaoConst(declaracao: Const): Promise<any> {

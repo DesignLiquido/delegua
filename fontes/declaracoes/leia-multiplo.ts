@@ -15,6 +15,7 @@ export class LeiaMultiplo extends Declaracao {
 
     constructor(simbolo: SimboloInterface, argumentos: Construto[]) {
         super(simbolo.linha, simbolo.hashArquivo);
+        this.simbolo = simbolo;
         this.id = uuidv4();
         this.argumentos = argumentos;
     }
