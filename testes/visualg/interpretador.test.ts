@@ -180,7 +180,7 @@ describe('Interpretador', () => {
                     '     media[i]<-(n1+n2)/2',
                     'fimpara',
                     'escreval ("-")',
-                    'para i de 1 ate 10 faca',
+                    'para i de 1 ate 10 faça',
                     '       escreval ("Media do",i,"º aluno: ", media[i])',
                     'fimpara',
                     'fimalgoritmo'

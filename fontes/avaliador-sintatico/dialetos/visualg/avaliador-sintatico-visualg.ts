@@ -449,7 +449,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         if(!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FACA, tiposDeSimbolos.FAÇA)){
             this.consumir(
-                tiposDeSimbolos.FACA,
+                this.simbolos[this.atual].tipo,
                 "Esperado paravra reservada 'faca' ou 'faça' após condição de continuidade em declaracão 'enquanto'."
             );
         }
@@ -772,10 +772,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             }
         }
 
-        this.consumir(
-            tiposDeSimbolos.FACA,
-            "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para'."
-        );
+        if(!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FACA, tiposDeSimbolos.FAÇA)){
+            this.consumir(
+                this.simbolos[this.atual].tipo,
+                "Esperado palavra reservada 'faca' ou 'faça' após valor final do laço de repetição 'para'."
+            );
+        }
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
@@ -925,8 +927,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const condicao = this.expressao();
 
         if(!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENTAO, tiposDeSimbolos.ENTÃO)){
-            this.consumir(this.simbolos[this.atual].tipo,
-            `Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'.`);
+            this.consumir(
+                this.simbolos[this.atual].tipo,
+                "Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'."
+            );
         }
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
