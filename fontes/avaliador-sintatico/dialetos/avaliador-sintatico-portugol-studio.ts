@@ -473,7 +473,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
      * @returns Uma declaração `Leia`.
      */
     declaracaoLeia(): Leia {
-        const simboloAtual = this.avancarEDevolverAnterior();
+        const simboloLeia = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
 
@@ -484,7 +484,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+        return new Leia(simboloLeia, argumentos);
     }
 
     declaracaoLogicos(): Var[] {

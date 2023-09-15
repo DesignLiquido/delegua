@@ -151,7 +151,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+        return new Leia(simboloAtual, argumentos);
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {

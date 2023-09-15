@@ -686,7 +686,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @returns Uma declaração `Leia`.
      */
     declaracaoLeia(): Leia {
-        const simboloAtual = this.avancarEDevolverAnterior();
+        const simboloLeia = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
 
@@ -702,7 +702,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         );
 
-        return new Leia(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new Leia(simboloLeia, argumentos);
     }
 
     declaracaoPara(): Para {

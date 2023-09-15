@@ -37,12 +37,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     hashArquivo: number;
     atual: number;
     blocos: number;
-
-    declaracaoDeConstantes(): Const[] {
-        throw new Error("Método não implementado.");
-    }
     
-    declaracaoDeVariaveis(): Var[] {
+    protected declaracaoDeVariaveis(): Var[] {
         throw new Error("Método não implementado.");
     }
 

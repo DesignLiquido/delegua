@@ -21,6 +21,7 @@ import {
 import {
     Classe,
     Const,
+    ConstMultiplo,
     Declaracao,
     Enquanto,
     Escolha,
@@ -31,11 +32,13 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Se,
     Tente,
     Var,
+    VarMultiplo,
 } from '../../../declaracoes';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, ResolvedorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
@@ -103,6 +106,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
@@ -116,6 +123,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -647,6 +658,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 : valorOuOutraVariavel
         );
         return null;
+    }
+
+    async visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo) {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoContinua(declaracao?: any): ContinuarQuebra {

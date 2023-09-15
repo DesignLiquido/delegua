@@ -52,7 +52,6 @@ export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
     em(): Construto;
     e(): Construto;
     ou(): Construto;
-    atribuir(): Construto;
     blocoEscopo(): any[];
     expressao(): Construto;
     declaracaoEnquanto(): Enquanto;
@@ -69,8 +68,6 @@ export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
     declaracaoTente(): Tente;
     declaracaoFazer(): Fazer;
     resolverDeclaracao(): any;
-    declaracaoDeConstantes(): Const[];
-    declaracaoDeVariaveis(): Var[];
     declaracaoDeVariavel(): Var;
     funcao(tipo: string): FuncaoDeclaracao;
     corpoDaFuncao(tipo: string): FuncaoConstruto;

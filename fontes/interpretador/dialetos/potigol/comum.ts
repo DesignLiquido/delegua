@@ -79,3 +79,57 @@ export async function visitarExpressaoAcessoMetodo(interpretador: InterpretadorB
        )
    );
 }
+
+/**
+ * Resolve todas as interpolações em um texto.
+ * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
+ * @returns Uma lista de variáveis interpoladas.
+ */
+export async function resolverInterpolacoes(interpretador: InterpretadorBase, textoOriginal: string, linha: number): Promise<any[]> {
+    const variaveis = textoOriginal.match(interpretador.regexInterpolacao);
+
+    let resultadosAvaliacaoSintatica = variaveis.map((s) => {
+        const expressao: string = s.replace(/[\{\}]*/gm, '');
+
+        let microLexador = interpretador.microLexador.mapear(expressao);
+        const resultadoMicroAvaliadorSintatico = interpretador.microAvaliadorSintatico.analisar(microLexador, linha);
+
+        return {
+            nomeVariavel: expressao,
+            resultadoMicroAvaliadorSintatico
+        };
+    });
+
+    // TODO: Verificar erros do `resultadosAvaliacaoSintatica`.
+
+    const resolucoesPromises = await Promise.all(
+        resultadosAvaliacaoSintatica
+            .flatMap(r => r.resultadoMicroAvaliadorSintatico.declaracoes)
+            .map(d => interpretador.avaliar(d))
+    );
+
+    return resolucoesPromises.map((item, indice) => ({
+        variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
+        valor: item
+    }));
+}
+
+/**
+* Retira a interpolação de um texto.
+* @param {texto} texto O texto
+* @param {any[]} variaveis A lista de variaveis interpoladas
+* @returns O texto com o valor das variaveis.
+*/
+export function retirarInterpolacao(texto: string, variaveis: any[]): string {
+   let textoFinal = texto;
+
+   variaveis.forEach((elemento) => {
+       if (elemento?.valor?.tipo === 'lógico') {
+           textoFinal = textoFinal.replace('{' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor))
+       } else {
+           textoFinal = textoFinal.replace('{' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor)
+       }
+   });
+
+   return textoFinal;
+}
