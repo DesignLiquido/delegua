@@ -423,7 +423,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 case tiposDeSimbolos.ADICAO:
                 case tiposDeSimbolos.MAIS_IGUAL:
-                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                    if (['número', 'inteiro'].includes(tipoEsquerdo) && ['número', 'inteiro'].includes(tipoDireito)) {
                         return Number(valorEsquerdo) + Number(valorDireito);
                     } else {
                         return String(valorEsquerdo) + String(valorDireito);

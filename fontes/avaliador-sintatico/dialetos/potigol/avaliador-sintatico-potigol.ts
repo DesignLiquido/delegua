@@ -759,9 +759,20 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
             }
             
+            let tipoConversao: TiposDadosInterface;
+            switch (inicializadores[0].simbolo.tipo) {
+                case tiposDeSimbolos.LEIA_INTEIRO:
+                    tipoConversao = 'inteiro';
+                    break;
+                default:
+                    tipoConversao = 'texto';
+                    break;
+            }
+
             return new ConstMultiplo(
                 identificadores, 
-                inicializadores[0]
+                inicializadores[0],
+                tipoConversao
             );
         }
 
