@@ -447,10 +447,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const condicao = this.expressao();
 
-        this.consumir(
-            tiposDeSimbolos.FACA,
-            "Esperado paravra reservada 'faca' após condição de continuidade em declaracão 'enquanto'."
-        );
+        if(!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FACA, tiposDeSimbolos.FAÇA)){
+            this.consumir(
+                tiposDeSimbolos.FACA,
+                "Esperado paravra reservada 'faca' ou 'faça' após condição de continuidade em declaracão 'enquanto'."
+            );
+        }
 
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
@@ -922,7 +924,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const condicao = this.expressao();
 
-        this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
+        if(!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENTAO, tiposDeSimbolos.ENTÃO)){
+            this.consumir(this.simbolos[this.atual].tipo,
+            `Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'.`);
+        }
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
             "Esperado quebra de linha após palavra reservada 'entao' em declaração 'se'."
@@ -931,10 +936,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const declaracoes = [];
         do {
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
+        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO, tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             const simboloSenao = this.simbolos[this.atual - 1];
             const declaracoesSenao = [];
 
