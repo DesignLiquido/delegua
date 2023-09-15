@@ -79,7 +79,13 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirVariavel(nomeVariavel: string, valor: any, subtipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
-        const tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        let tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        // TODO: Dois testes no VisuAlg falham por causa disso.
+        /* if (subtipo !== null && subtipo !== undefined) {
+            tipo = subtipo;
+        } else {
+            tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        } */
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
