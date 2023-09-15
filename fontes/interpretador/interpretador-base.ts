@@ -205,7 +205,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-    private async retirarInterpolacao(texto: string, variaveis: any[]): Promise<string> {
+    protected retirarInterpolacao(texto: string, variaveis: any[]): string {
         let textoFinal = texto;
 
         variaveis.forEach((elemento) => {
@@ -217,15 +217,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         });
 
         return textoFinal;
-
     }
 
     /**
-     * Busca variáveis interpoladas.
+     * Resolve todas as interpolações em um texto.
      * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
      * @returns Uma lista de variáveis interpoladas.
      */
-    private async buscarVariaveisInterpolacao(textoOriginal: string, linha: number): Promise<any[]> {
+    protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
         let resultadosAvaliacaoSintatica = variaveis.map((s) => {
@@ -240,7 +239,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             };
         });
 
-        //TODO verificar erros do resultadosAvaliacaoSintatica
+        // TODO: Verificar erros do `resultadosAvaliacaoSintatica`.
 
         const resolucoesPromises = await Promise.all(
             resultadosAvaliacaoSintatica
@@ -256,7 +255,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
         if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = await this.buscarVariaveisInterpolacao(expressao.valor, expressao.linha);
+            const variaveis = await this.resolverInterpolacoes(expressao.valor, expressao.linha);
 
             return this.retirarInterpolacao(expressao.valor, variaveis);
         }
