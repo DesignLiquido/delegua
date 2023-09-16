@@ -28,6 +28,28 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - Atribuição', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Atribuição"',
+                        'var a: inteiro',
+                        'var b: caracter',
+                        'inicio',
+                        'a <- 1',
+                        'b := "b"',
+                        'escreva (a)',
+                        'escreva (b)',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it("Sucesso - Enquanto", async () => {
                 // Aqui vamos simular a resposta para três variáveis de `leia()`.
                 const respostas = [
@@ -117,9 +139,9 @@ describe('Interpretador', () => {
                     '   Leia(A)',
                     '   IMC <- M / (A ^ 2)',
                     '   Escreval("IMC: ", IMC:5:2)',
-                    '   Se (IMC >= 18.5) e (IMC < 25) entao',
+                    '   Se (IMC >= 18.5) e (IMC < 25) então',
                     '      Escreva("Parabens! Voce esta no seu peso ideal")',
-                    '   senao',
+                    '   senão',
                     '      Escreva("Voce nao esta na faixa de peso ideal")',
                     '   Fimse',
                     '',
@@ -158,7 +180,7 @@ describe('Interpretador', () => {
                     '     media[i]<-(n1+n2)/2',
                     'fimpara',
                     'escreval ("-")',
-                    'para i de 1 ate 10 faca',
+                    'para i de 1 ate 10 faça',
                     '       escreval ("Media do",i,"º aluno: ", media[i])',
                     'fimpara',
                     'fimalgoritmo'

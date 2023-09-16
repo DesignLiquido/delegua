@@ -525,8 +525,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoMetodo) {
                 const get = expressao;
-                // return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
-                return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+                return new DefinirValor(this.hashArquivo, igual.linha, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
@@ -578,7 +577,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
      * @returns Um objeto da classe `Leia`.
      */
     declaracaoLeia(): Leia {
-        const simboloAtual = this.simbolos[this.atual];
+        const simboloLeia = this.simbolos[this.atual];
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos argumentos em instrução `leia`.");
 
@@ -592,7 +591,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos em instrução `leia`.");
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+        return new Leia(simboloLeia, argumentos);
     }
 
     blocoEscopo(): Array<RetornoDeclaracao> {
@@ -1035,7 +1034,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
      */
-    declaracaoDeVariaveis(): any {
+    protected declaracaoDeVariaveis(): any {
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
         let tipo: any = null;

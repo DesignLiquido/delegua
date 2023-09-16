@@ -3,6 +3,7 @@ import {
     Bloco,
     Classe,
     Const,
+    ConstMultiplo,
     Continua,
     Declaracao,
     Enquanto,
@@ -14,6 +15,7 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
@@ -21,6 +23,7 @@ import {
     Sustar,
     Tente,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
@@ -73,12 +76,15 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoAgrupamento(expressao: any): Promise<any> {
         return Promise.resolve();
     }
+
     visitarExpressaoUnaria(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoBinaria(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoDeChamada(expressao: any) {
         return Promise.resolve();
     }
@@ -152,36 +158,51 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoLeia(expressao: Leia) {
         return Promise.resolve();
     }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo) {
+        return Promise.resolve();
+    }
+
     visitarExpressaoLogica(expressao: any) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         return Promise.resolve();
     }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         return Promise.resolve();
     }
+
     visitarDeclaracaoSe(declaracao: Se) {
         return Promise.resolve();
     }
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoFazer(declaracao: Fazer) {
         return Promise.resolve();
     }
+
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoEscolha(declaracao: Escolha) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoTente(declaracao: Tente) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoImportar(declaracao: Importar) {
         return Promise.resolve();
     }
@@ -195,15 +216,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        this.variaveis[declaracao.simbolo.lexema] = {
-            imutavel: false,
-            tipo: declaracao.tipo,
-        };
-
         return Promise.resolve();
     }
 
@@ -225,45 +237,75 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        this.variaveis[declaracao.simbolo.lexema] = {
+            imutavel: false,
+            tipo: declaracao.tipo,
+        };
+
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+        return Promise.resolve();
+    }
+
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         return Promise.resolve();
     }
+
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
         return Promise.resolve();
     }
+
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         return Promise.resolve(null);
     }
+
     visitarExpressaoDeleguaFuncao(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         return Promise.resolve();
     }
+
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoDefinirValor(expressao: any) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         return Promise.resolve();
     }
+
     visitarDeclaracaoClasse(declaracao: Classe) {
         return Promise.resolve();
     }
+
     visitarExpressaoAcessoMetodo(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoIsto(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoDicionario(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoVetor(expressao: any) {
         return Promise.resolve();
     }
+    
     visitarExpressaoSuper(expressao: Super) {
         return Promise.resolve();
     }

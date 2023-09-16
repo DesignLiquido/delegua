@@ -32,6 +32,9 @@ import {
     FuncaoDeclaracao,
     Classe,
     PropriedadeClasse,
+    Leia,
+    LeiaMultiplo,
+    ConstMultiplo,
 } from '../../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../../avaliador-sintatico-base';
@@ -334,6 +337,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     Number(simboloVerdadeiroFalso.linha),
                     simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO
                 );
+            case tiposDeSimbolos.LEIA_INTEIRO:
+            case tiposDeSimbolos.LEIA_INTEIROS:
+            case tiposDeSimbolos.LEIA_REAIS:
+            case tiposDeSimbolos.LEIA_REAL:
+            case tiposDeSimbolos.LEIA_TEXTO:
+            case tiposDeSimbolos.LEIA_TEXTOS:
+                const simboloLeia: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Leia(simboloLeia, []);
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
@@ -710,7 +721,75 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Escolha(condicao, caminhos, caminhoPadrao);
     }
 
-    declaracaoDeVariaveis(): Var[] {
+    protected declaracaoDeConstantes(): ConstMultiplo | Const[] {
+        const identificadores: SimboloInterface[] = [];
+        let tipo: any = null;
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const tipoConstante = this.verificarDefinicaoTipoAtual();
+            if (!tipoConstante) {
+                throw this.erro(this.simboloAtual(), 'Tipo definido na constante não é válido.');
+            }
+            tipo = tipoConstante;
+            this.avancarEDevolverAnterior();
+        } */
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
+
+        const inicializadores = [];
+        do {
+            let inicializador = this.expressao();
+            if (inicializador instanceof Leia && identificadores.length > 1) {
+                inicializador = new LeiaMultiplo(inicializador.simbolo, inicializador.argumentos);
+            }
+            inicializadores.push(inicializador);
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (identificadores.length !== inicializadores.length) {
+            // Pode ser que a inicialização seja feita por uma das 
+            // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
+            if (!(inicializadores.length === 1 && inicializadores[0] instanceof LeiaMultiplo)) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+                );
+            }
+            
+            let tipoConversao: TiposDadosInterface;
+            switch (inicializadores[0].simbolo.tipo) {
+                case tiposDeSimbolos.LEIA_INTEIRO:
+                    tipoConversao = 'inteiro';
+                    break;
+                default:
+                    tipoConversao = 'texto';
+                    break;
+            }
+
+            return new ConstMultiplo(
+                identificadores, 
+                inicializadores[0],
+                tipoConversao
+            );
+        }
+
+        let retorno: Const[] = [];
+        for (let [indice, identificador] of identificadores.entries()) {
+            // const inicializador = inicializadores[indice];
+            // this.verificarTipoAtribuido(tipo, inicializador);
+
+            retorno.push(new Const(identificador, inicializadores[indice], tipo));
+        }
+
+        // this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+        return retorno;
+    }
+
+    protected declaracaoDeVariaveis(): Var[] {
         const simboloVar = this.avancarEDevolverAnterior();
         const identificadores: SimboloInterface[] = [];
         do {
@@ -739,7 +818,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return retorno;
     }
 
-    protected logicaAtribuicaoComDica(expressao: Constante) {
+    protected logicaAtribuicaoComDicaDeTipo(expressao: Constante) {
         // A dica de tipo é opcional.
         // Só que, se a avaliação entra na dica, só
         // podemos ter uma constante apenas.
@@ -775,7 +854,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * 
      * @returns Um construto do tipo `Classe`.
      */
-    declaracaoTipo(): Classe {
+    protected declaracaoTipo(): Classe {
         const simboloTipo = this.avancarEDevolverAnterior();
         const construto: ConstanteOuVariavel = this.primario() as ConstanteOuVariavel;
 
@@ -876,7 +955,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Classe(construto.simbolo, undefined, metodos, propriedades);
     }
 
-    atribuir(): Construto {
+    atribuir(): any | any[] {
         const expressao = this.ou();
 
         if (!this.estaNoFinal() && expressao instanceof Constante) {
@@ -884,7 +963,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             switch (this.simbolos[this.atual].tipo) {
                 case tiposDeSimbolos.DOIS_PONTOS:
-                    return this.logicaAtribuicaoComDica(expressao);
+                    return this.logicaAtribuicaoComDicaDeTipo(expressao);
+                case tiposDeSimbolos.VIRGULA:
+                    this.atual--;
+                    return this.declaracaoDeConstantes();
                 case tiposDeSimbolos.IGUAL:
                     this.avancarEDevolverAnterior();
                     const valorAtribuicao = this.ou();

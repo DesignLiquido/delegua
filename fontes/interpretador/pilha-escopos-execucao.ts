@@ -41,12 +41,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     private converterValor(tipo: string, valor: any) {
         switch (tipo) {
-            case 'texto':
-                return String(valor);
-            case 'número':
-                return Number(valor);
+            case 'inteiro':
+                return parseInt(valor);
             case 'lógico':
                 return Boolean(valor);
+            case 'número':
+                return Number(valor);
+            case 'texto':
+                return String(valor);
             default:
                 return valor;
         }
@@ -54,7 +56,12 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirConstante(nomeConstante: string, valor: any, subtipo?: string): void {
         const constante = this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante];
-        const tipo = constante && constante.hasOwnProperty('tipo') ? constante.tipo : inferirTipoVariavel(valor);
+        let tipo;
+        if (subtipo !== null && subtipo !== undefined) {
+            tipo = subtipo;
+        } else {
+            tipo = constante && constante.hasOwnProperty('tipo') ? constante.tipo : inferirTipoVariavel(valor);
+        }
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
@@ -72,7 +79,13 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirVariavel(nomeVariavel: string, valor: any, subtipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
-        const tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        let tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        // TODO: Dois testes no VisuAlg falham por causa disso.
+        /* if (subtipo !== null && subtipo !== undefined) {
+            tipo = subtipo;
+        } else {
+            tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        } */
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),

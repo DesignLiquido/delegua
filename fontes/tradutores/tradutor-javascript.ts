@@ -612,6 +612,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
         if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
         else if (tipoDe.valor instanceof Vetor) resultado += this.traduzirConstrutoVetor(tipoDe.valor);
+        else if (tipoDe.valor instanceof Unario) resultado += this.traduzirConstrutoUnario(tipoDe.valor);
         else resultado += tipoDe.valor;        
 
         return resultado;
