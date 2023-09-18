@@ -338,13 +338,23 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO
                 );
             case tiposDeSimbolos.LEIA_INTEIRO:
-            case tiposDeSimbolos.LEIA_INTEIROS:
-            case tiposDeSimbolos.LEIA_REAIS:
             case tiposDeSimbolos.LEIA_REAL:
             case tiposDeSimbolos.LEIA_TEXTO:
-            case tiposDeSimbolos.LEIA_TEXTOS:
                 const simboloLeia: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Leia(simboloLeia, []);
+            case tiposDeSimbolos.LEIA_INTEIROS:
+            case tiposDeSimbolos.LEIA_REAIS:
+            case tiposDeSimbolos.LEIA_TEXTOS:
+                const simboloLeiaDefinido: SimboloInterface = this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`);
+                if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL)) {
+                    throw this.erro(this.simbolos[this.atual], `Esperado número de argumentos como inteiro ou real em ${simboloLeiaDefinido.lexema}`);
+                }
+                let numeroArgumentosLeia = this.simbolos[this.atual - 1];
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`);
+                const leiaDefinido = new Leia(simboloLeiaDefinido, []);
+                leiaDefinido.numeroArgumentosEsperados = parseInt(numeroArgumentosLeia.literal);
+                return leiaDefinido;
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
@@ -744,8 +754,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         do {
             let inicializador = this.expressao();
             if (inicializador instanceof Leia && identificadores.length > 1) {
-                inicializador = new LeiaMultiplo(inicializador.simbolo, inicializador.argumentos);
+                inicializador = new LeiaMultiplo(
+                    inicializador.simbolo, 
+                    inicializador.argumentos, 
+                    inicializador.numeroArgumentosEsperados
+                );
             }
+
             inicializadores.push(inicializador);
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -758,11 +773,28 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             }
+
+            // `leia_inteiros`, `leia_reais` e `leia_textos` pedem um inteiro como argumento, 
+            // que pode ser usado para verificar se a expressão faz sentido ou não aqui.
+            const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
+            if (inicializadorLeia.numeroArgumentosEsperados > 0) {
+                if (identificadores.length !== inicializadorLeia.numeroArgumentosEsperados) {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        `Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores passada por parâmetro à direita em ${inicializadorLeia.simbolo.lexema}.`
+                    );
+                }
+            }
             
             let tipoConversao: TiposDadosInterface;
-            switch (inicializadores[0].simbolo.tipo) {
+            switch (inicializadorLeia.simbolo.tipo) {
                 case tiposDeSimbolos.LEIA_INTEIRO:
+                case tiposDeSimbolos.LEIA_INTEIROS:
                     tipoConversao = 'inteiro';
+                    break;
+                case tiposDeSimbolos.LEIA_REAL:
+                case tiposDeSimbolos.LEIA_REAIS:
+                    tipoConversao = 'real';
                     break;
                 default:
                     tipoConversao = 'texto';
