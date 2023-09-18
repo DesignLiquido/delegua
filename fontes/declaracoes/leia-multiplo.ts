@@ -12,12 +12,14 @@ export class LeiaMultiplo extends Declaracao {
     id: string;
     argumentos: Construto[];
     tipo?: string;
+    numeroArgumentosEsperados?: number;
 
-    constructor(simbolo: SimboloInterface, argumentos: Construto[]) {
+    constructor(simbolo: SimboloInterface, argumentos: Construto[], numeroArgumentosEsperados?: number) {
         super(simbolo.linha, simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.id = uuidv4();
         this.argumentos = argumentos;
+        this.numeroArgumentosEsperados = numeroArgumentosEsperados;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

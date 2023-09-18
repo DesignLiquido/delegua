@@ -12,6 +12,7 @@ export class Leia extends Declaracao {
     id: string;
     argumentos: Construto[];
     tipo?: string;
+    numeroArgumentosEsperados?: number;
 
     constructor(simbolo: SimboloInterface, argumentos: Construto[]) {
         super(simbolo.linha, simbolo.hashArquivo);
