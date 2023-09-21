@@ -42,6 +42,7 @@ export const palavrasReservadas = {
     inteiro: tiposDeSimbolos.INTEIRO,
     interrompa: tiposDeSimbolos.INTERROMPA,
     leia: tiposDeSimbolos.LEIA,
+    limpatela: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     log: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     logn: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     logico: tiposDeSimbolos.LOGICO,
