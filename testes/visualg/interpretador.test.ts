@@ -163,6 +163,41 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - "Repita Até" com acento', async () => {
+                const respostas = [0];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Repita Até"',
+                        'var',
+                        'opcao: inteiro',
+                    'inicio',
+                        'repita',
+                            'escreval("1 - Dizer olá!")',
+                            'escreval("2 – Dizer oi! ")',
+                            'escreval("0 - Sair do programa")',
+                            'leia(opcao)',
+                            'se (opcao = 1) entao',
+                                'escreval("Olá!")',
+                            'fimse',
+                            'se (opcao = 2) entao',
+                                'escreval("Oi!")',
+                            'fimse',
+                        'até (opcao = 0)',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - IMC', async () => {
                 // Aqui vamos simular a resposta para duas variáveis de `leia()`.
                 const respostas = [78, 1.78];
