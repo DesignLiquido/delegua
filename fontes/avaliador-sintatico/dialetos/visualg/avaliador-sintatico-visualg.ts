@@ -166,6 +166,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             const simboloAtual = this.simbolos[this.atual];
             switch (simboloAtual.tipo) {
                 case tiposDeSimbolos.FUNCAO:
+                case tiposDeSimbolos.FUNCÃO:
                     const dadosFuncao = this.funcao('funcao');
                     inicializacoes.push(dadosFuncao);
                     break;

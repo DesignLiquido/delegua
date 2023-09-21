@@ -33,6 +33,7 @@ export const palavrasReservadas = {
     fimrepita: tiposDeSimbolos.FIM_REPITA,
     fimse: tiposDeSimbolos.FIM_SE,
     funcao: tiposDeSimbolos.FUNCAO,
+    função: tiposDeSimbolos.FUNCÃO,
     grauprad: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     inicio: tiposDeSimbolos.INICIO,
     int: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,

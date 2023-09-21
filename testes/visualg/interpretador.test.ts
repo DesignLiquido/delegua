@@ -126,7 +126,7 @@ describe('Interpretador', () => {
                     'algoritmo "EquaçãoDoSegundoGrau"',
                     'var',
                        'a, b, c, delta, x1, x2: REAL',                    
-                    'funcao calcula_delta(): REAL',
+                    'função calcula_delta(): REAL',
                     'var',
                        'delta : REAL',
                     'inicio',

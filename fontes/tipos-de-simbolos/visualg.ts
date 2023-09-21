@@ -32,6 +32,7 @@ export default {
     FIM_REPITA: 'FIM_REPITA',
     FIM_SE: 'FIM_SE',
     FUNCAO: 'FUNCAO',
+    FUNCÃO: 'FUNCÃO',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',
     INICIO: 'INICIO',
