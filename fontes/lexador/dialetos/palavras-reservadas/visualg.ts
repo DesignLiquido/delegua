@@ -7,6 +7,7 @@ export const palavrasReservadas = {
     arcsen: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     arctan: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     ate: tiposDeSimbolos.ATE,
+    até: tiposDeSimbolos.ATÉ,
     caracter: tiposDeSimbolos.CARACTER,
     caractere: tiposDeSimbolos.CARACTERE,
     caso: tiposDeSimbolos.CASO,

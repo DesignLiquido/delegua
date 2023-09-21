@@ -2,6 +2,7 @@ export default {
     ADICAO: 'ADICAO',
     ALGORITMO: 'ALGORITMO',
     ATE: 'ATE',
+    ATÉ: 'ATÉ',
     CARACTER: 'CARACTER',
     CARACTERE: 'CARACTERE',
     CASO: 'CASO',

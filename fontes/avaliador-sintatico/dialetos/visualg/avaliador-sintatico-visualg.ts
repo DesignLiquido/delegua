@@ -647,12 +647,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const declaracoes = [];
         do {
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo));
+        } while (![tiposDeSimbolos.ATE, tiposDeSimbolos.ATÉ].includes(this.simbolos[this.atual].tipo));
 
-        this.consumir(
-            tiposDeSimbolos.ATE,
-            "Esperado palavra-chave 'ate' após declaração de bloco em instrução 'repita'."
-        );
+        if(!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ATE, tiposDeSimbolos.ATÉ)) {
+            this.consumir(
+                this.simbolos[this.atual].tipo,
+                "Esperado palavra-chave 'ate' ou 'até' após declaração de bloco em instrução 'repita'."
+            );
+        }
 
         const condicao = this.expressao();
 
