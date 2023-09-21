@@ -276,6 +276,11 @@ describe('Biblioteca de caracteres', () => {
             expect(funcaoCopia('Uma cadeia de caracteres', 4, 6)).toBe('cadeia');
         });
 
+        it('limpatela', () => {
+            const limpaTela = funcoes['limpatela'].funcao;
+            expect(limpaTela()).toBe(undefined);
+        });
+
         it('maiusc', () => {
             const funcaoMaiusc = funcoes['maiusc'].funcao;
             expect(funcaoMaiusc('a')).toBe('A');

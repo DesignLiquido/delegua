@@ -54,6 +54,11 @@ export function registrarBibliotecaCaracteresVisuAlg(
     );
 
     pilhaEscoposExecucao.definirVariavel(
+        'limpatela',
+        new FuncaoPadrao(0, console.clear)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
         'maiusc',
         new FuncaoPadrao(1, function(valor: any) {
             const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;

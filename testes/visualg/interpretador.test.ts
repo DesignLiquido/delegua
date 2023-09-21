@@ -89,6 +89,27 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - limpatela', async () => {
+
+                const retornoLexador = lexador.mapear([
+                    'Algoritmo "limpatela"',
+                    'Var',
+                    'Inicio',
+                    '    escreval("Teste 1")',
+                    '    limpatela',
+                    '    escreval("Teste 2")',
+                    '    limpatela',
+                    '    escreval("Teste 3")',
+                    'Fimalgoritmo'
+                ], -1);
+    
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Leia', async () => {
                 // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
                 const respostas = [1, 2, 3, 4, 5];
