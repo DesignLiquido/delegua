@@ -92,7 +92,7 @@ describe('Interpretador', () => {
             it('Sucesso - limpatela', async () => {
 
                 const retornoLexador = lexador.mapear([
-                    'Algoritmo "Soma 5"',
+                    'Algoritmo "limpatela"',
                     'Var',
                     'Inicio',
                     '    escreval("Teste 1")',
