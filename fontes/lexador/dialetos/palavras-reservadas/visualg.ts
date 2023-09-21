@@ -28,6 +28,7 @@ export const palavrasReservadas = {
     fimenquanto: tiposDeSimbolos.FIM_ENQUANTO,
     fimescolha: tiposDeSimbolos.FIM_ESCOLHA,
     fimfuncao: tiposDeSimbolos.FIM_FUNCAO,
+    fimfunção: tiposDeSimbolos.FIM_FUNÇÃO,
     fimpara: tiposDeSimbolos.FIM_PARA,
     fimprocedimento: tiposDeSimbolos.FIM_PROCEDIMENTO,
     fimrepita: tiposDeSimbolos.FIM_REPITA,

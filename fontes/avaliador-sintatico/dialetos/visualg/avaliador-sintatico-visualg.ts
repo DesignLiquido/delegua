@@ -381,6 +381,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         while (![
                 tiposDeSimbolos.FIM_FUNCAO,
+                tiposDeSimbolos.FIM_FUNÇÃO,
                 tiposDeSimbolos.FIM_PROCEDIMENTO
             ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal())
         {
