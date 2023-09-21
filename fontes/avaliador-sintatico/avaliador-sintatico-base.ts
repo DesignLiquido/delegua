@@ -101,10 +101,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     finalizarChamada(entidadeChamada: Construto): Construto {
         const argumentos: Array<Construto> = [];
 
-        if(this.simboloAnterior().lexema === 'limpatela') {
-            return new Chamada(this.hashArquivo, entidadeChamada, null, argumentos);
-        }
-
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
