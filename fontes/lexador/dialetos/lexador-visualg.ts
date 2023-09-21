@@ -66,10 +66,6 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 palavrasReservadas[codigo],
                 dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ? dicionarioBibliotecaGlobal[codigo] : codigo
             );
-            if(codigo === 'limpatela') {
-                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO)
-                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO)
-            }
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }

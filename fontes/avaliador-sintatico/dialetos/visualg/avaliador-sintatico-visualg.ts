@@ -398,6 +398,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         let expressao = this.primario();
 
         while (true) {
+            if(this.simboloAnterior().lexema === 'limpatela') {
+                expressao = this.finalizarChamada(expressao);
+            }
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {

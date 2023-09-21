@@ -278,7 +278,7 @@ describe('Biblioteca de caracteres', () => {
 
         it('limpatela', () => {
             const limpaTela = funcoes['limpatela'].funcao;
-            // expect(limpaTela()).toBe('');
+            expect(limpaTela()).toBe(undefined);
         });
 
         it('maiusc', () => {
