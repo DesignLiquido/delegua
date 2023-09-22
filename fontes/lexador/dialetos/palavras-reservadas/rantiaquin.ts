@@ -1,3 +1,1 @@
-export const palavrasReservadas = {
-    
-}
+export const palavrasReservadas = {};

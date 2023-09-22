@@ -1,5 +1,18 @@
 import { AcessoMetodo, Construto, FimPara, FormatacaoEscrita, Super, TipoDe, Variavel } from '../../../../construtos';
-import { Bloco, Const, ConstMultiplo, Declaracao, EscrevaMesmaLinha, Expressao, Leia, LeiaMultiplo, ParaCada, Se, Var, VarMultiplo } from '../../../../declaracoes';
+import {
+    Bloco,
+    Const,
+    ConstMultiplo,
+    Declaracao,
+    EscrevaMesmaLinha,
+    Expressao,
+    Leia,
+    LeiaMultiplo,
+    ParaCada,
+    Se,
+    Var,
+    VarMultiplo,
+} from '../../../../declaracoes';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';

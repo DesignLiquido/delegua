@@ -937,7 +937,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.blocos = 0;
         this.atual = 0;

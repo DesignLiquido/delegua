@@ -1,7 +1,7 @@
 import { Chamavel } from './chamavel';
 import { EspacoVariaveis } from '../espaco-variaveis';
 
-import { InterpretadorInterface, VariavelInterface, VisitanteComumInterface } from '../interfaces'
+import { InterpretadorInterface, VariavelInterface, VisitanteComumInterface } from '../interfaces';
 import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
@@ -53,16 +53,14 @@ export class DeleguaFuncao extends Chamavel {
                 argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
             }
 
-            ambiente.valores[nome] = argumento.hasOwnProperty('valor') ? 
-                argumento.valor :
-                argumento;
+            ambiente.valores[nome] = argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
         }
 
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
                 tipo: 'objeto',
-                imutavel: false
+                imutavel: false,
             };
 
             if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis) {
@@ -70,33 +68,35 @@ export class DeleguaFuncao extends Chamavel {
                     ambiente.valores[nomeCampo] = {
                         valor: valorCampo,
                         tipo: inferirTipoVariavel(valorCampo as any),
-                        imutavel: false
+                        imutavel: false,
                     };
                 }
             }
         }
 
         // TODO: Repensar essa dinâmica para análise semântica.
-        const interpretador = (visitante as any);
+        const interpretador = visitante as any;
         interpretador.proximoEscopo = 'funcao';
         const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
-        
-        const referencias = this.declaracao.parametros.map((p, indice) => { 
-            if (p.referencia) {
-                return {
-                    indice: indice,
-                    parametro: p
+
+        const referencias = this.declaracao.parametros
+            .map((p, indice) => {
+                if (p.referencia) {
+                    return {
+                        indice: indice,
+                        parametro: p,
+                    };
                 }
-            }
-        }).filter(r => r);
+            })
+            .filter((r) => r);
         const pilha = interpretador.pilhaEscoposExecucao as PilhaEscoposExecucaoInterface;
 
         for (let referencia of referencias) {
             let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
             pilha.atribuirVariavel(
-                { 
-                    lexema: argumentos[referencia.indice].nome 
-                } as any, 
+                {
+                    lexema: argumentos[referencia.indice].nome,
+                } as any,
                 argumentoReferencia.valor
             );
         }

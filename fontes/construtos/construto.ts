@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 
 export interface Construto {
     linha: number;

@@ -1,14 +1,10 @@
-import { Leia } from "../../../declaracoes";
-import { InterpretadorBase } from "../../interpretador-base";
-import { visitarExpressaoLeiaComum } from "./comum";
+import { Leia } from '../../../declaracoes';
+import { InterpretadorBase } from '../../interpretador-base';
+import { visitarExpressaoLeiaComum } from './comum';
 
 export class InterpretadorPortugolStudio extends InterpretadorBase {
-    constructor(
-        diretorioBase: string,
-        performance = false,
-        funcaoDeRetorno: Function = null
-        ) {
-            super(diretorioBase, performance, funcaoDeRetorno);
+    constructor(diretorioBase: string, performance = false, funcaoDeRetorno: Function = null) {
+        super(diretorioBase, performance, funcaoDeRetorno);
     }
 
     /**
@@ -18,9 +14,6 @@ export class InterpretadorPortugolStudio extends InterpretadorBase {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        return visitarExpressaoLeiaComum(
-            this.interfaceEntradaSaida, 
-            this.pilhaEscoposExecucao,
-            expressao);
+        return visitarExpressaoLeiaComum(this.interfaceEntradaSaida, this.pilhaEscoposExecucao, expressao);
     }
 }

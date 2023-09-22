@@ -1,11 +1,11 @@
 import { PropriedadeClasse } from '../declaracoes';
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 /**
- * Estrutura de declaração de classe. 
+ * Estrutura de declaração de classe.
  */
 export class DeleguaClasse extends Chamavel {
     nome: string;

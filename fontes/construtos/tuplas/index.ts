@@ -22,11 +22,11 @@ export * from './tupla';
 export class SeletorTuplas {
     constructor(...argumentos: any[]) {
         if (argumentos.length > 10) {
-            throw new Error("Tuplas com mais de 10 elementos não são suportadas.");
+            throw new Error('Tuplas com mais de 10 elementos não são suportadas.');
         }
 
         if (argumentos.length < 2) {
-            throw new Error("Tuplas devem ter no mínimo 2 elementos.");
+            throw new Error('Tuplas devem ter no mínimo 2 elementos.');
         }
 
         switch (argumentos.length) {
@@ -37,27 +37,21 @@ export class SeletorTuplas {
             case 4:
                 return new Quarteto(argumentos[0], argumentos[1], argumentos[2], argumentos[3]);
             case 5:
-                return new Quinteto(
-                    argumentos[0], 
-                    argumentos[1], 
-                    argumentos[2], 
-                    argumentos[3],
-                    argumentos[4]
-                );
+                return new Quinteto(argumentos[0], argumentos[1], argumentos[2], argumentos[3], argumentos[4]);
             case 6:
                 return new Sexteto(
-                    argumentos[0], 
-                    argumentos[1], 
-                    argumentos[2], 
+                    argumentos[0],
+                    argumentos[1],
+                    argumentos[2],
                     argumentos[3],
                     argumentos[4],
                     argumentos[5]
                 );
             case 7:
                 return new Septeto(
-                    argumentos[0], 
-                    argumentos[1], 
-                    argumentos[2], 
+                    argumentos[0],
+                    argumentos[1],
+                    argumentos[2],
                     argumentos[3],
                     argumentos[4],
                     argumentos[5],
@@ -65,9 +59,9 @@ export class SeletorTuplas {
                 );
             case 8:
                 return new Octeto(
-                    argumentos[0], 
-                    argumentos[1], 
-                    argumentos[2], 
+                    argumentos[0],
+                    argumentos[1],
+                    argumentos[2],
                     argumentos[3],
                     argumentos[4],
                     argumentos[5],
@@ -76,9 +70,9 @@ export class SeletorTuplas {
                 );
             case 9:
                 return new Noneto(
-                    argumentos[0], 
-                    argumentos[1], 
-                    argumentos[2], 
+                    argumentos[0],
+                    argumentos[1],
+                    argumentos[2],
                     argumentos[3],
                     argumentos[4],
                     argumentos[5],
@@ -88,9 +82,9 @@ export class SeletorTuplas {
                 );
             case 10:
                 return new Deceto(
-                    argumentos[0], 
-                    argumentos[1], 
-                    argumentos[2], 
+                    argumentos[0],
+                    argumentos[1],
+                    argumentos[2],
                     argumentos[3],
                     argumentos[4],
                     argumentos[5],

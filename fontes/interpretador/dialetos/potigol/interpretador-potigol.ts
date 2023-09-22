@@ -1,7 +1,7 @@
-import { InterpretadorBase } from "../../interpretador-base";
+import { InterpretadorBase } from '../../interpretador-base';
 
-import { registrarBibliotecaGlobalPotigol } from "../../../bibliotecas/dialetos/potigol/biblioteca-global";
-import { AcessoMetodo } from "../../../construtos";
+import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
+import { AcessoMetodo } from '../../../construtos';
 
 import * as comum from './comum';
 

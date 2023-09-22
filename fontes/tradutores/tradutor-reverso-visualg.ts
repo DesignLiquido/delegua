@@ -1,20 +1,5 @@
-import {
-    Agrupamento,
-    Atribuir,
-    Binario,
-    FimPara,
-    Literal,
-    Logico,
-    Variavel,
-} from '../construtos';
-import {
-    Bloco,
-    Declaracao,
-    Expressao,
-    Para,
-    Se,
-    Var,
-} from '../declaracoes';
+import { Agrupamento, Atribuir, Binario, FimPara, Literal, Logico, Variavel } from '../construtos';
+import { Bloco, Declaracao, Expressao, Para, Se, Var } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -197,7 +182,7 @@ export class TradutorReversoVisuAlg {
     }
 
     traduzirDeclaracaoLeia(declaracaoLeia: any) {
-        let resultado = ''
+        let resultado = '';
         for (const parametro of declaracaoLeia.argumentos) {
             resultado += `var ${this.dicionarioConstrutos[parametro.constructor.name](parametro)} = leia()\n`;
         }
@@ -248,8 +233,7 @@ export class TradutorReversoVisuAlg {
         let resultado = 'var ';
         resultado += declaracaoVar.simbolo.lexema;
         if (!declaracaoVar?.inicializador) resultado += ';';
-        else if (Array.isArray(declaracaoVar?.inicializador.valor))
-            resultado += ' = []'
+        else if (Array.isArray(declaracaoVar?.inicializador.valor)) resultado += ' = []';
         else {
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {

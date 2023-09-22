@@ -1,16 +1,16 @@
-import { LexadorInterface, SimboloInterface } from "../../interfaces";
-import { RetornoLexador } from "../../interfaces/retornos";
-import { ErroLexador } from "../erro-lexador";
-import { Simbolo } from "../simbolo";
+import { LexadorInterface, SimboloInterface } from '../../interfaces';
+import { RetornoLexador } from '../../interfaces/retornos';
+import { ErroLexador } from '../erro-lexador';
+import { Simbolo } from '../simbolo';
 
-import { palavrasReservadas } from "./palavras-reservadas/portugol-ipt";
-import tiposDeSimbolos from "../../tipos-de-simbolos/portugol-ipt";
+import { palavrasReservadas } from './palavras-reservadas/portugol-ipt';
+import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
 
 export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
     hashArquivo: number;
-    
+
     codigo: string[];
     inicioSimbolo: number;
     atual: number;
@@ -60,11 +60,9 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
     }
 
     eFinalDoCodigo(): boolean {
-        if (this.linha > this.codigo.length - 1) 
-            return true;
+        if (this.linha > this.codigo.length - 1) return true;
 
-        return this.linha == this.codigo.length - 1 && 
-            this.codigo[this.codigo.length - 1].length <= this.atual;
+        return this.linha == this.codigo.length - 1 && this.codigo[this.codigo.length - 1].length <= this.atual;
     }
 
     /**
@@ -101,8 +99,7 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
     }
 
     proximoSimbolo(): string {
-        if (this.atual + 1 >= this.codigo[this.linha].length) 
-            return '\0';
+        if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
         return this.codigo[this.linha].charAt(this.atual + 1);
     }
 
@@ -137,7 +134,7 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
             )
         );
     }
-    
+
     analisarNumero(): void {
         const linhaPrimeiroDigito: number = this.linha;
         while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
@@ -286,7 +283,7 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
 
         return {
             simbolos: this.simbolos,
-            erros: this.erros
+            erros: this.erros,
         } as RetornoLexador<SimboloInterface>;
     }
 }

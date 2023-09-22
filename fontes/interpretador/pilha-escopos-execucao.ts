@@ -67,7 +67,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
-            imutavel: true
+            imutavel: true,
         };
 
         if (subtipo !== undefined) {
@@ -91,7 +91,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
-            imutavel: false
+            imutavel: false,
         };
 
         if (subtipo !== undefined) {
@@ -109,7 +109,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         ambienteAncestral.valores[simbolo.lexema] = {
             valor,
             tipo: inferirTipoVariavel(valor),
-            imutavel: false
+            imutavel: false,
         };
     }
 
@@ -130,7 +130,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 ambiente.valores[simbolo.lexema] = {
                     valor: valorResolvido,
                     tipo,
-                    imutavel: false
+                    imutavel: false,
                 };
                 return;
             }
@@ -191,7 +191,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 nome: chaveEValor[0],
                 valor: chaveEValor[1].valor,
                 tipo: chaveEValor[1].tipo,
-                imutavel: chaveEValor[1].imutavel
+                imutavel: chaveEValor[1].imutavel,
             }));
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }

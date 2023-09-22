@@ -18,7 +18,7 @@ import {
     Const,
     Var,
     FuncaoDeclaracao,
-    Classe
+    Classe,
 } from '../../declaracoes';
 import { AvaliadorSintaticoInterface } from '../../interfaces';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
@@ -224,9 +224,9 @@ export class AvaliadorSintaticoJavaScript
         retornoLexador: RetornoLexador<Statement | Directive | ModuleDeclaration>,
         hashArquivo: number
     ): RetornoAvaliadorSintatico<Statement | Directive | ModuleDeclaration> {
-        return { 
+        return {
             declaracoes: retornoLexador.simbolos,
-            erros: []
+            erros: [],
         };
     }
 }

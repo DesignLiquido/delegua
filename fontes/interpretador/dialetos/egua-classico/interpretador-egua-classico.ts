@@ -16,7 +16,7 @@ import {
     Literal,
     Super,
     TipoDe,
-    Variavel
+    Variavel,
 } from '../../../construtos';
 import {
     Classe,
@@ -83,7 +83,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -315,14 +315,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         let argumentos: ArgumentoInterface[] = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
             const variavelArgumento = expressao.argumentos[i];
-            const nomeArgumento = 
-                    variavelArgumento.hasOwnProperty('simbolo') ?
-                    variavelArgumento.simbolo.lexema :
-                    undefined;
+            const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
+                ? variavelArgumento.simbolo.lexema
+                : undefined;
 
             argumentos.push({
                 nome: variavelArgumento,
-                valor: await this.avaliar(variavelArgumento)
+                valor: await this.avaliar(variavelArgumento),
             });
         }
 
@@ -626,7 +625,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -977,7 +976,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         await this.executarUltimoEscopo();

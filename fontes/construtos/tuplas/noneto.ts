@@ -1,4 +1,4 @@
-import { Tupla } from "./tupla";
+import { Tupla } from './tupla';
 
 export class Noneto extends Tupla {
     primeiro: any;
@@ -11,8 +11,16 @@ export class Noneto extends Tupla {
     oitavo: any;
     nono: any;
 
-    constructor(primeiro: any, segundo: any, terceiro: any, quarto: any, quinto: any, sexto: any, 
-        setimo: any, oitavo: any, nono: any
+    constructor(
+        primeiro: any,
+        segundo: any,
+        terceiro: any,
+        quarto: any,
+        quinto: any,
+        sexto: any,
+        setimo: any,
+        oitavo: any,
+        nono: any
     ) {
         super();
         this.primeiro = primeiro;

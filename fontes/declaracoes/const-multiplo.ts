@@ -11,11 +11,7 @@ export class ConstMultiplo extends Declaracao {
     inicializador: Construto;
     tipo: TiposDadosInterface;
 
-    constructor(
-        simbolos: SimboloInterface[],
-        inicializador: Construto,
-        tipo: TiposDadosInterface = undefined
-    ) {
+    constructor(simbolos: SimboloInterface[], inicializador: Construto, tipo: TiposDadosInterface = undefined) {
         super(Number(simbolos[0].linha), simbolos[0].hashArquivo);
         this.simbolos = simbolos;
         this.inicializador = inicializador;

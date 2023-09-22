@@ -280,7 +280,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     visitarExpressaoUnaria(expressao: any) {
         return Promise.resolve();
     }
-    
+
     visitarExpressaoVetor(expressao: any) {
         return Promise.resolve();
     }

@@ -1,8 +1,8 @@
-import { Construto, Unario, Binario, Logico } from "../construtos";
-import { Declaracao } from "../declaracoes";
-import { SimboloInterface } from "../interfaces";
-import { RetornoAvaliadorSintatico, RetornoLexador } from "../interfaces/retornos";
-import { ErroAvaliadorSintatico } from "./erro-avaliador-sintatico";
+import { Construto, Unario, Binario, Logico } from '../construtos';
+import { Declaracao } from '../declaracoes';
+import { SimboloInterface } from '../interfaces';
+import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
+import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/comum';
 
@@ -48,12 +48,7 @@ export abstract class MicroAvaliadorSintaticoBase {
     abstract chamar(): Construto;
 
     unario(): Construto {
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.SUBTRACAO
-            )
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new Unario(-1, operador, direito, 'ANTES');
@@ -96,12 +91,7 @@ export abstract class MicroAvaliadorSintaticoBase {
     adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.ADICAO
-            )
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -169,5 +159,8 @@ export abstract class MicroAvaliadorSintaticoBase {
         return this.ou();
     }
 
-    abstract analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao>;
+    abstract analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        linha: number
+    ): RetornoAvaliadorSintatico<Declaracao>;
 }

@@ -5,7 +5,7 @@ import { ErroLexador } from './erro-lexador';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { Simbolo } from './simbolo';
 
-import { palavrasReservadas }  from './palavras-reservadas';
+import { palavrasReservadas } from './palavras-reservadas';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
@@ -394,7 +394,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 break;
 
             // Esta sessão ignora espaços em branco na tokenização.
-            
+
             case ' ':
             case '\0':
             case '\r':

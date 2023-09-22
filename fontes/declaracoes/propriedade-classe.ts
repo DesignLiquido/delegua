@@ -1,5 +1,5 @@
-import { SimboloInterface, VisitanteComumInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class PropriedadeClasse extends Declaracao {
     nome: SimboloInterface;

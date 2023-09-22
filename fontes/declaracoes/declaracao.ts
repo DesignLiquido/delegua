@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 
 export class Declaracao {
     linha: number;

@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 import { Construto } from './construto';
 import { uuidv4 } from '../geracao-identificadores';
 

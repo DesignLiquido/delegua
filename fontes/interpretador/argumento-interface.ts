@@ -1,4 +1,4 @@
 export interface ArgumentoInterface {
-    nome: string,
-    valor: any
+    nome: string;
+    valor: any;
 }

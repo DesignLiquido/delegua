@@ -1,15 +1,11 @@
-import { registrarBibliotecaGlobalPotigol } from "../../../bibliotecas/dialetos/potigol/biblioteca-global";
-import { AcessoMetodo } from "../../../construtos";
-import { InterpretadorComDepuracao } from "../../interpretador-com-depuracao";
+import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
+import { AcessoMetodo } from '../../../construtos';
+import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
 import * as comum from './comum';
 
 export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao {
-    constructor(
-        diretorioBase: string,
-        funcaoDeRetorno: Function = null,
-        funcaoDeRetornoMesmaLinha: Function = null
-    ) {
+    constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;
         this.regexInterpolacao = /{(.*?)}/g;

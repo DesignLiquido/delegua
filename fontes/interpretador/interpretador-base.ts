@@ -94,7 +94,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     funcaoDeRetornoMesmaLinha: Function = null;
     interfaceDeEntrada: any = null; // Originalmente é `readline.Interface`
     interfaceEntradaSaida: any = null;
-    
+
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     microLexador: MicroLexador = new MicroLexador();
@@ -129,7 +129,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -139,15 +139,17 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let tipoDe = expressao.valor;
 
-        if (tipoDe instanceof Binario
-            || tipoDe instanceof TipoDe
-            || tipoDe instanceof Unario
-            || tipoDe instanceof Variavel) {
+        if (
+            tipoDe instanceof Binario ||
+            tipoDe instanceof TipoDe ||
+            tipoDe instanceof Unario ||
+            tipoDe instanceof Variavel
+        ) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
         }
 
-        return inferirTipoVariavel(tipoDe?.valores || tipoDe)
+        return inferirTipoVariavel(tipoDe?.valores || tipoDe);
     }
 
     visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
@@ -194,7 +196,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
         return new Promise((resolucao) =>
             this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(String(resposta).split(/(\s+)/).filter(r => !/(\s+)/.test(r)));
+                resolucao(
+                    String(resposta)
+                        .split(/(\s+)/)
+                        .filter((r) => !/(\s+)/.test(r))
+                );
             })
         );
     }
@@ -210,9 +216,12 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         variaveis.forEach((elemento) => {
             if (elemento?.valor?.tipo === 'lógico') {
-                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor))
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
             } else {
-                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor)
+                textoFinal = textoFinal.replace(
+                    '${' + elemento.variavel + '}',
+                    elemento?.valor?.valor || elemento?.valor
+                );
             }
         });
 
@@ -235,7 +244,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             return {
                 nomeVariavel,
-                resultadoMicroAvaliadorSintatico
+                resultadoMicroAvaliadorSintatico,
             };
         });
 
@@ -243,13 +252,13 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const resolucoesPromises = await Promise.all(
             resultadosAvaliacaoSintatica
-                .flatMap(r => r.resultadoMicroAvaliadorSintatico.declaracoes)
-                .map(d => this.avaliar(d))
+                .flatMap((r) => r.resultadoMicroAvaliadorSintatico.declaracoes)
+                .map((d) => this.avaliar(d))
         );
 
         return resolucoesPromises.map((item, indice) => ({
             variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
-            valor: item
+            valor: item,
         }));
     }
 
@@ -525,14 +534,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             let argumentos: ArgumentoInterface[] = [];
             for (let i = 0; i < expressao.argumentos.length; i++) {
                 const variavelArgumento = expressao.argumentos[i];
-                const nomeArgumento = 
-                    variavelArgumento.hasOwnProperty('simbolo') ?
-                    variavelArgumento.simbolo.lexema :
-                    undefined;
+                const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
+                    ? variavelArgumento.simbolo.lexema
+                    : undefined;
 
                 argumentos.push({
                     nome: nomeArgumento,
-                    valor: await this.avaliar(variavelArgumento)
+                    valor: await this.avaliar(variavelArgumento),
                 });
             }
 
@@ -578,9 +586,15 @@ export class InterpretadorBase implements InterpretadorInterface {
                     argumentos.push(null);
                 }
             } else {
-                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].abrangencia === 'multiplo') {
+                if (
+                    parametros &&
+                    parametros.length > 0 &&
+                    parametros[parametros.length - 1].abrangencia === 'multiplo'
+                ) {
                     let novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                    novosArgumentos = novosArgumentos.concat(argumentos.slice(parametros.length - 1, argumentos.length));
+                    novosArgumentos = novosArgumentos.concat(
+                        argumentos.slice(parametros.length - 1, argumentos.length)
+                    );
                     argumentos = novosArgumentos;
                 }
             }
@@ -588,7 +602,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
                     return entidadeChamada.chamar(
-                        argumentos.map((a) => (a && a.valor && a.valor.hasOwnProperty('valor') ? a.valor.valor : a?.valor)),
+                        argumentos.map((a) =>
+                            a && a.valor && a.valor.hasOwnProperty('valor') ? a.valor.valor : a?.valor
+                        ),
                         expressao.entidadeChamada.nome
                     );
                 } catch (erro: any) {
@@ -684,7 +700,9 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        const declaracaoInicializador = declaracao.inicializador?.length ? declaracao.inicializador[0] : declaracao.inicializador;
+        const declaracaoInicializador = declaracao.inicializador?.length
+            ? declaracao.inicializador[0]
+            : declaracao.inicializador;
         if (declaracaoInicializador !== null) {
             await this.avaliar(declaracaoInicializador);
         }
@@ -724,9 +742,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         let retornoExecucao: any;
         const vetorResolvido = await this.avaliar(declaracao.vetor);
-        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ?
-            vetorResolvido.valor :
-            vetorResolvido;
+        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ? vetorResolvido.valor : vetorResolvido;
 
         if (!Array.isArray(valorVetorResolvido)) {
             return Promise.reject("Variável ou literal provida em instrução 'para cada' não é um vetor.");
@@ -815,9 +831,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ?
-            condicaoEscolha.valor :
-            condicaoEscolha;
+        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ? condicaoEscolha.valor : condicaoEscolha;
 
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
@@ -929,7 +943,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
-        return Promise.reject("Importação de arquivos não suportada por Interpretador Base.");
+        return Promise.reject('Importação de arquivos não suportada por Interpretador Base.');
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
@@ -1001,7 +1015,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -1062,7 +1076,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (declaracao.tipo !== undefined) {
                 subtipo = declaracao.tipo;
             }
-    
+
             this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, subtipo);
         }
 
@@ -1134,10 +1148,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
-        const promises = await Promise.all([
-            this.avaliar(expressao.entidadeChamada),
-            this.avaliar(expressao.indice)
-        ]);
+        const promises = await Promise.all([this.avaliar(expressao.entidadeChamada), this.avaliar(expressao.indice)]);
 
         const variavelObjeto: VariavelInterface = promises[0];
         const indice = promises[1];
@@ -1284,7 +1295,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.propriedades
         );
 
-        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = 
+        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
 
         // TODO: Recolocar isso se for necessário.
@@ -1428,7 +1439,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (declaracao.tipo !== undefined) {
                 subtipo = declaracao.tipo;
             }
-    
+
             this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, subtipo);
         }
 
@@ -1534,7 +1545,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 

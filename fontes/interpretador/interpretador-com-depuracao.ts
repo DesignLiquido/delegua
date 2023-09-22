@@ -29,10 +29,7 @@ import { InterpretadorBase } from './interpretador-base';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao
-        extends InterpretadorBase
-        implements InterpretadorComDepuracaoInterface
-{
+export class InterpretadorComDepuracao extends InterpretadorBase implements InterpretadorComDepuracaoInterface {
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
@@ -126,7 +123,7 @@ export class InterpretadorComDepuracao
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
-            case "proximo":
+            case 'proximo':
                 if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
                     return this.executarBloco((declaracao.corpo as Bloco).declaracoes);
@@ -136,9 +133,11 @@ export class InterpretadorComDepuracao
                 return null;
             default:
                 let retornoExecucao: any;
-                while (!(retornoExecucao instanceof Quebra) &&
-                        !this.pontoDeParadaAtivo &&
-                        this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                while (
+                    !(retornoExecucao instanceof Quebra) &&
+                    !this.pontoDeParadaAtivo &&
+                    this.eVerdadeiro(await this.avaliar(declaracao.condicao))
+                ) {
                     escopoAtual.emLacoRepeticao = true;
                     try {
                         retornoExecucao = await this.executar(declaracao.corpo);
@@ -209,7 +208,7 @@ export class InterpretadorComDepuracao
         declaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
-            case "proximo":
+            case 'proximo':
                 if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
 
@@ -609,7 +608,7 @@ export class InterpretadorComDepuracao
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: tipoEscopo,
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;

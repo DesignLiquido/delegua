@@ -99,7 +99,7 @@ export class InterpretadorMaplerComDepuracao extends InterpretadorComDepuracao {
         if (expressao instanceof AcessoIndiceVariavel) {
             const promises = await Promise.all([
                 this.avaliar(expressao.entidadeChamada),
-                this.avaliar(expressao.indice)
+                this.avaliar(expressao.indice),
             ]);
 
             let alvo = promises[0];

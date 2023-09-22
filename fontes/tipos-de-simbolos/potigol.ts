@@ -58,5 +58,5 @@ export default {
     TEXTO: 'TEXTO',
     VERDADEIRO: 'VERDADEIRO',
     VARIAVEL: 'VARIAVEL',
-    VIRGULA: 'VIRGULA'
-}
+    VIRGULA: 'VIRGULA',
+};

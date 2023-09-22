@@ -64,7 +64,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): any;
     visitarExpressaoIsto(expressao: any): any;
     visitarExpressaoLeia(expressao: Leia): Promise<any>;
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any>
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any>;
     visitarExpressaoLiteral(expressao: Literal): Promise<any>;
     visitarExpressaoLogica(expressao: any): any;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;

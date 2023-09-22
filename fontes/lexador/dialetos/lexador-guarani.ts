@@ -1,11 +1,11 @@
-import { RetornoLexador } from "../../interfaces/retornos";
-import { LexadorBase } from "../lexador-base";
+import { RetornoLexador } from '../../interfaces/retornos';
+import { LexadorBase } from '../lexador-base';
 
-import { ErroLexador } from "../erro-lexador";
+import { ErroLexador } from '../erro-lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
 import { palavrasReservadas } from './palavras-reservadas/guarani';
-import { SimboloInterface } from "../../interfaces";
+import { SimboloInterface } from '../../interfaces';
 
 export class LexadorGuarani extends LexadorBase {
     analisarTexto(delimitador: string): void {

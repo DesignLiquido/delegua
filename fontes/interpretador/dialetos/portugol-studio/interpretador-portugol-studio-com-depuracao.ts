@@ -1,6 +1,6 @@
-import { Leia } from "../../../declaracoes";
-import { visitarExpressaoLeiaComum } from "./comum";
-import { InterpretadorComDepuracao } from "../../interpretador-com-depuracao";
+import { Leia } from '../../../declaracoes';
+import { visitarExpressaoLeiaComum } from './comum';
+import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
 export class InterpretadorPortugolStudioComDepuracao extends InterpretadorComDepuracao {
     mensagemPrompt: string;
@@ -17,10 +17,7 @@ export class InterpretadorPortugolStudioComDepuracao extends InterpretadorComDep
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        return visitarExpressaoLeiaComum(
-            this.interfaceEntradaSaida, 
-            this.pilhaEscoposExecucao,
-            expressao);
+        return visitarExpressaoLeiaComum(this.interfaceEntradaSaida, this.pilhaEscoposExecucao, expressao);
     }
 
     /**

@@ -1,5 +1,5 @@
-import { DeleguaFuncao } from "../estruturas";
-import { VisitanteComumInterface } from "../interfaces";
+import { DeleguaFuncao } from '../estruturas';
+import { VisitanteComumInterface } from '../interfaces';
 
 export default {
     adicionar: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
@@ -14,23 +14,30 @@ export default {
         return Promise.resolve(vetor);
     },
     encaixar: (
-        interpretador: VisitanteComumInterface, 
+        interpretador: VisitanteComumInterface,
         vetor: Array<any>,
         inicio: number,
         excluirQuantidade: number,
         ...items: any[]
     ): Promise<any> => {
-        const elementos = !items.length ? vetor.splice(inicio, excluirQuantidade) : vetor.splice(inicio, excluirQuantidade, ...items)
+        const elementos = !items.length
+            ? vetor.splice(inicio, excluirQuantidade)
+            : vetor.splice(inicio, excluirQuantidade, ...items);
         return Promise.resolve(elementos);
     },
-    fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),
-    filtrarPor: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
-        if(funcao === undefined || funcao === null){
-            return Promise.reject("É necessário passar uma função para o método \'filtrarPor\'");
+    fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> =>
+        Promise.resolve(vetor.slice(inicio, fim)),
+    filtrarPor: async (
+        interpretador: VisitanteComumInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'filtrarPor'");
         }
 
         const retorno = [];
-        for(let elemento of vetor) {
+        for (let elemento of vetor) {
             if (await funcao.chamar(interpretador, [elemento])) {
                 retorno.push(elemento);
             }
@@ -38,27 +45,34 @@ export default {
 
         return retorno;
     },
-    inclui: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => Promise.resolve(vetor.includes(elemento)),
-    inverter: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.reverse()),
-    juntar: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> => Promise.resolve(vetor.join(separador)),
+    inclui: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
+        Promise.resolve(vetor.includes(elemento)),
+    inverter: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
+        Promise.resolve(vetor.reverse()),
+    juntar: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> =>
+        Promise.resolve(vetor.join(separador)),
     mapear: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
-        if(funcao === undefined || funcao === null){
-            return Promise.reject("É necessário passar uma função para o método \'mapear\'");
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'mapear'");
         }
 
         const retorno = [];
-        for(let elemento of vetor) {
-            let resultado = await funcao.chamar(interpretador, [elemento])
+        for (let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elemento]);
             retorno.push(resultado);
         }
 
         return retorno;
     },
-    ordenar: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcaoOrdenacao: DeleguaFuncao): Promise<any> => {
+    ordenar: async (
+        interpretador: VisitanteComumInterface,
+        vetor: Array<any>,
+        funcaoOrdenacao: DeleguaFuncao
+    ): Promise<any> => {
         if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
             for (let i = 0; i < vetor.length - 1; i++) {
                 for (let j = 1; j < vetor.length; j++) {
-                    if (await funcaoOrdenacao.chamar(interpretador, [vetor[j - 1], vetor[j]]) > 0) {
+                    if ((await funcaoOrdenacao.chamar(interpretador, [vetor[j - 1], vetor[j]])) > 0) {
                         const aux = vetor[j];
                         vetor[j] = vetor[j - 1];
                         vetor[j - 1] = aux;
@@ -69,7 +83,7 @@ export default {
             return vetor;
         }
 
-        if (!vetor.every(v => typeof v === 'number')) {
+        if (!vetor.every((v) => typeof v === 'number')) {
             return vetor.sort();
         }
 
@@ -88,6 +102,7 @@ export default {
         let elemento = vetor.pop();
         return Promise.resolve(elemento);
     },
-    somar: (interpretador: VisitanteComumInterface, vetor: Array<number>): Promise<any> => Promise.resolve(vetor.reduce((a, b) => a + b)),
+    somar: (interpretador: VisitanteComumInterface, vetor: Array<number>): Promise<any> =>
+        Promise.resolve(vetor.reduce((a, b) => a + b)),
     tamanho: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
 };

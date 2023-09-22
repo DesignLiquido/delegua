@@ -383,14 +383,13 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
             let argumentos: ArgumentoInterface[] = [];
             for (let i = 0; i < expressao.argumentos.length; i++) {
                 const variavelArgumento = expressao.argumentos[i];
-                const nomeArgumento = 
-                    variavelArgumento.hasOwnProperty('simbolo') ?
-                    variavelArgumento.simbolo.lexema :
-                    undefined;
+                const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
+                    ? variavelArgumento.simbolo.lexema
+                    : undefined;
 
                 argumentos.push({
                     nome: nomeArgumento,
-                    valor: await this.avaliar(variavelArgumento)
+                    valor: await this.avaliar(variavelArgumento),
                 });
             }
 
@@ -442,7 +441,9 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
                     parametros[parametros.length - 1].abrangencia === 'multiplo'
                 ) {
                     let novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                    novosArgumentos = novosArgumentos.concat(argumentos.slice(parametros.length - 1, argumentos.length));
+                    novosArgumentos = novosArgumentos.concat(
+                        argumentos.slice(parametros.length - 1, argumentos.length)
+                    );
                     argumentos = novosArgumentos;
                 }
             }

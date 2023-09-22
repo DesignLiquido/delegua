@@ -1,11 +1,11 @@
-import { RetornoLexador } from "../../interfaces/retornos";
-import { ErroLexador } from "../erro-lexador";
-import { LexadorBaseLinhaUnica } from "../lexador-base-linha-unica";
+import { RetornoLexador } from '../../interfaces/retornos';
+import { ErroLexador } from '../erro-lexador';
+import { LexadorBaseLinhaUnica } from '../lexador-base-linha-unica';
 
-import { palavrasReservadas } from "./palavras-reservadas/potigol";
+import { palavrasReservadas } from './palavras-reservadas/potigol';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/potigol';
-import { SimboloInterface } from "../../interfaces";
+import { SimboloInterface } from '../../interfaces';
 
 /**
  * Lexador para o dialeto Potigol.
@@ -57,9 +57,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
 
         const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
 
-        this.adicionarSimbolo(
-            real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO,
-            parseFloat(numeroCompleto));
+        this.adicionarSimbolo(real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO, parseFloat(numeroCompleto));
     }
 
     avancarParaProximaLinha(): void {
@@ -118,7 +116,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 }
-                
+
                 break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
@@ -175,7 +173,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                     case '=':
                         this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
                         this.avancar();
-                        break;    
+                        break;
                     case '>':
                         this.adicionarSimbolo(tiposDeSimbolos.SETA);
                         this.avancar();

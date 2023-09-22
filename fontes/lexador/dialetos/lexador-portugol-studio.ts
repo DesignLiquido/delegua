@@ -11,7 +11,7 @@ import { SimboloInterface } from '../../interfaces';
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- * 
+ *
  * O Lexador de Portugol Studio possui algumas particularidades:
  * - Aspas simples são para caracteres individuais, e aspas duplas para cadeias de caracteres.
  * - Literais de vetores usam chaves, e não colchetes.
@@ -62,9 +62,7 @@ export class LexadorPortugolStudio extends LexadorBase {
 
         const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
-        this.adicionarSimbolo(
-            real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO,
-            parseFloat(numeroCompleto));
+        this.adicionarSimbolo(real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO, parseFloat(numeroCompleto));
     }
 
     identificarPalavraChave(): void {
@@ -127,7 +125,7 @@ export class LexadorPortugolStudio extends LexadorBase {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 }
-                
+
                 break;
             case '+':
                 this.inicioSimbolo = this.atual;

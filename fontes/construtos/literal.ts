@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export type ValorLiteral = number | string | number[] | string[] | any;

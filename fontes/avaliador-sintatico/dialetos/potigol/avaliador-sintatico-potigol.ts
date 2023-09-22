@@ -66,7 +66,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         undefined: undefined,
     };
 
-    declaracoesAnteriores: { [identificador: string]: any[] }
+    declaracoesAnteriores: { [identificador: string]: any[] };
 
     /**
      * Testa se o primeiro parâmetro na lista de símbolos
@@ -79,17 +79,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         let atual = 0;
 
         // Primeiro teste: literal ou identificador
-        if ([
-                tiposDeSimbolos.INTEIRO,
-                tiposDeSimbolos.LOGICO,
-                tiposDeSimbolos.REAL,
-                tiposDeSimbolos.TEXTO
-            ].includes(simbolos[atual].tipo)
+        if (
+            [tiposDeSimbolos.INTEIRO, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO].includes(
+                simbolos[atual].tipo
+            )
         ) {
             return false;
         }
 
-        // Segundo teste: vírgula imediatamente após identificador, 
+        // Segundo teste: vírgula imediatamente após identificador,
         // ou simplesmente fim da lista de símbolos.
         atual++;
         if (atual === simbolos.length || simbolos[atual].tipo === tiposDeSimbolos.VIRGULA) {
@@ -101,7 +99,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Retorna uma declaração de função iniciada por igual, 
+     * Retorna uma declaração de função iniciada por igual,
      * ou seja, com apenas uma instrução.
      * @param simboloPrimario O símbolo que identifica a função (nome).
      * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
@@ -115,17 +113,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         parametros: ParametroInterface[],
         tipoRetorno?: SimboloInterface
     ): FuncaoDeclaracao {
-        const corpo = new FuncaoConstruto(
-            simboloPrimario.hashArquivo, 
-            simboloPrimario.linha,
-            parametros,
-            [this.expressao()] 
-        );
+        const corpo = new FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
+            this.expressao(),
+        ]);
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
     }
 
     /**
-     * Retorna uma declaração de função terminada por fim, 
+     * Retorna uma declaração de função terminada por fim,
      * ou seja, com mais de uma instrução.
      * @param simboloPrimario O símbolo que identifica a função (nome).
      * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
@@ -155,7 +150,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
-        
+
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
@@ -168,34 +163,37 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // Se houver, é uma declaração de função (verificado mais abaixo).
         let tipoRetorno: SimboloInterface = undefined;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            this.verificacaoTipo(this.simbolos[this.atual], 'Esperado tipo válido após dois-pontos como retorno de função.');
+            this.verificacaoTipo(
+                this.simbolos[this.atual],
+                'Esperado tipo válido após dois-pontos como retorno de função.'
+            );
 
             tipoRetorno = this.simbolos[this.atual - 1];
         }
-        
+
         // Se houver símbolo de igual, seja após fechamento de parênteses,
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
             this.avancarEDevolverAnterior();
             this.declaracoesAnteriores[construtoPrimario.simbolo.lexema] = [];
             return this.declaracaoFuncaoPotigolIniciadaPorIgual(
-                construtoPrimario.simbolo, 
-                parenteseEsquerdo, 
-                resolucaoParametros.parametros, 
+                construtoPrimario.simbolo,
+                parenteseEsquerdo,
+                resolucaoParametros.parametros,
                 tipoRetorno
             );
         }
 
         return this.declaracaoFuncaoPotigolTerminadaPorFim(
-            construtoPrimario.simbolo, 
-            parenteseEsquerdo, 
-            resolucaoParametros.parametros, 
+            construtoPrimario.simbolo,
+            parenteseEsquerdo,
+            resolucaoParametros.parametros,
             tipoRetorno
         );
     }
 
     finalizarChamada(entidadeChamada: Construto): Construto {
-        // Parêntese esquerdo 
+        // Parêntese esquerdo
         // this.avancarEDevolverAnterior();
 
         const simbolosEntreParenteses: SimboloInterface[] = [];
@@ -208,13 +206,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const argumentos = this.microAvaliadorSintatico.analisar(
             { simbolos: simbolosEntreParenteses } as any,
             entidadeChamada.linha
-        )
+        );
 
         return new Chamada(
-            this.hashArquivo, 
-            entidadeChamada, 
-            parenteseDireito, 
-            argumentos.declaracoes.filter(d => d)
+            this.hashArquivo,
+            entidadeChamada,
+            parenteseDireito,
+            argumentos.declaracoes.filter((d) => d)
         );
     }
 
@@ -226,19 +224,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      */
     protected verificacaoTipo(simbolo: SimboloInterface, mensagemErro: string) {
         if (
-            ![
-                tiposDeSimbolos.INTEIRO,
-                tiposDeSimbolos.LOGICO,
-                tiposDeSimbolos.REAL,
-                tiposDeSimbolos.TEXTO].includes(simbolo.tipo)
+            ![tiposDeSimbolos.INTEIRO, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO].includes(
+                simbolo.tipo
+            )
         ) {
             throw this.erro(simbolo, mensagemErro);
         }
     }
 
-    protected logicaComumParametrosPotigol(
-        simbolos: SimboloInterface[]
-    ): { parametros: ParametroInterface[], tipagemDefinida: boolean } {
+    protected logicaComumParametrosPotigol(simbolos: SimboloInterface[]): {
+        parametros: ParametroInterface[];
+        tipagemDefinida: boolean;
+    } {
         const parametros: ParametroInterface[] = [];
         let indice = 0;
         let tipagemDefinida = false;
@@ -270,7 +267,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 // throw this.erro(simbolos[indice], 'Esperado dois-pontos após nome de argumento para função.');
 
                 indice++;
-                this.verificacaoTipo(simbolos[indice], 'Esperado tipo do argumento após dois-pontos, em definição de função.');
+                this.verificacaoTipo(
+                    simbolos[indice],
+                    'Esperado tipo do argumento após dois-pontos, em definição de função.'
+                );
 
                 const tipoParametro = simbolos[indice];
                 parametro.tipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
@@ -291,11 +291,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
 
             indice++;
-        };
+        }
 
-        return { 
-            parametros, 
-            tipagemDefinida
+        return {
+            parametros,
+            tipagemDefinida,
         };
     }
 
@@ -346,12 +346,21 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LEIA_REAIS:
             case tiposDeSimbolos.LEIA_TEXTOS:
                 const simboloLeiaDefinido: SimboloInterface = this.avancarEDevolverAnterior();
-                this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`);
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_ESQUERDO,
+                    `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`
+                );
                 if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL)) {
-                    throw this.erro(this.simbolos[this.atual], `Esperado número de argumentos como inteiro ou real em ${simboloLeiaDefinido.lexema}`);
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        `Esperado número de argumentos como inteiro ou real em ${simboloLeiaDefinido.lexema}`
+                    );
                 }
                 let numeroArgumentosLeia = this.simbolos[this.atual - 1];
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`);
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_DIREITO,
+                    `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`
+                );
                 const leiaDefinido = new Leia(simboloLeiaDefinido, []);
                 leiaDefinido.numeroArgumentosEsperados = parseInt(numeroArgumentosLeia.literal);
                 return leiaDefinido;
@@ -364,8 +373,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Em Potigol, só é possível determinar a diferença entre uma chamada e uma
      * declaração de função depois dos argumentos.
-     * 
-     * Chamadas não aceitam dicas de tipos de parâmetros. 
+     *
+     * Chamadas não aceitam dicas de tipos de parâmetros.
      * @returns Um construto do tipo `AcessoMetodo`, `AcessoIndiceVariavel` ou `Constante`,
      * dependendo dos símbolos encontrados.
      */
@@ -394,7 +403,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 if (expressao instanceof ConstanteOuVariavel) {
                     expressao = new Constante(expressao.hashArquivo, (expressao as any).simbolo);
                 }
-                
+
                 break;
             }
         }
@@ -440,8 +449,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     /**
      * Blocos de escopo em Potigol existem quando:
-     * 
-     * - Em uma declaração de função ou método, após fecha parênteses, o próximo 
+     *
+     * - Em uma declaração de função ou método, após fecha parênteses, o próximo
      * símbolo obrigatório não é `=` e há pelo menos um `fim` até o final do código;
      * - Em uma declaração `se`;
      * - Em uma declaração `enquanto`;
@@ -755,8 +764,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             let inicializador = this.expressao();
             if (inicializador instanceof Leia && identificadores.length > 1) {
                 inicializador = new LeiaMultiplo(
-                    inicializador.simbolo, 
-                    inicializador.argumentos, 
+                    inicializador.simbolo,
+                    inicializador.argumentos,
                     inicializador.numeroArgumentosEsperados
                 );
             }
@@ -765,7 +774,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {
-            // Pode ser que a inicialização seja feita por uma das 
+            // Pode ser que a inicialização seja feita por uma das
             // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
             if (!(inicializadores.length === 1 && inicializadores[0] instanceof LeiaMultiplo)) {
                 throw this.erro(
@@ -774,7 +783,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
             }
 
-            // `leia_inteiros`, `leia_reais` e `leia_textos` pedem um inteiro como argumento, 
+            // `leia_inteiros`, `leia_reais` e `leia_textos` pedem um inteiro como argumento,
             // que pode ser usado para verificar se a expressão faz sentido ou não aqui.
             const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
             if (inicializadorLeia.numeroArgumentosEsperados > 0) {
@@ -785,7 +794,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     );
                 }
             }
-            
+
             let tipoConversao: TiposDadosInterface;
             switch (inicializadorLeia.simbolo.tipo) {
                 case tiposDeSimbolos.LEIA_INTEIRO:
@@ -801,11 +810,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     break;
             }
 
-            return new ConstMultiplo(
-                identificadores, 
-                inicializadores[0],
-                tipoConversao
-            );
+            return new ConstMultiplo(identificadores, inicializadores[0], tipoConversao);
         }
 
         let retorno: Const[] = [];
@@ -883,7 +888,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Uma declaração de tipo nada mais é do que um declaração de classe.
      * Em Potigol, classe e tipo são praticamente a mesma coisa.
-     * 
+     *
      * @returns Um construto do tipo `Classe`.
      */
     protected declaracaoTipo(): Classe {
@@ -917,7 +922,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
 
                 this.verificacaoTipo(
-                    this.simbolos[this.atual], 
+                    this.simbolos[this.atual],
                     'Esperado tipo do argumento após dois-pontos, em definição de função.'
                 );
 
@@ -930,7 +935,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o escopo do tipo.");
 
-        // Depois de verificadas todas as propriedades anotadas com tipo, 
+        // Depois de verificadas todas as propriedades anotadas com tipo,
         // Precisamos gerar um construtor com todas elas na ordem em que
         // foram lidas.
         const instrucoesConstrutor = [];
@@ -952,30 +957,30 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                             )
                         ),
                         propriedade.nome,
-                        new Variavel(
-                            propriedade.hashArquivo,
-                            propriedade.nome
-                        )
+                        new Variavel(propriedade.hashArquivo, propriedade.nome)
                     )
                 )
             );
         }
 
         const construtorConstruto = new FuncaoConstruto(
-            simboloTipo.hashArquivo, 
+            simboloTipo.hashArquivo,
             simboloTipo.linha,
-            propriedades.map(p => ({
-                abrangencia: 'padrao',
-                nome: p.nome
-            } as ParametroInterface)),
+            propriedades.map(
+                (p) =>
+                    ({
+                        abrangencia: 'padrao',
+                        nome: p.nome,
+                    } as ParametroInterface)
+            ),
             instrucoesConstrutor
         );
 
         const construtor = new FuncaoDeclaracao(
             new Simbolo(
-                tiposDeSimbolos.CONSTRUTOR, 
-                'construtor', 
-                undefined, 
+                tiposDeSimbolos.CONSTRUTOR,
+                'construtor',
+                undefined,
                 simboloTipo.hashArquivo,
                 simboloTipo.linha
             ),
@@ -1010,16 +1015,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Em Potigol, uma definição de função normalmente começa com um 
+     * Em Potigol, uma definição de função normalmente começa com um
      * identificador - que não é uma palavra reservada - seguido de parênteses.
      * Este ponto de entrada verifica o símbolo atual e o próximo.
-     * 
+     *
      * Diferentemente dos demais dialetos, verificamos logo de cara se
      * temos uma definição ou chamada de função, isto porque definições
      * nunca aparecem do lado direito de uma atribuição, a não ser que
-     * estejam entre parênteses (_currying_). 
-     * 
-     * Se o próximo símbolo for parênteses, ou é uma definiçao de função, 
+     * estejam entre parênteses (_currying_).
+     *
+     * Se o próximo símbolo for parênteses, ou é uma definiçao de função,
      * ou uma chamada de função.
      */
     expressaoOuDefinicaoFuncao() {
@@ -1060,7 +1065,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(hashArquivo);
         this.erros = [];
         this.atual = 0;

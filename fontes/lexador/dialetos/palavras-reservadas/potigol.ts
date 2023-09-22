@@ -41,5 +41,5 @@ export const palavrasReservadas = {
     Texto: tiposDeSimbolos.TEXTO,
     tipo: tiposDeSimbolos.TIPO,
     var: tiposDeSimbolos.VARIAVEL,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO
-}
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+};

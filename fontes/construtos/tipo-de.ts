@@ -19,4 +19,3 @@ export class TipoDe implements Construto {
         return Promise.resolve(visitante.visitarExpressaoTipoDe(this));
     }
 }
-

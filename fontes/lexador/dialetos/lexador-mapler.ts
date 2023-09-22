@@ -49,10 +49,7 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
 
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
         if (codigo in palavrasReservadas) {
-            this.adicionarSimbolo(
-                palavrasReservadas[codigo],
-                codigo
-            );
+            this.adicionarSimbolo(palavrasReservadas[codigo], codigo);
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }

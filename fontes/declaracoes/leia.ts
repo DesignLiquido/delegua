@@ -1,6 +1,6 @@
 import { Construto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces'
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**

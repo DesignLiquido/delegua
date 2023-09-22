@@ -72,5 +72,5 @@ export default {
     VERDADEIRO: 'VERDADEIRO',
     VETOR: 'VETOR',
     VIRGULA: 'VIRGULA',
-    XOU: 'XOU'
+    XOU: 'XOU',
 };

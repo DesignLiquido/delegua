@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Fazer extends Declaracao {

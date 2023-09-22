@@ -1,4 +1,4 @@
-import { ArgumentoInterface } from "../interpretador/argumento-interface";
+import { ArgumentoInterface } from '../interpretador/argumento-interface';
 
 export class Chamavel {
     valorAridade: number;

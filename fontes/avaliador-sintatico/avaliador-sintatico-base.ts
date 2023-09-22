@@ -37,9 +37,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     hashArquivo: number;
     atual: number;
     blocos: number;
-    
+
     protected declaracaoDeVariaveis(): Var[] {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
@@ -118,7 +118,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     abstract chamar(): Construto;
 
     unario(): Construto {
-
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
@@ -205,7 +204,13 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL, tiposDeSimbolos.IGUAL_IGUAL)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIFERENTE,
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.IGUAL_IGUAL
+            )
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -342,5 +347,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     abstract resolverDeclaracaoForaDeBloco(): Declaracao;
 
-    abstract analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao>;
+    abstract analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao>;
 }

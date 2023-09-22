@@ -48,5 +48,5 @@ export default {
     SE: 'SE',
     SENAO: 'SENAO',
     VAZIO: 'VAZIO',
-    VERDADEIRO: 'VERDADEIRO'
+    VERDADEIRO: 'VERDADEIRO',
 };

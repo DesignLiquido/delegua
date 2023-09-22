@@ -20,5 +20,5 @@ export const palavrasReservadas = {
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
     vazio: tiposDeSimbolos.VAZIO,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO
-}
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+};

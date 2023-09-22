@@ -78,13 +78,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         this.performance = performance;
         this.escopos = [];
     }
-    
+
     declaracaoDeConstantes(): Const[] {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoDeVariavel(): Var {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoDeVariaveis(): any {
@@ -111,7 +111,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {
-            throw this.erro(this.simboloAtual(), "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
+            throw this.erro(
+                this.simboloAtual(),
+                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+            );
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
@@ -497,13 +500,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             } else if (expressao instanceof AcessoMetodo) {
                 return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoPorIndice(
-                    this.hashArquivo,
-                    0,
-                    expressao.entidadeChamada,
-                    expressao.indice,
-                    valor
-                );
+                return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -594,7 +591,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                     } else {
                         declaracoes.push(retornoDeclaracao as Declaracao);
                     }
-                    
+
                     simboloAtual = this.simboloAtual();
                     if (!simboloAtual) break;
                     espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
@@ -983,7 +980,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
     declaracaoFalhar(): Falhar {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
-        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, "Esperado texto para explicar falha.");
+        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, 'Esperado texto para explicar falha.');
         return new Falhar(simboloFalha, textoFalha.literal);
     }
 
@@ -1012,7 +1009,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         }
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;

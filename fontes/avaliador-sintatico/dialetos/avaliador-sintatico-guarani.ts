@@ -1,10 +1,21 @@
-import { AcessoIndiceVariavel, AcessoMetodo, AtribuicaoPorIndice, Atribuir, Binario, Construto, DefinirValor, FuncaoConstruto, Literal, Variavel } from "../../construtos";
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from "../../declaracoes";
-import { RetornoLexador, RetornoAvaliadorSintatico } from "../../interfaces/retornos";
-import { AvaliadorSintaticoBase } from "../avaliador-sintatico-base";
+import {
+    AcessoIndiceVariavel,
+    AcessoMetodo,
+    AtribuicaoPorIndice,
+    Atribuir,
+    Binario,
+    Construto,
+    DefinirValor,
+    FuncaoConstruto,
+    Literal,
+    Variavel,
+} from '../../construtos';
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from '../../declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
+import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
-import { SimboloInterface } from "../../interfaces";
+import { SimboloInterface } from '../../interfaces';
 
 export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
     primario(): Construto {
@@ -99,27 +110,27 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
     }
 
     blocoEscopo(): Declaracao[] {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoSe(): Se {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEnquanto(): Enquanto {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoPara(): Para {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     declaracaoFazer(): Fazer {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
@@ -158,7 +169,10 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, hashArquivo: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;

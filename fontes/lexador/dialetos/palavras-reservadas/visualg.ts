@@ -69,5 +69,5 @@ export const palavrasReservadas = {
     var: tiposDeSimbolos.VAR,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
     vetor: tiposDeSimbolos.VETOR,
-    xou: tiposDeSimbolos.XOU
+    xou: tiposDeSimbolos.XOU,
 };

@@ -1,4 +1,4 @@
-import { SimboloInterface } from "../simbolo-interface";
+import { SimboloInterface } from '../simbolo-interface';
 
 export interface ErroAnalisadorSemantico {
     simbolo?: SimboloInterface;

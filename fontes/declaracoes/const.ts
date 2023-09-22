@@ -11,11 +11,7 @@ export class Const extends Declaracao {
     inicializador: Construto;
     tipo: TiposDadosInterface;
 
-    constructor(
-        simbolo: SimboloInterface,
-        inicializador: Construto,
-        tipo: TiposDadosInterface = undefined
-    ) {
+    constructor(simbolo: SimboloInterface, inicializador: Construto, tipo: TiposDadosInterface = undefined) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.inicializador = inicializador;

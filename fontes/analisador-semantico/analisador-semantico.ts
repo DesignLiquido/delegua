@@ -92,31 +92,34 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         let valor = this.variaveis[expressao.simbolo.lexema];
         if (!valor) {
-            this.erro(expressao.simbolo, `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`)
+            this.erro(
+                expressao.simbolo,
+                `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`
+            );
             return Promise.resolve();
         }
 
-        if (valor.tipo) {            
-            if(expressao.valor instanceof Literal && valor.tipo.includes('[]')) {
-                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`)
-                return Promise.resolve();                
+        if (valor.tipo) {
+            if (expressao.valor instanceof Literal && valor.tipo.includes('[]')) {
+                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                return Promise.resolve();
             }
-            if(expressao.valor instanceof Vetor && !valor.tipo.includes('[]')) {
-                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`)
-                return Promise.resolve();                
+            if (expressao.valor instanceof Vetor && !valor.tipo.includes('[]')) {
+                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                return Promise.resolve();
             }
             if (expressao.valor instanceof Literal) {
                 let valorLiteral = typeof (expressao.valor as Literal).valor;
                 if (!['qualquer'].includes(valor.tipo)) {
-                    if(valorLiteral === 'string') {
-                        if(valor.tipo != 'texto') {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                    if (valorLiteral === 'string') {
+                        if (valor.tipo != 'texto') {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (valorLiteral === 'number') {
                         if (!['inteiro', 'real'].includes(valor.tipo)) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -126,14 +129,14 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 let valores = (expressao.valor as Vetor).valores;
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
-                        if (!valores.every(v => typeof v.valor === 'string')) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                        if (!valores.every((v) => typeof v.valor === 'string')) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
-                        if(!valores.every(v => typeof v.valor === 'number')) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`)
+                        if (!valores.every((v) => typeof v.valor === 'number')) {
+                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -142,7 +145,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
 
         if (valor.imutavel) {
-            this.erro(expressao.simbolo, `Constante ${expressao.simbolo.lexema} não pode ser modificada.`)
+            this.erro(expressao.simbolo, `Constante ${expressao.simbolo.lexema} não pode ser modificada.`);
             return Promise.resolve();
         }
     }
@@ -305,7 +308,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoVetor(expressao: any) {
         return Promise.resolve();
     }
-    
+
     visitarExpressaoSuper(expressao: Super) {
         return Promise.resolve();
     }

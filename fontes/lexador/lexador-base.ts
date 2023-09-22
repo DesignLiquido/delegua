@@ -126,8 +126,7 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
     }
 
     proximoSimbolo(): string {
-        if (this.atual + 1 >= this.codigo[this.linha].length) 
-            return '\0';
+        if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
         return this.codigo[this.linha].charAt(this.atual + 1);
     }
 

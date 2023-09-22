@@ -1,15 +1,13 @@
-import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from "../../../construtos";
-import { Declaracao } from "../../../declaracoes";
-import { RetornoLexador, RetornoAvaliadorSintatico } from "../../../interfaces/retornos";
-import { MicroAvaliadorSintaticoBase } from "../../micro-avaliador-sintatico-base";
-import { SeletorTuplas, Tupla } from "../../../construtos/tuplas";
-import { SimboloInterface } from "../../../interfaces";
+import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from '../../../construtos';
+import { Declaracao } from '../../../declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
+import { MicroAvaliadorSintaticoBase } from '../../micro-avaliador-sintatico-base';
+import { SeletorTuplas, Tupla } from '../../../construtos/tuplas';
+import { SimboloInterface } from '../../../interfaces';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/potigol';
 
-export class MicroAvaliadorSintaticoPotigol 
-    extends MicroAvaliadorSintaticoBase
-{
+export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase {
     hashArquivo: number;
 
     constructor(hashArquivo: number) {

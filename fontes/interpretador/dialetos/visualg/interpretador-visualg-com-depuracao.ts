@@ -158,8 +158,11 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         // cloneDeclaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
-            case "proximo":
-                if (cloneDeclaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
+            case 'proximo':
+                if (
+                    cloneDeclaracao.condicao !== null &&
+                    this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))
+                ) {
                     escopoAtual.emLacoRepeticao = true;
 
                     const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
@@ -172,7 +175,10 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
             default:
                 let retornoExecucao: any;
                 while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
-                    if (cloneDeclaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
+                    if (
+                        cloneDeclaracao.condicao !== null &&
+                        !this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))
+                    ) {
                         break;
                     }
 
