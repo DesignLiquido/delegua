@@ -263,10 +263,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.atual === this.simbolos.length;
     }
 
-    eLimpaTela(): Boolean {
-        return this.simboloAnterior().lexema === 'limpatela';
-    }
-
     metodoBibliotecaGlobal(): Construto {
         const simboloAnterior = this.simbolos[this.atual - 1];
 
@@ -299,7 +295,11 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
-
+        if(simboloAtual.lexema === 'limpatela'){
+            const variavel = new Variavel(this.hashArquivo, simboloAtual);
+            this.avancarEDevolverAnterior();
+            return new Chamada(this.hashArquivo, variavel, null, []);
+        }
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
         ) {
@@ -398,34 +398,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return declaracoes;
     }
 
-    finalizarChamada(entidadeChamada: Construto): Construto {
-        const argumentos: Array<Construto> = [];
-
-        if(this.eLimpaTela()) {
-            return new Chamada(this.hashArquivo, entidadeChamada, null, argumentos);
-        }
-
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            do {
-                if (argumentos.length >= 255) {
-                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
-                }
-                argumentos.push(this.expressao());
-            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-        }
-
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
-
-        return new Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
-    }
-
     chamar(): Construto {
         let expressao = this.primario();
 
         while (true) {
-            if(this.eLimpaTela()) {
-                expressao = this.finalizarChamada(expressao);
-            }
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
