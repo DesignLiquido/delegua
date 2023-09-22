@@ -264,7 +264,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     eLimpaTela(): Boolean {
-        return this.simboloAnterior().lexema === 'limpatela';
+        return this.simbolos[this.atual].lexema === 'limpatela';
     }
 
     metodoBibliotecaGlobal(): Construto {
@@ -300,7 +300,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
         if(this.eLimpaTela()){
-            const variavel = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
+            const variavel = new Variavel(this.hashArquivo, this.simbolos[this.atual]);
+            this.avancarEDevolverAnterior();
             return new Chamada(this.hashArquivo, variavel, null, []);
         }
         if (

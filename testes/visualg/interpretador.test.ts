@@ -100,6 +100,9 @@ describe('Interpretador', () => {
                     '    escreval("Teste 2")',
                     '    limpatela',
                     '    escreval("Teste 3")',
+                    '    escreval("Teste 4")',
+                    '    limpatela',
+                    '    escreval("Teste 5")',
                     'Fimalgoritmo'
                 ], -1);
     
