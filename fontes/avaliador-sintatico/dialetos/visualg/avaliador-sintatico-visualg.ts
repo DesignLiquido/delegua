@@ -178,69 +178,72 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                     const dadosVariaveis = this.logicaComumParametroVisuAlg();
                     // Se chegou até aqui, variáveis são válidas.
                     // Devem ser declaradas com um valor inicial padrão.
-                    for (let identificador of dadosVariaveis.identificadores) {
-                        switch (dadosVariaveis.tipo) {
-                            case tiposDeSimbolos.CARACTER:
-                            case tiposDeSimbolos.CARACTERE:
-                                inicializacoes.push(
-                                    new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''))
-                                );
-                                break;
-                            case tiposDeSimbolos.INTEIRO:
-                            case tiposDeSimbolos.REAL:
-                                inicializacoes.push(
-                                    new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0))
-                                );
-                                break;
-                            case tiposDeSimbolos.LOGICO:
-                                inicializacoes.push(
-                                    new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false))
-                                );
-                                break;
-                            case tiposDeSimbolos.VETOR:
-                                // TODO: Validar vetor
-                                this.consumir(
-                                    tiposDeSimbolos.COLCHETE_ESQUERDO,
-                                    'Esperado colchete esquerdo após palavra reservada "vetor".'
-                                );
-                                const dimensoes = this.validarDimensoesVetor();
-                                this.consumir(
-                                    tiposDeSimbolos.COLCHETE_DIREITO,
-                                    'Esperado colchete direito após declaração de dimensões de vetor.'
-                                );
-                                this.consumir(
-                                    tiposDeSimbolos.DE,
-                                    'Esperado palavra reservada "de" após declaração de dimensões de vetor.'
-                                );
+                    if(dadosVariaveis.tipo === tiposDeSimbolos.VETOR) {
+                        this.consumir(
+                            tiposDeSimbolos.COLCHETE_ESQUERDO,
+                            'Esperado colchete esquerdo após palavra reservada "vetor".'
+                        );
+                        const dimensoes = this.validarDimensoesVetor();
+                        this.consumir(
+                            tiposDeSimbolos.COLCHETE_DIREITO,
+                            'Esperado colchete direito após declaração de dimensões de vetor.'
+                        );
+                        this.consumir(
+                            tiposDeSimbolos.DE,
+                            'Esperado palavra reservada "de" após declaração de dimensões de vetor.'
+                        );
 
-                                const simboloTipo = this.simbolos[this.atual];
-                                if (
-                                    ![
-                                        tiposDeSimbolos.CARACTER,
-                                        tiposDeSimbolos.CARACTERE,
-                                        tiposDeSimbolos.INTEIRO,
-                                        tiposDeSimbolos.LOGICO,
-                                        tiposDeSimbolos.REAL,
-                                        tiposDeSimbolos.VETOR].includes(simboloTipo.tipo)
-                                ) {
-                                    throw this.erro(
-                                        simboloTipo,
-                                        'Tipo de variável não conhecido para inicialização de vetor.'
+                        const simboloTipo = this.simbolos[this.atual];
+                        if (
+                            ![
+                                tiposDeSimbolos.CARACTER,
+                                tiposDeSimbolos.CARACTERE,
+                                tiposDeSimbolos.INTEIRO,
+                                tiposDeSimbolos.LOGICO,
+                                tiposDeSimbolos.REAL,
+                                tiposDeSimbolos.VETOR
+                            ].includes(simboloTipo.tipo)
+                        ) {
+                            throw this.erro(
+                                simboloTipo,
+                                'Tipo de variável não conhecido para inicialização de vetor.'
+                            );
+                        }
+                        for (let identificador of dadosVariaveis.identificadores) {
+                            inicializacoes.push(
+                                new Var(
+                                    identificador,
+                                    new Literal(
+                                        this.hashArquivo,
+                                        Number(dadosVariaveis.simbolo.linha),
+                                        this.criarVetorNDimensional(dimensoes)
+                                    ),
+                                    this.dicionarioTiposPrimitivos[simboloTipo.lexema.toLowerCase()]
+                                )
+                            );
+                        }
+                        this.atual++;
+                    } else {
+                        for (let identificador of dadosVariaveis.identificadores) {
+                            switch (dadosVariaveis.tipo) {
+                                case tiposDeSimbolos.CARACTER:
+                                case tiposDeSimbolos.CARACTERE:
+                                    inicializacoes.push(
+                                        new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''))
                                     );
-                                }
-                                inicializacoes.push(
-                                    new Var(
-                                        identificador,
-                                        new Literal(
-                                            this.hashArquivo,
-                                            Number(dadosVariaveis.simbolo.linha),
-                                            this.criarVetorNDimensional(dimensoes)
-                                        ),
-                                        this.dicionarioTiposPrimitivos[simboloTipo.lexema.toLowerCase()]
-                                    )
-                                );
-                                this.atual++;
-                                break;
+                                    break;
+                                case tiposDeSimbolos.INTEIRO:
+                                case tiposDeSimbolos.REAL:
+                                    inicializacoes.push(
+                                        new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0))
+                                    );
+                                    break;
+                                case tiposDeSimbolos.LOGICO:
+                                    inicializacoes.push(
+                                        new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false))
+                                    );
+                                    break;
+                            }
                         }
                     }
                     break;
