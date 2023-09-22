@@ -300,6 +300,22 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it("Sucesso - Declaração de Vetores", async () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "teste"',
+                    'var',
+                    'result_j1, result_j2 : vetor[1..2] de inteiro',
+                    'inicio',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Para com passo negativo', async () => {
                 // Aqui vamos simular a resposta para uma variável de `leia()`.
                 const respostas = [
