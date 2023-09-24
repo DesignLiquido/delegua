@@ -94,8 +94,10 @@ describe('Tradutor Delégua -> JavaScript', () => {
                     'escreva(tipo de \'2\')',
                     'escreva(tipo de nulo)',
                     'escreva(tipo de [1, 2, 3])',
-                    // 'classe Cachorro {}',
-                    // 'escreva(tipo de Cachorro)'
+                    'funcao teste() { escreva(\'Olá Mundo!\') }',
+                    'escreva(tipo de teste())',
+                    'classe Cachorro {}',
+                    'escreva(tipo de Cachorro)'
                 ],
                 -1
             );
@@ -107,7 +109,9 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/typeof -1/i);
             expect(resultado).toMatch(/typeof \'2\'/i);
             expect(resultado).toMatch(/typeof null/i);
+            expect(resultado).toMatch(/typeof teste\(\)/i);
             expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
+            expect(resultado).toMatch(/typeof Cachorro/i);
         });
 
         it('bit a bit', () => {
