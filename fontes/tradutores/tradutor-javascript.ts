@@ -45,7 +45,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 /**
  * Esse tradutor traduz para JavaScript sem módulos, o que significa que
  * instruções em Delégua como `leia()` e `importar()` não são suportadas.
- * O tradutor levantará erro toda vez que essas instruções são encontradas.
+ * O tradutor levantará mensagem de alerta toda vez que essas instruções são encontradas.
  */
 export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
@@ -613,10 +613,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
         let resultado = 'typeof ';
 
-        if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
-        else if (tipoDe.valor instanceof Vetor) resultado += this.traduzirConstrutoVetor(tipoDe.valor);
-        else if (tipoDe.valor instanceof Unario) resultado += this.traduzirConstrutoUnario(tipoDe.valor);
-        else resultado += tipoDe.valor;
+        if (!tipoDe.valor) resultado += tipoDe.valor;
+        else if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
+        else if (typeof tipoDe.valor === 'number') resultado += tipoDe.valor;
+        else resultado += `${this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor)}`;
 
         return resultado;
     }
