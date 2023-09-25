@@ -47,19 +47,41 @@ Delégua é uma linguagem de programação baseada na língua portuguesa, cujo c
 
 Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extensão de arquivo (`.egua`). Em outras palavras, todo programa escrito em Égua funciona em Delégua, mas Delégua tem capacidades a mais, [conforme mencionado em documentação](https://github.com/DesignLiquido/delegua/wiki).
 
-## Características
+## Vantagens de programar em português
 
-- **Simples e Completa.** Podendo ser usada por pessoas com ou sem experiência em programação.
-- **Totalmente em Português.** Desenvolvida totalmente em português (mesmo) para quebrar a barreira do inglês.
-- **Grátis.** Sem planos, sem limitações e sem propaganda. A licença é MIT.
-- **Código aberto (_open source_).** Todo o código fonte disponível para estudar, modificar e contribuir. Usamos 100% TypeScript. As gramáticas são escritas em ANTLR4.
-- **Linguagem Científica.** Apoiamos e encorajamos o desenvolvimento e aprimoramento da ciência e da educação. Temos diferentes pacotes e bibliotecas para física, matemática, etc.
-- **Modular.** Escreva múltiplos fontes e os reuse em seu código.
-- **Orientada a Objetos.** Classes, objetos e herança são implementados em Delégua e Pituguês.
-- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](https://pt.wikipedia.org/wiki/Visualg), [Portugol Studio](http://lite.acad.univali.br/portugol/), [Portugol Mapler](https://portugol.sourceforge.io/) e [Portugol IPT](http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html). 
+- **Acessibilidade e Compreensão:** Programar em sua língua materna, como o português, pode tornar os conceitos de programação mais acessíveis e fáceis de entender, especialmente para iniciantes. Isso reduz a barreira de entrada para novos programadores.
+
+- **Facilita o Aprendizado:** A programação em português permite que os aprendizes concentrem-se nos conceitos de programação em vez de lidar com a barreira do idioma. Isso pode acelerar o processo de aprendizado, especialmente para pessoas que não têm fluência em inglês.
+
+- **Melhor Comunicação e Documentação:** Programar em seu idioma nativo pode levar a uma comunicação mais clara e eficaz com colegas e clientes locais. Além disso, a documentação em português pode ser mais fácil de compreender e seguir.
+
+- **Contribuição para a Identidade Cultural:**  Linguagens de programação em português contribuem para a preservação da identidade cultural e linguística, promovendo o uso e a adoção do idioma em contextos tecnológicos.
+
+- **Facilita a Localização de Erros:** Programar em português pode tornar mais fácil a localização e correção de erros de código, uma vez que os desenvolvedores podem compreender rapidamente o contexto dos problemas.
+
+## Características
+Delégua, a linguagem de programação totalmente em português, possui uma série de características que a tornam única e atraente:
+
+### Acessibilidade
+- **Simples e Completa:** Delégua é projetada para ser acessível a programadores de todos os níveis, desde iniciantes até experientes. Sua simplicidade e completude facilitam a aprendizagem.
+
+- **Totalmente em Português:** Uma característica distintiva é que Delégua é desenvolvida inteiramente em português(mesmo), tornando-a acessível e amigável para aqueles que preferem programar em seu idioma nativo.
+
+### Tecnologia Moderna
+- **Código aberto (_open source_):** Delégua é uma linguagem de código aberto e gratuita, licenciada sob a MIT License, permitindo o uso sem restrições.
+
+- **Modularidade:** A linguagem suporta a criação de módulos reutilizáveis, promovendo a organização e a manutenção do código.
+
+- **Orientada a Objetos:** Delégua oferece recursos completos de programação orientada a objetos, incluindo classes, objetos e herança.
+
+- **Multidialetos.** Execute algoritmos em [Portugol VisuAlg](https://pt.wikipedia.org/wiki/Visualg), [Portugol Studio](http://lite.acad.univali.br/portugol/), [Portugol Mapler](https://portugol.sourceforge.io/) e [Portugol IPT](http://orion.ipt.pt/~manso/Portugol/menuEsquerda.html).
+
+### Flexibilidade e Potencial
 - **Depurável.** Usando um editor com suporte à depuração como o [Visual Studio Code](https://code.visualstudio.com), você pode inspecionar o seu programa, suas variáveis e executar linha por linha.
-- **Portável.** Escreva sua aplicação e coloque Delégua dentro dela. Funciona em qualquer sistema operacional e qualquer navegador de internet.
-- **Traduzível.** Traduza de Delégua para Python ou JavaScript, ou ainda de Python ou JavaScript para Delégua.
+
+- **Portabilidade:** Delégua é executável em qualquer dispositivo que interprete JavaScript, tornando-a versátil e compatível com diversos sistemas operacionais e qualquer navegador de internet.
+
+- **Traduzibilidade:** A capacidade de traduzir programas entre Delégua, Python e JavaScript aumenta a flexibilidade e as opções de desenvolvimento.
 
 ## Aplicações
 
@@ -68,12 +90,12 @@ Delégua tem retrocompatibilidade com a linguagem Égua e compreende sua extens�
 
 ## Instalação
 
-Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser. Utilize uma das seguintes opções: 
+Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser. Utilize uma das seguintes opções:
 
 - [Dentro do Visual Studio Code, instale a extensão da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode). [Aprenda como executar e depurar seu programa aqui](https://www.youtube.com/watch?v=TQxLekzvBv8);
 - [Utilize nosso editor online](https://designliquido.github.io/delegua-web/).
 
-Para instalar no seu computador, veja o projeto [@designliquido/delegua-node](https://github.com/DesignLiquido/delegua-node). 
+Para instalar no seu computador, veja o projeto [@designliquido/delegua-node](https://github.com/DesignLiquido/delegua-node).
 
 ## Documentação
 
