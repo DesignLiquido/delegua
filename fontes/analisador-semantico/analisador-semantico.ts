@@ -85,7 +85,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                         }
                     }
                 } else {
-                    this.erro(declaracao.simbolo, 'Atribuição inválida, é esperado um vetor de elementos.');
+                    this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de elementos.`);
                 }
             }
             if (declaracao.inicializador instanceof Literal) {

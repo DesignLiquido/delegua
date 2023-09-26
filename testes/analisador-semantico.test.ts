@@ -136,6 +136,7 @@ describe('Analisador semântico', () => {
                     "const n: inteiro = \"10\"",
                     "var v1: texto[] = [1, 2]",
                     "var v2: inteiro[] = ['1']",
+                    "var v3: inteiro[] = 1"
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
@@ -145,6 +146,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('Atribuição inválida \'n\', é esperado um \'número\'.');
                 expect(retornoAnalisadorSemantico.erros[2].mensagem).toBe('Atribuição inválida para \'v1\', é esperado um vetor de \'texto\'.');
                 expect(retornoAnalisadorSemantico.erros[3].mensagem).toBe('Atribuição inválida para \'v2\', é esperado um vetor de \'inteiros\' ou \'real\'.');
+                expect(retornoAnalisadorSemantico.erros[4].mensagem).toBe('Atribuição inválida para \'v3\', é esperado um vetor de elementos.');
             });
 
             it('Retorno vazio', () => {
