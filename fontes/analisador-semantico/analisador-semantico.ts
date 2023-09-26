@@ -61,6 +61,49 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         });
     }
 
+    verificarTipoAtribuido(declaracao: Var | Const) {
+        if (declaracao.tipo) {
+            if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
+                if (declaracao.inicializador instanceof Vetor) {
+                    const vetor = declaracao.inicializador as Vetor;
+                    if (declaracao.tipo === 'inteiro[]') {
+                        const v = vetor.valores.find(v => typeof v?.valor !== 'number')
+                        if(v) {
+                            this.erro(
+                                declaracao.simbolo,
+                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de 'inteiros' ou 'real'.`
+                            );
+                        }
+                    }
+                    if (declaracao.tipo === 'texto[]') {
+                        const v = vetor.valores.find(v => typeof v?.valor !== 'string')
+                        if(v) {
+                            this.erro(
+                                declaracao.simbolo,
+                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de 'texto'.`
+                            );
+                        }
+                    }
+                } else {
+                    this.erro(declaracao.simbolo, 'Atribuição inválida, é esperado um vetor de elementos.');
+                }
+            }
+            if (declaracao.inicializador instanceof Literal) {
+                const literal = declaracao.inicializador as Literal;
+                if (declaracao.tipo === 'texto') {
+                    if (typeof literal.valor !== 'string') {
+                        this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'texto'.`);
+                    }
+                }
+                if (['inteiro', 'real'].includes(declaracao.tipo)) {
+                    if (typeof literal.valor !== 'number') {
+                        this.erro(declaracao.simbolo, `Atribuição inválida '${declaracao.simbolo.lexema}', é esperado um 'número'.`);
+                    }
+                }
+            }
+        }
+    }
+
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         return Promise.resolve();
     }
@@ -223,6 +266,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+
+        this.verificarTipoAtribuido(declaracao);
+
         if (this.variaveis.hasOwnProperty(declaracao.simbolo.lexema)) {
             this.erros.push({
                 simbolo: declaracao.simbolo,
@@ -245,6 +291,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+
+        this.verificarTipoAtribuido(declaracao);
+
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
@@ -291,7 +340,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.nome}' não é válido.`);
             }
         }
-        
+
         let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;
         if (tipoRetornoFuncao) {
             let funcaoContemRetorno = declaracao.funcao.corpo.find((c) => c instanceof Retorna) as Retorna;

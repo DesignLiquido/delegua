@@ -988,52 +988,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return this.declaracaoExpressao();
     }
 
-    verificarTipoAtribuido(tipo: string, inicializador: any) {
-        if (tipo) {
-            if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(tipo)) {
-                if (inicializador instanceof Vetor) {
-                    const vetor = inicializador as Vetor;
-                    if (tipo === 'inteiro[]') {
-                        for (let elemento of vetor.valores) {
-                            if (typeof elemento.valor !== 'number') {
-                                throw this.erro(
-                                    this.simboloAtual(),
-                                    "Atribuição inválida, é esperado um vetor de 'inteiros' ou 'real'."
-                                );
-                            }
-                        }
-                    }
-                    if (tipo === 'texto[]') {
-                        for (let elemento of vetor.valores) {
-                            if (typeof elemento.valor !== 'string') {
-                                throw this.erro(
-                                    this.simboloAtual(),
-                                    "Atribuição inválida, é esperado um vetor de 'texto'."
-                                );
-                            }
-                        }
-                    }
-                } else {
-                    throw this.erro(this.simboloAtual(), 'Atribuição inválida, é esperado um vetor de elementos.');
-                }
-            }
-
-            if (inicializador instanceof Literal) {
-                const literal = inicializador as Literal;
-                if (tipo === 'texto') {
-                    if (typeof literal.valor !== 'string') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um 'texto'.");
-                    }
-                }
-                if (['inteiro', 'real'].includes(tipo)) {
-                    if (typeof literal.valor !== 'number') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um 'número'.");
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
@@ -1077,11 +1031,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-            const inicializador = inicializadores[indice];
-
-            this.verificarTipoAtribuido(tipo, inicializador);
-
-            retorno.push(new Var(identificador, inicializador, tipo));
+            retorno.push(new Var(identificador, inicializadores[indice], tipo));
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -1126,10 +1076,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         let retorno: Declaracao[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            const inicializador = inicializadores[indice];
-
-            this.verificarTipoAtribuido(tipo, inicializador);
-
             retorno.push(new Const(identificador, inicializadores[indice], tipo));
         }
 
