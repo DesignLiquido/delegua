@@ -1143,10 +1143,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipoRetorno = this.verificarDefinicaoTipoAtual();
 
-            if (!tipoRetorno) {
-                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido após ':'`);
-            }
-
             this.avancarEDevolverAnterior();
         }
 
