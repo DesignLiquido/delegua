@@ -132,10 +132,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return this.simbolos[this.atual];
     }
 
-    simboloAnterior(): SimboloInterface {
-        return this.simbolos[this.atual - 1];
-    }
-
     estaNoFinal(): boolean {
         return this.atual === this.simbolos.length;
     }
