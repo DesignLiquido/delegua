@@ -286,6 +286,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        for (let parametro of declaracao.funcao.parametros) {
+            if(parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
+                this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.nome}' não é válido.`);
+            }
+        }
+        
         let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;
         if (tipoRetornoFuncao) {
             let funcaoContemRetorno = declaracao.funcao.corpo.find((c) => c instanceof Retorna) as Retorna;

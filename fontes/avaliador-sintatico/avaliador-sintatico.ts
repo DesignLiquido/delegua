@@ -1,7 +1,11 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import hrtime from 'browser-process-hrtime';
 
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
+import { 
+    AvaliadorSintaticoInterface, 
+    ParametroInterface, 
+    SimboloInterface,
+} from '../interfaces';
 import {
     AcessoMetodo as AcessoMetodo,
     Agrupamento,
@@ -100,7 +104,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
-    verificarDefinicaoTipoAtual(): string {
+    verificarDefinicaoTipoAtual(): TiposDadosInterface {
         const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor'];
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
@@ -118,10 +122,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
             this.avancarEDevolverAnterior();
 
-            return contemTipoVetor;
+            return contemTipoVetor as TiposDadosInterface;
         }
 
-        return contemTipo;
+        return contemTipo as TiposDadosInterface;
     }
 
     simboloAtual(): SimboloInterface {
@@ -1174,13 +1178,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
-
-                if (!tipoDadoParametro) {
-                    this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`);
-                } else {
-                    parametro.tipo = tipoDadoParametro as TiposDadosInterface;
-                    this.avancarEDevolverAnterior();
+                parametro.tipoDado = {
+                    nome: this.simboloAtual().lexema,
+                    tipo: tipoDadoParametro
                 }
+                this.avancarEDevolverAnterior();
             }
 
             parametros.push(parametro as ParametroInterface);

@@ -152,6 +152,19 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
             });
+
+            it('Parametro com definição de tipo inválido', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao executar(valor1: algum, valor2): texto {",
+                    "   retorna \'Olá Mundo!!!\'",
+                    "}",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('O tipo \'algum\' não é válido.');
+            });
         });
     });
 });

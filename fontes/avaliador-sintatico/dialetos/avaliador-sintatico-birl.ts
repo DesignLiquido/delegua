@@ -712,8 +712,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             };
 
             const tipo = this.resolveTipo(this.simbolos[this.atual].tipo);
-
-            parametro.tipo = this.resolveSimboloInterfaceParaTiposDadosInterface(tipo);
+            const resolucaoTipo = this.resolveSimboloInterfaceParaTiposDadosInterface(tipo);
+            parametro.tipoDado = {
+                nome: this.simbolos[this.atual].lexema,
+                tipo: resolucaoTipo
+            }
             this.avancarEDevolverAnterior();
             parametro.nome = this.simbolos[this.atual];
 

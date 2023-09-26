@@ -540,7 +540,7 @@ export class TradutorAssemblyScript {
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
         let resultado = 'function(';
         for (const parametro of funcaoConstruto.parametros) {
-            const tipoParametro = this.resolveTipoDeclaracaoVarEContante(parametro.tipo);
+            const tipoParametro = this.resolveTipoDeclaracaoVarEContante(parametro.tipoDado.tipo);
             resultado += `${parametro.nome.lexema}${tipoParametro}, `;
         }
 

@@ -273,7 +273,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
 
                 const tipoParametro = simbolos[indice];
-                parametro.tipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
+                const resolucaoTipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
+                parametro.tipoDado = {
+                    nome: simbolos[indice - 2].lexema,
+                    tipo: resolucaoTipo
+                }
                 tipagemDefinida = true;
             }
 
