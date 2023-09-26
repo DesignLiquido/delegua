@@ -162,7 +162,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
             });
 
-            it('Não retornando o tipo que a função definiu', () => {
+            it('Não retornando o tipo que a função definiu - texto', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao executar(valor1, valor2): texto {",
                     "   var resultado = valor1 + valor2",
@@ -174,6 +174,20 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
+            });
+
+            it('Não retornando o tipo que a função definiu - inteiro', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao executar(valor1, valor2): inteiro {",
+                    "   var resultado = valor1 + valor2",
+                    "   retorna 'a'",
+                    "}",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Esperado retorno do tipo \'inteiro\' dentro da função.');
             });
 
             it('Retorno vazio mas com retorno de valor', () => {
@@ -188,6 +202,19 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
+            });
+
+            it('Função sem retorno de valor', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao executar(valor1, valor2): texto {",
+                    "   var resultado = valor1 + valor2",
+                    "}",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
             });
 
             it('Parametro com definição de tipo inválido', () => {
