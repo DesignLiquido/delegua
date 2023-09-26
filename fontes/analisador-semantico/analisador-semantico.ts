@@ -37,6 +37,7 @@ interface VariavelHipoteticaInterface {
     tipo: TiposDadosInterface;
     subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
     imutavel: boolean;
+    valor?: any
 }
 
 export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
@@ -238,6 +239,17 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
+        const identificadorOuLiteral = declaracao.identificadorOuLiteral as any;
+        const valor = this.variaveis[identificadorOuLiteral.simbolo?.lexema]?.valor;
+        const tipo = typeof valor;
+        for (let caminho of declaracao.caminhos) {
+            for (let condicao of caminho.condicoes) {
+                if(typeof condicao?.valor !== tipo) {
+                    this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
+                }
+            }
+        }
+
         return Promise.resolve();
     }
 
@@ -280,6 +292,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             this.variaveis[declaracao.simbolo.lexema] = {
                 imutavel: true,
                 tipo: declaracao.tipo,
+                valor: declaracao.inicializador.valor
             };
         }
 
@@ -297,6 +310,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
+            valor: declaracao.inicializador.valor
         };
 
         return Promise.resolve();
