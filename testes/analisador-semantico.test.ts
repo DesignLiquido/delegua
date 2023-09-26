@@ -242,6 +242,25 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Declaração de retorno da função é inválido.');
             });
+
+            it('Escolha com tipos diferentes em \'caso\'', () => {
+                const retornoLexador = lexador.mapear([
+                    'var opcao: texto = \'1\'',
+                    'escolha opcao {',
+                        'caso 0:',
+                        'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
+                            'facaAlgumaCoisa()',
+                        'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
+                            'facaAlgumaCoisa()',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\'');
+                expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
+            });
         });
     });
 });
