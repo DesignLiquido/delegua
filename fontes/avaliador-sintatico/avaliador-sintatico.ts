@@ -998,11 +998,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipoVariavel = this.verificarDefinicaoTipoAtual();
-            if (!tipoVariavel) {
-                throw this.erro(this.simboloAtual(), 'Tipo definido na variável não é válido.');
-            }
-            tipo = tipoVariavel;
+            tipo = this.verificarDefinicaoTipoAtual();
             this.avancarEDevolverAnterior();
         }
 
@@ -1048,11 +1044,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipoConstante = this.verificarDefinicaoTipoAtual();
-            if (!tipoConstante) {
-                throw this.erro(this.simboloAtual(), 'Tipo definido na constante não é válido.');
-            }
-            tipo = tipoConstante;
+            tipo = this.verificarDefinicaoTipoAtual();
             this.avancarEDevolverAnterior();
         }
 
