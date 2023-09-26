@@ -1142,7 +1142,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         let tipoRetorno = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipoRetorno = this.verificarDefinicaoTipoAtual();
-
             this.avancarEDevolverAnterior();
         }
 

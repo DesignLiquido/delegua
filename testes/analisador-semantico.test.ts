@@ -229,6 +229,19 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('O tipo \'algum\' não é válido.');
             });
+
+            it('Declaração de retorno da função inválido.', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao executar(valor1: inteiro, valor2): XXX {",
+                    "   retorna \'Olá Mundo!!!\'",
+                    "}",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Declaração de retorno da função é inválido.');
+            });
         });
     });
 });

@@ -341,6 +341,10 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             }
         }
 
+        if (declaracao.funcao.tipoRetorno === undefined) {
+            this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
+        }
+
         let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;
         if (tipoRetornoFuncao) {
             let funcaoContemRetorno = declaracao.funcao.corpo.find((c) => c instanceof Retorna) as Retorna;
