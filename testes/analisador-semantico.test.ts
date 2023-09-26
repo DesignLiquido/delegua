@@ -245,7 +245,7 @@ describe('Analisador semântico', () => {
 
             it('Escolha com tipos diferentes em \'caso\'', () => {
                 const retornoLexador = lexador.mapear([
-                    'var opcao: texto = \'1\'',
+                    'var opcao = leia(\'Digite a opção desejada: \')',
                     'escolha opcao {',
                         'caso 0:',
                         'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',

@@ -244,7 +244,11 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         const tipo = typeof valor;
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
-                if(typeof condicao?.valor !== tipo) {
+                if (valor instanceof Leia && typeof condicao?.valor !== 'string') {
+                    this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
+                    continue;
+                }
+                if (!(valor instanceof Leia) && typeof condicao?.valor !== tipo) {
                     this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
                 }
             }
@@ -310,7 +314,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor: declaracao.inicializador.valor
+            valor: declaracao.inicializador.valor || declaracao.inicializador
         };
 
         return Promise.resolve();
