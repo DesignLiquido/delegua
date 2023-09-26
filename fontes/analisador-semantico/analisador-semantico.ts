@@ -286,6 +286,41 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;
+        if (tipoRetornoFuncao) {
+            let funcaoContemRetorno = declaracao.funcao.corpo.find((c) => c instanceof Retorna) as Retorna;
+            if (funcaoContemRetorno) {
+                if (tipoRetornoFuncao === 'vazio') {
+                    this.erro(declaracao.simbolo, `A função não pode ter nenhum tipo de retorno.`);
+                    return Promise.resolve();
+                }
+
+                const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                if (!['qualquer'].includes(tipoRetornoFuncao)) {
+                    if (tipoValor === 'string') {
+                        if (tipoRetornoFuncao != 'texto') {
+                            this.erro(
+                                declaracao.simbolo,
+                                `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                            );
+                        }
+                    }
+                    if (tipoValor === 'number') {
+                        if (!['inteiro', 'real'].includes(tipoRetornoFuncao)) {
+                            this.erro(
+                                declaracao.simbolo,
+                                `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                            );
+                        }
+                    }
+                }
+            } else {
+                if (tipoRetornoFuncao !== 'vazio') {
+                    this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
+                }
+            }
+        }
+
         return Promise.resolve();
     }
 

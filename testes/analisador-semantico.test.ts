@@ -112,7 +112,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(8);
             });
 
-            it.skip('Retorno vazio', () => {
+            it('Retorno vazio', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao olaMundo (): vazio {",
                     "   retorna \"Olá Mundo!!!\"",
@@ -122,7 +122,35 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
+            });
+
+            it('Não retornando o tipo que a função definiu', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao executar(valor1, valor2): texto {",
+                    "   var resultado = valor1 + valor2",
+                    "   retorna 10",
+                    "}",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
+            });
+
+            it('Retorno vazio mas com retorno de valor', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao executar(valor1, valor2): vazio {",
+                    "   var resultado = valor1 + valor2",
+                    "   retorna resultado",
+                    "}",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
             });
         });
     });

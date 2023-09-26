@@ -1218,39 +1218,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         const corpo = this.blocoEscopo();
 
-        if (tipoRetorno) {
-            let funcaoContemRetorno = corpo.find((c) => c instanceof Retorna) as Retorna;
-            if (funcaoContemRetorno) {
-                if (tipoRetorno === 'vazio') {
-                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`);
-                }
-
-                const tipoValor = typeof funcaoContemRetorno.valor.valor;
-                if (!['qualquer'].includes(tipoRetorno)) {
-                    if (tipoValor === 'string') {
-                        if (tipoRetorno != 'texto') {
-                            this.erro(
-                                this.simboloAtual(),
-                                `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`
-                            );
-                        }
-                    }
-                    if (tipoValor === 'number') {
-                        if (!['inteiro', 'real'].includes(tipoRetorno)) {
-                            this.erro(
-                                this.simboloAtual(),
-                                `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`
-                            );
-                        }
-                    }
-                }
-            } else {
-                if (tipoRetorno !== 'vazio') {
-                    this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`);
-                }
-            }
-        }
-
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
     }
 
