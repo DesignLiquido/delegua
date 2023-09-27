@@ -821,8 +821,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                     caminhoPadrao = {
                         declaracoes,
                     };
-                } else {
-                    this.avancarEDevolverAnterior();
                 }
             }
 
