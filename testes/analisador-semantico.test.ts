@@ -292,6 +292,18 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Atribuição inválida para \'opcao\', Leia só pode receber tipo \'texto\'.');
             });
+
+            it('Escreva com variável que não existe', () => {
+                const retornoLexador = lexador.mapear([
+                    'var t = \'teste\'',
+                    'escreva(XXX,\' outro teste\')',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Variável \'XXX\' não existe.');
+            });
         });
     });
 });

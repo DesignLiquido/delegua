@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Vetor } from '../construtos';
+import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel, Vetor } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -275,7 +275,15 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
-        // return Promise.resolve();
+        const variaveis = declaracao.argumentos.filter(arg => arg instanceof Variavel)
+
+        for (let variavel of variaveis as Variavel[]) {
+            if(!this.variaveis[variavel.simbolo.lexema]) {
+                this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`)
+            }
+        }
+
+        return Promise.resolve();
     }
 
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
