@@ -98,8 +98,13 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 }
                 if (['inteiro', 'real'].includes(declaracao.tipo)) {
                     if (typeof literal.valor !== 'number') {
-                        this.erro(declaracao.simbolo, `Atribuição inválida '${declaracao.simbolo.lexema}', é esperado um 'número'.`);
+                        this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'número'.`);
                     }
+                }
+            }
+            if (declaracao.inicializador instanceof Leia) {
+                if (declaracao.tipo !== 'texto') {
+                    this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', Leia só pode receber tipo 'texto'.`);
                 }
             }
         }

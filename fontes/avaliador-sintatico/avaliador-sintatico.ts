@@ -822,6 +822,17 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                         declaracoes,
                     };
                 }
+                //TODO: Samuel
+                // else {
+                //     const simboloAtual = this.simboloAtual();
+                //     const simbolosMesmaLinha = this.simbolos.filter(e => e.linha === simboloAtual.linha);
+                //     let nome = '';
+                //     simbolosMesmaLinha.map(s => {
+                //         nome += s.lexema;
+                //         this.avancarEDevolverAnterior();
+                //     })
+                //     this.erro(simboloAtual, `'${nome}' não é uma instrução válida dentro do bloco 'escolha'`)
+                // }
             }
 
             return new Escolha(condicao, caminhos, caminhoPadrao);

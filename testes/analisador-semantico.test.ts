@@ -19,7 +19,7 @@ describe('Analisador semântico', () => {
                 const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
@@ -37,7 +37,7 @@ describe('Analisador semântico', () => {
                     "const f: qualquer = [1, '2', 3, 'Olá Mundo']",
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
+
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(9);
             });
@@ -55,7 +55,7 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
@@ -74,12 +74,12 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
         });
-        
+
         describe('Cenários de falha', () => {
             it('Atribuindo variável que não existe', () => {
                 const retornoLexador = lexador.mapear([
@@ -87,7 +87,7 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
             });
@@ -99,7 +99,7 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
             });
@@ -125,7 +125,7 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(8);
             });
@@ -140,10 +140,10 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Atribuição inválida para \'t\', é esperado um \'texto\'.');
-                expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('Atribuição inválida \'n\', é esperado um \'número\'.');
+                expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('Atribuição inválida para \'n\', é esperado um \'número\'.');
                 expect(retornoAnalisadorSemantico.erros[2].mensagem).toBe('Atribuição inválida para \'v1\', é esperado um vetor de \'texto\'.');
                 expect(retornoAnalisadorSemantico.erros[3].mensagem).toBe('Atribuição inválida para \'v2\', é esperado um vetor de \'inteiros\' ou \'real\'.');
                 expect(retornoAnalisadorSemantico.erros[4].mensagem).toBe('Atribuição inválida para \'v3\', é esperado um vetor de elementos.');
@@ -157,7 +157,7 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
             });
@@ -256,10 +256,41 @@ describe('Analisador semântico', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\'');
                 expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
+            });
+
+            it.skip('Escolha com tipos diferentes em \'caso\'', () => {
+                const retornoLexador = lexador.mapear([
+                    'var opcao = leia(\'Digite a opção desejada: \')',
+                    'escolha opcao {',
+                        // 'cas:x1 ako',
+                        'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
+                            'facaAlgumaCoisa()',
+                        'cas:x1 ako',
+                        'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
+                            'facaAlgumaCoisa()',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                // expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\'');
+                // expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
+            });
+
+            it('Leia só pode receber texto', () => {
+                const retornoLexador = lexador.mapear([
+                    'var opcao: inteiro = leia(\'Digite a opção desejada: \')',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Atribuição inválida para \'opcao\', Leia só pode receber tipo \'texto\'.');
             });
         });
     });
