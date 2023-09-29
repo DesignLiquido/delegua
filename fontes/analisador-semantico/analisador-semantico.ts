@@ -143,15 +143,15 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoDeChamada(expressao: Chamada) {
         if (expressao.entidadeChamada instanceof Variavel) {
             const variavel = expressao.entidadeChamada as Variavel;
-            const variavelExiste = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema];
-            if (!variavelExiste) {
+            const funcaoChamada = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema];
+            if (!funcaoChamada) {
                 this.erro(
                     expressao.entidadeChamada.simbolo,
                     `Chamada da função '${expressao.entidadeChamada.simbolo.lexema}' não existe.`
                 );
                 return Promise.resolve();
             }
-            const funcao = variavelExiste.valor as FuncaoConstruto;
+            const funcao = funcaoChamada.valor as FuncaoConstruto;
             if (funcao.parametros.length !== expressao.argumentos.length) {
                 this.erro(
                     expressao.entidadeChamada.simbolo,
