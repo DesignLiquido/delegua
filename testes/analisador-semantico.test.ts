@@ -304,6 +304,48 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Variável \'XXX\' não existe.');
             });
+
+            it('Atribuição de função', () => {
+                const retornoLexador = lexador.mapear([
+                    'var f = função(a, b) {',
+                    '   escreva(a + b)',
+                    '}',
+                    'f(1)',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Função \'f\' espera 2 parametros.');
+            });
+
+            it('Chamada de função direta', () => {
+                const retornoLexador = lexador.mapear([
+                    'função f(a, b) {',
+                    '   escreva(a + b)',
+                    '}',
+                    'f(1)',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Função \'f\' espera 2 parametros.');
+            });
+
+            it('Chamada de função que não existe', () => {
+                const retornoLexador = lexador.mapear([
+                    'função f(a, b) {',
+                    '   escreva(a + b)',
+                    '}',
+                    'x()',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Chamada da função \'x\' não existe.');
+            });
         });
     });
 });

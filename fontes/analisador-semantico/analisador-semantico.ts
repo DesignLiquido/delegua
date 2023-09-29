@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel, Vetor } from '../construtos';
+import { Atribuir, Chamada, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -40,15 +40,21 @@ interface VariavelHipoteticaInterface {
     valor?: any
 }
 
+interface FuncaoHipoteticaInterface {
+    valor: any
+}
+
 export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
+    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface }
     atual: number;
     erros: ErroAnalisadorSemantico[];
 
     constructor() {
         this.pilhaVariaveis = new PilhaVariaveis();
         this.variaveis = {};
+        this.funcoes = {};
         this.atual = 0;
         this.erros = [];
     }
@@ -134,7 +140,26 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarExpressaoDeChamada(expressao: any) {
+    visitarExpressaoDeChamada(expressao: Chamada) {
+        if (expressao.entidadeChamada instanceof Variavel) {
+            const variavel = expressao.entidadeChamada as Variavel;
+            const variavelExiste = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema];
+            if (!variavelExiste) {
+                this.erro(
+                    expressao.entidadeChamada.simbolo,
+                    `Chamada da função '${expressao.entidadeChamada.simbolo.lexema}' não existe.`
+                );
+                return Promise.resolve();
+            }
+            const funcao = variavelExiste.valor as FuncaoConstruto;
+            if (funcao.parametros.length !== expressao.argumentos.length) {
+                this.erro(
+                    expressao.entidadeChamada.simbolo,
+                    `Função '${expressao.entidadeChamada.simbolo.lexema}' espera ${funcao.parametros.length} parametros.`
+                );
+            }
+        }
+
         return Promise.resolve();
     }
 
@@ -382,7 +407,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             if (funcaoContemRetorno) {
                 if (tipoRetornoFuncao === 'vazio') {
                     this.erro(declaracao.simbolo, `A função não pode ter nenhum tipo de retorno.`);
-                    return Promise.resolve();
                 }
 
                 const tipoValor = typeof funcaoContemRetorno.valor.valor;
@@ -409,6 +433,10 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                     this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
                 }
             }
+        }
+
+        this.funcoes[declaracao.simbolo.lexema] = {
+            valor: declaracao.funcao
         }
 
         return Promise.resolve();
