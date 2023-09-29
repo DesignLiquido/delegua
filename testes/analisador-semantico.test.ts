@@ -346,6 +346,21 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Chamada da função \'x\' não existe.');
             });
+
+            it('Chamada de função com tipos inválidos na passagem dos parametros', () => {
+                const retornoLexador = lexador.mapear([
+                    'função f(a:texto, b:inteiro, c: texto, d) {',
+                    '   escreva(a + b)',
+                    '}',
+                    'f(1, \'teste0\', \'teste1\', 2)',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('O valor passado para o parâmetro \'a\' é diferente do esperado pela função.');
+                expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('O valor passado para o parâmetro \'b\' é diferente do esperado pela função.');
+            });
         });
     });
 });

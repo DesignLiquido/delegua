@@ -158,6 +158,25 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                     `Função '${expressao.entidadeChamada.simbolo.lexema}' espera ${funcao.parametros.length} parametros.`
                 );
             }
+
+            for (let [indice, arg0] of funcao.parametros.entries()) {
+                const arg1 = expressao.argumentos[indice];
+                if (arg1) {
+                    if (arg0.tipoDado?.tipo === 'texto' && typeof arg1.valor !== 'string') {
+                        this.erro(
+                            expressao.entidadeChamada.simbolo,
+                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                        );
+                    }
+                    else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo) 
+                            && typeof arg1.valor !== 'number') {
+                        this.erro(
+                            expressao.entidadeChamada.simbolo,
+                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                        );
+                    }                    
+                }
+            }
         }
 
         return Promise.resolve();
@@ -393,7 +412,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         for (let parametro of declaracao.funcao.parametros) {
             if(parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
-                this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.nome}' não é válido.`);
+                this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.tipoInvalido}' não é válido.`);
             }
         }
 

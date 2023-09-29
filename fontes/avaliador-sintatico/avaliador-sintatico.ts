@@ -1113,8 +1113,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
                 parametro.tipoDado = {
-                    nome: this.simboloAtual().lexema,
-                    tipo: tipoDadoParametro
+                    nome: this.simbolos[this.atual - 2].lexema,
+                    tipo: tipoDadoParametro,
+                    tipoInvalido: !tipoDadoParametro ? this.simboloAtual().lexema : null
                 }
                 this.avancarEDevolverAnterior();
             }
