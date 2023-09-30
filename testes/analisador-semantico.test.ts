@@ -346,6 +346,44 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Chamada da função \'x\' não existe.');
             });
+
+            it('Chamada de função com tipos inválidos na passagem dos parametros', () => {
+                const retornoLexador = lexador.mapear([
+                    'função f(a:texto, b:inteiro, c: texto, d) {',
+                    '   escreva(a + b)',
+                    '}',
+                    'f(1, \'teste0\', \'teste1\', 2)',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('O valor passado para o parâmetro \'a\' é diferente do esperado pela função.');
+                expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('O valor passado para o parâmetro \'b\' é diferente do esperado pela função.');
+            });
+
+            it('Função anônima com mais de 255 parâmetros', () => {
+                let acumulador = '';
+                for (let i = 1; i <= 256; i++) {
+                    acumulador += 'a' + i + ', ';
+                }
+
+                acumulador = acumulador.substring(0, acumulador.length - 2);
+
+                const funcaoCom256Argumentos1 = 'var f1 = funcao(' + acumulador + ') {}';
+                const funcaoCom256Argumentos2 = 'funcao f2(' + acumulador + ') {}';
+
+                const retornoLexador = lexador.mapear([
+                    funcaoCom256Argumentos1,
+                    funcaoCom256Argumentos2
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Não pode haver mais de 255 parâmetros');
+                expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('Não pode haver mais de 255 parâmetros');
+            });
         });
     });
 });

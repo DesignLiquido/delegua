@@ -195,23 +195,6 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
                 });
 
-                it('Função anônima com mais de 255 parâmetros', () => {
-                    let acumulador = '';
-                    for (let i = 1; i <= 256; i++) {
-                        acumulador += 'a' + i + ', ';
-                    }
-    
-                    acumulador = acumulador.substring(0, acumulador.length - 2);
-    
-                    const funcaoCom256Argumentos = 'var f = funcao(' + acumulador + ') {}';
-                    const retornoLexador = lexador.mapear([funcaoCom256Argumentos], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico.erros[0].message).toBe('Não pode haver mais de 255 parâmetros');
-                });
-
                 it('Função com retorno de vetor', () => {
                     const retornoLexador = lexador.mapear([
                         "funcao executar(): texto[] {",
