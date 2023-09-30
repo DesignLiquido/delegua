@@ -1,9 +1,9 @@
-import { Binario, Construto, Logico } from "../../../construtos";
-import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
+import { Binario, Construto, Logico } from '../../../construtos';
+import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/mapler';
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 async function avaliar(visitante: VisitanteComumInterface, expressao: Construto): Promise<any> {
     return await expressao.aceitar(visitante);
@@ -31,11 +31,7 @@ function verificarOperandosNumeros(
     esquerda: VariavelInterface | any
 ): void {
     const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
-    const tipoEsquerda: string = esquerda.tipo
-        ? esquerda.tipo
-        : typeof esquerda === 'number'
-        ? 'número'
-        : String(NaN);
+    const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : typeof esquerda === 'number' ? 'número' : String(NaN);
     if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
     throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
 }
@@ -46,7 +42,10 @@ function verificarOperandosNumeros(
  * @param expressao A expressão binária.
  * @returns O resultado da resolução da expressão.
  */
-export async function visitarExpressaoBinaria(visitante: VisitanteComumInterface, expressao: Binario | any): Promise<any> {
+export async function visitarExpressaoBinaria(
+    visitante: VisitanteComumInterface,
+    expressao: Binario | any
+): Promise<any> {
     try {
         const esquerda: VariavelInterface | any = await avaliar(visitante, expressao.esquerda);
         const direita: VariavelInterface | any = await avaliar(visitante, expressao.direita);
@@ -64,9 +63,7 @@ export async function visitarExpressaoBinaria(visitante: VisitanteComumInterface
             valorDireito = valorDireito.funcao();
         }
 
-        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
-            ? esquerda.tipo
-            : inferirTipoVariavel(esquerda);
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
         const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
@@ -112,19 +109,19 @@ export async function visitarExpressaoBinaria(visitante: VisitanteComumInterface
             case tiposDeSimbolos.MULTIPLICACAO:
                 if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
                     // Sem ambos os valores resolvem como texto, multiplica normal.
-                    // Se apenas um resolve como texto, o outro repete o 
+                    // Se apenas um resolve como texto, o outro repete o
                     // texto n vezes, sendo n o valor do outro.
                     if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
-                        return Number(valorEsquerdo) * Number(valorDireito);    
-                    } 
-                    
+                        return Number(valorEsquerdo) * Number(valorDireito);
+                    }
+
                     if (tipoEsquerdo === 'texto') {
                         return valorEsquerdo.repeat(Number(valorDireito));
                     }
 
                     return valorDireito.repeat(Number(valorEsquerdo));
                 }
-                
+
                 return Number(valorEsquerdo) * Number(valorDireito);
 
             case tiposDeSimbolos.MODULO:

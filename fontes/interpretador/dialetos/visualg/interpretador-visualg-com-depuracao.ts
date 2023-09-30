@@ -4,8 +4,8 @@ import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
-import { AcessoIndiceVariavel, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Classe, Para, Bloco } from '../../../declaracoes';
+import { Binario, Construto, FimPara, Logico } from '../../../construtos';
+import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
@@ -109,7 +109,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
             if (this.comando === 'proximo') {
                 escopoPara.declaracaoAtual++;
             }
-            
+
             escopoPara.emLacoRepeticao = false;
             return new SustarQuebra();
         }
@@ -158,10 +158,13 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         // cloneDeclaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
-            case "proximo":
-                if (cloneDeclaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
+            case 'proximo':
+                if (
+                    cloneDeclaracao.condicao !== null &&
+                    this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))
+                ) {
                     escopoAtual.emLacoRepeticao = true;
-                    
+
                     const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
                     return resultadoBloco;
                 }
@@ -169,19 +172,22 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                 escopoAtual.emLacoRepeticao = false;
                 // declaracao.inicializada = false;
                 return null;
-            default: 
+            default:
                 let retornoExecucao: any;
                 while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
-                    if (cloneDeclaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
+                    if (
+                        cloneDeclaracao.condicao !== null &&
+                        !this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))
+                    ) {
                         break;
                     }
 
-                    try {                        
+                    try {
                         retornoExecucao = await this.executar(corpoExecucao);
                         if (retornoExecucao instanceof SustarQuebra) {
                             return null;
                         }
-                        
+
                         if (retornoExecucao instanceof ContinuarQuebra) {
                             retornoExecucao = null;
                         }

@@ -1,10 +1,13 @@
 import { Chamavel } from './chamavel';
 import { EspacoVariaveis } from '../espaco-variaveis';
 
-import { InterpretadorInterface, VisitanteComumInterface } from '../interfaces'
+import { InterpretadorInterface, VariavelInterface, VisitanteComumInterface } from '../interfaces';
 import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
+import { ArgumentoInterface } from '../interpretador/argumento-interface';
+import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
+import { inferirTipoVariavel } from '../interpretador/inferenciador';
 
 /**
  * Qualquer função declarada em código é uma DeleguaFuncao.
@@ -37,36 +40,67 @@ export class DeleguaFuncao extends Chamavel {
         return `<função ${this.nome}>`;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: Array<any>): Promise<any> {
+    async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
         const ambiente = new EspacoVariaveis();
-        const parametros = this.declaracao.parametros;
+        const parametros = this.declaracao.parametros || [];
 
-        if (parametros && parametros.length) {
-            for (let i = 0; i < parametros.length; i++) {
-                const parametro = parametros[i];
+        for (let i = 0; i < parametros.length; i++) {
+            const parametro = parametros[i];
 
-                const nome = parametro['nome'].lexema;
-                let valor = argumentos[i];
-                if (argumentos[i] === null) {
-                    valor = parametro['padrao'] ? parametro['padrao'].valor : null;
-                }
-
-                ambiente.valores[nome] = valor;
+            const nome = parametro['nome'].lexema;
+            let argumento = argumentos[i];
+            if (argumentos[i] === null) {
+                argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
             }
+
+            ambiente.valores[nome] = argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
         }
 
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
                 tipo: 'objeto',
-                imutavel: false
+                imutavel: false,
             };
+
+            if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis) {
+                for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.campos)) {
+                    ambiente.valores[nomeCampo] = {
+                        valor: valorCampo,
+                        tipo: inferirTipoVariavel(valorCampo as any),
+                        imutavel: false,
+                    };
+                }
+            }
         }
 
         // TODO: Repensar essa dinâmica para análise semântica.
-        const interpretador = (visitante as any);
+        const interpretador = visitante as any;
         interpretador.proximoEscopo = 'funcao';
         const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
+
+        const referencias = this.declaracao.parametros
+            .map((p, indice) => {
+                if (p.referencia) {
+                    return {
+                        indice: indice,
+                        parametro: p,
+                    };
+                }
+            })
+            .filter((r) => r);
+        const pilha = interpretador.pilhaEscoposExecucao as PilhaEscoposExecucaoInterface;
+
+        for (let referencia of referencias) {
+            let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
+            pilha.atribuirVariavel(
+                {
+                    lexema: argumentos[referencia.indice].nome,
+                } as any,
+                argumentoReferencia.valor
+            );
+        }
+
         if (retornoBloco instanceof RetornoQuebra) {
             return retornoBloco.valor;
         }

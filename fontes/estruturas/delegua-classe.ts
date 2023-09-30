@@ -1,14 +1,18 @@
 import { PropriedadeClasse } from '../declaracoes';
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
+/**
+ * Estrutura de declaração de classe.
+ */
 export class DeleguaClasse extends Chamavel {
     nome: string;
     superClasse: DeleguaClasse;
     metodos: { [nome: string]: DeleguaFuncao };
-    propriedades: PropriedadeClasse[]
+    propriedades: PropriedadeClasse[];
+    dialetoRequerExpansaoPropriedadesEspacoVariaveis: boolean;
 
     constructor(nome?: string, superClasse?: any, metodos?: any, propriedades?: PropriedadeClasse[]) {
         super();
@@ -43,7 +47,22 @@ export class DeleguaClasse extends Chamavel {
     }
 
     paraTexto(): string {
-        return `<classe ${this.nome}>`;
+        let texto = `<classe ${this.nome}`;
+        for (let propriedade of this.propriedades) {
+            texto += ` ${propriedade.nome}`;
+            if (propriedade.tipo) {
+                texto += `:${propriedade.tipo}`;
+            }
+
+            texto += ' ';
+        }
+
+        texto += '>';
+        return texto;
+    }
+
+    toString(): string {
+        return this.paraTexto();
     }
 
     aridade(): number {

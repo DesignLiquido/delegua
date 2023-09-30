@@ -7,4 +7,4 @@ export * from './portugol-studio/interpretador-portugol-studio-com-depuracao';
 export * from './potigol/interpretador-potigol';
 export * from './visualg/interpretador-visualg';
 export * from './visualg/interpretador-visualg-com-depuracao';
-export * from './birl/interpretador-birl'
+export * from './birl/interpretador-birl';

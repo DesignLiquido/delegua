@@ -4,6 +4,7 @@ import { ErroLexador } from '../erro-lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/visualg';
 import { palavrasReservadas } from './palavras-reservadas/visualg';
+import { SimboloInterface } from '../../interfaces';
 
 const dicionarioBibliotecaGlobal = {
     int: 'inteiro',
@@ -91,8 +92,14 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case ':':
-                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.SETA_ATRIBUICAO);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                }
                 break;
             case '<':
                 this.avancar();
@@ -207,7 +214,7 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -227,6 +234,6 @@ export class LexadorVisuAlg extends LexadorBaseLinhaUnica {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

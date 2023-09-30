@@ -72,9 +72,11 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         return dimensoes;
     }
 
-    private logicaComumParametroMapler():
-        { identificadores: SimboloInterface[], tipo: string, simbolo: SimboloInterface }
-    {
+    private logicaComumParametroMapler(): {
+        identificadores: SimboloInterface[];
+        tipo: string;
+        simbolo: SimboloInterface;
+    } {
         const identificadores = [];
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
@@ -101,7 +103,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         return {
             identificadores,
             tipo: tipoVariavel,
-            simbolo: simboloAnterior
+            simbolo: simboloAnterior,
         };
     }
 
@@ -113,7 +115,6 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const inicializacoes = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
-
             const simboloAtual = this.simbolos[this.atual];
 
             switch (simboloAtual.tipo) {
@@ -130,18 +131,27 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                             case tiposDeSimbolos.CADEIA:
                             case tiposDeSimbolos.CARACTERE:
                                 inicializacoes.push(
-                                    new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''))
+                                    new Var(
+                                        identificador,
+                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), '')
+                                    )
                                 );
                                 break;
                             case tiposDeSimbolos.INTEIRO:
                             case tiposDeSimbolos.REAL:
                                 inicializacoes.push(
-                                    new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0))
+                                    new Var(
+                                        identificador,
+                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0)
+                                    )
                                 );
                                 break;
                             case tiposDeSimbolos.LOGICO:
                                 inicializacoes.push(
-                                    new Var(identificador, new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false))
+                                    new Var(
+                                        identificador,
+                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false)
+                                    )
                                 );
                                 break;
                             case tiposDeSimbolos.VETOR:
@@ -189,7 +199,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                     break;
             }
 
-            this.consumir(tiposDeSimbolos.PONTO_VIRGULA, 'Esperado \';\' após declaração de variável.');
+            this.consumir(tiposDeSimbolos.PONTO_VIRGULA, "Esperado ';' após declaração de variável.");
         }
 
         return inicializacoes;
@@ -207,13 +217,17 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.CADEIA, tiposDeSimbolos.CARACTERE)) {
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NUMERO,
+                tiposDeSimbolos.CADEIA,
+                tiposDeSimbolos.CARACTERE
+            )
+        ) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
             return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
@@ -248,7 +262,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     ou(): Construto {
         let expressao = this.e();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU/*, tiposDeSimbolos.XOU*/)) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU /*, tiposDeSimbolos.XOU*/)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.e();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
@@ -360,9 +374,11 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
-        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
-                && ![tiposDeSimbolos.ENQUANTO].includes(this.simbolos[this.atual + 1].tipo));
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+        } while (
+            ![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo) &&
+            ![tiposDeSimbolos.ENQUANTO].includes(this.simbolos[this.atual + 1].tipo)
+        );
 
         this.consumir(
             tiposDeSimbolos.FIM,
@@ -384,13 +400,13 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
             new Bloco(
                 simboloAtual.hashArquivo,
                 Number(simboloAtual.linha),
-                declaracoes.filter(d => d)
+                declaracoes.filter((d) => d)
             )
         );
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     private logicaComumEscreva(): FormatacaoEscrita[] {
@@ -398,11 +414,9 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         const argumentos: FormatacaoEscrita[] = [];
 
         do {
-            const valor = this.declaracao();
+            const valor = this.resolverDeclaracaoForaDeBloco();
 
-            argumentos.push(
-                new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
-            );
+            argumentos.push(new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(
@@ -414,7 +428,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscreva(): Escreva {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
@@ -436,7 +450,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.ATE].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(
@@ -490,7 +504,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
 
         const argumentos = [];
         do {
-            argumentos.push(this.declaracao());
+            argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_VIRGULA));
 
         // this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
@@ -500,11 +514,11 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         //     'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.'
         // );
 
-        return new Leia(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new Leia(simboloAtual, argumentos);
     }
 
     declaracaoPara(): Para {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
 
         // const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
 
@@ -513,7 +527,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         //     "Esperado identificador de variável após 'para'."
         // );
 
-        // this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variáve de controle de 'para'.");
+        // this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
 
         // const numeroInicio = this.consumir(
         //     tiposDeSimbolos.NUMERO,
@@ -645,16 +659,18 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         let caminhoSenao = null;
 
         do {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
                 const simboloSenao = this.simbolos[this.atual - 1];
                 const declaracoesSenao = [];
 
                 do {
-                    declaracoesSenao.push(this.declaracao());
-                } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
-                        && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
+                    declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
+                } while (
+                    ![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo) &&
+                    ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo)
+                );
 
                 caminhoSenao = new Bloco(
                     this.hashArquivo,
@@ -662,18 +678,17 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                     declaracoesSenao.filter((d) => d)
                 );
             }
-        } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo)
-                && ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo));
+        } while (
+            ![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo) &&
+            ![tiposDeSimbolos.SE].includes(this.simbolos[this.atual + 1].tipo)
+        );
 
         this.consumir(
             tiposDeSimbolos.FIM,
             "Esperado palavra-chave 'fim' para iniciar o fechamento de declaração 'se'."
         );
 
-        this.consumir(
-            tiposDeSimbolos.SE,
-            "Esperado palavra-chave 'se' para o fechamento de declaração 'se'."
-        );
+        this.consumir(tiposDeSimbolos.SE, "Esperado palavra-chave 'se' para o fechamento de declaração 'se'.");
 
         this.consumir(
             tiposDeSimbolos.PONTO_VIRGULA,
@@ -692,7 +707,7 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ENQUANTO:
@@ -725,7 +740,10 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
      * @param retornoLexador Os símbolos entendidos pelo Lexador.
      * @param hashArquivo Obrigatório por interface mas não usado aqui.
      */
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -739,12 +757,12 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.INICIO, `Esperado expressão 'inicio' para marcar o inicio do programa.`);
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

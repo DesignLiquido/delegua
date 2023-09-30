@@ -51,5 +51,5 @@ export const palavrasReservadasMicroGramatica = {
     falso: tiposDeSimbolos.FALSO,
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO
-}
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+};

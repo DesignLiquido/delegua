@@ -35,13 +35,16 @@ import { Construto } from '../../construtos/construto';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 
+/**
+ * Avaliador Sintático de BIRL
+ */
 export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     private validarEscopoPrograma(): Declaracao[] {
         let declaracoes: Declaracao[] = [];
         this.validarSegmentoHoraDoShow();
 
         while (!this.estaNoFinal()) {
-            const declaracaoVetor = this.declaracao();
+            const declaracaoVetor = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(declaracaoVetor)) {
                 declaracoes = declaracoes.concat(declaracaoVetor);
             } else {
@@ -52,6 +55,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.validarSegmentoBirlFinal();
         return declaracoes;
     }
+
     tratarSimbolos(simbolos: Array<SimboloInterface>): string | void {
         let identificador = 0,
             adicao = 0,
@@ -119,6 +123,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ADICAO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
 
+        // Simplesmente avança o símbolo por enquanto.
+        // O `if` de baixo irá tratar a referência.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTEIRO);
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR)) {
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
@@ -142,10 +150,22 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
+
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     chamar(): Construto {
-        return this.primario();
+        let expressao = this.primario();
+
+        while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                expressao = this.finalizarChamada(expressao);
+            } else {
+                break;
+            }
+        }
+
+        return expressao;
     }
 
     atribuir(): Construto {
@@ -193,7 +213,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const declaracoes = [];
 
         while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIRL)) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `ENQUANTO`.');
@@ -238,7 +258,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                 new Literal(this.hashArquivo, Number(valor.linha), Number(valor.literal)),
             ];
         } else {
-            const declaracaoVetor = this.declaracao(); // inicialização da variável de controle
+            const declaracaoVetor = this.resolverDeclaracaoForaDeBloco(); // inicialização da variável de controle
             if (Array.isArray(declaracaoVetor)) {
                 declaracaoInicial = declaracaoVetor[0];
             } else {
@@ -248,11 +268,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado expressão `;` após a inicialização do `PARA`.');
 
-        const condicao = this.declaracao(); // condição de parada
+        const condicao = this.resolverDeclaracaoForaDeBloco(); // condição de parada
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado expressão `;` após a condição do `PARA`.');
 
-        const incremento = this.declaracao();
+        const incremento = this.resolverDeclaracaoForaDeBloco();
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição do `PARA`.');
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 'Esperado expressão `QUEBRA_LINHA` após a condição do `PARA`.');
@@ -260,7 +280,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         const declaracoes = [];
 
         while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIRL)) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         const corpo = new Bloco(
@@ -296,13 +316,12 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         );
         const argumentos = [];
 
-        argumentos.push(this.declaracao());
+        argumentos.push(this.resolverDeclaracaoForaDeBloco());
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
-                const variavelParaEscrita = this.declaracao();
-                argumentos.push(variavelParaEscrita);
-            }
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+            this.avancarEDevolverAnterior(); // Vírgula
+            const variavelParaEscrita = this.resolverDeclaracaoForaDeBloco();
+            argumentos.push(variavelParaEscrita);
         }
 
         this.consumir(
@@ -336,10 +355,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
                     eLiteral = false;
-                    valorInicializacao = this.declaracao();
+                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
                     eLiteral = false;
-                    valorInicializacao = this.declaracao();
+                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.TEXTO)) {
                     const literalInicializacao = this.consumir(
                         tiposDeSimbolos.TEXTO,
@@ -399,10 +418,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
                     eLiteral = false;
-                    valorInicializacao = this.declaracao();
+                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
                     eLiteral = false;
-                    valorInicializacao = this.declaracao();
+                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
                     const literalInicializacao = this.consumir(
                         tiposDeSimbolos.NUMERO,
@@ -451,10 +470,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.AJUDA)) {
                     eLiteral = false;
-                    valorInicializacao = this.declaracao();
+                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
                     eLiteral = false;
-                    valorInicializacao = this.declaracao();
+                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
                 } else if (this.verificarTipoSimboloAtual(tiposDeSimbolos.NUMERO)) {
                     const literalInicializacao = this.consumir(
                         tiposDeSimbolos.NUMERO,
@@ -489,7 +508,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
         }
 
-        const valor = this.declaracao();
+        const valor = this.resolverDeclaracaoForaDeBloco();
 
         return new Retorna(primeiroSimbolo, valor);
     }
@@ -547,7 +566,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             'Esperado parêntese direito após identificador para ler valor.'
         );
 
-        return new Leia(Number(primeiroSimbolo.linha), this.hashArquivo, [
+        return new Leia(primeiroSimbolo, [
             new Variavel(this.hashArquivo, variavel),
             new Literal(this.hashArquivo, Number(textoOuSimbolo.linha), tipo),
         ]);
@@ -562,7 +581,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.QUE, 'Esperado expressão `QUE` após `O`.');
         this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado expressão `?` após `QUE`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
-        const condicaoSeSenao = this.declaracao();
+        const condicaoSeSenao = this.resolverDeclaracaoForaDeBloco();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
 
         return {
@@ -578,7 +597,9 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.QUER, 'Esperado expressão `QUER` após `GENTE`.');
         this.consumir(tiposDeSimbolos.INTERROGACAO, 'Esperado expressão `?` após `QUER`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
-        const condicaoSe = this.declaracao();
+        const condicaoSe = this.resolverDeclaracaoForaDeBloco();
+        // @TODO: Verificar se é possível consumir os dois símbolos juntos.
+        // Consumindo n == 1 || n == 2 separado.
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
 
         return {
@@ -609,7 +630,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         break;
                     }
                 default:
-                    declaracoesEntao.push(this.declaracao());
+                    declaracoesEntao.push(this.resolverDeclaracaoForaDeBloco());
             }
         }
 
@@ -647,9 +668,17 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             this.consumeSenao();
             const declaraçõesSenao = [];
             while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
-                declaraçõesSenao.push(this.declaracao());
+                declaraçõesSenao.push(this.resolverDeclaracaoForaDeBloco());
             }
-            caminhoSenao = new Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
+            caminhoSenao = new Bloco(
+                this.hashArquivo,
+                Number(this.simbolos[this.atual].linha),
+                declaraçõesSenao.filter((d) => d)
+            );
+        }
+
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.BIRL)) {
+            this.consumir(tiposDeSimbolos.BIRL, 'Esperado expressão `BIRL` após `SE`.');
         }
 
         return new Se(condicaoSe, caminhoEntão, caminhoSeSenao, caminhoSenao);
@@ -683,8 +712,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             };
 
             const tipo = this.resolveTipo(this.simbolos[this.atual].tipo);
-
-            parametro.tipo = this.resolveSimboloInterfaceParaTiposDadosInterface(tipo);
+            const resolucaoTipo = this.resolveSimboloInterfaceParaTiposDadosInterface(tipo);
+            parametro.tipoDado = {
+                nome: this.simbolos[this.atual].lexema,
+                tipo: resolucaoTipo
+            }
             this.avancarEDevolverAnterior();
             parametro.nome = this.simbolos[this.atual];
 
@@ -711,7 +743,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         let corpo = [];
 
         do {
-            const declaracaoVetor = this.declaracao();
+            const declaracaoVetor = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(declaracaoVetor)) {
                 corpo = corpo.concat(declaracaoVetor);
             } else {
@@ -734,11 +766,11 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         );
         this.consumir(tiposDeSimbolos.BAMBAM, 'Esperado expressão `BAMBAM` após `NEGATIVA`.');
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `BAMBAM`.');
-        const condicao = this.declaracao(); // E para ser um binario.
+        const condicao = this.resolverDeclaracaoForaDeBloco(); // E para ser um binario.
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
         const declaracoes = [];
         while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIRL)) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         return new Enquanto(
@@ -812,7 +844,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
 
         const paramentros = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            paramentros.push(this.declaracao());
+            paramentros.push(this.resolverDeclaracaoForaDeBloco());
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
                 this.avancarEDevolverAnterior();
             }
@@ -824,7 +856,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return new Chamada(declaracaoInicio.hashArquivo, expressao, null, paramentros);
     }
 
-    declaracao(): any {
+    resolverDeclaracaoForaDeBloco(): any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.INCREMENTAR:
@@ -899,16 +931,19 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
                         new Variavel(this.hashArquivo, simboloIdentificador),
                         'DEPOIS'
                     );
-                } else {
-                    return this.expressao();
                 }
+
+                return this.expressao();
 
             default:
                 return this.expressao();
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.blocos = 0;
         this.atual = 0;
@@ -919,6 +954,6 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

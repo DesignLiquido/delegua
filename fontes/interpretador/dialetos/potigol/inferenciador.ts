@@ -1,4 +1,3 @@
-
 export function inferirTipoVariavel(variavel: string | number | Array<any> | boolean | null | undefined) {
     const tipo = typeof variavel;
     switch (tipo) {

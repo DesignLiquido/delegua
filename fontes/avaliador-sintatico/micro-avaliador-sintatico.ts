@@ -1,14 +1,29 @@
-import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, Binario, Chamada, Construto, Dicionario, Isto, Literal, Logico, Super, Unario, Variavel, Vetor } from "../construtos";
-import { Declaracao } from "../declaracoes";
-import { SimboloInterface } from "../interfaces";
-import { RetornoAvaliadorSintatico, RetornoLexador } from "../interfaces/retornos";
-import { ErroAvaliadorSintatico } from "./erro-avaliador-sintatico";
+import {
+    AcessoIndiceVariavel,
+    AcessoMetodo,
+    Agrupamento,
+    Binario,
+    Chamada,
+    Construto,
+    Dicionario,
+    Isto,
+    Literal,
+    Logico,
+    Super,
+    Unario,
+    Variavel,
+    Vetor,
+} from '../construtos';
+import { Declaracao } from '../declaracoes';
+import { SimboloInterface } from '../interfaces';
+import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
+import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import tiposDeSimbolos from "../tipos-de-simbolos/microgramaticas/delegua";
-import { MicroAvaliadorSintaticoBase } from "./micro-avaliador-sintatico-base";
+import tiposDeSimbolos from '../tipos-de-simbolos/microgramaticas/delegua';
+import { MicroAvaliadorSintaticoBase } from './micro-avaliador-sintatico-base';
 
 /**
- * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto. 
+ * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.
  */
 export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
     // simbolos: SimboloInterface[];
@@ -239,12 +254,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
     adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.ADICAO
-            )
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -360,7 +370,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return this.ou();
     }
 
-    analisar(retornoLexador: RetornoLexador, linha: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;
@@ -375,6 +385,6 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

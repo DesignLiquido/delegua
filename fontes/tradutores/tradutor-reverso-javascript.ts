@@ -4,6 +4,7 @@ import {
     BinaryExpression,
     BlockStatement,
     ClassDeclaration,
+    Directive,
     DoWhileStatement,
     ForInStatement,
     ForOfStatement,
@@ -13,19 +14,22 @@ import {
     Literal,
     MemberExpression,
     MethodDefinition,
+    ModuleDeclaration,
     NewExpression,
     ReturnStatement,
+    Statement,
     SwitchStatement,
     TryStatement,
     UpdateExpression,
     VariableDeclaration,
     WhileStatement,
 } from 'estree';
+import { TradutorInterface } from '../interfaces';
 
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
  */
-export class TradutorReversoJavaScript {
+export class TradutorReversoJavaScript implements TradutorInterface<Statement | Directive | ModuleDeclaration> {
     indentacao: number = 0;
 
     constructor() {
@@ -37,7 +41,7 @@ export class TradutorReversoJavaScript {
             case '===':
                 return '==';
             case '&&':
-                return 'e'
+                return 'e';
             case '||':
                 return 'ou';
             default:
@@ -49,7 +53,7 @@ export class TradutorReversoJavaScript {
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
             case 'concat':
-                return 'concatenar'
+                return 'concatenar';
             case 'includes':
                 return 'inclui';
             case 'join':
@@ -143,7 +147,7 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirConstrutoLogico(logico: any): string {
-        return this.dicionarioConstrutos[logico.constructor.name](logico)
+        return this.dicionarioConstrutos[logico.constructor.name](logico);
     }
 
     dicionarioConstrutos = {
@@ -191,8 +195,8 @@ export class TradutorReversoJavaScript {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
-        if(literal.raw === 'true') return 'verdadeiro';
-        else if (literal.raw === 'false') return 'falso';
+        if (literal.raw === 'true') return 'verdadeiro';
+        if (literal.raw === 'false') return 'falso';
         return `${literal.raw}`;
     }
 
@@ -323,7 +327,7 @@ export class TradutorReversoJavaScript {
                     resultado += ')';
                     resultado += this.logicaComumBlocoEscopo(_corpo.value);
                 }
-            } // else if (corpo.constructor.name === 'PropertyDefinition') {} 
+            } // else if (corpo.constructor.name === 'PropertyDefinition') {}
             // else if (corpo.constructor.name === 'StaticBlock') {}
         }
 
@@ -359,8 +363,8 @@ export class TradutorReversoJavaScript {
         resultado += ')';
         resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
 
-        if(declaracao?.alternate){
-            resultado += 'senao '
+        if (declaracao?.alternate) {
+            resultado += 'senao ';
             if (declaracao.alternate.constructor.name === 'BlockStatement') {
                 const bloco = declaracao.alternate as BlockStatement;
                 resultado += this.logicaComumBlocoEscopo(bloco);
@@ -400,21 +404,21 @@ export class TradutorReversoJavaScript {
 
         resultado += `escolha(${this.dicionarioConstrutos[declaracao.discriminant.type](declaracao.discriminant)}) {`;
         resultado += ' '.repeat(this.indentacao);
-        for(let caso of declaracao.cases){
-            if(!caso.test){
+        for (let caso of declaracao.cases) {
+            if (!caso.test) {
                 resultado += 'padrao:';
                 resultado += ' '.repeat(this.indentacao + 4);
-                for(let bloco of caso.consequent) {
-                    if(bloco.type === 'BreakStatement') continue;
-                    resultado += this.traduzirDeclaracao(bloco) + '\n'
+                for (let bloco of caso.consequent) {
+                    if (bloco.type === 'BreakStatement') continue;
+                    resultado += this.traduzirDeclaracao(bloco) + '\n';
                 }
                 break;
             }
-            resultado += `caso ${this.dicionarioConstrutos[caso.test.type](caso.test)}:`
+            resultado += `caso ${this.dicionarioConstrutos[caso.test.type](caso.test)}:`;
             resultado += ' '.repeat(this.indentacao + 4);
-            for(let bloco of caso.consequent) {
-                if(bloco.type === 'BreakStatement') continue;
-                resultado += this.traduzirDeclaracao(bloco) + '\n'
+            for (let bloco of caso.consequent) {
+                if (bloco.type === 'BreakStatement') continue;
+                resultado += this.traduzirDeclaracao(bloco) + '\n';
             }
         }
 
@@ -454,11 +458,10 @@ export class TradutorReversoJavaScript {
         }
     }
 
-    traduzir(codigo): string {
+    traduzir(declaracoes: (Statement | Directive | ModuleDeclaration)[]): string {
         let resultado = '';
-        const declaracoes = parseScript(codigo);
 
-        for (let declaracao of declaracoes.body) {
+        for (let declaracao of declaracoes) {
             resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
         }
 

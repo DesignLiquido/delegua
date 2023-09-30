@@ -40,21 +40,22 @@ import {
     Var,
     Leia,
     Const,
+    Declaracao,
 } from '../../declaracoes';
 
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
+import { RetornoDeclaracao, RetornoPrimario } from '../retornos';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
 /**
- * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
- * 
+ *
  * Esta implementação tenta seguir à risca o que está atualmente em https://github.com/eguatech/egua/blob/master/src/parser.js.
  */
-export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface {
+export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -68,7 +69,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         this.atual = 0;
         this.blocos = 0;
     }
-    
+
     declaracaoDeConstantes(): Const[] {
         throw new Error('Método não implementado.');
     }
@@ -437,13 +438,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoPorIndice(
-                    this.hashArquivo,
-                    0,
-                    expressao.entidadeChamada,
-                    expressao.indice,
-                    valor
-                );
+                return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -479,7 +474,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         const declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
@@ -819,7 +814,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return new Classe(nome, superClasse, metodos);
     }
 
-    declaracao(): RetornoDeclaracao {
+    resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
         try {
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) &&
@@ -838,7 +833,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -848,12 +846,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         const declaracoes = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

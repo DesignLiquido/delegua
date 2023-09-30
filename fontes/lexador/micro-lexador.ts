@@ -1,14 +1,14 @@
-import { SimboloInterface } from "../interfaces";
-import { RetornoLexador } from "../interfaces/retornos";
-import { ErroLexador } from "./erro-lexador";
+import { SimboloInterface } from '../interfaces';
+import { RetornoLexador } from '../interfaces/retornos';
+import { ErroLexador } from './erro-lexador';
 
 import { palavrasReservadasMicroGramatica as palavrasReservadas } from './palavras-reservadas';
-import { Simbolo } from "./simbolo";
+import { Simbolo } from './simbolo';
 
-import tiposDeSimbolos from "../tipos-de-simbolos/microgramaticas/delegua";
+import tiposDeSimbolos from '../tipos-de-simbolos/microgramaticas/delegua';
 
 /**
- * O MicroLexador funciona apenas dentro de interpolações de texto. 
+ * O MicroLexador funciona apenas dentro de interpolações de texto.
  * Portanto, seus tipos de símbolos e palavras reservadas são
  * bastante reduzidos em relação ao lexador normal.
  */
@@ -211,12 +211,12 @@ export class MicroLexador {
                 }
         }
     }
-    
+
     /**
      * Lê apenas uma linha de código e a transforma em símbolos.
      * @param codigo O código
      */
-    mapear(codigo: string): RetornoLexador {
+    mapear(codigo: string): RetornoLexador<SimboloInterface> {
         this.codigo = codigo;
         this.erros = [];
         this.simbolos = [];
@@ -231,6 +231,6 @@ export class MicroLexador {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

@@ -1,4 +1,4 @@
-import { Tupla } from "./tupla";
+import { Tupla } from './tupla';
 
 export class Trio extends Tupla {
     primeiro: any;

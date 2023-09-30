@@ -1,6 +1,6 @@
-import {LexadorBirl} from '../../fontes/lexador/dialetos'
-import {AvaliadorSintaticoBirl} from '../../fontes/avaliador-sintatico/dialetos'
-import {AnalisadorSemanticoBirl} from '../../fontes/analisador-semantico/dialetos'
+import { AnalisadorSemanticoBirl } from '../../fontes/analisador-semantico/dialetos';
+import { AvaliadorSintaticoBirl } from '../../fontes/avaliador-sintatico/dialetos';
+import { LexadorBirl } from '../../fontes/lexador/dialetos';
 
 describe('Analisador semântico', () => {
     let lexador: LexadorBirl;
@@ -9,10 +9,10 @@ describe('Analisador semântico', () => {
 
     describe('analisar()', () => {
         beforeEach(() => {
-            lexador = new LexadorBirl()
-            avaliadorSintatico = new AvaliadorSintaticoBirl()
-            analisadorSemantico = new AnalisadorSemanticoBirl()
-        })
+            lexador = new LexadorBirl();
+            avaliadorSintatico = new AvaliadorSintaticoBirl();
+            analisadorSemantico = new AnalisadorSemanticoBirl();
+        });
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Olá Mundo', () => {
@@ -30,7 +30,7 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
-            })
+            });
             it('Sucesso - Verifica tipo LEIA', () => {
                 const retornoLexador = lexador.mapear([
                     'HORA DO SHOW',
@@ -38,14 +38,14 @@ describe('Analisador semântico', () => {
                     '   QUE QUE CE QUER MONSTRAO? ("%d", &X);',
                     '   BORA CUMPADE 0;',
                     'BIRL',
-                ]);
+                ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
-            })
-        })
-    })
-})
+            });
+        });
+    });
+});

@@ -61,7 +61,7 @@ export class InterpretadorMapler extends InterpretadorBase {
     /**
      * Execução de uma escrita na saída padrão, sem quebras de linha.
      * Implementada para alguns dialetos, como Mapler.
-     * 
+     *
      * Como `readline.question` sobrescreve o que foi escrito antes, aqui
      * definimos `this.mensagemPrompt` para uso com `leia`.
      * No Mapler é muito comum usar `escreva()` seguido de `leia()` para
@@ -104,12 +104,13 @@ export class InterpretadorMapler extends InterpretadorBase {
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
         for (let argumento of expressao.argumentos) {
-            const promessaLeitura: Function = () => new Promise((resolucao) =>
-                this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
-                    this.mensagemPrompt = '> ';
-                    resolucao(resposta);
-                })
-            );
+            const promessaLeitura: Function = () =>
+                new Promise((resolucao) =>
+                    this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
+                        this.mensagemPrompt = '> ';
+                        resolucao(resposta);
+                    })
+                );
 
             const valorLido = await promessaLeitura();
             this.pilhaEscoposExecucao.atribuirVariavel((<Variavel>argumento).simbolo, valorLido);

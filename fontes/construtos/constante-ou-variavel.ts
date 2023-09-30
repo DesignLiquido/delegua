@@ -3,10 +3,10 @@ import { Construto } from './construto';
 
 /**
  * Este construto existe para alguns dialetos, como Potigol, onde
- * não é possível definir se um construto é constante, variável, 
+ * não é possível definir se um construto é constante, variável,
  * identificador de função, tipo ou classe no momento da avaliação
- * primária. 
- * 
+ * primária.
+ *
  * Durante o restante da avaliação sintática, esse construto deve **obrigatoriamente**
  * resolver para `Constante`, `Variavel` ou algum construto de chamada/declaração de
  * função.
@@ -27,8 +27,8 @@ export class ConstanteOuVariavel implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
         return Promise.reject(
             new Error(
-                'Este método não deveria ser chamado. ' + 
-                'O construto deve resolver como constante ou variável ainda na avaliação sintática.'
+                'Este método não deveria ser chamado. ' +
+                    'O construto deve resolver como constante ou variável ainda na avaliação sintática.'
             )
         );
     }

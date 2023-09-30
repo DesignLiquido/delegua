@@ -1,22 +1,45 @@
-import { Literal, Construto, Atribuir, FimPara, FormatacaoEscrita, Super, Variavel, TipoDe } from "../../../construtos";
-import { Declaracao, Expressao, Leia, Se, Para, Fazer, Escolha, Tente, Enquanto, Importar, Escreva, EscrevaMesmaLinha, Bloco, Var, Const, Continua, Sustar, Retorna, FuncaoDeclaracao, Classe, ParaCada } from "../../../declaracoes";
-import { EspacoVariaveis } from "../../../espaco-variaveis";
-import { ObjetoPadrao } from "../../../estruturas";
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
-import { EscopoExecucao } from "../../../interfaces/escopo-execucao";
-import { PilhaEscoposExecucaoInterface } from "../../../interfaces/pilha-escopos-execucao-interface";
-import { RetornoInterpretador } from "../../../interfaces/retornos";
-import { ContinuarQuebra, SustarQuebra, RetornoQuebra, Quebra } from "../../../quebras";
-import { ErroInterpretador } from "../../../interfaces/erros/erro-interpretador";
-import { PilhaEscoposExecucao } from "../../pilha-escopos-execucao";
+import { Atribuir, Construto, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../../construtos';
+import {
+    Bloco,
+    Classe,
+    Const,
+    ConstMultiplo,
+    Continua,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    EscrevaMesmaLinha,
+    Expressao,
+    Fazer,
+    FuncaoDeclaracao,
+    Importar,
+    Leia,
+    LeiaMultiplo,
+    Para,
+    ParaCada,
+    Retorna,
+    Se,
+    Sustar,
+    Tente,
+    Var,
+    VarMultiplo,
+} from '../../../declaracoes';
+import { EspacoVariaveis } from '../../../espaco-variaveis';
+import { ObjetoPadrao } from '../../../estruturas';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
+import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
+import { RetornoInterpretador } from '../../../interfaces/retornos';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
+import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
-import { inferirTipoVariavel } from "../../inferenciador";
+import { inferirTipoVariavel } from '../../inferenciador';
 
-export class InterpretadorPortugolIpt
-    implements InterpretadorInterface
-{
+export class InterpretadorPortugolIpt implements InterpretadorInterface {
     diretorioBase: any;
 
     funcaoDeRetorno: Function = null;
@@ -30,11 +53,7 @@ export class InterpretadorPortugolIpt
 
     resultadoInterpretador: Array<string> = [];
 
-    constructor(
-        diretorioBase: string,
-        funcaoDeRetorno: Function = null,
-        funcaoDeRetornoMesmaLinha: Function = null
-    ) {
+    constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         this.diretorioBase = diretorioBase;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -50,7 +69,7 @@ export class InterpretadorPortugolIpt
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
@@ -64,7 +83,7 @@ export class InterpretadorPortugolIpt
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        throw new Error("Método não implementado.");
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoLiteral(expressao: Literal): Promise<any> {
@@ -83,10 +102,11 @@ export class InterpretadorPortugolIpt
     }
 
     visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoUnaria(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     /**
@@ -201,11 +221,13 @@ export class InterpretadorPortugolIpt
             return Promise.reject(erro);
         }
     }
+
     visitarExpressaoDeChamada(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     protected procurarVariavel(simbolo: SimboloInterface): any {
@@ -217,7 +239,7 @@ export class InterpretadorPortugolIpt
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     /**
@@ -235,11 +257,15 @@ export class InterpretadorPortugolIpt
         );
     }
 
-    visitarExpressaoLogica(expressao: any) {
-        throw new Error("Método não implementado");
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
+        throw new Error('Método não implementado');
     }
 
-    protected eVerdadeiro(objeto: any): boolean {
+    visitarExpressaoLogica(expressao: any) {
+        throw new Error('Método não implementado');
+    }
+
+    eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
         if (typeof objeto === 'boolean') return Boolean(objeto);
         if (objeto.hasOwnProperty('valor')) {
@@ -268,15 +294,15 @@ export class InterpretadorPortugolIpt
     }
 
     visitarDeclaracaoPara(declaracao: Para) {
-        return Promise.reject("Método não implementado");
+        return Promise.reject('Método não implementado');
     }
 
     visitarExpressaoFimPara(declaracao: FimPara) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     visitarDeclaracaoFazer(declaracao: Fazer) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
@@ -300,16 +326,16 @@ export class InterpretadorPortugolIpt
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
     visitarDeclaracaoTente(declaracao: Tente) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
     visitarDeclaracaoImportar(declaracao: Importar) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
@@ -360,10 +386,10 @@ export class InterpretadorPortugolIpt
     }
 
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     protected async avaliacaoDeclaracaoVar(declaracao: Var): Promise<any> {
@@ -400,50 +426,72 @@ export class InterpretadorPortugolIpt
         return null;
     }
 
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+        throw new Error('Método não implementado');
+    }
+
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        throw new Error('Método não implementado');
+    }
+
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoDefinirValor(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarDeclaracaoClasse(declaracao: Classe) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoAcessoMetodo(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoIsto(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoDicionario(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoVetor(expressao: any) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
+
     visitarExpressaoSuper(expressao: Super) {
-        throw new Error("Método não implementado");
+        throw new Error('Método não implementado');
     }
 
     paraTexto(objeto: any) {
@@ -530,7 +578,7 @@ export class InterpretadorPortugolIpt
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 

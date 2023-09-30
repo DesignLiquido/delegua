@@ -1,14 +1,27 @@
-import { AcessoIndiceVariavel, Binario, Construto, FimPara, Literal, Logico, Unario, Variavel } from "../../../construtos";
-import { Expressao, Para } from "../../../declaracoes";
-import { Simbolo } from "../../../lexador";
-import { SimboloInterface, VariavelInterface } from "../../../interfaces";
+import {
+    AcessoIndiceVariavel,
+    Binario,
+    Construto,
+    FimPara,
+    Literal,
+    Logico,
+    Unario,
+    Variavel,
+} from '../../../construtos';
+import { Expressao, Para } from '../../../declaracoes';
+import { Simbolo } from '../../../lexador';
+import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
-import { InterpretadorBase } from "../../interpretador-base";
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { InterpretadorBase } from '../../interpretador-base';
 
-export async function atribuirVariavel(interpretador: InterpretadorBase, expressao: Construto, valor: any): Promise<any> {
+export async function atribuirVariavel(
+    interpretador: InterpretadorBase,
+    expressao: Construto,
+    valor: any
+): Promise<any> {
     if (expressao instanceof Variavel) {
         interpretador.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
         return;
@@ -17,14 +30,12 @@ export async function atribuirVariavel(interpretador: InterpretadorBase, express
     if (expressao instanceof AcessoIndiceVariavel) {
         const promises = await Promise.all([
             interpretador.avaliar(expressao.entidadeChamada),
-            interpretador.avaliar(expressao.indice)
+            interpretador.avaliar(expressao.indice),
         ]);
 
         let alvo = promises[0];
         let indice = promises[1];
-        const subtipo = alvo.hasOwnProperty('subtipo') ? 
-            alvo.subtipo :
-            undefined;
+        const subtipo = alvo.hasOwnProperty('subtipo') ? alvo.subtipo : undefined;
 
         if (alvo.hasOwnProperty('valor')) {
             alvo = alvo.valor;
@@ -80,11 +91,7 @@ function verificarOperandosNumeros(
     esquerda: VariavelInterface | any
 ): void {
     const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
-    const tipoEsquerda: string = esquerda.tipo
-        ? esquerda.tipo
-        : typeof esquerda === 'number'
-        ? 'número'
-        : String(NaN);
+    const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : typeof esquerda === 'number' ? 'número' : String(NaN);
     if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
     throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
 }
@@ -95,12 +102,15 @@ function verificarOperandosNumeros(
  * @param expressao A expressão binária.
  * @returns O resultado da resolução da expressão.
  */
-export async function visitarExpressaoBinaria(interpretador: InterpretadorBase, expressao: Binario | any): Promise<any> {
+export async function visitarExpressaoBinaria(
+    interpretador: InterpretadorBase,
+    expressao: Binario | any
+): Promise<any> {
     try {
         const promises = await Promise.all([
             avaliar(interpretador, expressao.esquerda),
-            avaliar(interpretador, expressao.direita)
-        ])
+            avaliar(interpretador, expressao.direita),
+        ]);
 
         const esquerda: VariavelInterface | any = promises[0];
         const direita: VariavelInterface | any = promises[1];
@@ -118,9 +128,7 @@ export async function visitarExpressaoBinaria(interpretador: InterpretadorBase, 
             valorDireito = valorDireito.funcao();
         }
 
-        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
-            ? esquerda.tipo
-            : inferirTipoVariavel(esquerda);
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
         const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
@@ -166,19 +174,19 @@ export async function visitarExpressaoBinaria(interpretador: InterpretadorBase, 
             case tiposDeSimbolos.MULTIPLICACAO:
                 if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
                     // Sem ambos os valores resolvem como texto, multiplica normal.
-                    // Se apenas um resolve como texto, o outro repete o 
+                    // Se apenas um resolve como texto, o outro repete o
                     // texto n vezes, sendo n o valor do outro.
                     if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
-                        return Number(valorEsquerdo) * Number(valorDireito);    
-                    } 
-                    
+                        return Number(valorEsquerdo) * Number(valorDireito);
+                    }
+
                     if (tipoEsquerdo === 'texto') {
                         return valorEsquerdo.repeat(Number(valorDireito));
                     }
 
                     return valorDireito.repeat(Number(valorEsquerdo));
                 }
-                
+
                 return Number(valorEsquerdo) * Number(valorDireito);
 
             case tiposDeSimbolos.MODULO:
@@ -220,7 +228,7 @@ export async function visitarExpressaoLogica(interpretador: InterpretadorBase, e
 
 /* Isso existe porque o laço `para` do VisuAlg pode ter o passo positivo ou negativo
  * dependendo dos operandos de início e fim, que só são possíveis de determinar
- * em tempo de execução. 
+ * em tempo de execução.
  * Quando um dos operandos é uma variável, tanto a condição do laço quanto o
  * passo são considerados indefinidos aqui.
  */
@@ -228,38 +236,54 @@ export async function resolverIncrementoPara(interpretador: InterpretadorBase, d
     if (declaracao.resolverIncrementoEmExecucao) {
         const promises = await Promise.all([
             avaliar(interpretador, declaracao.condicao.esquerda),
-            avaliar(interpretador, declaracao.condicao.direita)
+            avaliar(interpretador, declaracao.condicao.direita),
         ]);
         const operandoEsquerdo = promises[0];
         const operandoDireito = promises[1];
-        const valorAtualEsquerdo = operandoEsquerdo.hasOwnProperty('valor') ?
-            operandoEsquerdo.valor :
-            operandoEsquerdo;
-        const valorAtualDireito = operandoDireito.hasOwnProperty('valor') ?
-            operandoDireito.valor :
-            operandoDireito;
-
+        const valorAtualEsquerdo = operandoEsquerdo.hasOwnProperty('valor') ? operandoEsquerdo.valor : operandoEsquerdo;
+        const valorAtualDireito = operandoDireito.hasOwnProperty('valor') ? operandoDireito.valor : operandoDireito;
 
         if (valorAtualEsquerdo < valorAtualDireito) {
-            declaracao.condicao.operador = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '', '', Number(declaracao.linha), declaracao.hashArquivo);
-            (declaracao.incrementar as FimPara).condicaoPara.operador = new Simbolo(tiposDeSimbolos.MENOR, '', '', Number(declaracao.linha), declaracao.hashArquivo);
-            ((declaracao.incrementar as FimPara).incremento as Expressao).expressao.valor.direita = 
-                new Literal(declaracao.hashArquivo, Number(declaracao.linha), 1);
+            declaracao.condicao.operador = new Simbolo(
+                tiposDeSimbolos.MENOR_IGUAL,
+                '',
+                '',
+                Number(declaracao.linha),
+                declaracao.hashArquivo
+            );
+            (declaracao.incrementar as FimPara).condicaoPara.operador = new Simbolo(
+                tiposDeSimbolos.MENOR,
+                '',
+                '',
+                Number(declaracao.linha),
+                declaracao.hashArquivo
+            );
+            ((declaracao.incrementar as FimPara).incremento as Expressao).expressao.valor.direita = new Literal(
+                declaracao.hashArquivo,
+                Number(declaracao.linha),
+                1
+            );
         } else {
-            declaracao.condicao.operador = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '', '', Number(declaracao.linha), declaracao.hashArquivo);
-            (declaracao.incrementar as FimPara).condicaoPara.operador = new Simbolo(tiposDeSimbolos.MAIOR, '', '', Number(declaracao.linha), declaracao.hashArquivo);
-            ((declaracao.incrementar as FimPara).incremento as Expressao).expressao.valor.direita = 
-            new Unario(
-                declaracao.hashArquivo, 
-                new Simbolo(
-                    tiposDeSimbolos.SUBTRACAO, 
-                    '-', 
-                    undefined, 
-                    declaracao.linha, 
-                    declaracao.hashArquivo
-                ), 
+            declaracao.condicao.operador = new Simbolo(
+                tiposDeSimbolos.MAIOR_IGUAL,
+                '',
+                '',
+                Number(declaracao.linha),
+                declaracao.hashArquivo
+            );
+            (declaracao.incrementar as FimPara).condicaoPara.operador = new Simbolo(
+                tiposDeSimbolos.MAIOR,
+                '',
+                '',
+                Number(declaracao.linha),
+                declaracao.hashArquivo
+            );
+            ((declaracao.incrementar as FimPara).incremento as Expressao).expressao.valor.direita = new Unario(
+                declaracao.hashArquivo,
+                new Simbolo(tiposDeSimbolos.SUBTRACAO, '-', undefined, declaracao.linha, declaracao.hashArquivo),
                 new Literal(declaracao.hashArquivo, Number(declaracao.linha), 1),
-                "ANTES");
+                'ANTES'
+            );
         }
     }
 }

@@ -1,15 +1,13 @@
-import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from "../../../construtos";
-import { Declaracao } from "../../../declaracoes";
-import { RetornoLexador, RetornoAvaliadorSintatico } from "../../../interfaces/retornos";
-import { MicroAvaliadorSintaticoBase } from "../../micro-avaliador-sintatico-base";
-import { SeletorTuplas, Tupla } from "../../../construtos/tuplas";
-import { SimboloInterface } from "../../../interfaces";
+import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from '../../../construtos';
+import { Declaracao } from '../../../declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
+import { MicroAvaliadorSintaticoBase } from '../../micro-avaliador-sintatico-base';
+import { SeletorTuplas, Tupla } from '../../../construtos/tuplas';
+import { SimboloInterface } from '../../../interfaces';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/potigol';
 
-export class MicroAvaliadorSintaticoPotigol 
-    extends MicroAvaliadorSintaticoBase
-{
+export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase {
     hashArquivo: number;
 
     constructor(hashArquivo: number) {
@@ -67,7 +65,7 @@ export class MicroAvaliadorSintaticoPotigol
         return this.primario();
     }
 
-    analisar(retornoLexador: RetornoLexador, linha: number): RetornoAvaliadorSintatico {
+    analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;
@@ -82,6 +80,6 @@ export class MicroAvaliadorSintaticoPotigol
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

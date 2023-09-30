@@ -5,10 +5,11 @@ import { Simbolo } from '../simbolo';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/birl';
 import { palavrasReservadas } from './palavras-reservadas/birl';
+import { SimboloInterface } from '../../interfaces';
 
 export class LexadorBirl extends LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo: string, lexema: string = '', literal: any = null): void {
-        this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, -1));
+        this.simbolos.push(new Simbolo(tipo, lexema, literal, this.linha, this.hashArquivo));
     }
 
     proximoIgualA(esperado: string): boolean {
@@ -118,35 +119,40 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
                 break;
             case '&':
-                if (this.proximoSimbolo() === '&') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '&') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.E);
-                    break;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
                 }
-                // Ler o simbolo porem não é tratado.
-                this.adicionarSimbolo(tiposDeSimbolos.PONTEIRO);
-                this.avancar();
                 break;
             case '+':
-                if (this.proximoSimbolo() === '+') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '+') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
-                    break;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
                 }
-                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
-                this.avancar();
                 break;
             case '-':
-                if (this.proximoSimbolo() === '-') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '-') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
-                    break;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 }
-                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                break;
+            case '|':
                 this.avancar();
+                if (this.simboloAtual() === '|') {
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.OU);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.OU);
+                }
                 break;
             case '*':
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
@@ -178,13 +184,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
 
-            case '\0':
             case '\n':
                 this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA, null, null);
                 this.avancar();
                 this.linha++;
                 break;
             case ' ':
+            case '\0':
             case '\r':
             case '\t':
             case '':
@@ -223,13 +229,13 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
 
         return [...codigoComeco, ...codigoPosPosição];
     }
-
-    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number = -1): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 1;
+        this.hashArquivo = hashArquivo;
 
         this.codigo = codigo.join('\n') || '';
 
@@ -243,6 +249,6 @@ export class LexadorBirl extends LexadorBaseLinhaUnica {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

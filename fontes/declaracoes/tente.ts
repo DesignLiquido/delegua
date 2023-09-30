@@ -1,5 +1,5 @@
 import { FuncaoConstruto } from '../construtos';
-import { VisitanteComumInterface } from '../interfaces'
+import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**

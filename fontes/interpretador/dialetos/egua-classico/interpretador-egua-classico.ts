@@ -1,17 +1,27 @@
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 
 import { Chamavel } from '../../../estruturas/chamavel';
-import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../../../estruturas/delegua-classe';
 import { DeleguaFuncao } from '../../../estruturas/delegua-funcao';
-import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
+import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
 import { DeleguaModulo } from '../../../estruturas/modulo';
+import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
 
-import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface, SimboloInterface, ResolvedorInterface, VariavelInterface } from '../../../interfaces';
+import {
+    AcessoIndiceVariavel,
+    Atribuir,
+    Construto,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    Super,
+    TipoDe,
+    Variavel,
+} from '../../../construtos';
 import {
     Classe,
     Const,
+    ConstMultiplo,
     Declaracao,
     Enquanto,
     Escolha,
@@ -22,36 +32,28 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Se,
     Tente,
     Var,
+    VarMultiplo,
 } from '../../../declaracoes';
-import {
-    AcessoIndiceVariavel,
-    Atribuir,
-    Chamada,
-    Construto,
-    FimPara,
-    FormatacaoEscrita,
-    Literal,
-    Super,
-    TipoDe,
-    Variavel,
-} from '../../../construtos';
-import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { InterpretadorInterface, ResolvedorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
-import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
 
 import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classico/biblioteca-global';
-import { carregarModuloPorNome } from '../../../bibliotecas/dialetos/egua-classico';
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
+import { ArgumentoInterface } from '../../argumento-interface';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -81,7 +83,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
@@ -104,6 +106,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
@@ -117,6 +123,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -302,9 +312,17 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ? variavelEntidadeChamada.valor
             : variavelEntidadeChamada;
 
-        let argumentos = [];
+        let argumentos: ArgumentoInterface[] = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
-            argumentos.push(await this.avaliar(expressao.argumentos[i]));
+            const variavelArgumento = expressao.argumentos[i];
+            const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
+                ? variavelArgumento.simbolo.lexema
+                : undefined;
+
+            argumentos.push({
+                nome: variavelArgumento,
+                valor: await this.avaliar(variavelArgumento),
+            });
         }
 
         if (!(entidadeChamada instanceof Chamavel)) {
@@ -330,8 +348,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
         } else {
             if (parametros && parametros.length > 0 && parametros[parametros.length - 1]['tipo'] === 'multiplo') {
-                const novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                let novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                novosArgumentos = novosArgumentos.concat(argumentos.slice(parametros.length - 1, argumentos.length));
                 argumentos = novosArgumentos;
             }
         }
@@ -607,7 +625,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo: any = await this.executarUltimoEscopo();
@@ -639,6 +657,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 : valorOuOutraVariavel
         );
         return null;
+    }
+
+    async visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo) {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoContinua(declaracao?: any): ContinuarQuebra {
@@ -954,7 +976,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ambiente: new EspacoVariaveis(),
             finalizado: false,
             tipo: 'outro',
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         await this.executarUltimoEscopo();

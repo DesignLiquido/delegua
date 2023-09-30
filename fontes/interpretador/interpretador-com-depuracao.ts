@@ -29,10 +29,7 @@ import { InterpretadorBase } from './interpretador-base';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao 
-        extends InterpretadorBase 
-        implements InterpretadorComDepuracaoInterface 
-{
+export class InterpretadorComDepuracao extends InterpretadorBase implements InterpretadorComDepuracaoInterface {
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
@@ -227,6 +224,11 @@ export class InterpretadorComDepuracao
                 /* while (!(retornoExecucao instanceof Quebra) && 
                         !this.pontoDeParadaAtivo &&
                         this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                while (
+                    !(retornoExecucao instanceof Quebra) &&
+                    !this.pontoDeParadaAtivo &&
+                    this.eVerdadeiro(await this.avaliar(declaracao.condicao))
+                ) {
                     escopoAtual.emLacoRepeticao = true;
                     try {
                         retornoExecucao = await this.executar(declaracao.corpo);
@@ -241,13 +243,13 @@ export class InterpretadorComDepuracao
                         return Promise.reject(erro);
                     }
                 }
-        
+
                 escopoAtual.emLacoRepeticao = false;
                 return retornoExecucao; *
         } */
     }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
@@ -418,29 +420,29 @@ export class InterpretadorComDepuracao
         declaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
-            case "proximo":
+            case 'proximo':
                 if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
-                    
+
                     const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
                     return resultadoBloco;
                 }
 
                 escopoAtual.emLacoRepeticao = false;
                 return null;
-            default: 
+            default:
                 let retornoExecucao: any;
                 /* while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
                     if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                         break;
                     }
 
-                    try {                        
+                    try {
                         retornoExecucao = await this.executar(corpoExecucao);
                         if (retornoExecucao instanceof SustarQuebra) {
                             return null;
                         }
-                        
+
                         if (retornoExecucao instanceof ContinuarQuebra) {
                             retornoExecucao = null;
                         }
@@ -876,7 +878,7 @@ export class InterpretadorComDepuracao
             if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
                 this.pilhaEscoposExecucao.removerUltimo();
             }
-    
+
             if (this.pilhaEscoposExecucao.elementos() === 1) {
                 return this.finalizacaoDaExecucao();
             }
@@ -915,7 +917,7 @@ export class InterpretadorComDepuracao
             ambiente: ambiente || new EspacoVariaveis(),
             finalizado: false,
             tipo: tipoEscopo,
-            emLacoRepeticao: false
+            emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;

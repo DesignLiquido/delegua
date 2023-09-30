@@ -41,12 +41,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     private converterValor(tipo: string, valor: any) {
         switch (tipo) {
-            case 'texto':
-                return String(valor);
-            case 'número':
-                return Number(valor);
+            case 'inteiro':
+                return parseInt(valor);
             case 'lógico':
                 return Boolean(valor);
+            case 'número':
+                return Number(valor);
+            case 'texto':
+                return String(valor);
             default:
                 return valor;
         }
@@ -54,15 +56,18 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirConstante(nomeConstante: string, valor: any, subtipo?: string): void {
         const constante = this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante];
-        const tipo = constante && constante.hasOwnProperty('tipo') ? 
-            constante.tipo : 
-            inferirTipoVariavel(valor);
+        let tipo;
+        if (subtipo !== null && subtipo !== undefined) {
+            tipo = subtipo;
+        } else {
+            tipo = constante && constante.hasOwnProperty('tipo') ? constante.tipo : inferirTipoVariavel(valor);
+        }
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
-            imutavel: true
+            imutavel: true,
         };
 
         if (subtipo !== undefined) {
@@ -74,15 +79,19 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     definirVariavel(nomeVariavel: string, valor: any, subtipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
-        const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
-            variavel.tipo : 
-            inferirTipoVariavel(valor);
+        let tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        // TODO: Dois testes no VisuAlg falham por causa disso.
+        /* if (subtipo !== null && subtipo !== undefined) {
+            tipo = subtipo;
+        } else {
+            tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+        } */
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
-            imutavel: false
+            imutavel: false,
         };
 
         if (subtipo !== undefined) {
@@ -94,13 +103,13 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
-        if(ambienteAncestral.valores[simbolo.lexema].imutavel) {
+        if (ambienteAncestral.valores[simbolo.lexema].imutavel) {
             throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
         }
         ambienteAncestral.valores[simbolo.lexema] = {
             valor,
             tipo: inferirTipoVariavel(valor),
-            imutavel: false
+            imutavel: false,
         };
     }
 
@@ -109,18 +118,19 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 const variavel = ambiente.valores[simbolo.lexema];
-                if(variavel.imutavel){
-                    throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
+                if (variavel.imutavel) {
+                    throw new ErroEmTempoDeExecucao(
+                        simbolo,
+                        `Constante '${simbolo.lexema}' não pode receber novos valores.`
+                    );
                 }
-                const tipo = variavel && variavel.hasOwnProperty('tipo') ? 
-                    variavel.tipo : 
-                    inferirTipoVariavel(valor);
+                const tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
 
                 const valorResolvido = this.converterValor(tipo, valor);
                 ambiente.valores[simbolo.lexema] = {
                     valor: valorResolvido,
                     tipo,
-                    imutavel: false
+                    imutavel: false,
                 };
                 return;
             }
@@ -181,7 +191,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 nome: chaveEValor[0],
                 valor: chaveEValor[1].valor,
                 tipo: chaveEValor[1].tipo,
-                imutavel: chaveEValor[1].imutavel
+                imutavel: chaveEValor[1].imutavel,
             }));
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }

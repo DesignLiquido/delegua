@@ -268,9 +268,9 @@ describe('Lexador (BIRL)', () => {
                     caractere: '\n',
                     mensagem: 'Caractere não finalizado',
                 });
-            })
+            });
             it('Error - caractere inesperado', () => {
-                const resultado = lexador.mapear(['平']);
+                const resultado = lexador.mapear(['平'], -1);
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(1);
                 expect(resultado.erros).toHaveLength(1);
@@ -279,7 +279,7 @@ describe('Lexador (BIRL)', () => {
                     caractere: '平',
                     mensagem: 'Caractere inesperado.',
                 });
-            })
+            });
         });
     });
 });

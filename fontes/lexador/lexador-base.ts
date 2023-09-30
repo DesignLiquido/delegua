@@ -8,7 +8,7 @@ import { Simbolo } from './simbolo';
  * Em outras palavras, se o dialeto da linguagem terá comentários multilinha,
  * este Lexador Base deverá ser usado.
  */
-export abstract class LexadorBase implements LexadorInterface {
+export abstract class LexadorBase implements LexadorInterface<SimboloInterface> {
     erros: ErroLexador[];
     hashArquivo: number;
 
@@ -126,8 +126,7 @@ export abstract class LexadorBase implements LexadorInterface {
     }
 
     proximoSimbolo(): string {
-        if (this.atual + 1 >= this.codigo[this.linha].length) 
-            return '\0';
+        if (this.atual + 1 >= this.codigo[this.linha].length) return '\0';
         return this.codigo[this.linha].charAt(this.atual + 1);
     }
 
@@ -143,5 +142,5 @@ export abstract class LexadorBase implements LexadorInterface {
 
     abstract analisarToken(): void;
 
-    abstract mapear(codigo: string[], hashArquivo: number): RetornoLexador;
+    abstract mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface>;
 }

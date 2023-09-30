@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.22.3",
+    "version": "0.25.10",
     "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
     "main": "index.js",
     "scripts": {
@@ -14,7 +14,7 @@
         "observar-testes-unitarios": "jest --watchAll",
         "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",
-        "prettier-format": "prettier --config .prettierrc 'fontes/**/*.ts' --write"
+        "prettier-format": "prettier --config .prettierrc --write fontes/**/*.ts"
     },
     "repository": {
         "type": "git",
@@ -23,7 +23,7 @@
     "keywords": [
         "birl",
         "egua",
-        "eguap",
+        "pitugues",
         "delegua",
         "mapler",
         "português",

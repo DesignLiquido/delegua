@@ -11,5 +11,5 @@ export const palavrasReservadas = {
     ler: tiposDeSimbolos.LER,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
-    senão: tiposDeSimbolos.SENAO
+    senão: tiposDeSimbolos.SENAO,
 };

@@ -27,7 +27,7 @@ export default {
     ELE: 'ELE',
     EM: 'EM',
     ESSA: 'ESSA',
-    EXPONENCIACAO:'EXPONENCIACAO',
+    EXPONENCIACAO: 'EXPONENCIACAO',
     FRANGAO: 'FRANGAO',
     FRANGÃO: 'FRANGÃO',
     FRANGO: 'FRANGO',

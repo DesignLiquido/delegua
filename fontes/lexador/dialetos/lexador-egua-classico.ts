@@ -16,7 +16,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
  * Este Lexador implementa o mesmo mecanismo de lexação da linguagem Égua.
  * https://github.com/eguatech/egua/blob/master/src/lexer.js
  */
-export class LexadorEguaClassico implements LexadorInterface {
+export class LexadorEguaClassico implements LexadorInterface<SimboloInterface> {
     codigo: any;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
@@ -302,7 +302,7 @@ export class LexadorEguaClassico implements LexadorInterface {
         }
     }
 
-    mapear(codigo?: string[]): RetornoLexador {
+    mapear(codigo?: string[]): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -322,6 +322,6 @@ export class LexadorEguaClassico implements LexadorInterface {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

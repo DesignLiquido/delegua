@@ -1,15 +1,20 @@
-
 import { CharStreams, CodePointCharStream, CommonTokenStream } from 'antlr4ts';
-import { ExprContext, Python3Parser, StmtContext, Expr_stmtContext, Simple_assignContext } from './python/python3-parser';
+import {
+    ExprContext,
+    Python3Parser,
+    StmtContext,
+    Expr_stmtContext,
+    Simple_assignContext,
+} from './python/python3-parser';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 
 import { Python3Lexer } from './python/python3-lexer';
 import { Python3Listener } from './python/python3-listener';
 
 /**
- * Tradutor reverso de Python para Delégua. 
+ * Tradutor reverso de Python para Delégua.
  * Utiliza o ecossistema do ANTLR para percorrer código em
- * Python e traduzir para Delégua. 
+ * Python e traduzir para Delégua.
  */
 export class TradutorReversoPython implements Python3Listener {
     inputStream: CodePointCharStream;
@@ -19,7 +24,7 @@ export class TradutorReversoPython implements Python3Listener {
     resultado: string;
 
     /**
-     * Aqui é preciso contar se o contexto tem filhos. 
+     * Aqui é preciso contar se o contexto tem filhos.
      * Há alguns casos em que este código é executado mais
      * de uma vez por algum motivo.
      * @param ctx O contexto da atribuição.
@@ -31,7 +36,7 @@ export class TradutorReversoPython implements Python3Listener {
     }
 
     /**
-     * Aparentemente é o melhor lugar para escrever quebras de linha. 
+     * Aparentemente é o melhor lugar para escrever quebras de linha.
      * @param ctx Contexto da instrução.
      */
     exitStmt(ctx: StmtContext): void {
@@ -72,7 +77,7 @@ export class TradutorReversoPython implements Python3Listener {
         this.lexer = new Python3Lexer(this.inputStream);
         this.tokenStream = new CommonTokenStream(this.lexer);
         this.parser = new Python3Parser(this.tokenStream);
-        this.resultado = "";
+        this.resultado = '';
 
         // Aqui achei três bons pontos de entrada:
         // single_input, file_input e eval_input. O que funcionou melhor foi o file_input.

@@ -1,6 +1,6 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Bloco } from "./bloco";
-import { Declaracao } from "./declaracao";
+import { Bloco } from './bloco';
+import { Declaracao } from './declaracao';
 
 export class ParaCada extends Declaracao {
     nomeVariavelIteracao: string;
@@ -8,13 +8,7 @@ export class ParaCada extends Declaracao {
     corpo: Bloco;
     posicaoAtual: number;
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        nomeVariavelIteracao: string,
-        vetor: any,
-        corpo: Bloco
-    ) {
+    constructor(hashArquivo: number, linha: number, nomeVariavelIteracao: string, vetor: any, corpo: Bloco) {
         super(linha, hashArquivo);
         this.nomeVariavelIteracao = nomeVariavelIteracao;
         this.vetor = vetor;

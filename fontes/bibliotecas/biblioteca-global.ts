@@ -62,7 +62,7 @@ export default function (interpretador: VisitanteComumInterface, pilhaEscoposExe
         'aleatorioEntre',
         new FuncaoPadrao(1, async function (minimo: VariavelInterface | number, maximo: VariavelInterface | number) {
             // eslint-disable-next-line prefer-rest-params
-            if (!arguments[0]) {
+            if (arguments.length <= 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.')
                 );
@@ -449,13 +449,14 @@ export default function (interpretador: VisitanteComumInterface, pilhaEscoposExe
                 );
             }
 
-            const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
-                (await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]])) &&
-                    resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]));
+                const valorResolvido = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
+                if (valorResolvido !== null) {
+                    return valorResolvido;
+                }
             }
 
-            return resultados[0];
+            return undefined;
         })
     );
 

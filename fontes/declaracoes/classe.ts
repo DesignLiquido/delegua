@@ -10,9 +10,9 @@ export class Classe extends Declaracao {
     propriedades: PropriedadeClasse[];
 
     constructor(
-        simbolo: SimboloInterface, 
-        superClasse: any, 
-        metodos: FuncaoDeclaracao[], 
+        simbolo: SimboloInterface,
+        superClasse: any,
+        metodos: FuncaoDeclaracao[],
         propriedades: PropriedadeClasse[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);

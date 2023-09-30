@@ -19,6 +19,12 @@ export const palavrasReservadas = {
     fim: tiposDeSimbolos.FIM,
     imprima: tiposDeSimbolos.IMPRIMA,
     Inteiro: tiposDeSimbolos.INTEIRO,
+    leia_inteiro: tiposDeSimbolos.LEIA_INTEIRO,
+    leia_inteiros: tiposDeSimbolos.LEIA_INTEIROS,
+    leia_reais: tiposDeSimbolos.LEIA_REAIS,
+    leia_real: tiposDeSimbolos.LEIA_REAL,
+    leia_texto: tiposDeSimbolos.LEIA_TEXTO,
+    leia_textos: tiposDeSimbolos.LEIA_TEXTOS,
     Logico: tiposDeSimbolos.LOGICO,
     Lógico: tiposDeSimbolos.LOGICO,
     mod: tiposDeSimbolos.MODULO,
@@ -35,5 +41,5 @@ export const palavrasReservadas = {
     Texto: tiposDeSimbolos.TEXTO,
     tipo: tiposDeSimbolos.TIPO,
     var: tiposDeSimbolos.VARIAVEL,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO
-}
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
+};

@@ -5,7 +5,7 @@ import { ErroLexador } from './erro-lexador';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { Simbolo } from './simbolo';
 
-import { palavrasReservadas }  from './palavras-reservadas';
+import { palavrasReservadas } from './palavras-reservadas';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
@@ -14,7 +14,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-export class Lexador implements LexadorInterface {
+export class Lexador implements LexadorInterface<SimboloInterface> {
     codigo: string[];
     hashArquivo: number;
     simbolos: SimboloInterface[];
@@ -394,7 +394,7 @@ export class Lexador implements LexadorInterface {
                 break;
 
             // Esta sessão ignora espaços em branco na tokenização.
-            
+
             case ' ':
             case '\0':
             case '\r':
@@ -434,7 +434,7 @@ export class Lexador implements LexadorInterface {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
         this.erros = [];
         this.simbolos = [];
@@ -462,6 +462,6 @@ export class Lexador implements LexadorInterface {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }

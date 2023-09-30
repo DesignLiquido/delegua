@@ -49,7 +49,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         );
 
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.declaracao());
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
         if (this.simbolos[this.atual - 1].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
@@ -90,7 +90,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 // Se o próximo símbolo é um incremento ou um decremento,
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
-                if (this.simbolos[this.atual] && [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
+                if (
+                    this.simbolos[this.atual] &&
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)
+                ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
                         this.hashArquivo,
@@ -184,7 +187,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         let declaracoes: Array<RetornoDeclaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            const declaracaoOuVetor: any = this.declaracao();
+            const declaracaoOuVetor: any = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(declaracaoOuVetor)) {
                 declaracoes = declaracoes.concat(declaracaoOuVetor);
             } else {
@@ -202,11 +205,11 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         const condicao = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
 
-        const caminhoEntao = this.declaracao();
+        const caminhoEntao = this.resolverDeclaracaoForaDeBloco();
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            caminhoSenao = this.declaracao();
+            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -220,7 +223,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição.");
-            const corpo = this.declaracao();
+            const corpo = this.resolverDeclaracaoForaDeBloco();
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -240,7 +243,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.declaracao();
+            const caminhoFazer = this.resolverDeclaracaoForaDeBloco();
 
             this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
@@ -264,19 +267,30 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             }
 
             const parametro: Partial<ParametroInterface> = {
-                abrangencia: 'padrao'
+                abrangencia: 'padrao',
             };
 
-            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADEIA, tiposDeSimbolos.REAL, tiposDeSimbolos.INTEIRO)) {
-                throw this.erro(this.simbolos[this.atual], 'Esperado tipo de parâmetro válido para declaração de função.');
+            if (
+                !this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.CADEIA,
+                    tiposDeSimbolos.REAL,
+                    tiposDeSimbolos.INTEIRO
+                )
+            ) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Esperado tipo de parâmetro válido para declaração de função.'
+                );
             }
 
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
 
             // Em Portugol Studio, um parâmetro múltiplo é terminado por abre e fecha colchetes.
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO,
-                    'Esperado colchete direito após colchete esquerdo ao definir parâmetro múltiplo em função.');
+                this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    'Esperado colchete direito após colchete esquerdo ao definir parâmetro múltiplo em função.'
+                );
                 parametro.abrangencia = 'multiplo';
             }
 
@@ -323,16 +337,15 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado identificador após palavra reservada 'inteiro'."
                 );
-                this.consumir(tiposDeSimbolos.IGUAL, "Esperado símbolo igual para inicialização de variável.");
-                const literalInicializacao = this.consumir(tiposDeSimbolos.INTEIRO,
-                    'Esperado literal inteiro após símbolo de igual em declaração de variável.');
+                this.consumir(tiposDeSimbolos.IGUAL, 'Esperado símbolo igual para inicialização de variável.');
+                const literalInicializacao = this.consumir(
+                    tiposDeSimbolos.INTEIRO,
+                    'Esperado literal inteiro após símbolo de igual em declaração de variável.'
+                );
                 const valorInicializacao = Number(literalInicializacao.literal);
                 return new Var(
                     identificador,
-                    new Literal(this.hashArquivo,
-                        Number(literalInicializacao.linha),
-                        valorInicializacao
-                    )
+                    new Literal(this.hashArquivo, Number(literalInicializacao.linha), valorInicializacao)
                 );
         }
     }
@@ -350,8 +363,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.CADEIA,
-                    'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.');
+                const literalInicializacao = this.consumir(
+                    tiposDeSimbolos.CADEIA,
+                    'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.'
+                );
                 valorInicializacao = Number(literalInicializacao.literal);
             }
 
@@ -374,12 +389,16 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.CARACTER,
-                    'Esperado literal de caracter após símbolo de igual em declaração de variável.');
+                const literalInicializacao = this.consumir(
+                    tiposDeSimbolos.CARACTER,
+                    'Esperado literal de caracter após símbolo de igual em declaração de variável.'
+                );
                 valorInicializacao = Number(literalInicializacao.literal);
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaracter.linha), 0)));
+            inicializacoes.push(
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaracter.linha), 0))
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -393,15 +412,15 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     protected declaracaoVetorInteiros(
-        simboloInteiro: SimboloInterface, 
+        simboloInteiro: SimboloInterface,
         identificador: SimboloInterface,
         posicoes: number
     ) {
         let valorInicializacao: Vetor = new Vetor(this.hashArquivo, Number(simboloInteiro.linha), []);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             this.consumir(
-                tiposDeSimbolos.CHAVE_ESQUERDA, 
-                "Esperado chave esquerda após sinal de igual em lado direito da atribuição de vetor."
+                tiposDeSimbolos.CHAVE_ESQUERDA,
+                'Esperado chave esquerda após sinal de igual em lado direito da atribuição de vetor.'
             );
 
             const valores = [];
@@ -410,17 +429,17 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
             this.consumir(
-                tiposDeSimbolos.CHAVE_DIREITA, 
-                "Esperado chave direita após valores de vetor em lado direito da atribuição de vetor."
+                tiposDeSimbolos.CHAVE_DIREITA,
+                'Esperado chave direita após valores de vetor em lado direito da atribuição de vetor.'
             );
 
             if (posicoes !== valores.length) {
                 throw this.erro(
-                    simboloInteiro, 
+                    simboloInteiro,
                     `Esperado ${posicoes} números, mas foram fornecidos ${valores.length} valores do lado direito da atribuição.`
                 );
             }
-            
+
             valorInicializacao.valores = valores;
         }
 
@@ -450,16 +469,18 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 // TODO
                 const numeroPosicoes = this.consumir(
-                    tiposDeSimbolos.INTEIRO, 
-                    "Esperado número inteiro para definir quantas posições terá o vetor."
+                    tiposDeSimbolos.INTEIRO,
+                    'Esperado número inteiro para definir quantas posições terá o vetor.'
                 );
 
                 this.consumir(
-                    tiposDeSimbolos.COLCHETE_DIREITO, 
-                    "Esperado fechamento de identificação de número de posições de uma declaração de vetor."
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    'Esperado fechamento de identificação de número de posições de uma declaração de vetor.'
                 );
 
-                inicializacoes.push(this.declaracaoVetorInteiros(simboloInteiro, identificador, Number(numeroPosicoes.literal)));
+                inicializacoes.push(
+                    this.declaracaoVetorInteiros(simboloInteiro, identificador, Number(numeroPosicoes.literal))
+                );
             } else {
                 inicializacoes.push(this.declaracaoTrivialInteiro(simboloInteiro, identificador));
             }
@@ -473,18 +494,18 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
      * @returns Uma declaração `Leia`.
      */
     declaracaoLeia(): Leia {
-        const simboloAtual = this.avancarEDevolverAnterior();
+        const simboloLeia = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
 
         const argumentos = [];
         do {
-            argumentos.push(this.declaracao());
+            argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
 
-        return new Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
+        return new Leia(simboloLeia, argumentos);
     }
 
     declaracaoLogicos(): Var[] {
@@ -501,7 +522,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (![tiposDeSimbolos.VERDADEIRO, tiposDeSimbolos.FALSO].includes(this.simbolos[this.atual].tipo)) {
-                    throw this.erro(this.simbolos[this.atual], 'Esperado literal verdadeiro ou falso após símbolo de igual em declaração de variável.');
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        'Esperado literal verdadeiro ou falso após símbolo de igual em declaração de variável.'
+                    );
                 }
                 const literalInicializacao = this.avancarEDevolverAnterior();
                 valorInicializacao = Number(literalInicializacao.literal);
@@ -541,7 +565,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
 
-            const corpo = this.declaracao();
+            const corpo = this.resolverDeclaracaoForaDeBloco();
 
             return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
         } finally {
@@ -562,8 +586,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Inicializações de variáveis podem ter valores definidos.
             let valorInicializacao = 0;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(tiposDeSimbolos.REAL,
-                    'Esperado literal real após símbolo de igual em declaração de variável.');
+                const literalInicializacao = this.consumir(
+                    tiposDeSimbolos.REAL,
+                    'Esperado literal real após símbolo de igual em declaração de variável.'
+                );
                 valorInicializacao = Number(literalInicializacao.literal);
             }
 
@@ -589,7 +615,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.INTEIRO,
                 tiposDeSimbolos.CADEIA,
                 tiposDeSimbolos.CARACTER,
-                tiposDeSimbolos.LOGICO
+                tiposDeSimbolos.LOGICO,
             ].includes(this.simbolos[this.atual].tipo)
         ) {
             // Por enquanto apenas consumimos o símbolo sem ações adicionais.
@@ -600,7 +626,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
-    declaracao(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CADEIA:
@@ -639,7 +665,10 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -653,6 +682,6 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico;
+        } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }

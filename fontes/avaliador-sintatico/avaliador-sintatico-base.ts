@@ -30,7 +30,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface {
+export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -38,12 +38,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     atual: number;
     blocos: number;
 
-    declaracaoDeConstantes(): Const[] {
-        throw new Error("Método não implementado.");
-    }
-    
-    declaracaoDeVariaveis(): Var[] {
-        throw new Error("Método não implementado.");
+    protected declaracaoDeVariaveis(): Var[] {
+        throw new Error('Método não implementado.');
     }
 
     consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
@@ -122,7 +118,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     abstract chamar(): Construto;
 
     unario(): Construto {
-
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
@@ -209,7 +204,13 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL, tiposDeSimbolos.IGUAL_IGUAL)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIFERENTE,
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.IGUAL_IGUAL
+            )
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -344,7 +345,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return parametros;
     }
 
-    abstract declaracao(): Declaracao;
+    abstract resolverDeclaracaoForaDeBloco(): Declaracao;
 
-    abstract analisar(retornoLexador: RetornoLexador, hashArquivo: number): RetornoAvaliadorSintatico;
+    abstract analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<Declaracao>;
 }

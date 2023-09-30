@@ -358,7 +358,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/fila-estatica.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/fila-estatica.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -485,7 +488,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/leia.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/leia.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -524,7 +530,11 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--codigo", "escreva(2+1)"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--codigo",
+                "escreva(2+1)"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -542,7 +552,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/perceptron.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/perceptron.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -560,7 +573,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/primitivas/texto/minusculo.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/primitivas/texto/minusculo.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -599,7 +615,10 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "./exemplos/classes/teste-classe.delegua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "./exemplos/classes/teste-classe.delegua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -630,6 +649,23 @@
             ]
         },
         {
+            "name": "Testes unitários - Birl",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "birl/interpretador",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Testes unitários - Delégua",
             "type": "node",
             "request": "launch",
@@ -640,7 +676,10 @@
                 "interpretador",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -654,7 +693,27 @@
                 "mapler",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Testes unitários - Pituguês",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "pitugues/interpretador",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -665,7 +724,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "potigol/interpretador",
+                "potigol/avaliador-sintatico.test",
                 "--runInBand"
             ],
             "skipFiles": [
@@ -719,7 +778,10 @@
                 "visualg",
                 "--runInBand"
             ],
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
@@ -1086,7 +1148,12 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "args": ["${workspaceFolder}${pathSeparator}execucao.ts", "--dialeto", "egua", "./exemplos/testes.egua"],
+            "args": [
+                "${workspaceFolder}${pathSeparator}execucao.ts",
+                "--dialeto",
+                "egua",
+                "./exemplos/testes.egua"
+            ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--nolazy",
@@ -1120,7 +1187,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bhaskara",
+            "name": "Pituguês > Bhaskara",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1130,8 +1197,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/bhaskara.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/bhaskara.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1143,7 +1210,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Enquanto",
+            "name": "Pituguês > Bloco Enquanto",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1153,8 +1220,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/estruturas-de-repeticao/enquanto.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/estruturas-de-repeticao/enquanto.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1166,7 +1233,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Escolha",
+            "name": "Pituguês > Bloco Escolha",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1176,8 +1243,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/condicionais/escolha.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/condicionais/escolha.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1189,7 +1256,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Fazer ... Enquanto",
+            "name": "Pituguês > Bloco Fazer ... Enquanto",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1199,8 +1266,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/estruturas-de-repeticao/fazer-enquanto.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/estruturas-de-repeticao/fazer-enquanto.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1212,7 +1279,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Para",
+            "name": "Pituguês > Bloco Para",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1222,8 +1289,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/estruturas-de-repeticao/para.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/estruturas-de-repeticao/para.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1235,7 +1302,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Bloco Se",
+            "name": "Pituguês > Bloco Se",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1245,8 +1312,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/condicionais/se.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/condicionais/se.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1258,7 +1325,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Classes",
+            "name": "Pituguês > Classes",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1268,8 +1335,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/classes/teste-classe.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/classes/teste-classe.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1281,7 +1348,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Classes > Construtor",
+            "name": "Pituguês > Classes > Construtor",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1291,8 +1358,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/classes/construtor-classe.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/classes/construtor-classe.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1304,7 +1371,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > FizzBuzz",
+            "name": "Pituguês > FizzBuzz",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1314,8 +1381,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/fizzbuzz.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/fizzbuzz.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1327,7 +1394,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > Média",
+            "name": "Pituguês > Média",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1337,8 +1404,8 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap",
-                "./exemplos/dialetos/eguap/media.eguap"
+                "pitugues",
+                "./exemplos/dialetos/pitugues/media.pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1350,7 +1417,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "EguaP > REPL",
+            "name": "Pituguês > REPL",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
@@ -1360,7 +1427,7 @@
             "args": [
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
-                "eguap"
+                "pitugues"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
@@ -1373,7 +1440,10 @@
             "type": "node",
             "request": "launch",
             "name": "Portugol Studio > Olá Mundo",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
@@ -1383,7 +1453,37 @@
                 "./exemplos/dialetos/portugol-studio/ola-mundo.por"
             ],
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ]
+        },
+        {
+            "name": "Tradutor > Delégua para AssemblyScript",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutores/tradutor-assemblyscript.test.ts",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Tradutor > Delégua para Assembly x64",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "tradutores/tradutor-assembly-x64.test.ts",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }

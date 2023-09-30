@@ -45,9 +45,9 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 /**
  * Esse tradutor traduz para JavaScript sem módulos, o que significa que
  * instruções em Delégua como `leia()` e `importar()` não são suportadas.
- * O tradutor levantará erro toda vez que essas instruções são encontradas.
+ * O tradutor levantará mensagem de alerta toda vez que essas instruções são encontradas.
  */
-export class TradutorJavaScript implements TradutorInterface {
+export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
     declaracoesDeClasses: Classe[];
 
@@ -101,7 +101,7 @@ export class TradutorJavaScript implements TradutorInterface {
             case 'empilhar':
                 return 'push';
             case 'concatenar':
-                return 'concat'
+                return 'concat';
             case 'fatiar':
                 return 'slice';
             case 'inclui':
@@ -376,7 +376,7 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
         let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ") ";
+            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ') ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
         return resultado;
@@ -384,12 +384,16 @@ export class TradutorJavaScript implements TradutorInterface {
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
-        if(declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (declaracaoPara.inicializador.constructor.name === 'Array') {
             resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0]) +
-            ' ';
+                this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
+                    declaracaoPara.inicializador[0]
+                ) + ' ';
         } else {
-            resultado += this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+            resultado +=
+                this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](
+                    declaracaoPara.inicializador
+                ) + ' ';
         }
 
         resultado += !resultado.includes(';') ? ';' : '';
@@ -560,8 +564,7 @@ export class TradutorJavaScript implements TradutorInterface {
 
         resultado += AtribuicaoPorIndice.objeto.simbolo.lexema + '[';
         resultado +=
-            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) +
-            ']';
+            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) + ']';
         resultado += ' = ';
 
         if (AtribuicaoPorIndice?.valor?.simbolo?.lexema) {
@@ -610,9 +613,10 @@ export class TradutorJavaScript implements TradutorInterface {
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
         let resultado = 'typeof ';
 
-        if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
-        else if (tipoDe.valor instanceof Vetor) resultado += this.traduzirConstrutoVetor(tipoDe.valor);
-        else resultado += tipoDe.valor;        
+        if (!tipoDe.valor) resultado += tipoDe.valor;
+        else if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
+        else if (typeof tipoDe.valor === 'number') resultado += tipoDe.valor;
+        else resultado += `${this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor)}`;
 
         return resultado;
     }
@@ -655,7 +659,7 @@ export class TradutorJavaScript implements TradutorInterface {
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
-        Const : this.traduzirDeclaracaoConst.bind(this),
+        Const: this.traduzirDeclaracaoConst.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),

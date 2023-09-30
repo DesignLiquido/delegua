@@ -28,6 +28,28 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - Atribuição', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Atribuição"',
+                        'var a: inteiro',
+                        'var b: caracter',
+                        'inicio',
+                        'a <- 1',
+                        'b := "b"',
+                        'escreva (a)',
+                        'escreva (b)',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it("Sucesso - Enquanto", async () => {
                 // Aqui vamos simular a resposta para três variáveis de `leia()`.
                 const respostas = [
@@ -67,6 +89,30 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('Sucesso - limpatela', async () => {
+
+                const retornoLexador = lexador.mapear([
+                    'Algoritmo "limpatela"',
+                    'Var',
+                    'Inicio',
+                    '    escreval("Teste 1")',
+                    '    limpatela',
+                    '    escreval("Teste 2")',
+                    '    limpatela',
+                    '    escreval("Teste 3")',
+                    '    escreval("Teste 4")',
+                    '    limpatela',
+                    '    escreval("Teste 5")',
+                    'Fimalgoritmo'
+                ], -1);
+    
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Leia', async () => {
                 // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
                 const respostas = [1, 2, 3, 4, 5];
@@ -88,6 +134,89 @@ describe('Interpretador', () => {
     
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - Equação Segundo Grau', async () => {
+                const respostas = [10, 21, 14];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "EquaçãoDoSegundoGrau"',
+                    'var',
+                       'a, b, c, delta, x1, x2: REAL',
+                    'função calcula_delta(): REAL',
+                    'var',
+                       'delta : REAL',
+                    'inicio',
+                        'delta := b*b - 4*a*c',
+                        'RETORNE delta',
+                    'fimfunção',
+                    'inicio',
+                        'ESCREVA ("Informe o valor de A: ")',
+                        'LEIA (a)',
+                        'ESCREVA ("Informe o valor de B: ")',
+                        'LEIA (b)',
+                        'ESCREVA ("Informe o valor de C: ")',
+                        'LEIA (c)',
+                        'delta := calcula_delta()',
+                        'SE ( delta < 0 ) ENTAO',
+                           'ESCREVA ("Esta equação não possui raízes reais.")',
+                        'SENAO',
+                            'SE (delta = 0) ENTAO',
+                               'x1 := (-b + RAIZQ(delta)) / (2*a)',
+                               'ESCREVA ("Esta equação possui apenas uma raiz: ", x1)',
+                            'SENAO',
+                                'x1 := (-b + RAIZQ(delta)) / (2*a)',
+                                'x2 := (-b - RAIZQ(delta)) / (2*a)',
+                                'ESCREVA ("Esta equação possui duas raízes: ", x1, " e ", x2)',
+                            'FIMSE',
+                        'FIMSE',
+                    'fimalgoritmo',
+                ], -1);
+    
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - "Repita Até" com acento', async () => {
+                const respostas = [0];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Repita Até"',
+                        'var',
+                        'opcao: inteiro',
+                    'inicio',
+                        'repita',
+                            'escreval("1 - Dizer olá!")',
+                            'escreval("2 – Dizer oi! ")',
+                            'escreval("0 - Sair do programa")',
+                            'leia(opcao)',
+                            'se (opcao = 1) entao',
+                                'escreval("Olá!")',
+                            'fimse',
+                            'se (opcao = 2) entao',
+                                'escreval("Oi!")',
+                            'fimse',
+                        'até (opcao = 0)',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -117,9 +246,9 @@ describe('Interpretador', () => {
                     '   Leia(A)',
                     '   IMC <- M / (A ^ 2)',
                     '   Escreval("IMC: ", IMC:5:2)',
-                    '   Se (IMC >= 18.5) e (IMC < 25) entao',
+                    '   Se (IMC >= 18.5) e (IMC < 25) então',
                     '      Escreva("Parabens! Voce esta no seu peso ideal")',
-                    '   senao',
+                    '   senão',
                     '      Escreva("Voce nao esta na faixa de peso ideal")',
                     '   Fimse',
                     '',
@@ -133,7 +262,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip("Sucesso - Média de Vetor", async () => {
+            it("Sucesso - Média de Vetor", async () => {
                 // Aqui vamos simular a resposta para duas variáveis de `leia()`.
                 const respostas = [
                     90, 80, 50, 100, 60, 70, 75, 85, 89, 91, 
@@ -158,7 +287,7 @@ describe('Interpretador', () => {
                     '     media[i]<-(n1+n2)/2',
                     'fimpara',
                     'escreval ("-")',
-                    'para i de 1 ate 10 faca',
+                    'para i de 1 ate 10 faça',
                     '       escreval ("Media do",i,"º aluno: ", media[i])',
                     'fimpara',
                     'fimalgoritmo'
@@ -166,6 +295,88 @@ describe('Interpretador', () => {
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it("Sucesso - Declaração de Vetores", async () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "teste"',
+                    'var',
+                    'result_j1, result_j2 : vetor[1..2] de inteiro',
+                    'inicio',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            //TODO: https://github.com/DesignLiquido/delegua/issues/503
+            it.skip("Sucesso - Matriz - Jogo da Velha", async () => {
+                const retornoLexador = lexador.mapear([
+                    'Algoritmo "Jogo da Velha"',
+                    'Var',
+                        'i, q, t: inteiro',
+                        'jogoMatriz : vetor [1..3, 1..3] de caractere',
+                    'Inicio',
+                        'q <- 4',
+                       't <- 7',
+                       'para i de 1 ate 3 faca',
+                          'jogoMatriz[1,i] <- numpcarac(i)',
+                          'jogoMatriz[2,i] <- numpcarac(q)',
+                          'jogoMatriz[3,i] <- numpcarac(t)',
+                          'q <- q + 1',
+                          't <- t + 1',
+                       'fimpara',
+
+                       'Escreval("      | ", jogoMatriz[1,1], " | ", jogoMatriz[1,2], " | ", jogoMatriz[1,3], " |")',
+                       'Escreval("      +---+---+---+")',
+                       'Escreval("      | ", jogoMatriz[2,1], " | ", jogoMatriz[2,2], " | ", jogoMatriz[2,3], " |")',
+                       'Escreval("      +---+---+---+")',
+                       'Escreval("      | ", jogoMatriz[3,1], " | ", jogoMatriz[3,2], " | ", jogoMatriz[3,3], " |")',
+                    'Fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - Para com passo negativo', async () => {
+                // Aqui vamos simular a resposta para uma variável de `leia()`.
+                const respostas = [
+                    10
+                ];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "valoresPares"',
+                    '',
+                    'var',
+                    'Cont, V: Inteiro',
+                    '',
+                    'inicio',
+                    '    escreval("Digite um valor: ")',
+                    '    Leia(V)',
+                    '    para CONT de V ate 0 passo -2 faca',
+                    '        Escreval(CONT)',
+                    '    Fimpara',
+                    '',
+                    'fimalgoritmo'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -265,6 +476,30 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('Sucesso - Procedimento com passagem por referência', async () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Exemplo Parametros Referencia"',
+                    'var',
+                    '   m,n,res: inteiro',
+                    '   procedimento soma (x,y: inteiro; var result: inteiro)',
+                    '   inicio',
+                    '       result <- x + y',
+                    '   fimprocedimento',
+                    'inicio',
+                    '   n <- 4',
+                    '   m <- -9',
+                    '   soma(n,m,res)',
+                    '   escreva(res)',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            })
 
             it('Sucesso - Operadores Lógicos', async () => {
                 const retornoLexador = lexador.mapear([

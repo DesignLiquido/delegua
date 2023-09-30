@@ -10,9 +10,9 @@ export class Unario implements Construto {
     incidenciaOperador: 'ANTES' | 'DEPOIS';
 
     constructor(
-        hashArquivo: number, 
-        operador: SimboloInterface, 
-        operando: any, 
+        hashArquivo: number,
+        operador: SimboloInterface,
+        operando: any,
         incidenciaOperador: 'ANTES' | 'DEPOIS' = 'ANTES'
     ) {
         this.linha = operador.linha;

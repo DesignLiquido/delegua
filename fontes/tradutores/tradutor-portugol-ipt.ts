@@ -1,6 +1,6 @@
-import { AvaliadorSintaticoPortugolIpt } from "../avaliador-sintatico/dialetos";
-import { FormatacaoEscrita, Literal } from "../construtos";
-import { LexadorPortugolIpt } from "../lexador/dialetos";
+import { AvaliadorSintaticoPortugolIpt } from '../avaliador-sintatico/dialetos';
+import { FormatacaoEscrita, Literal } from '../construtos';
+import { LexadorPortugolIpt } from '../lexador/dialetos';
 
 export class TradutorPortugolIpt {
     indentacao: number = 0;
@@ -10,12 +10,12 @@ export class TradutorPortugolIpt {
     dicionarioConstrutos = {
         FormatacaoEscrita: this.traduzirConstrutoFormatacaoEscrita.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
-    }
+    };
 
     dicionarioDeclaracoes = {
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
-    }
+    };
 
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
@@ -23,7 +23,7 @@ export class TradutorPortugolIpt {
     }
 
     traduzirConstrutoFormatacaoEscrita(formatacaoEscrita: FormatacaoEscrita) {
-        let resultado = "";
+        let resultado = '';
         resultado += String(formatacaoEscrita.expressao.valor);
         return resultado;
     }

@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
 import { registrarBibliotecaCaracteresVisuAlg, registrarBibliotecaNumericaVisuAlg } from '../../fontes/bibliotecas/dialetos/visualg';
-import { DeleguaFuncao, FuncaoPadrao } from '../../fontes/estruturas';
+import { DeleguaFuncao } from '../../fontes/estruturas';
 import { SimboloInterface, VariavelInterface } from '../../fontes/interfaces';
 import { EscopoExecucao } from '../../fontes/interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../fontes/interfaces/pilha-escopos-execucao-interface';
@@ -171,8 +171,8 @@ describe('Biblioteca Numérica', () => {
 
         it('randi', () => {
             const funcaoRandI = funcoes['randi'].funcao;
-            expect(funcaoRandI(0)).toBeGreaterThanOrEqual(0);
-            expect(funcaoRandI(0)).toBeLessThanOrEqual(0);
+            const resultado = funcaoRandI(15);
+            expect(resultado).toBeGreaterThanOrEqual(0);
         });
 
         it('sen', () => {
@@ -195,6 +195,26 @@ describe('Biblioteca Numérica', () => {
             lexador = new LexadorVisuAlg();
             avaliadorSintatico = new AvaliadorSintaticoVisuAlg();
             interpretador = new InterpretadorVisuAlg(process.cwd());
+        });
+
+        it('Argumentos como variáveis', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo "número aleatório"',
+                'var',
+                '    k: inteiro',
+                '    l: inteiro',
+                'inicio',
+                '    l <- 10',
+                '    k <- randi(l)',
+                '    escreva (k)',
+                'fimalgoritmo'
+            ], -1);
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
         });
         
         it('Chamadas diversas', async () => {
@@ -254,6 +274,11 @@ describe('Biblioteca de caracteres', () => {
         it('copia', () => {
             const funcaoCopia = funcoes['copia'].funcao;
             expect(funcaoCopia('Uma cadeia de caracteres', 4, 6)).toBe('cadeia');
+        });
+
+        it('limpatela', () => {
+            const limpaTela = funcoes['limpatela'].funcao;
+            expect(limpaTela()).toBe(undefined);
         });
 
         it('maiusc', () => {

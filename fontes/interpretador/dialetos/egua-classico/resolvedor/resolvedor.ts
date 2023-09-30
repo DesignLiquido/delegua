@@ -1,13 +1,26 @@
-import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
-import { PilhaEscopos } from './pilha-escopos';
-import { ErroResolvedor } from './erro-resolvedor';
-import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
-import { Bloco, Const, Declaracao, EscrevaMesmaLinha, Expressao, Leia, ParaCada, Se } from '../../../../declaracoes';
 import { AcessoMetodo, Construto, FimPara, FormatacaoEscrita, Super, TipoDe, Variavel } from '../../../../construtos';
-import { RetornoResolvedor } from './retorno-resolvedor';
+import {
+    Bloco,
+    Const,
+    ConstMultiplo,
+    Declaracao,
+    EscrevaMesmaLinha,
+    Expressao,
+    Leia,
+    LeiaMultiplo,
+    ParaCada,
+    Se,
+    Var,
+    VarMultiplo,
+} from '../../../../declaracoes';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
+import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
+import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
 import { RetornoInterpretador } from '../../../../interfaces/retornos';
+import { ErroResolvedor } from './erro-resolvedor';
+import { PilhaEscopos } from './pilha-escopos';
+import { RetornoResolvedor } from './retorno-resolvedor';
 
 const TipoFuncao = {
     NENHUM: 'NENHUM',
@@ -62,7 +75,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
     }
-    
+
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -76,6 +89,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -115,7 +132,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoLeia(expressao: Leia) {
+    visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -191,13 +212,17 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarDeclaracaoVar(declaracao: any): any {
+    visitarDeclaracaoVar(declaracao: Var): any {
         this.declarar(declaracao.simbolo);
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
         }
         this.definir(declaracao.simbolo);
         return null;
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: any): any {

@@ -4,6 +4,7 @@ import { ErroLexador } from '../erro-lexador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/mapler';
 import { palavrasReservadas } from './palavras-reservadas/mapler';
+import { SimboloInterface } from '../../interfaces';
 
 export class LexadorMapler extends LexadorBaseLinhaUnica {
     analisarNumero(): void {
@@ -48,10 +49,7 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
 
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
         if (codigo in palavrasReservadas) {
-            this.adicionarSimbolo(
-                palavrasReservadas[codigo],
-                codigo
-            );
+            this.adicionarSimbolo(palavrasReservadas[codigo], codigo);
         } else {
             this.adicionarSimbolo(tiposDeSimbolos.IDENTIFICADOR, codigo);
         }
@@ -194,7 +192,7 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -212,6 +210,6 @@ export class LexadorMapler extends LexadorBaseLinhaUnica {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador;
+        } as RetornoLexador<SimboloInterface>;
     }
 }
