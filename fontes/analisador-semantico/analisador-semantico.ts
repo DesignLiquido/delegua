@@ -368,6 +368,13 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
 
         this.verificarTipoAtribuido(declaracao);
 
+        if (declaracao.inicializador instanceof FuncaoConstruto) {
+            const funcao = declaracao.inicializador;
+            if (funcao.parametros.length >= 255) {
+                this.erro(declaracao.simbolo, 'Não pode haver mais de 255 parâmetros');
+            }
+        }
+
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
@@ -418,6 +425,10 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
 
         if (declaracao.funcao.tipoRetorno === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
+        }
+
+        if (declaracao.funcao.parametros.length >= 255) {
+            this.erro(declaracao.simbolo, 'Não pode haver mais de 255 parâmetros');
         }
 
         let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;

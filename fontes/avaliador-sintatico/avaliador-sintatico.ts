@@ -1089,10 +1089,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const parametros: ParametroInterface[] = [];
 
         do {
-            if (parametros.length >= 255) {
-                this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
-            }
-
             const parametro: Partial<ParametroInterface> = {};
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
