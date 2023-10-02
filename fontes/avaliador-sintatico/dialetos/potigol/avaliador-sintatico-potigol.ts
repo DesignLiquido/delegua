@@ -15,6 +15,7 @@ import {
     Literal,
     Unario,
     Variavel,
+    Vetor,
 } from '../../../construtos';
 import {
     Escreva,
@@ -325,7 +326,23 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                         return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
                 }
+            case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                let valores = [];
 
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    return new Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
+                }
+
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    const valor = this.atribuir();
+                    valores.push(valor);
+                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                    }
+                }
+
+                return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:
@@ -365,7 +382,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.PARENTESE_DIREITO,
                     `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`
                 );
-                const leiaDefinido = new Leia(simboloLeiaDefinido, []);
+                const leiaDefinido = new LeiaMultiplo(simboloLeiaDefinido, []);
                 leiaDefinido.numeroArgumentosEsperados = parseInt(numeroArgumentosLeia.literal);
                 return leiaDefinido;
             default:
@@ -801,8 +818,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             let tipoConversao: TiposDadosInterface;
             switch (inicializadorLeia.simbolo.tipo) {
-                case tiposDeSimbolos.LEIA_INTEIRO:
                 case tiposDeSimbolos.LEIA_INTEIROS:
+                    tipoConversao = 'inteiro[]';
+                    break;
+                case tiposDeSimbolos.LEIA_INTEIRO:
                     tipoConversao = 'inteiro';
                     break;
                 case tiposDeSimbolos.LEIA_REAL:

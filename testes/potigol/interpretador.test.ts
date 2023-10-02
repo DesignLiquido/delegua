@@ -44,5 +44,23 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
         });
+
+        describe('Declaração de lista', () => {
+            it('Dado em vetor, escreva deve imprirmir o vetor', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [3, 4]',
+                    'escreva (a)'
+                ], -1);
+
+                // Substitua a função de saída
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual([3, 4]);
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+        })
     });
 });
