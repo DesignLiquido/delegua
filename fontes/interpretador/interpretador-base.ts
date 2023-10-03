@@ -946,13 +946,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         return Promise.reject('Importação de arquivos não suportada por Interpretador Base.');
     }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<any> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
@@ -1460,7 +1459,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             return formato.format(objeto);
         }
 
-        if (Array.isArray(objeto)) return objeto;
+        if (Array.isArray(objeto)) return `[${objeto.join(', ')}]`;;
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
 

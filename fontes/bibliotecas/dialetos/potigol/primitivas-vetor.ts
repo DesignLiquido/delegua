@@ -45,6 +45,7 @@ export default {
     pegue_enquanto: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
     posição: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
         Promise.resolve(vetor.indexOf(elemento) + 1),
+    qual_tipo: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<string> => Promise.resolve('Lista'),
     remova: (interpretador: VisitanteComumInterface, vetor: Array<any>, posicao: number): Promise<any> => {
         let copia = [...vetor];
         copia.splice(posicao - 1, 1);
