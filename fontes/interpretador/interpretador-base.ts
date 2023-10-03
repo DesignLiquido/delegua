@@ -952,11 +952,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-            if (resultadoAvaliacao.tipo === 'vetor') {
-                return valor;
-            } else {
-                formatoTexto += `${this.paraTexto(valor)} `;
-            }
+            formatoTexto += `${this.paraTexto(valor)} `;
         }
 
         return formatoTexto.trimEnd();
@@ -1463,7 +1459,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             return formato.format(objeto);
         }
 
-        if (Array.isArray(objeto)) return objeto;
+        if (Array.isArray(objeto)) return `[${objeto.join(', ')}]`;;
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (typeof objeto === 'object') return JSON.stringify(objeto);
 
