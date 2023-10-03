@@ -4,6 +4,7 @@ import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/
 import { AcessoMetodo } from '../../../construtos';
 
 import * as comum from './comum';
+import { ObjetoPadrao } from '../../../estruturas';
 
 /**
  * Uma implementação do interpretador de Potigol.
@@ -20,6 +21,27 @@ export class InterpretadorPotigol extends InterpretadorBase {
         this.regexInterpolacao = /{(.*?)}/g;
 
         registrarBibliotecaGlobalPotigol(this, this.pilhaEscoposExecucao);
+    }
+
+    paraTexto(objeto: any) {
+        if (objeto === null || objeto === undefined) return 'nulo';
+        if (typeof objeto === 'boolean') {
+            return objeto ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto instanceof Date) {
+            const formato = Intl.DateTimeFormat('pt', {
+                dateStyle: 'full',
+                timeStyle: 'full',
+            });
+            return formato.format(objeto);
+        }
+
+        if (Array.isArray(objeto)) return `[${objeto.join(', ')}]`;
+        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (typeof objeto === 'object') return JSON.stringify(objeto);
+
+        return objeto.toString();
     }
 
     protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
