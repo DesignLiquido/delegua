@@ -101,6 +101,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     verificarTipoProximoSimbolo(tipo: string): boolean {
+        if (this.atual + 1 >= this.simbolos.length)
+            return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
@@ -422,13 +424,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         let expressao = this.bitE();
 
         const ouNao = (this.verificarTipoProximoSimbolo(tiposDeSimbolos.NAO) || this.verificarTipoProximoSimbolo(tiposDeSimbolos.NÃO))
-                        && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU);
+                        && this.verificarTipoSimboloAtual(tiposDeSimbolos.OU);
         if (ouNao) {
+            this.avancarEDevolverAnterior();
             const operador = this.simbolos[this.atual - 1];
             const simboloAnterior = this.avancarEDevolverAnterior();
             const simbolo = { ...operador, lexema: `${operador.lexema} ${simboloAnterior.lexema}`, tipo: tiposDeSimbolos.BIT_XOR }
             const direito = this.bitE();
-            return new Binario(this.hashArquivo, expressao, simbolo, direito);
+            expressao = new Binario(this.hashArquivo, expressao, simbolo, direito);
+            return expressao;
         }
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
             const operador = this.simbolos[this.atual - 1];
