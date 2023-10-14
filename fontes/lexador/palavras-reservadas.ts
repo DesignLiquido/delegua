@@ -25,6 +25,8 @@ export const palavrasReservadas = {
     importar: tiposDeSimbolos.IMPORTAR,
     isto: tiposDeSimbolos.ISTO,
     leia: tiposDeSimbolos.LEIA,
+    nao: tiposDeSimbolos.NAO,
+    não: tiposDeSimbolos.NÃO,
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
     padrao: tiposDeSimbolos.PADRAO,

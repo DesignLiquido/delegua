@@ -383,6 +383,15 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Operações lógicas - ou não', async () => {
+                    const retornoLexador = lexador.mapear(["1 ou não 2"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
             });
 
             describe('Escolha - Caso', () => {
