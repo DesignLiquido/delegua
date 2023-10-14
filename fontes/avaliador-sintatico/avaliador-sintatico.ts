@@ -431,8 +431,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             const simboloAnterior = this.avancarEDevolverAnterior();
             const simbolo = { ...operador, lexema: `${operador.lexema} ${simboloAnterior.lexema}`, tipo: tiposDeSimbolos.BIT_XOR }
             const direito = this.bitE();
-            expressao = new Binario(this.hashArquivo, expressao, simbolo, direito);
-            return expressao;
+            return new Binario(this.hashArquivo, expressao, simbolo, direito);
         }
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
             const operador = this.simbolos[this.atual - 1];
