@@ -224,6 +224,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Tipo de número', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva(tipo de 123)",
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("número");
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Ordem lexicográfica de textos', async () => {
                     const retornoLexador = lexador.mapear([
                         "escreva('batata' > 'arroz')",

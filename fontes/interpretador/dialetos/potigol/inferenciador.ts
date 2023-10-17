@@ -4,7 +4,8 @@ export function inferirTipoVariavel(variavel: string | number | Array<any> | boo
         case 'string':
             return 'Texto';
         case 'number':
-            return 'Número';
+            if (variavel.toString().indexOf('.') > -1) return 'Real';
+            return 'Inteiro';
         case 'bigint':
             return 'Longo';
         case 'boolean':
@@ -12,7 +13,7 @@ export function inferirTipoVariavel(variavel: string | number | Array<any> | boo
         case 'undefined':
             return 'Nulo';
         case 'object':
-            if (Array.isArray(variavel)) return 'vetor';
+            if (Array.isArray(variavel)) return 'Lista';
             if (variavel === null) return 'nulo';
             if (variavel.constructor.name === 'DeleguaModulo') return 'módulo';
             return 'Dicionário';

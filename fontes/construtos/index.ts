@@ -22,3 +22,4 @@ export * from './tipo-de';
 export * from './unario';
 export * from './variavel';
 export * from './vetor';
+export * from './qual-tipo';

@@ -1,4 +1,4 @@
-import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../../construtos';
+import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, QualTipo, Super, TipoDe, Variavel } from '../../../construtos';
 import {
     Bloco,
     Classe,
@@ -78,6 +78,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoQualTipo(expressao: QualTipo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

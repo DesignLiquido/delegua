@@ -1,10 +1,11 @@
 import { InterpretadorBase } from '../../interpretador-base';
 
 import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
-import { AcessoMetodo } from '../../../construtos';
+import { AcessoMetodo, Binario, QualTipo, Unario, Variavel } from '../../../construtos';
 
 import * as comum from './comum';
 import { ObjetoPadrao } from '../../../estruturas';
+import { inferirTipoVariavel } from './inferenciador';
 
 /**
  * Uma implementação do interpretador de Potigol.
@@ -54,5 +55,22 @@ export class InterpretadorPotigol extends InterpretadorBase {
 
     async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
+    }
+
+    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
+        
+        let qualTipo = this.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[expressao.valor].valor;
+        
+         if (
+             qualTipo instanceof Binario ||
+             qualTipo instanceof QualTipo ||
+             qualTipo instanceof Unario ||
+             qualTipo instanceof Variavel
+         ) {
+             qualTipo = await this.avaliar(qualTipo);
+             return qualTipo.tipo || inferirTipoVariavel(qualTipo);
+         }
+
+         return inferirTipoVariavel(qualTipo?.valores || qualTipo);
     }
 }
