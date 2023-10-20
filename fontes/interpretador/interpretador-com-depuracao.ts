@@ -1,5 +1,5 @@
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna, Var } from '../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Leia, Para, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
@@ -94,7 +94,11 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
     private async gerarIdResolucaoChamada(expressao: any): Promise<string> {
         const argumentosResolvidos = [];
         for (let argumento of expressao.argumentos) {
-            argumentosResolvidos.push(await this.avaliar(argumento));
+            if (argumento instanceof Leia) {
+                argumentosResolvidos.push(`leia_${argumento.id}`);
+            } else {
+                argumentosResolvidos.push(await this.avaliar(argumento));
+            }
         }
 
         return argumentosResolvidos.reduce(
