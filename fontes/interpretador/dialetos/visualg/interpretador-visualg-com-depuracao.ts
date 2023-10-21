@@ -143,7 +143,6 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        // const cloneDeclaracao = JSON.parse(JSON.stringify(declaracao)) as Para;
         const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
         const corpoExecucao = cloneDeclaracao.corpo as Bloco;
         if (cloneDeclaracao.inicializador !== null) {
@@ -155,7 +154,6 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
             }
         }
 
-        // cloneDeclaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
             case 'proximo':
@@ -170,7 +168,6 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                 }
 
                 escopoAtual.emLacoRepeticao = false;
-                // declaracao.inicializada = false;
                 return null;
             default:
                 let retornoExecucao: any;
@@ -195,8 +192,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
                         return Promise.reject(erro);
                     }
                 }
-                // escopoAtual.emLacoRepeticao = false;
-                // declaracao.inicializada = false;
+
                 return retornoExecucao;
         }
     }
