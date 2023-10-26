@@ -1,5 +1,6 @@
 import {
     AcessoIndiceVariavel,
+    Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -84,15 +85,16 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        switch (this.simbolos[this.atual].tipo) {
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 // Se o próximo símbolo é um incremento ou um decremento,
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
                 if (
-                    this.simbolos[this.atual] &&
-                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)
+                    simboloAtual &&
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(simboloAtual.tipo)
                 ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
@@ -104,6 +106,13 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 }
 
                 return new Variavel(this.hashArquivo, simboloIdentificador);
+
+            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const expressao = this.expressao();
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+    
+                return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
             case tiposDeSimbolos.CADEIA:
             case tiposDeSimbolos.CARACTER:
             case tiposDeSimbolos.INTEIRO:
