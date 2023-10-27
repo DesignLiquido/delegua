@@ -84,23 +84,6 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    unario(): Construto {
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.INCREMENTAR,
-                tiposDeSimbolos.DECREMENTAR
-            )
-        ) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
-            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
-        }
-
-        return this.chamar();
-    }
-
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
