@@ -92,10 +92,11 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 // Se o próximo símbolo é um incremento ou um decremento,
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
+                const novoSimboloAtual = this.simbolos[this.atual];
                 if (
-                    simboloAtual &&
-                    (this.simbolos[this.atual].tipo === tiposDeSimbolos.INCREMENTAR
-                    || this.simbolos[this.atual].tipo === tiposDeSimbolos.DECREMENTAR)
+                    novoSimboloAtual &&
+                    (novoSimboloAtual.tipo === tiposDeSimbolos.INCREMENTAR
+                    || novoSimboloAtual.tipo === tiposDeSimbolos.DECREMENTAR)
                 ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
