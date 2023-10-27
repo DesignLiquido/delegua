@@ -84,6 +84,23 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    unario(): Construto {
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.SUBTRACAO,
+                tiposDeSimbolos.INCREMENTAR,
+                tiposDeSimbolos.DECREMENTAR
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
+        }
+
+        return this.chamar();
+    }
+
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -94,7 +111,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 // Caso contrário, apenas retornar um construto de variável.
                 if (
                     simboloAtual &&
-                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(simboloAtual.tipo)
+                    (this.simbolos[this.atual].tipo === tiposDeSimbolos.INCREMENTAR
+                    || this.simbolos[this.atual].tipo === tiposDeSimbolos.DECREMENTAR)
                 ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
@@ -113,6 +131,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
     
                 return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+
             case tiposDeSimbolos.CADEIA:
             case tiposDeSimbolos.CARACTER:
             case tiposDeSimbolos.INTEIRO:
@@ -570,6 +589,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             let incrementar = null;
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 incrementar = this.expressao();
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR)
             }
 
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas");

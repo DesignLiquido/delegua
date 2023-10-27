@@ -214,8 +214,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
                 if (
-                    this.simbolos[this.atual] &&
-                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)
+                    simboloAtual &&
+                    (this.simboloAtual().tipo === tiposDeSimbolos.INCREMENTAR
+                    || this.simboloAtual().tipo === tiposDeSimbolos.DECREMENTAR)
                 ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
@@ -683,6 +684,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         let incrementar = null;
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             incrementar = this.expressao();
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR)
         }
 
         if (comParenteses) {

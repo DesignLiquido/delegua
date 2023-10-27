@@ -672,7 +672,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "analisador-semantico",
+                // "interpretador",
                 "interpretador",
                 "--runInBand"
             ],
@@ -758,7 +758,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "portugol-studio/interpretador",
+                "portugol-studio/avaliador-sintatico",
                 "--runInBand"
             ],
             "skipFiles": [
