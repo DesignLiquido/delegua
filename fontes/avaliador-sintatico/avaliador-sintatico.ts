@@ -216,8 +216,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 const novoSimboloAtual = this.simbolos[this.atual];
                 if (
                     novoSimboloAtual &&
-                    (novoSimboloAtual.tipo === tiposDeSimbolos.INCREMENTAR
-                    || novoSimboloAtual.tipo === tiposDeSimbolos.DECREMENTAR)
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(novoSimboloAtual.tipo)
                 ) {
                     const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
                     return new Unario(
