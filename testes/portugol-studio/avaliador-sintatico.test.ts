@@ -58,6 +58,31 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
             });
 
+            it('Sucesso - Agrupamento', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro base',
+                    '        inteiro altura',
+                    '        inteiro area',
+                    '        escreva("Insira a base: ")',
+                    '        leia(base)',
+                    '        escreva("Insira a altura: ")',
+                    '        leia(altura)',
+                    '        area = (base * altura) / 2',
+                    '        escreva("\nA area do triangulo é: ", area)',
+                    '    }',
+                    '}'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
+            });
+
             it('Sucesso - Leia', () => {
                 const retornoLexador = lexador.mapear(
                     [

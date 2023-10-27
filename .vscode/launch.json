@@ -672,7 +672,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "analisador-semantico",
+                // "interpretador",
                 "interpretador",
                 "--runInBand"
             ],

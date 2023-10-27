@@ -683,6 +683,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         let incrementar = null;
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             incrementar = this.expressao();
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR)
         }
 
         if (comParenteses) {

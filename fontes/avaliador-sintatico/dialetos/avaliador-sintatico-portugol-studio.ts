@@ -1,5 +1,6 @@
 import {
     AcessoIndiceVariavel,
+    Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -84,7 +85,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     primario(): Construto {
-        switch (this.simbolos[this.atual].tipo) {
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 // Se o próximo símbolo é um incremento ou um decremento,
@@ -104,6 +106,14 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 }
 
                 return new Variavel(this.hashArquivo, simboloIdentificador);
+
+            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const expressao = this.expressao();
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+    
+                return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
+
             case tiposDeSimbolos.CADEIA:
             case tiposDeSimbolos.CARACTER:
             case tiposDeSimbolos.INTEIRO:
@@ -561,6 +571,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             let incrementar = null;
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 incrementar = this.expressao();
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR)
             }
 
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
