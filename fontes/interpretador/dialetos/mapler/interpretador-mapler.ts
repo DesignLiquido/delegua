@@ -1,4 +1,4 @@
-import { Binario, Construto, Logico, Variavel } from '../../../construtos';
+import { Binario, Construto, ExpressaoRegular, Logico, Variavel } from '../../../construtos';
 import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
@@ -18,6 +18,10 @@ export class InterpretadorMapler extends InterpretadorBase {
         this.mensagemPrompt = '> ';
     }
 
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+    
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }

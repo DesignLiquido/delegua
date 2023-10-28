@@ -1,4 +1,4 @@
-import { Atribuir, Chamada, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from '../construtos';
+import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -57,6 +57,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.funcoes = {};
         this.atual = 0;
         this.erros = [];
+    }
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void {

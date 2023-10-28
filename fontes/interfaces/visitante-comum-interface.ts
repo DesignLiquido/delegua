@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, Literal, Super, TipoDe } from '../construtos';
+import { Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -58,6 +58,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoDeleguaFuncao(expressao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     visitarExpressaoDicionario(expressao: any): any;
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp>;
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): any;
     visitarExpressaoFalhar(expressao: any): Promise<any>;
     visitarExpressaoFimPara(declaracao: FimPara): any;

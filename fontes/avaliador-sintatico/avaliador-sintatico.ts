@@ -26,6 +26,7 @@ import {
     Variavel,
     Vetor,
     Isto,
+    ExpressaoRegular,
 } from '../construtos';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
@@ -270,6 +271,20 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                     this.hashArquivo,
                     simboloAtual,
                     _expressao instanceof Literal ? _expressao.valor : _expressao
+                );
+
+            case tiposDeSimbolos.EXPRESSAO_REGULAR:
+                let valor: string = '';
+                this.avancarEDevolverAnterior();
+                while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
+                    valor += this.simboloAtual().lexema;
+                    this.avancarEDevolverAnterior();
+                }
+                this.avancarEDevolverAnterior();
+                return new ExpressaoRegular(
+                    this.hashArquivo,
+                    simboloAtual,
+                    valor
                 );
         }
 

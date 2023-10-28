@@ -11,6 +11,7 @@ import {
     AcessoIndiceVariavel,
     Atribuir,
     Construto,
+    ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
     Literal,
@@ -88,6 +89,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
