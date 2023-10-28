@@ -15,7 +15,7 @@ export class ExpressaoRegular implements Construto {
         this.simbolo = simbolo;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<RegExp> {
         return Promise.resolve(visitante.visitarExpressaoExpressaoRegular(this));
     }
 }

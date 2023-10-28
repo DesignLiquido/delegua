@@ -136,8 +136,23 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
-        return expressao.valor;
+
+    //https://stackoverflow.com/a/66751666/9043143
+    textoParaRegex(texto): any {
+        const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
+        return match ? 
+          new RegExp(
+            match[2],
+            match[3]
+              .split('')
+              .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
+              .join('')
+          ) 
+          : new RegExp(texto);
+    }
+
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
+        return this.textoParaRegex(expressao.valor);
     }
 
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {

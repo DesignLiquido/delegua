@@ -58,7 +58,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoDeleguaFuncao(expressao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     visitarExpressaoDicionario(expressao: any): any;
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any>;
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp>;
     visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): any;
     visitarExpressaoFalhar(expressao: any): Promise<any>;
     visitarExpressaoFimPara(declaracao: FimPara): any;
