@@ -275,17 +275,23 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
                 let valor: string = '';
-                this.avancarEDevolverAnterior();
-                while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
-                    valor += this.simboloAtual().lexema;
+                let linhaAtual = this.simbolos[this.atual].linha;
+                let eParExpressaoRegular = this.simbolos
+                            .filter(l => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
+                            .length % 2 === 0;
+                if(eParExpressaoRegular) {
                     this.avancarEDevolverAnterior();
+                    while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
+                        valor += this.simboloAtual().lexema || '';
+                        this.avancarEDevolverAnterior();
+                    }
+                    this.avancarEDevolverAnterior();
+                    return new ExpressaoRegular(
+                        this.hashArquivo,
+                        simboloAtual,
+                        valor
+                    );
                 }
-                this.avancarEDevolverAnterior();
-                return new ExpressaoRegular(
-                    this.hashArquivo,
-                    simboloAtual,
-                    valor
-                );
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
