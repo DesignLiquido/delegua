@@ -201,8 +201,12 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         const corpoExecucao = declaracao.corpo as Bloco;
-        if (declaracao.inicializador !== null && !declaracao.inicializada) {
-            await this.avaliar(declaracao.inicializador);
+        const declaracaoInicializador = Array.isArray(declaracao.inicializador)
+            ? declaracao.inicializador[0]
+            : declaracao.inicializador;
+
+        if (declaracaoInicializador !== null && !declaracao.inicializada) {
+            await this.avaliar(declaracaoInicializador);
             // O incremento vai ao final do bloco de escopo.
             if (declaracao.incrementar !== null) {
                 corpoExecucao.declaracoes.push(declaracao.incrementar);

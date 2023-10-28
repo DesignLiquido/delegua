@@ -700,9 +700,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        const declaracaoInicializador = declaracao.inicializador?.length
+        const declaracaoInicializador = Array.isArray(declaracao.inicializador)
             ? declaracao.inicializador[0]
             : declaracao.inicializador;
+            
         if (declaracaoInicializador !== null) {
             await this.avaliar(declaracaoInicializador);
         }
