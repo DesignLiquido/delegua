@@ -61,11 +61,11 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.erros = [];
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
-        throw new Error('Método não implementado.');
+        return Promise.resolve();
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
-        throw new Error('Método não implementado.');
+        return Promise.resolve();
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {

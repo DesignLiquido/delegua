@@ -59,7 +59,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.erros = [];
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
-        throw new Error('Método não implementado.');
+        return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
