@@ -1004,6 +1004,10 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('oi mundo, oi universo');
+                    };
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
