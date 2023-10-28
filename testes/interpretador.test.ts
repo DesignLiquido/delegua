@@ -994,6 +994,21 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             })
+
+            describe('Expressão Regular', () => {
+                it('Método substituir()', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var str = \"olá mundo, olá universo\";",
+                        "var novaStr = str.substituir(||/olá/g||, \"oi\");",
+                        "escreva(novaStr);",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            })
         });
 
         describe('Cenários de falha', () => {

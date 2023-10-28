@@ -1,4 +1,4 @@
-import { Atribuir, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../construtos';
+import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../construtos';
 import {
     Bloco,
     Classe,
@@ -59,6 +59,9 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.erros = [];
+    }
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {

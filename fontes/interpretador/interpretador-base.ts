@@ -50,6 +50,7 @@ import {
     Binario,
     Chamada,
     Construto,
+    ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
     Literal,
@@ -134,6 +135,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        return expressao.valor;
     }
 
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {

@@ -323,8 +323,13 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '|':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
                 this.avancar();
+                if (this.simboloAtual() === '|') {
+                    this.adicionarSimbolo(tiposDeSimbolos.EXPRESSAO_REGULAR, '||');
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
+                }
                 break;
 
             case '^':

@@ -26,6 +26,7 @@ import {
     Variavel,
     Vetor,
     Isto,
+    ExpressaoRegular,
 } from '../construtos';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
@@ -271,9 +272,38 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                     simboloAtual,
                     _expressao instanceof Literal ? _expressao.valor : _expressao
                 );
+
+            case tiposDeSimbolos.EXPRESSAO_REGULAR:
+                let valor: string = '';
+                this.avancarEDevolverAnterior();
+                while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
+                    valor += this.simboloAtual().lexema;
+                    this.avancarEDevolverAnterior();
+                }
+                this.avancarEDevolverAnterior();
+                const valorExpressaoRegular = this.textoParaRegex(valor);
+                return new ExpressaoRegular(
+                    this.hashArquivo,
+                    simboloAtual,
+                    valorExpressaoRegular
+                );
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
+    }
+
+    //https://stackoverflow.com/a/66751666/9043143
+    textoParaRegex(texto) : RegExp {
+        const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
+        return match ? 
+          new RegExp(
+            match[2],
+            match[3]
+              .split('')
+              .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
+              .join('')
+          ) 
+          : new RegExp(texto);
     }
 
     finalizarChamada(entidadeChamada: Construto): Construto {
