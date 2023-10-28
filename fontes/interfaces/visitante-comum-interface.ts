@@ -74,5 +74,4 @@ export interface VisitanteComumInterface {
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any>;
     visitarExpressaoUnaria(expressao: any): any;
     visitarExpressaoVetor(expressao: any): any;
-    visitarExpressaoQualTipo(expressao: any): Promise<any>;
 }

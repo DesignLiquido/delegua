@@ -6,11 +6,12 @@ import { AcessoMetodo, Binario, QualTipo, Unario, Variavel } from '../../../cons
 import * as comum from './comum';
 import { ObjetoPadrao } from '../../../estruturas';
 import { inferirTipoVariavel } from './inferenciador';
+import { InterpretadorInterfacePotigol } from '../../../interfaces/interpretador-interface-potigol';
 
 /**
  * Uma implementação do interpretador de Potigol.
  */
-export class InterpretadorPotigol extends InterpretadorBase {
+export class InterpretadorPotigol extends InterpretadorBase implements InterpretadorInterfacePotigol {
     constructor(
         diretorioBase: string,
         performance = false,

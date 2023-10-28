@@ -1,4 +1,5 @@
-import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import { SimboloInterface } from '../interfaces';
+import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
 import { Construto } from './construto';
 
 
@@ -16,7 +17,8 @@ export class QualTipo implements Construto {
         this.simbolo = simbolo;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
+    async aceitar(visitante: InterpretadorInterfacePotigol): Promise<string> {
         return Promise.resolve(visitante.visitarExpressaoQualTipo(this));
     }
 }
+
