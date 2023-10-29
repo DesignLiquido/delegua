@@ -396,7 +396,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor: declaracao.inicializador.valor || declaracao.inicializador
+            valor: declaracao.inicializador?.valor || declaracao.inicializador
         };
 
         return Promise.resolve();
