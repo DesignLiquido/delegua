@@ -42,4 +42,5 @@ export const palavrasReservadas = {
     tipo: tiposDeSimbolos.TIPO,
     var: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
+    qual_tipo: tiposDeSimbolos.QUAL_TIPO,
 };

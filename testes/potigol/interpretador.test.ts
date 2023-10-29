@@ -45,8 +45,89 @@ describe('Interpretador', () => {
             });
         });
 
+        describe('qual_tipo', () => {
+            it('Dado um inteiro, escreva qual_tipo deve retornar Inteiro', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = 3',
+                    'escreva(a.qual_tipo)'
+                ], -1);
+
+                // Substitua a função de saída
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Inteiro");
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um inteiro, escreva qual_tipo deve retornar Inteiro 2', async () => {
+                const retornoLexador = lexador.mapear([                    
+                    'escreva(3.qual_tipo)'
+                ], -1);
+
+                // Substitua a função de saída
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Inteiro");
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um real, escreva qual_tipo deve retornar Real', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = 3.1',
+                    'escreva(a.qual_tipo)'
+                ], -1);
+
+                // Substitua a função de saída
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Real");
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado uma variável, escreva qual_tipo deve atribuir Inteiro', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = 3.qual_tipo',
+                    'escreva(a)'
+                ], -1);
+
+                // Substitua a função de saída
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Inteiro");
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um vetor, escreva qual_tipo deve imprirmir Lista', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [3, 4]',
+                    'escreva (a.qual_tipo)'
+                ], -1);
+
+                // Substitua a função de saída
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Lista");
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+        });
+
         describe('Declaração de lista', () => {
-            it('Dado em vetor, escreva deve imprirmir o vetor', async () => {
+            it('Dado um vetor, escreva deve imprirmir o vetor', async () => {
                 const retornoLexador = lexador.mapear([
                     'a = [3, 4]',
                     'escreva (a)'
@@ -62,21 +143,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
        
-            it.skip('WIP: Dado em vetor, escreva qual_tipo deve imprirmir Lista', async () => {
-                const retornoLexador = lexador.mapear([
-                    'a = [3, 4]',
-                    'escreva (a.qual_tipo)'
-                ], -1);
-
-                // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
-                    expect(saida).toEqual("Lista");
-                };
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                expect(retornoInterpretador.erros).toHaveLength(0);
-            });
+            
         })
     });
 });

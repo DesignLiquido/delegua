@@ -15,6 +15,7 @@ import {
     FimPara,
     FormatacaoEscrita,
     Literal,
+    QualTipo,
     Super,
     TipoDe,
     Variavel,
@@ -95,6 +96,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoQualTipo(expressao: QualTipo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

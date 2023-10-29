@@ -59,4 +59,5 @@ export default {
     VERDADEIRO: 'VERDADEIRO',
     VARIAVEL: 'VARIAVEL',
     VIRGULA: 'VIRGULA',
+    QUAL_TIPO: 'QUAL_TIPO',
 };

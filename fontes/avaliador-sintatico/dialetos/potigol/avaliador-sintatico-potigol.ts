@@ -13,6 +13,7 @@ import {
     FuncaoConstruto,
     Isto,
     Literal,
+    QualTipo,
     Unario,
     Variavel,
     Vetor,
@@ -409,9 +410,21 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 }
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
-                expressao = new AcessoMetodo(this.hashArquivo, variavelMetodo, nome);
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUAL_TIPO)) {
+                    const identificador = this.simbolos[this.atual - 2];
+                    const simbolo = this.simbolos[this.atual];
+                    const valor = expressao ? expressao : identificador.lexema;
+                    this.avancarEDevolverAnterior();
+                    return new QualTipo(
+                        this.hashArquivo,
+                        simbolo,
+                        valor
+                    );
+                } else {
+                    const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                    const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
+                    expressao = new AcessoMetodo(this.hashArquivo, variavelMetodo, nome);
+                }
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(
@@ -449,9 +462,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const argumentos: Construto[] = [];
 
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)
+
         do {
             argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)
 
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }

@@ -55,6 +55,7 @@ import {
     FormatacaoEscrita,
     Literal,
     Logico,
+    QualTipo,
     Super,
     TipoDe,
     Unario,
@@ -169,6 +170,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return inferirTipoVariavel(tipoDe?.valores || tipoDe);
+    }
+
+    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
