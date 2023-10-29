@@ -62,7 +62,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Dado um inteiro, escreva qual_tipo deve retornar Inteiro 2', async () => {
+            it('Dado um inteiro, escreva qual_tipo deve retornar Inteiro 2', async () => {
                 const retornoLexador = lexador.mapear([                    
                     'escreva(3.qual_tipo)'
                 ], -1);
@@ -93,7 +93,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Dado uma variável, escreva qual_tipo deve atribuir Inteiro', async () => {
+            it('Dado uma variável, escreva qual_tipo deve atribuir Inteiro', async () => {
                 const retornoLexador = lexador.mapear([
                     'a = 3.qual_tipo',
                     'escreva(a)'

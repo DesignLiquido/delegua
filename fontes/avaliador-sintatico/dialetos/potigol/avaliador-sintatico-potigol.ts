@@ -413,11 +413,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUAL_TIPO)) {
                     const identificador = this.simbolos[this.atual - 2];
                     const simbolo = this.simbolos[this.atual];
+                    const valor = expressao ? expressao : identificador.lexema;
                     this.avancarEDevolverAnterior();
                     return new QualTipo(
                         this.hashArquivo,
                         simbolo,
-                        identificador.lexema
+                        valor
                     );
                 } else {
                     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");

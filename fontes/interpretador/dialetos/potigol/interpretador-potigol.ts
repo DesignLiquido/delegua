@@ -1,7 +1,7 @@
 import { InterpretadorBase } from '../../interpretador-base';
 
 import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
-import { AcessoMetodo, Binario, QualTipo, Unario, Variavel } from '../../../construtos';
+import { AcessoMetodo, Binario, ConstanteOuVariavel, Literal, QualTipo, Unario, Variavel } from '../../../construtos';
 
 import * as comum from './comum';
 import { ObjetoPadrao } from '../../../estruturas';
@@ -59,11 +59,16 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
     }
 
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
-        
-        let qualTipo = this.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[expressao.valor].valor;
+        let qualTipo = expressao.valor;
+
+        if (expressao?.valor instanceof ConstanteOuVariavel) {
+            const nome = expressao?.valor.simbolo.lexema
+            qualTipo = this.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[nome].valor
+        }
         
          if (
              qualTipo instanceof Binario ||
+             qualTipo instanceof Literal ||
              qualTipo instanceof QualTipo ||
              qualTipo instanceof Unario ||
              qualTipo instanceof Variavel

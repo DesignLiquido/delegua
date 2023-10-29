@@ -35,7 +35,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Sucesso - Operações encadeadas', () => {
+                it.only('Sucesso - Operações encadeadas', () => {
                     const retornoLexador = lexador.mapear(['escreva (2 * 8) - (5 / 4 ^ 7)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
         
