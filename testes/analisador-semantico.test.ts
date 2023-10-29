@@ -60,6 +60,18 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
             });
 
+            it('Atribuindo variável após declaração', () => {
+                const retornoLexador = lexador.mapear([
+                    "var variavel1: texto",
+                    "variavel1 = 'teste'",
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Função com definição de tipos', () => {
                 const retornoLexador = lexador.mapear([
                     // "var a = funcao (valor1: inteiro, valor2: qualquer, valor3: texto): texto {",
