@@ -247,11 +247,11 @@ describe('Analisador semântico', () => {
                 const retornoLexador = lexador.mapear([
                     'var opcao = leia(\'Digite a opção desejada: \')',
                     'escolha opcao {',
-                        'caso 0:',
-                        'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
-                            'facaAlgumaCoisa()',
-                        'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
-                            'facaAlgumaCoisa()',
+                    'caso 0:',
+                    'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
+                    'facaAlgumaCoisa()',
+                    'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
+                    'facaAlgumaCoisa()',
                     '}',
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -266,12 +266,12 @@ describe('Analisador semântico', () => {
                 const retornoLexador = lexador.mapear([
                     'var opcao = leia(\'Digite a opção desejada: \')',
                     'escolha opcao {',
-                        // 'cas:x1 ako',
-                        'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
-                            'facaAlgumaCoisa()',
-                        'cas:x1 ako',
-                        'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
-                            'facaAlgumaCoisa()',
+                    // 'cas:x1 ako',
+                    'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
+                    'facaAlgumaCoisa()',
+                    'cas:x1 ako',
+                    'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
+                    'facaAlgumaCoisa()',
                     '}',
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -384,6 +384,83 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.erros[0].mensagem).toBe('Não pode haver mais de 255 parâmetros');
                 expect(retornoAnalisadorSemantico.erros[1].mensagem).toBe('Não pode haver mais de 255 parâmetros');
             });
+        });
+
+        describe('Cenários enquanto', () => {
+            describe('Cenários de sucesso', () => {
+                it('com condicional verdadeiro', () => {
+                    const retornoLexador = lexador.mapear([
+                        "enquanto verdadeiro {  ",
+                        "    escreva(\"sim\");  ",
+                        "    sustar;            ",
+                        "}                      ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('com condicional falso', () => {
+                    const retornoLexador = lexador.mapear([
+                        "enquanto falso {  ",
+                        "    escreva(\"sim\");  ",
+                        "    sustar;            ",
+                        "}                      ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('com variavel definida com valor inválido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const condicional = verdadeiro     ",
+                        "enquanto condicional {             ",
+                        "    escreva(\"sim\");              ",
+                        "    sustar;                        ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });      
+            });
+            describe('Cenários de falha', () => {
+                it('com condicional não declarada', () => {
+                    const retornoLexador = lexador.mapear([
+                        "enquanto condicional {  ",
+                        "    escreva(\"sim\");   ",
+                        "    sustar;             ",
+                        "}                       ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('com variavel definida com valor inválido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const condicional = \"invalido\"   ",
+                        "enquanto condicional {             ",
+                        "    escreva(\"sim\");              ",
+                        "    sustar;                        ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });                
+             });
         });
     });
 });

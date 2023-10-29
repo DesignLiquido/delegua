@@ -78,7 +78,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                     const vetor = declaracao.inicializador as Vetor;
                     if (declaracao.tipo === 'inteiro[]') {
                         const v = vetor.valores.find(v => typeof v?.valor !== 'number')
-                        if(v) {
+                        if (v) {
                             this.erro(
                                 declaracao.simbolo,
                                 `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de 'inteiros' ou 'real'.`
@@ -87,7 +87,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                     }
                     if (declaracao.tipo === 'texto[]') {
                         const v = vetor.valores.find(v => typeof v?.valor !== 'string')
-                        if(v) {
+                        if (v) {
                             this.erro(
                                 declaracao.simbolo,
                                 `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de 'texto'.`
@@ -171,13 +171,13 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                             `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
                         );
                     }
-                    else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo) 
-                            && typeof arg1.valor !== 'number') {
+                    else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo)
+                        && typeof arg1.valor !== 'number') {
                         this.erro(
                             expressao.entidadeChamada.simbolo,
                             `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
                         );
-                    }                    
+                    }
                 }
             }
         }
@@ -314,6 +314,21 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+        if (declaracao.condicao instanceof Variavel) {
+            const variavel = declaracao.condicao as Variavel;
+            const valor = this.variaveis[variavel.simbolo.lexema];
+            if (!valor) {
+                this.erro(
+                    declaracao.condicao.simbolo,
+                    `Variável ${declaracao.condicao.simbolo.lexema} ainda não foi declarada até este ponto.`
+                );
+            } else if (typeof(valor.valor) !== 'boolean') {
+                this.erro(
+                    declaracao.condicao.simbolo,
+                    `Esperado tipo 'lógico' na condição do 'enquanto'.`
+                );
+            }
+        }
         return Promise.resolve();
     }
 
@@ -325,7 +340,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         const variaveis = declaracao.argumentos.filter(arg => arg instanceof Variavel)
 
         for (let variavel of variaveis as Variavel[]) {
-            if(!this.variaveis[variavel.simbolo.lexema]) {
+            if (!this.variaveis[variavel.simbolo.lexema]) {
                 this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`)
             }
         }
@@ -421,7 +436,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         for (let parametro of declaracao.funcao.parametros) {
-            if(parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
+            if (parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
                 this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.tipoInvalido}' não é válido.`);
             }
         }
