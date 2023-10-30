@@ -1,4 +1,4 @@
-import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from '../construtos';
+import { Agrupamento, Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Variavel, Vetor } from '../construtos';
 import {
     Bloco,
     Classe,
@@ -314,23 +314,71 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        if (declaracao.condicao instanceof Variavel) {
-            const variavel = declaracao.condicao as Variavel;
-            const valor = this.variaveis[variavel.simbolo.lexema];
-            if (!valor) {
-                this.erro(
-                    declaracao.condicao.simbolo,
-                    `Variável ${declaracao.condicao.simbolo.lexema} ainda não foi declarada até este ponto.`
-                );
-            } else if (typeof(valor.valor) !== 'boolean') {
-                this.erro(
-                    declaracao.condicao.simbolo,
-                    `Esperado tipo 'lógico' na condição do 'enquanto'.`
-                );
-            }
+        return this.verificarCondicao(declaracao.condicao);
+    }
+
+    private verificarCondicao(condicao: Construto): Promise<void> {
+        if (condicao instanceof Variavel) {
+            return this.verificarVariavel(condicao);
+        }
+        if (condicao instanceof Binario) {
+            return this.verificarBinario(condicao);
+        }
+        if (condicao instanceof Agrupamento) {
+            return this.verificarAgrupamento(condicao);
         }
         return Promise.resolve();
     }
+
+    private verificarVariavel(variavel: Variavel): Promise<void> {
+        const variavelHipotetica = this.variaveis[variavel.simbolo.lexema];
+        if (!variavelHipotetica) {
+            this.erro(
+                variavel.simbolo,
+                `Variável ${variavel.simbolo.lexema} ainda não foi declarada até este ponto.`
+            );
+        } else if (!(variavelHipotetica.valor instanceof Binario) && (typeof variavelHipotetica.valor !== 'boolean')) {
+            this.erro(
+                variavel.simbolo,
+                `Esperado tipo 'lógico' na condição do 'enquanto'.`
+            );
+        }
+        return Promise.resolve();
+    }
+
+    private verificarBinario(binario: Binario): Promise<void> {
+        this.verificarLadoBinario(binario.direita);
+        this.verificarLadoBinario(binario.esquerda);
+        return Promise.resolve();
+    }
+
+    private verificarLadoBinario(lado: any): void {
+        if (lado instanceof Variavel && !this.variaveis[lado.simbolo.lexema]) {
+            this.erro(
+                lado.simbolo,
+                `Variável ${lado.simbolo.lexema} ainda não foi declarada até este ponto.`
+            );
+        }
+    }
+
+    private verificarAgrupamento(agrupamento: Agrupamento): Promise<void> {
+        if (agrupamento.expressao instanceof Binario) {
+            return this.verificarBinario(agrupamento.expressao);
+        }
+        if (agrupamento.expressao instanceof Logico) {
+            this.verificarLadoLogico(agrupamento.expressao.direita);
+            this.verificarLadoLogico(agrupamento.expressao.esquerda);
+        }
+        return Promise.resolve();
+    }
+
+    private verificarLadoLogico(lado: any): void {
+        if (lado instanceof Variavel) {
+            let variavel = lado as Variavel;
+            this.verificarVariavel(variavel)
+        }
+    }
+
 
     visitarDeclaracaoImportar(declaracao: Importar) {
         return Promise.resolve();

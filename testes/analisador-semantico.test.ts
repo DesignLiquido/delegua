@@ -428,7 +428,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
                 });
 
-                it('com variavel definida com valor inválido', () => {
+                it('com variavel definida com valor válido', () => {
                     const retornoLexador = lexador.mapear([
                         "const condicional = verdadeiro     ",
                         "enquanto condicional {             ",
@@ -441,7 +441,53 @@ describe('Analisador semântico', () => {
 
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
-                });      
+                });
+
+                it('com variável e expressão binária', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const valor = 1                    ",
+                        "enquanto valor != 5 {              ",
+                        "    escreva(\"sim\");              ",
+                        "    valor++;                       ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('com variável e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const valor = 1                    ",
+                        "enquanto (valor != 5) {            ",
+                        "    escreva(\"sim\");              ",
+                        "    valor++;                       ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('sucesso - verificar valores lógicos nas operações binárias', () => {
+                    const retornoLexador = lexador.mapear([
+                        "var x = 5 > 2;                     ",
+                        "var y = 10 < 11;                   ",
+                        "enquanto (x e y) {                 ",
+                        "    escreva(\"sim\");              ",
+                        "    sustar;                        ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
             });
             describe('Cenários de falha', () => {
                 it('com condicional não declarada', () => {
@@ -471,8 +517,52 @@ describe('Analisador semântico', () => {
 
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
-                });                
-             });
+                });
+
+                it('com variável não declarada e expressão binária', () => {
+                    const retornoLexador = lexador.mapear([
+                        "enquanto valor != 5 {              ",
+                        "    escreva(\"sim\");              ",
+                        "    valor++;                       ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('com variável não declarada e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "enquanto (valor != 5) {            ",
+                        "    escreva(\"sim\");              ",
+                        "    valor++;                       ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('falha - verificar valores lógicos nas operações binárias', () => {
+                    const retornoLexador = lexador.mapear([
+                        "var x = 5;                         ",
+                        "var y = 10;                        ",
+                        "enquanto (x e y) {                 ",
+                        "    escreva(\"sim\");              ",
+                        "    sustar;                        ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(2);
+                });
+            });
         });
     });
 });
