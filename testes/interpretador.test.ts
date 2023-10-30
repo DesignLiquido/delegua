@@ -79,6 +79,13 @@ describe('Interpretador', () => {
                 });
 
                 it('Interpolação de Texto/Função/Expressão', async () => {
+                    const saidasMensagens = [
+                        'Minha comida favorita é strogonoff',
+                        'somar: 8 = 8',
+                        'somar com ponto flutuante: 9 = 9',
+                        '2',
+                        'Valor: falso e verdadeiro'
+                    ]
                     const retornoLexador = lexador.mapear([
                         "var comidaFavorita = 'strogonoff'",
                         'escreva("Minha comida favorita é ${comidaFavorita}")',
@@ -94,12 +101,24 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Incremento e decremento após variável ou literal', async () => {
+                    const saidasMensagens = [
+                        '1',
+                        '1',
+                        '2',
+                        '0',
+                        '6',
+                        '4',
+                    ]
                     const retornoLexador = lexador.mapear([
                         'var a = 1',
                         'escreva(a++)',
@@ -109,9 +128,13 @@ describe('Interpretador', () => {
                         'escreva(++5)',
                         'escreva(--5)'
                     ], -1);
-    
+
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-        
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -126,6 +149,10 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("2");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -138,6 +165,10 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("2");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -149,6 +180,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("Olá mundo");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -157,6 +192,10 @@ describe('Interpretador', () => {
                 it('nulo', async () => {
                     const retornoLexador = lexador.mapear(["escreva(nulo)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("nulo");
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -167,6 +206,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["escreva(nulo == nulo)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("verdadeiro");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -175,6 +218,10 @@ describe('Interpretador', () => {
                 it('verdadeiro', async () => {
                     const retornoLexador = lexador.mapear(["escreva(verdadeiro)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("verdadeiro");
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -185,12 +232,36 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["escreva(falso)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("falso");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Tipo de', async () => {
+                    const saidasMensagens = [
+                        'lógico',
+                        'lógico',
+                        'número',
+                        'número',
+                        'texto',
+                        'vetor',
+                        'vetor',
+                        'vetor',
+                        'função',
+                        'nulo',
+                        'número',
+                        'texto',
+                        'número',
+                        'número',
+                        'objeto',
+                        'objeto',
+                        'nulo',
+                        'texto'
+                    ]
                     const retornoLexador = lexador.mapear([
                         "escreva(tipo de verdadeiro)",
                         "escreva(tipo de falso)",
@@ -219,6 +290,10 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -241,14 +316,23 @@ describe('Interpretador', () => {
                 });
 
                 it('Ordem lexicográfica de textos', async () => {
+                    const saidasMensagens = [
+                        'verdadeiro',
+                        'falso',
+                    ]
                     const retornoLexador = lexador.mapear([
                         "escreva('batata' > 'arroz')",
                         "escreva('batata' < 'arroz')"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-    
+
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             });
@@ -257,6 +341,10 @@ describe('Interpretador', () => {
                 it('Operações matemáticas - Trivial', async () => {
                     const retornoLexador = lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('16.666666666666668');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -293,6 +381,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('5');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -304,6 +396,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["escreva(verdadeiro ou falso)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('verdadeiro');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -312,6 +408,10 @@ describe('Interpretador', () => {
                 it('Operações lógicas - e', async () => {
                     const retornoLexador = lexador.mapear(["escreva(verdadeiro e falso)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('falso');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -340,6 +440,10 @@ describe('Interpretador', () => {
                 it('Operações lógicas - em', async () => {
                     const retornoLexador = lexador.mapear(["escreva(2 em [1, 2, 3])"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('verdadeiro');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -417,6 +521,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('correspondente à opção 1');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -425,6 +533,10 @@ describe('Interpretador', () => {
 
             describe('Tente - Pegue - Finalmente', () => {
                 it('Tente', async () => {
+                    const saidasMensagens = [
+                        "sucesso",
+                        "pronto"
+                    ]
                     const codigo = [
                         "tente {",
                             "escreva('sucesso');",
@@ -437,6 +549,10 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -459,6 +575,10 @@ describe('Interpretador', () => {
                 });
 
                 it('Tente com senão interno', async () => {
+                    const saidasMensagens = [
+                        "é diferente",
+                        "pronto"
+                    ]
                     const codigo = [
                         "tente {",
                             "se (1 != 1) {",
@@ -476,6 +596,10 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -508,6 +632,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["se (1 < 2) { escreva('Um menor que dois') } senão { escreva('Nunca será executado') }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("Um menor que dois");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -516,6 +644,10 @@ describe('Interpretador', () => {
                 it('Condicionais - condição falsa', async () => {
                     const retornoLexador = lexador.mapear(["se (1 > 2) { escreva('Nunca acontece') } senão { escreva('Um não é maior que dois') }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("Um não é maior que dois")
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -526,6 +658,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["se (1 <= 2) { escreva('Um é menor e igual a dois') } senão { escreva('Nunca será executado') }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("Um é menor e igual a dois")
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -535,6 +671,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(["se (2 >= 1) { escreva('Dois é maior ou igual a um') } senão { escreva('Nunca será executado') }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("Dois é maior ou igual a um")
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -543,6 +683,10 @@ describe('Interpretador', () => {
                 it('Condicionais - condição diferente', async () => {
                     const retornoLexador = lexador.mapear(["se (2 != 1) { escreva('Dois é diferente de um') } senão { escreva('Nunca será executado') }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("Dois é diferente de um")
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -573,6 +717,11 @@ describe('Interpretador', () => {
                 });
 
                 it('Laços de repetição - para cada - trivial', async () => {
+                    const saidasMensagens = [
+                        'Valor:  1',
+                        'Valor:  2',
+                        'Valor:  3'
+                    ]
                     const retornoLexador = lexador.mapear([
                         "para cada elemento em [1, 2, 3] {",
                         "   escreva('Valor: ', elemento)",
@@ -580,12 +729,22 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Laços de repetição - para cada - vetor variável', async () => {
+                    const saidasMensagens = [
+                        'Valor:  1',
+                        'Valor:  2',
+                        'Valor:  3'
+                    ]
                     const retornoLexador = lexador.mapear([
                         "var v = [1, 2, 3]",
                         "para cada elemento em v {",
@@ -593,6 +752,10 @@ describe('Interpretador', () => {
                         "}",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -614,8 +777,24 @@ describe('Interpretador', () => {
                 });
 
                 it('Laços de repetição - para', async () => {
+                    const saidasMensagens = [
+                        '0',
+                        '1',
+                        '2',
+                        '3',
+                        '4',
+                        '5',
+                        '6',
+                        '7',
+                        '8',
+                        '9'
+                    ]
                     const retornoLexador = lexador.mapear(["para (var i = 0; i < 10; i = i + 1) { escreva(i) }"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -645,6 +824,11 @@ describe('Interpretador', () => {
                 });
 
                 it('Trivial', async () => {
+                    const saidasMensagens = [
+                        'Correndo Loucamente',
+                        "Au Au Au Au",
+                        'Classe: OK!'
+                    ]
                     const codigo = [
                         "classe Animal {",
                         "    correr() {",
@@ -665,6 +849,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -676,17 +864,21 @@ describe('Interpretador', () => {
                             "data(data) {",
                               "escreva(data);",
                             "}",
-                        "}",                          
+                        "}",
                         "classe B herda A {",
                             "construtor(data) {",
                               "super.data(data);",
                             "}",
-                        "}",                          
+                        "}",
                         "var a = B(\"13/12/1981\");",
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("13/12/1981");
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -702,12 +894,12 @@ describe('Interpretador', () => {
                             "data(data1) {",
                               "escreva(isto.dataA + \" - \", data1)",
                             "}",
-                        "}",                          
+                        "}",
                         "classe B herda A {",
                             "construtor(data) {",
                               "super.data(data);",
                             "}",
-                        "}",                          
+                        "}",
                         "var a = B(\"13/12/1981\");",
                     ];
 
@@ -759,6 +951,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("nulo");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -777,6 +973,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("3");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -793,6 +993,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("3");
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -808,6 +1012,10 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('1,2,3');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -827,6 +1035,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('Olá,mundo');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -842,12 +1054,17 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('maçã,banana,morango');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Fibonacci', async () => {
+                    const saidasMensagens = ['0', '1', '1', '2', '3', '5']
                     const codigo = [
                         "função fibonacci(n) {",
                         "    se (n == 0) {",
@@ -878,6 +1095,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -899,6 +1120,10 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('falso');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -922,6 +1147,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('verdadeiro');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -930,6 +1159,7 @@ describe('Interpretador', () => {
 
             describe('Entrada e saída', () => {
                 it('Enquanto (verdadeiro) e Sustar', async () => {
+                    const saidasMensagens = ['opção invalida', 'opção invalida', 'resultado 4']
                     // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
                     const respostas = ['5', '5', '5', '4', '4'];
                     interpretador.interfaceEntradaSaida = {
@@ -966,6 +1196,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -988,6 +1222,10 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('Você tem 13870 dias de vida');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
@@ -1004,6 +1242,10 @@ describe('Interpretador', () => {
                         "escreva(numeros);"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        expect(saida).toEqual('12,8,4,2');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -1039,6 +1281,10 @@ describe('Interpretador', () => {
                         "escreva(a[4]);"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        expect(saida).toEqual('nulo');
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -1094,6 +1340,10 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        expect(saida).toEqual('nulo');
+                    }
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
@@ -1117,7 +1367,7 @@ describe('Interpretador', () => {
                         "falhar 'teste de falha'"
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
