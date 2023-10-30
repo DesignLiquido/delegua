@@ -20,6 +20,10 @@ describe('Interpretador', () => {
             ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+            interpretador.funcaoDeRetorno = (saida: any) => {
+                expect(saida).toEqual("Olá mundo")
+            }
+
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
@@ -27,6 +31,10 @@ describe('Interpretador', () => {
 
         describe('Tipos e objetos', () => {
             it('Trivial', async () => {
+                const saidasMensagens = [
+                    "100",
+                    "40"
+                ]
                 const retornoLexador = lexador.mapear([
                     'tipo Quadrado',
                     '  area() = lado * lado',
@@ -38,9 +46,13 @@ describe('Interpretador', () => {
                     'escreva q1.perimetro()'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saidasMensagens.includes(saida)).toBeTruthy()
+                }
+
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-    
+
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
         });
@@ -63,14 +75,14 @@ describe('Interpretador', () => {
             });
 
             it('Dado um inteiro, escreva qual_tipo deve retornar Inteiro 2', async () => {
-                const retornoLexador = lexador.mapear([                    
+                const retornoLexador = lexador.mapear([
                     'escreva(3.qual_tipo)'
                 ], -1);
 
                 // Substitua a função de saída
                 interpretador.funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual("Inteiro");
-                };
+                }
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -142,8 +154,8 @@ describe('Interpretador', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
-       
-            
+
+
         })
     });
 });

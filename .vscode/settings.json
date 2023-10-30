@@ -20,5 +20,6 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#000000",
-    "compile-hero.disable-compile-files-on-did-save-code": true
+    "compile-hero.disable-compile-files-on-did-save-code": true,
+    "nuxt.isNuxtApp": false
 }
