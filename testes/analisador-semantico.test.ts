@@ -488,6 +488,36 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
                 });
 
+                it('sucesso - verificar operações aritméticas', () => {
+                    const retornoLexador = lexador.mapear([
+                        "var x = 1;                           ",
+                        "var y = 2;                           ",
+                        "enquanto (x + y < 10) {sustar;}      ",
+                        "enquanto (x - y < 10) {sustar;}      ",
+                        "enquanto (x * y < 10) {sustar;}      ",
+                        "enquanto (x / y < 10) {sustar;}      ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('sucesso - verificar função declarada', () => {
+                    const retornoLexador = lexador.mapear([
+                          "funcao funcaoExistente() {       ",
+                          "  retorna verdadeiro;            ",
+                          "}                                ",
+                          "enquanto (funcaoExistente()) {   ",
+                          "    escreva('teste');            ",
+                          "    sustar;                      ",
+                          "}                                ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
             });
             describe('Cenários de falha', () => {
                 it('com condicional não declarada', () => {
@@ -547,7 +577,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
                 });
 
-                it('falha - verificar valores lógicos nas operações binárias', () => {
+                it('falha - verificar valores lógicos nas operações binárias e agrupamento', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 5;                         ",
                         "var y = 10;                        ",
@@ -562,6 +592,66 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.erros).toHaveLength(2);
                 });
+
+                it('falha - verificar valores lógicos nas operações binárias sem agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "var x = 5;                         ",
+                        "var y = 10;                        ",
+                        "enquanto x e y {                   ",
+                        "    escreva(\"sim\");              ",
+                        "    sustar;                        ",
+                        "}                                  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(2);
+                });
+
+                it('falha - verificar operações aritméticas', () => {
+                    const retornoLexador = lexador.mapear([
+                        "var x = 'texto';                   ",
+                        "var y = 2;                         ",
+                        "enquanto (x + y < 10) {sustar;}    ",
+                        "enquanto (x - y < 10) {sustar;}    ",
+                        "enquanto (x * y < 10) {sustar;}    ",
+                        "enquanto (x / y < 10) {sustar;}    ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(4);
+                });
+
+                it('falha - verificar operação divisão por zero', () => {
+                    const retornoLexador = lexador.mapear([
+                        "var x = 3;                        ",
+                        "var y = 0;                         ",
+                        "enquanto (x / y < 10) {sustar;}    ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('falha - verificar função não declarada', () => {
+                    const retornoLexador = lexador.mapear([
+                        "enquanto (funcaoNaoExistente()) {",
+                        "   escreva('teste');",
+                        "   sustar;",
+                        "}",
+                        "enquanto funcaoNaoExistente() {",
+                        "   escreva('teste');",
+                        "   sustar;",
+                        "}",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(2);
+                });                
             });
         });
     });
