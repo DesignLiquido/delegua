@@ -318,14 +318,20 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     private verificarCondicao(condicao: Construto): Promise<void> {
+        if (condicao instanceof Agrupamento) {
+            return this.verificarCondicao(condicao.expressao);
+        }
         if (condicao instanceof Variavel) {
             return this.verificarVariavel(condicao);
         }
         if (condicao instanceof Binario) {
             return this.verificarBinario(condicao);
+        }        
+        if (condicao instanceof Logico) {
+            return this.verificarLogico(condicao);
         }
-        if (condicao instanceof Agrupamento) {
-            return this.verificarAgrupamento(condicao);
+        if (condicao instanceof Chamada) {
+            return this.verificarChamada(condicao);
         }
         return Promise.resolve();
     }
@@ -349,19 +355,65 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     private verificarBinario(binario: Binario): Promise<void> {
         this.verificarLadoBinario(binario.direita);
         this.verificarLadoBinario(binario.esquerda);
+        this.verificarOperadorBinario(binario);
         return Promise.resolve();
     }
 
-    private verificarLadoBinario(lado: any): void {
+    private verificarOperadorBinario(binario: Binario): void {
+        const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
+        if (operadoresMatematicos.includes(binario.operador.tipo)) {
+            if (binario.direita instanceof Variavel && binario.esquerda instanceof Variavel) {
+                const tipoDireita = typeof this.variaveis[binario.direita.simbolo.lexema]?.valor;
+                const tipoEsquerda = typeof this.variaveis[binario.esquerda.simbolo.lexema]?.valor;
+                if (tipoDireita !== tipoEsquerda) {
+                    this.erro(binario.operador, `Operação inválida, tipos diferentes.`);
+                }
+            }
+        }
+
+        if (binario.operador.tipo === 'DIVISAO') {
+            if (this.variaveis[binario.direita.simbolo.lexema]?.valor === 0) {
+                this.erro(binario.operador, `Divisão por zero.`);
+            }
+        }
+    }
+
+    private verificarLadoBinario(lado: Construto): void {
         if (lado instanceof Variavel && !this.variaveis[lado.simbolo.lexema]) {
             this.erro(
                 lado.simbolo,
                 `Variável ${lado.simbolo.lexema} ainda não foi declarada até este ponto.`
             );
+            return;
+        }
+        if (lado instanceof Binario) {
+            this.verificarBinario(lado);
+            return;
+        }
+        return;
+    }
+
+    private verificarLogico(logio: Logico): Promise<void> {
+        this.verificarLadoLogico(logio.direita);
+        this.verificarLadoLogico(logio.esquerda);
+        return Promise.resolve();
+    }
+
+    private verificarChamada(chamada: Chamada): Promise<void> {
+        let funcaoChamada = (chamada.entidadeChamada as Variavel);
+        if (!this.funcoes[funcaoChamada.simbolo.lexema]) {
+            this.erro(
+                funcaoChamada.simbolo,
+                `Chamada da função '${funcaoChamada.simbolo.lexema}' não existe.`
+            );
+            return Promise.resolve();
         }
     }
 
     private verificarAgrupamento(agrupamento: Agrupamento): Promise<void> {
+        if (agrupamento.expressao instanceof Chamada) {
+            return this.verificarChamada(agrupamento.expressao);
+        }
         if (agrupamento.expressao instanceof Binario) {
             return this.verificarBinario(agrupamento.expressao);
         }
@@ -444,7 +496,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor: declaracao.inicializador?.valor || declaracao.inicializador
+            valor: declaracao.inicializador !== null ? declaracao.inicializador.valor !== undefined ? declaracao.inicializador.valor : declaracao.inicializador : undefined
         };
 
         return Promise.resolve();
