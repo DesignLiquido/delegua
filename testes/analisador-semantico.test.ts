@@ -654,5 +654,67 @@ describe('Analisador semântico', () => {
                 });                
             });
         });
+
+        describe('Cenários tipo de', () => {
+            describe('Cenários de sucesso', () => {
+                it('com variável definida com valor válido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const condicional = verdadeiro     ",
+                        "tipo de condicional                ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('tipo de com variável definida e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const a = 1      ",
+                        "const b = 2      ",
+                        "tipo de (a + b)  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+            });
+
+            describe('Cenários de falha', () => {
+
+                it('tipo de com variável não definida', () => {
+                    const retornoLexador = lexador.mapear([
+                        "tipo de condicional                ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('tipo de com variável não definida e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "tipo de (a)  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('tipo de binario com variável não definida e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const a = 1      ",
+                        "tipo de (a + b)  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+            });
+
+        });
     });
 });

@@ -315,6 +315,23 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it ('Tipo de com agrupamento', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var a = 1',
+                        'var b = tipo de (a)',
+                        'escreva(b)',
+                    ], -1);
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("número");
+                    };
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Ordem lexicográfica de textos', async () => {
                     const saidasMensagens = [
                         'verdadeiro',
