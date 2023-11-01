@@ -327,7 +327,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    async visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         return this.verificarCondicao(declaracao.condicao);
     }
 
