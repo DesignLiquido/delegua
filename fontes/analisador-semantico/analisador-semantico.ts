@@ -120,6 +120,20 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        return this.verificarTipoDe(expressao.valor);
+    }
+
+    private verificarTipoDe(valor: Construto): Promise<any> {
+        if (valor instanceof Binario ) {
+            this.verificarTipoDe(valor.direita);
+            this.verificarTipoDe(valor.esquerda);
+        }
+        if (valor instanceof Agrupamento) {
+            return this.verificarTipoDe(valor.expressao);
+        }
+        if (valor instanceof Variavel) {
+            return this.verificarVariavel(valor);
+        }
         return Promise.resolve();
     }
 
@@ -313,7 +327,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         return this.verificarCondicao(declaracao.condicao);
     }
 
@@ -322,16 +336,28 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             return this.verificarCondicao(condicao.expressao);
         }
         if (condicao instanceof Variavel) {
-            return this.verificarVariavel(condicao);
+            return this.verificarVariavelBinaria(condicao);
         }
         if (condicao instanceof Binario) {
             return this.verificarBinario(condicao);
-        }        
+        }
         if (condicao instanceof Logico) {
             return this.verificarLogico(condicao);
         }
         if (condicao instanceof Chamada) {
             return this.verificarChamada(condicao);
+        }
+        return Promise.resolve();
+    }
+
+    private verificarVariavelBinaria(variavel: Variavel): Promise<void> {
+        this.verificarVariavel(variavel);
+        const variavelHipotetica = this.variaveis[variavel.simbolo.lexema];
+        if (variavelHipotetica && !(variavelHipotetica.valor instanceof Binario) && (typeof variavelHipotetica.valor !== 'boolean')) {
+            this.erro(
+                variavel.simbolo,
+                `Esperado tipo 'lógico' na condição do 'enquanto'.`
+            );
         }
         return Promise.resolve();
     }
@@ -342,11 +368,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             this.erro(
                 variavel.simbolo,
                 `Variável ${variavel.simbolo.lexema} ainda não foi declarada até este ponto.`
-            );
-        } else if (!(variavelHipotetica.valor instanceof Binario) && (typeof variavelHipotetica.valor !== 'boolean')) {
-            this.erro(
-                variavel.simbolo,
-                `Esperado tipo 'lógico' na condição do 'enquanto'.`
             );
         }
         return Promise.resolve();
@@ -410,27 +431,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
     }
 
-    private verificarAgrupamento(agrupamento: Agrupamento): Promise<void> {
-        if (agrupamento.expressao instanceof Chamada) {
-            return this.verificarChamada(agrupamento.expressao);
-        }
-        if (agrupamento.expressao instanceof Binario) {
-            return this.verificarBinario(agrupamento.expressao);
-        }
-        if (agrupamento.expressao instanceof Logico) {
-            this.verificarLadoLogico(agrupamento.expressao.direita);
-            this.verificarLadoLogico(agrupamento.expressao.esquerda);
-        }
-        return Promise.resolve();
-    }
-
     private verificarLadoLogico(lado: any): void {
         if (lado instanceof Variavel) {
             let variavel = lado as Variavel;
-            this.verificarVariavel(variavel)
+            this.verificarVariavelBinaria(variavel)
         }
     }
-
 
     visitarDeclaracaoImportar(declaracao: Importar) {
         return Promise.resolve();
