@@ -854,8 +854,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
     declaracaoFalhar(): Falhar {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
-        const textoFalha = this.consumir(tiposDeSimbolos.TEXTO, 'Esperado texto para explicar falha.');
-        return new Falhar(simboloFalha, textoFalha.literal);
+        return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
     }
 
     declaracaoImportar(): Importar {

@@ -86,6 +86,22 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/throw 'erro inesperado!'/i);
         });
 
+        it.skip('falhar - throw', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var msg = \'erro inesperado!\'',
+                    'falhar msg',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            // expect(resultado).toMatch(/let msg = \'erro inesperado!\'/i);
+            // expect(resultado).toMatch(/throw 'erro inesperado!'/i);
+        });
+
         it('tipo de - typeof', () => {
             const retornoLexador = lexador.mapear(
                 [

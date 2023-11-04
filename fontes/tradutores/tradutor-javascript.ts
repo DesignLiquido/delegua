@@ -622,7 +622,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
-        return `throw '${falhar.explicacao}'`;
+        return `throw '${falhar.explicacao.valor}'`;
     }
 
     traduzirConstrutoUnario(unario: Unario): string {
