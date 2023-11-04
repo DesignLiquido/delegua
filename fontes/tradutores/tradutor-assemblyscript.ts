@@ -403,7 +403,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
-        return `throw '${falhar.explicacao}'`;
+        return `throw '${falhar.explicacao.valor}'`;
     }
 
     traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {

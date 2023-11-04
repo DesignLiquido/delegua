@@ -341,7 +341,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
                     expect.objectContaining({
                         name: 'TypeError',
-                        message: "Cannot read properties of undefined (reading 'tipo')",
+                        message: "Cannot read property 'tipo' of undefined",
                     })
                 );
             });

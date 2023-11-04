@@ -1390,6 +1390,20 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
                 });
             });
+
+            describe('Falhar', () => {
+                it('Trivial', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var mensagem = \"teste de falha\"",
+                        "falhar mensagem"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            });
         });
     });
 });

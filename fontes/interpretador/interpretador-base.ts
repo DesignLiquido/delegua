@@ -177,8 +177,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
-        throw new ErroEmTempoDeExecucao(expressao.simbolo, expressao.explicacao, expressao.linha);
+    async visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
+        const textoFalha = expressao.explicacao.valor ?? (await this.avaliar(expressao.explicacao) as any).valor;
+        throw new ErroEmTempoDeExecucao(expressao.simbolo, textoFalha, expressao.linha);
     }
 
     visitarExpressaoFimPara(declaracao: FimPara) {
