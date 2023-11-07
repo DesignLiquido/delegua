@@ -716,5 +716,55 @@ describe('Analisador semântico', () => {
             });
 
         });
+
+        describe('Cenários falhar', () => {
+            describe('Cenários de sucesso', () => {
+                it('Sucesso - falhar com variável definida com valor válido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const valor = 'teste'      ",
+                        "falhar 'falhar ' + valor   ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+
+                it('Sucesso - falhar tipo de binario com variável não definida e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const a = 1      ",
+                        "const b = 1      ",
+                        "falhar (a + b)  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                });
+            });
+            describe('Cenários de falha', () => {
+                it('Falhar com variável não definida', () => {
+                    const retornoLexador = lexador.mapear([
+                        "falhar 'falhar ' + valor   ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+
+                it('Falhar tipo de binario com variável não definida e agrupamento', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const a = 1      ",
+                        "falhar (a + b)  ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.erros).toHaveLength(1);
+                });
+             });
+
+        });
     });
 });

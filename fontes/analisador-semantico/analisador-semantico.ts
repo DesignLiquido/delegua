@@ -11,6 +11,7 @@ import {
     Escreva,
     EscrevaMesmaLinha,
     Expressao,
+    Falhar,
     Fazer,
     FuncaoDeclaracao,
     Importar,
@@ -124,7 +125,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     private verificarTipoDe(valor: Construto): Promise<any> {
-        if (valor instanceof Binario ) {
+        if (valor instanceof Binario) {
             this.verificarTipoDe(valor.direita);
             this.verificarTipoDe(valor.esquerda);
         }
@@ -137,7 +138,21 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarExpressaoFalhar(expressao: any): Promise<any> {
+    visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
+        return this.verificarFalhar(expressao.explicacao);
+    }
+
+    private verificarFalhar(valor: Construto): Promise<any> {
+        if (valor instanceof Binario) {
+            this.verificarFalhar(valor.direita);
+            this.verificarFalhar(valor.esquerda);
+        }
+        if (valor instanceof Agrupamento) {
+            return this.verificarFalhar(valor.expressao);
+        }
+        if (valor instanceof Variavel) {
+            return this.verificarVariavel(valor);
+        }
         return Promise.resolve();
     }
 
