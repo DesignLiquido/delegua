@@ -219,16 +219,30 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        return new Promise((resolucao) =>
-            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(
-                    String(resposta)
-                        .split(/(\s+)/)
-                        .filter((r) => !/(\s+)/.test(r))
+        const mensagem = '> ';
+        if (expressao.argumento instanceof Literal) {
+            let valor = expressao.argumento.valor;
+            if (typeof valor === 'string') {
+                return new Promise((resolucao) =>
+                    this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                        resolucao(
+                            String(resposta)
+                                .split(valor)
+                                .filter((r) => !/(\s+)/.test(r))
+                        );
+                    })
                 );
-            })
-        );
+            }
+
+            let respostas = [];
+            for (let i = 0; i < valor; i++) {
+                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
+                    respostas.push(resposta);
+                })
+            }
+            return Promise.resolve(respostas);
+        }
+        return Promise.resolve();
     }
 
     /**

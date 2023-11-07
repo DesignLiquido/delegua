@@ -1,3 +1,4 @@
+import { Literal } from 'estree';
 import { Construto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
@@ -10,16 +11,14 @@ import { Declaracao } from './declaracao';
 export class LeiaMultiplo extends Declaracao {
     simbolo: SimboloInterface;
     id: string;
-    argumentos: Construto[];
-    tipo?: string;
-    numeroArgumentosEsperados?: number;
 
-    constructor(simbolo: SimboloInterface, argumentos: Construto[], numeroArgumentosEsperados?: number) {
+    argumento: Construto;
+
+    constructor(simbolo: SimboloInterface, argumento: Construto) {
         super(simbolo.linha, simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.id = uuidv4();
-        this.argumentos = argumentos;
-        this.numeroArgumentosEsperados = numeroArgumentosEsperados;
+        this.argumento = argumento;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

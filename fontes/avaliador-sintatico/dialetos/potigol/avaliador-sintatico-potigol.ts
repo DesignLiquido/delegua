@@ -372,19 +372,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.PARENTESE_ESQUERDO,
                     `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`
                 );
-                if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTEIRO, tiposDeSimbolos.REAL)) {
-                    throw this.erro(
-                        this.simbolos[this.atual],
-                        `Esperado número de argumentos como inteiro ou real em ${simboloLeiaDefinido.lexema}`
-                    );
-                }
-                let numeroArgumentosLeia = this.simbolos[this.atual - 1];
+                
+                const argumento = this.expressao();
+                
                 this.consumir(
                     tiposDeSimbolos.PARENTESE_DIREITO,
                     `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`
                 );
-                const leiaDefinido = new LeiaMultiplo(simboloLeiaDefinido, []);
-                leiaDefinido.numeroArgumentosEsperados = parseInt(numeroArgumentosLeia.literal);
+
+                const leiaDefinido = new LeiaMultiplo(simboloLeiaDefinido, argumento);
+
                 return leiaDefinido;
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -803,8 +800,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             if (inicializador instanceof Leia && identificadores.length > 1) {
                 inicializador = new LeiaMultiplo(
                     inicializador.simbolo,
-                    inicializador.argumentos,
-                    inicializador.numeroArgumentosEsperados
+                    inicializador.argumentos[0],
                 );
             }
 
@@ -821,18 +817,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
             }
 
-            // `leia_inteiros`, `leia_reais` e `leia_textos` pedem um inteiro como argumento,
-            // que pode ser usado para verificar se a expressão faz sentido ou não aqui.
             const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
-            if (inicializadorLeia.numeroArgumentosEsperados > 0) {
-                if (identificadores.length !== inicializadorLeia.numeroArgumentosEsperados) {
-                    throw this.erro(
-                        this.simbolos[this.atual],
-                        `Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores passada por parâmetro à direita em ${inicializadorLeia.simbolo.lexema}.`
-                    );
-                }
-            }
-
+            
             let tipoConversao: TiposDadosInterface;
             switch (inicializadorLeia.simbolo.tipo) {
                 case tiposDeSimbolos.LEIA_INTEIROS:
