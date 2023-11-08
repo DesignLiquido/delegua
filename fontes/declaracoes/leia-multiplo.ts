@@ -1,4 +1,3 @@
-import { Literal } from 'estree';
 import { Construto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
