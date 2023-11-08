@@ -902,7 +902,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Chamada de método com `super` e definição de propriedade com `isto`', async () => {
+                it('Chamada de método com `super` e definição de propriedade com `isto`', async () => {
                     const codigo = [
                         "classe A {",
                             "construtor() {",
@@ -914,7 +914,7 @@ describe('Interpretador', () => {
                         "}",
                         "classe B herda A {",
                             "construtor(data) {",
-                              // "super();",
+                              "super();",
                               "super.data(data);",
                             "}",
                         "}",
