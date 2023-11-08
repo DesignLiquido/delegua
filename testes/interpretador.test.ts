@@ -623,7 +623,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Pegue', async () => {
+                it('Pegue', async () => {
                     const codigo = [
                         "tente {",
                             "1 > '1';",
@@ -914,6 +914,7 @@ describe('Interpretador', () => {
                         "}",
                         "classe B herda A {",
                             "construtor(data) {",
+                              // "super();",
                               "super.data(data);",
                             "}",
                         "}",
@@ -928,17 +929,17 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Construtor', async () => {
+                it('Construtor', async () => {
                     const codigo = [
                         'classe Quadrado {',
                         '  construtor(lado) {',
                         '    isto.lado = lado',
                         '  }',
                         '  area() {',
-                        '    retorna lado * lado',
+                        '    retorna isto.lado * isto.lado',
                         '  }',
                         '  perimetro() {',
-                        '    retorna 4 * lado',
+                        '    retorna 4 * isto.lado',
                         '  }',
                         '}',
                         'var q1 = Quadrado(10)',
