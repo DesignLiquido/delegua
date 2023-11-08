@@ -1,1 +1,1 @@
-export * from './erro-analisador-semantico';
+export * from './diagnostico-analisador-semantico';

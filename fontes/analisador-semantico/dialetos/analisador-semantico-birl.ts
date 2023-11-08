@@ -26,7 +26,7 @@ import {
     VarMultiplo,
 } from '../../declaracoes';
 import { AnalisadorSemanticoInterface } from '../../interfaces/analisador-semantico-interface';
-import { ErroAnalisadorSemantico } from '../../interfaces/erros';
+import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 import { PilhaVariaveis } from '../pilha-variaveis';
@@ -52,13 +52,13 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     atual: number;
-    erros: ErroAnalisadorSemantico[];
+    diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     constructor() {
         this.pilhaVariaveis = new PilhaVariaveis();
         this.variaveis = {};
         this.atual = 0;
-        this.erros = [];
+        this.diagnosticos = [];
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         return Promise.resolve();
@@ -82,21 +82,23 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         if (!this.variaveis.hasOwnProperty(expressao.simbolo.lexema)) {
-            this.erros.push({
+            this.diagnosticos.push({
                 simbolo: expressao.simbolo,
                 mensagem: `A variável ${expressao.simbolo.lexema} não foi declarada.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
+                severidade: DiagnosticoSeveridade.ERRO,
             });
             return Promise.resolve();
         }
 
         if (this.variaveis[expressao.simbolo.lexema].imutavel) {
-            this.erros.push({
+            this.diagnosticos.push({
                 simbolo: expressao.simbolo,
                 mensagem: `Constante ${expressao.simbolo.lexema} não pode ser modificada.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
+                severidade: DiagnosticoSeveridade.ERRO,
             });
             return Promise.resolve();
         }
@@ -229,11 +231,12 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
 
     visitarExpressaoLeia(expressao: Leia) {
         if (!this.variaveis.hasOwnProperty((expressao.argumentos[0] as Variavel).simbolo.lexema)) {
-            this.erros.push({
+            this.diagnosticos.push({
                 simbolo: (expressao.argumentos[0] as Variavel).simbolo,
                 mensagem: `A variável ${(expressao.argumentos[0] as Variavel).simbolo.lexema} não foi declarada.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
+                severidade: DiagnosticoSeveridade.ERRO,
             });
             return Promise.resolve();
         }
@@ -242,13 +245,14 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         const tipoVariavelArgumento = expressao.argumentos[1].valor;
 
         if (tipoVariavelExpressão !== tipoVariavelArgumento) {
-            this.erros.push({
+            this.diagnosticos.push({
                 simbolo: (expressao.argumentos[0] as Variavel).simbolo,
                 mensagem: `A variável ${
                     (expressao.argumentos[0] as Variavel).simbolo.lexema
                 } não é do tipo ${tipoVariavelArgumento}.`,
                 hashArquivo: expressao.hashArquivo,
                 linha: expressao.linha,
+                severidade: DiagnosticoSeveridade.ERRO,
             });
             return Promise.resolve();
         }
@@ -291,7 +295,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
         this.variaveis = {};
         this.atual = 0;
-        this.erros = [];
+        this.diagnosticos = [];
 
         while (this.atual < declaracoes.length) {
             declaracoes[this.atual].aceitar(this);
@@ -299,7 +303,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         }
 
         return {
-            erros: this.erros,
+            diagnosticos: this.diagnosticos,
         } as RetornoAnalisadorSemantico;
     }
 }
