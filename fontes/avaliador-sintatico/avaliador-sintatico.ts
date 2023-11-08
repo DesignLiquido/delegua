@@ -1,11 +1,7 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import hrtime from 'browser-process-hrtime';
 
-import { 
-    AvaliadorSintaticoInterface, 
-    ParametroInterface, 
-    SimboloInterface,
-} from '../interfaces';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
     AcessoMetodo as AcessoMetodo,
     Agrupamento,
@@ -58,6 +54,7 @@ import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avalia
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao } from './retornos';
 import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
+import { Simbolo } from '../lexador';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -254,10 +251,22 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
 
             case tiposDeSimbolos.SUPER:
-                const simboloChave = this.avancarEDevolverAnterior();
-                this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-                const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
-                return new Super(this.hashArquivo, simboloChave, metodo);
+                const simboloSuper = this.avancarEDevolverAnterior();
+                // Se o próximo símbolo for uma abertura de parênteses, significa que
+                // é uma chamada ao construtor da classe ancestral (superclasse).
+                // Se o próximo símbolo for um ponto, significa que é uma chamada
+                // a um método da superclasse.
+                switch (this.simbolos[this.atual].tipo) {
+                    case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                        return new Super(
+                            this.hashArquivo, 
+                            simboloSuper, 
+                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'construtor', null, simboloSuper.linha, this.hashArquivo));
+                    default:
+                        this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
+                        const metodoSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
+                        return new Super(this.hashArquivo, simboloSuper, metodoSuperclasse);
+                }
 
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
@@ -276,21 +285,19 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
                 let valor: string = '';
                 let linhaAtual = this.simbolos[this.atual].linha;
-                let eParExpressaoRegular = this.simbolos
-                            .filter(l => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
-                            .length % 2 === 0;
-                if(eParExpressaoRegular) {
+                let eParExpressaoRegular =
+                    this.simbolos.filter((l) => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
+                        .length %
+                        2 ===
+                    0;
+                if (eParExpressaoRegular) {
                     this.avancarEDevolverAnterior();
                     while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
                         valor += this.simboloAtual().lexema || '';
                         this.avancarEDevolverAnterior();
                     }
                     this.avancarEDevolverAnterior();
-                    return new ExpressaoRegular(
-                        this.hashArquivo,
-                        simboloAtual,
-                        valor
-                    );
+                    return new ExpressaoRegular(this.hashArquivo, simboloAtual, valor);
                 }
         }
 
@@ -704,7 +711,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         let incrementar = null;
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             incrementar = this.expressao();
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR)
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR);
         }
 
         if (comParenteses) {
@@ -1132,8 +1139,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 parametro.tipoDado = {
                     nome: this.simbolos[this.atual - 2].lexema,
                     tipo: tipoDadoParametro,
-                    tipoInvalido: !tipoDadoParametro ? this.simboloAtual().lexema : null
-                }
+                    tipoInvalido: !tipoDadoParametro ? this.simboloAtual().lexema : null,
+                };
                 this.avancarEDevolverAnterior();
             }
 
