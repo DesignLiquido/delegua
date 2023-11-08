@@ -29,7 +29,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
             it('Sucesso - Verifica tipo LEIA', () => {
                 const retornoLexador = lexador.mapear([
@@ -44,7 +44,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.erros).toHaveLength(0);
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
         });
     });

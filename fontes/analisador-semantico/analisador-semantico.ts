@@ -28,7 +28,7 @@ import {
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
-import { ErroAnalisadorSemantico } from '../interfaces/erros';
+import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -50,25 +50,26 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface }
     atual: number;
-    erros: ErroAnalisadorSemantico[];
+    diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     constructor() {
         this.pilhaVariaveis = new PilhaVariaveis();
         this.variaveis = {};
         this.funcoes = {};
         this.atual = 0;
-        this.erros = [];
+        this.diagnosticos = [];
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
-        this.erros.push({
+        this.diagnosticos.push({
             simbolo: simbolo,
             mensagem: mensagemDeErro,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.ERRO
         });
     }
 
@@ -482,11 +483,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.verificarTipoAtribuido(declaracao);
 
         if (this.variaveis.hasOwnProperty(declaracao.simbolo.lexema)) {
-            this.erros.push({
+            this.diagnosticos.push({
                 simbolo: declaracao.simbolo,
                 mensagem: 'Declaração de constante já feita.',
                 hashArquivo: declaracao.hashArquivo,
                 linha: declaracao.linha,
+                severidade: DiagnosticoSeveridade.ERRO,
             });
         } else {
             this.variaveis[declaracao.simbolo.lexema] = {
@@ -640,7 +642,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         // this.pilhaVariaveis.empilhar()
         this.variaveis = {};
         this.atual = 0;
-        this.erros = [];
+        this.diagnosticos = [];
 
         while (this.atual < declaracoes.length) {
             declaracoes[this.atual].aceitar(this);
@@ -648,7 +650,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
 
         return {
-            erros: this.erros,
+            diagnosticos: this.diagnosticos,
         } as RetornoAnalisadorSemantico;
     }
 }

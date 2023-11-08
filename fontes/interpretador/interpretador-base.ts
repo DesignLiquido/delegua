@@ -680,7 +680,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
-        const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+        const valorResolvido = valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);
 
         return valorResolvido;

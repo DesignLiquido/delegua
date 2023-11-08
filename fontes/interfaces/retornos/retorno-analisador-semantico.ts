@@ -1,5 +1,5 @@
-import { ErroAnalisadorSemantico } from '../erros';
+import { DiagnosticoAnalisadorSemantico } from '../erros';
 
 export interface RetornoAnalisadorSemantico {
-    erros: ErroAnalisadorSemantico[];
+    diagnosticos: DiagnosticoAnalisadorSemantico[];
 }
