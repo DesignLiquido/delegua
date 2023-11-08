@@ -428,16 +428,6 @@ describe('Avaliador sintático', () => {
                     })
                 );
             });
-
-            it('Sucesso - Declaração de múltiplas constantes, lado direito usando `leia_inteiros` com número errado de parâmetros', () => {
-                const retornoLexador = lexador.mapear(['a, b, c = leia_inteiros(1)'], -1);
-                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
-                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
-                    expect.objectContaining({
-                        message: "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores passada por parâmetro à direita em leia_inteiros.",
-                    })
-                );
-            });
         });
     });
 });
