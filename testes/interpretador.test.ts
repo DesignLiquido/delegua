@@ -386,7 +386,7 @@ describe('Interpretador', () => {
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(3);
+                    expect(retornoInterpretador.erros).toHaveLength(2);
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operadores precisam ser números.');
                 });
 
@@ -576,7 +576,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip("Tente com Pegue parametrizado", async () => {
+                it("Tente com Pegue parametrizado", async () => {
                     const retornoLexador = lexador.mapear(
                         ["tente { i = i + 1 } pegue (erro) { escreva(erro) }"],
                         -1
