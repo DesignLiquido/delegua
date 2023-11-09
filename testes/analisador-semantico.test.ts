@@ -792,5 +792,86 @@ describe('Analisador semântico', () => {
                 });
              });
         });
+
+        describe('Cenários variáveis não inicializada', () => {
+            describe('Cenários de sucesso', () => {
+                it('Sucesso - variável de classe inicializada na declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        "classe Teste {}",
+                        "var teste: Teste = Teste();",
+                        "escreva(teste); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
+
+                it('Sucesso - variável de classe inicializada após declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        "classe Teste {}",
+                        "var teste: Teste;",
+                        "teste = Teste();",
+                        "escreva(teste); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
+
+                it('Sucesso - variável tipo texto inicializada na declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        "classe Teste {}",
+                        "var teste: Texto = 'abc';",
+                        "escreva(teste); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
+
+                it('Sucesso - variável tipo texto inicializada após declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        "classe Teste {}",
+                        "var teste: Texto;",
+                        "teste = 'abc';",
+                        "escreva(teste); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
+            });
+            describe('Cenários de falha', () => {
+                it('Aviso - variável de classe não inicializada', () => {
+                    const retornoLexador = lexador.mapear([
+                        "classe Teste {}",
+                        "var teste: Teste;",
+                        "escreva(teste); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
+                });
+                
+                it('Sucesso - variável tipo texto não inicializada', () => {
+                    const retornoLexador = lexador.mapear([
+                        "classe Teste {}",
+                        "var teste: Texto;",
+                        "escreva(teste); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
+                });
+            });
+        });
     });
 });
