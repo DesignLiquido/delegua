@@ -283,6 +283,10 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         if (valor.imutavel) {
             this.erro(expressao.simbolo, `Constante ${expressao.simbolo.lexema} não pode ser modificada.`);
             return Promise.resolve();
+        } else {
+            if (this.variaveis[expressao.simbolo.lexema]) {
+                this.variaveis[expressao.simbolo.lexema].valor = expressao.valor;
+            }
         }
     }
 
@@ -475,6 +479,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             if (!this.variaveis[variavel.simbolo.lexema]) {
                 this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`)
             }
+            if (this.variaveis[variavel.simbolo.lexema]?.valor === undefined) {
+                this.aviso(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não foi inicializada.`)
+            }
         }
 
         return Promise.resolve();
@@ -509,7 +516,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     virificarTipoDeclaracaoConst(declaracao: Const): Promise<any> {
-        
         if (declaracao.inicializador instanceof Binario) {
             // verificar tipos iguais no lado esquerdo e direito
             const binario = declaracao.inicializador as Binario;
