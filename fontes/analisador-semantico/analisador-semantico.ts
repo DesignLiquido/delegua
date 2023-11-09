@@ -63,13 +63,23 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
+    erro(simbolo: SimboloInterface, mensagem: string): void {
         this.diagnosticos.push({
             simbolo: simbolo,
-            mensagem: mensagemDeErro,
+            mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
             severidade: DiagnosticoSeveridade.ERRO
+        });
+    }
+
+    aviso(simbolo: SimboloInterface, mensagem: string): void {
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.AVISO
         });
     }
 
@@ -483,19 +493,35 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.verificarTipoAtribuido(declaracao);
 
         if (this.variaveis.hasOwnProperty(declaracao.simbolo.lexema)) {
-            this.diagnosticos.push({
-                simbolo: declaracao.simbolo,
-                mensagem: 'Declaração de constante já feita.',
-                hashArquivo: declaracao.hashArquivo,
-                linha: declaracao.linha,
-                severidade: DiagnosticoSeveridade.ERRO,
-            });
+            this.erro(declaracao.simbolo, 'Declaração de constante já feita.');
         } else {
             this.variaveis[declaracao.simbolo.lexema] = {
                 imutavel: true,
                 tipo: declaracao.tipo,
                 valor: declaracao.inicializador.valor
             };
+        }
+
+        this.virificarTipoDeclaracaoConst(declaracao);
+
+
+        return Promise.resolve();
+    }
+
+    virificarTipoDeclaracaoConst(declaracao: Const): Promise<any> {
+        
+        if (declaracao.inicializador instanceof Binario) {
+            // verificar tipos iguais no lado esquerdo e direito
+            const binario = declaracao.inicializador as Binario;
+            this.verificarLadoBinario(binario.direita);
+            this.verificarLadoBinario(binario.esquerda);
+
+            const tipoDireita = typeof binario.direita.valor;
+            const tipoEsquerda = typeof binario.esquerda.valor;
+
+            if (tipoDireita !== tipoEsquerda) {
+                this.aviso(declaracao.simbolo, 'Declaração de constante com tipos diferentes.');
+            }
         }
 
         return Promise.resolve();

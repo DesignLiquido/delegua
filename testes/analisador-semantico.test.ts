@@ -1,6 +1,7 @@
 import { Lexador } from '../fontes/lexador';
 import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
 import { AnalisadorSemantico } from '../fontes/analisador-semantico';
+import { DiagnosticoSeveridade } from '../fontes/interfaces/erros';
 
 describe('Analisador semântico', () => {
     let lexador: Lexador;
@@ -505,13 +506,13 @@ describe('Analisador semântico', () => {
 
                 it('sucesso - verificar função declarada', () => {
                     const retornoLexador = lexador.mapear([
-                          "funcao funcaoExistente() {       ",
-                          "  retorna verdadeiro;            ",
-                          "}                                ",
-                          "enquanto (funcaoExistente()) {   ",
-                          "    escreva('teste');            ",
-                          "    sustar;                      ",
-                          "}                                ",
+                        "funcao funcaoExistente() {       ",
+                        "  retorna verdadeiro;            ",
+                        "}                                ",
+                        "enquanto (funcaoExistente()) {   ",
+                        "    escreva('teste');            ",
+                        "    sustar;                      ",
+                        "}                                ",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
@@ -651,7 +652,7 @@ describe('Analisador semântico', () => {
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
-                });                
+                });
             });
         });
 
@@ -763,8 +764,33 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                 });
-             });
+            });
+        });
 
+        describe('Cenários conversão implicita', () => {
+            describe('Cenários de sucesso', () => {
+                it('Sucesso - conversão implicita com variável definida com valor válido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const valor = 2 + 2",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
+            });
+            describe('Cenários de aviso', () => {
+                it('Aviso - conversão implicita com variável definida com valor válido', () => {
+                    const retornoLexador = lexador.mapear([
+                        "const valor = 2 + '2'",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item=> item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                });
+             });
         });
     });
 });
