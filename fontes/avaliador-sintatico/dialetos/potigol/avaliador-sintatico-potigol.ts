@@ -454,6 +454,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.avancarEDevolverAnterior();
 
@@ -462,7 +463,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)
 
         do {
-            argumentos.push(this.expressao());
+            argumentos.push(this.ou());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)

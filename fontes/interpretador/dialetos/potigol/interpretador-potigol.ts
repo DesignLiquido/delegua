@@ -1,7 +1,7 @@
 import { InterpretadorBase } from '../../interpretador-base';
 
 import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
-import { AcessoMetodo, Binario, ConstanteOuVariavel, Literal, QualTipo, Unario, Variavel } from '../../../construtos';
+import { AcessoMetodo, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Unario, Variavel } from '../../../construtos';
 
 import * as comum from './comum';
 import { ObjetoPadrao } from '../../../estruturas';
@@ -79,4 +79,23 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
 
          return inferirTipoVariavel(qualTipo?.valores || qualTipo);
     }
+
+    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+        let formatoTexto: string = '';
+    
+        for (const argumento of argumentos) {
+            const resultadoAvaliacao = await this.avaliar(argumento);
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+            formatoTexto += `${this.paraTexto(valor)},`;
+        }
+    
+        formatoTexto = formatoTexto.slice(0, -1);
+
+        if (argumentos.length > 1) {
+            formatoTexto = `(${formatoTexto})`;
+        }
+    
+        return formatoTexto;
+    }
+    
 }

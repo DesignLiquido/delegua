@@ -352,6 +352,23 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Escreva múltiplas variáveis', async () => {                    
+                    const retornoLexador = lexador.mapear([
+                        "const a = 'batata'",
+                        "const b = 'arroz'",
+                        "escreva(a, b)"
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual("batata arroz");
+                    }
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                })
             });
 
             describe('Operações matemáticas', () => {

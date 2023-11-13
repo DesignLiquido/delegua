@@ -237,7 +237,30 @@ describe('Interpretador', () => {
                 };
 
                 interpretador.funcaoDeRetorno = (saida: any) => {
-                    expect(saida).toEqual('(1, 2, 3)');
+                    expect(saida).toEqual('(1,2,3)');
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um leia_inteiro, escreva deve imprimir o valor inicializado', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = leia_inteiro',
+                    'escreva(a)'
+                ], -1);
+
+                const resposta = [1];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta.shift());
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('1');
                 };
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
