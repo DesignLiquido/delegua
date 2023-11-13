@@ -10,10 +10,9 @@ import { Declaracao } from './declaracao';
 export class LeiaMultiplo extends Declaracao {
     simbolo: SimboloInterface;
     id: string;
+    argumento?: Construto;
 
-    argumento: Construto;
-
-    constructor(simbolo: SimboloInterface, argumento: Construto) {
+    constructor(simbolo: SimboloInterface, argumento?: Construto) {
         super(simbolo.linha, simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.id = uuidv4();

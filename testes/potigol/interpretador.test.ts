@@ -156,7 +156,121 @@ describe('Interpretador', () => {
             });
         })
 
-        describe('Leia Multiplo', () => {
+        describe('Leia', () => {
+            it('Dado um leia_inteiro, escreva deve imprimir o valor lido', async () => {
+                const retornoLexador = lexador.mapear([
+                    'escreva(leia_inteiro)'
+                ], -1);
+
+                const resposta = 1;
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta);
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('1');
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um leia_real, escreva deve imprimir o valor lido', async () => {
+                const retornoLexador = lexador.mapear([
+                    'escreva(leia_real)'
+                ], -1);
+
+                const resposta = 1.2;
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta);
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('1.2');
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um leia_texto, escreva deve imprimir o valor lido', async () => {
+                const retornoLexador = lexador.mapear([
+                    'escreva(leia_texto)'
+                ], -1);
+
+                const resposta = "texto";
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta);
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('texto');
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um leia_inteiro, escreva deve imprimir os valores inicializados', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a, b, c = leia_inteiro',
+                    'escreva(a, b, c)'
+                ], -1);
+
+                const resposta = [1, 2, 3];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta.shift());
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('(1,2,3)');
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Dado um leia_inteiro, escreva deve imprimir o valor inicializado', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = leia_inteiro',
+                    'escreva(a)'
+                ], -1);
+
+                const resposta = [1];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta.shift());
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('1');
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+        });
+
+        describe('Leia vetores', () => {
             it('Dado um leia_inteiros separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_inteiros(","))'

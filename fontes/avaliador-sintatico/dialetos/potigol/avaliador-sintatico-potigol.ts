@@ -454,6 +454,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.avancarEDevolverAnterior();
 
@@ -462,7 +463,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)
 
         do {
-            argumentos.push(this.expressao());
+            argumentos.push(this.ou());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)
@@ -800,7 +801,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             if (inicializador instanceof Leia && identificadores.length > 1) {
                 inicializador = new LeiaMultiplo(
                     inicializador.simbolo,
-                    inicializador.argumentos[0],
+                    new Literal(this.hashArquivo, Number(inicializador.simbolo.linha), identificadores.length)
                 );
             }
 
@@ -994,10 +995,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             simboloTipo.linha,
             propriedades.map(
                 (p) =>
-                    ({
-                        abrangencia: 'padrao',
-                        nome: p.nome,
-                    } as ParametroInterface)
+                ({
+                    abrangencia: 'padrao',
+                    nome: p.nome,
+                } as ParametroInterface)
             ),
             instrucoesConstrutor
         );
