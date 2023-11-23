@@ -1,0 +1,17 @@
+export default {
+    NUMERO: 'number',
+    TEXTO: 'string',
+    BOOLEANO: 'boolean',
+    OBJETO: 'object',
+    ARRAY_NUMEROS: 'number[]',
+    ARRAY_TEXTO: 'string[]',
+    DATA: 'Date',
+    NULO: 'null',
+    INDEFINIDO: 'undefined',
+    FUNCAO: 'function',
+    MAPA: 'Map',
+    PROMESSA: 'Promise',
+    REGEX: 'RegExp',
+    SIMBOLO: 'symbol',
+    QUALQUER: 'any',
+};
