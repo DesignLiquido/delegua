@@ -75,6 +75,8 @@ import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import { ArgumentoInterface } from './argumento-interface';
+import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos'
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua'
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -223,7 +225,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const mensagem = '> ';
         if (expressao.argumento instanceof Literal) {
             let valor = expressao.argumento.valor;
-            if (typeof valor === 'string') {
+            if (typeof valor === tipoDeDadosPrimitivos.TEXTO) {
                 return new Promise((resolucao) =>
                     this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
                         resolucao(
@@ -256,7 +258,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let textoFinal = texto;
 
         variaveis.forEach((elemento) => {
-            if (elemento?.valor?.tipo === 'lógico') {
+            if (elemento?.valor?.tipo === tipoDeDadosDelegua.LOGICO) {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
             } else {
                 textoFinal = textoFinal.replace(
@@ -319,7 +321,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     eVerdadeiro(objeto: any): boolean {
         if (objeto === null) return false;
-        if (typeof objeto === 'boolean') return Boolean(objeto);
+        if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) return Boolean(objeto);
         if (objeto.hasOwnProperty('valor')) {
             return Boolean(objeto.valor);
         }
@@ -328,7 +330,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     protected verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
-        if (typeof operando === 'number' || operando.tipo === 'número') return;
+        if (typeof operando === tipoDeDadosPrimitivos.NUMERO || operando.tipo === tipoDeDadosDelegua.NUMERO) return;
         throw new ErroEmTempoDeExecucao(operador, 'Operando precisa ser um número.', Number(operador.linha));
     }
 
@@ -388,7 +390,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tipoConteudo: string = conteudo.hasOwnProperty('tipo') ? conteudo.tipo : typeof conteudo;
 
         resultado = valorConteudo;
-        if (['número', 'number'].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
+        if ([tipoDeDadosDelegua.NUMERO, tipoDeDadosPrimitivos.NUMERO].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
             resultado = valorConteudo.toLocaleString('pt', { maximumFractionDigits: declaracao.casasDecimais });
         }
 
@@ -418,13 +420,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
-        const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
+        const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === tipoDeDadosPrimitivos.NUMERO ? tipoDeDadosDelegua.NUMERO : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
-            : typeof esquerda === 'number'
-            ? 'número'
+            : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
+            ? tipoDeDadosDelegua.NUMERO
             : String(NaN);
-        if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
+        if (tipoDireita === tipoDeDadosDelegua.NUMERO && tipoEsquerda === tipoDeDadosDelegua.NUMERO) return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 
@@ -442,7 +444,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
-                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 } else {
                     return String(valorEsquerdo) > String(valorDireito);
@@ -453,7 +455,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
-                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
                     return Number(valorEsquerdo) < Number(valorDireito);
                 } else {
                     return String(valorEsquerdo) < String(valorDireito);
@@ -470,7 +472,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
-                if (['número', 'inteiro'].includes(tipoEsquerdo) && ['número', 'inteiro'].includes(tipoDireito)) {
+                if ([tipoDeDadosDelegua.NUMERO, 'inteiro'].includes(tipoEsquerdo) && [tipoDeDadosDelegua.NUMERO, 'inteiro'].includes(tipoDireito)) {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 } else {
                     return String(valorEsquerdo) + String(valorDireito);
@@ -488,15 +490,15 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MULTIPLICACAO:
             case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
-                if (tipoEsquerdo === 'texto' || tipoDireito === 'texto') {
+                if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO || tipoDireito === tipoDeDadosDelegua.TEXTO) {
                     // Sem ambos os valores resolvem como texto, multiplica normal.
                     // Se apenas um resolve como texto, o outro repete o
                     // texto n vezes, sendo n o valor do outro.
-                    if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
+                    if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO && tipoDireito === tipoDeDadosDelegua.TEXTO) {
                         return Number(valorEsquerdo) * Number(valorDireito);
                     }
 
-                    if (tipoEsquerdo === 'texto') {
+                    if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO) {
                         return valorEsquerdo.repeat(Number(valorDireito));
                     }
 
@@ -653,7 +655,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             // A função chamada pode ser de uma biblioteca JavaScript.
             // Neste caso apenas testamos se o tipo é uma função.
-            if (typeof entidadeChamada === 'function') {
+            if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
                 if (expressao.entidadeChamada.objeto) {
                     objeto = await this.avaliar(expressao.entidadeChamada.objeto);
@@ -704,7 +706,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (expressao.operador.tipo === tiposDeSimbolos.EM) {
             const direita = await this.avaliar(expressao.direita);
 
-            if (Array.isArray(direita) || typeof direita === 'string') {
+            if (Array.isArray(direita) || typeof direita === tipoDeDadosPrimitivos.TEXTO) {
                 return direita.includes(esquerda);
             } else if (direita.constructor === Object) {
                 return esquerda in direita;
@@ -1217,7 +1219,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DeleguaModulo
         ) {
             return objeto[valorIndice] || null;
-        } else if (typeof objeto === 'string') {
+        } else if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -1354,13 +1356,13 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Função tradicional do JavaScript.
         // Normalmente executa quando uma biblioteca é importada.
-        if (typeof objeto[expressao.simbolo.lexema] === 'function') {
+        if (typeof objeto[expressao.simbolo.lexema] === tipoDeDadosPrimitivos.FUNCAO) {
             return objeto[expressao.simbolo.lexema];
         }
 
         // Objeto tradicional do JavaScript.
         // Normalmente executa quando uma biblioteca é importada.
-        if (typeof objeto[expressao.simbolo.lexema] === 'object') {
+        if (typeof objeto[expressao.simbolo.lexema] === tipoDeDadosPrimitivos.OBJETO) {
             return objeto[expressao.simbolo.lexema];
         }
 
@@ -1374,7 +1376,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         switch (tipoObjeto) {
-            case 'texto':
+            case tipoDeDadosDelegua.TEXTO:
                 const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
@@ -1473,8 +1475,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     paraTexto(objeto: any) {
-        if (objeto === null || objeto === undefined) return 'nulo';
-        if (typeof objeto === 'boolean') {
+        if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
+        if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
             return objeto ? 'verdadeiro' : 'falso';
         }
 
@@ -1490,7 +1492,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         // TODO: Idealmente isso deveria devolver um texto estruturado representando o objeto.
         if (objeto instanceof ObjetoDeleguaClasse) return objeto.toString();
-        if (typeof objeto === 'object') return JSON.stringify(objeto);
+        if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) return JSON.stringify(objeto);
 
         return objeto.toString();
     }
@@ -1506,7 +1508,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
-        if (resultado || typeof resultado === 'boolean') {
+        if (resultado || typeof resultado === tipoDeDadosPrimitivos.BOOLEANO) {
             this.resultadoInterpretador.push(this.paraTexto(resultado));
         }
         return resultado;

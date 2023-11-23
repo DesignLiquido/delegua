@@ -1,5 +1,6 @@
 export default {
     NUMERO: 'número',
     TEXTO: 'texto',
-    BOOLEANO: 'lógico',
+    LOGICO: 'lógico',
+    NULO: 'nulo'
 };
