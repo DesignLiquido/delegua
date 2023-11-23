@@ -1,6 +1,6 @@
 export default {
     NUMERO: 'number',
-    TEXTO: 'string',
+    TEXTO: 'string' || 'texto',
     BOOLEANO: 'boolean',
     OBJETO: 'object',
     DATA: 'Date',
@@ -11,5 +11,7 @@ export default {
     PROMESSA: 'Promise',
     REGEX: 'RegExp',
     SIMBOLO: 'symbol',
-    QUALQUER: 'any',
+    QUALQUER: 'any' || 'qualquer',
+    INTEIRO: 'inteiro',
+    VETOR: 'vetor'
 };
