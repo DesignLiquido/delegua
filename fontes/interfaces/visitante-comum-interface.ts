@@ -4,6 +4,7 @@ import {
     Classe,
     Const,
     Continua,
+    Destruturacao,
     Enquanto,
     Escolha,
     Escreva,
@@ -45,6 +46,7 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoSe(declaracao: Se): any;
     visitarDeclaracaoTente(declaracao: Tente): any;
     visitarDeclaracaoVar(declaracao: Var): Promise<any>;
+    visitarDeclaracaoDestruturacao(declaracao: Destruturacao): Promise<any>;
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any>;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoAcessoMetodo(expressao: any): any;

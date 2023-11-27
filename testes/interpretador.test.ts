@@ -51,6 +51,18 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it.skip('Trivial destruturação', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var { titulo, rodape, texto } = requisicao",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    console.log(retornoInterpretador)
+                    // expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Vetor', async () => {
                     const retornoLexador = lexador.mapear(["var a = [1, 2, 3]"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

@@ -4,6 +4,7 @@ export * from './const';
 export * from './const-multiplo';
 export * from './continua';
 export * from './declaracao';
+export * from './destruturacao';
 export * from './enquanto';
 export * from './escolha';
 export * from './escreva';

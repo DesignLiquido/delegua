@@ -15,6 +15,7 @@ import {
     ConstMultiplo,
     Continua,
     Declaracao,
+    Destruturacao,
     Enquanto,
     Escolha,
     Escreva,
@@ -139,6 +140,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+    visitarDeclaracaoDestruturacao(declaracao: Destruturacao): Promise<any> {
+        // TODO
+
+        throw new Error('Método não implementado.');
     }
 
     //https://stackoverflow.com/a/66751666/9043143

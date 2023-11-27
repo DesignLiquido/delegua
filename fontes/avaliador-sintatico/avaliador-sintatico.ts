@@ -55,6 +55,7 @@ import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao } from './retornos';
 import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { Simbolo } from '../lexador';
+import { Destruturacao } from '../declaracoes/destruturacao';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -1020,6 +1021,21 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
         let tipo: any = null;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            do {
+                identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+            this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após a definição do(s) identificador(es).");
+            this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após destruturação de variáveis.");
+
+            const inicializador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, '')
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+            retorno.push(new Destruturacao(inicializador, identificadores))
+            return retorno;
+        }
 
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
