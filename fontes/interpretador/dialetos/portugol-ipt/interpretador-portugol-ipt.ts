@@ -6,6 +6,7 @@ import {
     ConstMultiplo,
     Continua,
     Declaracao,
+    Destruturacao,
     Enquanto,
     Escolha,
     Escreva,
@@ -72,6 +73,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+    visitarDeclaracaoDestruturacao(declaracao: Destruturacao): Promise<any> {
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');

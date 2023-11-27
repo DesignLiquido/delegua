@@ -6,6 +6,7 @@ import {
     ConstMultiplo,
     Continua,
     Declaracao,
+    Destruturacao,
     Enquanto,
     Escolha,
     Escreva,
@@ -58,6 +59,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    visitarDeclaracaoDestruturacao(declaracao: Destruturacao): Promise<any> {
+        return Promise.resolve();
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         return Promise.resolve();

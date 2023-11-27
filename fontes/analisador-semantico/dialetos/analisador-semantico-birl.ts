@@ -6,6 +6,7 @@ import {
     ConstMultiplo,
     Continua,
     Declaracao,
+    Destruturacao,
     Enquanto,
     Escolha,
     Escreva,
@@ -59,6 +60,9 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    visitarDeclaracaoDestruturacao(declaracao: Destruturacao): Promise<any> {
+        return Promise.resolve();
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         return Promise.resolve();

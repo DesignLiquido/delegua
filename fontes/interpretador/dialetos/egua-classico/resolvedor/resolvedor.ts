@@ -4,6 +4,7 @@ import {
     Const,
     ConstMultiplo,
     Declaracao,
+    Destruturacao,
     EscrevaMesmaLinha,
     Expressao,
     Leia,
@@ -74,6 +75,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+    visitarDeclaracaoDestruturacao(declaracao: Destruturacao): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
