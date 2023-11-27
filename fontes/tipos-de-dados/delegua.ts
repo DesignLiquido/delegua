@@ -1,6 +1,7 @@
 export default {
-    NUMERO: 'número',
-    TEXTO: 'texto',
+    INTEIRO: 'inteiro',
     LOGICO: 'lógico',
-    NULO: 'nulo'
+    NUMERO: 'número',
+    NULO: 'nulo',
+    TEXTO: 'texto',
 };
