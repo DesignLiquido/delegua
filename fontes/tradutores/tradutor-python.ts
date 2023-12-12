@@ -447,7 +447,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     dicionarioConstrutos = {
-        AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),

@@ -657,7 +657,7 @@ export class TradutorAssemblyScript {
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
