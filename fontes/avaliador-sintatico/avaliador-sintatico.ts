@@ -3,7 +3,7 @@ import hrtime from 'browser-process-hrtime';
 
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
-    AcessoMetodo as AcessoMetodo,
+    AcessoMetodoOuPropriedade as AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -329,7 +329,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
+                expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(
@@ -551,7 +551,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoMetodo) {
+            } else if (expressao instanceof AcessoMetodoOuPropriedade) {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, igual.linha, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
@@ -1012,6 +1012,37 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return this.declaracaoExpressao();
     }
 
+    protected declaracaoDesestruturacaoVariavel(): Declaracao[] {
+        const identificadores: SimboloInterface[] = [];
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, 'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.');
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado igual após relação de propriedades da desestruturação.");
+
+        const inicializador = this.expressao();
+        // TODO: Para cada variável dos identificadores, emitir um `AcessoMetodoOuPropriedade` usando
+        // como prefixo o nome do inicializador, e o sufixo o nome de cada propriedade.
+        const retornos = [];
+        for (let identificador of identificadores) {
+            retornos.push(
+                new Atribuir(
+                    this.hashArquivo, 
+                    identificador, 
+                    new AcessoMetodoOuPropriedade(
+                        this.hashArquivo,
+                        inicializador,
+                        identificador
+                    )
+                )
+            );
+        }
+        
+        return retornos;
+    }
+
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
@@ -1020,6 +1051,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
         let tipo: any = null;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            return this.declaracaoDesestruturacaoVariavel();
+        }
 
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
@@ -1031,6 +1066,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            // Inicialização de variáveis sem valor.
             for (let [indice, identificador] of identificadores.entries()) {
                 retorno.push(new Var(identificador, null, tipo));
             }

@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,

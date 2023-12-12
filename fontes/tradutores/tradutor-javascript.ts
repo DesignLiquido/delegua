@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -527,7 +527,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;

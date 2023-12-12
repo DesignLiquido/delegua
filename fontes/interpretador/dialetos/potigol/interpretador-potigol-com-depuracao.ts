@@ -1,5 +1,5 @@
 import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
-import { AcessoMetodo } from '../../../construtos';
+import { AcessoMetodoOuPropriedade } from '../../../construtos';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 
 import * as comum from './comum';
@@ -21,7 +21,7 @@ export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao 
         return comum.retirarInterpolacao(texto, variaveis);
     }
 
-    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 }
