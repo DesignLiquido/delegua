@@ -60,7 +60,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
     
-            it('Sucesso - leia sem parametro', () => {
+            it('Sucesso - leia sem parâmetro', () => {
                 const retornoLexador = lexador.mapear(['var nome = leia()'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
@@ -68,7 +68,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
     
-            it('Sucesso - leia com parametro', () => {
+            it('Sucesso - leia com parâmetro', () => {
                 const retornoLexador = lexador.mapear(["var nome = leia('Digite seu nome:')"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
@@ -114,6 +114,32 @@ describe('Avaliador sintático', () => {
                     ],
                     -1
                 );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - desestruturação de variáveis', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var { prop1 } = a'
+                    ],
+                    -1
+                );
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - desestruturação de constantes', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'const { prop1 } = a'
+                    ],
+                    -1
+                );
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);

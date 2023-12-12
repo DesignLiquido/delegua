@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Binario,
     Chamada,
@@ -186,7 +186,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                expressao = new AcessoMetodo(-1, expressao, nome);
+                expressao = new AcessoMetodoOuPropriedade(-1, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.ou();
                 const simboloFechamento = this.consumir(

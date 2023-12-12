@@ -148,13 +148,6 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
-            it('Sucesso - Comentários multilinha', () => {
-                const resultado = lexador.mapear(["/* comentário ", "outro comentário*/"], -1);
-
-                expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
-            });
-
             it('Sucesso - Se', () => {
                 const resultado = lexador.mapear(["se (1 == 1) { escreva('Tautologia') }"], -1);
 

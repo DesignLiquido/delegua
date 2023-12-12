@@ -1,4 +1,4 @@
-import { AcessoMetodo, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, QualTipo, Super, TipoDe, Variavel } from '../../../../construtos';
+import { AcessoMetodoOuPropriedade, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, QualTipo, Super, TipoDe, Variavel } from '../../../../construtos';
 import {
     Bloco,
     Const,
@@ -337,7 +337,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): any {
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): any {
         this.resolver(expressao.objeto);
         return null;
     }

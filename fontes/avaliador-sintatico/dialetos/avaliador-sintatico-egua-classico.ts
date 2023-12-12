@@ -7,7 +7,7 @@ import {
     Dicionario,
     DefinirValor,
     FuncaoConstruto,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Literal,
     Logico,
@@ -247,7 +247,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
+                expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(
@@ -434,7 +434,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoMetodo) {
+            } else if (expressao instanceof AcessoMetodoOuPropriedade) {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {

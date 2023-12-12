@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Atribuir,
     Binario,
@@ -420,7 +420,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 } else {
                     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
                     const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
-                    expressao = new AcessoMetodo(this.hashArquivo, variavelMetodo, nome);
+                    expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, variavelMetodo, nome);
                 }
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();

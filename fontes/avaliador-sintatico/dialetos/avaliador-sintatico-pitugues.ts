@@ -2,7 +2,7 @@ import hrtime from 'browser-process-hrtime';
 
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -305,7 +305,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
 
-                expressao = new AcessoMetodo(this.hashArquivo, expressao, nome);
+                expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(
@@ -497,7 +497,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoMetodo) {
+            } else if (expressao instanceof AcessoMetodoOuPropriedade) {
                 return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);

@@ -1,7 +1,7 @@
 import { InterpretadorBase } from '../../interpretador-base';
 
 import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
-import { AcessoMetodo, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Unario, Variavel } from '../../../construtos';
+import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Unario, Variavel } from '../../../construtos';
 
 import * as comum from './comum';
 import { ObjetoPadrao } from '../../../estruturas';
@@ -54,7 +54,7 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.retirarInterpolacao(texto, variaveis);
     }
 
-    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 

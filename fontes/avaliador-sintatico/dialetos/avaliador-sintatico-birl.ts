@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -178,7 +178,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoMetodo) {
+            } else if (expressao instanceof AcessoMetodoOuPropriedade) {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {

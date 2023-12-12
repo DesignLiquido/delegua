@@ -1,5 +1,5 @@
 import {
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Atribuir,
     Binario,
@@ -155,7 +155,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return literal.valor;
     }
 
-    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
@@ -447,7 +447,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     dicionarioConstrutos = {
-        AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),

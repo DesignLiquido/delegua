@@ -1,6 +1,6 @@
 import {
     AcessoIndiceVariavel,
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -634,7 +634,7 @@ export class TradutorAssemblyScript {
         return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
 
-    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
@@ -657,7 +657,7 @@ export class TradutorAssemblyScript {
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),

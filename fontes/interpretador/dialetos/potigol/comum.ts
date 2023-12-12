@@ -1,4 +1,4 @@
-import { AcessoMetodo } from '../../../construtos';
+import { AcessoMetodoOuPropriedade } from '../../../construtos';
 import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from '../../../estruturas';
 import { VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from './inferenciador';
@@ -16,7 +16,7 @@ import { InterpretadorBase } from '../../interpretador-base';
  */
 export async function visitarExpressaoAcessoMetodo(
     interpretador: InterpretadorBase,
-    expressao: AcessoMetodo
+    expressao: AcessoMetodoOuPropriedade
 ): Promise<any> {
     const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
     const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;

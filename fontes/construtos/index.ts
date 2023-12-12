@@ -1,5 +1,5 @@
 export * from './acesso-indice-variavel';
-export * from './acesso-metodo';
+export * from './acesso-metodo-ou-propriedade';
 export * from './agrupamento';
 export * from './atribuicao-por-indice';
 export * from './atribuir';
