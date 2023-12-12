@@ -139,6 +139,27 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Desestruturação', async () => {
+                    let _saida: string = ""
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = { "prop1": "b" }',
+                            'var { prop1 } = a',
+                            'escreva(prop1)'
+                        ],
+                        -1
+                    );
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    }
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBe("b");
+                })
             });
 
             describe('Acesso a variáveis e objetos', () => {

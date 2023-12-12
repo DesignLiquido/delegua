@@ -1028,8 +1028,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const retornos = [];
         for (let identificador of identificadores) {
             retornos.push(
-                new Atribuir(
-                    this.hashArquivo, 
+                new Var(
                     identificador, 
                     new AcessoMetodoOuPropriedade(
                         this.hashArquivo,
@@ -1039,7 +1038,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 )
             );
         }
-        
+
         return retornos;
     }
 
