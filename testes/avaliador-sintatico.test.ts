@@ -119,10 +119,23 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - desestruturação', async () => {
+            it('Sucesso - desestruturação de variáveis', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'var { prop1 } = a'
+                    ],
+                    -1
+                );
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - desestruturação de constantes', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'const { prop1 } = a'
                     ],
                     -1
                 );

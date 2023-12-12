@@ -140,7 +140,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Desestruturação', async () => {
+                it('Desestruturação de variáveis', async () => {
                     let _saida: string = ""
                     const retornoLexador = lexador.mapear(
                         [
@@ -159,7 +159,28 @@ describe('Interpretador', () => {
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(_saida).toBe("b");
-                })
+                });
+
+                it('Desestruturação de constantes', async () => {
+                    let _saida: string = ""
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'const a = { "prop1": "c" }',
+                            'const { prop1 } = a',
+                            'escreva(prop1)'
+                        ],
+                        -1
+                    );
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    }
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBe("c");
+                });
             });
 
             describe('Acesso a variáveis e objetos', () => {

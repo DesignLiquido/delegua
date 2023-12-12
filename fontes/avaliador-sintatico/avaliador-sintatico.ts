@@ -1094,6 +1094,36 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return retorno;
     }
 
+    protected declaracaoDesestruturacaoConstante(): Declaracao[] {
+        const identificadores: SimboloInterface[] = [];
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, 'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.');
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado igual após relação de propriedades da desestruturação.");
+
+        const inicializador = this.expressao();
+        // TODO: Para cada variável dos identificadores, emitir um `AcessoMetodoOuPropriedade` usando
+        // como prefixo o nome do inicializador, e o sufixo o nome de cada propriedade.
+        const retornos = [];
+        for (let identificador of identificadores) {
+            retornos.push(
+                new Const(
+                    identificador, 
+                    new AcessoMetodoOuPropriedade(
+                        this.hashArquivo,
+                        inicializador,
+                        identificador
+                    )
+                )
+            );
+        }
+
+        return retornos;
+    }
+
     /**
      * Caso símbolo atual seja `const, constante ou fixo`, devolve uma declaração de const.
      * @returns Um Construto do tipo Const.
@@ -1101,6 +1131,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     declaracaoDeConstantes(): any {
         const identificadores: SimboloInterface[] = [];
         let tipo: any = null;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            return this.declaracaoDesestruturacaoConstante();
+        }
 
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
