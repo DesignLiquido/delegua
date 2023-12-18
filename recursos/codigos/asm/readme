@@ -1,0 +1,11 @@
+## Comoandos para usar 
+
+```sh
+
+# gera o asm 
+gcc -S -o printf.s printf.c
+
+# gera o exe
+gcc -no-pie -o printf printf.s
+
+```
