@@ -1,4 +1,5 @@
 export default {
+    ARROBA: 'ARROBA',
     ADICAO: 'ADICAO',
     BIT_AND: 'BIT_AND',
     BIT_OR: 'BIT_OR',

@@ -8,6 +8,7 @@ export * from './chamada';
 export * from './constante';
 export * from './constante-ou-variavel';
 export * from './construto';
+export * from './decorador';
 export * from './definir-valor';
 export * from './dicionario';
 export * from './expressao-regular';

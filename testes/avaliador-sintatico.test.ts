@@ -144,6 +144,22 @@ describe('Avaliador sintático', () => {
     
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
+
+            it('Sucesso - decorador', () => {
+                const retornoLexador = lexador.mapear([
+                    '@meu.decorador1',
+                    '@meu.decorador2',
+                    'classe Teste {',
+                        'testeFuncao() {',
+                          'escreva("olá")',
+                        '}',
+                    '}',
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
         });
 
         describe('Cenários de falha', () => {

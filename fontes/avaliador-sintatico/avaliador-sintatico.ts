@@ -23,6 +23,7 @@ import {
     Vetor,
     Isto,
     ExpressaoRegular,
+    Decorador,
 } from '../construtos';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
@@ -1247,6 +1248,20 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     declaracaoDeClasse(): Classe {
+        let decoradores: Decorador[] = []
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
+            let nomeDecorador: string = '';
+            let tamanhoLinhaAtual = this.simbolos[this.atual].linha;
+            let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === tamanhoLinhaAtual);
+            nomeDecorador += simbolosLinhaAtual.map(l => {
+                this.avancarEDevolverAnterior()
+                return l.lexema || '.'
+            }).join('')
+            decoradores.push(new Decorador(this.hashArquivo, tamanhoLinhaAtual, nomeDecorador));
+        }
+
+        this.avancarEDevolverAnterior();
+
         const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da classe.');
 
         let superClasse = null;
@@ -1263,7 +1278,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
-        return new Classe(simbolo, superClasse, metodos);
+        return new Classe(simbolo, superClasse, metodos, null, decoradores);
     }
 
     /**
@@ -1285,7 +1300,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 return this.funcao('funcao');
             }
 
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
+            if ([tiposDeSimbolos.CLASSE, tiposDeSimbolos.ARROBA].includes(this.simboloAtual().tipo)) {
+                return this.declaracaoDeClasse();
+            }
 
             return this.resolverDeclaracao();
         } catch (erro: any) {
