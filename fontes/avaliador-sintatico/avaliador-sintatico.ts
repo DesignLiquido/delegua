@@ -63,6 +63,7 @@ import { Simbolo } from '../lexador';
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
 export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
+    pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -936,6 +937,20 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
     }
 
+    resolverDecorador(): void {
+        this.pilhaDecoradores = []
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
+            let nomeDecorador: string = '';
+            let tamanhoLinhaAtual = this.simbolos[this.atual].linha;
+            let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === tamanhoLinhaAtual);
+            nomeDecorador += simbolosLinhaAtual.map(l => {
+                this.avancarEDevolverAnterior()
+                return l.lexema || '.'
+            }).join('')
+            this.pilhaDecoradores.push(new Decorador(this.hashArquivo, tamanhoLinhaAtual, nomeDecorador));
+        }
+    }
+
     /**
      * Todas as resoluções triviais da linguagem, ou seja, todas as
      * resoluções que podem ocorrer dentro ou fora de um bloco.
@@ -1172,6 +1187,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
     funcao(tipo: string): FuncaoDeclaracao {
         let simbolo: SimboloInterface;
+        this.resolverDecorador();
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.CONSTRUTOR:
                 simbolo = this.avancarEDevolverAnterior();
@@ -1180,7 +1196,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome de ${tipo}.`);
                 break;
         }
-        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
+        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo), null, this.pilhaDecoradores);
     }
 
     logicaComumParametros(): ParametroInterface[] {
@@ -1248,21 +1264,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     declaracaoDeClasse(): Classe {
-        let decoradores: Decorador[] = []
-        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
-            let nomeDecorador: string = '';
-            let tamanhoLinhaAtual = this.simbolos[this.atual].linha;
-            let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === tamanhoLinhaAtual);
-            nomeDecorador += simbolosLinhaAtual.map(l => {
-                this.avancarEDevolverAnterior()
-                return l.lexema || '.'
-            }).join('')
-            decoradores.push(new Decorador(this.hashArquivo, tamanhoLinhaAtual, nomeDecorador));
-        }
-
-        this.avancarEDevolverAnterior();
-
         const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da classe.');
+        const pilhaDecoradoresClasse = this.pilhaDecoradores;
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
@@ -1278,7 +1281,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
-        return new Classe(simbolo, superClasse, metodos, null, decoradores);
+        return new Classe(simbolo, superClasse, metodos, null, pilhaDecoradoresClasse);
     }
 
     /**
@@ -1300,7 +1303,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 return this.funcao('funcao');
             }
 
-            if ([tiposDeSimbolos.CLASSE, tiposDeSimbolos.ARROBA].includes(this.simboloAtual().tipo)) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) {
                 return this.declaracaoDeClasse();
             }
 
@@ -1351,9 +1354,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
+        this.pilhaDecoradores = []
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
+            this.resolverDecorador()
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);

@@ -145,11 +145,27 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - decorador', () => {
+            it('Sucesso - decorador classe', () => {
                 const retornoLexador = lexador.mapear([
                     '@meu.decorador1',
                     '@meu.decorador2',
                     'classe Teste {',
+                        'testeFuncao() {',
+                          'escreva("olá")',
+                        '}',
+                    '}',
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - decorador função', () => {
+                const retornoLexador = lexador.mapear([
+                    '@meu.decorador1',
+                    'classe Teste {',
+                        '@meu.decorador2',
                         'testeFuncao() {',
                           'escreva("olá")',
                         '}',
