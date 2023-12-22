@@ -941,13 +941,13 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         this.pilhaDecoradores = []
         while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
             let nomeDecorador: string = '';
-            let tamanhoLinhaAtual = this.simbolos[this.atual].linha;
-            let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === tamanhoLinhaAtual);
+            let linha = this.simbolos[this.atual].linha;
+            let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === linha);
             nomeDecorador += simbolosLinhaAtual.map(l => {
                 this.avancarEDevolverAnterior()
                 return l.lexema || '.'
             }).join('')
-            this.pilhaDecoradores.push(new Decorador(this.hashArquivo, tamanhoLinhaAtual, nomeDecorador));
+            this.pilhaDecoradores.push(new Decorador(this.hashArquivo, linha, nomeDecorador));
         }
     }
 
