@@ -194,6 +194,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         const caractere = this.simboloAtual();
 
         switch (caractere) {
+            case '@':
+                this.adicionarSimbolo(tiposDeSimbolos.ARROBA, '@');
+                this.avancar();
+                break;
             case '[':
                 this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
                 this.avancar();
