@@ -107,3 +107,4 @@ Para instalar no seu computador, veja o projeto [@designliquido/delegua-node](ht
 * Para contribuições, por favor, leia o nosso [Guia de Contribuição](./CONTRIBUINDO.md) antes de submeter uma _Pull Request_.
 * [Veja nossas discussões atuais](https://github.com/DesignLiquido/delegua/discussions).
 * [Temos um grupo no Discord](https://discord.gg/4tBxWSSbdV).
+* Hello Angola Open source Community
