@@ -43,22 +43,3 @@ Isso testa a modificação com os exemplos de linguagem que temos no repositóri
 ```bash
 yarn testes-unitarios
 ```
-
-### Testando o servidor do depurador
-
-Para testar o servidor do depurador, para depuração remota, execute:
-
-```bash
-yarn testes:servidor-depuracao
-```
-
-Abra outra shell (PowerShell, bash, etc.) e execute:
-
-```bash
-nc localhost 7777
-```
-
-Para desenvolvimento em Windows, caso o Netcat (`nc`) não esteja disponível, pode-se instalá-lo de duas formas:
-
-- [Cygwin](http://ptcomputador.com/Sistemas/windows/228426.html)
-- [Nmap](https://nmap.org/download#windows)
