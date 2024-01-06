@@ -43,3 +43,5 @@ Isso testa a modificação com os exemplos de linguagem que temos no repositóri
 ```bash
 yarn testes-unitarios
 ```
+
+Hello from Angola Open Source Community
