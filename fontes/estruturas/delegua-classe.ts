@@ -59,7 +59,7 @@ export class DeleguaClasse extends Chamavel {
     }
 
     paraTexto(): string {
-        let texto = `<classe ${this.simboloOriginal}`;
+        let texto = `<classe ${this.simboloOriginal.lexema}`;
         for (let propriedade of this.propriedades) {
             texto += ` ${propriedade.nome}`;
             if (propriedade.tipo) {
