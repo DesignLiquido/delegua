@@ -145,7 +145,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - decorador classe', () => {
+            it('Sucesso - decorador de classe', () => {
                 const retornoLexador = lexador.mapear([
                     '@meu.decorador1',
                     '@meu.decorador2',
@@ -161,7 +161,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - decorador função', () => {
+            it('Sucesso - decorador de método de classe', () => {
                 const retornoLexador = lexador.mapear([
                     '@meu.decorador1',
                     'classe Teste {',

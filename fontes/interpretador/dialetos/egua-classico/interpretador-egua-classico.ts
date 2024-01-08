@@ -64,6 +64,12 @@ import { ArgumentoInterface } from '../../argumento-interface';
 export class InterpretadorEguaClassico implements InterpretadorInterface {
     resolvedor: ResolvedorInterface;
 
+    // Esta variável indica que propriedades de classes precisam ser
+    // declaradas para serem válidas.
+    // Égua não requer isso, mas precisamos ter o valor
+    // aqui por questões de compatibilidade com outros elementos.
+    requerDeclaracaoPropriedades: boolean = false;
+
     diretorioBase: any;
     funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
@@ -848,7 +854,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
-        const deleguaClasse = new DeleguaClasse(declaracao.simbolo.lexema, superClasse, metodos);
+        const deleguaClasse = new DeleguaClasse(declaracao.simbolo, superClasse, metodos);
+        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = false;
+        deleguaClasse.dialetoRequerDeclaracaoPropriedades = false;
 
         // TODO: Recolocar isso se for necessário.
         /* if (superClasse !== null) {

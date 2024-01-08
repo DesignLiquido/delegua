@@ -64,7 +64,7 @@ export class DeleguaFuncao extends Chamavel {
             };
 
             if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis) {
-                for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.campos)) {
+                for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.propriedades)) {
                     ambiente.valores[nomeCampo] = {
                         valor: valorCampo,
                         tipo: inferirTipoVariavel(valorCampo as any),
