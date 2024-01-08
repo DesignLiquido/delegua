@@ -45,6 +45,6 @@ export class ObjetoDeleguaClasse {
     }
 
     toString(): string {
-        return '<Objeto ' + this.classe.simboloOriginal + '>';
+        return '<Objeto ' + this.classe.simboloOriginal.lexema + '>';
     }
 }
