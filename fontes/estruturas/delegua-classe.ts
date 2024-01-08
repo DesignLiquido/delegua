@@ -1,5 +1,6 @@
 import { PropriedadeClasse } from '../declaracoes';
-import { VisitanteComumInterface } from '../interfaces';
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
@@ -8,18 +9,25 @@ import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
  * Estrutura de declaração de classe.
  */
 export class DeleguaClasse extends Chamavel {
-    nome: string;
+    simboloOriginal: SimboloInterface;
     superClasse: DeleguaClasse;
     metodos: { [nome: string]: DeleguaFuncao };
     propriedades: PropriedadeClasse[];
     dialetoRequerExpansaoPropriedadesEspacoVariaveis: boolean;
+    dialetoRequerDeclaracaoPropriedades: boolean;
 
-    constructor(nome?: string, superClasse?: any, metodos?: any, propriedades?: PropriedadeClasse[]) {
+    constructor(
+        simboloOriginal?: SimboloInterface, 
+        superClasse?: DeleguaClasse, 
+        metodos?: { [nome: string]: DeleguaFuncao }, 
+        propriedades?: PropriedadeClasse[]
+    ) {
         super();
-        this.nome = nome;
+        this.simboloOriginal = simboloOriginal;
         this.superClasse = superClasse;
         this.metodos = metodos || {};
         this.propriedades = propriedades || [];
+        this.dialetoRequerDeclaracaoPropriedades = false;
     }
 
     encontrarMetodo(nome: string): DeleguaFuncao {
@@ -43,11 +51,15 @@ export class DeleguaClasse extends Chamavel {
             return this.superClasse.encontrarPropriedade(nome);
         }
 
+        if (this.dialetoRequerDeclaracaoPropriedades) {
+            throw new ErroEmTempoDeExecucao(this.simboloOriginal, `Propriedade "${nome}" não declarada na classe ${this.simboloOriginal.lexema}.`);
+        }
+
         return undefined;
     }
 
     paraTexto(): string {
-        let texto = `<classe ${this.nome}`;
+        let texto = `<classe ${this.simboloOriginal}`;
         for (let propriedade of this.propriedades) {
             texto += ` ${propriedade.nome}`;
             if (propriedade.tipo) {

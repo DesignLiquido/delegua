@@ -91,7 +91,17 @@ export class InterpretadorBase implements InterpretadorInterface {
     declaracoes: Declaracao[];
     resultadoInterpretador: Array<string> = [];
 
+    // Esta variável indica que uma propriedade de um objeto
+    // não precisa da palavra `isto` para ser acessada, ou seja, 
+    // `minhaPropriedade` e `isto.minhaPropriedade` são a mesma coisa.
+    // Potigol, por exemplo, é um dialeto que tem essa característica.
     expandirPropriedadesDeObjetosEmEspacoVariaveis: boolean;
+
+    // Esta variável indica que propriedades de classes precisam ser
+    // declaradas para serem válidas.
+    // Delégua e Pituguês são dialetos que requerem a declaração 
+    // de propriedades de classes.
+    requerDeclaracaoPropriedades: boolean;
 
     performance: boolean;
     funcaoDeRetorno: Function = null;
@@ -126,6 +136,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Isso existe por causa de Potigol.
         // Para acessar uma variável de classe, não é preciso a palavra `isto`.
         this.expandirPropriedadesDeObjetosEmEspacoVariaveis = false;
+
+        // Por padrão é verdadeiro porque Delégua e Pituguês usam
+        // o interpretador base como implementação padrão.
+        this.requerDeclaracaoPropriedades = true;
 
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
         const escopoExecucao: EscopoExecucao = {
@@ -1317,7 +1331,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         const deleguaClasse: DeleguaClasse = new DeleguaClasse(
-            declaracao.simbolo.lexema,
+            declaracao.simbolo,
             superClasse,
             metodos,
             declaracao.propriedades
@@ -1325,6 +1339,8 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
+        deleguaClasse.dialetoRequerDeclaracaoPropriedades =
+            this.requerDeclaracaoPropriedades;
 
         // TODO: Recolocar isso se for necessário.
         /* if (superClasse !== null) {

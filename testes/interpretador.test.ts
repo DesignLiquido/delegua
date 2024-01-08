@@ -944,7 +944,8 @@ describe('Interpretador', () => {
                 it('Chamada de método com `super` e definição de propriedade com `isto`', async () => {
                     const codigo = [
                         "classe A {",
-                            "construtor() {",
+                        "   dataA: texto",
+                        "   construtor() {",
                             "   isto.dataA = \'01/01/2001\'",
                             "}",
                             "data(data1) {",
@@ -971,6 +972,7 @@ describe('Interpretador', () => {
                 it('Construtor', async () => {
                     const codigo = [
                         'classe Quadrado {',
+                        '  lado: número',
                         '  construtor(lado) {',
                         '    isto.lado = lado',
                         '  }',
@@ -1402,6 +1404,30 @@ describe('Interpretador', () => {
             });
 
             describe('Classes', () => {
+                it('Membros da classe precisam ser declarados', async () => {
+                    const codigo = [
+                        'classe Quadrado {',
+                        '  construtor(lado) {',
+                        '    isto.lado = lado',
+                        '  }',
+                        '  area() {',
+                        '    retorna isto.lado * isto.lado',
+                        '  }',
+                        '  perimetro() {',
+                        '    retorna 4 * isto.lado',
+                        '  }',
+                        '}',
+                        'var q1 = Quadrado(10)'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
                 it('Super Classe precisa ser uma classe', async () => {
                     const codigo = [
                         "funcao A(data) { }",

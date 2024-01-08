@@ -50,6 +50,7 @@ import {
     Const,
     ParaCada,
     Falhar,
+    PropriedadeClasse,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -1276,12 +1277,40 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
 
         const metodos = [];
+        const propriedades = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            metodos.push(this.funcao('método'));
+            // Se o símbolo atual é arroba, é um decorador.
+            // Caso contrário, verificamos o próximo símbolo.
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
+                this.resolverDecorador();
+                continue;
+            }
+            
+            // Se o próximo símbolo ao atual for um parênteses, é um método. 
+            // Caso contrário, é uma propriedade.
+            const proximoSimbolo = this.simbolos[this.atual + 1];
+            switch (proximoSimbolo.tipo) {
+                case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                    metodos.push(this.funcao('método'));
+                    break;
+                case tiposDeSimbolos.DOIS_PONTOS:
+                    const nomePropriedade = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado identificador para nome de propriedade.');
+                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
+                    const tipoPropriedade = this.avancarEDevolverAnterior();
+                    propriedades.push(
+                        new PropriedadeClasse(
+                            nomePropriedade,
+                            tipoPropriedade.lexema
+                        )
+                    );
+                    break;
+                default:
+                    throw this.erro(this.simbolos[this.atual], 'Esperado definição de método ou propriedade.');
+            }
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
-        return new Classe(simbolo, superClasse, metodos, null, pilhaDecoradoresClasse);
+        return new Classe(simbolo, superClasse, metodos, propriedades, pilhaDecoradoresClasse);
     }
 
     /**
