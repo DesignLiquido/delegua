@@ -879,26 +879,6 @@ describe('Interpretador', () => {
             });
 
             describe('Classes', () => {
-                it('Super Classe precisa ser uma classe', async () => {
-                    const codigo = [
-                        "funcao A(data) { }",
-                        "classe B herda A {",
-                            "construtor(data) {",
-                                "super.data(data);",
-                            "}",
-                        "}",
-                        "var a = B(\"13/12/1981\");"
-                    ];
-
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(2);
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Superclasse precisa ser uma classe.');
-                });
-
                 it('Trivial', async () => {
                     const saidasMensagens = [
                         'Correndo Loucamente',
@@ -1330,7 +1310,7 @@ describe('Interpretador', () => {
                 });
             })
 
-            describe('Expressão Regular', () => {
+            describe('Expressões Regulares', () => {
                 it('Método substituir()', async () => {
                     const retornoLexador = lexador.mapear([
                         "var str = \"olá mundo, olá universo\";",
@@ -1347,7 +1327,32 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
-            })
+            });
+
+            describe('Falhar', () => {
+                it('Trivial', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "falhar 'teste de falha'"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Trivial com atribuição', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var mensagem = \"teste de falha\"",
+                        "falhar mensagem"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
@@ -1368,6 +1373,57 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
 
+                it('Acesso a elementos de dicionário', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var a = {'a': 1, 'b': 2};",
+                        "escreva(a['c']);"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        expect(saida).toEqual('nulo');
+                    }
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Métodos inexistentes', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'nescreva("Qualquer coisa")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            });
+
+            describe('Classes', () => {
+                it('Super Classe precisa ser uma classe', async () => {
+                    const codigo = [
+                        "funcao A(data) { }",
+                        "classe B herda A {",
+                            "construtor(data) {",
+                                "super.data(data);",
+                            "}",
+                        "}",
+                        "var a = B(\"13/12/1981\");"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(2);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Superclasse precisa ser uma classe.');
+                });
+            });
+
+            describe('Mutabilidade', () => {
                 it('const', async () => {
                     const retornoLexador = lexador.mapear([
                         "const a = 1",
@@ -1409,61 +1465,7 @@ describe('Interpretador', () => {
                         'Constante \'c\' não pode receber novos valores.'
                     );
                 });
-
-                it('Acesso a elementos de dicionário', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var a = {'a': 1, 'b': 2};",
-                        "escreva(a['c']);"
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    interpretador.funcaoDeRetorno = (saida: string) => {
-                        expect(saida).toEqual('nulo');
-                    }
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
-                });
-
-                it('Métodos inexistentes', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'nescreva("Qualquer coisa")'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
-                });
-            });
-
-            describe('Falhar', () => {
-                it('Trivial', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "falhar 'teste de falha'"
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
-                });
-            });
-
-            describe('Falhar', () => {
-                it('Trivial', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var mensagem = \"teste de falha\"",
-                        "falhar mensagem"
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
-                });
-            });
+            })
         });
     });
 });
