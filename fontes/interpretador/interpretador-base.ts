@@ -395,6 +395,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
+    /**
+     * Formata uma saída de acordo com o número e espaços e casas decimais solicitados.
+     * @param declaracao A declaração de formatação de escrita.
+     * @returns {string} A saída formatada como texto e os respectivos parâmetros aplicados.
+     */
     async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
         let resultado = '';
         const conteudo: VariavelInterface | any = await this.avaliar(declaracao.expressao);
@@ -1007,7 +1012,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
+    async visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetornoMesmaLinha(formatoTexto);

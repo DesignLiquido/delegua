@@ -378,7 +378,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
-    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    async visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetornoMesmaLinha(formatoTexto);
