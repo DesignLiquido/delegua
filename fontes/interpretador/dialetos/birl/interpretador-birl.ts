@@ -673,7 +673,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
             });
         }
     }
-    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    async visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         throw new Error('Método não implementado.');
     }
     async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {

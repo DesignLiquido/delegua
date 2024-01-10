@@ -11,6 +11,6 @@ export class EscrevaMesmaLinha extends Declaracao {
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoEscrevaMesmaLinha(this);
+        return await visitante.visitarDeclaracaoEscrevaMesmaLinha(this);
     }
 }

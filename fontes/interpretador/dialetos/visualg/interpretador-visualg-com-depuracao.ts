@@ -76,7 +76,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
+    async visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
             this.mensagemPrompt = formatoTexto;
@@ -93,7 +93,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscreva(declaracao: Escreva): Promise<any> {
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaVisuAlg(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);

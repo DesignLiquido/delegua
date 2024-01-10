@@ -112,7 +112,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         throw new Error('Método não implementado.');
     }
 

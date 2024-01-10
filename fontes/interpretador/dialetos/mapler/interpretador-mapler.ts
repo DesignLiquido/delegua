@@ -73,7 +73,7 @@ export class InterpretadorMapler extends InterpretadorBase {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
+    async visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscrevaMapler(declaracao.argumentos);
             this.mensagemPrompt = formatoTexto;

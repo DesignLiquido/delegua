@@ -487,7 +487,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarExpressaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         return Promise.resolve();
     }
 
