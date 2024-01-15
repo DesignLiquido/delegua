@@ -637,6 +637,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                     argumentos.push(null);
                 }
             } else {
+                // TODO: Aparentemente isso aqui nunca funcionou. 
+                // Avaliar de simplesmente apagar este código, e usar o que foi 
+                // implementado em `DeleguaFuncao.chamar`.
                 if (
                     parametros &&
                     parametros.length > 0 &&

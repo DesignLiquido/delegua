@@ -1219,8 +1219,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 parametro.valorPadrao = this.primario();
             }
 
-            if (parametro.abrangencia === 'multiplo') break;
-
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
                 parametro.tipoDado = {
@@ -1232,6 +1230,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             }
 
             parametros.push(parametro as ParametroInterface);
+            if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
     }
