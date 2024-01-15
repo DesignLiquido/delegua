@@ -190,7 +190,14 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)
+            if (funcaoTraduzida === 'in') {
+                return `in ${objetoVariavel.simbolo.lexema}`;
+            }else if(funcaoTraduzida === 'len'){
+                return `len(${objetoVariavel.simbolo.lexema})`;
+            }
+
+            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
         }
         return `self.${acessoMetodo.simbolo.lexema}`;
     }
@@ -357,14 +364,30 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             chamada.entidadeChamada
         )}`;
         resultado += retorno;
-        resultado += '(';
-        for (let parametro of chamada.argumentos) {
-            resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
+
+        if(resultado.includes(".") && !resultado.includes("(")){
+            resultado += '(';
         }
-        if (chamada.argumentos.length > 0) {
-            resultado = resultado.slice(0, -2);
+
+        if(!resultado.includes("len(")){
+            for (let parametro of chamada.argumentos) {
+                const parametroPego = this.dicionarioConstrutos[parametro.constructor.name](parametro)
+                if(!retorno.includes(".")){
+                    const novoResultado = `${parametroPego} ${resultado}`;
+                    resultado = novoResultado
+                }else{
+                    resultado += parametroPego + ', ';
+                }
+            }
+
+            if (chamada.argumentos.length > 0 && resultado.includes(".")) {
+                resultado = resultado.slice(0, -2);
+            }
+            if(resultado.includes(".") && !resultado.includes(")")){
+                resultado += ')';
+            }
         }
-        resultado += ')';
+
         return resultado;
     }
 
