@@ -79,6 +79,38 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
+    traduzirFuncoesNativas(metodo: string): string {
+        switch (metodo.toLowerCase()) {
+            case 'adicionar':
+            case 'empilhar':
+                return 'append';
+            case 'fatiar':
+                return 'slice';
+            case 'inclui':
+                return 'in';
+            case 'inverter':
+                return 'reverse';
+            case 'juntar':
+                return 'join';
+            case 'ordenar':
+                return 'sort';
+            case 'removerprimeiro':
+                return 'pop(0)';
+            case 'removerultimo':
+                return 'pop';
+            case 'tamanho':
+                return 'len';
+            case 'maiusculo':
+                return 'upper';
+            case 'minusculo':
+                return 'lower';
+            case 'substituir':
+                return 'replace';
+            default:
+                return metodo;
+        }
+    }
+
     logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '';
         this.indentacao += 4;
