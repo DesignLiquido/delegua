@@ -16,7 +16,7 @@ describe('Tradutor Delégua -> Python', () => {
 
         it('Olá mundo', () => {
             const retornoLexador = lexador.mapear(
-                ['escreva("Olá mundo")'], 
+                ['escreva("Olá mundo")'],
                 -1
             );
 
@@ -28,9 +28,45 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\('Olá mundo'\)/i);
         });
 
+        it('funções nativas', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var vetor = [1, 2];',
+                    'vetor.adicionar(3);',
+                    'vetor.empilhar(4);',
+                    'vetor.removerUltimo();',
+                    'vetor.inverter();',
+                    'vetor.inclui(2)',
+                    'vetor.ordenar()',
+                    'vetor.removerPrimeiro();',
+
+                    'var nome = \'delégua > égua\';',
+                    'nome = nome.maiusculo();',
+                    'nome = nome.minusculo();',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/vetor = \[1, 2\]/i);
+            expect(resultado).toMatch(/vetor.append\(3\)/i);
+            expect(resultado).toMatch(/vetor.append\(4\)/i);
+            expect(resultado).toMatch(/vetor.pop\(\)/i);
+            expect(resultado).toMatch(/vetor.reverse()/i)
+            expect(resultado).toMatch(/2 in vetor/i)
+            expect(resultado).toMatch(/vetor.sort()/i)
+            expect(resultado).toMatch(/vetor.pop\(0\)/i);
+
+
+            expect(resultado).toMatch(/nome.upper\(\)/i);
+            expect(resultado).toMatch(/nome.lower\(\)/i);
+        });
+
         it('Agrupamento', () => {
             const retornoLexador = lexador.mapear(
-                ['escreva((2 * 3) + (4 ^ 2))'], 
+                ['escreva((2 * 3) + (4 ^ 2))'],
                 -1
             );
 
@@ -52,7 +88,7 @@ describe('Tradutor Delégua -> Python', () => {
                     'const NOME2 = \'delegua\';',
                     'const nomeCompleto3 = \'delegua completo3\';',
                     'const NomeCompleto4 = \'delegua completo4\';',
-                ], 
+                ],
                 -1
             );
 
@@ -79,7 +115,7 @@ describe('Tradutor Delégua -> Python', () => {
                     'var f = nulo',
                     'const g = \'olá\'',
                     '2 * 2'
-                ], 
+                ],
                 -1
             );
 
@@ -494,7 +530,7 @@ describe('Tradutor Delégua -> Python', () => {
                 ],
                 -1
             );
-            
+
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
