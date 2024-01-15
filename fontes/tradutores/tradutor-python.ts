@@ -79,6 +79,38 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
+    traduzirFuncoesNativas(metodo: string): string {
+        switch (metodo.toLowerCase()) {
+            case 'adicionar':
+            case 'empilhar':
+                return 'append';
+            case 'fatiar':
+                return 'slice';
+            case 'inclui':
+                return 'in';
+            case 'inverter':
+                return 'reverse';
+            case 'juntar':
+                return 'join';
+            case 'ordenar':
+                return 'sort';
+            case 'removerprimeiro':
+                return 'pop(0)';
+            case 'removerultimo':
+                return 'pop';
+            case 'tamanho':
+                return 'len';
+            case 'maiusculo':
+                return 'upper';
+            case 'minusculo':
+                return 'lower';
+            case 'substituir':
+                return 'replace';
+            default:
+                return metodo;
+        }
+    }
+
     logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '';
         this.indentacao += 4;
@@ -158,7 +190,14 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)
+            if (funcaoTraduzida === 'in') {
+                return `in ${objetoVariavel.simbolo.lexema}`;
+            }else if(funcaoTraduzida === 'len'){
+                return `len(${objetoVariavel.simbolo.lexema})`;
+            }
+
+            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
         }
         return `self.${acessoMetodo.simbolo.lexema}`;
     }
@@ -297,7 +336,6 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
         resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
         resultado += ' '.repeat(this.indentacao) + '\n';
-
         this.indentacao -= 4;
         return resultado;
     }
@@ -324,15 +362,32 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
             chamada.entidadeChamada
         )}`;
+
         resultado += retorno;
-        resultado += '(';
-        for (let parametro of chamada.argumentos) {
-            resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
+
+        if(!resultado.includes("in ") && !resultado.includes("len") && !resultado.includes("pop(")){
+            resultado += '(';
         }
-        if (chamada.argumentos.length > 0) {
-            resultado = resultado.slice(0, -2);
+
+        if(!resultado.includes("len(")){
+            for (let parametro of chamada.argumentos) {
+                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro)
+                if(resultado.includes("in ") || resultado.includes("len")){
+                    resultado = `${parametroTratado} ${resultado}`
+                }else{
+                    resultado += parametroTratado + ', ';
+                }
+            }
+
+            if (chamada.argumentos.length > 0 && (!resultado.includes("in ") && !resultado.includes("len"))) {
+                resultado = resultado.slice(0, -2);
+            }
+
+            if(!resultado.includes(")") && !resultado.includes("in ")){
+                resultado += ')';
+            }
         }
-        resultado += ')';
+
         return resultado;
     }
 
