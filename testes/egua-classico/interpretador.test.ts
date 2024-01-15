@@ -250,6 +250,28 @@ describe('Interpretador (Égua Clássico)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             });
+
+            describe('Tratamento de erro', () => {
+                it('Tente', async () =>{
+                    const retornoLexador = lexador.mapear([
+                        "função teste() {",
+                        "   tente {        ",
+                        "       1 > '1';   ",
+                        "       escreva('Tente - Pegue: ERRO!');",
+                        "   } pegue {",
+                        "       escreva('Tente - Pegue: OK!');",
+                        "   } finalmente {",
+                        "       retorna(' ');",
+                        "   }",
+                        "}   ",
+                        "escreva(teste());"
+                    ])
+            
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                })
+            })
         });
 
         describe('Cenários de falha', () => {
