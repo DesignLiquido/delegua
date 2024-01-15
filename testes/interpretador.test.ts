@@ -1001,7 +1001,6 @@ describe('Interpretador', () => {
                 it('Chamada de função com retorno \'vazio\'', async () => {
                     const codigo = [
                         "funcao executar(valor1, valor2): vazio {",
-                        "   //...",
                         "   var resultado = valor1 + valor2",
                         "}",
                         "escreva(executar(1, 2))"
@@ -1022,7 +1021,6 @@ describe('Interpretador', () => {
                 it('Chamada de função com retorno \'qualquer\'', async () => {
                     const codigo = [
                         "funcao executar(valor1, valor2): qualquer {",
-                        "   //...",
                         "   var resultado = valor1 + valor2",
                         "   retorna resultado",
                         "}",
@@ -1103,7 +1101,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Chamada de função primitiva com parametro nulo', async () => {
+                it('Chamada de função primitiva com parâmetro nulo', async () => {
                     const codigo = [
                         "var frutas = [\"maçã\", \"banana\", \"morango\", \"laranja\", \"uva\"]",
                         "var alimentos = frutas.encaixar(0, 3, nulo, verdadeiro);",
@@ -1116,6 +1114,22 @@ describe('Interpretador', () => {
                     interpretador.funcaoDeRetorno = (saida: any) => {
                         expect(saida).toEqual('maçã,banana,morango');
                     }
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Aglutinação de argumentos', async () => {
+                    const codigo = [
+                        "função teste(*argumentos) {",
+                        "   escreva(argumentos)",
+                        "}",
+                        "teste(1, 2, 3)"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
