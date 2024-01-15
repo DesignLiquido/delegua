@@ -336,7 +336,6 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
         resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
         resultado += ' '.repeat(this.indentacao) + '\n';
-
         this.indentacao -= 4;
         return resultado;
     }
@@ -363,27 +362,28 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
             chamada.entidadeChamada
         )}`;
+
         resultado += retorno;
 
-        if(resultado.includes(".") && !resultado.includes("(")){
+        if(!resultado.includes("in ") && !resultado.includes("len") && !resultado.includes("pop(")){
             resultado += '(';
         }
 
         if(!resultado.includes("len(")){
             for (let parametro of chamada.argumentos) {
-                const parametroPego = this.dicionarioConstrutos[parametro.constructor.name](parametro)
-                if(!retorno.includes(".")){
-                    const novoResultado = `${parametroPego} ${resultado}`;
-                    resultado = novoResultado
+                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro)
+                if(resultado.includes("in ") || resultado.includes("len")){
+                    resultado = `${parametroTratado} ${resultado}`
                 }else{
-                    resultado += parametroPego + ', ';
+                    resultado += parametroTratado + ', ';
                 }
             }
 
-            if (chamada.argumentos.length > 0 && resultado.includes(".")) {
+            if (chamada.argumentos.length > 0 && (!resultado.includes("in ") && !resultado.includes("len"))) {
                 resultado = resultado.slice(0, -2);
             }
-            if(resultado.includes(".") && !resultado.includes(")")){
+
+            if(!resultado.includes(")") && !resultado.includes("in ")){
                 resultado += ')';
             }
         }
