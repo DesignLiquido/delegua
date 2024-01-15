@@ -133,7 +133,8 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                                 inicializacoes.push(
                                     new Var(
                                         identificador,
-                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), '')
+                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''),
+                                        'texto'
                                     )
                                 );
                                 break;
@@ -142,7 +143,8 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                                 inicializacoes.push(
                                     new Var(
                                         identificador,
-                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0)
+                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0),
+                                        'numero'
                                     )
                                 );
                                 break;
@@ -150,7 +152,8 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                                 inicializacoes.push(
                                     new Var(
                                         identificador,
-                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false)
+                                        new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false),
+                                        'lógico'
                                     )
                                 );
                                 break;
@@ -190,7 +193,8 @@ export class AvaliadorSintaticoMapler extends AvaliadorSintaticoBase {
                                             this.hashArquivo,
                                             Number(dadosVariaveis.simbolo.linha),
                                             this.criarVetorNDimensional(dimensoes)
-                                        )
+                                        ),
+                                        'vetor'
                                     )
                                 );
                                 break;
