@@ -328,7 +328,6 @@ describe('Tradutor Delégua -> Python', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            console.log(resultado)
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/def minhaFuncao\(textoQualquer\):/i);
             expect(resultado).toMatch(/return textoQualquer/i);
@@ -456,7 +455,6 @@ describe('Tradutor Delégua -> Python', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            console.log(resultado)
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/class Teste:/i);
             expect(resultado).toMatch(/def __init__\(self, abc\):/i);
