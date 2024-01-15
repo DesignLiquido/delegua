@@ -422,11 +422,13 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             }
         }
 
-        if (binario.operador.tipo === 'DIVISAO') {
+        // TODO: Repensar essa avaliação. Nem sempre o lado
+        // direito é um literal.
+        /* if (binario.operador.tipo === 'DIVISAO') {
             if (this.variaveis[binario.direita.simbolo.lexema]?.valor === 0) {
                 this.erro(binario.operador, `Divisão por zero.`);
             }
-        }
+        } */
     }
 
     private verificarLadoBinario(lado: Construto): void {
