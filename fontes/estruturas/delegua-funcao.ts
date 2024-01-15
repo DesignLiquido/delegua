@@ -48,12 +48,24 @@ export class DeleguaFuncao extends Chamavel {
             const parametro = parametros[i];
 
             const nome = parametro['nome'].lexema;
-            let argumento = argumentos[i];
-            if (argumentos[i] === null) {
-                argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
-            }
+            if (parametro.abrangencia === 'multiplo') {
+                const argumentosResolvidos = [];
+                for (let indiceArgumentoAtual = i; indiceArgumentoAtual < argumentos.length; indiceArgumentoAtual++) {
+                    const argumentoAtual = argumentos[indiceArgumentoAtual];
+                    argumentosResolvidos.push(argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual);
+                }
 
-            ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+                // TODO: Verificar se `imutavel` é `true` aqui mesmo.
+                ambiente.valores[nome] = { tipo: 'vetor', valor: argumentosResolvidos, imutavel: true };
+            } else {
+                let argumento = argumentos[i];
+                if (argumentos[i] === null) {
+                    argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
+                }
+    
+                ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+            }
+            
         }
 
         if (this.instancia !== undefined) {
