@@ -7,6 +7,11 @@ import { registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/diale
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { VariavelInterface } from '../../../interfaces';
 import * as comum from './comum';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { DeleguaClasse, DeleguaFuncao, DeleguaModulo, ObjetoDeleguaClasse } from '../../../estruturas';
+import { VariavelInterface } from '../../../interfaces';
+import { AtribuicaoPorIndicesMatriz } from '../../../construtos/atribuicao-por-indices-matriz';
+import { AcessoElementoMatriz } from '../../../construtos/acesso-elemento-matriz';
 
 /**
  * O Interpretador VisuAlg possui algumas diferenças em relação ao
