@@ -1,4 +1,4 @@
-import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Variavel, Vetor } from '../../construtos';
+import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Vetor } from '../../construtos';
 import {
     Bloco,
     Classe,
