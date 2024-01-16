@@ -18,6 +18,8 @@ import {
     Var,
 } from '../../../declaracoes';
 import {
+    AtribuicaoPorIndicesMatriz,
+    AcessoElementoMatriz,
     AcessoIndiceVariavel,
     Agrupamento,
     AtribuicaoPorIndice,
@@ -38,8 +40,6 @@ import { Simbolo } from '../../../lexador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
-import { AcessoElementoMatriz } from '../../../construtos/acesso-elemento-matriz';
-import { AtribuicaoPorIndicesMatriz } from '../../../construtos/atribuicao-por-indices-matriz';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;

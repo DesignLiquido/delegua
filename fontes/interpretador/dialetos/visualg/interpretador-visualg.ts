@@ -1,16 +1,12 @@
-import { Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
+import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
 import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
 import { registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/dialetos/visualg';
-
-import * as comum from './comum';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { DeleguaClasse, DeleguaFuncao, DeleguaModulo, ObjetoDeleguaClasse } from '../../../estruturas';
 import { VariavelInterface } from '../../../interfaces';
-import { AtribuicaoPorIndicesMatriz } from '../../../construtos/atribuicao-por-indices-matriz';
-import { AcessoElementoMatriz } from '../../../construtos/acesso-elemento-matriz';
+import * as comum from './comum';
 
 /**
  * O Interpretador VisuAlg possui algumas diferenças em relação ao
