@@ -59,6 +59,12 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         this.atual = 0;
         this.diagnosticos = [];
     }
+    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+        return Promise.resolve();
+    }
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+        return Promise.resolve();
+    }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         return Promise.resolve();
     }

@@ -73,6 +73,12 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
+    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+        throw new Error('Método não implementado.');
+    }
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }

@@ -363,8 +363,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            //TODO: https://github.com/DesignLiquido/delegua/issues/503
-            it.skip("Sucesso - Matriz - Jogo da Velha", async () => {
+            it("Sucesso - Matriz - Jogo da Velha", async () => {
                 const retornoLexador = lexador.mapear([
                     'Algoritmo "Jogo da Velha"',
                     'Var',
