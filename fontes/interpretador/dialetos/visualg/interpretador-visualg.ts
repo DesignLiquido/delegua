@@ -1,4 +1,4 @@
-import { Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
+import { AcessoIndiceVariavel, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
 import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
@@ -6,6 +6,10 @@ import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialeto
 import { registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/dialetos/visualg';
 
 import * as comum from './comum';
+import { VariavelInterface } from '../../../interfaces';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { DeleguaClasse, DeleguaFuncao, DeleguaModulo, ObjetoDeleguaClasse } from '../../../estruturas';
+import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos'
 
 /**
  * O Interpretador VisuAlg possui algumas diferenças em relação ao
@@ -31,6 +35,158 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
+        const { indice1, indice2 } = expressao.indice;
+        const promises = await Promise.all([
+            this.avaliar(expressao.objeto),
+            this.avaliar(indice1),
+            this.avaliar(indice2),
+            this.avaliar(expressao.valor),
+        ]);
+
+        let objeto = promises[0];
+        let indicePrimario = promises[1];
+        let indiceSecundario = promises[2];
+        const valor = promises[3];
+
+        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
+        indicePrimario = indicePrimario.hasOwnProperty('valor') ? indicePrimario.valor : indicePrimario;
+        indiceSecundario = indiceSecundario?.hasOwnProperty('valor') ? indiceSecundario.valor : indiceSecundario;
+
+        if (Array.isArray(objeto)) {
+            if (indicePrimario < 0 && objeto.length !== 0) {
+                while (indicePrimario < 0) {
+                    indicePrimario += objeto.length;
+                }
+            }
+
+            while (objeto.length < indicePrimario) {
+                objeto.push(null);
+            }
+
+            if (indiceSecundario) {
+                if (indiceSecundario < 0 && objeto.length !== 0) {
+                    while (indiceSecundario < 0) {
+                        indiceSecundario += objeto.length;
+                    }
+                }
+    
+                while (objeto.length < indiceSecundario) {
+                    objeto.push(null);
+                }
+                
+                objeto[indicePrimario][indiceSecundario] = valor;
+            } else {
+                objeto[indicePrimario] = valor;
+            }
+        } else if (
+            objeto.constructor === Object ||
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            objeto instanceof DeleguaClasse ||
+            objeto instanceof DeleguaModulo
+        ) {
+            objeto[indicePrimario] = valor;
+        } else {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    expressao.objeto.nome,
+                    'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
+                    expressao.linha
+                )
+            );
+        }
+    }
+
+    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
+        const { indice1, indice2 } = expressao.indice;
+        const promises = await Promise.all([this.avaliar(expressao.entidadeChamada), this.avaliar(indice1), this.avaliar(indice2)]);
+
+        const variavelObjeto: VariavelInterface = promises[0];
+        const _indice1 = promises[1];
+        const _indice2 = promises[2];
+
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        let valorIndice1 = _indice1.hasOwnProperty('valor') ? _indice1.valor : _indice1;
+        let valorIndice2 = _indice2?.hasOwnProperty('valor') ? _indice2.valor : _indice2;
+
+        if (Array.isArray(objeto)) {
+            if (!Number.isInteger(valorIndice1)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Somente inteiros podem ser usados para indexar um vetor.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (valorIndice1 < 0 && objeto.length !== 0) {
+                while (valorIndice1 < 0) {
+                    valorIndice1 += objeto.length;
+                }
+            }
+            if (valorIndice2 && valorIndice2 < 0 && objeto.length !== 0) {
+                while (valorIndice2 < 0) {
+                    valorIndice2 += objeto.length;
+                }
+            }
+
+            if (valorIndice1 >= objeto.length || (valorIndice2 && valorIndice2 >= objeto.length)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Índice do vetor fora do intervalo.',
+                        expressao.linha
+                    )
+                );
+            }
+            if (valorIndice2) {
+                return objeto[valorIndice1][valorIndice2];    
+            }
+            return objeto[valorIndice1];
+        } else if (
+            objeto.constructor === Object ||
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            objeto instanceof DeleguaClasse ||
+            objeto instanceof DeleguaModulo
+        ) {
+            return objeto[valorIndice1] || null;
+        } else if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
+            if (!Number.isInteger(valorIndice1)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Somente inteiros podem ser usados para indexar um vetor.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (valorIndice1 < 0 && objeto.length !== 0) {
+                while (valorIndice1 < 0) {
+                    valorIndice1 += objeto.length;
+                }
+            }
+
+            if (valorIndice1 >= objeto.length) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do tamanho.', expressao.linha)
+                );
+            }
+            return objeto.charAt(valorIndice1);
+        } else {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    expressao.entidadeChamada.nome,
+                    'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
+                    expressao.linha
+                )
+            );
+        }
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

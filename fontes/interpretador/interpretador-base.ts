@@ -210,6 +210,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         /* if (expressao === null || expressao === undefined) {
             console.log('Aqui');
         } */
+        if (!expressao) {
+            return;
+        }
 
         return await expressao.aceitar(this);
     }

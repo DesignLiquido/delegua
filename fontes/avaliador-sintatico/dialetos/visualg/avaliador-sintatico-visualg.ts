@@ -377,11 +377,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
+                const { indice1, indice2 } = expressao.indice;
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
                     expressao.entidadeChamada,
-                    expressao.indice,
+                    { indice1, indice2 },
                     valor
                 );
             }
@@ -427,12 +428,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                     indices.push(this.expressao());
                 } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-                const indice = indices[0];
+                const indice1 = indices[0];
+                const indice2 = indices[1];
+                const objetosIndices = indice2 !== undefined ? { indice1, indice2 } : { indice1, indice2: undefined }
                 const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
+                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, objetosIndices, simboloFechamento);
             } else {
                 break;
             }

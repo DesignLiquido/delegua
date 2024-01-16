@@ -30,7 +30,7 @@ export async function atribuirVariavel(
     if (expressao instanceof AcessoIndiceVariavel) {
         const promises = await Promise.all([
             interpretador.avaliar(expressao.entidadeChamada),
-            interpretador.avaliar(expressao.indice),
+            interpretador.avaliar(expressao.indice.indice1),
         ]);
 
         let alvo = promises[0];
