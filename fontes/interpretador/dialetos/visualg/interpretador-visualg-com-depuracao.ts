@@ -29,11 +29,11 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
     }
 
     async visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> {
-        await comum.visitarExpressaoAcessoElementoMatriz(expressao);
+        return await comum.visitarExpressaoAcessoElementoMatriz(this, expressao);
     }
 
     async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
-        await comum.visitarExpressaoAtribuicaoPorIndicesMatriz(expressao);
+        return await comum.visitarExpressaoAtribuicaoPorIndicesMatriz(this, expressao);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

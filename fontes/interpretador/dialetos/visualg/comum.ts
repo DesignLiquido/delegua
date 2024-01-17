@@ -290,11 +290,11 @@ export async function resolverIncrementoPara(interpretador: InterpretadorBase, d
     }
 }
 
-export async function visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> {
+export async function visitarExpressaoAcessoElementoMatriz(interpretador: InterpretadorBase, expressao: AcessoElementoMatriz): Promise<any> {
     const promises = await Promise.all([
-        this.avaliar(expressao.entidadeChamada), 
-        this.avaliar(expressao.indicePrimario),
-        this.avaliar(expressao.indiceSecundario),
+        avaliar(interpretador, expressao.entidadeChamada), 
+        avaliar(interpretador, expressao.indicePrimario),
+        avaliar(interpretador, expressao.indiceSecundario),
     ]);
 
     const variavelObjeto: VariavelInterface = promises[0];
@@ -347,12 +347,12 @@ export async function visitarExpressaoAcessoElementoMatriz(expressao: AcessoElem
     );
 }
 
-export async function visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
+export async function visitarExpressaoAtribuicaoPorIndicesMatriz(interpretador: InterpretadorBase, expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
     const promises = await Promise.all([
-        this.avaliar(expressao.objeto),
-        this.avaliar(expressao.indicePrimario),
-        this.avaliar(expressao.indiceSecundario),
-        this.avaliar(expressao.valor),
+        avaliar(interpretador, expressao.objeto),
+        avaliar(interpretador, expressao.indicePrimario),
+        avaliar(interpretador, expressao.indiceSecundario),
+        avaliar(interpretador, expressao.valor),
     ]);
 
     let objeto = promises[0];
