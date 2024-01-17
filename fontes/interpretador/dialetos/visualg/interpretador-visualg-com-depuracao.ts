@@ -4,11 +4,10 @@ import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
-import { Binario, Construto, FimPara, Logico } from '../../../construtos';
+import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico } from '../../../construtos';
 import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
-
 import * as comum from './comum';
 
 /**
@@ -27,6 +26,14 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> {
+        await comum.visitarExpressaoAcessoElementoMatriz(expressao);
+    }
+
+    async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
+        await comum.visitarExpressaoAtribuicaoPorIndicesMatriz(expressao);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {

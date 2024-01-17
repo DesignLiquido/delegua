@@ -4,8 +4,6 @@ import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
 import { registrarBibliotecaCaracteresVisuAlg } from '../../../bibliotecas/dialetos/visualg';
-import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { VariavelInterface } from '../../../interfaces';
 import * as comum from './comum';
 
 /**
@@ -35,105 +33,11 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
     }
 
     async visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> {
-        const promises = await Promise.all([
-            this.avaliar(expressao.entidadeChamada), 
-            this.avaliar(expressao.indicePrimario),
-            this.avaliar(expressao.indiceSecundario),
-        ]);
-
-        const variavelObjeto: VariavelInterface = promises[0];
-        const indicePrimario = promises[1];
-        const indiceSecundario = promises[2];
-
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
-        let valorIndicePrimario = indicePrimario.hasOwnProperty('valor') ? indicePrimario.valor : indicePrimario;
-        let valorIndiceSecundario = indiceSecundario.hasOwnProperty('valor') ? indiceSecundario.valor : indiceSecundario;
-
-        if (Array.isArray(objeto)) {
-            if (!Number.isInteger(valorIndicePrimario) || !Number.isInteger(valorIndiceSecundario)) {
-                return Promise.reject(
-                    new ErroEmTempoDeExecucao(
-                        expressao.simboloFechamento,
-                        'Somente inteiros podem ser usados para indexar um vetor.',
-                        expressao.linha
-                    )
-                );
-            }
-
-            if (valorIndicePrimario < 0 && objeto.length !== 0) {
-                while (valorIndicePrimario < 0) {
-                    valorIndicePrimario += objeto.length;
-                }
-            }
-            if (valorIndiceSecundario < 0 && objeto.length !== 0) {
-                while (valorIndiceSecundario < 0) {
-                    valorIndiceSecundario += objeto.length;
-                }
-            }
-
-            if (valorIndicePrimario >= objeto.length || valorIndiceSecundario >= objeto.length) {
-                return Promise.reject(
-                    new ErroEmTempoDeExecucao(
-                        expressao.simboloFechamento,
-                        'Índice do vetor fora do intervalo.',
-                        expressao.linha
-                    )
-                );
-            }
-            return objeto[valorIndicePrimario][valorIndiceSecundario];
-        }
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                expressao.entidadeChamada.valor,
-                'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
-                expressao.linha
-            )
-        );
+        await comum.visitarExpressaoAcessoElementoMatriz(expressao);
     }
 
     async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
-        const promises = await Promise.all([
-            this.avaliar(expressao.objeto),
-            this.avaliar(expressao.indicePrimario),
-            this.avaliar(expressao.indiceSecundario),
-            this.avaliar(expressao.valor),
-        ]);
-
-        let objeto = promises[0];
-        let indicePrimario = promises[1];
-        let indiceSecundario = promises[2];
-        const valor = promises[3];
-
-        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
-        indicePrimario = indicePrimario.hasOwnProperty('valor') ? indicePrimario.valor : indicePrimario;
-        indiceSecundario = indiceSecundario.hasOwnProperty('valor') ? indiceSecundario.valor : indiceSecundario;
-
-        if (Array.isArray(objeto)) {
-            if (indicePrimario < 0 && objeto.length !== 0) {
-                while (indicePrimario < 0) {
-                    indicePrimario += objeto.length;
-                }
-            }
-            if (indiceSecundario < 0 && objeto.length !== 0) {
-                while (indiceSecundario < 0) {
-                    indiceSecundario += objeto.length;
-                }
-            }
-
-            while (objeto.length < indicePrimario || objeto.length < indiceSecundario) {
-                objeto.push(null);
-            }
-
-            objeto[indicePrimario][indiceSecundario] = valor;
-            return Promise.resolve();
-        } 
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                expressao.objeto.nome,
-                'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
-                expressao.linha
-            )
-        );
+        await comum.visitarExpressaoAtribuicaoPorIndicesMatriz(expressao);
     }
 
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {
