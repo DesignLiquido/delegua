@@ -1,9 +1,7 @@
-import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe } from '../construtos';
+import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe } from '../construtos';
 import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao } from '../declaracoes';
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
-
-import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
  * O formatador de código Delégua.
@@ -44,9 +42,16 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarDeclaracaoEscolha(declaracao: Escolha) {
         throw new Error('Method not implemented.');
     }
+
     visitarDeclaracaoEscreva(declaracao: Escreva) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}escreva(`;
+        for (let argumento of declaracao.argumentos) {
+            this.formatarDeclaracaoOuConstruto(argumento);
+        }
+
+        this.codigoFormatado += ")\n";
     }
+
     visitarDeclaracaoFazer(declaracao: Fazer) {
         throw new Error('Method not implemented.');
     }
@@ -67,6 +72,18 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += "tente {\n";
         if (declaracao.caminhoPegue) {
             this.codigoFormatado += "} pegue {\n";
+            if (declaracao.caminhoPegue instanceof FuncaoConstruto) {
+                // Se tem um parâmetro de erro.
+            } else {
+                // Se não tem um parâmetro de erro.
+                this.indentacaoAtual += 4;
+                for (let declaracaoBloco of (declaracao.caminhoPegue as Declaracao[])) {
+                    this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+                    this.codigoFormatado += ', ';
+                }
+            }
+
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
 
         if (declaracao.caminhoFinalmente) {
@@ -148,9 +165,16 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Method not implemented.');
     }
-    visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        throw new Error('Method not implemented.');
+
+    visitarExpressaoLiteral(expressao: Literal): any {
+        if (expressao.valor instanceof String) {
+            this.codigoFormatado += `'${expressao.valor}'`;
+            return;
+        }
+        
+        this.codigoFormatado += expressao.valor;
     }
+
     visitarExpressaoLogica(expressao: any) {
         throw new Error('Method not implemented.');
     }
@@ -173,12 +197,20 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         throw new Error('Method not implemented.');
     }
 
-    formatarDeclaracao(declaracao: Declaracao): void {
-        switch (declaracao.constructor.name) {
+    formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
+        switch (declaracaoOuConstruto.constructor.name) {
+            case 'Escreva':
+                this.visitarDeclaracaoEscreva(declaracaoOuConstruto as Escreva);
+                break;
+            case 'Literal':
+                this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
+                break;
             case 'Tente':
-                this.visitarDeclaracaoTente(declaracao as Tente);
+                this.visitarDeclaracaoTente(declaracaoOuConstruto as Tente);
+                break;
             default:
-                console.log(declaracao.constructor.name);
+                console.log(declaracaoOuConstruto.constructor.name);
+                break;
         }
     }
 
@@ -187,7 +219,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.indentacaoAtual = 0;
 
         for (let declaracao of declaracoes) {
-            this.formatarDeclaracao(declaracao);
+            this.formatarDeclaracaoOuConstruto(declaracao);
         }
 
         return this.codigoFormatado;
