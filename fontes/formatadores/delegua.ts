@@ -12,10 +12,12 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export class FormatadorDelegua implements VisitanteComumInterface {
     indentacao: number;
     blocoAberto: boolean;
+    codigoFormatado: string;
 
     constructor() {
         this.indentacao = 0;
         this.blocoAberto = true;
+        this.codigoFormatado = "";
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
@@ -160,8 +162,21 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         throw new Error('Method not implemented.');
     }
 
-    formatar(declaracoes: Declaracao[], tamanhoIndentacao: number = 4): string {
-        return "";
+    formatarDeclaracao(declaracao: Declaracao): void {
+        switch (declaracao.constructor.name) {
+            default:
+                console.log(declaracao.constructor.name);
+        }
+    }
+
+    formatar(declaracoes: Declaracao[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
+        this.codigoFormatado = "";
+
+        for (let declaracao of declaracoes) {
+            this.formatarDeclaracao(declaracao);
+        }
+
+        return this.codigoFormatado;
     }
 
     /**
