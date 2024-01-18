@@ -1,11 +1,11 @@
-import * as sistemaOperacional from 'node:os';
+import * as sistemaOperacional from 'os';
 
 import { FormatadorDelegua } from '../../fontes/formatadores';
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 
 describe('Formatadores > Delégua', () => {
-    const formatador = new FormatadorDelegua();
+    const formatador = new FormatadorDelegua(sistemaOperacional.EOL);
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
@@ -16,9 +16,10 @@ describe('Formatadores > Delégua', () => {
         );
 
         const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
-        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes, sistemaOperacional.EOL);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         console.log(resultado);
-        expect(resultado).toBeTruthy();
+        expect(linhasResultado).toHaveLength(9);
     });
 });

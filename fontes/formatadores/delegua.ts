@@ -9,12 +9,15 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  */
 export class FormatadorDelegua implements VisitanteComumInterface {
     indentacaoAtual: number;
-    blocoAberto: boolean;
+    quebraLinha: string;
+    tamanhoIndentacao: number;
     codigoFormatado: string;
 
-    constructor() {
+    constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
+        this.quebraLinha = quebraLinha;
+        this.tamanhoIndentacao = tamanhoIndentacao;
+
         this.indentacaoAtual = 0;
-        this.blocoAberto = true;
         this.codigoFormatado = "";
     }
 
@@ -49,7 +52,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.formatarDeclaracaoOuConstruto(argumento);
         }
 
-        this.codigoFormatado += ")\n";
+        this.codigoFormatado += `)${this.quebraLinha}`;
     }
 
     visitarDeclaracaoFazer(declaracao: Fazer) {
@@ -69,28 +72,40 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
-        this.codigoFormatado += "tente {\n";
+        this.codigoFormatado += `tente {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of declaracao.caminhoTente) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+
         if (declaracao.caminhoPegue) {
-            this.codigoFormatado += "} pegue {\n";
+            this.codigoFormatado += `} pegue {${this.quebraLinha}`;
             if (declaracao.caminhoPegue instanceof FuncaoConstruto) {
                 // Se tem um parâmetro de erro.
             } else {
                 // Se não tem um parâmetro de erro.
-                this.indentacaoAtual += 4;
+                this.indentacaoAtual += this.tamanhoIndentacao;
                 for (let declaracaoBloco of (declaracao.caminhoPegue as Declaracao[])) {
                     this.formatarDeclaracaoOuConstruto(declaracaoBloco);
-                    this.codigoFormatado += ', ';
                 }
             }
-
-            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
 
         if (declaracao.caminhoFinalmente) {
-            this.codigoFormatado += "} finalmente {\n";
+            this.codigoFormatado += `} finalmente {${this.quebraLinha}`;
+            this.indentacaoAtual += this.tamanhoIndentacao;
+            for (let declaracaoBloco of declaracao.caminhoFinalmente) {
+                this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+            }
         }
 
-        this.codigoFormatado += "}\n\n";
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+
+        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
@@ -167,7 +182,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
-        if (expressao.valor instanceof String) {
+        if (typeof expressao.valor === 'string') {
             this.codigoFormatado += `'${expressao.valor}'`;
             return;
         }
@@ -214,7 +229,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
     }
 
-    formatar(declaracoes: Declaracao[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
+    /**
+     * Devolve código formatado de acordo com os símbolos encontrados.
+     * @param {Declaracao[]} declaracoes Um vetor de declarações.
+     * @returns Código Delégua formatado.
+     */
+    formatar(declaracoes: Declaracao[]): string {
         this.codigoFormatado = "";
         this.indentacaoAtual = 0;
 
@@ -224,71 +244,4 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         return this.codigoFormatado;
     }
-
-    /**
-     * Devolve código formatado de acordo com os símbolos encontrados.
-     * @param simbolos Um vetor de símbolos.
-     * @param quebraLinha O símbolo de quebra de linha. Normalmente `\r\n` para Windows e `\n` para outros sistemas operacionais.
-     * @param tamanhoIndentacao O tamanho de cada bloco de indentação (por padrão, 4)
-     * @returns Código Delégua formatado.
-     */
-    /* formatar(simbolos: SimboloInterface[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
-        let resultado = '';
-        let deveQuebrarLinha: boolean = false;
-
-        for (let simbolo of simbolos) {
-            switch (simbolo.tipo) {
-                case tiposDeSimbolos.CHAVE_ESQUERDA:
-                    this.indentacao += tamanhoIndentacao;
-                    resultado += '{' + quebraLinha;
-                    resultado += ' '.repeat(this.indentacao);
-                    break;
-                case tiposDeSimbolos.CHAVE_DIREITA:
-                    this.indentacao -= tamanhoIndentacao;
-                    resultado += quebraLinha + ' '.repeat(this.indentacao) + '}' + quebraLinha;
-                    break;
-                case tiposDeSimbolos.ESCREVA:
-                    deveQuebrarLinha = true;
-                case tiposDeSimbolos.ENQUANTO:
-                case tiposDeSimbolos.FAZER:
-                case tiposDeSimbolos.FINALMENTE:
-                case tiposDeSimbolos.PARA:
-                case tiposDeSimbolos.PEGUE:
-                case tiposDeSimbolos.RETORNA:
-                case tiposDeSimbolos.SE:
-                case tiposDeSimbolos.SENAO:
-                case tiposDeSimbolos.SENÃO:
-                case tiposDeSimbolos.TENTE:
-                case tiposDeSimbolos.VARIAVEL:
-                    resultado += quebraLinha + ' '.repeat(this.indentacao) + simbolo.lexema + ' ';
-                    break;
-                case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                    resultado += '(';
-                    break;
-                case tiposDeSimbolos.PARENTESE_DIREITO:
-                    resultado = resultado.trimEnd();
-                    resultado += ')';
-                    if (deveQuebrarLinha) {
-                        deveQuebrarLinha = false;
-                        resultado += quebraLinha;
-                    } else {
-                        resultado += ' ';
-                    }
-
-                    break;
-                case tiposDeSimbolos.FUNCAO:
-                case tiposDeSimbolos.FUNÇÃO:
-                case tiposDeSimbolos.IDENTIFICADOR:
-                case tiposDeSimbolos.IGUAL:
-                case tiposDeSimbolos.IGUAL_IGUAL:
-                    resultado += simbolo.lexema + ' ';
-                    break;
-                default:
-                    resultado += simbolo.lexema;
-                    break;
-            }
-        }
-
-        return resultado;
-    } */
 }
