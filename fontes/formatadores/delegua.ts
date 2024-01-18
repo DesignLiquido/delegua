@@ -1,4 +1,7 @@
-import { SimboloInterface } from '../interfaces';
+import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe } from '../construtos';
+import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao } from '../declaracoes';
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -6,13 +9,159 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * O formatador de código Delégua.
  * Normalmente usado por IDEs, mas pode ser usado por linha de comando ou programaticamente.
  */
-export class FormatadorDelegua {
+export class FormatadorDelegua implements VisitanteComumInterface {
     indentacao: number;
     blocoAberto: boolean;
 
     constructor() {
         this.indentacao = 0;
         this.blocoAberto = true;
+    }
+
+    visitarDeclaracaoClasse(declaracao: Classe) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoEscolha(declaracao: Escolha) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoEscreva(declaracao: Escreva) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoFazer(declaracao: Fazer) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoImportar(declaracao: Importar) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoSe(declaracao: Se) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoTente(declaracao: Tente) {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoAcessoMetodo(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoBinaria(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoDeChamada(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoDefinirValor(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoDeleguaFuncao(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoDeVariavel(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoDicionario(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
+        throw new Error('Method not implemented.');
+    }
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoFalhar(expressao: any): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoFimPara(declaracao: FimPara) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoIsto(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoLeia(expressao: Leia): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoLiteral(expressao: Literal): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoLogica(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoSuper(expressao: Super) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoUnaria(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+    visitarExpressaoVetor(expressao: any) {
+        throw new Error('Method not implemented.');
+    }
+
+    formatar(declaracoes: Declaracao[], tamanhoIndentacao: number = 4): string {
+        return "";
     }
 
     /**
@@ -22,7 +171,7 @@ export class FormatadorDelegua {
      * @param tamanhoIndentacao O tamanho de cada bloco de indentação (por padrão, 4)
      * @returns Código Delégua formatado.
      */
-    formatar(simbolos: SimboloInterface[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
+    /* formatar(simbolos: SimboloInterface[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
         let resultado = '';
         let deveQuebrarLinha: boolean = false;
 
@@ -80,5 +229,5 @@ export class FormatadorDelegua {
         }
 
         return resultado;
-    }
+    } */
 }
