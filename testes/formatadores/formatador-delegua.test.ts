@@ -17,7 +17,8 @@ describe('Formatadores > Delégua', () => {
 
         const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes, sistemaOperacional.EOL);
-        // expect(resultado.split('\n')).toHaveLength(19);
-        expect(1).toBe(1);
+        
+        console.log(resultado);
+        expect(resultado).toBeTruthy();
     });
 });

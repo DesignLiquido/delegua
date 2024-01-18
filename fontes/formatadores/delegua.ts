@@ -10,12 +10,12 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * Normalmente usado por IDEs, mas pode ser usado por linha de comando ou programaticamente.
  */
 export class FormatadorDelegua implements VisitanteComumInterface {
-    indentacao: number;
+    indentacaoAtual: number;
     blocoAberto: boolean;
     codigoFormatado: string;
 
     constructor() {
-        this.indentacao = 0;
+        this.indentacaoAtual = 0;
         this.blocoAberto = true;
         this.codigoFormatado = "";
     }
@@ -62,9 +62,20 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarDeclaracaoSe(declaracao: Se) {
         throw new Error('Method not implemented.');
     }
+
     visitarDeclaracaoTente(declaracao: Tente) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += "tente {\n";
+        if (declaracao.caminhoPegue) {
+            this.codigoFormatado += "} pegue {\n";
+        }
+
+        if (declaracao.caminhoFinalmente) {
+            this.codigoFormatado += "} finalmente {\n";
+        }
+
+        this.codigoFormatado += "}\n\n";
     }
+
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         throw new Error('Method not implemented.');
     }
@@ -164,6 +175,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     formatarDeclaracao(declaracao: Declaracao): void {
         switch (declaracao.constructor.name) {
+            case 'Tente':
+                this.visitarDeclaracaoTente(declaracao as Tente);
             default:
                 console.log(declaracao.constructor.name);
         }
@@ -171,6 +184,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     formatar(declaracoes: Declaracao[], quebraLinha: string, tamanhoIndentacao: number = 4): string {
         this.codigoFormatado = "";
+        this.indentacaoAtual = 0;
 
         for (let declaracao of declaracoes) {
             this.formatarDeclaracao(declaracao);
