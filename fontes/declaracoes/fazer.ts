@@ -1,9 +1,11 @@
+import { Construto } from '../construtos';
 import { VisitanteComumInterface } from '../interfaces';
+import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
 export class Fazer extends Declaracao {
-    caminhoFazer: any;
-    condicaoEnquanto: any;
+    caminhoFazer: Bloco;
+    condicaoEnquanto: Construto;
 
     constructor(hashArquivo: number, linha: number, caminhoFazer: any, condicaoEnquanto: any) {
         super(linha, hashArquivo);

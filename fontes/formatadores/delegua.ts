@@ -76,8 +76,18 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoFazer(declaracao: Fazer) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}fazer {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of declaracao.caminhoFazer.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}} enquanto `;
+        this.formatarDeclaracaoOuConstruto(declaracao.condicaoEnquanto);
+        this.codigoFormatado += `${this.quebraLinha}${this.quebraLinha}`;
     }
+
     visitarDeclaracaoImportar(declaracao: Importar) {
         throw new Error('Method not implemented.');
     }
@@ -365,6 +375,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Expressao':
                 this.visitarDeclaracaoDeExpressao(declaracaoOuConstruto as Expressao);
+                break;
+            case 'Fazer':
+                this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
                 break;
             case 'Literal':
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
