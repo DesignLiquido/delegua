@@ -9,6 +9,20 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
+    it('Enquanto', () => {
+        const resultadoLexador = lexador.mapear(
+            ["var a = 1 enquanto a < 10 { a++ }"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(6);
+    });
+
     it('Para', () => {
         const resultadoLexador = lexador.mapear(
             ["para var a = 1; a < 10; a++ { escreva(a) }"], 

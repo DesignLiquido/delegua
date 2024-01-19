@@ -14,6 +14,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     quebraLinha: string;
     tamanhoIndentacao: number;
     codigoFormatado: string;
+    devePularLinha: boolean;
 
     constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
         this.quebraLinha = quebraLinha;
@@ -21,6 +22,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual = 0;
         this.codigoFormatado = "";
+        this.devePularLinha = true;
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
@@ -35,15 +37,31 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Method not implemented.');
     }
+
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += " ".repeat(this.indentacaoAtual);
+        this.formatarDeclaracaoOuConstruto(declaracao.expressao);
     }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         throw new Error('Method not implemented.');
     }
+
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}enquanto `;
+        this.formatarDeclaracaoOuConstruto(declaracao.condicao);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of declaracao.corpo.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+
+        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
     }
+
     visitarDeclaracaoEscolha(declaracao: Escolha) {
         throw new Error('Method not implemented.');
     }
@@ -65,7 +83,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoPara(declaracao: Para): any {
-        this.codigoFormatado += `para `;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}para `;
+        this.devePularLinha = false;
         if (declaracao.inicializador) {
             if (Array.isArray(declaracao.inicializador)) {
                 for (let declaracaoInicializador of declaracao.inicializador) {
@@ -81,6 +100,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(declaracao.incrementar);
+        this.devePularLinha = true;
         this.codigoFormatado += ` {${this.quebraLinha}`;
         
         this.indentacaoAtual += this.tamanhoIndentacao;
@@ -101,7 +121,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
-        this.codigoFormatado += `tente {${this.quebraLinha}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}tente {${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracao.caminhoTente) {
             this.formatarDeclaracaoOuConstruto(declaracaoBloco);
@@ -138,10 +158,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoVar(declaracao: Var): any {
-        this.codigoFormatado += `var ${declaracao.simbolo.lexema}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}var ${declaracao.simbolo.lexema}`;
         if (declaracao.inicializador) {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
+        }
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
         }
     }
 
@@ -273,6 +297,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 this.codigoFormatado += operador;
                 break;
         }
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     visitarExpressaoVetor(expressao: any) {
@@ -284,8 +312,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);
                 break;
+            case 'Enquanto':
+                this.visitarDeclaracaoEnquanto(declaracaoOuConstruto as Enquanto);
+                break;
             case 'Escreva':
                 this.visitarDeclaracaoEscreva(declaracaoOuConstruto as Escreva);
+                break;
+            case 'Expressao':
+                this.visitarDeclaracaoDeExpressao(declaracaoOuConstruto as Expressao);
                 break;
             case 'Literal':
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
