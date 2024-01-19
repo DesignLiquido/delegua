@@ -1,4 +1,4 @@
-import { Agrupamento, Atribuir, Binario, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Unario, Variavel } from '../construtos';
+import { Agrupamento, Atribuir, Binario, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Unario, Variavel, Vetor } from '../construtos';
 import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -398,8 +398,18 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
     }
 
-    visitarExpressaoVetor(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoVetor(expressao: Vetor) {
+        this.codigoFormatado += '[';
+        for (let valor of expressao.valores) {
+            this.formatarDeclaracaoOuConstruto(valor)
+            this.codigoFormatado += ', '
+        }
+
+        if (expressao.valores.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+
+        this.codigoFormatado += ']';
     }
 
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
@@ -448,6 +458,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Variavel':
                 this.visitarExpressaoDeVariavel(declaracaoOuConstruto as Variavel);
+                break;
+            case 'Vetor':
+                this.visitarExpressaoVetor(declaracaoOuConstruto as Vetor);
                 break;
             default:
                 console.log(declaracaoOuConstruto.constructor.name);

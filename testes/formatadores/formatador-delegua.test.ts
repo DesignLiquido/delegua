@@ -23,17 +23,23 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(3);
     });
 
+    it('Vetor', () => {
+        const resultadoLexador = lexador.mapear(
+            ["var a = [1,2,3] var c = [4,5,6]"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(3);
+    });
+
     it('Escolha', () => {
         const resultadoLexador = lexador.mapear([
-            "escolha (2) {",
-                "caso 1:",
-                    "escreva('correspondente à opção 1');",
-                "caso 2:",
-                "caso 3:",
-                    "escreva('correspondente à opção 2 e 3');",
-                "padrao:",
-                    "escreva('Sem opção correspondente');",
-            "}"
+            "escolha (2) { caso 1: escreva('correspondente à opção 1'); caso 2: caso 3: escreva('correspondente à opção 2 e 3'); padrao: escreva('Sem opção correspondente'); }",
         ], -1);
 
         const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
