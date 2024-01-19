@@ -1,5 +1,45 @@
-import { Agrupamento, Atribuir, Binario, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Unario, Variavel, Vetor } from '../construtos';
-import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao } from '../declaracoes';
+import {
+    Agrupamento,
+    Atribuir,
+    Binario,
+    Construto,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    FuncaoConstruto,
+    Literal,
+    Super,
+    TipoDe,
+    Unario,
+    Variavel,
+    Vetor,
+} from '../construtos';
+import {
+    Classe,
+    Const,
+    ConstMultiplo,
+    Expressao,
+    FuncaoDeclaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    Fazer,
+    Importar,
+    Para,
+    ParaCada,
+    Se,
+    Tente,
+    Var,
+    VarMultiplo,
+    Bloco,
+    Continua,
+    EscrevaMesmaLinha,
+    Leia,
+    LeiaMultiplo,
+    Retorna,
+    Sustar,
+    Declaracao,
+} from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 import { RetornoQuebra, SustarQuebra } from '../quebras';
 
@@ -21,7 +61,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.tamanhoIndentacao = tamanhoIndentacao;
 
         this.indentacaoAtual = 0;
-        this.codigoFormatado = "";
+        this.codigoFormatado = '';
         this.devePularLinha = true;
     }
 
@@ -29,7 +69,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         throw new Error('Método não implementado.');
     }
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}constante ${declaracao.simbolo.lexema}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}constante ${declaracao.simbolo.lexema}`;
         if (declaracao.inicializador) {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
@@ -48,7 +88,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        this.codigoFormatado += " ".repeat(this.indentacaoAtual);
+        this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
     }
 
@@ -57,54 +97,45 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}enquanto `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}enquanto `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
-        this.codigoFormatado += ` {${this.quebraLinha}`;
-
-        this.indentacaoAtual += this.tamanhoIndentacao;
-        for (let declaracaoBloco of declaracao.corpo.declaracoes) {
-            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
-        }
-
-        this.indentacaoAtual -= this.tamanhoIndentacao;
-
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.formatarDeclaracaoOuConstruto(declaracao.corpo);
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}escolha `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escolha `;
         this.formatarDeclaracaoOuConstruto(declaracao.identificadorOuLiteral);
         this.codigoFormatado += ` {${this.quebraLinha}`;
 
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let caminho of declaracao.caminhos) {
             for (let declaracoes of caminho.condicoes) {
-                this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}caso `
+                this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}caso `;
                 this.formatarDeclaracaoOuConstruto(declaracoes);
-                this.codigoFormatado += ":";
+                this.codigoFormatado += ':';
                 this.codigoFormatado += this.quebraLinha;
             }
 
             for (let declaracoes of caminho.declaracoes) {
-                this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}`
+                this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
                 this.formatarDeclaracaoOuConstruto(declaracoes);
             }
         }
 
         for (let padrao of declaracao.caminhoPadrao.declaracoes) {
-            this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}padrao:`
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}padrao:`;
             this.codigoFormatado += this.quebraLinha;
-            this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}`
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
             this.formatarDeclaracaoOuConstruto(padrao);
         }
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}escreva(`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escreva(`;
         for (let argumento of declaracao.argumentos) {
             this.formatarDeclaracaoOuConstruto(argumento);
         }
@@ -113,14 +144,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoFazer(declaracao: Fazer) {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}fazer {${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fazer {${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracao.caminhoFazer.declaracoes) {
             this.formatarDeclaracaoOuConstruto(declaracaoBloco);
         }
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}} enquanto `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} enquanto `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicaoEnquanto);
         this.codigoFormatado += `${this.quebraLinha}${this.quebraLinha}`;
     }
@@ -130,7 +161,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoPara(declaracao: Para): any {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}para `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
         this.devePularLinha = false;
         if (declaracao.inicializador) {
             if (Array.isArray(declaracao.inicializador)) {
@@ -144,12 +175,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
-        
+
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(declaracao.incrementar);
         this.devePularLinha = true;
         this.codigoFormatado += ` {${this.quebraLinha}`;
-        
+
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracao.corpo.declaracoes) {
             this.formatarDeclaracaoOuConstruto(declaracaoBloco);
@@ -157,7 +188,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
@@ -165,7 +196,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoSe(declaracao: Se) {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}se `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}se `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
         this.codigoFormatado += ` {${this.quebraLinha}`;
 
@@ -176,7 +207,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
         if (declaracao.caminhoSenao) {
-            this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}} senão {${this.quebraLinha}`;
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} senão {${this.quebraLinha}`;
             this.indentacaoAtual += this.tamanhoIndentacao;
             for (let declaracaoBloco of (declaracao.caminhoSenao as Bloco).declaracoes) {
                 this.formatarDeclaracaoOuConstruto(declaracaoBloco);
@@ -184,11 +215,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.indentacaoAtual -= this.tamanhoIndentacao;
         }
 
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}tente {${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}tente {${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracao.caminhoTente) {
             this.formatarDeclaracaoOuConstruto(declaracaoBloco);
@@ -203,7 +234,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             } else {
                 // Se não tem um parâmetro de erro.
                 this.indentacaoAtual += this.tamanhoIndentacao;
-                for (let declaracaoBloco of (declaracao.caminhoPegue as Declaracao[])) {
+                for (let declaracaoBloco of declaracao.caminhoPegue as Declaracao[]) {
                     this.formatarDeclaracaoOuConstruto(declaracaoBloco);
                 }
             }
@@ -221,11 +252,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoVar(declaracao: Var): any {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}var ${declaracao.simbolo.lexema}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}var ${declaracao.simbolo.lexema}`;
         if (declaracao.inicializador) {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
@@ -239,24 +270,30 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
         this.codigoFormatado += '(';
-        this.formatarDeclaracaoOuConstruto(expressao.expressao)
+        this.formatarDeclaracaoOuConstruto(expressao.expressao);
         this.codigoFormatado += ')';
-        return
+        return;
     }
+
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
+    
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -299,12 +336,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.formatarDeclaracaoOuConstruto(expressao.direita);
     }
 
-    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoBloco(declaracao: Bloco): any {
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of declaracao.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarExpressaoContinua(declaracao?: Continua): any {
-        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}continua${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}continua${this.quebraLinha}`;
     }
 
     visitarExpressaoDeChamada(expressao: any) {
@@ -356,7 +400,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.codigoFormatado += `'${expressao.valor}'`;
             return;
         }
-        
+
         this.codigoFormatado += expressao.valor;
     }
 
@@ -406,8 +450,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoVetor(expressao: Vetor) {
         this.codigoFormatado += '[';
         for (let valor of expressao.valores) {
-            this.formatarDeclaracaoOuConstruto(valor)
-            this.codigoFormatado += ', '
+            this.formatarDeclaracaoOuConstruto(valor);
+            this.codigoFormatado += ', ';
         }
 
         if (expressao.valores.length > 0) {
@@ -424,6 +468,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);
+                break;
+            case 'Bloco':
+                this.visitarExpressaoBloco(declaracaoOuConstruto as Bloco);
                 break;
             case 'Continua':
                 this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
@@ -482,7 +529,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
      * @returns Código Delégua formatado.
      */
     formatar(declaracoes: Declaracao[]): string {
-        this.codigoFormatado = "";
+        this.codigoFormatado = '';
         this.indentacaoAtual = 0;
 
         for (let declaracao of declaracoes) {

@@ -88,7 +88,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(9);
     });
 
