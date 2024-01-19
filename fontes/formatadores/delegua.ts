@@ -116,8 +116,28 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Method not implemented.');
     }
+
     visitarDeclaracaoSe(declaracao: Se) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}se `;
+        this.formatarDeclaracaoOuConstruto(declaracao.condicao);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of (declaracao.caminhoEntao as Bloco).declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        if (declaracao.caminhoSenao) {
+            this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}} senão {${this.quebraLinha}`;
+            this.indentacaoAtual += this.tamanhoIndentacao;
+            for (let declaracaoBloco of (declaracao.caminhoSenao as Bloco).declaracoes) {
+                this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+            }
+            this.indentacaoAtual -= this.tamanhoIndentacao;
+        }
+
+        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
@@ -194,10 +214,33 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoBinaria(expressao: Binario) {
         this.formatarDeclaracaoOuConstruto(expressao.esquerda);
         switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.ADICAO:
+                this.codigoFormatado += ` + `;
+                break;
+            case tiposDeSimbolos.DIVISAO:
+                this.codigoFormatado += ` / `;
+                break;
             case tiposDeSimbolos.IGUAL_IGUAL:
                 this.codigoFormatado += ` == `;
+                break;
+            case tiposDeSimbolos.MAIOR:
+                this.codigoFormatado += ` > `;
+                break;
+            case tiposDeSimbolos.MAIOR_IGUAL:
+                this.codigoFormatado += ` >= `;
+                break;
             case tiposDeSimbolos.MENOR:
                 this.codigoFormatado += ` < `;
+                break;
+            case tiposDeSimbolos.MENOR_IGUAL:
+                this.codigoFormatado += ` <= `;
+                break;
+            case tiposDeSimbolos.MULTIPLICACAO:
+                this.codigoFormatado += ` * `;
+                break;
+            case tiposDeSimbolos.SUBTRACAO:
+                this.codigoFormatado += ` - `;
+                break;
         }
 
         this.formatarDeclaracaoOuConstruto(expressao.direita);
@@ -229,9 +272,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
         throw new Error('Method not implemented.');
     }
+
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         throw new Error('Method not implemented.');
     }
+
     visitarExpressaoFalhar(expressao: any): Promise<any> {
         throw new Error('Method not implemented.');
     }
@@ -326,6 +371,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Para':
                 this.visitarDeclaracaoPara(declaracaoOuConstruto as Para);
+                break;
+            case 'Se':
+                this.visitarDeclaracaoSe(declaracaoOuConstruto as Se);
                 break;
             case 'Tente':
                 this.visitarDeclaracaoTente(declaracaoOuConstruto as Tente);

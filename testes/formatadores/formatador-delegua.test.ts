@@ -37,6 +37,20 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(5);
     });
 
+    it('Se', () => {
+        const resultadoLexador = lexador.mapear(
+            ["se a == 1 { escreva(a) } senao { escreva(a + 1) } "], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(7);
+    });
+
     it('Tente', () => {
         const resultadoLexador = lexador.mapear(
             ["tente { escreva('sucesso') } pegue { escreva('pegue') } finalmente { escreva('pronto') }"], 
