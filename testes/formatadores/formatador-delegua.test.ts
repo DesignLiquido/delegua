@@ -23,6 +23,30 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(3);
     });
 
+    it('Função', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "funcao temDigitoRepetido(num) {",
+                "    var str = texto(num);",
+                "    para (var i = 1; i < tamanho(str); i++) {",
+                "      se (str[i] != str[0]) {",
+                "        retorna falso;",
+                "      }",
+                "    }",
+                "    retorna verdadeiro;",
+                "}",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(9);
+    });
+
     it('Vetor', () => {
         const resultadoLexador = lexador.mapear(
             ["var a = [1,2,3] const c = [4,5,6]"], 

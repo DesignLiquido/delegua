@@ -2,6 +2,7 @@ import {
     Agrupamento,
     Atribuir,
     Binario,
+    Chamada,
     Construto,
     ExpressaoRegular,
     FimPara,
@@ -93,7 +94,20 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}função ${declaracao.simbolo.lexema || ''} (`;
+        for (let parametro of declaracao.funcao.parametros) {
+            this.codigoFormatado += `${parametro.nome.lexema}${parametro.tipoDado ? `: ${parametro.tipoDado},` : ''}`;
+        }
+        this.codigoFormatado += ") {"
+        this.codigoFormatado += this.quebraLinha;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let corpo of declaracao.funcao.corpo) {
+            this.formatarDeclaracaoOuConstruto(corpo);    
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += "}"
+        console.log(this.codigoFormatado)
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
@@ -351,8 +365,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}continua${this.quebraLinha}`;
     }
 
-    visitarExpressaoDeChamada(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoDeChamada(expressao: Chamada) {
+        this.formatarDeclaracaoOuConstruto(expressao.entidadeChamada);
+        this.codigoFormatado += '('
+        for (let argumento of expressao.argumentos) {
+            this.formatarDeclaracaoOuConstruto(argumento)
+            this.codigoFormatado += ', '
+        }
+
+        if (expressao.argumentos.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+        this.codigoFormatado += ')'
+        // this.codigoFormatado += ` {${this.quebraLinha}`;
     }
     visitarExpressaoDefinirValor(expressao: any) {
         throw new Error('Método não implementado.');
@@ -475,6 +500,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'Continua':
                 this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
                 break;
+            case 'Chamada':
+                this.visitarExpressaoDeChamada(declaracaoOuConstruto as Chamada);
+                break;
             case 'Escolha':
                 this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);
                 break;
@@ -489,6 +517,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Fazer':
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
+                break;
+            case 'FuncaoDeclaracao':
+                this.visitarDeclaracaoDefinicaoFuncao(declaracaoOuConstruto as FuncaoDeclaracao);
                 break;
             case 'Literal':
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
