@@ -106,6 +106,24 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(5);
     });
 
+    it('Expressões Regulares', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "var str = \"olá mundo, olá universo\";",
+                "var novaStr = str.substituir(||/olá/g||, \"oi\");",
+                "escreva(novaStr);",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(4);
+    });
+
     it('Para', () => {
         const resultadoLexador = lexador.mapear(
             ["para var a = 1; a < 10; a++ { se a %2==0 { continua } escreva(a) }"], 

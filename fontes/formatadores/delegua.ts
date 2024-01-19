@@ -1,4 +1,5 @@
 import {
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Atribuir,
     Binario,
@@ -287,8 +288,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoAcessoMetodo(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade) {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '.';
+        this.codigoFormatado += expressao.simbolo.lexema;
     }
 
     visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
@@ -392,8 +395,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoDicionario(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): any {
+        this.codigoFormatado += `||${expressao.valor}||`
     }
 
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
@@ -512,6 +515,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
         switch (declaracaoOuConstruto.constructor.name) {
+            case 'AcessoMetodoOuPropriedade':
+                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
                 break;
@@ -538,6 +544,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Expressao':
                 this.visitarDeclaracaoDeExpressao(declaracaoOuConstruto as Expressao);
+                break;
+            case 'ExpressaoRegular':
+                this.visitarExpressaoExpressaoRegular(declaracaoOuConstruto as ExpressaoRegular);
                 break;
             case 'Fazer':
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
