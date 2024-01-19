@@ -1,7 +1,7 @@
 import { Agrupamento, Atribuir, Binario, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Unario, Variavel, Vetor } from '../construtos';
 import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { RetornoQuebra, SustarQuebra } from '../quebras';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -68,7 +68,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
@@ -100,7 +100,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
@@ -157,7 +157,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
@@ -184,7 +184,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.indentacaoAtual -= this.tamanhoIndentacao;
         }
 
-        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
@@ -221,7 +221,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoVar(declaracao: Var): any {
@@ -285,6 +285,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.codigoFormatado += ` <= `;
                 break;
+            case tiposDeSimbolos.MODULO:
+                this.codigoFormatado += ` % `;
+                break;
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.codigoFormatado += ` * `;
                 break;
@@ -299,9 +302,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error('Método não implementado.');
+
+    visitarExpressaoContinua(declaracao?: Continua): any {
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}continua${this.quebraLinha}`;
     }
+
     visitarExpressaoDeChamada(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -419,6 +424,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);
+                break;
+            case 'Continua':
+                this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
                 break;
             case 'Escolha':
                 this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);

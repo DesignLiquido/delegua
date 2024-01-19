@@ -25,7 +25,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Vetor', () => {
         const resultadoLexador = lexador.mapear(
-            ["var a = [1,2,3] var c = [4,5,6]"], 
+            ["var a = [1,2,3] const c = [4,5,6]"], 
             -1
         );
 
@@ -33,7 +33,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(3);
     });
 
@@ -80,7 +80,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Para', () => {
         const resultadoLexador = lexador.mapear(
-            ["para var a = 1; a < 10; a++ { escreva(a) }"], 
+            ["para var a = 1; a < 10; a++ { se a %2==0 { continua } escreva(a) }"], 
             -1
         );
 
@@ -88,8 +88,8 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
-        expect(linhasResultado).toHaveLength(5);
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(9);
     });
 
     it('Se', () => {
