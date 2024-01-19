@@ -1,4 +1,4 @@
-import { Atribuir, Binario, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Unario, Variavel } from '../construtos';
+import { Agrupamento, Atribuir, Binario, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Unario, Variavel } from '../construtos';
 import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -26,16 +26,25 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}constante ${declaracao.simbolo.lexema}`;
+        if (declaracao.inicializador) {
+            this.codigoFormatado += ` = `;
+            this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
+        }
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
+        return;
     }
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
@@ -44,7 +53,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
@@ -63,7 +72,35 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
-        throw new Error('Method not implemented.');
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}escolha `;
+        this.formatarDeclaracaoOuConstruto(declaracao.identificadorOuLiteral);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let caminho of declaracao.caminhos) {
+            for (let declaracoes of caminho.condicoes) {
+                this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}caso `
+                this.formatarDeclaracaoOuConstruto(declaracoes);
+                this.codigoFormatado += ":";
+                this.codigoFormatado += this.quebraLinha;
+            }
+
+            for (let declaracoes of caminho.declaracoes) {
+                this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}`
+                this.formatarDeclaracaoOuConstruto(declaracoes);
+            }
+        }
+
+        for (let padrao of declaracao.caminhoPadrao.declaracoes) {
+            this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}padrao:`
+            this.codigoFormatado += this.quebraLinha;
+            this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}`
+            this.formatarDeclaracaoOuConstruto(padrao);
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+
+        this.codigoFormatado += `}${this.quebraLinha}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
@@ -89,7 +126,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoImportar(declaracao: Importar) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoPara(declaracao: Para): any {
@@ -124,7 +161,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoSe(declaracao: Se) {
@@ -200,25 +237,28 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoMetodo(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        throw new Error('Method not implemented.');
+    visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
+        this.codigoFormatado += '(';
+        this.formatarDeclaracaoOuConstruto(expressao.expressao)
+        this.codigoFormatado += ')';
+        return
     }
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoBinaria(expressao: Binario) {
@@ -257,19 +297,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoDeChamada(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoDefinirValor(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoDeVariavel(expressao: Variavel) {
@@ -277,33 +317,33 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoDicionario(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoFalhar(expressao: any): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoFimPara(declaracao: FimPara) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoIsto(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
@@ -316,19 +356,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoLogica(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoSuper(expressao: Super) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoUnaria(expressao: Unario) {
@@ -359,13 +399,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoVetor(expressao: any) {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
         switch (declaracaoOuConstruto.constructor.name) {
+            case 'Agrupamento':
+                this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
+                break;
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);
+                break;
+            case 'Escolha':
+                this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);
                 break;
             case 'Enquanto':
                 this.visitarDeclaracaoEnquanto(declaracaoOuConstruto as Enquanto);
@@ -393,6 +439,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Unario':
                 this.visitarExpressaoUnaria(declaracaoOuConstruto as Unario);
+                break;
+            case 'Const':
+                this.visitarDeclaracaoConst(declaracaoOuConstruto as Const);
                 break;
             case 'Var':
                 this.visitarDeclaracaoVar(declaracaoOuConstruto as Var);

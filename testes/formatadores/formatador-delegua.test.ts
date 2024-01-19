@@ -9,6 +9,41 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
+    it('Variaveis', () => {
+        const resultadoLexador = lexador.mapear(
+            ["var a = 1 fixo c = 2"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(3);
+    });
+
+    it('Escolha', () => {
+        const resultadoLexador = lexador.mapear([
+            "escolha (2) {",
+                "caso 1:",
+                    "escreva('correspondente à opção 1');",
+                "caso 2:",
+                "caso 3:",
+                    "escreva('correspondente à opção 2 e 3');",
+                "padrao:",
+                    "escreva('Sem opção correspondente');",
+            "}"
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(11);
+    });
+
     it('Enquanto', () => {
         const resultadoLexador = lexador.mapear(
             ["var a = 1 enquanto a < 10 { a++ }"], 
