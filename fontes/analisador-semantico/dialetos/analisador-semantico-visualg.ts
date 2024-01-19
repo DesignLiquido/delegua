@@ -80,7 +80,49 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        return Promise.resolve();
+        const { simbolo, valor } = expressao;
+        let variavel = this.variaveis[simbolo.lexema];
+        if (!variavel) {
+            this.erro(
+                simbolo,
+                `Variável ${simbolo.lexema} ainda não foi declarada.`
+            );
+            return Promise.resolve();
+        }
+
+
+        if (variavel.tipo) {
+            if (valor instanceof Literal && variavel.tipo.includes('[]')) {
+                this.erro(simbolo, `Atribuição inválida, esperado tipo '${variavel.tipo}' na atribuição.`);
+                return Promise.resolve();
+            }
+            if (valor instanceof Vetor && !variavel.tipo.includes('[]')) {
+                this.erro(simbolo, `Atribuição inválida, esperado tipo '${variavel.tipo}' na atribuição.`);
+                return Promise.resolve();
+            }
+
+            if (valor instanceof Literal) {
+                let valorLiteral = typeof (valor as Literal).valor;
+                if (!['qualquer'].includes(variavel.tipo)) {
+                    if (valorLiteral === 'string') {
+                        if (variavel.tipo != 'texto') {
+                            this.erro(simbolo, `Esperado tipo '${variavel.tipo}' na atribuição.`);
+                            return Promise.resolve();
+                        }
+                    }
+                    if (valorLiteral === 'number') {
+                        if (!['inteiro', 'real'].includes(variavel.tipo)) {
+                            this.erro(simbolo, `Esperado tipo '${variavel.tipo}' na atribuição.`);
+                            return Promise.resolve();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (variavel) {
+            this.variaveis[simbolo.lexema].valor = valor;
+        }
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
@@ -89,7 +131,6 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
             tipo: declaracao.tipo,
             valor: declaracao.inicializador !== null ? declaracao.inicializador.valor !== undefined ? declaracao.inicializador.valor : declaracao.inicializador : undefined
         }
-        console.log(declaracao.simbolo.lexema)
         return Promise.resolve();
     }
 
@@ -133,7 +174,6 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
                     return Promise.resolve();
                 }
                 if (this.variaveis[argumento.expressao.simbolo.lexema]?.valor === undefined) {
-                    console.log("Acho que está passando aqui")
                     this.aviso(argumento.expressao.simbolo, `Variável '${argumento.expressao.simbolo.lexema}' não foi inicializada.`)
                     return Promise.resolve();
                 }

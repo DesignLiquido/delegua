@@ -16,7 +16,7 @@ describe('Analisador sêmantico (Visualg)', () => {
 
 
         describe('Cenários de falha', () => {
-            it('Variável não existe', () => {
+            it('Variável indefinida, não declarada(escreva)', () => {
                 const retornoLexador = lexador.mapear([
                     'algoritmo "Declaração de variável"',
                     'var',
@@ -24,6 +24,37 @@ describe('Analisador sêmantico (Visualg)', () => {
                     'escreva(idade, "teste");',
                     'fimalgoritmo'
                 ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            });
+
+            it('Variável indefinida, não declarada(atribuição)', () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Atribuição de valor"',
+                    'var',
+                    'inicio',
+                    'idade <- 2',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            });
+
+            it('Atribuição inválida', () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Atribuição de valor"',
+                    'var',
+                    'idade: real',
+                    'inicio',
+                    'idade <- "2"',
+                    'fimalgoritmo'
+                ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();

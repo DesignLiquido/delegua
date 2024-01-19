@@ -38,6 +38,7 @@ import { Simbolo } from '../../../lexador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
+import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -143,6 +144,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @returns Vetor de Construtos para inicialização de variáveis.
      */
     private validarSegmentoVar(): Construto[] | Declaracao[] {
+        console.log("Estou verificando")
         // Podem haver linhas de comentários acima de `var`, que geram
         // quebras de linha.
         while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
@@ -178,6 +180,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                     break;
                 default:
                     const dadosVariaveis = this.logicaComumParametroVisuAlg();
+                    console.log(dadosVariaveis.tipo)
                     // Se chegou até aqui, variáveis são válidas.
                     // Devem ser declaradas com um valor inicial padrão.
                     if (dadosVariaveis.tipo === tiposDeSimbolos.VETOR) {
@@ -224,13 +227,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                         this.atual++;
                     } else {
                         for (let identificador of dadosVariaveis.identificadores) {
+                            const tipo = dadosVariaveis.tipo as TiposDadosInterface
                             switch (dadosVariaveis.tipo) {
                                 case tiposDeSimbolos.CARACTER:
                                 case tiposDeSimbolos.CARACTERE:
                                     inicializacoes.push(
                                         new Var(
                                             identificador,
-                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), '')
+                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''),
+                                            tipo
                                         )
                                     );
                                     break;
@@ -239,7 +244,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                     inicializacoes.push(
                                         new Var(
                                             identificador,
-                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0)
+                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0),
+                                            tipo
                                         )
                                     );
                                     break;
@@ -247,7 +253,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                     inicializacoes.push(
                                         new Var(
                                             identificador,
-                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false)
+                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false),
+                                            tipo
                                         )
                                     );
                                     break;
