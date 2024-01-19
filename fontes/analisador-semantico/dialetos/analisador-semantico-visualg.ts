@@ -1,4 +1,4 @@
-import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe } from "../../construtos";
+import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel, Vetor } from "../../construtos";
 import {
     Bloco,
     Classe,
@@ -69,11 +69,27 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         });
     }
 
+    aviso(simbolo: SimboloInterface, mensagem: string): void {
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.AVISO
+        });
+    }
+
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        return Promise.resolve()
+        return Promise.resolve();
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        this.variaveis[declaracao.simbolo.lexema] = {
+            imutavel: false,
+            tipo: declaracao.tipo,
+            valor: declaracao.inicializador !== null ? declaracao.inicializador.valor !== undefined ? declaracao.inicializador.valor : declaracao.inicializador : undefined
+        }
+        console.log(declaracao.simbolo.lexema)
         return Promise.resolve();
     }
 
@@ -110,6 +126,20 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
     }
 
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+        declaracao.argumentos.forEach((argumento: FormatacaoEscrita) => {
+            if (argumento.expressao instanceof Variavel) {
+                if (!this.variaveis[argumento.expressao.simbolo.lexema]) {
+                    this.erro(argumento.expressao.simbolo, `Variável '${argumento.expressao.simbolo.lexema}' não existe.`)
+                    return Promise.resolve();
+                }
+                if (this.variaveis[argumento.expressao.simbolo.lexema]?.valor === undefined) {
+                    console.log("Acho que está passando aqui")
+                    this.aviso(argumento.expressao.simbolo, `Variável '${argumento.expressao.simbolo.lexema}' não foi inicializada.`)
+                    return Promise.resolve();
+                }
+            }
+        })
+
         return Promise.resolve();
     }
 
