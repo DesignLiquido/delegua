@@ -153,7 +153,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
         const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
         const corpoExecucao = cloneDeclaracao.corpo as Bloco;
         if (cloneDeclaracao.inicializador !== null) {
-            await this.avaliar(cloneDeclaracao.inicializador);
+            await this.avaliar(cloneDeclaracao.inicializador as any);
             // O incremento vai ao final do bloco de escopo.
             if (cloneDeclaracao.incrementar !== null) {
                 await comum.resolverIncrementoPara(this, cloneDeclaracao);
