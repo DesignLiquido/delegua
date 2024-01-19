@@ -88,6 +88,24 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(13);
     });
 
+    it('Funções (3)', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                'função f(a:texto, b:inteiro, c: texto, d) {',
+                '   escreva(a + b)',
+                '}',
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(5);
+    });
+
     it('Para', () => {
         const resultadoLexador = lexador.mapear(
             ["para var a = 1; a < 10; a++ { se a %2==0 { continua } escreva(a) }"], 
