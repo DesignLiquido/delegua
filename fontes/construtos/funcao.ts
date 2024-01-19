@@ -1,3 +1,4 @@
+import { Declaracao } from '../declaracoes';
 import { VisitanteComumInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
@@ -7,13 +8,13 @@ export class FuncaoConstruto implements Construto {
 
     parametros: ParametroInterface[];
     tipoRetorno?: string;
-    corpo: any[];
+    corpo: Declaracao[];
 
     constructor(
         hashArquivo: number,
         linha: number,
         parametros: ParametroInterface[],
-        corpo: any[],
+        corpo: Declaracao[],
         tipoRetorno?: string
     ) {
         this.linha = linha;
