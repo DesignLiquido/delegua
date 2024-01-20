@@ -109,9 +109,7 @@ describe('Formatadores > Delégua', () => {
     it('Expressões Regulares', () => {
         const resultadoLexador = lexador.mapear(
             [
-                "var str = \"olá mundo, olá universo\";",
-                "var novaStr = str.substituir(||/olá/g||, \"oi\");",
-                "escreva(novaStr);",
+                "var str = \"olá mundo, olá universo\" var novaStr = str.substituir(||/olá/g||, \"oi\") escreva(novaStr);",
             ], 
             -1
         );
@@ -120,7 +118,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
     });
 
@@ -140,7 +138,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Se', () => {
         const resultadoLexador = lexador.mapear(
-            ["se a == 1 { escreva(a) } senao { escreva(a + 1) } "], 
+            ["se a == 1 { escreva(a) } senao {escreva(a + 1)} "], 
             -1
         );
 
@@ -154,7 +152,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Tente', () => {
         const resultadoLexador = lexador.mapear(
-            ["tente { escreva('sucesso') } pegue { escreva('pegue') } finalmente { escreva('pronto') }"], 
+            ["tente { escreva('sucesso') } pegue {escreva('pegue')} finalmente { escreva('pronto') }"], 
             -1
         );
 
@@ -168,7 +166,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Variaveis', () => {
         const resultadoLexador = lexador.mapear(
-            ["var a = 1 fixo c = 2"], 
+            ["var a=1 fixo c = 2"], 
             -1
         );
 
@@ -182,7 +180,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Vetor', () => {
         const resultadoLexador = lexador.mapear(
-            ["var a = [1,2,3] const c = [4,5,6]"], 
+            ["var a = [1,2,3] const c=[4,5,6]"], 
             -1
         );
 
