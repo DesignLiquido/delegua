@@ -9,17 +9,30 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
-    it('Classes', () => {
+    it('Atribuições múltiplas', () => {
         const resultadoLexador = lexador.mapear([
-            "classe Teste {propriedade1: numero propriedade2: texto testeMetodo(argumento1: numero){isto.propriedade1=argumento1}}",
+            "var a, b, c = 1, 2, 3 const d,f,g=4,5,6",
         ], -1);
 
         const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
-        expect(linhasResultado).toBeTruthy();
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(6);
+    })
+
+    it('Classes', () => {
+        const resultadoLexador = lexador.mapear([
+            `classe Teste {propriedade1: numero propriedade2: texto construtor(){isto.propriedade1=0 isto.propriedade2="123"}testeMetodo(argumento1: numero){isto.propriedade1=argumento1}}`,
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(12);
     });
 
     it('Escolha', () => {

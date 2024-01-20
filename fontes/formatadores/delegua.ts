@@ -45,7 +45,7 @@ import {
     Declaracao,
 } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
-import { RetornoQuebra, SustarQuebra } from '../quebras';
+import { SustarQuebra } from '../quebras';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -103,8 +103,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
     }
 
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): any {
+        // TODO: Até então o código nunca passa por aqui, porque o avaliador sintático
+        // converte `ConstMultiplo` em várias declarações `const`.
+        // Talvez mudar a avaliação sintática para não fazer mais isso.
+        console.log(declaracao);
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
@@ -319,8 +322,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
     }
 
-    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
+        // TODO: Até então o código nunca passa por aqui, porque o avaliador sintático
+        // converte `VarMultiplo` em várias declarações `var`.
+        // Talvez mudar a avaliação sintática para não fazer mais isso.
+        console.log(declaracao);
     }
 
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
@@ -444,7 +450,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         if (expressao.argumentos.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
-        
+
         this.codigoFormatado += ')';
     }
 
