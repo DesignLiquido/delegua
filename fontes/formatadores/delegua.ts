@@ -208,7 +208,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoImportar(declaracao: Importar) {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}importar(`;
+        this.formatarDeclaracaoOuConstruto(declaracao.caminho);
+        this.codigoFormatado += `)`;
     }
 
     visitarDeclaracaoPara(declaracao: Para): any {
@@ -665,6 +667,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'FuncaoDeclaracao':
                 this.visitarDeclaracaoDefinicaoFuncao(declaracaoOuConstruto as FuncaoDeclaracao);
                 break;
+            case 'Importar':
+                this.visitarDeclaracaoImportar(declaracaoOuConstruto as Importar);
+                break;                
             case 'Isto':
                 this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;

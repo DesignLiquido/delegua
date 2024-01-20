@@ -254,4 +254,20 @@ describe('Formatadores > Delégua', () => {
         // console.log(resultado);
         expect(linhasResultado).toHaveLength(10);
     });
+
+    it('Importar', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "var dm = importar('@designliquido/delegua-matematica')var m = importar('matematica') dm.raizQuadrada(9) // Imprime 3",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(3);
+    });
 });
