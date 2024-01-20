@@ -19,7 +19,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(11);
+        expect(linhasResultado).toHaveLength(10);
     });
 
     it('Enquanto', () => {
@@ -33,7 +33,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
+        expect(linhasResultado).toHaveLength(5);
     });
 
     it('Fazer', () => {
@@ -47,7 +47,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
+        expect(linhasResultado).toHaveLength(5);
     });
 
     it('Funções', () => {
@@ -60,21 +60,21 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
-        expect(linhasResultado).toHaveLength(7);
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(6);
     });
 
-    it('Funções (2)', () => {
+    it('Funções, indentação bem zoada', () => {
         const resultadoLexador = lexador.mapear(
             [
                 "funcao temDigitoRepetido(num) {",
-                "    var str = texto(num);",
-                "    para (var i = 1; i < tamanho(str); i++) {",
-                "      se (str[i] != str[0]) {",
-                "        retorna falso;",
-                "      }",
+                "    var str = texto( num);",
+                "  para (var i =1; i< tamanho(str);i++   ) {",
+                "        se (str[i] != str[0]) {",
+                "     retorna falso;",
+                "}",
                 "    }",
-                "    retorna verdadeiro;",
+                "   retorna verdadeiro;",
                 "}",
             ], 
             -1
@@ -84,16 +84,14 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
-        expect(linhasResultado).toHaveLength(13);
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(10);
     });
 
-    it('Funções (3)', () => {
+    it('Funções com argumentos tipados', () => {
         const resultadoLexador = lexador.mapear(
             [
-                'função f(a:texto, b:inteiro, c: texto, d) {',
-                '   escreva(a + b)',
-                '}',
+                'função f(a:texto,b:inteiro, c: texto, d){ escreva(a +b)}',
             ], 
             -1
         );
@@ -103,7 +101,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(5);
+        expect(linhasResultado).toHaveLength(4);
     });
 
     it('Expressões Regulares', () => {
@@ -133,7 +131,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(9);
+        expect(linhasResultado).toHaveLength(7);
     });
 
     it('Se', () => {
@@ -147,7 +145,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(7);
+        expect(linhasResultado).toHaveLength(6);
     });
 
     it('Tente', () => {
@@ -161,7 +159,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(9);
+        expect(linhasResultado).toHaveLength(8);
     });
 
     it('Variaveis', () => {

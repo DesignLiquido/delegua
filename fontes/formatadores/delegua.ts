@@ -57,6 +57,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     tamanhoIndentacao: number;
     codigoFormatado: string;
     devePularLinha: boolean;
+    deveIndentar: boolean;
 
     constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
         this.quebraLinha = quebraLinha;
@@ -65,6 +66,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.indentacaoAtual = 0;
         this.codigoFormatado = '';
         this.devePularLinha = true;
+        this.deveIndentar = true;
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
@@ -157,7 +159,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
@@ -179,7 +181,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.indentacaoAtual -= this.tamanhoIndentacao;
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} enquanto `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicaoEnquanto);
-        this.codigoFormatado += `${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${this.quebraLinha}`;
     }
 
     visitarDeclaracaoImportar(declaracao: Importar) {
@@ -191,9 +193,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.devePularLinha = false;
         if (declaracao.inicializador) {
             if (Array.isArray(declaracao.inicializador)) {
+                this.deveIndentar = false;
                 for (let declaracaoInicializador of declaracao.inicializador) {
                     this.formatarDeclaracaoOuConstruto(declaracaoInicializador);
                 }
+                this.deveIndentar = true;
             } else {
                 this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
             }
@@ -214,7 +218,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
@@ -241,7 +245,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.indentacaoAtual -= this.tamanhoIndentacao;
         }
 
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
@@ -278,11 +282,15 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoVar(declaracao: Var): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}var ${declaracao.simbolo.lexema}`;
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += `var ${declaracao.simbolo.lexema}`;
         if (declaracao.inicializador) {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
@@ -344,6 +352,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
                 this.codigoFormatado += ` \\= `;
                 break;
+            case tiposDeSimbolos.EXPONENCIACAO:
+                this.codigoFormatado += ` ** `;
+                break;
             case tiposDeSimbolos.IGUAL_IGUAL:
                 this.codigoFormatado += ` == `;
                 break;
@@ -380,9 +391,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.SUBTRACAO:
                 this.codigoFormatado += ` - `;
                 break;
-            case tiposDeSimbolos.EXPONENCIACAO:
-                this.codigoFormatado += ` ** `;
-                break;
         }
 
         this.formatarDeclaracaoOuConstruto(expressao.direita);
@@ -396,7 +404,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarExpressaoBloco(declaracao: Bloco): any {
