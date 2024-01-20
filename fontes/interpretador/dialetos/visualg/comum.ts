@@ -237,8 +237,8 @@ export async function visitarExpressaoLogica(interpretador: InterpretadorBase, e
 export async function resolverIncrementoPara(interpretador: InterpretadorBase, declaracao: Para): Promise<any> {
     if (declaracao.resolverIncrementoEmExecucao) {
         const promises = await Promise.all([
-            avaliar(interpretador, declaracao.condicao.esquerda),
-            avaliar(interpretador, declaracao.condicao.direita),
+            avaliar(interpretador, (declaracao.condicao as any).esquerda),
+            avaliar(interpretador, (declaracao.condicao as any).direita),
         ]);
         const operandoEsquerdo = promises[0];
         const operandoDireito = promises[1];
@@ -246,7 +246,7 @@ export async function resolverIncrementoPara(interpretador: InterpretadorBase, d
         const valorAtualDireito = operandoDireito.hasOwnProperty('valor') ? operandoDireito.valor : operandoDireito;
 
         if (valorAtualEsquerdo < valorAtualDireito) {
-            declaracao.condicao.operador = new Simbolo(
+            (declaracao.condicao as any).operador = new Simbolo(
                 tiposDeSimbolos.MENOR_IGUAL,
                 '',
                 '',
@@ -266,7 +266,7 @@ export async function resolverIncrementoPara(interpretador: InterpretadorBase, d
                 1
             );
         } else {
-            declaracao.condicao.operador = new Simbolo(
+            (declaracao.condicao as any).operador = new Simbolo(
                 tiposDeSimbolos.MAIOR_IGUAL,
                 '',
                 '',

@@ -6,10 +6,10 @@ import { Declaracao } from './declaracao';
  * Declaração `tente`.
  */
 export class Tente extends Declaracao {
-    caminhoTente: any[];
+    caminhoTente: Declaracao[];
     caminhoPegue: FuncaoConstruto | Declaracao[];
     caminhoSenao: any[];
-    caminhoFinalmente: any[];
+    caminhoFinalmente: Declaracao[];
 
     constructor(
         hashArquivo: number,
