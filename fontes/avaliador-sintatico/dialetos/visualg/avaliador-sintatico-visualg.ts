@@ -499,7 +499,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
         tipoRetorno = this.verificarDefinicaoTipoAtual();
-        this.avancarEDevolverAnterior();
+        /* this.avancarEDevolverAnterior(); */
         const inicializacoes = this.validarSegmentoVar();
         this.validarSegmentoInicio('função');
 
