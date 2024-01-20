@@ -1,4 +1,5 @@
 import {
+    AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
     Atribuir,
@@ -329,8 +330,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         console.log(declaracao);
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel) {
+        this.formatarDeclaracaoOuConstruto(expressao.entidadeChamada);
+        this.codigoFormatado += `[`;
+        this.formatarDeclaracaoOuConstruto(expressao.indice);
+        this.codigoFormatado += `]`;
     }
 
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
@@ -595,6 +599,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
         switch (declaracaoOuConstruto.constructor.name) {
+            case 'AcessoIndiceVariavel':
+                this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
+                break;
             case 'AcessoMetodoOuPropriedade':
                 this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
                 break;

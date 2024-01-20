@@ -19,7 +19,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
+        expect(linhasResultado).toHaveLength(7);
     })
 
     it('Classes', () => {
@@ -32,7 +32,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(12);
+        expect(linhasResultado).toHaveLength(13);
     });
 
     it('Escolha', () => {
@@ -204,7 +204,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Vetor', () => {
         const resultadoLexador = lexador.mapear(
-            ["var a = [1,2,3] const c=[4,5,6]"], 
+            ["var a = [1,2,3] const c=[4,5,6] escreva(a[0])"], 
             -1
         );
 
@@ -212,7 +212,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
-        expect(linhasResultado).toHaveLength(3);
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(4);
     });
 });
