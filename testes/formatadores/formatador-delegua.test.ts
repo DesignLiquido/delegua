@@ -270,4 +270,18 @@ describe('Formatadores > Delégua', () => {
         console.log(resultado);
         expect(linhasResultado).toHaveLength(3);
     });
+
+    it('Atribuição por Indice', () => {
+        const resultadoLexador = lexador.mapear(
+            ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(6);
+    });
 });

@@ -2,6 +2,7 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -340,28 +341,34 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `]`;
     }
 
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        throw new Error('Método não implementado.');
-    }
-
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade) {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.simbolo.lexema;
     }
 
-    visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
+    visitarExpressaoAgrupamento(expressao: Agrupamento): any {
         this.codigoFormatado += '(';
         this.formatarDeclaracaoOuConstruto(expressao.expressao);
         this.codigoFormatado += ')';
-        return;
     }
 
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): any {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '[';
+        this.formatarDeclaracaoOuConstruto(expressao.indice);
+        this.codigoFormatado += '] = ';
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
+        this.codigoFormatado += this.quebraLinha;
     }
 
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+        // Implementar somente para VisuAlg que tem atribuição diferente de Delégua - matriz[1, 2] = 1
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+        // Implementar somente para VisuAlg que tem acesso ao elemento da matriz diferente de Delégua - var valor = matriz[1, 2]
         throw new Error('Método não implementado.');
     }
 
@@ -618,6 +625,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
+                break;
+            case 'AtribuicaoPorIndice':
+                this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
                 break;
             case 'Atribuir':
                 this.visitarDeclaracaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
