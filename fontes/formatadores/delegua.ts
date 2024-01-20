@@ -545,7 +545,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoSuper(expressao: Super) {
-        throw new Error('Método não implementado.');
+        // TODO: `expressao.metodo` deveria ser um `Construto`, não um `Simbolo` aqui. 
+        this.codigoFormatado += `super.${expressao.metodo.lexema}()`;
+        console.log(expressao);
     }
 
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
@@ -667,6 +669,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Se':
                 this.visitarDeclaracaoSe(declaracaoOuConstruto as Se);
+                break;
+            case 'Super':
+                this.visitarExpressaoSuper(declaracaoOuConstruto as Super);
                 break;
             case 'Tente':
                 this.visitarDeclaracaoTente(declaracaoOuConstruto as Tente);
