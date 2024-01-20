@@ -2,7 +2,7 @@ import { AcessoIndiceVariavel, Construto, Literal, Variavel } from '../../../con
 import { Declaracao, Leia, Para } from '../../../declaracoes';
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
+import { InterpretadorBirlInterface } from '../../../interfaces/dialetos/interpretador-birl-interface';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
