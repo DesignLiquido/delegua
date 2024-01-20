@@ -270,20 +270,20 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
                 )
             }
 
-            for (let [indice, argumento] of funcao.parametros.entries()) {
-                const arg1 = expressao.argumentos[indice];
-                if (arg1) {
-                    if (argumento.tipoDado?.tipo.toLowerCase() === 'caracter' && typeof arg1.valor !== 'string') {
+            for (let [indice, argumentoFuncao] of funcao.parametros.entries()) {
+                const argumentoChamada = expressao.argumentos[indice];
+                if (argumentoChamada) {
+                    if (argumentoFuncao.tipoDado?.tipo.toLowerCase() === 'caracter' && typeof argumentoChamada.valor !== 'string') {
                         this.erro(
                             variavel.simbolo,
-                            `O tipo do valor passado para o parâmetro '${argumento.nome.lexema}' (${argumento.tipoDado.nome}) é diferente do esperado pela função.`
+                            `O tipo do valor passado para o parâmetro '${argumentoFuncao.nome.lexema}' (${argumentoFuncao.tipoDado.nome}) é diferente do esperado pela função.`
                         );
                     }
-                    else if (['inteiro', 'real'].includes(argumento.tipoDado?.tipo.toLowerCase())
-                        && typeof arg1.valor !== 'number') {
+                    else if (['inteiro', 'real'].includes(argumentoFuncao.tipoDado?.tipo.toLowerCase())
+                        && typeof argumentoChamada.valor !== 'number') {
                         this.erro(
                             variavel.simbolo,
-                            `O tipo do valor passado para o parâmetro '${argumento.nome.lexema}' (${argumento.tipoDado.nome}) é diferente do esperado pela função.`
+                            `O tipo do valor passado para o parâmetro '${argumentoFuncao.nome.lexema}' (${argumentoFuncao.tipoDado.nome}) é diferente do esperado pela função.`
                         );
                     }
                 }
