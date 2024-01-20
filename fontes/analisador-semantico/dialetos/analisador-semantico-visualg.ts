@@ -371,7 +371,13 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
     visitarExpressaoUnaria(expressao: any) {
         return Promise.resolve();
     }
+    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+        return Promise.resolve()
+    }
 
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+        return Promise.resolve()
+    }
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
         this.variaveis = {};
         this.atual = 0;
