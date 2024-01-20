@@ -47,9 +47,11 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoVar(declaracao: Var): Promise<any>;
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any>;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
+    visitarExpressaoAcessoElementoMatriz(expressao: any): any;
     visitarExpressaoAcessoMetodo(expressao: any): any;
     visitarExpressaoAgrupamento(expressao: any): Promise<any>;
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any>;
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any>;
     visitarExpressaoBinaria(expressao: any): any;
     visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;

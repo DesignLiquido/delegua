@@ -18,6 +18,8 @@ import {
     Var,
 } from '../../../declaracoes';
 import {
+    AtribuicaoPorIndicesMatriz,
+    AcessoElementoMatriz,
     AcessoIndiceVariavel,
     Agrupamento,
     AtribuicaoPorIndice,
@@ -390,6 +392,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                     expressao.indice,
                     valor
                 );
+            } else if (expressao instanceof AcessoElementoMatriz) {
+                return new AtribuicaoPorIndicesMatriz(
+                    this.hashArquivo,
+                    expressao.linha,
+                    expressao.entidadeChamada,
+                    expressao.indicePrimario,
+                    expressao.indiceSecundario,
+                    valor
+                );
             }
 
             this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
@@ -433,12 +444,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                     indices.push(this.expressao());
                 } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-                const indice = indices[0];
                 const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
+                if (!indices[1]) {
+                    expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indices[0], simboloFechamento);
+                } else {
+                    expressao = new AcessoElementoMatriz(this.hashArquivo, expressao, indices[0], indices[1], simboloFechamento);
+                }
             } else {
                 break;
             }
