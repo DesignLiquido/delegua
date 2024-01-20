@@ -88,7 +88,24 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        throw new Error('Método não implementado.');
+        if (
+            [
+                tiposDeSimbolos.MAIS_IGUAL,
+                tiposDeSimbolos.MENOS_IGUAL,
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL,
+                tiposDeSimbolos.DIVISAO_IGUAL,
+                tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL,
+                tiposDeSimbolos.MODULO_IGUAL,
+            ].includes(expressao.valor.operador.tipo)
+        ) {
+            this.visitarExpressaoBinaria(expressao.valor);
+        } else {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+            this.codigoFormatado += `${expressao.simbolo.lexema} = `;
+            this.formatarDeclaracaoOuConstruto(expressao.valor);
+        }
+
+        this.codigoFormatado += `${this.quebraLinha}`;
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
@@ -318,6 +335,15 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.DIVISAO:
                 this.codigoFormatado += ` / `;
                 break;
+            case tiposDeSimbolos.DIVISAO_IGUAL:
+                this.codigoFormatado += ` /= `;
+                break;
+            case tiposDeSimbolos.DIVISAO_INTEIRA:
+                this.codigoFormatado += ` \\ `;
+                break;
+            case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
+                this.codigoFormatado += ` \\= `;
+                break;
             case tiposDeSimbolos.IGUAL_IGUAL:
                 this.codigoFormatado += ` == `;
                 break;
@@ -327,20 +353,35 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.codigoFormatado += ` >= `;
                 break;
+            case tiposDeSimbolos.MAIS_IGUAL:
+                this.codigoFormatado += ` += `;
+                break;
             case tiposDeSimbolos.MENOR:
                 this.codigoFormatado += ` < `;
                 break;
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.codigoFormatado += ` <= `;
                 break;
+            case tiposDeSimbolos.MENOS_IGUAL:
+                this.codigoFormatado += ` -= `;
+                break;
             case tiposDeSimbolos.MODULO:
                 this.codigoFormatado += ` % `;
+                break;
+            case tiposDeSimbolos.MODULO_IGUAL:
+                this.codigoFormatado += ` %= `;
                 break;
             case tiposDeSimbolos.MULTIPLICACAO:
                 this.codigoFormatado += ` * `;
                 break;
+            case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+                this.codigoFormatado += ` * `;
+                break;
             case tiposDeSimbolos.SUBTRACAO:
                 this.codigoFormatado += ` - `;
+                break;
+            case tiposDeSimbolos.EXPONENCIACAO:
+                this.codigoFormatado += ` ** `;
                 break;
         }
 
@@ -368,16 +409,16 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     visitarExpressaoDeChamada(expressao: Chamada) {
         this.formatarDeclaracaoOuConstruto(expressao.entidadeChamada);
-        this.codigoFormatado += '('
+        this.codigoFormatado += '(';
         for (let argumento of expressao.argumentos) {
-            this.formatarDeclaracaoOuConstruto(argumento)
-            this.codigoFormatado += ', '
+            this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += ', ';
         }
 
         if (expressao.argumentos.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
-        this.codigoFormatado += ')'
+        this.codigoFormatado += ')';
         // this.codigoFormatado += ` {${this.quebraLinha}`;
     }
 
@@ -396,7 +437,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): any {
-        this.codigoFormatado += `||${expressao.valor}||`
+        this.codigoFormatado += `||${expressao.valor}||`;
     }
 
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
@@ -416,7 +457,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
         this.codigoFormatado += `(`;
         for (let argumento of expressao.parametros) {
-            this.codigoFormatado += `${argumento.nome.lexema}${argumento.tipoDado ? `: ${argumento.tipoDado.tipo}, ` : ', '}`;
+            this.codigoFormatado += `${argumento.nome.lexema}${
+                argumento.tipoDado ? `: ${argumento.tipoDado.tipo}, ` : ', '
+            }`;
         }
 
         if (expressao.parametros.length > 0) {
@@ -521,6 +564,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
                 break;
+            case 'Atribuir':
+                this.visitarDeclaracaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
+                break;
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);
                 break;
@@ -592,7 +638,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
         }
     }
-    
 
     /**
      * Devolve código formatado de acordo com os símbolos encontrados.

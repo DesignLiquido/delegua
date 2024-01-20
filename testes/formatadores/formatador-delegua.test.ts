@@ -24,7 +24,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Enquanto', () => {
         const resultadoLexador = lexador.mapear(
-            ["var a = 1 enquanto a < 10 { a++ }"], 
+            ["var a = 1 enquanto a < 10 { a += 1}"], 
             -1
         );
 
