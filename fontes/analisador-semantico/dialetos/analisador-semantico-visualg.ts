@@ -1,4 +1,4 @@
-import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel, Vetor } from "../../construtos";
+import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from "../../construtos";
 import {
     Bloco,
     Classe,
@@ -151,6 +151,24 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        for (let parametro of declaracao.funcao.parametros) {
+            if (parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
+                this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.tipoInvalido}' não é valido`);
+            }
+        }
+
+        if (declaracao.funcao.tipoRetorno === undefined) {
+            this.erro(declaracao.simbolo, `Declaração de retorno da função é inválida`);
+        }
+
+        if (declaracao.funcao.parametros.length >= 255) {
+            this.erro(declaracao.simbolo, 'Não pode haver mais de 255 parâmetros');
+        }
+
+        this.funcoes[declaracao.simbolo.lexema] = {
+            valor: declaracao.funcao
+        }
+
         return Promise.resolve();
     }
 
@@ -243,6 +261,43 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
+        if (expressao.entidadeChamada instanceof Variavel) {
+            const variavel = expressao.entidadeChamada as Variavel;
+            const funcaoChamada = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema]
+            if (!funcaoChamada) {
+                this.erro(
+                    variavel.simbolo,
+                    `Função '${variavel.simbolo.lexema} não foi declarada.'`
+                )
+                return Promise.resolve();
+            }
+            const funcao = funcaoChamada.valor as FuncaoConstruto;
+            if (funcao.parametros.length != expressao.argumentos.length) {
+                this.erro(
+                    variavel.simbolo,
+                    `Esperava ${funcao.parametros.length} ${funcao.parametros.length > 1 ? "argumentos" : "argumento"}, mas obteve ${expressao.argumentos.length}.`
+                )
+            }
+
+            for (let [indice, arg0] of funcao.parametros.entries()) {
+                const arg1 = expressao.argumentos[indice];
+                if (arg1) {
+                    if (arg0.tipoDado?.tipo.toLowerCase() === 'caracter' && typeof arg1.valor !== 'string') {
+                        this.erro(
+                            variavel.simbolo,
+                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                        );
+                    }
+                    else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo.toLowerCase())
+                        && typeof arg1.valor !== 'number') {
+                        this.erro(
+                            variavel.simbolo,
+                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                        );
+                    }
+                }
+            }
+        }
         return Promise.resolve()
     }
 

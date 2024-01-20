@@ -448,21 +448,22 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     }
 
     simboloAtual(): SimboloInterface {
-        return this.simbolos[this.atual];
+        return this.simbolos[this.atual - 2];
     }
 
     verificarDefinicaoTipoAtual(): TiposDadosInterface {
-        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor'];
+        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor', 'caracter'];
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
+
         const contemTipo = tipos.find((tipo) => tipo === lexema);
 
         if (contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]'];
+            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]', 'caracter[]'];
             this.avancarEDevolverAnterior();
 
             if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                throw this.erro(this.simbolos[this.atual], "Esperado símbolo de fechamento do vetor ']'.");
+                throw this.erro(this.simbolos[this.atual - 1], "Esperado símbolo de fechamento do vetor ']'.");
             }
 
             const contemTipoVetor = tiposVetores.find((tipo) => tipo === `${lexema}[]`);
@@ -967,11 +968,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 const dadosParametros = this.logicaComumParametroVisuAlg();
+                const tipoDadoParametro = {
+                    nome: dadosParametros.simbolo.lexema,
+                    tipo: dadosParametros.tipo as TiposDadosInterface,
+                    tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null
+                }
+
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
                         abrangencia: 'padrao',
                         nome: parametro,
                         referencia: dadosParametros.referencia,
+                        tipoDado: tipoDadoParametro,
                     });
                 }
             }

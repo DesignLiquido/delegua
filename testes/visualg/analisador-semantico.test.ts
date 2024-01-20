@@ -60,6 +60,43 @@ describe('Analisador sêmantico (Visualg)', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
+
+            it("Chamada de função inexistente", () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "definindo função"',
+                    'var',
+                    'resultado: caracter',
+                    'inicio',
+                    'saudacao(4);',
+                    'fimalgoritmo'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            })
+
+            it("Chamada de função com número de parametro diferentes", () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "definindo função"',
+                    'var',
+                    'resultado: caracter',
+                    'função saudacao(nome: caracter): caracter',
+                    'var',
+                    'inicio',
+                    'retorna "Bem vindo " + nome',
+                    'fimfunção',
+                    'inicio',
+                    'saudacao(4);',
+                    'fimalgoritmo'
+                ], -1)
+
+                const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            })
         })
     })
 })
