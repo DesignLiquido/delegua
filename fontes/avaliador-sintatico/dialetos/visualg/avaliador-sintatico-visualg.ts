@@ -40,6 +40,7 @@ import { Simbolo } from '../../../lexador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
+import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -226,13 +227,15 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                         this.atual++;
                     } else {
                         for (let identificador of dadosVariaveis.identificadores) {
+                            const tipo = dadosVariaveis.tipo as TiposDadosInterface
                             switch (dadosVariaveis.tipo) {
                                 case tiposDeSimbolos.CARACTER:
                                 case tiposDeSimbolos.CARACTERE:
                                     inicializacoes.push(
                                         new Var(
                                             identificador,
-                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), '')
+                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''),
+                                            tipo
                                         )
                                     );
                                     break;
@@ -241,7 +244,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                     inicializacoes.push(
                                         new Var(
                                             identificador,
-                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0)
+                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0),
+                                            tipo
                                         )
                                     );
                                     break;
@@ -249,7 +253,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                     inicializacoes.push(
                                         new Var(
                                             identificador,
-                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false)
+                                            new Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false),
+                                            tipo
                                         )
                                     );
                                     break;
@@ -455,6 +460,35 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    simboloAtual(): SimboloInterface {
+        return this.simbolos[this.atual - 2];
+    }
+
+    verificarDefinicaoTipoAtual(): TiposDadosInterface {
+        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor', 'caracter'];
+
+        const lexema = this.simboloAtual().lexema.toLowerCase();
+
+        const contemTipo = tipos.find((tipo) => tipo === lexema);
+
+        if (contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]', 'caracter[]'];
+            this.avancarEDevolverAnterior();
+
+            if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                throw this.erro(this.simbolos[this.atual - 1], "Esperado símbolo de fechamento do vetor ']'.");
+            }
+
+            const contemTipoVetor = tiposVetores.find((tipo) => tipo === `${lexema}[]`);
+
+            this.avancarEDevolverAnterior();
+
+            return contemTipoVetor as TiposDadosInterface;
+        }
+
+        return contemTipo as TiposDadosInterface;
+    }
+
     corpoDaFuncao(tipo: any): FuncaoConstruto {
         const simboloAnterior = this.simbolos[this.atual - 1];
 
@@ -463,6 +497,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
         // Tipo retornado pela função.
+        let tipoRetorno = null
         if (
             !this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.INTEIRO,
@@ -476,7 +511,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
-
+        tipoRetorno = this.verificarDefinicaoTipoAtual();
         const inicializacoes = this.validarSegmentoVar();
         this.validarSegmentoInicio('função');
 
@@ -486,7 +521,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             this.hashArquivo,
             Number(simboloAnterior.linha),
             parametros,
-            corpo.filter((d) => d)
+            corpo.filter((d) => d),
+            tipoRetorno
         );
     }
 
@@ -944,11 +980,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 const dadosParametros = this.logicaComumParametroVisuAlg();
+                const tipoDadoParametro = {
+                    nome: dadosParametros.simbolo.lexema,
+                    tipo: dadosParametros.tipo as TiposDadosInterface,
+                    tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null
+                }
+
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
                         abrangencia: 'padrao',
                         nome: parametro,
                         referencia: dadosParametros.referencia,
+                        tipoDado: tipoDadoParametro,
                     });
                 }
             }

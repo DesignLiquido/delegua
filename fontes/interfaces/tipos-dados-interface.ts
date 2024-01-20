@@ -15,5 +15,7 @@ export type TiposDadosInterface =
     | 'símbolo'
     | 'texto'
     | 'texto[]'
+    | 'caracter'
+    | 'caracter[]'
     | 'vetor'
     | undefined;
