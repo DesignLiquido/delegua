@@ -5,10 +5,12 @@ import {
     Binario,
     Chamada,
     Construto,
+    DefinirValor,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
     FuncaoConstruto,
+    Isto,
     Literal,
     Super,
     TipoDe,
@@ -70,7 +72,23 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${this.quebraLinha}`;
+
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let propriedade of declaracao.propriedades) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${propriedade.tipo || 'qualquer'}${this.quebraLinha}`;
+        }
+
+        this.codigoFormatado += `${this.quebraLinha}`;
+
+        for (let metodo of declaracao.metodos) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.simbolo.lexema}`;
+            this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+        }
+        
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoConst(declaracao: Const): any {
@@ -426,13 +444,17 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         if (expressao.argumentos.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
+        
         this.codigoFormatado += ')';
-        // this.codigoFormatado += ` {${this.quebraLinha}`;
     }
 
-    visitarExpressaoDefinirValor(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoDefinirValor(expressao: DefinirValor) {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += `.${expressao.nome.lexema} = `;
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
+        this.codigoFormatado += `${this.quebraLinha}`;
     }
+
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -466,7 +488,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `(`;
         for (let argumento of expressao.parametros) {
             this.codigoFormatado += `${argumento.nome.lexema}${
-                argumento.tipoDado ? `: ${argumento.tipoDado.tipo}, ` : ', '
+                argumento.tipoDado && argumento.tipoDado.tipo ? `: ${argumento.tipoDado.tipo}, ` : ', '
             }`;
         }
 
@@ -478,9 +500,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
     }
 
-    visitarExpressaoIsto(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoIsto(expressao: Isto) {
+        this.codigoFormatado += `isto`;
     }
+
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -584,8 +607,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'Chamada':
                 this.visitarExpressaoDeChamada(declaracaoOuConstruto as Chamada);
                 break;
+            case 'Classe':
+                this.visitarDeclaracaoClasse(declaracaoOuConstruto as Classe);
+                break;
             case 'Continua':
                 this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
+                break;
+            case 'DefinirValor':
+                this.visitarExpressaoDefinirValor(declaracaoOuConstruto as DefinirValor);
                 break;
             case 'Escolha':
                 this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);
@@ -610,6 +639,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'FuncaoDeclaracao':
                 this.visitarDeclaracaoDefinicaoFuncao(declaracaoOuConstruto as FuncaoDeclaracao);
+                break;
+            case 'Isto':
+                this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;
             case 'Literal':
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
