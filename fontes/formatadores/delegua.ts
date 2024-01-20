@@ -44,6 +44,7 @@ import {
     Retorna,
     Sustar,
     Declaracao,
+    Falhar,
 } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 import { SustarQuebra } from '../quebras';
@@ -484,8 +485,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoFalhar(expressao: any): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoFalhar(expressao: Falhar): any {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}falhar`;
+        if (expressao.explicacao) {
+            this.codigoFormatado += ` `;
+            this.formatarDeclaracaoOuConstruto(expressao.explicacao);
+        }
+
+        this.codigoFormatado += `${this.quebraLinha}`;
     }
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
@@ -645,6 +652,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'ExpressaoRegular':
                 this.visitarExpressaoExpressaoRegular(declaracaoOuConstruto as ExpressaoRegular);
+                break;
+            case 'Falhar':
+                this.visitarExpressaoFalhar(declaracaoOuConstruto as Falhar)
                 break;
             case 'Fazer':
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);

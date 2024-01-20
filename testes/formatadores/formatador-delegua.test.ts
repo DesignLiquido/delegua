@@ -46,7 +46,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(13);
     });
 
@@ -125,7 +125,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(10);
     });
 
@@ -213,7 +213,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(3);
     });
 
@@ -229,5 +229,29 @@ describe('Formatadores > Delégua', () => {
         
         console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
+    });
+
+    it('Falhar', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "funcao temDigitoRepetido(num) {",
+                "    var str = texto( num);",
+                "  para (var i =1; i< tamanho(str);i++   ) {",
+                "        se (str[i] != str[0]) {",
+                "     falhar \"Erro!!!\"",
+                "}",
+                "    }",
+                "   retorna verdadeiro;",
+                "}",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(10);
     });
 });
