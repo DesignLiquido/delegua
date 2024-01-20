@@ -1,4 +1,4 @@
-import { AnalisadorSemanticoVisualg } from '../../fontes/analisador-semantico/dialetos/analisador-semantico-visualg'
+import { AnalisadorSemanticoVisuAlg } from '../../fontes/analisador-semantico/dialetos/analisador-semantico-visualg'
 import { AvaliadorSintaticoVisuAlg } from "../../fontes/avaliador-sintatico/dialetos";
 import { LexadorVisuAlg } from "../../fontes/lexador/dialetos";
 
@@ -6,12 +6,12 @@ describe('Analisador sêmantico (Visualg)', () => {
     describe('analisar()', () => {
         let lexador: LexadorVisuAlg;
         let avaliadorSintaticoVisuAlg: AvaliadorSintaticoVisuAlg;
-        let analisadorSemanticoVisualg: AnalisadorSemanticoVisualg
+        let analisadorSemanticoVisualg: AnalisadorSemanticoVisuAlg
 
         beforeEach(() => {
             lexador = new LexadorVisuAlg();
             avaliadorSintaticoVisuAlg = new AvaliadorSintaticoVisuAlg();
-            analisadorSemanticoVisualg = new AnalisadorSemanticoVisualg();
+            analisadorSemanticoVisualg = new AnalisadorSemanticoVisuAlg();
         });
 
 
