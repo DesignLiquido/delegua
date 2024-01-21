@@ -284,6 +284,25 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22);
             });
+
+            it('Sucesso - Aleatorio', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Exemplo Xou"',
+                        'var',
+                        'inicio',
+                        'aleatorio',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    console.log(retornoAvaliadorSintatico);
+
+                /* expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22); */
+            });
         });
 
         describe('Cenário de falha', () => {

@@ -3,6 +3,7 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 export const palavrasReservadas = {
     abs: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     algoritmo: tiposDeSimbolos.ALGORITMO,
+    aleatorio: tiposDeSimbolos.ALEATORIO,
     arccos: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     arcsen: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     arctan: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,

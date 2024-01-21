@@ -41,6 +41,7 @@ import { Simbolo } from '../../../lexador';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
 import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
+import { Aleatorio } from '../../../declaracoes/aleatorio';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -309,6 +310,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
+        console.log(simboloAtual)
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
@@ -321,6 +324,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
         ) {
+            console.log("entro aqui");
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
@@ -341,6 +345,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
+        console.log("Cheguei até aqui");
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
@@ -1115,9 +1120,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
+    declaracaoAleatorio(): Aleatorio{
+        const simboloAleatorio: SimboloInterface = this.avancarEDevolverAnterior();
+        
+        return new Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo)
+
+    }
+
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.ALEATORIO:
+                return this.declaracaoAleatorio();
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCOLHA:

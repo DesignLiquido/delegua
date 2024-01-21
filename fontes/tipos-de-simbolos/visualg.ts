@@ -1,6 +1,7 @@
 export default {
     ADICAO: 'ADICAO',
     ALGORITMO: 'ALGORITMO',
+    ALEATORIO: 'ALEATORIO',
     ATE: 'ATE',
     ATÉ: 'ATÉ',
     CARACTER: 'CARACTER',
