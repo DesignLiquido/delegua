@@ -266,6 +266,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         if (declaracao.caminhoSenao) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} senão `;
             this.formatarDeclaracaoOuConstruto(declaracao.caminhoSenao);
+        } else {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
         }
     }
 
