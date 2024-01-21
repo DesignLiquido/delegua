@@ -115,7 +115,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
-        if (
+        if (expressao.valor instanceof Binario &&
             [
                 tiposDeSimbolos.MAIS_IGUAL,
                 tiposDeSimbolos.MENOS_IGUAL,
@@ -127,7 +127,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         ) {
             this.visitarExpressaoBinaria(expressao.valor);
         } else {
-            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
             this.codigoFormatado += `${expressao.simbolo.lexema} = `;
             this.formatarDeclaracaoOuConstruto(expressao.valor);
         }
@@ -265,15 +264,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
         if (declaracao.caminhoSenao) {
-            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} senão {${this.quebraLinha}`;
-            this.indentacaoAtual += this.tamanhoIndentacao;
-            for (let declaracaoBloco of (declaracao.caminhoSenao as Bloco).declaracoes) {
-                this.formatarDeclaracaoOuConstruto(declaracaoBloco);
-            }
-            this.indentacaoAtual -= this.tamanhoIndentacao;
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} senão `;
+            this.formatarDeclaracaoOuConstruto(declaracao.caminhoSenao);
         }
-
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoTente(declaracao: Tente) {
@@ -437,7 +430,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     private formatarBlocoOuVetorDeclaracoes(declaracoes: Declaracao[]) {
-        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.codigoFormatado += `{${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracoes) {
             this.formatarDeclaracaoOuConstruto(declaracaoBloco);

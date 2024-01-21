@@ -9,6 +9,20 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
+    it('Atribuição por índice', () => {
+        const resultadoLexador = lexador.mapear(
+            ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(6);
+    });
+
     it('Atribuições múltiplas', () => {
         const resultadoLexador = lexador.mapear([
             "var a, b, c = 1, 2, 3 const d,f,g=4,5,6",
@@ -87,7 +101,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(8);
+        expect(linhasResultado).toHaveLength(7);
     });
 
     it('Expressões Regulares', () => {
@@ -104,6 +118,30 @@ describe('Formatadores > Delégua', () => {
         
         // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
+    });
+
+    it('Falhar', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "funcao temDigitoRepetido(num) {",
+                "    var str = texto( num);",
+                "  para (var i =1; i< tamanho(str);i++   ) {",
+                "        se (str[i] != str[0]) {",
+                "     falhar \"Erro!!!\"",
+                "}",
+                "    }",
+                "   retorna verdadeiro;",
+                "}",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(9);
     });
 
     it('Fazer', () => {
@@ -155,7 +193,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(10);
+        expect(linhasResultado).toHaveLength(9);
     });
 
     it('Funções com argumentos tipados', () => {
@@ -172,6 +210,22 @@ describe('Formatadores > Delégua', () => {
         
         // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
+    });
+
+    it('Importar', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "var dm = importar('@designliquido/delegua-matematica')var m = importar('matematica') dm.raizQuadrada(9) // Imprime 3",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(3);
     });
 
     it('leia() e escreva()', () => {
@@ -213,7 +267,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(7);
+        expect(linhasResultado).toHaveLength(6);
     });
 
     it('Para cada', () => {
@@ -298,59 +352,5 @@ describe('Formatadores > Delégua', () => {
         
         console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
-    });
-
-    it('Falhar', () => {
-        const resultadoLexador = lexador.mapear(
-            [
-                "funcao temDigitoRepetido(num) {",
-                "    var str = texto( num);",
-                "  para (var i =1; i< tamanho(str);i++   ) {",
-                "        se (str[i] != str[0]) {",
-                "     falhar \"Erro!!!\"",
-                "}",
-                "    }",
-                "   retorna verdadeiro;",
-                "}",
-            ], 
-            -1
-        );
-
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
-        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-        const linhasResultado = resultado.split(sistemaOperacional.EOL);
-        
-        // console.log(resultado);
-        expect(linhasResultado).toHaveLength(10);
-    });
-
-    it('Importar', () => {
-        const resultadoLexador = lexador.mapear(
-            [
-                "var dm = importar('@designliquido/delegua-matematica')var m = importar('matematica') dm.raizQuadrada(9) // Imprime 3",
-            ], 
-            -1
-        );
-
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
-        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-        const linhasResultado = resultado.split(sistemaOperacional.EOL);
-        
-        console.log(resultado);
-        expect(linhasResultado).toHaveLength(3);
-    });
-
-    it('Atribuição por Indice', () => {
-        const resultadoLexador = lexador.mapear(
-            ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
-            -1
-        );
-
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
-        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-        const linhasResultado = resultado.split(sistemaOperacional.EOL);
-        
-        // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
     });
 });
