@@ -1,1 +1,1 @@
-export * from './delegua';
+export * from './formatador-delegua';
