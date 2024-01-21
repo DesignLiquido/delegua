@@ -101,7 +101,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(7);
+        expect(linhasResultado).toHaveLength(8);
     });
 
     it('Expressões Regulares', () => {
@@ -141,7 +141,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(9);
+        expect(linhasResultado).toHaveLength(10);
     });
 
     it('Fazer', () => {
@@ -193,7 +193,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(9);
+        expect(linhasResultado).toHaveLength(10);
     });
 
     it('Funções com argumentos tipados', () => {
@@ -267,7 +267,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
+        expect(linhasResultado).toHaveLength(7);
     });
 
     it('Para cada', () => {
