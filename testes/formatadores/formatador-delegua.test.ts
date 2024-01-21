@@ -50,6 +50,19 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(13);
     });
 
+    it('Dicionários', () => {
+        const resultadoLexador = lexador.mapear([
+            `var dicionario = {  'a':1, 'b'  : 2    }`,
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(2);
+    });
+
     it('Escolha', () => {
         const resultadoLexador = lexador.mapear([
             "escolha (2) { caso 1: escreva('correspondente à opção 1'); caso 2: caso 3: escreva('correspondente à opção 2 e 3'); padrao: escreva('Sem opção correspondente'); }",
@@ -65,7 +78,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Enquanto', () => {
         const resultadoLexador = lexador.mapear(
-            ["var a = 1 enquanto a < 10 { a += 1}"], 
+            ["var a = 1 enquanto a < 10 { a += 1 se a > 8 {sustar  }}"], 
             -1
         );
 
@@ -74,7 +87,23 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(5);
+        expect(linhasResultado).toHaveLength(8);
+    });
+
+    it('Expressões Regulares', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                "var str = \"olá mundo, olá universo\" var novaStr = str.substituir(||/olá/g||, \"oi\") escreva(novaStr);",
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(4);
     });
 
     it('Fazer', () => {
@@ -145,11 +174,9 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(4);
     });
 
-    it('Expressões Regulares', () => {
+    it('leia() e escreva()', () => {
         const resultadoLexador = lexador.mapear(
-            [
-                "var str = \"olá mundo, olá universo\" var novaStr = str.substituir(||/olá/g||, \"oi\") escreva(novaStr);",
-            ], 
+            [`var a=leia( "Escreva alguma coisa"   ) escreva( a )`], 
             -1
         );
 
@@ -157,7 +184,21 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(3);
+    });
+
+    it('Operadores lógicos', () => {
+        const resultadoLexador = lexador.mapear(
+            [`var a=falso var b=verdadeiro escreva( a    ou b)`], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
     });
 
@@ -173,6 +214,20 @@ describe('Formatadores > Delégua', () => {
         
         // console.log(resultado);
         expect(linhasResultado).toHaveLength(7);
+    });
+
+    it('Para cada', () => {
+        const resultadoLexador = lexador.mapear(
+            ["var a = [1, 2,3] para cada  elemento   de  a    {  escreva( a  ) }"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(5);
     });
 
     it('Se', () => {
@@ -201,6 +256,20 @@ describe('Formatadores > Delégua', () => {
         
         // console.log(resultado);
         expect(linhasResultado).toHaveLength(8);
+    });
+
+    it('Tipo de', () => {
+        const resultadoLexador = lexador.mapear(
+            [`var a   = "Teste" escreva( tipo     de a      )`],
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        console.log(resultado);
+        expect(linhasResultado).toHaveLength(3);
     });
 
     it('Variaveis', () => {

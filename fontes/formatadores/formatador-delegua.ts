@@ -8,12 +8,14 @@ import {
     Chamada,
     Construto,
     DefinirValor,
+    Dicionario,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
     FuncaoConstruto,
     Isto,
     Literal,
+    Logico,
     Super,
     TipoDe,
     Unario,
@@ -48,7 +50,6 @@ import {
     Falhar,
 } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
-import { SustarQuebra } from '../quebras';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -247,8 +248,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoParaCada(declaracao: ParaCada): any {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de ${declaracao.vetor.simbolo.lexema}`;
+        this.visitarExpressaoBloco(declaracao.corpo);
     }
 
     visitarDeclaracaoSe(declaracao: Se) {
@@ -483,9 +485,22 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += expressao.simbolo.lexema;
     }
 
-    visitarExpressaoDicionario(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoDicionario(expressao: Dicionario) {
+        this.codigoFormatado += `{`;
+        for (let i = 0; i < expressao.chaves.length; i++) {
+            this.formatarDeclaracaoOuConstruto(expressao.chaves[i]);
+            this.codigoFormatado += `: `;
+            this.formatarDeclaracaoOuConstruto(expressao.valores[i]);
+            this.codigoFormatado += `, `;
+        }
+
+        if (expressao.chaves.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+
+        this.codigoFormatado += `}`;
     }
+
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): any {
         this.codigoFormatado += `||${expressao.valor}||`;
     }
@@ -503,9 +518,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
         this.codigoFormatado += `${this.quebraLinha}`;
     }
+
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
         throw new Error('Método não implementado.');
     }
@@ -530,9 +547,20 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `isto`;
     }
 
-    visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoLeia(expressao: Leia): any {
+        this.codigoFormatado += `leia(`;
+        for (let argumento of expressao.argumentos) {
+            this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += `, `;
+        }
+
+        if (expressao.argumentos.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+        
+        this.codigoFormatado += `)`;
     }
+
     visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -546,8 +574,21 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += expressao.valor;
     }
 
-    visitarExpressaoLogica(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoLogica(expressao: Logico) {
+        this.formatarDeclaracaoOuConstruto(expressao.esquerda);
+        switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.E:
+                this.codigoFormatado += ` e `;
+                break;
+            case tiposDeSimbolos.EM:
+                this.codigoFormatado += ` em `;
+                break;
+            case tiposDeSimbolos.OU:
+                this.codigoFormatado += ` ou `;
+                break;
+        }
+        
+        this.formatarDeclaracaoOuConstruto(expressao.direita);
     }
 
     visitarExpressaoRetornar(declaracao: Retorna): any {
@@ -566,12 +607,13 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         console.log(expressao);
     }
 
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error('Método não implementado.');
+    visitarExpressaoSustar(declaracao?: Sustar): any {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}sustar${this.quebraLinha}`;
     }
 
-    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoTipoDe(expressao: TipoDe): any {
+        this.codigoFormatado += `tipo de `;
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
     }
 
     visitarExpressaoUnaria(expressao: Unario) {
@@ -650,6 +692,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'DefinirValor':
                 this.visitarExpressaoDefinirValor(declaracaoOuConstruto as DefinirValor);
                 break;
+            case 'Dicionario':
+                this.visitarExpressaoDicionario(declaracaoOuConstruto as Dicionario);
+                break;
             case 'Escolha':
                 this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);
                 break;
@@ -683,11 +728,20 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'Isto':
                 this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;
+            case 'Leia':
+                this.visitarExpressaoLeia(declaracaoOuConstruto as Leia);
+                break;
             case 'Literal':
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
                 break;
+            case 'Logico':
+                this.visitarExpressaoLogica(declaracaoOuConstruto as Logico);
+                break;
             case 'Para':
                 this.visitarDeclaracaoPara(declaracaoOuConstruto as Para);
+                break;
+            case 'ParaCada':
+                this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);
                 break;
             case 'Retorna':
                 this.visitarExpressaoRetornar(declaracaoOuConstruto as Retorna);
@@ -698,8 +752,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case 'Super':
                 this.visitarExpressaoSuper(declaracaoOuConstruto as Super);
                 break;
+            case 'Sustar':
+                this.visitarExpressaoSustar(declaracaoOuConstruto as Sustar);
+                break;
             case 'Tente':
                 this.visitarDeclaracaoTente(declaracaoOuConstruto as Tente);
+                break;
+            case 'TipoDe':
+                this.visitarExpressaoTipoDe(declaracaoOuConstruto as TipoDe);
                 break;
             case 'Unario':
                 this.visitarExpressaoUnaria(declaracaoOuConstruto as Unario);
