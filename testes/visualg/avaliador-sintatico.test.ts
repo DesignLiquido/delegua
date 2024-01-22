@@ -290,14 +290,17 @@ describe('Avaliador sintático (VisuAlg)', () => {
                     [
                         'algoritmo "Exemplo Xou"',
                         'var',
+                        'numero: inteiro',
                         'inicio',
-                        'aleatorio',
+                        'aleatorio 1, 5',
+                        'leia(numero)',
                         'fimalgoritmo',
                     ],
                     -1
                 );
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                /* const RetornoAnalisadorSemantico = analisa */
                     console.log(retornoAvaliadorSintatico);
 
                 /* expect(retornoAvaliadorSintatico).toBeTruthy();

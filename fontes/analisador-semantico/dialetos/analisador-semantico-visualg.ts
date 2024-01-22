@@ -1,5 +1,6 @@
 import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from "../../construtos";
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -57,6 +58,10 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagem: string): void {

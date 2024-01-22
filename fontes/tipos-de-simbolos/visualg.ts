@@ -52,6 +52,8 @@ export default {
     MULTIPLICACAO: 'MULTIPLICACAO',
     NEGACAO: 'NEGACAO',
     NUMERO: 'NUMERO',
+    ON: 'ON',
+    OFF: 'OFF',
     OU: 'OU',
     OUTRO_CASO: 'OUTRO_CASO',
     PARA: 'PARA',

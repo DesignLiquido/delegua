@@ -1,5 +1,6 @@
 import { Agrupamento, Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Variavel, Vetor } from '../construtos';
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -59,6 +60,11 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.atual = 0;
         this.diagnosticos = [];
     }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        return Promise.resolve();
+    }
+
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         return Promise.resolve();
     }

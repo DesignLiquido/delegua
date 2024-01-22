@@ -3,12 +3,12 @@ import { Bloco } from "./bloco";
 import { Declaracao } from "./declaracao";
 
 export class Aleatorio extends Declaracao {
-    /* corpo: Bloco; */
+    corpo: Bloco;
 
-    constructor(linha: number, hashArquivo: number/* , corpo: Bloco */){
+    constructor(linha: number, hashArquivo: number, corpo: Bloco){
         super(linha, hashArquivo);
 
-        /* this.corpo = corpo */
+        this.corpo = corpo
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

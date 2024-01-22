@@ -310,8 +310,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
-        console.log(simboloAtual)
-
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
             return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
@@ -324,7 +322,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)
         ) {
-            console.log("entro aqui");
             return new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
 
@@ -345,7 +342,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
-        console.log("Cheguei até aqui");
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
@@ -1120,15 +1116,37 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracaoAleatorio(): Aleatorio{
+    declaracaoAleatorio(): Aleatorio {
         const simboloAleatorio: SimboloInterface = this.avancarEDevolverAnterior();
-        
-        return new Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo)
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO)) {
+            this.consumir(tiposDeSimbolos.VIRGULA, "Esperado ',' após declaração do primeiro número.");
+
+            this.consumir(tiposDeSimbolos.NUMERO, "Esperado um número após ','.");
+        } else if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ON)) {
+            this.consumir(
+                simboloAleatorio.tipo,
+                "Esperado palavra reservada 'ON'ou 'on' ou combinação de número'(min, max)' após declaração 'aleatorio'"
+            )
+        }
+
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após declaração do último número.");
+
+        const decoracoes = [];
+
+        do {
+            decoracoes.push(this.resolverDeclaracaoForaDeBloco());
+        } while (
+            !tiposDeSimbolos.OFF
+        )
+
+        return new Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo, new Bloco(simboloAleatorio.hashArquivo, Number(simboloAleatorio.linha), decoracoes.filter((d) => d)))
 
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
+
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ALEATORIO:
                 return this.declaracaoAleatorio();

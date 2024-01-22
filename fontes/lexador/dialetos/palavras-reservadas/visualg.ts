@@ -48,6 +48,8 @@ export const palavrasReservadas = {
     logn: tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL,
     logico: tiposDeSimbolos.LOGICO,
     nao: tiposDeSimbolos.NEGACAO, // Exceção
+    on: tiposDeSimbolos.ON,
+    off: tiposDeSimbolos.OFF,
     ou: tiposDeSimbolos.OU,
     outrocaso: tiposDeSimbolos.OUTRO_CASO,
     para: tiposDeSimbolos.PARA,
