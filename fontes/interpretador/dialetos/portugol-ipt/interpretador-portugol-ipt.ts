@@ -1,5 +1,6 @@
 import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, QualTipo, Super, TipoDe, Variavel } from '../../../construtos';
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -544,7 +545,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
         return resultado;
     }
-
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+        throw new Error('Método não implementado.');
+    }
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
      * Esse método pega exceções, mas apenas as devolve.

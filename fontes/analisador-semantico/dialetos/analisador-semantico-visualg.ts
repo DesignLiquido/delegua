@@ -60,10 +60,6 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         this.diagnosticos = [];
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        return Promise.resolve();
-    }
-
     erro(simbolo: SimboloInterface, mensagem: string): void {
         this.diagnosticos.push({
             simbolo: simbolo,
@@ -128,6 +124,39 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         if (variavel) {
             this.variaveis[simbolo.lexema].valor = valor;
         }
+    }
+
+
+    private gerarNumeroAleatorio(min: number, max: number) {
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        //Isso acontece quando não é informado os número máximos e mínimos
+        let menorNumero = 0;
+        let maiorNumero = 100
+
+        if (declaracao.argumentos) {
+            menorNumero = Math.min(declaracao.argumentos.min, declaracao.argumentos.max);
+            maiorNumero = Math.max(declaracao.argumentos.min, declaracao.argumentos.max);
+
+        }
+
+        for (let declaraca of declaracao.corpo.declaracoes) {
+            if (declaraca instanceof Leia) {
+                for (let argumento of declaraca.argumentos) {
+                    let variavel = argumento as Variavel;
+                    let valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+
+
+                    this.variaveis[variavel.simbolo.lexema].valor = valor;
+                }
+
+
+            }
+        }
+
+        return Promise.resolve();
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {

@@ -1,5 +1,5 @@
 import { Binario, Construto, ExpressaoRegular, Logico, Variavel } from '../../../construtos';
-import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
+import { Aleatorio, Const, Escreva, EscrevaMesmaLinha, Fazer, Leia } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra } from '../../../quebras';
 
@@ -21,7 +21,11 @@ export class InterpretadorMapler extends InterpretadorBase {
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -99,7 +103,6 @@ export class InterpretadorMapler extends InterpretadorBase {
             this.erros.push(erro);
         }
     }
-
     /**
      * Execução da leitura de valores da entrada configurada no
      * início da aplicação.

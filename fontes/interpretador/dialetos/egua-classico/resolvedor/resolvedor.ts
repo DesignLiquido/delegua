@@ -1,5 +1,6 @@
 import { AcessoMetodoOuPropriedade, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, QualTipo, Super, TipoDe, Variavel } from '../../../../construtos';
 import {
+    Aleatorio,
     Bloco,
     Const,
     ConstMultiplo,
@@ -85,7 +86,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -527,6 +528,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         }
         this.resolverLocal(expressao, expressao.palavraChave);
         return null;
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     resolver(declaracoes: Construto | Declaracao | Declaracao[]): RetornoResolvedor {

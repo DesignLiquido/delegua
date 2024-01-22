@@ -21,6 +21,7 @@ import {
     Variavel,
 } from '../../../construtos';
 import {
+    Aleatorio,
     Classe,
     Const,
     ConstMultiplo,
@@ -161,6 +162,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoAgrupamento(expressao: any) {
         return this.avaliar(expressao.expressao);
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        throw new Error('Método não implementado')
     }
 
     eVerdadeiro(objeto: any): boolean {
