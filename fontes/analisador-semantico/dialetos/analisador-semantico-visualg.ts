@@ -142,17 +142,13 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
 
         }
 
-        for (let declaraca of declaracao.corpo.declaracoes) {
-            if (declaraca instanceof Leia) {
-                for (let argumento of declaraca.argumentos) {
+        for (let corpoDeclaracao of declaracao.corpo.declaracoes) {
+            if (corpoDeclaracao instanceof Leia) {
+                for (let argumento of corpoDeclaracao.argumentos) {
                     let variavel = argumento as Variavel;
                     let valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
-
-
                     this.variaveis[variavel.simbolo.lexema].valor = valor;
                 }
-
-
             }
         }
 

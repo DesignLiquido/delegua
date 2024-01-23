@@ -1118,7 +1118,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
     declaracaoAleatorio(): Aleatorio {
         const simboloAleatorio: SimboloInterface = this.avancarEDevolverAnterior();
-        
+
         let argumentos: { min: number, max: number } | null = {
             min: 0,
             max: 0
@@ -1148,9 +1148,18 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         do {
             decoracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (
-            !tiposDeSimbolos.OFF
-        )
+        } while (![tiposDeSimbolos.ALEATORIO, tiposDeSimbolos.FIM_ALGORITMO].includes(this.simbolos[this.atual].tipo))
+
+        for(let decoracao of decoracoes){
+            if(decoracao instanceof Leia){
+                decoracao.eParaInterromper = true;
+            }
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ALEATORIO)) {
+            this.consumir(tiposDeSimbolos.ALEATORIO, "Esperado palavra reservada 'aleatorio' para fechamento de declaração 'aleatorio'.");
+            this.consumir(tiposDeSimbolos.OFF, "Esperado palavra reservada 'off' ou 'OFF' após declaração 'aleatorio'.");
+        }
 
         return new Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo, new Bloco(simboloAleatorio.hashArquivo, Number(simboloAleatorio.linha), decoracoes.filter((d) => d)), argumentos)
 

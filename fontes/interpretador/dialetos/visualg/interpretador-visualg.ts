@@ -40,8 +40,6 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         return await comum.visitarExpressaoAtribuicaoPorIndicesMatriz(this, expressao);
     }
 
-    private interromperLeitura: boolean = false;
-
     private async avaliarArgumentosEscrevaVisuAlg(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
 
@@ -142,7 +140,7 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
         // Verifica se a leitura deve ser interrompida antes de prosseguir
 
-        if (!this.interromperLeitura) {
+        if (!expressao.eParaInterromper) {
             for (let argumento of expressao.argumentos) {
                 const promessaLeitura: Function = () =>
                     new Promise((resolucao) =>
@@ -209,7 +207,6 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
         let retornoExecucao: any;
         try {
-            this.interromperLeitura = declaracao.corpo.declaracoes.some(dec => dec instanceof Leia);
             retornoExecucao = await this.executar(declaracao.corpo);
 
         } catch (error) {
