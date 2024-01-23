@@ -141,16 +141,31 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         } else if (declaracao instanceof Leia) {
             // Se encontrarmos um Leia, podemos efetuar as operações imediatamente
             for (const argumento of declaracao.argumentos) {
-                this.atualizarVariavelComNumeroAleatorio(argumento as Variavel, menorNumero, maiorNumero);
+                this.atualizarVariavelComValorAleatorio(argumento as Variavel, menorNumero, maiorNumero);
             }
         }
     }
 
-    private atualizarVariavelComNumeroAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
+    private atualizarVariavelComValorAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
         if (this.variaveis[variavel.simbolo.lexema]) {
-            const valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            let valor: number | string = 0;
+            if(this.variaveis[variavel.simbolo.lexema].tipo === "inteiro") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            else if(this.variaveis[variavel.simbolo.lexema].tipo === "caracter" ) valor = this.palavraAleatoriaCom5Digitos()
+
             this.variaveis[variavel.simbolo.lexema].valor = valor;
         }
+    }
+
+    private palavraAleatoriaCom5Digitos(): string {
+        const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let palavra = "";
+
+        for (let i = 0; i < 5; i++) {
+            const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+            palavra += caracteres.charAt(indiceAleatorio);
+        }
+
+        return palavra;
     }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
