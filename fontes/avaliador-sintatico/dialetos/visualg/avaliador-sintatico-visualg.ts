@@ -1147,17 +1147,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const decoracoes = [];
 
         do {
-            decoracoes.push(this.resolverDeclaracaoForaDeBloco());
+            const decoracao = this.resolverDeclaracaoForaDeBloco()
+            if(decoracao instanceof Leia) decoracao.eParaInterromper = true;
+            decoracoes.push(decoracao);
         } while (![tiposDeSimbolos.ALEATORIO, tiposDeSimbolos.FIM_ALGORITMO].includes(this.simbolos[this.atual].tipo))
 
-        for(let decoracao of decoracoes){
-            if(decoracao instanceof Leia){
-                decoracao.eParaInterromper = true;
-            }
-        }
-
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ALEATORIO)) {
-            this.consumir(tiposDeSimbolos.ALEATORIO, "Esperado palavra reservada 'aleatorio' para fechamento de declaração 'aleatorio'.");
             this.consumir(tiposDeSimbolos.OFF, "Esperado palavra reservada 'off' ou 'OFF' após declaração 'aleatorio'.");
         }
 
