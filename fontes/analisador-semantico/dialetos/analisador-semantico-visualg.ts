@@ -131,6 +131,28 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         return Math.floor(Math.random() * (max - min) + min);
     }
 
+    private encontrarLeiaNoAleatorio(declaracao: Declaracao, menorNumero: number, maiorNumero: number) {
+        if ('declaracoes' in declaracao) {
+            // Se a declaração tiver um campo 'declaracoes', ela é um Bloco
+            const declaracoes = declaracao.declaracoes as Declaracao[]
+            for (const subDeclaracao of declaracoes) {
+                this.encontrarLeiaNoAleatorio(subDeclaracao, menorNumero, maiorNumero);
+            }
+        } else if (declaracao instanceof Leia) {
+            // Se encontrarmos um Leia, podemos efetuar as operações imediatamente
+            for (const argumento of declaracao.argumentos) {
+                this.atualizarVariavelComNumeroAleatorio(argumento as Variavel, menorNumero, maiorNumero);
+            }
+        }
+    }
+
+    private atualizarVariavelComNumeroAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
+        if (this.variaveis[variavel.simbolo.lexema]) {
+            const valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            this.variaveis[variavel.simbolo.lexema].valor = valor;
+        }
+    }
+
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         //Isso acontece quando não é informado os número máximos e mínimos
         let menorNumero = 0;
@@ -143,13 +165,7 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
         }
 
         for (let corpoDeclaracao of declaracao.corpo.declaracoes) {
-            if (corpoDeclaracao instanceof Leia) {
-                for (let argumento of corpoDeclaracao.argumentos) {
-                    let variavel = argumento as Variavel;
-                    let valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
-                    this.variaveis[variavel.simbolo.lexema].valor = valor;
-                }
-            }
+            this.encontrarLeiaNoAleatorio(corpoDeclaracao, menorNumero, maiorNumero);
         }
 
         return Promise.resolve();
