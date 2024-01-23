@@ -343,7 +343,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
 
-        throw this.erro(this.simbolos[this.atual], `Esperado expressão ${simboloAtual.tipo}.`);
+        throw this.erro(this.simbolos[this.atual], "Esperado expressão.");
     }
 
     comparacaoIgualdade(): Construto {
@@ -1118,8 +1118,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
     declaracaoAleatorio(): Aleatorio {
         const simboloAleatorio: SimboloInterface = this.avancarEDevolverAnterior();
-
-        let parametros: ParametroInterface[] = []
+        
         let argumentos: { min: number, max: number } | null = {
             min: 0,
             max: 0
@@ -1134,8 +1133,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             this.consumir(tiposDeSimbolos.NUMERO, "Esperado um número após ','.");
 
             argumentos.max = Number(this.simbolos[this.atual - 1].literal);
-            console.log(argumentos);
-
 
         } else if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ON)) {
             this.consumir(

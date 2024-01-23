@@ -285,7 +285,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22);
             });
 
-            it('Sucesso - Aleatorio', () => {
+            it('Sucesso - Aleatorio - Números', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'algoritmo "Exemplo Xou"',
@@ -300,11 +300,9 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 );
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                /* const RetornoAnalisadorSemantico = analisa */
-                    console.log(retornoAvaliadorSintatico);
 
-                /* expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22); */
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
             });
         });
 
@@ -427,6 +425,29 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoLexador = lexador.mapear(['algoritmo "Falha"', 'inicio'], 1);
 
                 expect(() => avaliadorSintatico.analisar(retornoLexador, 1)).toThrowError();
+            });
+
+            it('Falha - Aleatorio', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo "Exemplo Xou"',
+                        'var',
+                        'numero: inteiro',
+                        'inicio',
+                        'aleatorio 1, ',
+                        'leia(numero)',
+                        'fimalgoritmo',
+                    ],
+                    -1
+                );
+
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrowError();
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                    expect.objectContaining({
+                        name: 'Error',
+                        message: "Esperado um número após ','.",
+                    })
+                );
             });
         });
     });
