@@ -96,13 +96,13 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
                 let valorLiteral = typeof (valor as Literal).valor;
                 if (!['qualquer'].includes(variavel.tipo)) {
                     if (valorLiteral === 'string') {
-                        if (variavel.tipo != 'texto') {
+                        if (variavel.tipo.toLowerCase() != 'caractere') {
                             this.erro(simbolo, `Esperado tipo '${variavel.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (valorLiteral === 'number') {
-                        if (!['inteiro', 'real'].includes(variavel.tipo)) {
+                        if (!['inteiro', 'real'].includes(variavel.tipo.toLowerCase())) {
                             this.erro(simbolo, `Esperado tipo '${variavel.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
