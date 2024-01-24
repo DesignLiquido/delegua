@@ -146,7 +146,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
      * @returns Vetor de Construtos para inicialização de variáveis.
      */
     private validarSegmentoVar(): Construto[] | Declaracao[] {
-        console.log("Estou verificando")
         // Podem haver linhas de comentários acima de `var`, que geram
         // quebras de linha.
         while (this.simbolos[this.atual].tipo === tiposDeSimbolos.QUEBRA_LINHA) {
@@ -513,7 +512,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
         tipoRetorno = this.verificarDefinicaoTipoAtual();
-        /* this.avancarEDevolverAnterior(); */
         const inicializacoes = this.validarSegmentoVar();
         this.validarSegmentoInicio('função');
 
