@@ -61,6 +61,27 @@ describe('Analisador sêmantico (Visualg)', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
 
+            it('Atribuição inválida de variáveis', () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo "Atribuição inválida de variáveis"',
+                    'var x: real',
+                    'y: inteiro',
+                    'a: caractere',
+                    'l: logico',
+                    'inicio',
+                    'x <- "25"',
+                    'y <- "6x"',
+                    'a <- 0',
+                    'l <- "verdadeiro e falso"',
+                    'fimalgoritmo'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(4);
+            });
+
             it("Chamada de função inexistente", () => {
                 const retornoLexador = lexador.mapear([
                     'algoritmo "definindo função"',
