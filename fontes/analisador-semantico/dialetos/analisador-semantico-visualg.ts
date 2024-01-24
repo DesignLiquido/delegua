@@ -149,7 +149,7 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
     private atualizarVariavelComValorAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
         if (this.variaveis[variavel.simbolo.lexema]) {
             let valor: number | string = 0;
-            if(this.variaveis[variavel.simbolo.lexema].tipo === "inteiro") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            if(this.variaveis[variavel.simbolo.lexema].tipo === "inteiro" || this.variaveis[variavel.simbolo.lexema].tipo === "real") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
             else if(this.variaveis[variavel.simbolo.lexema].tipo === "caracter" ) valor = this.palavraAleatoriaCom5Digitos()
 
             this.variaveis[variavel.simbolo.lexema].valor = valor;
