@@ -164,7 +164,6 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
             const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
             palavra += caracteres.charAt(indiceAleatorio);
         }
-
         return palavra;
     }
 
