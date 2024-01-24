@@ -1,5 +1,6 @@
 import { Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe } from '../construtos';
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -29,6 +30,7 @@ import { ConstMultiplo } from '../declaracoes/const-multiplo';
 import { VarMultiplo } from '../declaracoes/var-multiplo';
 
 export interface VisitanteComumInterface {
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>
     visitarDeclaracaoClasse(declaracao: Classe): any;
     visitarDeclaracaoConst(declaracao: Const): Promise<any>;
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any>;

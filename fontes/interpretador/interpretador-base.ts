@@ -9,6 +9,7 @@ import { MicroAvaliadorSintatico } from './../../fontes/avaliador-sintatico/micr
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -92,14 +93,14 @@ export class InterpretadorBase implements InterpretadorInterface {
     resultadoInterpretador: Array<string> = [];
 
     // Esta variável indica que uma propriedade de um objeto
-    // não precisa da palavra `isto` para ser acessada, ou seja, 
+    // não precisa da palavra `isto` para ser acessada, ou seja,
     // `minhaPropriedade` e `isto.minhaPropriedade` são a mesma coisa.
     // Potigol, por exemplo, é um dialeto que tem essa característica.
     expandirPropriedadesDeObjetosEmEspacoVariaveis: boolean;
 
     // Esta variável indica que propriedades de classes precisam ser
     // declaradas para serem válidas.
-    // Delégua e Pituguês são dialetos que requerem a declaração 
+    // Delégua e Pituguês são dialetos que requerem a declaração
     // de propriedades de classes.
     requerDeclaracaoPropriedades: boolean;
 
@@ -643,8 +644,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                     argumentos.push(null);
                 }
             } else {
-                // TODO: Aparentemente isso aqui nunca funcionou. 
-                // Avaliar de simplesmente apagar este código, e usar o que foi 
+                // TODO: Aparentemente isso aqui nunca funcionou.
+                // Avaliar de simplesmente apagar este código, e usar o que foi
                 // implementado em `DeleguaFuncao.chamar`.
                 if (
                     parametros &&
@@ -1433,6 +1434,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         return this.procurarVariavel(expressao.palavraChave);
     }
 
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+        throw new Error('Método não implementado.');
+    }
+
     async visitarExpressaoDicionario(expressao: any): Promise<any> {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
@@ -1534,7 +1540,9 @@ export class InterpretadorBase implements InterpretadorInterface {
      *                         pelo modo LAIR.
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+
         const resultado: any = await declaracao.aceitar(this);
+        /* console.log("Resultado aceitar: " + resultado, this); */
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }

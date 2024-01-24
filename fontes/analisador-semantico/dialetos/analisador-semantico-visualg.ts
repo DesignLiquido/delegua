@@ -1,5 +1,6 @@
 import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from "../../construtos";
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -114,6 +115,65 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         if (variavel) {
             this.variaveis[simbolo.lexema].valor = valor;
         }
+    }
+
+
+    private gerarNumeroAleatorio(min: number, max: number) {
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    private encontrarLeiaNoAleatorio(declaracao: Declaracao, menorNumero: number, maiorNumero: number) {
+        if ('declaracoes' in declaracao) {
+            // Se a declaração tiver um campo 'declaracoes', ela é um Bloco
+            const declaracoes = declaracao.declaracoes as Declaracao[]
+            for (const subDeclaracao of declaracoes) {
+                this.encontrarLeiaNoAleatorio(subDeclaracao, menorNumero, maiorNumero);
+            }
+        } else if (declaracao instanceof Leia) {
+            // Se encontrarmos um Leia, podemos efetuar as operações imediatamente
+            for (const argumento of declaracao.argumentos) {
+                this.atualizarVariavelComValorAleatorio(argumento as Variavel, menorNumero, maiorNumero);
+            }
+        }
+    }
+
+    private atualizarVariavelComValorAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
+        if (this.variaveis[variavel.simbolo.lexema]) {
+            let valor: number | string = 0;
+            if(this.variaveis[variavel.simbolo.lexema].tipo === "inteiro" || this.variaveis[variavel.simbolo.lexema].tipo === "real") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            else if(this.variaveis[variavel.simbolo.lexema].tipo === "caracter" ) valor = this.palavraAleatoriaCom5Digitos()
+
+            this.variaveis[variavel.simbolo.lexema].valor = valor;
+        }
+    }
+
+    private palavraAleatoriaCom5Digitos(): string {
+        const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let palavra = "";
+
+        for (let i = 0; i < 5; i++) {
+            const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+            palavra += caracteres.charAt(indiceAleatorio);
+        }
+        return palavra;
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        //Isso acontece quando não é informado os número máximos e mínimos
+        let menorNumero = 0;
+        let maiorNumero = 100
+
+        if (declaracao.argumentos) {
+            menorNumero = Math.min(declaracao.argumentos.min, declaracao.argumentos.max);
+            maiorNumero = Math.max(declaracao.argumentos.min, declaracao.argumentos.max);
+
+        }
+
+        for (let corpoDeclaracao of declaracao.corpo.declaracoes) {
+            this.encontrarLeiaNoAleatorio(corpoDeclaracao, menorNumero, maiorNumero);
+        }
+
+        return Promise.resolve();
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {

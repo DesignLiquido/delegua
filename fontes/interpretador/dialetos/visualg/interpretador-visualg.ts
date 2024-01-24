@@ -1,5 +1,5 @@
 import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
-import { Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
+import { Aleatorio, Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
@@ -137,17 +137,22 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        for (let argumento of expressao.argumentos) {
-            const promessaLeitura: Function = () =>
-                new Promise((resolucao) =>
-                    this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
-                        this.mensagemPrompt = '> ';
-                        resolucao(resposta);
-                    })
-                );
 
-            const valorLido = await promessaLeitura();
-            await comum.atribuirVariavel(this, argumento, valorLido);
+        // Verifica se a leitura deve ser interrompida antes de prosseguir
+
+        if (!expressao.eParaInterromper) {
+            for (let argumento of expressao.argumentos) {
+                const promessaLeitura: Function = () =>
+                    new Promise((resolucao) =>
+                        this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
+                            this.mensagemPrompt = '> ';
+                            resolucao(resposta);
+                        })
+                    );
+
+                const valorLido = await promessaLeitura();
+                await comum.atribuirVariavel(this, argumento, valorLido);
+            }
         }
     }
 
@@ -196,5 +201,23 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
         return comum.visitarExpressaoLogica(this, expressao);
+    }
+
+    async visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+
+        let retornoExecucao: any;
+        try {
+            retornoExecucao = await this.executar(declaracao.corpo);
+
+        } catch (error) {
+            this.erros.push({
+                erroInterno: error,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
+            return Promise.reject(error)
+        }
+
+        return retornoExecucao;
     }
 }

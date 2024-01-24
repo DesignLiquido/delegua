@@ -1,5 +1,6 @@
 import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Vetor } from '../../construtos';
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -56,6 +57,10 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
         return Promise.resolve();
     }
 

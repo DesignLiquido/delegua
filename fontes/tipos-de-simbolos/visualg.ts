@@ -1,6 +1,7 @@
 export default {
     ADICAO: 'ADICAO',
     ALGORITMO: 'ALGORITMO',
+    ALEATORIO: 'ALEATORIO',
     ATE: 'ATE',
     ATÉ: 'ATÉ',
     CARACTER: 'CARACTER',
@@ -51,6 +52,8 @@ export default {
     MULTIPLICACAO: 'MULTIPLICACAO',
     NEGACAO: 'NEGACAO',
     NUMERO: 'NUMERO',
+    ON: 'ON',
+    OFF: 'OFF',
     OU: 'OU',
     OUTRO_CASO: 'OUTRO_CASO',
     PARA: 'PARA',

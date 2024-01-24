@@ -48,6 +48,7 @@ import {
     Sustar,
     Declaracao,
     Falhar,
+    Aleatorio,
 } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 
@@ -89,7 +90,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.simbolo.lexema}`;
             this.visitarExpressaoFuncaoConstruto(metodo.funcao);
         }
-        
+
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
@@ -465,6 +466,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += ')';
     }
 
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoDefinirValor(expressao: DefinirValor) {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += `.${expressao.nome.lexema} = `;
@@ -552,7 +557,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         if (expressao.argumentos.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
-        
+
         this.codigoFormatado += `)`;
     }
 
@@ -582,7 +587,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 this.codigoFormatado += ` ou `;
                 break;
         }
-        
+
         this.formatarDeclaracaoOuConstruto(expressao.direita);
     }
 
@@ -597,7 +602,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoSuper(expressao: Super) {
-        // TODO: `expressao.metodo` deveria ser um `Construto`, não um `Simbolo` aqui. 
+        // TODO: `expressao.metodo` deveria ser um `Construto`, não um `Simbolo` aqui.
         this.codigoFormatado += `super.${expressao.metodo.lexema}()`;
         console.log(expressao);
     }
@@ -719,7 +724,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Importar':
                 this.visitarDeclaracaoImportar(declaracaoOuConstruto as Importar);
-                break;                
+                break;
             case 'Isto':
                 this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;

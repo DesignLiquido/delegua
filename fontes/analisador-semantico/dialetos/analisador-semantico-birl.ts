@@ -1,5 +1,6 @@
 import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../construtos';
 import {
+    Aleatorio,
     Bloco,
     Classe,
     Const,
@@ -83,6 +84,10 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
         return Promise.resolve();
     }
 

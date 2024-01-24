@@ -1,5 +1,5 @@
 import { AcessoIndiceVariavel, AcessoMetodoOuPropriedade, Agrupamento, AtribuicaoPorIndice, Atribuir, Binario, Chamada, Construto, DefinirValor, Dicionario, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Isto, Literal, Logico, Super, TipoDe, Unario, Variavel, Vetor } from "../construtos";
-import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao, Falhar } from "../declaracoes";
+import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao, Falhar, Aleatorio } from "../declaracoes";
 import { VisitanteComumInterface } from "../interfaces";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
 
@@ -38,9 +38,13 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
         // throw new Error("Método não implementado");
     }
 
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}funcao ${declaracao.simbolo.lexema}()${this.quebraLinha}`;
-        
+
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}{${this.quebraLinha}`;
         this.visitarExpressaoFuncaoConstruto(declaracao.funcao);
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
@@ -260,7 +264,7 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
                 break;
             case 'Importar':
                 this.visitarDeclaracaoImportar(declaracaoOuConstruto as Importar);
-                break;                
+                break;
             case 'Isto':
                 this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;
@@ -317,8 +321,8 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
                 break;
         }
     }
-    
-    
+
+
     formatar(declaracoes: Declaracao[]): string {
         this.indentacaoAtual = 0;
         this.codigoFormatado = `programa${this.quebraLinha}{${this.quebraLinha}`;
