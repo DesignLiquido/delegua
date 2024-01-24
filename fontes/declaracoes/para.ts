@@ -8,8 +8,8 @@ import { Declaracao } from './declaracao';
  * uma condição de continuação e uma instrução de incremento.
  */
 export class Para extends Declaracao {
-    inicializador: any;
-    condicao: any;
+    inicializador?: Declaracao | Declaracao[];
+    condicao: Construto;
     incrementar: Construto;
     corpo: Bloco;
     inicializada: boolean;

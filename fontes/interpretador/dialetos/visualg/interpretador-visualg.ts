@@ -158,7 +158,7 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         if (declaracao.inicializador !== null) {
-            await this.avaliar(declaracao.inicializador);
+            await this.avaliar(declaracao.inicializador as any);
             await comum.resolverIncrementoPara(this, declaracao);
         }
 

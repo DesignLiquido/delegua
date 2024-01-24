@@ -1,6 +1,6 @@
 import { Construto, Literal } from '../../../construtos';
 import { Declaracao, Leia, Para } from '../../../declaracoes';
-import { InterpretadorBirlInterface } from '../../../interfaces/dialeto/interpretador-birl-interface';
+import { InterpretadorBirlInterface } from '../../../interfaces/dialetos/interpretador-birl-interface';
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import * as comum from './comum';

@@ -29,23 +29,14 @@ import {
 import { SimboloInterface } from "../../interfaces";
 import { AnalisadorSemanticoInterface } from "../../interfaces/analisador-semantico-interface";
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from "../../interfaces/erros";
+import { FuncaoHipoteticaInterface } from "../../interfaces/funcao-hipotetica-interface";
 import { RetornoAnalisadorSemantico } from "../../interfaces/retornos/retorno-analisador-semantico";
-import { TiposDadosInterface } from "../../interfaces/tipos-dados-interface";
+import { VariavelHipoteticaInterface } from "../../interfaces/variavel-hipotetica-interface";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../../quebras";
 import { PilhaVariaveis } from "../pilha-variaveis";
 
-interface VariavelHipoteticaInterface {
-    tipo: TiposDadosInterface;
-    subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
-    imutavel: boolean;
-    valor?: any
-}
 
-interface FuncaoHipoteticaInterface {
-    valor: any
-}
-
-export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface {
+export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface }
@@ -327,7 +318,7 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
             if (!funcaoChamada) {
                 this.erro(
                     variavel.simbolo,
-                    `Função '${variavel.simbolo.lexema} não foi declarada.'`
+                    `Função '${variavel.simbolo.lexema}' não foi declarada.`
                 )
                 return Promise.resolve();
             }
@@ -339,20 +330,20 @@ export class AnalisadorSemanticoVisualg implements AnalisadorSemanticoInterface 
                 )
             }
 
-            for (let [indice, arg0] of funcao.parametros.entries()) {
-                const arg1 = expressao.argumentos[indice];
-                if (arg1) {
-                    if (arg0.tipoDado?.tipo.toLowerCase() === 'caracter' && typeof arg1.valor !== 'string') {
+            for (let [indice, argumentoFuncao] of funcao.parametros.entries()) {
+                const argumentoChamada = expressao.argumentos[indice];
+                if (argumentoChamada) {
+                    if (argumentoFuncao.tipoDado?.tipo.toLowerCase() === 'caracter' && typeof argumentoChamada.valor !== 'string') {
                         this.erro(
                             variavel.simbolo,
-                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                            `O tipo do valor passado para o parâmetro '${argumentoFuncao.nome.lexema}' (${argumentoFuncao.tipoDado.nome}) é diferente do esperado pela função.`
                         );
                     }
-                    else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo.toLowerCase())
-                        && typeof arg1.valor !== 'number') {
+                    else if (['inteiro', 'real'].includes(argumentoFuncao.tipoDado?.tipo.toLowerCase())
+                        && typeof argumentoChamada.valor !== 'number') {
                         this.erro(
                             variavel.simbolo,
-                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                            `O tipo do valor passado para o parâmetro '${argumentoFuncao.nome.lexema}' (${argumentoFuncao.tipoDado.nome}) é diferente do esperado pela função.`
                         );
                     }
                 }

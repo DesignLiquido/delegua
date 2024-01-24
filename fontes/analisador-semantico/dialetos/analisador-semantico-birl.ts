@@ -32,7 +32,7 @@ import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-an
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 import { PilhaVariaveis } from '../pilha-variaveis';
 
-interface VariavelHipoteticaInterface {
+interface VariavelHipoteticaBirlInterface {
     tipo:
         | 'texto'
         | 'número'
@@ -51,7 +51,7 @@ interface VariavelHipoteticaInterface {
 
 export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
-    variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
+    variaveis: { [nomeVariavel: string]: VariavelHipoteticaBirlInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 

@@ -30,21 +30,11 @@ import {
 import { SimboloInterface } from '../../interfaces';
 import { AnalisadorSemanticoInterface } from '../../interfaces/analisador-semantico-interface';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
+import { FuncaoHipoteticaInterface } from '../../interfaces/funcao-hipotetica-interface';
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
-import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
+import { VariavelHipoteticaInterface } from '../../interfaces/variavel-hipotetica-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
 import { PilhaVariaveis } from './../pilha-variaveis';
-
-interface VariavelHipoteticaInterface {
-    tipo: TiposDadosInterface;
-    subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
-    imutavel: boolean;
-    valor?: any
-}
-
-interface FuncaoHipoteticaInterface {
-    valor: any
-}
 
 export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;

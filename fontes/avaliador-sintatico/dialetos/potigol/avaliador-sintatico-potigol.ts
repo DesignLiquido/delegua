@@ -116,7 +116,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         tipoRetorno?: SimboloInterface
     ): FuncaoDeclaracao {
         const corpo = new FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
-            this.expressao(),
+            new Expressao(this.expressao()),
         ]);
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
     }

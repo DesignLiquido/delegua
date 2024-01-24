@@ -156,7 +156,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return expressao.valor;
     }
 
-    avaliar(expressao: Construto): VariavelInterface | any {
+    avaliar(expressao: Construto | Declaracao): VariavelInterface | any {
         return expressao.aceitar(this);
     }
 
@@ -459,7 +459,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarDeclaracaoPara(declaracao: Para) {
         if (declaracao.inicializador !== null) {
-            await this.avaliar(declaracao.inicializador);
+            await this.avaliar(declaracao.inicializador as any);
         }
         while (true) {
             if (declaracao.condicao !== null) {

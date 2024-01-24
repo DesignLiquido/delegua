@@ -1,4 +1,4 @@
-import { AnalisadorSemanticoVisualg } from '../../fontes/analisador-semantico/dialetos/analisador-semantico-visualg'
+import { AnalisadorSemanticoVisuAlg } from '../../fontes/analisador-semantico/dialetos/analisador-semantico-visualg'
 import { AvaliadorSintaticoVisuAlg } from "../../fontes/avaliador-sintatico/dialetos";
 import { LexadorVisuAlg } from "../../fontes/lexador/dialetos";
 
@@ -6,17 +6,17 @@ describe('Analisador sêmantico (Visualg)', () => {
     describe('analisar()', () => {
         let lexador: LexadorVisuAlg;
         let avaliadorSintaticoVisuAlg: AvaliadorSintaticoVisuAlg;
-        let analisadorSemanticoVisualg: AnalisadorSemanticoVisualg
+        let analisadorSemanticoVisualg: AnalisadorSemanticoVisuAlg
 
         beforeEach(() => {
             lexador = new LexadorVisuAlg();
             avaliadorSintaticoVisuAlg = new AvaliadorSintaticoVisuAlg();
-            analisadorSemanticoVisualg = new AnalisadorSemanticoVisualg();
+            analisadorSemanticoVisualg = new AnalisadorSemanticoVisuAlg();
         });
 
 
         describe('Cenários de falha', () => {
-            it('Variável indefinida, não declarada(escreva)', () => {
+            it('Variável indefinida, não declarada (escreva)', () => {
                 const retornoLexador = lexador.mapear([
                     'algoritmo "Declaração de variável"',
                     'var',
@@ -30,7 +30,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
 
-            it('Variável indefinida, não declarada(atribuição)', () => {
+            it('Variável indefinida, não declarada (atribuição)', () => {
                 const retornoLexador = lexador.mapear([
                     'algoritmo "Atribuição de valor"',
                     'var',
