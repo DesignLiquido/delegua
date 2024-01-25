@@ -899,13 +899,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             throw this.erro(this.simbolos[this.atual], 'Esperado tipo após dois-pontos e nome de identificador.');
         }
 
-        const tipoVariavel = this.avancarEDevolverAnterior();
-        const valorAtribuicaoConstante = this.ou();
-        return new Const(
-            (expressao as Constante).simbolo,
-            valorAtribuicaoConstante,
-            this.tiposPotigolParaDelegua[tipoVariavel.lexema] as TiposDadosInterface
-        );
+        return this.avancarEDevolverAnterior();
     }
 
     declaracaoFazer(): Fazer {
@@ -1023,18 +1017,24 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const expressao = this.ou();
 
         if (!this.estaNoFinal() && expressao instanceof Constante) {
+            let tipoVariavelOuConstante;
             // Atribuição constante.
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
+            }
 
             switch (this.simbolos[this.atual].tipo) {
-                case tiposDeSimbolos.DOIS_PONTOS:
-                    return this.logicaAtribuicaoComDicaDeTipo(expressao);
                 case tiposDeSimbolos.VIRGULA:
                     this.atual--;
                     return this.declaracaoDeConstantes();
                 case tiposDeSimbolos.IGUAL:
                     this.avancarEDevolverAnterior();
                     const valorAtribuicao = this.ou();
-                    return new Const(expressao.simbolo, valorAtribuicao);
+                    return new Const(
+                        (expressao as Constante).simbolo,
+                        valorAtribuicao,
+                        tipoVariavelOuConstante ? this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TiposDadosInterface : undefined
+                    );
             }
         }
 
