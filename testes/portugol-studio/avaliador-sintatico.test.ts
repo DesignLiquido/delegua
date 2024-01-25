@@ -356,7 +356,7 @@ describe('Avaliador sintático (Portugol Studio)', () => {
                 )
             })
 
-            it.skip('Falha - Leia sem variável', () => {
+            it('Falha - Leia sem variável', () => {
                 const retornoLexador = lexador.mapear([
                     'programa',
                     '{',

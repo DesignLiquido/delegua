@@ -130,7 +130,7 @@ describe('Interpretador (Portugol Studio)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Trivial', async () => {
+            it('Trivial', async () => {
                 const retornoLexador = lexador.mapear([
                     'programa',
                     '{',

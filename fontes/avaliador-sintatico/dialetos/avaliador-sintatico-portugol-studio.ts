@@ -34,6 +34,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from '../retornos';
 import { DeleguaFuncao } from '../../estruturas';
+import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -414,10 +415,14 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
-    declaracaoExpressao(): Expressao {
+    declaracaoExpressao(simboloAnterior?: SimboloInterface): Expressao {
         const expressao = this.expressao();
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        if (!expressao) {
+            throw new ErroAvaliadorSintatico(simboloAnterior, 'Esperado expressão.');
+        }
+
         return new Expressao(expressao);
     }
 
@@ -672,7 +677,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
             default:
-                return this.declaracaoExpressao();
+                return this.declaracaoExpressao(simboloAtual);
         }
     }
 

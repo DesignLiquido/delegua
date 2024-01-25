@@ -258,7 +258,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     abstract declaracaoEscreva(): Escreva;
 
-    declaracaoExpressao(): Expressao {
+    declaracaoExpressao(simboloAnterior?: SimboloInterface): Expressao {
         throw new Error('Método não implementado.');
     }
 
