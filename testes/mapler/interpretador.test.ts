@@ -143,6 +143,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            // TODO: https://github.com/DesignLiquido/delegua/issues/573
             it.skip('Modulo', async () => {
                 const retornoLexador = lexador.mapear([
                     "variaveis",
