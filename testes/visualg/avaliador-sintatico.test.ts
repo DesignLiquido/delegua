@@ -421,10 +421,10 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 );
             });
 
-            it.skip('Falha - Programa sem fimalgoritmo', () => {
-                const retornoLexador = lexador.mapear(['algoritmo "Falha"', 'inicio'], 1);
+            it(`Falha - Programa não terminado por 'fimalgoritmo'`, () => {
+                const retornoLexador = lexador.mapear(['algoritmo "Falha"', 'inicio'], -1);
 
-                expect(() => avaliadorSintatico.analisar(retornoLexador, 1)).toThrowError();
+                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrowError();
             });
 
             it('Falha - Aleatorio', () => {

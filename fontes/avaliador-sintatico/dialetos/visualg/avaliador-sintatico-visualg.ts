@@ -42,6 +42,7 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
 import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
 import { Aleatorio } from '../../../declaracoes/aleatorio';
+import { ErroAvaliadorSintatico } from '../../erro-avaliador-sintatico';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -1252,6 +1253,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             } else {
                 declaracoes.push(declaracao);
             }
+        }
+
+        const ultimoSimbolo = this.simbolos[this.simbolos.length - 1];
+        if (ultimoSimbolo.tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
+            throw new ErroAvaliadorSintatico(
+                ultimoSimbolo, 
+                `Programa não termina com 'fimalgoritmo'. Último símbolo: '${ultimoSimbolo.lexema || ultimoSimbolo.literal}'.`
+            );
         }
 
         return {

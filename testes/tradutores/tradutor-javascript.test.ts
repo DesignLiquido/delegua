@@ -86,7 +86,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/throw 'erro inesperado!'/i);
         });
 
-        it.skip('falhar - throw', () => {
+        it('falhar - throw', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var msg = \'erro inesperado!\'',
