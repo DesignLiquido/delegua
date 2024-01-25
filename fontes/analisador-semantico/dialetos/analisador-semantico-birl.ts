@@ -91,7 +91,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         if (!this.variaveis.hasOwnProperty(expressao.simbolo.lexema)) {
             this.diagnosticos.push({
                 simbolo: expressao.simbolo,

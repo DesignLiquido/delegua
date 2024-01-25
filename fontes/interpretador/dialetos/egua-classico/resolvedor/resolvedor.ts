@@ -240,7 +240,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoDeAtribuicao(expressao: any): any {
+    visitarExpressaoDeAtribuicao(expressao: any): any {
         this.resolver(expressao.valor);
         this.resolverLocal(expressao, expressao.simbolo);
         return null;

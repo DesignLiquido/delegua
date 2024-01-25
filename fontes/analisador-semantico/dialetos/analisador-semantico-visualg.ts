@@ -71,7 +71,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         });
     }
 
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         const { simbolo, valor } = expressao;
         let variavel = this.variaveis[simbolo.lexema];
         if (!variavel) {
@@ -198,6 +198,18 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
+        switch (declaracao.expressao.constructor.name) {
+            case 'Atribuir':
+                this.visitarExpressaoDeAtribuicao(declaracao.expressao as Atribuir);
+                break;
+            case 'Chamada':
+                this.visitarExpressaoDeChamada(declaracao.expressao as Chamada);
+                break;
+            default:
+                console.log(declaracao.expressao);
+                break;
+        }
+
         return Promise.resolve();
     }
 
@@ -429,6 +441,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         return Promise.resolve()
     }
+
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
         this.variaveis = {};
         this.atual = 0;

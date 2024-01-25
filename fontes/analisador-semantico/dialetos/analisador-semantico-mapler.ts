@@ -112,7 +112,7 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         let valor = this.variaveis[expressao.simbolo.lexema];
         if (!valor) {
             this.erro(

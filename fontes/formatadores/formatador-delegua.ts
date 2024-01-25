@@ -115,7 +115,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         console.log(declaracao);
     }
 
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         if (expressao.valor instanceof Binario &&
             [
                 tiposDeSimbolos.MAIS_IGUAL,
@@ -672,7 +672,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
                 break;
             case 'Atribuir':
-                this.visitarDeclaracaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
+                this.visitarExpressaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
                 break;
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);

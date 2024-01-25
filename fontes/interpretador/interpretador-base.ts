@@ -709,7 +709,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
-    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido = valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);

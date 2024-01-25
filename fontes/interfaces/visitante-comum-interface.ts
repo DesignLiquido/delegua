@@ -34,7 +34,7 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoClasse(declaracao: Classe): any;
     visitarDeclaracaoConst(declaracao: Const): Promise<any>;
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any>;
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir): any;
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): any;
     visitarDeclaracaoDeExpressao(declaracao: Expressao): any;
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): any;
     visitarDeclaracaoEnquanto(declaracao: Enquanto): any;

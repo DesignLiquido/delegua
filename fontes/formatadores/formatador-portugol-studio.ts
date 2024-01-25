@@ -30,7 +30,7 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         throw new Error("Método não implementado");
     }
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         throw new Error("Método não implementado");
     }
 
@@ -212,7 +212,7 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
                 this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
                 break;
             case 'Atribuir':
-                this.visitarDeclaracaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
+                this.visitarExpressaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
                 break;
             case 'Binario':
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);

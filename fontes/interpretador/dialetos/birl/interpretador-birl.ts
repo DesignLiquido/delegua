@@ -491,7 +491,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
             this.erros.push(erro);
         }
     }
-    async visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    async visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado.');
     }
 

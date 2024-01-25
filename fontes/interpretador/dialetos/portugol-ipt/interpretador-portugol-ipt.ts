@@ -240,7 +240,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         throw new Error('Método não implementado');
     }
 

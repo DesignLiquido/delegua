@@ -2,16 +2,16 @@ import { AnalisadorSemanticoVisuAlg } from '../../fontes/analisador-semantico/di
 import { AvaliadorSintaticoVisuAlg } from "../../fontes/avaliador-sintatico/dialetos";
 import { LexadorVisuAlg } from "../../fontes/lexador/dialetos";
 
-describe('Analisador sêmantico (Visualg)', () => {
+describe('Analisador sêmantico (VisuAlg)', () => {
     describe('analisar()', () => {
         let lexador: LexadorVisuAlg;
         let avaliadorSintaticoVisuAlg: AvaliadorSintaticoVisuAlg;
-        let analisadorSemanticoVisualg: AnalisadorSemanticoVisuAlg
+        let analisadorSemanticoVisuAlg: AnalisadorSemanticoVisuAlg
 
         beforeEach(() => {
             lexador = new LexadorVisuAlg();
             avaliadorSintaticoVisuAlg = new AvaliadorSintaticoVisuAlg();
-            analisadorSemanticoVisualg = new AnalisadorSemanticoVisuAlg();
+            analisadorSemanticoVisuAlg = new AnalisadorSemanticoVisuAlg();
         });
 
 
@@ -25,7 +25,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                     'fimalgoritmo'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisuAlg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
@@ -40,7 +40,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisuAlg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
@@ -56,7 +56,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisuAlg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
@@ -77,7 +77,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                 ], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisuAlg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(4);
             });
@@ -93,7 +93,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                 ], -1)
 
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisuAlg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             })
@@ -114,7 +114,7 @@ describe('Analisador sêmantico (Visualg)', () => {
                 ], -1)
 
                 const retornoAvaliadorSintatico = avaliadorSintaticoVisuAlg.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemanticoVisualg.analisar(retornoAvaliadorSintatico.declaracoes);
+                const retornoAnalisadorSemantico = analisadorSemanticoVisuAlg.analisar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             })
