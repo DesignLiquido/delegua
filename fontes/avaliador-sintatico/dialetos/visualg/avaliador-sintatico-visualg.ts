@@ -669,7 +669,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         do {
-            const valor = this.resolverDeclaracaoForaDeBloco();
+            const valor = this.expressao();
 
             let espacos = 0;
             let casasDecimais = 0;
@@ -789,7 +789,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         const argumentos = [];
         do {
-            argumentos.push(this.resolverDeclaracaoForaDeBloco());
+            argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
@@ -1208,7 +1208,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 }
                 return this.validarSegmentoVar();
             default:
-                return this.expressao();
+                return new Expressao(this.expressao());
         }
     }
 

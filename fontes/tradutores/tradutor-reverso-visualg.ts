@@ -57,7 +57,7 @@ export class TradutorReversoVisuAlg {
         return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
 
-    traduzirDeclaracaoAtribuir(atribuir: Atribuir): string {
+    traduzirConstrutoAtribuir(atribuir: Atribuir): string {
         let resultado = atribuir.simbolo.lexema;
         resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
@@ -181,6 +181,14 @@ export class TradutorReversoVisuAlg {
         return resultado;
     }
 
+    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
+        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+    }
+
+    traduzirDeclaracaoFimPara(declaracaoFimPara: FimPara): string {
+        return this.dicionarioDeclaracoes[declaracaoFimPara.incremento.constructor.name](declaracaoFimPara.incremento);
+    }
+
     traduzirDeclaracaoLeia(declaracaoLeia: any) {
         let resultado = '';
         for (const parametro of declaracaoLeia.argumentos) {
@@ -193,7 +201,7 @@ export class TradutorReversoVisuAlg {
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'para (';
         resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
+            this.dicionarioConstrutos[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
             ' ';
 
         resultado += !resultado.includes(';') ? ';' : '';
@@ -264,6 +272,7 @@ export class TradutorReversoVisuAlg {
 
     dicionarioConstrutos = {
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         FimPara: this.traduzirConstrutoFimPara.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
@@ -272,11 +281,12 @@ export class TradutorReversoVisuAlg {
     };
 
     dicionarioDeclaracoes = {
-        Atribuir: this.traduzirDeclaracaoAtribuir.bind(this),
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         EscrevaMesmaLinha: this.tradzirDeclaracaoEscrevaMesmaLinha.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+        Expressao: this.traduzirDeclaracaoExpressao.bind(this),
+        FimPara: this.traduzirDeclaracaoFimPara.bind(this),
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),

@@ -63,7 +63,7 @@ describe('Tradutor VisuAlg -> Delégua', () => {
             expect(resultado).toMatch(/escreva\('2 \- 1'\)/i);
         })
 
-        it.skip('laço de repetição para', () => {
+        it('laço de repetição `para`', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'algoritmo "media-vetor"',
