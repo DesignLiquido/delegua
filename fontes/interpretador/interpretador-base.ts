@@ -500,7 +500,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if ([tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.INTEIRO].includes(tipoEsquerdo) && [tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.INTEIRO].includes(tipoDireito)) {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 } else {
-                    return String(valorEsquerdo) + String(valorDireito);
+                    return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
                 }
 
             case tiposDeSimbolos.DIVISAO:
@@ -1504,7 +1504,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
-    paraTexto(objeto: any) {
+    paraTexto(objeto: any): any {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
             return objeto ? 'verdadeiro' : 'falso';
