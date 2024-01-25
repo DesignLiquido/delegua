@@ -275,26 +275,6 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
             });
 
-            it.skip('Escolha com tipos diferentes em \'caso\'', () => {
-                const retornoLexador = lexador.mapear([
-                    'var opcao = leia(\'Digite a opção desejada: \')',
-                    'escolha opcao {',
-                    // 'cas:x1 ako',
-                    'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
-                    'facaAlgumaCoisa()',
-                    'cas:x1 ako',
-                    'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
-                    'facaAlgumaCoisa()',
-                    '}',
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                // expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\'');
-                // expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
-            });
-
             it('Leia só pode receber texto', () => {
                 const retornoLexador = lexador.mapear([
                     'var opcao: inteiro = leia(\'Digite a opção desejada: \')',
@@ -625,16 +605,16 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(4);
                 });
 
-                // TODO: Corrigir a avaliação de operação por zero antes de reabilitar
-                // este teste.
-                it.skip('falha - verificar operação divisão por zero', () => {
+                it('falha - verificar operação divisão por zero', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 3;                        ",
                         "var y = 0;                         ",
                         "enquanto (x / y < 10) {sustar;}    ",
                     ], -1);
+
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                 });

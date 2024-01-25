@@ -434,13 +434,16 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             }
         }
 
-        // TODO: Repensar essa avaliação. Nem sempre o lado
-        // direito é um literal.
-        /* if (binario.operador.tipo === 'DIVISAO') {
-            if (this.variaveis[binario.direita.simbolo.lexema]?.valor === 0) {
-                this.erro(binario.operador, `Divisão por zero.`);
+        if (binario.operador.tipo === 'DIVISAO') {
+            switch (binario.direita.constructor.name) {
+                case 'Variavel':
+                    const operadorDireitoLiteral = binario.direita as Variavel;
+                    if (this.variaveis[operadorDireitoLiteral.simbolo.lexema]?.valor === 0) {
+                        this.erro(binario.operador, `Divisão por zero.`);
+                    }
+                    break;
             }
-        } */
+        }
     }
 
     private verificarLadoBinario(lado: Construto): void {
