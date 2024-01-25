@@ -468,6 +468,19 @@ describe('Interpretador', () => {
             });
 
             describe('Operações lógicas', () => {
+                it('Operações lógicas - concatenação de texto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var eVerdadeiro = verdadeiro",
+                        "var eFalso = falso",
+                        "escreva(\"Valores: \" + eVerdadeiro + \" : \" + eFalso)"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Operações lógicas - ou', async () => {
                     const retornoLexador = lexador.mapear(["escreva(verdadeiro ou falso)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
