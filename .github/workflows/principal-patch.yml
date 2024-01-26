@@ -3,38 +3,28 @@ name: Release
 on:
   push:
     branches:
-      - principal
       - action-publish
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      NPM_AUTH_TOKEN: teste123
-      # TESTE: ${{ vars.TESTE_TOKEN_VALUE }}
 
     steps:
-    # - name: Checkout Repository
-    #   uses: actions/checkout@v2
+      - name: Checkout repositório
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-    # - name: Set up Node.js
-    #   uses: actions/setup-node@v3
-    #   with:
-    #     node-version: '14'
-    
-    # - name: Inicializa NPM
-    #   run: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-    #   env:
-    #     NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - name: Configurar usuário Git
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
-    # - name: Debug .npmrc
-    #   run: cat ~/.npmrc
+      - name: Instalar dependências
+        run: npm install
 
-    - name: Debug NPM_AUTH_TOKEN
-      run: echo $NPM_AUTH_TOKEN - ${{ secrets.NPM_AUTH_TOKEN }} - ${{ vars.TESTE_TOKEN_VALUE }}
-
-    # - name: Install Dependencies
-    #   run: npm install --no-save
-
-    # - name: Release Package
-    #   run: npx release-it --ci --npm.authToken=${{ secrets.NPM_AUTH_TOKEN }}
+      - name: Executar release-it
+        run: npm run release
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
