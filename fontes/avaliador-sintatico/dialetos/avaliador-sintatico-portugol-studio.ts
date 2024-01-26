@@ -41,7 +41,9 @@ import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
 export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
-    private validarEscopoPrograma(declaracoes: Declaracao[]): void {
+    private declaracoes: Declaracao[] = []
+
+    private validarEscopoPrograma(): void {
         this.consumir(tiposDeSimbolos.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
 
         this.consumir(
@@ -50,14 +52,19 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         );
 
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            const declaracaoOuVetor: any = this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(declaracaoOuVetor)) {
+                this.declaracoes = this.declaracoes.concat(declaracaoOuVetor);
+            } else {
+                this.declaracoes.push(declaracaoOuVetor);
+            }
         }
 
         if (this.simbolos[this.atual - 1].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
             throw this.erro(this.simbolos[this.atual - 1], 'Esperado chave direita final para término do programa.');
         }
 
-        const encontrarDeclaracaoInicio = declaracoes.filter(
+        const encontrarDeclaracaoInicio = this.declaracoes.filter(
             (d) => d instanceof FuncaoDeclaracao && d.simbolo.lexema === 'inicio'
         );
 
@@ -67,7 +74,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         // A última declaração do programa deve ser uma chamada a inicio()
         const declaracaoInicio = encontrarDeclaracaoInicio[0];
-        declaracoes.push(
+        this.declaracoes.push(
             new Expressao(new Chamada(declaracaoInicio.hashArquivo, (declaracaoInicio as any).funcao, null, []))
         );
     }
@@ -371,16 +378,16 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = '';
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 const literalInicializacao = this.consumir(
                     tiposDeSimbolos.CADEIA,
                     'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.'
                 );
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = literalInicializacao.literal;
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloCadeia.linha), 0)));
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloCadeia.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -397,17 +404,17 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = '';
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 const literalInicializacao = this.consumir(
                     tiposDeSimbolos.CARACTER,
                     'Esperado literal de caracter após símbolo de igual em declaração de variável.'
                 );
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = literalInicializacao.literal;
             }
 
             inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaracter.linha), 0))
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCaracter.linha), valorInicializacao))
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -533,7 +540,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao: any = false;
+            let valorInicializacao = false;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (![tiposDeSimbolos.VERDADEIRO, tiposDeSimbolos.FALSO].includes(this.simbolos[this.atual].tipo)) {
                     throw this.erro(
@@ -542,7 +549,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                     );
                 }
                 const literalInicializacao = this.avancarEDevolverAnterior();
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = literalInicializacao.lexema.toLowerCase() === 'verdadeiro' ? true : false;
             }
 
             inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao)));
@@ -608,7 +615,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 valorInicializacao = Number(literalInicializacao.literal);
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloReal.linha), 0)));
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloReal.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -636,6 +643,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             // Por enquanto apenas consumimos o símbolo sem ações adicionais.
             this.avancarEDevolverAnterior();
         }
+
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VAZIO);
 
         const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
@@ -690,12 +699,12 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
+        this.declaracoes = []
 
-        const declaracoes: Declaracao[] = [];
-        this.validarEscopoPrograma(declaracoes);
+        this.validarEscopoPrograma();
 
         return {
-            declaracoes: declaracoes.filter((d) => d),
+            declaracoes: this.declaracoes.filter((d) => d),
             erros: this.erros,
         } as RetornoAvaliadorSintatico<Declaracao>;
     }

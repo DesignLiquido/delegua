@@ -175,6 +175,59 @@ describe('Interpretador (Portugol Studio)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('Funcao Vazio', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '   ',
+                    '    funcao inicio()',
+                    '    {',
+                    '        imprime_linha()',
+                    '    }',
+                    '',
+                    '    funcao vazio imprime_linha()',
+                    '    {',
+                    '       escreva("\n---------------------")',
+                    '    }',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Estruturas de dados', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{  ',
+                        //variável global do tipo inteiro  
+                        'inteiro variavel',
+
+                        'funcao inicio()',
+                        '{  ',
+                            'inteiro outra_variavel',
+
+                            'real altura = 1.79',  
+                    
+                            'cadeia frase = "Isso é uma variável do tipo cadeia"',
+                    
+                            'caracter inicial = \'P\'',  
+                    
+                            'logico exemplo = verdadeiro',
+                    
+                            'escreva(altura)',
+                        '}',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });
