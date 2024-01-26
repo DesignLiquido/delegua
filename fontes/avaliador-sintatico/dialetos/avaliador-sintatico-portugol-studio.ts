@@ -33,7 +33,6 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from '../retornos';
-import { DeleguaFuncao } from '../../estruturas';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
 /**

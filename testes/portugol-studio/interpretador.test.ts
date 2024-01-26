@@ -149,6 +149,32 @@ describe('Interpretador (Portugol Studio)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('Faca', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                    '   ',
+                    '    funcao inicio()',
+                    '    {',
+                    '        inteiro valor = 2',
+                    '        logico eNegativo',
+                    '        faca',
+                    '        {',
+                    '           escreva("Ok\t", valor,"\n")',
+                    '           valor--',
+                    '           eNegativo = valor < 0',
+                    '        }',
+                    '        enquanto(nao eNegativo)',
+                    '    }',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });

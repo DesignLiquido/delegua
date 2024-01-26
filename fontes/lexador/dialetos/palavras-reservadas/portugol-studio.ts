@@ -13,6 +13,7 @@ export const palavrasReservadas = {
     inteiro: tiposDeSimbolos.INTEIRO,
     leia: tiposDeSimbolos.LEIA,
     logico: tiposDeSimbolos.LOGICO,
+    nao: tiposDeSimbolos.NEGACAO,
     ou: tiposDeSimbolos.OU,
     para: tiposDeSimbolos.PARA,
     programa: tiposDeSimbolos.PROGRAMA,
