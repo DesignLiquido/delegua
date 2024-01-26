@@ -24,8 +24,11 @@ jobs:
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
+    - name: Debug .npmrc
+      run: cat ~/.npmrc
+
     - name: Install Dependencies
       run: npm install --no-save
 
     - name: Release Package
-      run: npx release-it --ci
+      run: npx release-it --ci --npm.authToken=${{ secrets.NPM_AUTH_TOKEN }}
