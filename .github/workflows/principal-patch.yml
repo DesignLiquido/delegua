@@ -19,8 +19,8 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Instalar Dependências
-      run: npm ci
+    # - name: Instalar Dependências
+    #   run: npm ci
     
     - name: Inicializa NPM
       run: npm config set //registry.npmjs.org/:_authToken $NPM_AUTH_TOKEN
