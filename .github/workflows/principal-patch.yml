@@ -20,9 +20,9 @@ jobs:
         node-version: '14'
 
     - name: Install Dependencies
-      run: npm install
+      run: npm install --no-save
 
     - name: Release Package
-      run: release-it --increment patch
+      run: npx release-it --ci
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
