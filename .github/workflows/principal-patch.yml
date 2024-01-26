@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NPM_AUTH_TOKEN: teste123
-      TESTE: ${{ env.TESTE_TOKEN_VALUE }}
+      TESTE: ${{ vars.TESTE_TOKEN_VALUE }}
 
     steps:
     # - name: Checkout Repository
