@@ -533,7 +533,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao: any = false;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 if (![tiposDeSimbolos.VERDADEIRO, tiposDeSimbolos.FALSO].includes(this.simbolos[this.atual].tipo)) {
                     throw this.erro(
@@ -545,7 +545,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 valorInicializacao = Number(literalInicializacao.literal);
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloLogico.linha), 0)));
+            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
