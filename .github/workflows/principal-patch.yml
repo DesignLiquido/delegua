@@ -22,6 +22,6 @@ jobs:
       run: npm install
 
     - name: Release Package
-      run: release-it
+      run: release-it --increment patch
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
