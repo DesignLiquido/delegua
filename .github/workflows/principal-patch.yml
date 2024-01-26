@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    # - name: Checkout Repository
+    #   uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '14'
+    # - name: Set up Node.js
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: '14'
     
     - name: Inicializa NPM
       run: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
@@ -27,8 +27,8 @@ jobs:
     - name: Debug .npmrc
       run: cat ~/.npmrc
 
-    - name: Install Dependencies
-      run: npm install --no-save
+    # - name: Install Dependencies
+    #   run: npm install --no-save
 
-    - name: Release Package
-      run: npx release-it --ci --npm.authToken=${{ secrets.NPM_AUTH_TOKEN }}
+    # - name: Release Package
+    #   run: npx release-it --ci --npm.authToken=${{ secrets.NPM_AUTH_TOKEN }}
