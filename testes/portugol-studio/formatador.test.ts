@@ -25,7 +25,7 @@ describe('Formatadores > Portugol Studio', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(8);
+        expect(linhasResultado).toHaveLength(7);
     });
 
 });

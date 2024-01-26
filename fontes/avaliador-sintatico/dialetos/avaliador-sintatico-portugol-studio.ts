@@ -25,6 +25,7 @@ import {
     Leia,
     Var,
     Bloco,
+    EscrevaMesmaLinha,
 } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -42,6 +43,10 @@ import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
  */
 export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     private declaracoes: Declaracao[] = []
+
+    declaracaoEscreva(): Escreva {
+        throw new Error('Método não implementado.');
+    }
 
     private validarEscopoPrograma(): void {
         this.consumir(tiposDeSimbolos.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
@@ -182,7 +187,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    declaracaoEscreva(): Escreva {
+    declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
@@ -195,7 +200,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
 
-        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
     blocoEscopo(): Declaracao[] {
@@ -663,7 +668,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCREVA:
-                return this.declaracaoEscreva();
+                return this.declaracaoEscrevaMesmaLinha();
             case tiposDeSimbolos.FACA:
                 return this.declaracaoFazer();
             case tiposDeSimbolos.FUNCAO:
