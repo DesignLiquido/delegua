@@ -14,6 +14,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
     - name: Instalar Dependências
       run: npm ci
     
@@ -21,11 +26,6 @@ jobs:
       run: npm config set //registry.npmjs.org/:_authToken $NPM_AUTH_TOKEN
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
-    # - name: Set up Node.js
-    #   uses: actions/setup-node@v3
-    #   with:
-    #     node-version: '14'
 
     # - name: Install Dependencies
     #   run: npm install --no-save
