@@ -31,7 +31,7 @@ jobs:
     #   run: cat ~/.npmrc
 
     - name: Debug NPM_AUTH_TOKEN
-      run: echo $NPM_AUTH_TOKEN aaa ${{ vars.TESTE_TOKEN_VALUE }}
+      run: echo $NPM_AUTH_TOKEN - ${{ secrets.NPM_AUTH_TOKEN }} - ${{ vars.TESTE_TOKEN_VALUE }}
 
     # - name: Install Dependencies
     #   run: npm install --no-save
