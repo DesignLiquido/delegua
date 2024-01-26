@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NPM_AUTH_TOKEN: teste123
+      TESTE: ${{ env.TESTE_TOKEN_VALUE }}
 
     steps:
     # - name: Checkout Repository
@@ -30,7 +31,7 @@ jobs:
     #   run: cat ~/.npmrc
 
     - name: Debug NPM_AUTH_TOKEN
-      run: echo $NPM_AUTH_TOKEN
+      run: echo $NPM_AUTH_TOKEN aaa $TESTE
 
     # - name: Install Dependencies
     #   run: npm install --no-save
