@@ -9,6 +9,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
     steps:
     # - name: Checkout Repository
@@ -29,8 +31,6 @@ jobs:
 
     - name: Debug NPM_AUTH_TOKEN
       run: echo $NPM_AUTH_TOKEN
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
     # - name: Install Dependencies
     #   run: npm install --no-save
