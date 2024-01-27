@@ -27,6 +27,7 @@ import {
     Bloco,
     EscrevaMesmaLinha,
     Retorna,
+    Const,
 } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -36,6 +37,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from '../retornos';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
+import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -679,6 +681,30 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
+    declaracaoDeConstantes(): any {
+        let identificador: SimboloInterface;
+        let tipo: SimboloInterface;
+        if (
+            [
+                tiposDeSimbolos.REAL,
+                tiposDeSimbolos.INTEIRO,
+                tiposDeSimbolos.CADEIA,
+                tiposDeSimbolos.CARACTER,
+                tiposDeSimbolos.LOGICO,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            tipo = this.avancarEDevolverAnterior();
+        }
+
+        identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.');
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
+
+        const inicializador = this.expressao();
+
+        return new Const(identificador, inicializador, tipo.lexema as TiposDadosInterface);
+    }
+
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -689,6 +715,9 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.simbolos[this.atual];
                 return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case tiposDeSimbolos.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCREVA:
