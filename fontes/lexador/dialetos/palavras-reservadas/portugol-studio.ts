@@ -18,6 +18,7 @@ export const palavrasReservadas = {
     para: tiposDeSimbolos.PARA,
     programa: tiposDeSimbolos.PROGRAMA,
     real: tiposDeSimbolos.REAL,
+    retorne: tiposDeSimbolos.RETORNE,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
     vazio: tiposDeSimbolos.VAZIO,

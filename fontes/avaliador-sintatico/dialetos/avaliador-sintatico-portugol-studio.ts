@@ -26,6 +26,7 @@ import {
     Var,
     Bloco,
     EscrevaMesmaLinha,
+    Retorna,
 } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -563,6 +564,29 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
+    declaracaoRetorne(): Retorna {
+        this.avancarEDevolverAnterior()
+        const simboloChave = this.simbolos[this.atual];
+        let valor = null;
+
+        if (
+            [
+                tiposDeSimbolos.CADEIA,
+                tiposDeSimbolos.CARACTER,
+                tiposDeSimbolos.FALSO,
+                tiposDeSimbolos.IDENTIFICADOR,
+                tiposDeSimbolos.INTEIRO,
+                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.REAL,
+                tiposDeSimbolos.VERDADEIRO,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            valor = this.expressao();
+        }
+
+        return new Retorna(simboloChave, valor);
+    }
+
     declaracaoPara(): Para {
         try {
             const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
@@ -687,6 +711,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 return null;
             case tiposDeSimbolos.REAL:
                 return this.declaracaoReais();
+            case tiposDeSimbolos.RETORNE:
+                return this.declaracaoRetorne();
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
             default:
