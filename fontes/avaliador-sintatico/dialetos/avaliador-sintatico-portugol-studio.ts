@@ -696,13 +696,13 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             tipo = this.avancarEDevolverAnterior();
         }
 
-        identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
+        identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.');
 
         this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
 
         const inicializador = this.expressao();
 
-        return new Const(identificador, inicializador, tipo.lexema as TiposDadosInterface));
+        return new Const(identificador, inicializador, tipo.lexema as TiposDadosInterface);
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
