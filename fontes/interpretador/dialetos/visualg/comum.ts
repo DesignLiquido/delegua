@@ -408,21 +408,3 @@ export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBas
 
     return retornoExecucao;
 }
-
-
-export async function visitarExpressaoLeia(expressao: Leia, mensagemPrompt: string): Promise<any> {
-    // Verifica se a leitura deve ser interrompida antes de prosseguir
-    if (!expressao.eParaInterromper) {
-        for (let argumento of expressao.argumentos) {
-            const promessaLeitura: Function = () =>
-                new Promise((resolucao) =>
-                    this.interfaceEntradaSaida.question(mensagemPrompt, (resposta: any) => {
-                        this.mensagemPrompt = '> ';
-                        resolucao(resposta);
-                    })
-                );
-            const valorLido = await promessaLeitura();
-            await this.atribuirVariavel(this, argumento, valorLido);
-        }
-    }
-}

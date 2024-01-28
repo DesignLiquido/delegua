@@ -137,7 +137,20 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-       await comum.visitarExpressaoLeia(expressao, this.mensagemPrompt);
+        if (!expressao.eParaInterromper) {
+            for (let argumento of expressao.argumentos) {
+                const promessaLeitura: Function = () =>
+                    new Promise((resolucao) =>
+                        this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
+                            this.mensagemPrompt = '> ';
+                            resolucao(resposta);
+                        })
+                    );
+
+                const valorLido = await promessaLeitura();
+                await comum.atribuirVariavel(this, argumento, valorLido);
+            }
+        }
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
@@ -188,6 +201,6 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
     }
 
     async visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        return await comum.visitarDeclaracaoAleatorio(this, declaracao);
+        return comum.visitarDeclaracaoAleatorio(this, declaracao);
     }
 }
