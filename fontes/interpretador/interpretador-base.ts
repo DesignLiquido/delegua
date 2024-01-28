@@ -282,9 +282,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (elemento?.valor?.tipo === tipoDeDadosDelegua.LOGICO) {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
             } else {
+                const valor = elemento?.valor?.hasOwnProperty('valor') ? elemento?.valor.valor : elemento?.valor
                 textoFinal = textoFinal.replace(
                     '${' + elemento.variavel + '}',
-                    elemento?.valor?.valor || elemento?.valor
+                    `${this.paraTexto(valor)}`
                 );
             }
         });

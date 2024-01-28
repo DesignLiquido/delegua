@@ -84,7 +84,8 @@ describe('Interpretador', () => {
                         'somar: 8 = 8',
                         'somar com ponto flutuante: 9 = 9',
                         '2',
-                        'Valor: falso e verdadeiro'
+                        'Valor: falso e verdadeiro',
+                        "0"
                     ]
                     const retornoLexador = lexador.mapear([
                         "var comidaFavorita = 'strogonoff'",
@@ -97,6 +98,8 @@ describe('Interpretador', () => {
                         "escreva('${4 - 2 / 1}');",
                         "var logico1 = falso",
                         "var logico2 = verdadeiro",
+                        "var zero = 0",
+                        "escreva(\"${zero}\")",
                         "escreva('Valor: ${logico1} e ${logico2}')",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
