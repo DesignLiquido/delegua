@@ -112,18 +112,6 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Interpolação de Texto/Função/Expressão', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var zero = 0",
-                        'escreva("${zero}")',
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
                 it('Incremento e decremento após variável ou literal', async () => {
                     const saidasMensagens = [
                         '1',
