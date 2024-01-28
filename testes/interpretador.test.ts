@@ -84,7 +84,8 @@ describe('Interpretador', () => {
                         'somar: 8 = 8',
                         'somar com ponto flutuante: 9 = 9',
                         '2',
-                        'Valor: falso e verdadeiro'
+                        'Valor: falso e verdadeiro',
+                        "0"
                     ]
                     const retornoLexador = lexador.mapear([
                         "var comidaFavorita = 'strogonoff'",
