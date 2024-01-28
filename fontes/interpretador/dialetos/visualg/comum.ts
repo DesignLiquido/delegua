@@ -10,7 +10,7 @@ import {
     Unario,
     Variavel,
 } from '../../../construtos';
-import { Expressao, Para } from '../../../declaracoes';
+import { Aleatorio, Expressao, Leia, Para } from '../../../declaracoes';
 import { Simbolo } from '../../../lexador';
 import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from '../../inferenciador';
@@ -292,7 +292,7 @@ export async function resolverIncrementoPara(interpretador: InterpretadorBase, d
 
 export async function visitarExpressaoAcessoElementoMatriz(interpretador: InterpretadorBase, expressao: AcessoElementoMatriz): Promise<any> {
     const promises = await Promise.all([
-        avaliar(interpretador, expressao.entidadeChamada), 
+        avaliar(interpretador, expressao.entidadeChamada),
         avaliar(interpretador, expressao.indicePrimario),
         avaliar(interpretador, expressao.indiceSecundario),
     ]);
@@ -382,7 +382,7 @@ export async function visitarExpressaoAtribuicaoPorIndicesMatriz(interpretador: 
 
         objeto[indicePrimario][indiceSecundario] = valor;
         return Promise.resolve();
-    } 
+    }
     return Promise.reject(
         new ErroEmTempoDeExecucao(
             expressao.objeto.nome,
@@ -390,4 +390,39 @@ export async function visitarExpressaoAtribuicaoPorIndicesMatriz(interpretador: 
             expressao.linha
         )
     );
+}
+
+export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBase, expressao: Aleatorio): Promise<any> {
+    let retornoExecucao: any;
+    try {
+        retornoExecucao = await interpretador.executar(expressao.corpo);
+
+    } catch (error) {
+        interpretador.erros.push({
+            erroInterno: error,
+            linha: expressao.linha,
+            hashArquivo: expressao.hashArquivo,
+        });
+        return Promise.reject(error)
+    }
+
+    return retornoExecucao;
+}
+
+
+export async function visitarExpressaoLeia(expressao: Leia, mensagemPrompt: string): Promise<any> {
+    // Verifica se a leitura deve ser interrompida antes de prosseguir
+    if (!expressao.eParaInterromper) {
+        for (let argumento of expressao.argumentos) {
+            const promessaLeitura: Function = () =>
+                new Promise((resolucao) =>
+                    this.interfaceEntradaSaida.question(mensagemPrompt, (resposta: any) => {
+                        this.mensagemPrompt = '> ';
+                        resolucao(resposta);
+                    })
+                );
+            const valorLido = await promessaLeitura();
+            await this.atribuirVariavel(this, argumento, valorLido);
+        }
+    }
 }
