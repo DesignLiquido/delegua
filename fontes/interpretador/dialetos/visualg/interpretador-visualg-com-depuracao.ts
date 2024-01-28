@@ -135,20 +135,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        if (!expressao.eParaInterromper) {
-            for (let argumento of expressao.argumentos) {
-                const promessaLeitura: Function = () =>
-                    new Promise((resolucao) =>
-                        this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
-                            this.mensagemPrompt = '> ';
-                            resolucao(resposta);
-                        })
-                    );
-
-                const valorLido = await promessaLeitura();
-                await comum.atribuirVariavel(this, argumento, valorLido);
-            }
-        }
+        return comum.visitarExpressaoLeia(this, expressao, this.mensagemPrompt);
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
