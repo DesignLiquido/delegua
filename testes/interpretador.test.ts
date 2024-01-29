@@ -305,7 +305,8 @@ describe('Interpretador', () => {
                         'objeto',
                         'objeto',
                         'nulo',
-                        'texto'
+                        'texto',
+                        'número'
                     ]
                     const retornoLexador = lexador.mapear([
                         "escreva(tipo de verdadeiro)",
@@ -332,6 +333,8 @@ describe('Interpretador', () => {
                         "escreva(tipo de OutroTeste)",
                         "escreva(tipo de nulo)",
                         "escreva(tipo de tipo de tipo de \"a\")",
+                        "var letras = \"abc\"",
+                        "escreva(tipo de letras.tamanho())",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
