@@ -392,7 +392,7 @@ export async function visitarExpressaoAtribuicaoPorIndicesMatriz(interpretador: 
     );
 }
 
-function encontrarLeiaNoAleatorio(interpretador: InterpretadorBase, declaracao: Declaracao, menorNumero: number, maiorNumero: number) {
+async function encontrarLeiaNoAleatorio(interpretador: InterpretadorBase, declaracao: Declaracao, menorNumero: number, maiorNumero: number) {
     if ('declaracoes' in declaracao) {
         // Se a declaração tiver um campo 'declaracoes', ela é um Bloco
         const declaracoes = declaracao.declaracoes as Declaracao[]
@@ -402,13 +402,27 @@ function encontrarLeiaNoAleatorio(interpretador: InterpretadorBase, declaracao: 
     } else if (declaracao instanceof Leia) {
         // Se encontrarmos um Leia, podemos efetuar as operações imediatamente
         for (const argumento of declaracao.argumentos) {
-            atribuirVariavel(interpretador, argumento, gerarNumeroAleatorio(menorNumero, maiorNumero))
+            const arg1 = await interpretador.avaliar(argumento);
+            const tipoDe = arg1.tipo || inferirTipoVariavel(arg1)
+            const valor = tipoDe === "texto" ? palavraAleatoriaCom5Digitos() : gerarNumeroAleatorio(menorNumero, maiorNumero)
+            atribuirVariavel(interpretador, argumento, valor)
         }
     }
 }
 
 function gerarNumeroAleatorio(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
+}
+
+function palavraAleatoriaCom5Digitos(): string {
+    const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let palavra = "";
+
+    for (let i = 0; i < 5; i++) {
+        const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+        palavra += caracteres.charAt(indiceAleatorio);
+    }
+    return palavra;
 }
 
 export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBase, expressao: Aleatorio): Promise<any> {
