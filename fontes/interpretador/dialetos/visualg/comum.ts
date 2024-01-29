@@ -426,6 +426,7 @@ function palavraAleatoriaCom5Digitos(): string {
 }
 
 export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBase, expressao: Aleatorio): Promise<any> {
+    let retornoExecucao: any;
     try {
         let menorNumero = 0;
         let maiorNumero = 100
@@ -437,6 +438,7 @@ export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBas
         }
         for (let corpoDeclaracao of expressao.corpo.declaracoes) {
             encontrarLeiaNoAleatorio(interpretador, corpoDeclaracao, menorNumero, maiorNumero);
+            retornoExecucao = await interpretador.executar(corpoDeclaracao)
         }
 
     } catch (error) {
@@ -448,7 +450,7 @@ export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBas
         return Promise.reject(error)
     }
 
-    return Promise.resolve();
+    return retornoExecucao;
 }
 
 
