@@ -188,7 +188,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoDe instanceof TipoDe ||
             tipoDe instanceof Unario ||
             tipoDe instanceof Variavel ||
-            tipoDe instanceof Agrupamento
+            tipoDe instanceof Agrupamento ||
+            tipoDe instanceof Chamada
         ) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
