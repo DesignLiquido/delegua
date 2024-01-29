@@ -454,7 +454,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
             ? tipoDeDadosDelegua.NUMERO
             : String(NaN);
-        if (tipoDireita === tipoDeDadosDelegua.NUMERO && tipoEsquerda === tipoDeDadosDelegua.NUMERO) return;
+            
+        const tiposNumericos = [tipoDeDadosDelegua.INTEIRO, tipoDeDadosDelegua.NUMERO];
+
+        if(tiposNumericos.includes(tipoDireita) && tiposNumericos.includes(tipoEsquerda)) return;
+
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 
