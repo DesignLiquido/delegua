@@ -1438,7 +1438,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
-        throw new Error('Método não implementado.');
+        return Promise.resolve();
     }
 
     async visitarExpressaoDicionario(expressao: any): Promise<any> {

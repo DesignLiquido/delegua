@@ -5,7 +5,7 @@ import {
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
 import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco } from '../../../declaracoes';
+import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco, Aleatorio } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import * as comum from './comum';
@@ -135,18 +135,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        for (let argumento of expressao.argumentos) {
-            const promessaLeitura: Function = () =>
-                new Promise((resolucao) =>
-                    this.interfaceEntradaSaida.question(this.mensagemPrompt, (resposta: any) => {
-                        this.mensagemPrompt = '> ';
-                        resolucao(resposta);
-                    })
-                );
-
-            const valorLido = await promessaLeitura();
-            await comum.atribuirVariavel(this, argumento, valorLido);
-        }
+        return comum.visitarExpressaoLeia(this, expressao, this.mensagemPrompt);
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
@@ -210,5 +199,9 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
         return comum.visitarExpressaoLogica(this, expressao);
+    }
+
+    async visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+        return comum.visitarDeclaracaoAleatorio(this, declaracao);
     }
 }

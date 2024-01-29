@@ -10,7 +10,7 @@ import {
     Unario,
     Variavel,
 } from '../../../construtos';
-import { Expressao, Para } from '../../../declaracoes';
+import { Aleatorio, Declaracao, Expressao, Leia, Para } from '../../../declaracoes';
 import { Simbolo } from '../../../lexador';
 import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from '../../inferenciador';
@@ -292,7 +292,7 @@ export async function resolverIncrementoPara(interpretador: InterpretadorBase, d
 
 export async function visitarExpressaoAcessoElementoMatriz(interpretador: InterpretadorBase, expressao: AcessoElementoMatriz): Promise<any> {
     const promises = await Promise.all([
-        avaliar(interpretador, expressao.entidadeChamada), 
+        avaliar(interpretador, expressao.entidadeChamada),
         avaliar(interpretador, expressao.indicePrimario),
         avaliar(interpretador, expressao.indiceSecundario),
     ]);
@@ -382,7 +382,7 @@ export async function visitarExpressaoAtribuicaoPorIndicesMatriz(interpretador: 
 
         objeto[indicePrimario][indiceSecundario] = valor;
         return Promise.resolve();
-    } 
+    }
     return Promise.reject(
         new ErroEmTempoDeExecucao(
             expressao.objeto.nome,
@@ -390,4 +390,83 @@ export async function visitarExpressaoAtribuicaoPorIndicesMatriz(interpretador: 
             expressao.linha
         )
     );
+}
+
+async function encontrarLeiaNoAleatorio(interpretador: InterpretadorBase, declaracao: Declaracao, menorNumero: number, maiorNumero: number) {
+    if ('declaracoes' in declaracao) {
+        // Se a declaração tiver um campo 'declaracoes', ela é um Bloco
+        const declaracoes = declaracao.declaracoes as Declaracao[]
+        for (const subDeclaracao of declaracoes) {
+            encontrarLeiaNoAleatorio(interpretador, subDeclaracao, menorNumero, maiorNumero);
+        }
+    } else if (declaracao instanceof Leia) {
+        // Se encontrarmos um Leia, podemos efetuar as operações imediatamente
+        for (const argumento of declaracao.argumentos) {
+            const arg1 = await interpretador.avaliar(argumento);
+            const tipoDe = arg1.tipo || inferirTipoVariavel(arg1)
+            const valor = tipoDe === "texto" ? palavraAleatoriaCom5Digitos() : gerarNumeroAleatorio(menorNumero, maiorNumero)
+            atribuirVariavel(interpretador, argumento, valor)
+        }
+    }
+}
+
+function gerarNumeroAleatorio(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+function palavraAleatoriaCom5Digitos(): string {
+    const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let palavra = "";
+
+    for (let i = 0; i < 5; i++) {
+        const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+        palavra += caracteres.charAt(indiceAleatorio);
+    }
+    return palavra;
+}
+
+export async function visitarDeclaracaoAleatorio(interpretador: InterpretadorBase, expressao: Aleatorio): Promise<any> {
+    let retornoExecucao: any;
+    try {
+        let menorNumero = 0;
+        let maiorNumero = 100
+
+        if (expressao.argumentos) {
+            menorNumero = Math.min(expressao.argumentos.min, expressao.argumentos.max);
+            maiorNumero = Math.max(expressao.argumentos.min, expressao.argumentos.max);
+
+        }
+        for (let corpoDeclaracao of expressao.corpo.declaracoes) {
+            encontrarLeiaNoAleatorio(interpretador, corpoDeclaracao, menorNumero, maiorNumero);
+            retornoExecucao = await interpretador.executar(corpoDeclaracao)
+        }
+
+    } catch (error) {
+        interpretador.erros.push({
+            erroInterno: error,
+            linha: expressao.linha,
+            hashArquivo: expressao.hashArquivo,
+        });
+        return Promise.reject(error)
+    }
+
+    return retornoExecucao;
+}
+
+
+export async function visitarExpressaoLeia(interpretador: InterpretadorBase, expressao: Leia, mensagemPrompt: string): Promise<any> {
+    // Verifica se a leitura deve ser interrompida antes de prosseguir
+    if (!expressao.eParaInterromper) {
+        for (let argumento of expressao.argumentos) {
+            const promessaLeitura: Function = () =>
+                new Promise((resolucao) =>
+                    interpretador.interfaceEntradaSaida.question(mensagemPrompt, (resposta: any) => {
+                        mensagemPrompt = '> ';
+                        resolucao(resposta);
+                    })
+                );
+            const valorLido = await promessaLeitura();
+            await atribuirVariavel(interpretador, argumento, valorLido);
+        }
+    }
 }

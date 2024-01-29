@@ -140,15 +140,15 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     private atualizarVariavelComValorAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
         if (this.variaveis[variavel.simbolo.lexema]) {
             let valor: number | string = 0;
-            if(this.variaveis[variavel.simbolo.lexema].tipo === "inteiro" || this.variaveis[variavel.simbolo.lexema].tipo === "real") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
-            else if(this.variaveis[variavel.simbolo.lexema].tipo === "caracter" ) valor = this.palavraAleatoriaCom5Digitos()
+            if (this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === "inteiro" || this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === "real") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            else if (this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === "caracter") valor = this.palavraAleatoriaCom5Digitos()
 
             this.variaveis[variavel.simbolo.lexema].valor = valor;
         }
     }
 
     private palavraAleatoriaCom5Digitos(): string {
-        const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let palavra = "";
 
         for (let i = 0; i < 5; i++) {
