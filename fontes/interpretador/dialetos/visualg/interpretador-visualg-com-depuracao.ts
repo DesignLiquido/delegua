@@ -150,15 +150,24 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        if (!declaracao.inicializada && declaracao.inicializador !== null) {
+            await this.avaliar(declaracao.inicializador as any);
+            if (declaracao.incrementar !== null) {
+                await comum.resolverIncrementoPara(this, declaracao);
+            }
+        }
+
+        declaracao.inicializada = true;
+
+        // Aqui precisamos clonar a declaração `Para` porque inserimos
+        // ao final dela o incremento. Diferente de declarações `Para` de
+        // outros dialetos, o incremento dessa declaração é implícito. 
         const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
         const corpoExecucao = cloneDeclaracao.corpo as Bloco;
-        if (cloneDeclaracao.inicializador !== null) {
-            await this.avaliar(cloneDeclaracao.inicializador as any);
-            // O incremento vai ao final do bloco de escopo.
-            if (cloneDeclaracao.incrementar !== null) {
-                await comum.resolverIncrementoPara(this, cloneDeclaracao);
-                corpoExecucao.declaracoes.push(cloneDeclaracao.incrementar);
-            }
+        // O incremento vai ao final do bloco de escopo.
+        if (cloneDeclaracao.incrementar !== null) {
+            await comum.resolverIncrementoPara(this, cloneDeclaracao);
+            corpoExecucao.declaracoes.push(cloneDeclaracao.incrementar);
         }
 
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
