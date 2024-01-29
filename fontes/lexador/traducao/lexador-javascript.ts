@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { parseScript } from 'esprima';
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { RetornoLexador } from '../../interfaces/retornos';

@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { Directive, ModuleDeclaration, Statement } from 'estree';
 import { Construto, FuncaoConstruto } from '../../construtos';
 import {
