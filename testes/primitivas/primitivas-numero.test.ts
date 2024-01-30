@@ -11,6 +11,13 @@ describe('Primitivas de número', () => {
         )
     });
 
+    describe('arredondarParaBaixo()', () => {
+        it('Trivial', async () => {
+            const resultado = await primitivasNumero.arredondarParaBaixo(interpretador, 5.7);
+            expect(resultado).toStrictEqual(5);
+        });
+    });
+
     describe('arredondarParaCima()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasNumero.arredondarParaCima(interpretador, 2.5);
