@@ -16,42 +16,45 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'aleatorioEntre',
         new FuncaoPadrao(1, function (min, max) {
+            const valorMinimoResolvido = min.hasOwnProperty('valor') ? min.valor : min;
+            const valorMaximoResolvido = max.hasOwnProperty('valor') ? max.valor : max;
             if (!arguments[0]) {
                 throw new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro');
             }
 
             if (arguments.length === 1) {
-                if (typeof min !== 'number') {
+                if (typeof valorMinimoResolvido !== 'number') {
                     throw new ErroEmTempoDeExecucao(this.simbolo, 'O parâmetro deve ser do tipo número');
                 }
 
-                return Math.floor(Math.random() * (0 - min)) + min;
+                return Math.floor(Math.random() * (0 - valorMinimoResolvido)) + valorMinimoResolvido;
             }
 
             if (arguments.length > 2) {
                 throw new ErroEmTempoDeExecucao(this.simbolo, 'A quantidade de argumentos máxima é 2');
             }
 
-            if (typeof min !== 'number' || typeof max !== 'number') {
+            if (typeof valorMinimoResolvido !== 'number' || typeof valorMaximoResolvido !== 'number') {
                 throw new ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.');
             }
 
-            return Math.floor(Math.random() * (max - min)) + min;
+            return Math.floor(Math.random() * (valorMaximoResolvido - valorMinimoResolvido)) + valorMinimoResolvido;
         })
     );
 
     globals.definirVariavel(
         'inteiro',
         new FuncaoPadrao(1, function (value) {
-            if (value === undefined || value === null) {
+            const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
+            if (valorResolvido === undefined || valorResolvido === null) {
                 throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para inteiro.');
             }
 
-            if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value)) {
+            if (!/^-{0,1}\d+$/.test(valorResolvido) && !/^\d+\.\d+$/.test(valorResolvido)) {
                 throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para inteiro.');
             }
 
-            return parseInt(value);
+            return parseInt(valorResolvido);
         })
     );
 
@@ -272,6 +275,7 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'incluido',
         new FuncaoPadrao(1, function (array, valor) {
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
             if (!Array.isArray(array)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -280,7 +284,7 @@ export default function (interpreter, globals) {
             }
 
             for (let index = 0; index < array.length; ++index) {
-                if (array[index] == valor) {
+                if (array[index] == valorResolvido) {
                     return true;
                 }
             }
@@ -368,9 +372,10 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'real',
         new FuncaoPadrao(1, function (value) {
-            if (!/^-{0,1}\d+$/.test(value) && !/^\d+\.\d+$/.test(value))
+            const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
+            if (!/^-{0,1}\d+$/.test(valorResolvido) && !/^\d+\.\d+$/.test(valorResolvido))
                 throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para real.');
-            return parseFloat(value);
+            return parseFloat(valorResolvido);
         })
     );
 
@@ -396,7 +401,8 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'texto',
         new FuncaoPadrao(1, function (value) {
-            return `${value}`;
+            const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
+            return `${valorResolvido}`;
         })
     );
 

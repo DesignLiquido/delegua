@@ -2,10 +2,11 @@
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 module.exports.graus = function (angle) {
-    if (isNaN(angle) || angle === null)
+    const valorAngle = angle.hasOwnProperty('valor') ? angle.valor : angle;
+    if (isNaN(valorAngle) || valorAngle === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover um número para mat.graus(ângulo).');
 
-    return angle * (180 / Math.PI);
+    return valorAngle * (180 / Math.PI);
 };
 
 module.exports.mediana = function (a) {
@@ -61,13 +62,14 @@ module.exports.moda = function (numbers) {
 module.exports.pi = Math.PI;
 
 module.exports.radiano = function (angulo) {
-    if (!Number.isInteger(angulo))
+    const valorAngulo = angulo.hasOwnProperty('valor') ? angulo.valor : angulo;
+    if (!Number.isInteger(valorAngulo))
         throw new ErroEmTempoDeExecucao(
             this.token,
             'Você deve prover um número inteiro para o parâmetro `angulo`, em radiano(angulo).'
         );
 
-    return angulo * (Math.PI / 180);
+    return valorAngulo * (Math.PI / 180);
 };
 
 //FUNÇÃO AFIM E QUADRÁTICA
@@ -80,26 +82,29 @@ module.exports.radiano = function (angulo) {
  *          Se o número informado é par, um ponto negativo a mais é gerado.
  */
 module.exports.gerarPontosAbscissa = function (distancia, valorPontoCentral, numeroPontos) {
-    if (!Number.isInteger(distancia))
+    const distanciaResolvido = distancia.hasOwnProperty('valor') ? distancia.valor : distancia;
+    const valorPontoCentralResolvido = valorPontoCentral.hasOwnProperty('valor') ? valorPontoCentral.valor : valorPontoCentral;
+    let numeroPontosResolvido = numeroPontos.hasOwnProperty('valor') ? numeroPontos.valor : numeroPontos;
+    if (!Number.isInteger(distanciaResolvido))
         throw new ErroEmTempoDeExecucao(
             this.token,
             'Você deve prover um valor inteiro para o parâmetro `distancia`, em gerarPontosAbscissa(distancia, valorInicial).'
         );
 
-    if (!Number.isInteger(valorPontoCentral))
+    if (!Number.isInteger(valorPontoCentralResolvido))
         throw new ErroEmTempoDeExecucao(
             this.token,
             'Você deve prover um valor inteiro para o parâmetro `valorInicial`, em gerarPontosAbscissa(distancia, valorInicial).'
         );
 
-    if (!numeroPontos) {
-        numeroPontos = 7;
+    if (!numeroPontosResolvido) {
+        numeroPontosResolvido = 7;
     }
 
-    const elementoInicial = valorPontoCentral - ((numeroPontos / 2) >> 0) * distancia;
+    const elementoInicial = valorPontoCentralResolvido - ((numeroPontosResolvido / 2) >> 0) * distanciaResolvido;
     const x = [];
-    for (let i = 0; i < numeroPontos; i++) {
-        x.push(elementoInicial + i * distancia);
+    for (let i = 0; i < numeroPontosResolvido; i++) {
+        x.push(elementoInicial + i * distanciaResolvido);
     }
 
     return x;
@@ -107,73 +112,84 @@ module.exports.gerarPontosAbscissa = function (distancia, valorPontoCentral, num
 
 //Raíz da Função Afim
 module.exports.fun1R = function (a, b) {
-    if (isNaN(a) || a === null || isNaN(b) || b === null)
+    const valorAResolvido = a.hasOwnProperty('valor') ? a.valor : a;
+    const valorBResolvido = b.hasOwnProperty('valor') ? b.valor : b;
+    if (isNaN(valorAResolvido) || valorAResolvido === null || isNaN(valorBResolvido) || valorBResolvido === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para fun1R(valor1,valor2).');
-    return (-1 * b) / a;
+    return (-1 * valorBResolvido) / valorAResolvido;
 };
 
 //Intervalo Preenchido
 module.exports.linspace = function (startValue, stopValue, cardinality) {
+    const startValueResolvido = startValue.hasOwnProperty('valor') ? startValue.valor : startValue;
+    const stopValueResolvido = stopValue.hasOwnProperty('valor') ? stopValue.valor : stopValue;
+    const cardinalityResolvido = cardinality.hasOwnProperty('valor') ? cardinality.valor : cardinality;
     if (
-        isNaN(startValue) ||
-        startValue === null ||
-        isNaN(stopValue) ||
-        stopValue === null ||
-        isNaN(cardinality) ||
-        cardinality === null
+        isNaN(startValueResolvido) ||
+        startValueResolvido === null ||
+        isNaN(stopValueResolvido) ||
+        stopValueResolvido === null ||
+        isNaN(cardinalityResolvido) ||
+        cardinalityResolvido === null
     )
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para linspace(valor1,valor2,valor3).');
     const lista = [];
-    const step = (stopValue - startValue) / (cardinality - 1);
-    for (let i = 0; i < cardinality; i++) {
-        lista.push(startValue + step * i);
+    const step = (stopValueResolvido - startValueResolvido) / (cardinalityResolvido - 1);
+    for (let i = 0; i < cardinalityResolvido; i++) {
+        lista.push(startValueResolvido + step * i);
     }
     return lista;
 };
 
 //Raízes da Função Quadrática
 module.exports.fun2R = function (a, b, c) {
-    if (isNaN(a) || a === null)
+    const valueA = a.hasOwnProperty('valor') ? a.valor : a;
+    const valueB = b.hasOwnProperty('valor') ? b.valor : b;
+    const valueC = c.hasOwnProperty('valor') ? c.valor : c;
+    if (isNaN(valueA) || valueA === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para fun2R(a,b,c).');
 
-    const r1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
-    const r2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+    const r1 = (-1 * valueB + Math.sqrt(Math.pow(valueB, 2) - 4 * valueA * valueC)) / (2 * valueA);
+    const r2 = (-1 * valueB - Math.sqrt(Math.pow(valueB, 2) - 4 * valueA * valueC)) / (2 * valueA);
 
-    const xv = (-1 * b) / (2 * a);
-    const yv = ((-1 * (Math.pow(b, 2) - 4 * a * c)) / 4) * a;
+    const xv = (-1 * valueB) / (2 * valueA);
+    const yv = ((-1 * (Math.pow(valueB, 2) - 4 * valueA * valueC)) / 4) * valueA;
 
     return [xv, yv];
 };
 
 //Aproximação de valores
 const aprox = function (x, z) {
-    if (isNaN(x) || x === null || isNaN(z) || z === null)
+    let valueX = x.hasOwnProperty('valor') ? x.valor : x;
+    let valueZ = z.hasOwnProperty('valor') ? z.valor : z;
+    if (isNaN(valueX) || valueX === null || isNaN(valueZ) || valueZ === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para aprox(x,z).');
-    if (z == undefined) {
-        z = 2;
+    if (valueZ == undefined) {
+        valueZ = 2;
     }
-    if (typeof x == 'number') {
-        x = x.toFixed(z);
-    } else if (x[0].length == undefined) {
+    if (typeof valueX == 'number') {
+        valueX = valueX.toFixed(valueZ);
+    } else if (valueX[0].length == undefined) {
         // 1D array
-        for (let i = 0; i < x.length; i++) {
-            x[i] = parseFloat(x[i].toFixed(z));
+        for (let i = 0; i < valueX.length; i++) {
+            valueX[i] = parseFloat(valueX[i].toFixed(valueZ));
         }
     } else
-        for (let i = 0; i < x.length; i++) {
+        for (let i = 0; i < valueX.length; i++) {
             // 2D array
-            for (let j = 0; j < x[0].length; j++) {
-                x[i][j] = parseFloat(x[i][j].toFixed(z));
+            for (let j = 0; j < valueX[0].length; j++) {
+                valueX[i][j] = parseFloat(valueX[i][j].toFixed(valueZ));
             }
         }
-    return x;
+    return valueX;
 };
 
 module.exports.aprox = aprox;
 
 //Parâmetros da Função
 const matrizn = function (z) {
-    if (isNaN(z) || z === null)
+    const valueZ = z.hasOwnProperty('valor') ? z.valor : z;
+    if (isNaN(valueZ) || valueZ === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para matrizn(z).');
     const n = arguments.length;
     const data = Array.from(Array(1), () => new Array(n));
@@ -187,14 +203,15 @@ module.exports.matrizn = matrizn;
 
 //Vetor de pontos aleatórios
 module.exports.pontosAleatorios = function (n) {
-    if (isNaN(n) || n === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para pale(n).');
+    const valueN = n.hasOwnProperty('valor') ? n.valor : n;
+    if (isNaN(valueN) || valueN === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para pale(n).');
     let ex;
     if (ex == undefined) {
         ex = 0;
     }
     const x = [];
     x[0] = 100;
-    for (let i = 1; i < n; i++) {
+    for (let i = 1; i < valueN; i++) {
         x[i] = ex + x[i - 1] + Math.random() * 2 - 1;
     }
     const xx = aprox(x, 2);
@@ -203,12 +220,14 @@ module.exports.pontosAleatorios = function (n) {
 
 //Intervalo A-B
 module.exports.vet = function (a, b) {
-    if (isNaN(a) || a === null || isNaN(b) || b === null)
+    const valueA = a.hasOwnProperty('valor') ? a.valor : a;
+    const valueB = b.hasOwnProperty('valor') ? b.valor : b;
+    if (isNaN(valueA) || valueA === null || isNaN(valueB) || valueB === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para vet(a,b).');
-    const data = Array.from(Array(1), () => new Array(b - a + 1));
+    const data = Array.from(Array(1), () => new Array(valueB - valueA + 1));
 
     for (let i = 0; i < data[0].length; i++) {
-        data[0][i] = a + i;
+        data[0][i] = valueA + i;
     }
     return matrizn(data);
 };
@@ -263,22 +282,23 @@ module.exports.min = function (vetor) {
 
 //Soma de determinada matriz
 const smtr = function (a) {
-    if (isNaN(a) || a === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para smtr(a).');
+    const valueA = a.hasOwnProperty('valor') ? a.valor : a;
+    if (isNaN(valueA) || valueA === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para smtr(a).');
 
     let z = 0;
-    if (a.length == 1) {
-        // a is a 1D row array
-        for (let j = 0; j < a[0].length; j++) {
-            z = z + a[0][j];
+    if (valueA.length == 1) {
+        // valueA is valueA 1D row array
+        for (let j = 0; j < valueA[0].length; j++) {
+            z = z + valueA[0][j];
         }
-    } else if (a[0].length == 1) {
-        // a is a 1D column array
-        for (let i = 0; i < a.length; i++) {
-            z = z + a[i][0];
+    } else if (valueA[0].length == 1) {
+        // valueA is valueA 1D column array
+        for (let i = 0; i < valueA.length; i++) {
+            z = z + valueA[i][0];
         }
     } else {
-        for (let j = 0; j < a.length; j++) {
-            z = z + a[j];
+        for (let j = 0; j < valueA.length; j++) {
+            z = z + valueA[j];
         }
     }
 
@@ -330,30 +350,32 @@ module.exports.media = function () {
 
 //Média aritmética de uma matriz
 const ve = function (a) {
-    if (isNaN(a) || a === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para ve(a).');
+    const valueA = a.hasOwnProperty('valor') ? a.valor : a;
+    if (isNaN(valueA) || valueA === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para ve(a).');
 
-    if (a.length == 1) {
-        return aprox(smtr(a) / a[0].length, 4);
+    if (valueA.length == 1) {
+        return aprox(smtr(valueA) / valueA[0].length, 4);
     } // a is a row array
-    if (a[0].length == 1) {
-        return aprox(smtr(a) / a.length, 4);
+    if (valueA[0].length == 1) {
+        return aprox(smtr(valueA) / valueA.length, 4);
     } // a is a column array
-    if (a[0].length == undefined) {
-        return aprox(smtr(a) / a.length, 4);
+    if (valueA[0].length == undefined) {
+        return a(smtr(valueA) / valueA.length, 4);
     }
 };
 module.exports.ve = ve;
 
 //Soma dos quadrados dos resíduos (sqr) de uma matriz
 const sqr = function (a) {
-    if (isNaN(a) || a === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para sqr(a).');
+    const valueA = a.hasOwnProperty('valor') ? a.valor : a;
+    if (isNaN(valueA) || valueA === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para sqr(a).');
 
-    const mean = ve(a);
+    const mean = ve(valueA);
     let sum = 0;
-    let i = a.length;
+    let i = valueA.length;
     let tmp;
     while (--i >= 0) {
-        tmp = a[i] - mean;
+        tmp = valueA[i] - mean;
         sum += tmp * tmp;
     }
     return sum;
@@ -387,148 +409,175 @@ module.exports.colet = function (array1, array2) {
 /*TRIGONOMETRIA*/
 //Seno de um número
 module.exports.sen = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para sen(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para sen(x).');
 
-    return Math.sin(x);
+    return Math.sin(valorX);
 };
 
 //Cosseno de um número
 module.exports.cos = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para cos(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para cos(x).');
 
-    return Math.cos(x);
+    return Math.cos(valorX);
 };
 
 //Tangente de um número
 module.exports.tan = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para tan(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para tan(x).');
 
-    return Math.tan(x);
+    return Math.tan(valorX);
 };
 
 //Arco cosseno de um número
 module.exports.arcos = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para arcos(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para arcos(x).');
 
-    return Math.acos(x);
+    return Math.acos(valorX);
 };
 
 //Arco seno de um número
 module.exports.arsen = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para arsen(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para arsen(x).');
 
-    return Math.asin(x);
+    return Math.asin(valorX);
 };
 
 //Arco tangente de um número
 module.exports.artan = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para artan(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para artan(x).');
 
-    return Math.atan(x);
+    return Math.atan(valorX);
 };
 
 //Exponencial
 module.exports.exp = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para exp(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para exp(x).');
 
-    return Math.exp(x);
+    return Math.exp(valorX);
 };
 
 //Logaritmo natural
 module.exports.log = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para log(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para log(x).');
 
-    return Math.log(x);
+    return Math.log(valorX);
 };
 
 // Retorna a base elevada ao expoente
 const pot = function (base, expoente) {
-    if (typeof base !== 'number' || typeof expoente !== 'number') {
+    const valorBaseResolvido = base.hasOwnProperty('valor') ? base.valor : base;
+    const valorExpoenteResolvido = expoente.hasOwnProperty('valor') ? expoente.valor : expoente;
+    if (typeof valorBaseResolvido !== 'number' || typeof valorExpoenteResolvido !== 'number') {
         throw new ErroEmTempoDeExecucao(this.token, 'Os parâmetros devem ser do tipo número.');
     }
 
-    return Math.pow(base, expoente);
+    return Math.pow(valorBaseResolvido, valorExpoenteResolvido);
 };
 
 module.exports.potencia = pot;
 
 //Raíz quadrada
 module.exports.raizq = function (x) {
-    if (isNaN(x) || x === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para raizq(x).');
+    const valorX = x.hasOwnProperty('valor') ? x.valor : x;
+    if (isNaN(valorX) || valorX === null) throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para raizq(x).');
 
-    return Math.sqrt(x);
+    return Math.sqrt(valorX);
 };
 
 /*CINEMÁTICA*/
 
 //Velocidade média
 module.exports.velocidadeMedia = function (s, t) {
-    if (isNaN(s) || s === null || isNaN(t) || t === null)
+    const valorS = s.hasOwnProperty('valor') ? s.valor : s;
+    const valorT = t.hasOwnProperty('valor') ? t.valor : t;
+    if (isNaN(valorS) || valorS === null || isNaN(valorT) || valorT === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para velocidadeMedia(d,t).');
 
-    return s / t;
+    return valorS / valorT;
 };
 
 //Espaço percorrido
 module.exports.deltaS = function (s0, s) {
-    if (isNaN(s0) || s0 === null || isNaN(s) || s === null)
+    const valorS0 = s0.hasOwnProperty('valor') ? s0.valor : s0;
+    const valorS = s.hasOwnProperty('valor') ? s.valor : s;
+    if (isNaN(valorS0) || valorS0 === null || isNaN(valorS) || valorS === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para deltas(e0,e1).');
-    let ds = s - s0;
+    let ds = valorS - valorS0;
     return ds;
 };
 
 //Tempo Percorrido
 module.exports.deltaT = function (t0, t) {
-    if (isNaN(t0) || t0 === null || isNaN(t) || t === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para deltat(t0,t1).');
-    let dt = t - t0;
+    const valorT0 = t0.hasOwnProperty('valor') ? t0.valor : t0;
+    const valorT = t.hasOwnProperty('valor') ? t.valor : t;
+    if (isNaN(valorT0) || valorT0 === null || isNaN(valorT) || valorT === null)
+        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para deltat(t,t1).');
+    let dt = valorT - valorT0;
     return dt;
 };
 
 // Cálculo de aceleração
 module.exports.aceleracao = function (velocidadeFinal, velocidadeInicial, tempoFinal, tempoInicial) {
-    if (velocidadeFinal === null || velocidadeInicial === null || tempoFinal === null || tempoInicial === null) {
+    const velocidadeFinalResolvido = velocidadeFinal.hasOwnProperty('valor') ? velocidadeFinal.valor : velocidadeFinal;
+    const velocidadeInicialResolvido = velocidadeInicial.hasOwnProperty('valor') ? velocidadeInicial.valor : velocidadeInicial;
+    const tempoFinalResolvido = tempoFinal.hasOwnProperty('valor') ? tempoFinal.valor : tempoFinal;
+    const tempoInicialResolvido = tempoInicial.hasOwnProperty('valor') ? tempoInicial.valor : tempoInicial;
+    if (velocidadeFinalResolvido === null || velocidadeInicialResolvido === null || tempoFinalResolvido === null || tempoInicialResolvido === null) {
         throw new ErroEmTempoDeExecucao(this.token, 'Devem ser fornecidos quatro parâmetros obrigatórios.');
     }
 
     if (
-        typeof velocidadeFinal !== 'number' ||
-        typeof velocidadeInicial !== 'number' ||
-        typeof tempoFinal !== 'number' ||
-        typeof tempoInicial !== 'number'
+        typeof velocidadeFinalResolvido !== 'number' ||
+        typeof velocidadeInicialResolvido !== 'number' ||
+        typeof tempoFinalResolvido !== 'number' ||
+        typeof tempoInicialResolvido !== 'number'
     ) {
         throw new ErroEmTempoDeExecucao(this.token, 'Todos os parâmetros devem ser do tipo número.');
     }
 
-    return (velocidadeFinal - velocidadeInicial) / (tempoFinal - tempoInicial);
+    return (velocidadeFinalResolvido - velocidadeInicialResolvido) / (tempoFinalResolvido - tempoInicialResolvido);
 };
 
 //Função Horária da Posição (M.R.U)
 module.exports.mrufh = function (s0, v, t) {
-    if (isNaN(s0) || s0 === null)
+    const valorS0 = s0.hasOwnProperty('valor') ? s0.valor : s0;
+    const valorV = v.hasOwnProperty('valor') ? v.valor : v;
+    let valorT = t.hasOwnProperty('valor') ? t.valor : t;
+    if (isNaN(valorS0) || valorS0 === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para mrufh(s0,v,t).');
-    t = t + 1;
+    valorT = valorT + 1;
     const s = [];
     let index = 0;
-    for (let i = 0; i < t; i++) {
-        s[index] = s0 + v * i;
+    for (let i = 0; i < valorT; i++) {
+        s[index] = valorS0 + valorV * i;
         index++;
     }
 
-    return ['Função: ' + s0 + '+(' + v + ')*t' + '<br>' + 'Posições: ' + s];
+    return ['Função: ' + valorS0 + '+(' + valorV + ')*t' + '<br>' + 'Posições: ' + s];
 };
 
 //Gráfico da velocidade (M.R.U.V)
 module.exports.mruv = function (s0, s, a) {
-    if (isNaN(s0) || s0 === null || isNaN(s) || s === null || isNaN(a) || a === null)
+    const valorS0 = s0.hasOwnProperty('valor') ? s0.valor : s0;
+    const valorS = s.hasOwnProperty('valor') ? s.valor : s;
+    const valorA = a.hasOwnProperty('valor') ? a.valor : a;
+    if (isNaN(valorS0) || valorS0 === null || isNaN(valorS) || valorS === null || isNaN(valorA) || valorA === null)
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para mruv(Pi, Vf, A).');
     const vf = [];
     const x = [];
     let v: any = [];
     let index = 0;
-    for (let i = 0; i < s; i++) {
+    for (let i = 0; i < valorS; i++) {
         v = index;
-        vf[index] = Math.sqrt(2 * a * (index - s0));
+        vf[index] = Math.sqrt(2 * valorA * (index - valorS0));
         x[index] = i;
         index++;
     }
@@ -538,36 +587,41 @@ module.exports.mruv = function (s0, s, a) {
 
 /*Controle e Servomecanismos*/
 module.exports.pid = function (Mo, t, K, T1, T2) {
+    const valorMo = Mo.hasOwnProperty('valor') ? Mo.valor : Mo;
+    const valorT = t.hasOwnProperty('valor') ? t.valor : t;
+    const valorK = K.hasOwnProperty('valor') ? K.valor : K;
+    const valorT1 = T1.hasOwnProperty('valor') ? T1.valor : T1;
+    const valorT2 = T2.hasOwnProperty('valor') ? T2.valor : T2;
     if (
-        isNaN(Mo) ||
-        Mo === null ||
-        isNaN(t) ||
-        t === null ||
-        isNaN(K) ||
-        K === null ||
-        isNaN(T1) ||
-        T1 === null ||
-        isNaN(T2) ||
-        T2 === null
+        isNaN(valorMo) ||
+        valorMo === null ||
+        isNaN(valorT) ||
+        valorT === null ||
+        isNaN(valorK) ||
+        valorK === null ||
+        isNaN(valorT1) ||
+        valorT1 === null ||
+        isNaN(valorT2) ||
+        valorT2 === null
     ) {
         throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para pid(Ov, Ts, K, T1, T2).');
     }
     let pi = Math.PI; //Pi da bilbioteca Math.js
 
-    //Amortecimento Relativo
-    let csi = (-1 * Math.log(Mo / 100)) / Math.sqrt(Math.pow(pi, 2) + pot(Math.log(Mo / 100), 2));
+    //AvalorMortecimento Relativo
+    let csi = (-1 * Math.log(valorMo / 100)) / Math.sqrt(Math.pow(pi, 2) + pot(Math.log(valorMo / 100), 2));
 
     //Frequência Natural
     let Wn = 4 / (t * csi);
 
     //Controlador Proporcional (P)
-    let Kp = 20 * (Math.pow(csi, 2) * Math.pow(Wn, 2) * T1 * T2) + (Math.pow(Wn, 2) * T1 * T2 - 1) / K;
+    let Kp = 20 * (Math.pow(csi, 2) * Math.pow(Wn, 2) * valorT1 * valorT2) + (Math.pow(Wn, 2) * valorT1 * valorT2 - 1) / valorK;
 
     //Controlador Integral (I)
-    let Ki = (10 * csi * Math.pow(Wn, 3) * T1 * T2) / K;
+    let Ki = (10 * csi * Math.pow(Wn, 3) * valorT1 * valorT2) / valorK;
 
     //Controlador Derivativo (D)
-    let Kd = (12 * csi * Wn * T1 * T2 - T1 - T2) / K;
+    let Kd = (12 * csi * Wn * valorT1 * valorT2 - valorT1 - valorT2) / valorK;
 
     return [csi, Wn, Kp, Ki, Kd];
 };
@@ -583,9 +637,10 @@ module.exports.comp = function (array) {
 
 // Retorna o menor número inteiro dentre o valor de "value"
 module.exports.minaprox = function (value) {
-    if (typeof value !== 'number') {
+    const valueResolvido = value.hasOwnProperty('valor') ? value.valor : value;
+    if (typeof valueResolvido !== 'number') {
         throw new ErroEmTempoDeExecucao(this.token, 'O valor passado pra função deve ser um número.');
     }
 
-    return Math.floor(value);
+    return Math.floor(valueResolvido);
 };
