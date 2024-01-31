@@ -2,6 +2,7 @@ import { AcessoIndiceVariavel, AcessoMetodoOuPropriedade, Agrupamento, Atribuica
 import { Aleatorio, Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao, Falhar } from "../declaracoes";
 import { VisitanteComumInterface } from "../interfaces";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
+import tiposDeSimbolos from '../tipos-de-simbolos/visualg';
 
 export class FormatadorVisualG implements VisitanteComumInterface {
     indentacaoAtual: number;
@@ -10,6 +11,8 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     codigoFormatado: string;
     devePularLinha: boolean;
     deveIndentar: boolean;
+    contadorDeclaracaoVar: number;
+    deveAdicionarInicio: boolean;
 
     constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
         this.quebraLinha = quebraLinha;
@@ -17,20 +20,22 @@ export class FormatadorVisualG implements VisitanteComumInterface {
 
         this.indentacaoAtual = 0;
         this.codigoFormatado = '';
-        this.devePularLinha = true;
+        this.devePularLinha = false;
         this.deveIndentar = true;
+        this.contadorDeclaracaoVar = 0
+        this.deveAdicionarInicio = true;
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): any {
         throw new Error("Método não implementado.");
     }
     visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error("Método não implementado.");
     }
-    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+    visitarDeclaracaoConst(declaracao: Const): any {
         throw new Error("Método não implementado.");
     }
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
@@ -57,10 +62,10 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     visitarDeclaracaoImportar(declaracao: Importar) {
         throw new Error("Método não implementado.");
     }
-    visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+    visitarDeclaracaoPara(declaracao: Para): any {
         throw new Error("Método não implementado.");
     }
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+    visitarDeclaracaoParaCada(declaracao: ParaCada): any {
         throw new Error("Método não implementado.");
     }
     visitarDeclaracaoSe(declaracao: Se) {
@@ -69,10 +74,25 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error("Método não implementado.");
     }
-    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        throw new Error("Método não implementado.");
+    visitarDeclaracaoVar(declaracao: Var): any {
+        if (this.contadorDeclaracaoVar === 0) {
+            this.codigoFormatado += `var${this.quebraLinha}`
+            this.contadorDeclaracaoVar++;
+        }
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += `${declaracao.simbolo.lexema}`;
+        if (declaracao.inicializador) {
+            this.codigoFormatado += ` : ${declaracao.tipo.toLowerCase()}`;
+        }
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
-    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
@@ -84,19 +104,19 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
+    visitarExpressaoAgrupamento(expressao: any): any {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): any {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoBinaria(expressao: any) {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
+    visitarExpressaoBloco(declaracao: Bloco): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
@@ -121,27 +141,44 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         throw new Error("Método não implementado.");
     }
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
-        console.log("TESTE");
+        this.codigoFormatado += `${" ".repeat(this.tamanhoIndentacao)}escreva(`;
+        for (let argumento of declaracao.argumentos) {
+            this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += ", ";
+        }
+        if (declaracao.argumentos.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+        this.codigoFormatado += `)${this.quebraLinha}`;
+
+
     }
-    visitarExpressaoFalhar(expressao: any): Promise<any> {
+    visitarExpressaoFalhar(expressao: any): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        throw new Error("Método não implementado.");
+        if (declaracao.expressao instanceof Variavel) {
+            this.codigoFormatado += declaracao.expressao.simbolo.lexema
+            return;
+        } else if (declaracao.expressao instanceof Literal) {
+            this.codigoFormatado += `"${declaracao.expressao.valor}"`
+            return;
+        }
+        this.codigoFormatado += `${declaracao.expressao.valor}`
     }
     visitarExpressaoIsto(expressao: any) {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoLeia(expressao: Leia): Promise<any> {
+    visitarExpressaoLeia(expressao: Leia): any {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        throw new Error("Método não implementado.");
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): any {
+        return Promise.resolve()
     }
-    visitarExpressaoLiteral(expressao: Literal): Promise<any> {
+    visitarExpressaoLiteral(expressao: Literal): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoLogica(expressao: any) {
@@ -156,7 +193,7 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+    visitarExpressaoTipoDe(expressao: TipoDe): any {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoUnaria(expressao: any) {
@@ -228,6 +265,9 @@ export class FormatadorVisualG implements VisitanteComumInterface {
             case 'Fazer':
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
                 break;
+            case 'FormatacaoEscrita':
+                this.visitarExpressaoFormatacaoEscrita(declaracaoOuConstruto as FormatacaoEscrita);
+                break;
             case 'FuncaoConstruto':
                 this.visitarExpressaoFuncaoConstruto(declaracaoOuConstruto as FuncaoConstruto);
                 break;
@@ -289,7 +329,7 @@ export class FormatadorVisualG implements VisitanteComumInterface {
                 this.visitarExpressaoVetor(declaracaoOuConstruto as Vetor);
                 break;
             default:
-                console.log(declaracaoOuConstruto, declaracaoOuConstruto.constructor.name);
+                console.log(declaracaoOuConstruto.constructor.name);
                 break;
         }
     }
@@ -299,14 +339,23 @@ export class FormatadorVisualG implements VisitanteComumInterface {
 
     formatar(declaracoes: Declaracao[]): string {
         this.indentacaoAtual = 0;
-        this.codigoFormatado = `Algoritmo\nVar\n`;
+        this.codigoFormatado = `algoritmo${this.quebraLinha}`;
         this.devePularLinha = true;
         this.deveIndentar = true;
+        this.indentacaoAtual += this.tamanhoIndentacao;
 
         for (let declaracao of declaracoes) {
+            if (!(declaracao instanceof Var) && this.deveAdicionarInicio) {
+                this.codigoFormatado += `${this.quebraLinha}inicio${this.quebraLinha}`
+                this.deveAdicionarInicio = false;
+            } else if (declaracao instanceof Var) this.deveAdicionarInicio = true
+
+
             this.formatarDeclaracaoOuConstruto(declaracao);
         }
 
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${this.quebraLinha}fimalgoritmo`
         return this.codigoFormatado;
     }
 
