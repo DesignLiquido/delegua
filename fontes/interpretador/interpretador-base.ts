@@ -156,15 +156,17 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
+
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
     //https://stackoverflow.com/a/66751666/9043143
-    textoParaRegex(texto): any {
+    protected textoParaRegex(texto: string): RegExp {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match
             ? new RegExp(
@@ -178,7 +180,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
-        return this.textoParaRegex(expressao.valor);
+        return Promise.resolve(this.textoParaRegex(expressao.valor));
     }
 
     async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
