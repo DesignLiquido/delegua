@@ -328,6 +328,37 @@ describe('Interpretador (Portugol Studio)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('Escolha', async () => {
+                const retornoLexador = lexador.mapear([
+                    'programa',
+                    '{',
+                        'funcao inicio()',
+                        '{',
+                            'escolha (77)',
+                            '{',
+                                'caso 1:',
+                                    'escreva ("Voce é lindo(a)!")',
+                                    'pare',   // Impede que as instruções do caso 2 sejam executadas
+                                 'caso 2:',
+                                    'escreva ("Voce é um monstro!")',
+                                    'pare',   // Impede que as instruções do caso 2 sejam executadas
+                                 'caso 3:',
+                                    'escreva ("Tchau!")',
+                                    'pare',
+                                 'caso contrario:', // Será executado para qualquer opção diferente de 1, 2 ou 3
+                                    'escreva ("Opção Inválida !")',
+                            '}',
+                            'escreva("\n")',
+                        '}',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
         });
     });
 });

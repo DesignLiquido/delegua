@@ -257,7 +257,82 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
     }
 
     declaracaoEscolha(): Escolha {
-        throw new Error('Método não implementado.');
+        try {
+            this.avancarEDevolverAnterior();
+            this.blocos += 1;
+
+            const condicao = this.expressao();
+            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do 'escolha'.");
+
+            const caminhos = [];
+            let caminhoPadrao = null;
+            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+
+                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTRARIO)) {
+                        if (caminhoPadrao !== null) {
+                            const excecao = new ErroAvaliadorSintatico(
+                                this.simbolos[this.atual],
+                                "Você só pode ter um 'contrario' em cada declaração de 'escolha'."
+                            );
+                            this.erros.push(excecao);
+                            throw excecao;
+                        }
+    
+                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'contrario'.");
+    
+                        const declaracoes = [];
+                        do {
+                            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+
+                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARE)
+                        } while (
+                            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
+                            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CONTRARIO) &&
+                            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
+                        );
+    
+                        caminhoPadrao = {
+                            declaracoes,
+                        };
+                        break;
+                    }
+
+                    const caminhoCondicoes = [this.expressao()];
+                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
+
+                    while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
+                        this.consumir(tiposDeSimbolos.CASO, null);
+                        caminhoCondicoes.push(this.expressao());
+                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
+                    }
+
+                    let declaracoes = [];
+                    do {
+                        const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+                        if (Array.isArray(retornoDeclaracao)) {
+                            declaracoes = declaracoes.concat(retornoDeclaracao);
+                        } else {
+                            declaracoes.push(retornoDeclaracao as Declaracao);
+                        }
+                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARE)
+                    } while (
+                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
+                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CONTRARIO) &&
+                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
+                    );
+
+                    caminhos.push({
+                        condicoes: caminhoCondicoes,
+                        declaracoes,
+                    });
+                } 
+            }
+
+            return new Escolha(condicao, caminhos, caminhoPadrao);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     /**
@@ -720,6 +795,8 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 return this.declaracaoDeConstantes();
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscrevaMesmaLinha();
             case tiposDeSimbolos.FACA:
