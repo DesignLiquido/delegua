@@ -31,10 +31,16 @@ describe('Interpretador com Depuração', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                let execucaoFinalizada: boolean = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                }
+
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 await interpretador.instrucaoContinuarInterpretacao();
 
                 expect(interpretador.pontoDeParadaAtivo).toBe(false);
+                expect(execucaoFinalizada).toBe(true);
             });
         });
 
