@@ -145,7 +145,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - decorador de classe', () => {
+            it('Sucesso - decorador de classe simples', () => {
                 const retornoLexador = lexador.mapear([
                     '@meu.decorador1',
                     '@meu.decorador2',
@@ -161,10 +161,44 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - decorador de método de classe', () => {
+            it('Sucesso - decorador de classe com parametros', () => {
+                const retornoLexador = lexador.mapear([
+                    '@decorador1(atributo1="123", atributo2=4)',
+                    'classe Teste {',
+                        '@decorador2(atributo1="123", atributo2=4)',
+                        'testeFuncao() {',
+                          'escreva("olá")',
+                        '}',
+                    '}',
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - decorador de classe/método', () => {
                 const retornoLexador = lexador.mapear([
                     '@meu.decorador1',
                     'classe Teste {',
+                        '@meu.decorador2',
+                        'testeFuncao() {',
+                          'escreva("olá")',
+                        '}',
+                    '}',
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - decorador de classe/método/propriedade', () => {
+                const retornoLexador = lexador.mapear([
+                    '@meu.decorador1',
+                    'classe Teste {',
+                        '@meu.decorador3',
+                        'propriedade1: texto',
                         '@meu.decorador2',
                         'testeFuncao() {',
                           'escreva("olá")',
