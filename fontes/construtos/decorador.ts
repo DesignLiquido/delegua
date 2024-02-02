@@ -4,14 +4,14 @@ import { Construto } from './construto';
 export class Decorador implements Construto {
     linha: number;
     hashArquivo: number;
-
     nome: string;
+    parametros?: any;
 
-    constructor(hashArquivo: number, linha: number, nome: string) {
+    constructor(hashArquivo: number, linha: number, nome: string, parametros?: any) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
-
         this.nome = nome;
+        this.parametros = parametros;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
