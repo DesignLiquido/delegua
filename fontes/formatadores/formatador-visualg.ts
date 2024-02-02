@@ -39,16 +39,24 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        throw new Error("Método não implementado.");
+        console.log(expressao);
+
+        this.codigoFormatado += `${expressao.simbolo.lexema} <- `;
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
+
+        this.codigoFormatado += `${this.quebraLinha}`;
     }
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        throw new Error("Método não implementado.");
+        this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
+        this.formatarDeclaracaoOuConstruto(declaracao.expressao);
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         throw new Error("Método não implementado.");
     }
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        throw new Error("Método não implementado.");
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}enquanto `;
+        this.formatarDeclaracaoOuConstruto(declaracao.condicao);
+        this.formatarDeclaracaoOuConstruto(declaracao.corpo);
     }
     visitarDeclaracaoEscolha(declaracao: Escolha) {
         throw new Error("Método não implementado.");
@@ -113,8 +121,23 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): any {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoBinaria(expressao: any) {
-        throw new Error("Método não implementado.");
+    visitarExpressaoBinaria(expressao: Binario) {
+        console.log(expressao);
+        console.log(expressao.operador.tipo);
+
+        this.formatarDeclaracaoOuConstruto(expressao.esquerda);
+        switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.ADICAO:
+                this.codigoFormatado += " + "
+                break;
+            case tiposDeSimbolos.DIVISAO:
+                this.codigoFormatado += " / "
+                break;
+            case tiposDeSimbolos.DIVISAO_INTEIRA:
+                this.codigoFormatado += ' \ '
+                break;
+            case tiposDeSimbolos.
+        }
     }
     visitarExpressaoBloco(declaracao: Bloco): any {
         throw new Error("Método não implementado.");
@@ -131,8 +154,8 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error("Método não implementado.");
     }
-    visitarExpressaoDeVariavel(expressao: any) {
-        throw new Error("Método não implementado.");
+    visitarExpressaoDeVariavel(expressao: Variavel) {
+        this.codigoFormatado += expressao.simbolo.lexema;
     }
     visitarExpressaoDicionario(expressao: any) {
         throw new Error("Método não implementado.");
@@ -173,13 +196,28 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoLeia(expressao: Leia): any {
-        throw new Error("Método não implementado.");
+        this.codigoFormatado += `${" ".repeat(this.tamanhoIndentacao)}leia(`;
+        for (let argumento of expressao.argumentos) {
+            this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += `, `;
+        }
+
+        if (expressao.argumentos.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+
+        this.codigoFormatado += `)${this.quebraLinha}`;
     }
     visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): any {
         return Promise.resolve()
     }
-    visitarExpressaoLiteral(expressao: Literal): any {
-        throw new Error("Método não implementado.");
+    visitarExpressaoLiteral(expressao: any): any {
+        if (typeof expressao.valor === 'string') {
+            this.codigoFormatado += `'${expressao.valor}'`;
+            return;
+        }
+
+        this.codigoFormatado += expressao.valor;
     }
     visitarExpressaoLogica(expressao: any) {
         throw new Error("Método não implementado.");
