@@ -1344,8 +1344,8 @@ describe('Interpretador', () => {
     
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(saidas).toHaveLength(2);
-                        expect(saidas[0]).toEqual('a b c');
-                        expect(saidas[1]).toEqual('1 2 3');
+                        expect(saidas[0]).toEqual('a,b,c');
+                        expect(saidas[1]).toEqual('1,2,3');
                     });
                 });
 

@@ -79,8 +79,8 @@ import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos'
-import tipoDeDadosDelegua from '../tipos-de-dados/delegua'
+import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -288,11 +288,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (elemento?.valor?.tipo === tipoDeDadosDelegua.LOGICO) {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
             } else {
-                const valor = elemento?.valor?.hasOwnProperty('valor') ? elemento?.valor.valor : elemento?.valor
-                textoFinal = textoFinal.replace(
-                    '${' + elemento.variavel + '}',
-                    `${this.paraTexto(valor)}`
-                );
+                const valor = elemento?.valor?.hasOwnProperty('valor') ? elemento?.valor.valor : elemento?.valor;
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', `${this.paraTexto(valor)}`);
             }
         });
 
@@ -423,7 +420,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tipoConteudo: string = conteudo.hasOwnProperty('tipo') ? conteudo.tipo : typeof conteudo;
 
         resultado = valorConteudo;
-        if ([tipoDeDadosDelegua.NUMERO, tipoDeDadosPrimitivos.NUMERO].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
+        if (
+            [tipoDeDadosDelegua.NUMERO, tipoDeDadosPrimitivos.NUMERO].includes(tipoConteudo) &&
+            declaracao.casasDecimais > 0
+        ) {
             resultado = valorConteudo.toLocaleString('pt', { maximumFractionDigits: declaracao.casasDecimais });
         }
 
@@ -453,16 +453,20 @@ export class InterpretadorBase implements InterpretadorInterface {
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
-        const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === tipoDeDadosPrimitivos.NUMERO ? tipoDeDadosDelegua.NUMERO : String(NaN);
+        const tipoDireita: string = direita.tipo
+            ? direita.tipo
+            : typeof direita === tipoDeDadosPrimitivos.NUMERO
+            ? tipoDeDadosDelegua.NUMERO
+            : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
             ? tipoDeDadosDelegua.NUMERO
             : String(NaN);
-            
-        const tiposNumericos = [tipoDeDadosDelegua.INTEIRO, tipoDeDadosDelegua.NUMERO];
 
-        if(tiposNumericos.includes(tipoDireita) && tiposNumericos.includes(tipoEsquerda)) return;
+        const tiposNumericos = [tipoDeDadosDelegua.INTEIRO, tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.NÚMERO];
+
+        if (tiposNumericos.includes(tipoDireita) && tiposNumericos.includes(tipoEsquerda)) return;
 
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
@@ -483,9 +487,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.MAIOR:
                 if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
                     return Number(valorEsquerdo) > Number(valorDireito);
-                } else {
-                    return String(valorEsquerdo) > String(valorDireito);
-                }
+                } 
+                    
+                return String(valorEsquerdo) > String(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
@@ -494,9 +498,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.MENOR:
                 if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
                     return Number(valorEsquerdo) < Number(valorDireito);
-                } else {
-                    return String(valorEsquerdo) < String(valorDireito);
-                }
+                } 
+                    
+                return String(valorEsquerdo) < String(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
@@ -509,11 +513,15 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
-                if ([tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.INTEIRO].includes(tipoEsquerdo) && [tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.INTEIRO].includes(tipoDireito)) {
+                const tiposNumericos = [tipoDeDadosDelegua.INTEIRO, tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.NÚMERO]
+                if (
+                    tiposNumericos.includes(tipoEsquerdo) &&
+                    tiposNumericos.includes(tipoDireito)
+                ) {
                     return Number(valorEsquerdo) + Number(valorDireito);
-                } else {
-                    return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
-                }
+                } 
+    
+                return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
 
             case tiposDeSimbolos.DIVISAO:
             case tiposDeSimbolos.DIVISAO_IGUAL:
@@ -1365,8 +1373,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
-        deleguaClasse.dialetoRequerDeclaracaoPropriedades =
-            this.requerDeclaracaoPropriedades;
+        deleguaClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
 
         // TODO: Recolocar isso se for necessário.
         /* if (superClasse !== null) {
@@ -1388,12 +1395,6 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.obter(expressao.simbolo) || null;
-        }
-
-        // TODO: Possivelmente depreciar esta forma.
-        // Não parece funcionar em momento algum.
-        if (objeto.constructor === Object) {
-            return objeto[expressao.simbolo.lexema] || null;
         }
 
         // Função tradicional do JavaScript.
@@ -1461,8 +1462,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return this.procurarVariavel(expressao.palavraChave);
     }
 
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         return Promise.resolve();
     }
 
@@ -1567,7 +1567,6 @@ export class InterpretadorBase implements InterpretadorInterface {
      *                         pelo modo LAIR.
      */
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-
         const resultado: any = await declaracao.aceitar(this);
         /* console.log("Resultado aceitar: " + resultado, this); */
         if (mostrarResultado) {
