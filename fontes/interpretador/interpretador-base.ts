@@ -72,6 +72,7 @@ import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execu
 import { inferirTipoVariavel } from './inferenciador';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 
+import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
@@ -1416,6 +1417,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         switch (tipoObjeto) {
+            case tipoDeDadosDelegua.OBJETO:
+            case tipoDeDadosDelegua.DICIONARIO:
+                const metodoDeDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
+                if (metodoDeDicionario) {
+                    return new MetodoPrimitiva(objeto, metodoDeDicionario);
+                }
+                break;
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
                 const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
