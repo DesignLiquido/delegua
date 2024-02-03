@@ -1420,6 +1420,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         switch (tipoObjeto) {
             case tipoDeDadosDelegua.DICIONARIO:
             case tipoDeDadosDelegua.DICIONÁRIO:
+            case tipoDeDadosDelegua.OBJETO:
                 const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
                 if (metodoDePrimitivaDicionario) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);

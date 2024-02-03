@@ -7,6 +7,7 @@ export default {
     NUMERO: 'numero',
     NÚMERO: 'número',
     NULO: 'nulo',
+    OBJETO: 'objeto',
     TEXTO: 'texto',
     VETOR: 'vetor'
 };
