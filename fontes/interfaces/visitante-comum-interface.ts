@@ -1,4 +1,4 @@
-import { Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe } from '../construtos';
+import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe } from '../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -50,7 +50,7 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any>;
     visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
     visitarExpressaoAcessoElementoMatriz(expressao: any): any;
-    visitarExpressaoAcessoMetodo(expressao: any): any;
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): any;
     visitarExpressaoAgrupamento(expressao: any): Promise<any>;
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any>;
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any>;

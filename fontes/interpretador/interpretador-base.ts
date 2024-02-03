@@ -46,6 +46,7 @@ import {
 } from '../estruturas';
 import {
     AcessoIndiceVariavel,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Atribuir,
     Binario,
@@ -1386,10 +1387,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     /**
      * Executa um acesso a método, normalmente de um objeto de classe.
-     * @param expressao A expressão de acesso.
+     * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso.
      * @returns O resultado da execução.
      */
-    async visitarExpressaoAcessoMetodo(expressao: any): Promise<any> {
+    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
@@ -1397,18 +1398,32 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto.obter(expressao.simbolo) || null;
         }
 
-        // Função tradicional do JavaScript.
-        // Normalmente executa quando uma biblioteca é importada.
+        // Objeto simples do JavaScript, ou dicionário de Delégua. 
+        if (objeto.constructor === Object) {
+            const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
+            if (metodoDePrimitivaDicionario) {
+                return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+            }
+            
+            return objeto[expressao.simbolo.lexema] || null;
+        }
+
+        // Casos em que o objeto possui algum outro tipo que não o de objeto simples.
+        // Normalmente executam quando uma biblioteca é importada, e estamos tentando
+        // obter alguma propriedade ou método desse objeto.
+
+        // Caso 1: Função tradicional do JavaScript.
         if (typeof objeto[expressao.simbolo.lexema] === tipoDeDadosPrimitivos.FUNCAO) {
             return objeto[expressao.simbolo.lexema];
         }
 
-        // Objeto tradicional do JavaScript.
-        // Normalmente executa quando uma biblioteca é importada.
+        // Caso 2: Objeto tradicional do JavaScript.
         if (typeof objeto[expressao.simbolo.lexema] === tipoDeDadosPrimitivos.OBJETO) {
             return objeto[expressao.simbolo.lexema];
         }
 
+        // A partir daqui, presume-se que o objeto é uma das estruturas
+        // de Delégua.
         if (objeto instanceof DeleguaModulo) {
             return objeto.componentes[expressao.simbolo.lexema] || null;
         }
@@ -1418,15 +1433,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
         }
 
+        // Como internamente um dicionário de Delégua é simplesmente um objeto de 
+        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
+        // mais acima.
         switch (tipoObjeto) {
-            case tipoDeDadosDelegua.DICIONARIO:
-            case tipoDeDadosDelegua.DICIONÁRIO:
-            case tipoDeDadosDelegua.OBJETO:
-                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
-                if (metodoDePrimitivaDicionario) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
-                }
-                break;
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
@@ -1451,7 +1461,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                expressao.nome,
+                expressao.simbolo,
                 `Método para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
                 expressao.linha
             )
