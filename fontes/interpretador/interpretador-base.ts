@@ -71,12 +71,14 @@ import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { inferirTipoVariavel } from './inferenciador';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
+import { ArgumentoInterface } from './argumento-interface';
 
+import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-import { ArgumentoInterface } from './argumento-interface';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos'
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua'
 
@@ -1416,8 +1418,16 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         switch (tipoObjeto) {
+            case tipoDeDadosDelegua.DICIONARIO:
+            case tipoDeDadosDelegua.DICIONÁRIO:
+                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
+                if (metodoDePrimitivaDicionario) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                }
+                break;
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
+            case tipoDeDadosDelegua.NÚMERO:
                 const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
                 if (metodoDePrimitivaNumero) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
@@ -1429,7 +1439,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
                 }
                 break;
-            case 'vetor':
+            case tipoDeDadosDelegua.VETOR:
                 const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);

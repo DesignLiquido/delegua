@@ -1,7 +1,12 @@
 export default {
+    DICIONARIO: 'dicionario',
+    DICIONÁRIO: 'dicionário',
     INTEIRO: 'inteiro',
-    LOGICO: 'lógico',
-    NUMERO: 'número',
+    LOGICO: 'logico',
+    LÓGICO: 'lógico',
+    NUMERO: 'numero',
+    NÚMERO: 'número',
     NULO: 'nulo',
     TEXTO: 'texto',
+    VETOR: 'vetor'
 };

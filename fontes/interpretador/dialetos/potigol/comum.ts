@@ -53,13 +53,14 @@ export async function visitarExpressaoAcessoMetodo(
     }
 
     switch (tipoObjeto) {
-        case 'Dicionário':
+        // TODO: Potigol tem primitivas de dicionário?
+        /* case 'Dicionário':
         case 'dicionario':
             const metodoDeDicionario: Function = primitivasVetor[expressao.simbolo.lexema];
             if (metodoDeDicionario) {
                 return new MetodoPrimitiva(objeto, metodoDeDicionario);
             }
-            break;
+            break; */
         case 'numero':
         case 'número':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
