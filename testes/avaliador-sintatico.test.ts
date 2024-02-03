@@ -145,70 +145,90 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - decorador de classe simples', () => {
-                const retornoLexador = lexador.mapear([
-                    '@meu.decorador1',
-                    '@meu.decorador2',
-                    'classe Teste {',
-                        'testeFuncao() {',
-                          'escreva("olá")',
+            describe('Classes, propriedades e métodos', () => {
+                it('Trivial', () => {
+                    const retornoLexador = lexador.mapear([
+                        'classe Triangulo {',
+                        '    base: numero;',
+                        '    altura: número',
+                        '    area() {',
+                        '        escreva((isto.base * isto.altura) / 2)',
+                        '    }',
                         '}',
-                    '}',
-                ], -1);
+                    ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             });
 
-            it('Sucesso - decorador de classe com parametros', () => {
-                const retornoLexador = lexador.mapear([
-                    '@decorador1(atributo1="123", atributo2=4)',
-                    'classe Teste {',
-                        '@decorador2(atributo1="123", atributo2=4)',
-                        'testeFuncao() {',
-                          'escreva("olá")',
-                        '}',
-                    '}',
-                ], -1);
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-            });
-
-            it('Sucesso - decorador de classe/método', () => {
-                const retornoLexador = lexador.mapear([
-                    '@meu.decorador1',
-                    'classe Teste {',
+            describe('Decoradores', () => {
+                it('Sucesso - decorador de classe simples', () => {
+                    const retornoLexador = lexador.mapear([
+                        '@meu.decorador1',
                         '@meu.decorador2',
-                        'testeFuncao() {',
-                          'escreva("olá")',
+                        'classe Teste {',
+                            'testeFuncao() {',
+                              'escreva("olá")',
+                            '}',
                         '}',
-                    '}',
-                ], -1);
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    ], -1);
     
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-            });
-
-            it('Sucesso - decorador de classe/método/propriedade', () => {
-                const retornoLexador = lexador.mapear([
-                    '@meu.decorador1',
-                    'classe Teste {',
-                        '@meu.decorador3',
-                        'propriedade1: texto',
-                        '@meu.decorador2',
-                        'testeFuncao() {',
-                          'escreva("olá")',
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+    
+                it('Sucesso - decorador de classe com parametros', () => {
+                    const retornoLexador = lexador.mapear([
+                        '@decorador1(atributo1="123", atributo2=4)',
+                        'classe Teste {',
+                            '@decorador2(atributo1="123", atributo2=4)',
+                            'testeFuncao() {',
+                              'escreva("olá")',
+                            '}',
                         '}',
-                    '}',
-                ], -1);
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    ], -1);
     
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+    
+                it('Sucesso - decorador de classe/método', () => {
+                    const retornoLexador = lexador.mapear([
+                        '@meu.decorador1',
+                        'classe Teste {',
+                            '@meu.decorador2',
+                            'testeFuncao() {',
+                              'escreva("olá")',
+                            '}',
+                        '}',
+                    ], -1);
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+    
+                it('Sucesso - decorador de classe/método/propriedade', () => {
+                    const retornoLexador = lexador.mapear([
+                        '@meu.decorador1',
+                        'classe Teste {',
+                            '@meu.decorador3',
+                            'propriedade1: texto',
+                            '@meu.decorador2',
+                            'testeFuncao() {',
+                              'escreva("olá")',
+                            '}',
+                        '}',
+                    ], -1);
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             });
         });
 

@@ -1311,6 +1311,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                     const nomePropriedade = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado identificador para nome de propriedade.');
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
                     const tipoPropriedade = this.avancarEDevolverAnterior();
+                    this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                     propriedades.push(
                         new PropriedadeClasse(
                             nomePropriedade,
