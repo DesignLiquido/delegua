@@ -53,6 +53,7 @@ export async function visitarExpressaoAcessoMetodo(
     }
 
     switch (tipoObjeto) {
+        case 'Dicionário':
         case 'dicionario':
             const metodoDeDicionario: Function = primitivasVetor[expressao.simbolo.lexema];
             if (metodoDeDicionario) {
