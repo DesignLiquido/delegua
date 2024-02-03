@@ -1325,23 +1325,49 @@ describe('Interpretador', () => {
             });
 
             describe('Métodos de primitivas com dependência no Interpretador', () => {
-                it('ordenar() de vetor com parâmetro função', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var numeros = [4, 2, 12, 8];",
-                        "numeros.ordenar(funcao(a, b) {",
-                        "    retorna b - a;",
-                        "});",
-                        "escreva(numeros);"
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                describe('Dicionários', () => {
+                    it('chaves() e valores()', async () => {
+                        const retornoLexador = lexador.mapear([
+                            `var meuDicionario = {"a": 1, "b": 2, "c": 3}`,
+                            `escreva(meuDicionario.chaves())`,
+                            `escreva(meuDicionario.valores())`
+                        ], -1);
 
-                    interpretador.funcaoDeRetorno = (saida: string) => {
-                        expect(saida).toEqual('12,8,4,2');
-                    }
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const saidas: string[] = [];
+    
+                        interpretador.funcaoDeRetorno = (saida: string) => {
+                            saidas.push(saida);
+                        }
+    
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(saidas).toHaveLength(2);
+                        expect(saidas[0]).toEqual('a b c');
+                        expect(saidas[1]).toEqual('1 2 3');
+                    });
+                });
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
+                describe('Vetores', () => {
+                    it('ordenar() de vetor com parâmetro função', async () => {
+                        const retornoLexador = lexador.mapear([
+                            "var numeros = [4, 2, 12, 8];",
+                            "numeros.ordenar(funcao(a, b) {",
+                            "    retorna b - a;",
+                            "});",
+                            "escreva(numeros);"
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                        interpretador.funcaoDeRetorno = (saida: string) => {
+                            expect(saida).toEqual('12,8,4,2');
+                        }
+    
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
                 });
             })
 
