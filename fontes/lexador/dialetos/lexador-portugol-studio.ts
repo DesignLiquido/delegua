@@ -142,6 +142,10 @@ export class LexadorPortugolStudio extends LexadorBase {
 
                 break;
 
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
+                break;
             case '%':
                 this.adicionarSimbolo(tiposDeSimbolos.MODULO);
                 this.avancar();
