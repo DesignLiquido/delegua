@@ -701,6 +701,22 @@
             ]
         },
         {
+            "name": "Testes unitários",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "--runInBand"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Testes unitários - Birl",
             "type": "node",
             "request": "launch",
@@ -724,7 +740,6 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                // "interpretador",
                 "interpretador",
                 "--runInBand"
             ],
