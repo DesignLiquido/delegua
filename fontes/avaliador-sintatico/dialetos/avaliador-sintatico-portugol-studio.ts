@@ -258,6 +258,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
     declaracaoEscolha(): Escolha {
         try {
+            this.avancarEDevolverAnterior();
             this.blocos += 1;
 
             const condicao = this.expressao();
@@ -795,7 +796,6 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCOLHA:
-                this.avancarEDevolverAnterior();
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscrevaMesmaLinha();
