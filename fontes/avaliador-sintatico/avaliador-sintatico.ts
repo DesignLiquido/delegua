@@ -772,6 +772,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             [
                 tiposDeSimbolos.COLCHETE_ESQUERDO,
                 tiposDeSimbolos.FALSO,
+                tiposDeSimbolos.FUNCAO,
+                tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
                 tiposDeSimbolos.NEGACAO,

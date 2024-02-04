@@ -230,6 +230,36 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
             });
+
+            describe('Funções', () => {
+                it('Função que retorna função', () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao facaCurrying(some) {",
+                        "  retorna funcao(a) {",
+                        "    retorna funcao(b) {",
+                        "      retorna some(a, b)",
+                        "    }",
+                        "  }",
+                        "}",
+                        "funcao some(a, b) {",
+                        "  retorna a + b",
+                        "}",
+                        "var someViaCurryng = facaCurrying(some)",
+                        "escreva(someViaCurryng(1)(2))"
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+            });
+    
+            it('Declaração `tente`', () => {
+                const retornoLexador = lexador.mapear(['tente { i = i + 1 } pegue (erro) { escreva(erro) }'], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+            });
         });
 
         describe('Cenários de falha', () => {
@@ -282,7 +312,7 @@ describe('Avaliador sintático', () => {
                     'Não é permitido ter dois identificadores seguidos na mesma linha.'
                 );
             });
-    
+
             describe('Funções Anônimas', () => {
                 it('Função retorna vazio mas tem retorno de valores', async () => {
                     const retornoLexador = lexador.mapear([
@@ -317,13 +347,6 @@ describe('Avaliador sintático', () => {
     
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                 });
-            });
-    
-            it('Declaração `tente`', () => {
-                const retornoLexador = lexador.mapear(['tente { i = i + 1 } pegue (erro) { escreva(erro) }'], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
-                expect(retornoAvaliadorSintatico).toBeTruthy();
             });
         });
     });
