@@ -48,6 +48,8 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+        console.log(expressao);
+
         this.codigoFormatado += `${expressao.simbolo.lexema} <- `;
         this.formatarDeclaracaoOuConstruto(expressao.valor);
 
@@ -60,6 +62,8 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        console.log(declaracao);
+
         this.retornoFuncaoAtual = declaracao.tipoRetorno;
         this.contadorDeclaracaoVar = 2;
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}funcao `;
@@ -131,8 +135,11 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}escreva(`;
         for (let argumento of declaracao.argumentos) {
             this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += ", ";
         }
-
+        if (declaracao.argumentos.length && this.codigoFormatado[this.codigoFormatado.length - 2] === ",") {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
         this.codigoFormatado += `)${this.quebraLinha}`;
     }
     visitarDeclaracaoFazer(declaracao: Fazer) {
@@ -388,8 +395,10 @@ export class FormatadorVisualG implements VisitanteComumInterface {
             switch (expressao.valor) {
                 case true:
                     this.codigoFormatado += `verdadeiro`;
+                    break;
                 case false:
                     this.codigoFormatado += `falso`;
+                    break;
             }
             return;
         }
@@ -398,6 +407,7 @@ export class FormatadorVisualG implements VisitanteComumInterface {
     }
     visitarExpressaoLogica(expressao: any) {
         this.formatarDeclaracaoOuConstruto(expressao.esquerda);
+
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.E:
                 this.codigoFormatado += ` e `;
@@ -443,6 +453,8 @@ export class FormatadorVisualG implements VisitanteComumInterface {
             case tiposDeSimbolos.ADICAO:
                 operador = `+`;
                 break;
+            case tiposDeSimbolos.NEGACAO:
+                operador = `nao `
         }
 
         switch (expressao.incidenciaOperador) {

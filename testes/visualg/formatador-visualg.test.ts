@@ -188,7 +188,7 @@ describe('Formatadores > VisualG', () => {
                 'Inicio',
                 '      leia(n1, n2, n3, n4, n5)',
                 '      escreva(n1 + n2 + n3 + n4 + n5)',
-                'Fimalgoritmo','Algoritmo "Soma 5"',
+                'Fimalgoritmo', 'Algoritmo "Soma 5"',
                 'Var',
                 '   n1, n2, n3, n4, n5: inteiro',
                 'Inicio',
@@ -231,7 +231,7 @@ describe('Formatadores > VisualG', () => {
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
     });
 
-    /* it('Procedimento', () => {
+    it('Procedimento', () => {
         const retornoLexador = lexadorVisuAlg.mapear(
             [
                 'algoritmo "semnome"',
@@ -257,10 +257,11 @@ describe('Formatadores > VisualG', () => {
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
         const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
+        console.log(resultado);
 
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-    }); */
+    });
 
     it('Repita', () => {
         const retornoLexador = lexadorVisuAlg.mapear(
@@ -286,7 +287,7 @@ describe('Formatadores > VisualG', () => {
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
     });
 
-    /* it('XOU', () => {
+    it('XOU', () => {
         const retornoLexador = lexadorVisuAlg.mapear(
             [
                 'algoritmo "Exemplo Xou"',
@@ -316,11 +317,11 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(3);
+        expect(linhasResultado).toHaveLength(30);
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
     });
- */
+
     it('Sucesso - Aleatorio - Números', () => {
         const retornoLexador = lexadorVisuAlg.mapear(
             [
@@ -340,6 +341,7 @@ describe('Formatadores > VisualG', () => {
 
         const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
+        console.log(resultado);
 
         expect(linhasResultado).toHaveLength(8);
         expect(retornoAvaliadorSintatico).toBeTruthy();
