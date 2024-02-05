@@ -23,7 +23,6 @@ describe('Formatadores > VisualG', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(6)
-
     })
 
     it('Lendo variaveis', () => {
@@ -37,7 +36,7 @@ describe('Formatadores > VisualG', () => {
             'leia(numero1)',
             'leia(numero2)',
             'escreva("Digite o segundo número: ")',
-            'escreva("A soma de ", numero1 + "por " + numero2 + "é igual à: " + numero1 + numero2)',
+            'escreva("A soma de ", numero1 , "por " , numero2 , "é igual à: " , numero1 , numero2)',
             'fimalgoritmo'
         ], -1);
 
