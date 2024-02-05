@@ -731,9 +731,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
 
         return new RetornoQuebra(valor);
     }
-    // async visitarExpressaoDeleguaFuncao(expressao: any) {
-    //     throw new Error('Método não implementado.');
-    // }
+
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }

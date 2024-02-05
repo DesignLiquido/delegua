@@ -265,7 +265,7 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         return Promise.resolve(null);
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
+    visitarExpressaoFuncaoConstruto(expressao: any) {
         return Promise.resolve();
     }
 

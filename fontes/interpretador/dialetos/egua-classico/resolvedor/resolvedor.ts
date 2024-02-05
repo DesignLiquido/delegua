@@ -274,7 +274,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoDeleguaFuncao(declaracao: any): any {
+    visitarExpressaoFuncaoConstruto(declaracao: any): any {
         this.resolverFuncao(declaracao, TipoFuncao.FUNÇÃO);
         return null;
     }

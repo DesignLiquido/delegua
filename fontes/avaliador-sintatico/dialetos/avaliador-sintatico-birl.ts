@@ -853,7 +853,7 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, 'Esperado parêntese direito após lista de parâmetros.');
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após a chamada de função.');
 
-        return new Chamada(declaracaoInicio.hashArquivo, expressao, null, paramentros);
+        return new Chamada(declaracaoInicio.hashArquivo, expressao, paramentros);
     }
 
     resolverDeclaracaoForaDeBloco(): any {

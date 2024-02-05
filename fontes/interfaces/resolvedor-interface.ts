@@ -21,7 +21,6 @@ export interface ResolvedorInterface {
     visitarExpressaoBloco(declaracao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     resolverFuncao(funcao: any, funcType: any): void;
-    visitarExpressaoDeleguaFuncao(declaracao: any): any;
     visitarExpressaoSuper(expressao: any): any;
     visitarExpressaoAcessoMetodo(expressao: any): any;
     visitarDeclaracaoDeExpressao(declaracao: any): any;

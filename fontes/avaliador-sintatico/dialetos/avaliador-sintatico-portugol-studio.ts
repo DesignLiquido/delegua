@@ -83,7 +83,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
         // A última declaração do programa deve ser uma chamada a inicio()
         const declaracaoInicio = encontrarDeclaracaoInicio[0];
         this.declaracoes.push(
-            new Expressao(new Chamada(declaracaoInicio.hashArquivo, (declaracaoInicio as any).funcao, null, []))
+            new Expressao(new Chamada(declaracaoInicio.hashArquivo, (declaracaoInicio as any).funcao, []))
         );
     }
 

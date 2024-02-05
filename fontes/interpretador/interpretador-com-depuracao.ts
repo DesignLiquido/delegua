@@ -601,7 +601,6 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param declaracoes Um vetor de declarações.
      */
     prepararParaDepuracao(declaracoes: Declaracao[]): void {
-        this.declaracoes = declaracoes;
         this.abrirNovoBlocoEscopo(declaracoes);
     }
 
@@ -642,7 +641,6 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      */
     async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
         this.erros = [];
-        this.declaracoes = declaracoes;
 
         this.abrirNovoBlocoEscopo(declaracoes);
         const resultado = await super.executarUltimoEscopo(manterAmbiente);

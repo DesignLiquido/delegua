@@ -704,7 +704,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
+    visitarExpressaoFuncaoConstruto(expressao: any) {
         return new DeleguaFuncao(null, expressao);
     }
 

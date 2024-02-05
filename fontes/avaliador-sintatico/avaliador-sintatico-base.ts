@@ -110,9 +110,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
 
-        return new Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
+        return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
     abstract chamar(): Construto;

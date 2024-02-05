@@ -372,7 +372,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         return Promise.resolve();
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
+    visitarExpressaoFuncaoConstruto(expressao: any) {
         return Promise.resolve();
     }
 

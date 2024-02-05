@@ -1196,6 +1196,29 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it.skip('Função que retorna função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao facaCurrying(some) {",
+                        "  retorna funcao(a) {",
+                        "    retorna funcao(b) {",
+                        "      retorna some(a, b)",
+                        "    }",
+                        "  }",
+                        "}",
+                        "funcao some(a, b) {",
+                        "  retorna a + b",
+                        "}",
+                        "var someViaCurryng = facaCurrying(some)",
+                        "escreva(someViaCurryng(1)(2))"
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Número repetido (com retorna)', async () => {
                     const codigo = [
                         "funcao temDigitoRepetido(num) {",

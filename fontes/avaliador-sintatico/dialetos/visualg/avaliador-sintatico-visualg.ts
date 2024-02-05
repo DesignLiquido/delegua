@@ -300,7 +300,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                             this.hashArquivo
                         )
                     ),
-                    null,
                     []
                 );
             default:
@@ -318,7 +317,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (simboloAtual.lexema === 'limpatela') {
             const variavel = new Variavel(this.hashArquivo, simboloAtual);
             this.avancarEDevolverAnterior();
-            return new Chamada(this.hashArquivo, variavel, null, []);
+            return new Chamada(this.hashArquivo, variavel, []);
         }
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IDENTIFICADOR, tiposDeSimbolos.METODO_BIBLIOTECA_GLOBAL)

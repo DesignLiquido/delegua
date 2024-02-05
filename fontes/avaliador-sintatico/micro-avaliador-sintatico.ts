@@ -173,9 +173,9 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
 
-        return new Chamada(-1, entidadeChamada, parenteseDireito, argumentos);
+        return new Chamada(-1, entidadeChamada, argumentos);
     }
 
     chamar(): Construto {

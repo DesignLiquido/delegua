@@ -477,10 +477,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${this.quebraLinha}`;
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error('Método não implementado.');
-    }
-
     visitarExpressaoDeVariavel(expressao: Variavel) {
         this.codigoFormatado += expressao.simbolo.lexema;
     }

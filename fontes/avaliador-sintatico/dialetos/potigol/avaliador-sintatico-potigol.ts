@@ -203,7 +203,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
         }
 
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         const argumentos = this.microAvaliadorSintatico.analisar(
             { simbolos: simbolosEntreParenteses } as any,
@@ -213,7 +213,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Chamada(
             this.hashArquivo,
             entidadeChamada,
-            parenteseDireito,
             argumentos.declaracoes.filter((d) => d)
         );
     }

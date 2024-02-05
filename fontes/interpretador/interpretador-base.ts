@@ -55,6 +55,7 @@ import {
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
+    FuncaoConstruto,
     Literal,
     Logico,
     QualTipo,
@@ -93,7 +94,6 @@ import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 export class InterpretadorBase implements InterpretadorInterface {
     diretorioBase: string;
     erros: ErroInterpretador[];
-    declaracoes: Declaracao[];
     resultadoInterpretador: Array<string> = [];
 
     // Esta variável indica que uma propriedade de um objeto
@@ -135,7 +135,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.funcaoDeRetornoMesmaLinha = funcaoDeRetornoMesmaLinha || process.stdout.write.bind(process.stdout);
 
         this.erros = [];
-        this.declaracoes = [];
         this.resultadoInterpretador = [];
 
         // Isso existe por causa de Potigol.
@@ -591,7 +590,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param expressao A expressão chamada.
      * @returns O resultado da chamada.
      */
-    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
+    async visitarExpressaoDeChamada(expressao: Chamada | any): Promise<any> {
         try {
             const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
 
@@ -1004,7 +1003,6 @@ export class InterpretadorBase implements InterpretadorInterface {
                         const chamadaPegue = new Chamada(
                             declaracao.caminhoPegue.hashArquivo,
                             declaracao.caminhoPegue,
-                            null,
                             [literalErro]
                         );
                         valorRetorno = await chamadaPegue.aceitar(this);
@@ -1175,7 +1173,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    visitarExpressaoDeleguaFuncao(declaracao: any): DeleguaFuncao {
+    visitarExpressaoFuncaoConstruto(declaracao: FuncaoConstruto): DeleguaFuncao {
         return new DeleguaFuncao(null, declaracao);
     }
 

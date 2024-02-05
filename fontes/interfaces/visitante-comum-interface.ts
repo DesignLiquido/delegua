@@ -59,7 +59,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoDeChamada(expressao: any): any;
     visitarExpressaoDefinirValor(expressao: any): any;
-    visitarExpressaoDeleguaFuncao(expressao: any): any;
+    visitarExpressaoFuncaoConstruto(expressao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;
     visitarExpressaoDicionario(expressao: any): any;
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp>;

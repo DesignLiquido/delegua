@@ -123,9 +123,7 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
     visitarExpressaoDefinirValor(expressao: any) {
         throw new Error("Método não implementado");
     }
-    visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error("Método não implementado");
-    }
+
     visitarExpressaoDeVariavel(expressao: any) {
         throw new Error("Método não implementado");
     }
