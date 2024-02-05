@@ -1196,7 +1196,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.skip('Função que retorna função', async () => {
+                it('Função que retorna função', async () => {
                     const retornoLexador = lexador.mapear([
                         "funcao facaCurrying(some) {",
                         "  retorna funcao(a) {",

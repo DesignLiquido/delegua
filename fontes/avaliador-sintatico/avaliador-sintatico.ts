@@ -24,6 +24,7 @@ import {
     Isto,
     ExpressaoRegular,
     Decorador,
+    Parametro,
 } from '../construtos';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
@@ -1215,11 +1216,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo), null, this.pilhaDecoradores);
     }
 
-    logicaComumParametros(): ParametroInterface[] {
+    protected logicaComumParametros(): ParametroInterface[] {
         const parametros: ParametroInterface[] = [];
 
         do {
-            const parametro: Partial<ParametroInterface> = {};
+            const parametro: Parametro = new Parametro();
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);

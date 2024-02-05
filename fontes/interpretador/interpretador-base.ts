@@ -1168,7 +1168,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         let valor = null;
-        if (declaracao.valor != null) valor = await this.avaliar(declaracao.valor);
+        if (declaracao.valor !== null) { 
+            valor = await this.avaliar(declaracao.valor);
+        }
 
         return new RetornoQuebra(valor);
     }
@@ -1509,7 +1511,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     /**
      * Executa expressão de definição de variável.
-     * @param declaracao A declaração Var
+     * @param {Var} declaracao A declaração Var
      * @returns Sempre retorna nulo.
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {

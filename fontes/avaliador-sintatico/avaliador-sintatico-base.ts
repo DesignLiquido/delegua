@@ -1,4 +1,4 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
+import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Parametro, Unario } from '../construtos';
 import {
     Classe,
     Const,
@@ -323,7 +323,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
                 this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
             }
 
-            const parametro: Partial<ParametroInterface> = {};
+            const parametro: Parametro = new Parametro();
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
@@ -338,7 +338,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
                 parametro.valorPadrao = this.primario();
             }
 
-            parametros.push(parametro as ParametroInterface);
+            parametros.push(parametro);
 
             if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
