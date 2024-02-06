@@ -1,5 +1,5 @@
 import { Agrupamento, Atribuir, Binario, FimPara, Literal, Logico, Variavel } from '../construtos';
-import { Bloco, Declaracao, Expressao, Para, Se, Var } from '../declaracoes';
+import { Bloco, Declaracao, Escreva, Expressao, Para, Se, Var } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -258,7 +258,7 @@ export class TradutorReversoVisuAlg {
         return resultado;
     }
 
-    tradzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: any): string {
+    traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: Escreva): string {
         return this.traduzirDeclaracaoEscreva(declaracaoEscreva);
     }
 
@@ -282,7 +282,8 @@ export class TradutorReversoVisuAlg {
 
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
-        EscrevaMesmaLinha: this.tradzirDeclaracaoEscrevaMesmaLinha.bind(this),
+        CabecalhoPrograma: () => "",
+        EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),

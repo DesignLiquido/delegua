@@ -176,7 +176,7 @@ describe('Formatadores > VisualG', () => {
 
         expect(linhasResultado).toHaveLength(13)
         expect(retornoAvaliadorSintatico).toBeTruthy();
-        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
     });
 
     it('Leia', () => {
@@ -228,7 +228,7 @@ describe('Formatadores > VisualG', () => {
 
         expect(linhasResultado).toHaveLength(9)
         expect(retornoAvaliadorSintatico).toBeTruthy();
-        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
     });
 
     /* it('Procedimento', () => {
@@ -284,7 +284,7 @@ describe('Formatadores > VisualG', () => {
 
         expect(linhasResultado).toHaveLength(10);
         expect(retornoAvaliadorSintatico).toBeTruthy();
-        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
     });
 
     it('XOU', () => {
@@ -319,7 +319,7 @@ describe('Formatadores > VisualG', () => {
 
         expect(linhasResultado).toHaveLength(29);
         expect(retornoAvaliadorSintatico).toBeTruthy();
-        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22);
+        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(23);
     });
 
     it('Sucesso - Aleatorio - Números', () => {
@@ -344,6 +344,6 @@ describe('Formatadores > VisualG', () => {
 
         expect(linhasResultado).toHaveLength(8);
         expect(retornoAvaliadorSintatico).toBeTruthy();
-        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
     });
 });

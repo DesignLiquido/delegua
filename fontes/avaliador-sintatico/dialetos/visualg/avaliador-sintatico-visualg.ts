@@ -3,6 +3,7 @@ import { AvaliadorSintaticoBase } from '../../avaliador-sintatico-base';
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Declaracao,
     Enquanto,
     Escolha,
@@ -1245,9 +1246,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             this.avancarEDevolverAnterior();
         }
 
-        let declaracoes = [];
+        let declaracoes: Declaracao[] = [];
         const simboloNomeAlgoritmo = this.validarSegmentoAlgoritmo();
-        declaracoes.push(simboloNomeAlgoritmo.linha, simboloNomeAlgoritmo.hashArquivo, simboloNomeAlgoritmo.literal);
+        declaracoes.push(new CabecalhoPrograma(simboloNomeAlgoritmo.linha, simboloNomeAlgoritmo.hashArquivo, simboloNomeAlgoritmo.literal));
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
             const declaracao = this.resolverDeclaracaoForaDeBloco();

@@ -5,7 +5,7 @@ import {
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
 import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco, Aleatorio } from '../../../declaracoes';
+import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco, Aleatorio, CabecalhoPrograma } from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import * as comum from './comum';
@@ -22,6 +22,10 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
         registrarBibliotecaNumericaVisuAlg(this, this.pilhaEscoposExecucao);
         registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
+    }
+
+    async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        return comum.visitarDeclaracaoCabecalhoPrograma(this, declaracao);
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {

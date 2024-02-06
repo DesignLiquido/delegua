@@ -10,7 +10,7 @@ import {
     Unario,
     Variavel,
 } from '../../../construtos';
-import { Aleatorio, Declaracao, Expressao, Leia, Para } from '../../../declaracoes';
+import { Aleatorio, CabecalhoPrograma, Declaracao, Expressao, Leia, Para } from '../../../declaracoes';
 import { Simbolo } from '../../../lexador';
 import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { inferirTipoVariavel } from '../../inferenciador';
@@ -18,6 +18,10 @@ import { inferirTipoVariavel } from '../../inferenciador';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorBase } from '../../interpretador-base';
+
+export async function visitarDeclaracaoCabecalhoPrograma(interpretador: InterpretadorBase, declaracao: CabecalhoPrograma): Promise<any> {
+    return Promise.resolve();
+}
 
 export async function atribuirVariavel(
     interpretador: InterpretadorBase,

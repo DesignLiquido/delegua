@@ -2,6 +2,7 @@ import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Lite
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Classe,
     Const,
     ConstMultiplo,
@@ -74,6 +75,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
+
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
