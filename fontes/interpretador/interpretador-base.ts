@@ -1542,10 +1542,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
             subtipo = declaracao.tipo;
         }
-        let eTupla = false;
-        if (declaracao.inicializador as Tupla) {
-            eTupla = true;
-        }
+        
+        const eTupla = declaracao.inicializador instanceof Tupla;
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo, eTupla);
 
