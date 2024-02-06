@@ -1,5 +1,4 @@
-import { Agrupamento, Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Variavel, Vetor } from '../construtos';
-import { Tupla } from '../construtos/tuplas';
+import { Agrupamento, Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Tupla, Variavel, Vetor } from '../construtos';
 import {
     Aleatorio,
     Bloco,

@@ -60,6 +60,7 @@ import {
     QualTipo,
     Super,
     TipoDe,
+    Tupla,
     Unario,
     Variavel,
     Vetor,
@@ -82,7 +83,6 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import { Dupla, Tupla } from '../construtos/tuplas';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),

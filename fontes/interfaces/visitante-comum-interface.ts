@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe } from '../construtos';
+import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe, Tupla } from '../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -28,7 +28,6 @@ import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
 import { LeiaMultiplo } from '../declaracoes/leia-multiplo';
 import { ConstMultiplo } from '../declaracoes/const-multiplo';
 import { VarMultiplo } from '../declaracoes/var-multiplo';
-import { Tupla } from '../construtos/tuplas';
 
 export interface VisitanteComumInterface {
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>
