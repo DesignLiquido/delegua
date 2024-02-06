@@ -1,11 +1,11 @@
 import * as sistemaOperacional from 'os';
 
-import { FormatadorVisualG } from '../../fontes/formatadores';
+import { FormatadorVisuAlg } from '../../fontes/formatadores';
 import { LexadorVisuAlg } from '../../fontes/lexador/dialetos';
 import { AvaliadorSintaticoVisuAlg } from '../../fontes/avaliador-sintatico/dialetos';
 
 describe('Formatadores > VisualG', () => {
-    const formatadorVisualG = new FormatadorVisualG(sistemaOperacional.EOL);
+    const formatadorVisuAlg = new FormatadorVisuAlg(sistemaOperacional.EOL);
     const avaliadorSintaticoVisualG = new AvaliadorSintaticoVisuAlg();
     const lexadorVisuAlg = new LexadorVisuAlg();
 
@@ -19,7 +19,7 @@ describe('Formatadores > VisualG', () => {
 
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
 
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes);
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(6)
@@ -42,7 +42,7 @@ describe('Formatadores > VisualG', () => {
 
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
 
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes);
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(13)
@@ -65,7 +65,7 @@ describe('Formatadores > VisualG', () => {
         );
 
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes);
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
         expect(linhasResultado).toHaveLength(11)
@@ -88,7 +88,7 @@ describe('Formatadores > VisualG', () => {
         );
 
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes);
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
         expect(linhasResultado).toHaveLength(10)
@@ -115,7 +115,7 @@ describe('Formatadores > VisualG', () => {
             -1
         );
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes);
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
         expect(linhasResultado).toHaveLength(16)
@@ -146,7 +146,7 @@ describe('Formatadores > VisualG', () => {
         );
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
 
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes);
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
         expect(linhasResultado).toHaveLength(22)
@@ -171,7 +171,7 @@ describe('Formatadores > VisualG', () => {
             -1
         );
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(13)
@@ -200,7 +200,7 @@ describe('Formatadores > VisualG', () => {
         );
 
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(12)
@@ -223,7 +223,7 @@ describe('Formatadores > VisualG', () => {
             -1
         );
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(9)
@@ -279,7 +279,7 @@ describe('Formatadores > VisualG', () => {
             -1
         );
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(10);
@@ -314,7 +314,7 @@ describe('Formatadores > VisualG', () => {
             -1
         );
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(29);
@@ -339,7 +339,7 @@ describe('Formatadores > VisualG', () => {
         const retornoAvaliadorSintatico = avaliadorSintaticoVisualG.analisar(retornoLexador, -1);
 
 
-        const resultado = formatadorVisualG.formatar(retornoAvaliadorSintatico.declaracoes)
+        const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
         expect(linhasResultado).toHaveLength(8);
