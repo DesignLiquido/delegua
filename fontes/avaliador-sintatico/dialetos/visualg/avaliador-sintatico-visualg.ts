@@ -59,12 +59,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.blocoPrincipalIniciado = false;
     }
 
-    private validarSegmentoAlgoritmo(): void {
+    private validarSegmentoAlgoritmo(): SimboloInterface {
         this.consumir(tiposDeSimbolos.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
 
-        this.consumir(tiposDeSimbolos.CARACTERE, "Esperada cadeia de caracteres após palavra-chave 'algoritmo'.");
+        const descricaoAlgoritmo = this.consumir(tiposDeSimbolos.CARACTERE, "Esperada cadeia de caracteres após palavra-chave 'algoritmo'.");
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
+
+        return descricaoAlgoritmo;
     }
 
     private criarVetorNDimensional(dimensoes: number[]) {
@@ -1244,7 +1246,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         }
 
         let declaracoes = [];
-        this.validarSegmentoAlgoritmo();
+        const simboloNomeAlgoritmo = this.validarSegmentoAlgoritmo();
+        declaracoes.push(simboloNomeAlgoritmo.linha, simboloNomeAlgoritmo.hashArquivo, simboloNomeAlgoritmo.literal);
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
             const declaracao = this.resolverDeclaracaoForaDeBloco();

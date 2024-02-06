@@ -50,6 +50,7 @@ import {
     Declaracao,
     Falhar,
     Aleatorio,
+    CabecalhoPrograma,
 } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 
@@ -75,6 +76,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoTupla(expressao: Tupla): any {

@@ -2,6 +2,7 @@ import { AcessoMetodoOuPropriedade, Construto, ExpressaoRegular, FimPara, Format
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Const,
     ConstMultiplo,
     Declaracao,
@@ -76,6 +77,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
     }
+
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }

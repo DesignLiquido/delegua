@@ -23,6 +23,7 @@ import {
 } from '../../../construtos';
 import {
     Aleatorio,
+    CabecalhoPrograma,
     Classe,
     Const,
     ConstMultiplo,
@@ -99,6 +100,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
+    
+    async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }

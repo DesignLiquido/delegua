@@ -2,6 +2,7 @@ import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Classe,
     Const,
     Continua,
@@ -30,7 +31,8 @@ import { ConstMultiplo } from '../declaracoes/const-multiplo';
 import { VarMultiplo } from '../declaracoes/var-multiplo';
 
 export interface VisitanteComumInterface {
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>;
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any>;
     visitarDeclaracaoClasse(declaracao: Classe): any;
     visitarDeclaracaoConst(declaracao: Const): Promise<any>;
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any>;

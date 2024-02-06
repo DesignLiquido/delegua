@@ -1,4 +1,5 @@
 export * from './bloco';
+export * from './cabecalho-programa';
 export * from './classe';
 export * from './const';
 export * from './const-multiplo';
