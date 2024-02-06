@@ -57,6 +57,7 @@ import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao } from './retornos';
 import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { Simbolo } from '../lexador';
+import { SeletorTuplas, Tupla } from '../construtos/tuplas';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -191,7 +192,21 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                    let valor: any = null;
+                    if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                        const expressao = this.expressao();
+                        const argumentos = [expressao];
+                        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
+                            this.avancarEDevolverAnterior();
+                            argumentos.push(this.expressao());
+                        }
+        
+                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                        this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após a expressão.");
+                        return new SeletorTuplas(...argumentos) as Tupla;
+                    }
+
+                    valor = this.atribuir();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
