@@ -204,13 +204,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                         this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após a expressão.");
                         return new SeletorTuplas(...argumentos) as Tupla;
+                    }
 
-                    } else {
-                        valor = this.atribuir();
-                        valores.push(valor);
-                        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                            this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
-                        }
+                    valor = this.atribuir();
+                    valores.push(valor);
+                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                     }
                 }
 
