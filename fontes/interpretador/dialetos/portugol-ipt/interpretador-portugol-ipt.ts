@@ -1,4 +1,4 @@
-import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, QualTipo, Super, TipoDe, Variavel } from '../../../construtos';
+import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, QualTipo, Super, TipoDe, Tupla, Variavel } from '../../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -73,6 +73,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');

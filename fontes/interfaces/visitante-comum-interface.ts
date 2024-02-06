@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe } from '../construtos';
+import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe, Tupla } from '../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -75,6 +75,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
     visitarExpressaoSuper(expressao: Super): any;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
+    visitarExpressaoTupla(expressao: Tupla): Promise<any>;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any>;
     visitarExpressaoUnaria(expressao: any): any;
     visitarExpressaoVetor(expressao: any): any;

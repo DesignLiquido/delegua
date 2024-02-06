@@ -1550,6 +1550,20 @@ describe('Interpretador', () => {
                         'Constante \'c\' não pode receber novos valores.'
                     );
                 });
+
+                it('Tupla - Dupla', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var t = [(1, 2)]",
+                        "t[0] = 3",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.'
+                    );
+                });
             })
         });
     });

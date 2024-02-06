@@ -7,6 +7,6 @@ export abstract class Tupla implements Construto {
     valor?: any;
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        throw new Error('Método não implementado.');
+        return await visitante.visitarExpressaoTupla(this);
     }
 }
