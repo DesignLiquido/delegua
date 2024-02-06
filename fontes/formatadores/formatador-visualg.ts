@@ -48,8 +48,6 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         throw new Error("Método não implementado.");
     }
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        console.log(expressao);
-
         this.codigoFormatado += `${expressao.simbolo.lexema} <- `;
         this.formatarDeclaracaoOuConstruto(expressao.valor);
 
@@ -62,8 +60,6 @@ export class FormatadorVisualG implements VisitanteComumInterface {
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        console.log(declaracao);
-
         this.retornoFuncaoAtual = declaracao.tipoRetorno;
         this.contadorDeclaracaoVar = 2;
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}funcao `;
