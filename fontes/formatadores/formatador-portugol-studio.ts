@@ -1,4 +1,4 @@
-import { AcessoIndiceVariavel, AcessoMetodoOuPropriedade, Agrupamento, AtribuicaoPorIndice, Atribuir, Binario, Chamada, Construto, DefinirValor, Dicionario, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Isto, Literal, Logico, Super, TipoDe, Unario, Variavel, Vetor } from "../construtos";
+import { AcessoIndiceVariavel, AcessoMetodoOuPropriedade, Agrupamento, AtribuicaoPorIndice, Atribuir, Binario, Chamada, Construto, DefinirValor, Dicionario, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Isto, Literal, Logico, Super, TipoDe, Tupla, Unario, Variavel, Vetor } from "../construtos";
 import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao, Falhar, Aleatorio } from "../declaracoes";
 import { VisitanteComumInterface } from "../interfaces";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
@@ -20,7 +20,9 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
         this.devePularLinha = true;
         this.deveIndentar = true;
     }
-
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        throw new Error("Método não implementado");
+    }
     visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error("Método não implementado");
     }

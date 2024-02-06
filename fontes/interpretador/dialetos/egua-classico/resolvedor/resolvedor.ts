@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, QualTipo, Super, TipoDe, Variavel } from '../../../../construtos';
+import { AcessoMetodoOuPropriedade, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, QualTipo, Super, TipoDe, Tupla, Variavel } from '../../../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -75,6 +75,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');

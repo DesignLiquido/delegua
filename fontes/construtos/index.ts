@@ -22,6 +22,7 @@ export * from './literal';
 export * from './logico';
 export * from './super';
 export * from './tipo-de';
+export * from './tuplas';
 export * from './unario';
 export * from './variavel';
 export * from './vetor';

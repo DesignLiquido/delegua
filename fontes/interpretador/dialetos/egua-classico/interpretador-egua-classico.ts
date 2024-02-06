@@ -18,6 +18,7 @@ import {
     QualTipo,
     Super,
     TipoDe,
+    Tupla,
     Variavel,
 } from '../../../construtos';
 import {
@@ -97,6 +98,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');

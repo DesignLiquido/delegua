@@ -1,4 +1,4 @@
-import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Variavel, Vetor } from "../../construtos";
+import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Tupla, Variavel, Vetor } from "../../construtos";
 import {
     Aleatorio,
     Bloco,
@@ -49,6 +49,9 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagem: string): void {

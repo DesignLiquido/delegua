@@ -1,4 +1,5 @@
 import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Variavel } from '../../construtos';
+import { Tupla } from '../../construtos/tuplas';
 import {
     Aleatorio,
     Bloco,
@@ -60,6 +61,9 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        return Promise.resolve();
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         return Promise.resolve();

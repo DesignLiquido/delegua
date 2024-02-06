@@ -1,4 +1,4 @@
-import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Vetor } from '../../construtos';
+import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Tupla, Vetor } from '../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -49,6 +49,9 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        return Promise.resolve();
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         return Promise.resolve();

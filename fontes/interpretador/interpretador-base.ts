@@ -82,6 +82,7 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import { Dupla, Tupla } from '../construtos/tuplas';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -160,6 +161,17 @@ export class InterpretadorBase implements InterpretadorInterface {
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
 
+    async visitarExpressaoTupla(expressao: any): Promise<any> {
+        const chaves = Object.keys(expressao)
+        const valores = [];
+        for (let chave of chaves) {
+            const valor = await this.avaliar(expressao[chave])
+            valores.push(valor);
+        }
+
+        return valores;
+    }
+
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -168,7 +180,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    //https://stackoverflow.com/a/66751666/9043143
     protected textoParaRegex(texto: string): RegExp {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match
@@ -1190,6 +1201,16 @@ export class InterpretadorBase implements InterpretadorInterface {
         let indice = promises[1];
         const valor = promises[2];
 
+        if (objeto.imutavel) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    expressao.objeto.simbolo.lexema,
+                    'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
+                    expressao.linha
+                )
+            );
+        }
+
         objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
         indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
 
@@ -1518,11 +1539,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
         let subtipo;
-        if (declaracao.tipo !== undefined) {
+        if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
             subtipo = declaracao.tipo;
         }
+        let eTupla = false;
+        if (declaracao.inicializador as Tupla) {
+            eTupla = true;
+        }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo, eTupla);
 
         return null;
     }

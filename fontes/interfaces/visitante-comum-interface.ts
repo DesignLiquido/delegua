@@ -28,6 +28,7 @@ import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
 import { LeiaMultiplo } from '../declaracoes/leia-multiplo';
 import { ConstMultiplo } from '../declaracoes/const-multiplo';
 import { VarMultiplo } from '../declaracoes/var-multiplo';
+import { Tupla } from '../construtos/tuplas';
 
 export interface VisitanteComumInterface {
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>
@@ -75,6 +76,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
     visitarExpressaoSuper(expressao: Super): any;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
+    visitarExpressaoTupla(expressao: Tupla): Promise<any>;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any>;
     visitarExpressaoUnaria(expressao: any): any;
     visitarExpressaoVetor(expressao: any): any;

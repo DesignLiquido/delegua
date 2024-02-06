@@ -1,4 +1,5 @@
 import { Agrupamento, Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Variavel, Vetor } from '../construtos';
+import { Tupla } from '../construtos/tuplas';
 import {
     Aleatorio,
     Bloco,
@@ -59,6 +60,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {

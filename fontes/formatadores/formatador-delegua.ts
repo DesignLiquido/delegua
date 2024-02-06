@@ -18,6 +18,7 @@ import {
     Logico,
     Super,
     TipoDe,
+    Tupla,
     Unario,
     Variavel,
     Vetor,
@@ -74,6 +75,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarExpressaoTupla(expressao: Tupla): any {
+        return "";
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
