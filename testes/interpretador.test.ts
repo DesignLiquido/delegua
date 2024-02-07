@@ -1627,7 +1627,7 @@ describe('Interpretador', () => {
                     );
                 });
 
-                it('Tupla - Dupla', async () => {
+                it('Tupla Dupla - Atribuição por indice', async () => {
                     const retornoLexador = lexador.mapear([
                         "var t = [(1, 2)]",
                         "t[0] = 3",
@@ -1638,6 +1638,20 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
                         'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.'
+                    );
+                });
+
+                it('Tupla Dupla - Primitiva adicionar()', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var t = [(1, 2)]",
+                        "t.adicionar(3)"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        'Tupla é imutável, seus elementos não podem ser alterados, adicionados ou removidos.'
                     );
                 });
             })

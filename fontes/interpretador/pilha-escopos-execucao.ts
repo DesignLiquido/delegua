@@ -91,7 +91,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
-            imutavel: imutavel,
+            imutavel,
         };
 
         if (subtipo !== undefined) {

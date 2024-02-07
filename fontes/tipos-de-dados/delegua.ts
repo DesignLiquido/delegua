@@ -8,6 +8,10 @@ export default {
     NÚMERO: 'número',
     NULO: 'nulo',
     OBJETO: 'objeto',
+    QUALQUER: 'qualquer',
+    REAL: 'real',
     TEXTO: 'texto',
+    TUPLA: 'tupla',
+    VAZIO: 'vazio',
     VETOR: 'vetor'
 };
