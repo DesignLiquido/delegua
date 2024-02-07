@@ -52,6 +52,7 @@ import {
     Falhar,
     CabecalhoPrograma,
 } from '../declaracoes';
+import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import tiposDeSimbolos from '../tipos-de-simbolos/visualg';
@@ -64,7 +65,6 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
     devePularLinha: boolean;
     deveIndentar: boolean;
     contadorDeclaracaoVar: number;
-    deveAdicionarInicio: boolean;
     retornoFuncaoAtual: SimboloInterface;
 
     constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
@@ -76,8 +76,11 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.devePularLinha = false;
         this.deveIndentar = true;
         this.contadorDeclaracaoVar = 0;
-        this.deveAdicionarInicio = true;
         this.retornoFuncaoAtual = undefined;
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): any {
+        this.codigoFormatado += `inicio${this.quebraLinha}`;
     }
 
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): any {
@@ -613,6 +616,9 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
             case 'Importar':
                 this.visitarDeclaracaoImportar(declaracaoOuConstruto as Importar);
                 break;
+            case 'InicioAlgoritmo':
+                this.visitarDeclaracaoInicioAlgoritmo(declaracaoOuConstruto as InicioAlgoritmo);
+                break;
             case 'Isto':
                 this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;
@@ -692,11 +698,6 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.indentacaoAtual += this.tamanhoIndentacao;
 
         for (let declaracao of declaracoes) {
-            if (!(declaracao instanceof Var) && this.deveAdicionarInicio) {
-                this.codigoFormatado += `${this.quebraLinha}inicio${this.quebraLinha}`;
-                this.deveAdicionarInicio = false;
-            } else if (declaracao instanceof Var) this.deveAdicionarInicio = true;
-
             this.formatarDeclaracaoOuConstruto(declaracao);
         }
 

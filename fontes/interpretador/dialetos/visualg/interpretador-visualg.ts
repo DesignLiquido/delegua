@@ -28,6 +28,10 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
     }
 
+    async visitarDeclaracaoInicioAlgoritmo(declaracao: CabecalhoPrograma): Promise<any> {
+        return comum.visitarDeclaracaoInicioAlgoritmo(this, declaracao);
+    }
+
     async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         return comum.visitarDeclaracaoCabecalhoPrograma(this, declaracao);
     }

@@ -52,6 +52,7 @@ import {
     Aleatorio,
     CabecalhoPrograma,
 } from '../declaracoes';
+import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { VisitanteComumInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -76,6 +77,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {

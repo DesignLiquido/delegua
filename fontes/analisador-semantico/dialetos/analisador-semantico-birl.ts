@@ -27,6 +27,7 @@ import {
     Var,
     VarMultiplo,
 } from '../../declaracoes';
+import { InicioAlgoritmo } from '../../declaracoes/inicio-algoritmo';
 import { AnalisadorSemanticoInterface } from '../../interfaces/analisador-semantico-interface';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
@@ -61,6 +62,10 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.variaveis = {};
         this.atual = 0;
         this.diagnosticos = [];
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        return Promise.resolve();
     }
     
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {

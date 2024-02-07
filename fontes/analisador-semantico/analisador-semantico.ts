@@ -28,6 +28,7 @@ import {
     Var,
     VarMultiplo,
 } from '../declaracoes';
+import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
@@ -77,10 +78,16 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         return Promise.resolve();
     }
+
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         return Promise.resolve();
     }
+
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         return Promise.resolve();
     }
 

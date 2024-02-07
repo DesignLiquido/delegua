@@ -288,6 +288,7 @@ export class TradutorReversoVisuAlg {
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         FimPara: this.traduzirDeclaracaoFimPara.bind(this),
+        InicioAlgoritmo: () => "",
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),

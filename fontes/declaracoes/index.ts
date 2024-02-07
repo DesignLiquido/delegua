@@ -14,6 +14,7 @@ export * from './falhar';
 export * from './fazer';
 export * from './funcao';
 export * from './importar';
+export * from './inicio-algoritmo';
 export * from './leia';
 export * from './leia-multiplo';
 export * from './para';
