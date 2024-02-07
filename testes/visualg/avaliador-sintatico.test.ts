@@ -20,7 +20,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
             });
 
             it('Sucesso - Atribuição', () => {
@@ -42,7 +42,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(7);
             });
 
             it('Sucesso - Enquanto', () => {
@@ -63,7 +63,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
 
             it('Sucesso - Escolha', () => {
@@ -117,7 +117,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(8);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(9);
             });
 
             it('Sucesso - Interrompa', () => {
@@ -141,7 +141,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
 
             it('Sucesso - Leia', () => {
@@ -180,7 +180,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
 
             it('Sucesso - Para (usando seta de ateribuiÇão)', () => {
@@ -199,7 +199,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
 
             it('Sucesso - Procedimento', () => {
@@ -228,7 +228,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(6);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(7);
             });
 
             it('Sucesso - Repita', () => {
@@ -249,7 +249,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
 
             it('Sucesso - Xou', () => {
@@ -282,7 +282,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(22);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(23);
             });
 
             it('Sucesso - Aleatorio - Números', () => {
@@ -302,7 +302,7 @@ describe('Avaliador sintático (VisuAlg)', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
         });
 

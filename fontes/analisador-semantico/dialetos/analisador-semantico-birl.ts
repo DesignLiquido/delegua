@@ -2,6 +2,7 @@ import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super,
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Classe,
     Const,
     ConstMultiplo,
@@ -61,6 +62,11 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         this.atual = 0;
         this.diagnosticos = [];
     }
+    
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        return Promise.resolve();
+    }
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         return Promise.resolve();
     }

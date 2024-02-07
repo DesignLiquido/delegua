@@ -50,6 +50,7 @@ import {
     Sustar,
     Declaracao,
     Falhar,
+    CabecalhoPrograma,
 } from '../declaracoes';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -77,6 +78,10 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.contadorDeclaracaoVar = 0;
         this.deveAdicionarInicio = true;
         this.retornoFuncaoAtual = undefined;
+    }
+
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): any {
+        this.codigoFormatado += `algoritmo "${declaracao.nomeProgramaAlgoritmo}"${this.quebraLinha}`;
     }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): any {
@@ -551,6 +556,9 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
             case 'Bloco':
                 this.visitarExpressaoBloco(declaracaoOuConstruto as Bloco);
                 break;
+            case 'CabecalhoPrograma':
+                this.visitarDeclaracaoCabecalhoPrograma(declaracaoOuConstruto as CabecalhoPrograma);
+                break;
             case 'Chamada':
                 this.visitarExpressaoDeChamada(declaracaoOuConstruto as Chamada);
                 break;
@@ -589,6 +597,9 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
                 break;
             case 'Fazer':
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
+                break;
+            case 'FimPara':
+                // FimPara só existe com um Para, então não é necessário formatá-lo.
                 break;
             case 'FormatacaoEscrita':
                 this.visitarExpressaoFormatacaoEscrita(declaracaoOuConstruto as FormatacaoEscrita);
@@ -675,7 +686,7 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
 
     formatar(declaracoes: Declaracao[]): string {
         this.indentacaoAtual = 0;
-        this.codigoFormatado = `algoritmo ""${this.quebraLinha}`;
+        this.codigoFormatado = "";
         this.devePularLinha = true;
         this.deveIndentar = true;
         this.indentacaoAtual += this.tamanhoIndentacao;

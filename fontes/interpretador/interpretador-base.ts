@@ -11,6 +11,7 @@ import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelI
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Classe,
     Const,
     ConstMultiplo,
@@ -159,6 +160,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+
+    async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     async visitarExpressaoTupla(expressao: any): Promise<any> {

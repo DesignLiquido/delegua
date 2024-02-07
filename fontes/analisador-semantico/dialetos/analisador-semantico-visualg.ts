@@ -2,6 +2,7 @@ import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, Funcao
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Classe,
     Const,
     ConstMultiplo,
@@ -50,6 +51,11 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         this.atual = 0;
         this.diagnosticos = [];
     }
+    
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        return Promise.resolve();
+    }
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         return Promise.resolve();
     }

@@ -2,6 +2,7 @@ import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, Forma
 import {
     Aleatorio,
     Bloco,
+    CabecalhoPrograma,
     Classe,
     Const,
     ConstMultiplo,
@@ -50,6 +51,11 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         this.atual = 0;
         this.diagnosticos = [];
     }
+    
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        return Promise.resolve();
+    }
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         return Promise.resolve();
     }

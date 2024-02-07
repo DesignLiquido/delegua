@@ -1,5 +1,5 @@
 import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
-import { Aleatorio, Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
+import { Aleatorio, CabecalhoPrograma, Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';
@@ -26,6 +26,10 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
 
         registrarBibliotecaNumericaVisuAlg(this, this.pilhaEscoposExecucao);
         registrarBibliotecaCaracteresVisuAlg(this, this.pilhaEscoposExecucao);
+    }
+
+    async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+        return comum.visitarDeclaracaoCabecalhoPrograma(this, declaracao);
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
