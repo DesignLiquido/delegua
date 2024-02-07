@@ -1591,8 +1591,8 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (Array.isArray(objeto)) return objeto;
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse || 
-            objeto instanceof DeleguaFuncao) 
+        if (objeto instanceof ObjetoDeleguaClasse 
+            || objeto instanceof DeleguaFuncao) 
             return objeto.paraTexto();
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) return JSON.stringify(objeto);
 
