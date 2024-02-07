@@ -698,11 +698,6 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.indentacaoAtual += this.tamanhoIndentacao;
 
         for (let declaracao of declaracoes) {
-            /* if (!(declaracao instanceof Var) && this.deveAdicionarInicio) {
-                this.codigoFormatado += `${this.quebraLinha}inicio${this.quebraLinha}`;
-                this.deveAdicionarInicio = false;
-            } else if (declaracao instanceof Var) this.deveAdicionarInicio = true; */
-
             this.formatarDeclaracaoOuConstruto(declaracao);
         }
 
