@@ -29,8 +29,10 @@ import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
 import { LeiaMultiplo } from '../declaracoes/leia-multiplo';
 import { ConstMultiplo } from '../declaracoes/const-multiplo';
 import { VarMultiplo } from '../declaracoes/var-multiplo';
+import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 
 export interface VisitanteComumInterface {
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any>;
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>;
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any>;
     visitarDeclaracaoClasse(declaracao: Classe): any;

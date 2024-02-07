@@ -22,9 +22,11 @@ export class InterpretadorBirlComDepuracao extends InterpretadorComDepuracao imp
     async resolveQuantidadeDeInterpolacoes(expressao: Literal): Promise<RegExpMatchArray> {
         return comum.resolveQuantidadeDeInterpolacoes(expressao);
     }
+
     async verificaTipoDaInterpolação(dados: { tipo: string; valor: any }): Promise<boolean> {
         return comum.verificaTipoDaInterpolação(dados);
     }
+    
     async substituirValor(stringOriginal: string, novoValor: any, simboloTipo: string): Promise<string> {
         return comum.substituirValor(stringOriginal, novoValor, simboloTipo);
     }

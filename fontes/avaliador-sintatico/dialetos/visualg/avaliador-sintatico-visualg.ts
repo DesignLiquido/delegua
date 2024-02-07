@@ -44,6 +44,7 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
 import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
 import { ErroAvaliadorSintatico } from '../../erro-avaliador-sintatico';
+import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
@@ -275,11 +276,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return inicializacoes;
     }
 
-    private validarSegmentoInicio(algoritmoOuFuncao: string): void {
-        this.consumir(
+    private validarSegmentoInicio(algoritmoOuFuncao: string): SimboloInterface {
+        const simboloInicio = this.consumir(
             tiposDeSimbolos.INICIO,
             `Esperada expressão 'inicio' para marcar escopo de ${algoritmoOuFuncao}.`
         );
+        return simboloInicio;
     }
 
     estaNoFinal(): boolean {
@@ -1181,8 +1183,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.FUNCAO:
                 return this.funcao('funcao');
             case tiposDeSimbolos.INICIO:
-                this.validarSegmentoInicio('algoritmo');
-                return null;
+                const simboloInicio = this.validarSegmentoInicio('algoritmo');
+                return new InicioAlgoritmo(simboloInicio.linha, simboloInicio.hashArquivo);
             case tiposDeSimbolos.INTERROMPA:
                 return this.declaracaoInterrompa();
             case tiposDeSimbolos.LEIA:

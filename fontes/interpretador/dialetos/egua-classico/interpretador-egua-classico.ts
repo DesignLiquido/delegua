@@ -59,6 +59,7 @@ import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
 import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classico/biblioteca-global';
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
 import { ArgumentoInterface } from '../../argumento-interface';
+import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
@@ -100,20 +101,27 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
     
-    async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
+    
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }

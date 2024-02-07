@@ -52,6 +52,7 @@ import {
     Falhar,
     CabecalhoPrograma,
 } from '../declaracoes';
+import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import tiposDeSimbolos from '../tipos-de-simbolos/visualg';
@@ -78,6 +79,10 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.contadorDeclaracaoVar = 0;
         this.deveAdicionarInicio = true;
         this.retornoFuncaoAtual = undefined;
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): any {
+        this.codigoFormatado += `inicio"${this.quebraLinha}`;
     }
 
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): any {

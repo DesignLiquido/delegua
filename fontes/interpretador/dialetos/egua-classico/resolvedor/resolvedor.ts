@@ -15,6 +15,7 @@ import {
     Var,
     VarMultiplo,
 } from '../../../../declaracoes';
+import { InicioAlgoritmo } from '../../../../declaracoes/inicio-algoritmo';
 import { EspacoVariaveis } from '../../../../espaco-variaveis';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
@@ -78,6 +79,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -85,9 +90,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
