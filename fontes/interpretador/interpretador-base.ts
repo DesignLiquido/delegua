@@ -1591,7 +1591,6 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (Array.isArray(objeto)) return objeto;
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        // TODO: Idealmente isso deveria devolver um texto estruturado representando o objeto.
         if (objeto instanceof ObjetoDeleguaClasse || 
             objeto instanceof DeleguaFuncao) 
             return objeto.paraTexto();
