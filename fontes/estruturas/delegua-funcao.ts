@@ -39,7 +39,9 @@ export class DeleguaFuncao extends Chamavel {
         if (this.nome === null) return '<função>';
         let parametros = '';
         for (let parametro of this.declaracao.parametros) {
-            parametros += `${parametro.nome.lexema}: ${parametro.tipoDado.tipo}, `
+            parametros += `${parametro.nome.lexema}${
+                parametro.tipoDado && parametro.tipoDado.tipo ? `: ${parametro.tipoDado.tipo}, ` : ', '
+            }`
         }
         if (this.declaracao.parametros.length > 0) {
             parametros = parametros.slice(0, -2);

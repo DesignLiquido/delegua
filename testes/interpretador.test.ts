@@ -17,7 +17,7 @@ describe('Interpretador', () => {
         describe('Cenários de sucesso', () => {
 
             describe('Descrever objetos - paraTexto()', () => {
-                it('Descrever objeto completo - DeleguaFuncao', async () => {
+                it('Descrever função com parametros e tipos - DeleguaFuncao', async () => {
                     let _saida: string = ""
                     const retornoLexador = lexador.mapear([
                         "funcao retorneAlgo(a: inteiro, b: texto) {",
@@ -36,7 +36,26 @@ describe('Interpretador', () => {
                     expect(_saida).toBe("<função retorneAlgo argumentos=<a: inteiro, b: texto>>");
                 });
 
-                it('Descrever nome - DeleguaFuncao', async () => {
+                it('Descrever função com parametros sem tipos - DeleguaFuncao', async () => {
+                    let _saida: string = ""
+                    const retornoLexador = lexador.mapear([
+                        "funcao retorneAlgo(a, b) {",
+                        "   retorna \"Algo\"",
+                        "}",
+                        "escreva(retorneAlgo)"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    }
+    
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                    expect(_saida).toBe("<função retorneAlgo argumentos=<a, b>>");
+                });
+
+                it('Descrever nome função - DeleguaFuncao', async () => {
                     let _saida: string = ""
                     const retornoLexador = lexador.mapear([
                         "funcao retorneAlgo() {",
