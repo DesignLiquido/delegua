@@ -8,6 +8,7 @@ import { FuncaoConstruto } from '../construtos';
 import { ArgumentoInterface } from '../interpretador/argumento-interface';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { inferirTipoVariavel } from '../interpretador/inferenciador';
+import { Retorna } from '../declaracoes';
 
 /**
  * Qualquer função declarada em código é uma DeleguaFuncao.
@@ -37,7 +38,33 @@ export class DeleguaFuncao extends Chamavel {
 
     paraTexto(): string {
         if (this.nome === null) return '<função>';
-        return `<função ${this.nome}>`;
+        let resultado = `<função ${this.nome}`;
+        let parametros = '';
+        let retorno = '';
+
+        for (let parametro of this.declaracao.parametros) {
+            parametros += `${parametro.nome.lexema}${
+                parametro.tipoDado && parametro.tipoDado.tipo ? `: ${parametro.tipoDado.tipo}, ` : ', '
+            }`
+        }
+        if (this.declaracao.parametros.length > 0) {
+            parametros = `argumentos=<${parametros.slice(0, -2)}>`;
+        }
+
+        const retorna = this.declaracao.corpo.filter(c => c instanceof Retorna)[0];
+        if (retorna instanceof Retorna) {
+            const valor = retorna?.valor?.valor;
+            retorno = `retorna=<${typeof valor === 'number' ? valor : `'${valor}'`}>`
+        }
+
+        if (parametros) {
+            resultado += ` ${parametros}`
+        }
+        if (retorno) {
+            resultado += ` ${retorno}`
+        }
+        resultado += '>'
+        return resultado;
     }
 
     async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
