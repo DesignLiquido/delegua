@@ -1,4 +1,5 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import hrtime from 'browser-process-hrtime';
 
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
@@ -107,13 +108,21 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     verificarDefinicaoTipoAtual(): TiposDadosInterface {
-        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor'];
+        // const tipos = [
+        //     tipoDeDadosDelegua.INTEIRO, 
+        //     tipoDeDadosDelegua.QUALQUER,
+        //     tipoDeDadosDelegua.REAL, 
+        //     tipoDeDadosDelegua.TEXTO,
+        //     tipoDeDadosDelegua.VAZIO, 
+        //     tipoDeDadosDelegua.VETOR
+        // ];
+        const tipos = [...Object.values(tipoDeDadosDelegua)]
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
         const contemTipo = tipos.find((tipo) => tipo === lexema);
 
         if (contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]'];
+            const tiposVetores = ['inteiro[]', 'numero[]', 'número[]', 'qualquer[]', 'real[]', 'texto[]'];
             this.avancarEDevolverAnterior();
 
             if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
@@ -1131,6 +1140,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
+            tipo = inicializadores[indice] instanceof Tupla ? tipoDeDadosDelegua.TUPLA : tipo;
             retorno.push(new Var(identificador, inicializadores[indice], tipo));
         }
 

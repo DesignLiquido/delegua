@@ -171,7 +171,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    async visitarExpressaoTupla(expressao: any): Promise<any> {
+    async visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         const chaves = Object.keys(expressao)
         const valores = [];
         for (let chave of chaves) {
@@ -212,11 +212,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (
             tipoDe instanceof Binario ||
+            tipoDe instanceof Chamada ||
             tipoDe instanceof TipoDe ||
             tipoDe instanceof Unario ||
             tipoDe instanceof Variavel ||
-            tipoDe instanceof Agrupamento ||
-            tipoDe instanceof Chamada
+            tipoDe instanceof Agrupamento
         ) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
@@ -655,6 +655,24 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             if (entidadeChamada instanceof MetodoPrimitiva) {
                 const argumentosResolvidos: any[] = [];
+
+                if (expressao instanceof Chamada) {
+                    if (expressao.entidadeChamada instanceof AcessoMetodoOuPropriedade) {
+                        if (expressao.entidadeChamada.objeto instanceof Variavel) {
+                            let eTupla = this.procurarVariavel(expressao.entidadeChamada.objeto.simbolo)
+                            if (eTupla.subtipo === tipoDeDadosDelegua.TUPLA) {
+                                return Promise.reject(
+                                    new ErroEmTempoDeExecucao(
+                                        expressao.entidadeChamada.objeto.simbolo,
+                                        'Tupla é imutável, seus elementos não podem ser alterados, adicionados ou removidos.',
+                                        expressao.linha
+                                    )
+                                );
+                            }
+                        }
+                    }
+                }
+
                 for (const argumento of expressao.argumentos) {
                     const valorResolvido: any = await this.avaliar(argumento);
                     argumentosResolvidos.push(
@@ -1211,7 +1229,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let indice = promises[1];
         const valor = promises[2];
 
-        if (objeto.imutavel) {
+        if (objeto.subtipo === tipoDeDadosDelegua.TUPLA) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.objeto.simbolo.lexema,
@@ -1552,9 +1570,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
             subtipo = declaracao.tipo;
         }
-        
-        const eTupla = declaracao.inicializador instanceof Tupla;
 
+        let eTupla = declaracao.tipo === tipoDeDadosDelegua.TUPLA;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo, eTupla);
 
         return null;
