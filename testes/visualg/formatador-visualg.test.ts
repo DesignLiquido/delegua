@@ -22,7 +22,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(6)
+        expect(linhasResultado).toHaveLength(5)
     })
 
     it('Lendo variaveis', () => {
@@ -45,7 +45,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(13)
+        expect(linhasResultado).toHaveLength(12)
     })
 
     it('Atribuição', () => {
@@ -68,7 +68,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
-        expect(linhasResultado).toHaveLength(11)
+        expect(linhasResultado).toHaveLength(10)
     })
 
     it('Enquanto', () => {
@@ -91,7 +91,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
-        expect(linhasResultado).toHaveLength(10)
+        expect(linhasResultado).toHaveLength(9)
     })
 
     it('Escolha', () => {
@@ -118,7 +118,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
-        expect(linhasResultado).toHaveLength(16)
+        expect(linhasResultado).toHaveLength(15)
     });
 
     it('Função', () => {
@@ -149,7 +149,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes);
 
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
-        expect(linhasResultado).toHaveLength(22)
+        expect(linhasResultado).toHaveLength(21)
     });
 
     it('Interrompa', () => {
@@ -174,7 +174,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(13)
+        expect(linhasResultado).toHaveLength(12)
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(5);
     });
@@ -203,7 +203,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(12)
+        expect(linhasResultado).toHaveLength(11)
 
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThan(0);
@@ -226,7 +226,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(9)
+        expect(linhasResultado).toHaveLength(8)
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
     });
@@ -282,7 +282,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(10);
+        expect(linhasResultado).toHaveLength(9);
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(5);
     });
@@ -317,7 +317,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(29);
+        expect(linhasResultado).toHaveLength(28);
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(24);
     });
@@ -342,7 +342,7 @@ describe('Formatadores > VisualG', () => {
         const resultado = formatadorVisuAlg.formatar(retornoAvaliadorSintatico.declaracoes)
         const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-        expect(linhasResultado).toHaveLength(8);
+        expect(linhasResultado).toHaveLength(7);
         expect(retornoAvaliadorSintatico).toBeTruthy();
         expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
     });
