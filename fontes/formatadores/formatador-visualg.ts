@@ -96,15 +96,19 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         }
         this.formatarDeclaracaoOuConstruto(declaracao.corpo);
     }
+
     visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado.');
     }
+
     visitarDeclaracaoConst(declaracao: Const): any {
         throw new Error('Método não implementado.');
     }
+
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): any {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         this.codigoFormatado += `${expressao.simbolo.lexema} <- `;
         this.formatarDeclaracaoOuConstruto(expressao.valor);
@@ -113,10 +117,12 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
             this.codigoFormatado += `${this.quebraLinha}`;
         }
     }
+
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
     }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         this.retornoFuncaoAtual = declaracao.tipoRetorno;
         this.contadorDeclaracaoVar = 2;
@@ -151,6 +157,7 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.formatarDeclaracaoOuConstruto(declaracao.funcao);
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fimfuncao${this.quebraLinha}`;
     }
+
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}enquanto(`;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
@@ -160,6 +167,7 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.formatarDeclaracaoOuConstruto(declaracao.corpo);
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fimenquanto`;
     }
+
     visitarDeclaracaoEscolha(declaracao: Escolha) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escolha (`;
         this.formatarDeclaracaoOuConstruto(declaracao.identificadorOuLiteral);
@@ -188,6 +196,7 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.indentacaoAtual -= this.tamanhoIndentacao;
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fimescolha${this.quebraLinha}`;
     }
+
     visitarDeclaracaoEscreva(declaracao: Escreva) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escreva(`;
         for (let argumento of declaracao.argumentos) {
@@ -199,15 +208,18 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         }
         this.codigoFormatado += `)${this.quebraLinha}`;
     }
+
     visitarDeclaracaoFazer(declaracao: Fazer) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}repita${this.quebraLinha}`;
         this.formatarDeclaracaoOuConstruto(declaracao.caminhoFazer);
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}ate `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicaoEnquanto);
     }
+
     visitarDeclaracaoImportar(declaracao: Importar) {
         throw new Error('Método não implementado.');
     }
+
     visitarDeclaracaoPara(declaracao: Para): any {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
         this.devePularLinha = false;
@@ -233,9 +245,11 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
 
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fimpara${this.quebraLinha}`;
     }
+
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
         throw new Error('Método não implementado.');
     }
+
     visitarDeclaracaoSe(declaracao: Se) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}se ( `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
@@ -254,9 +268,11 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fimse${this.quebraLinha}`;
         }
     }
+
     visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error('Método não implementado.');
     }
+
     visitarDeclaracaoVar(declaracao: Var): any {
         switch (this.contadorDeclaracaoVar) {
             case 0:
@@ -293,15 +309,22 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        throw new Error('Método não implementado.');
+
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel) {
+        this.formatarDeclaracaoOuConstruto(expressao.entidadeChamada);
+        this.codigoFormatado += `[`;
+        this.formatarDeclaracaoOuConstruto(expressao.indice);
+        this.codigoFormatado += `]`;
     }
+
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarExpressaoAgrupamento(expressao: any): any {
         this.codigoFormatado += '(';
         this.formatarDeclaracaoOuConstruto(expressao.expressao);
@@ -529,6 +552,22 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
             this.codigoFormatado += this.quebraLinha;
         }
     }
+
+    visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
+        if (expressao.parametros.length > 0) {
+            this.codigoFormatado += `(`;
+            for (let argumento of expressao.parametros) {
+                this.codigoFormatado += `${argumento.nome.lexema}${
+                    argumento.tipoDado && argumento.tipoDado.tipo ? `: ${argumento.tipoDado.tipo}, ` : ', '
+                }`;
+            }
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+            this.codigoFormatado += `) `;
+        }
+        this.codigoFormatado += ` : ${this.retornoFuncaoAtual}${this.quebraLinha}`;
+        this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
+    }
+    
     visitarExpressaoVetor(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -674,20 +713,6 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
                 console.log(declaracaoOuConstruto.constructor.name);
                 break;
         }
-    }
-    visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
-        if (expressao.parametros.length > 0) {
-            this.codigoFormatado += `(`;
-            for (let argumento of expressao.parametros) {
-                this.codigoFormatado += `${argumento.nome.lexema}${
-                    argumento.tipoDado && argumento.tipoDado.tipo ? `: ${argumento.tipoDado.tipo}, ` : ', '
-                }`;
-            }
-            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
-            this.codigoFormatado += `) `;
-        }
-        this.codigoFormatado += ` : ${this.retornoFuncaoAtual}${this.quebraLinha}`;
-        this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
     }
 
     formatar(declaracoes: Declaracao[]): string {
