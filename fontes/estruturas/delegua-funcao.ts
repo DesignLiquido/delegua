@@ -37,6 +37,14 @@ export class DeleguaFuncao extends Chamavel {
 
     paraTexto(): string {
         if (this.nome === null) return '<função>';
+        let parametros = '';
+        for (let parametro of this.declaracao.parametros) {
+            parametros += `${parametro.nome.lexema}: ${parametro.tipoDado.tipo}, `
+        }
+        if (this.declaracao.parametros.length > 0) {
+            parametros = parametros.slice(0, -2);
+            return `<função ${this.nome} argumentos=<${parametros}>>`;
+        }
         return `<função ${this.nome}>`;
     }
 

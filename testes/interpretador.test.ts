@@ -15,6 +15,47 @@ describe('Interpretador', () => {
         });
 
         describe('Cenários de sucesso', () => {
+
+            describe('Descrever objetos - paraTexto()', () => {
+                it('Descrever objeto completo - DeleguaFuncao', async () => {
+                    let _saida: string = ""
+                    const retornoLexador = lexador.mapear([
+                        "funcao retorneAlgo(a: inteiro, b: texto) {",
+                        "   retorna \"Algo\"",
+                        "}",
+                        "escreva(retorneAlgo)"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    }
+    
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                    expect(_saida).toBe("<função retorneAlgo argumentos=<a: inteiro, b: texto>>");
+                });
+
+                it('Descrever nome - DeleguaFuncao', async () => {
+                    let _saida: string = ""
+                    const retornoLexador = lexador.mapear([
+                        "funcao retorneAlgo() {",
+                        "   retorna \"Algo\"",
+                        "}",
+                        "escreva(retorneAlgo)"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    }
+    
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+    
+                    expect(_saida).toBe("<função retorneAlgo>");
+                });
+            })
+
             describe('Atribuições', () => {
                 it('Trivial var/variavel', async () => {
                     const retornoLexador = lexador.mapear([

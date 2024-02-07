@@ -44,7 +44,7 @@ export class ObjetoDeleguaClasse {
         this.propriedades[simbolo.lexema] = valor;
     }
 
-    toString(): string {
+    paraTexto(): string {
         return '<Objeto ' + this.classe.simboloOriginal.lexema + '>';
     }
 }
