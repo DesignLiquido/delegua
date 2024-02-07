@@ -21,7 +21,6 @@ describe('Interpretador', () => {
                     let _saida: string = ""
                     const retornoLexador = lexador.mapear([
                         "funcao retorneAlgo(a: inteiro, b: texto) {",
-                        "",
                         "}",
                         "escreva(retorneAlgo)"
                     ], -1);
@@ -40,7 +39,6 @@ describe('Interpretador', () => {
                     let _saida: string = ""
                     const retornoLexador = lexador.mapear([
                         "funcao retorneAlgo(a, b) {",
-                        "",
                         "}",
                         "escreva(retorneAlgo)"
                     ], -1);
@@ -78,7 +76,6 @@ describe('Interpretador', () => {
                     let _saida: string = ""
                     const retornoLexador = lexador.mapear([
                         "funcao retorneAlgo() {",
-                        "",
                         "}",
                         "escreva(retorneAlgo)"
                     ], -1);
