@@ -77,9 +77,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante] = elementoAlvo;
     }
 
-    definirVariavel(nomeVariavel: string, valor: any, subtipo?: string, imutavel: boolean = false) {
+    definirVariavel(nomeVariavel: string, valor: any, tipo?: string, imutavel: boolean = false) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
-        let tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
         // TODO: Dois testes no VisuAlg falham por causa disso.
         /* if (subtipo !== null && subtipo !== undefined) {
             tipo = subtipo;
@@ -87,15 +86,24 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
         } */
 
+        let tipoVariavel;
+        if (variavel && variavel.hasOwnProperty('tipo')) {
+            tipoVariavel = variavel.tipo
+        } else if (tipo) {
+            tipoVariavel = tipo
+        } else {
+            tipoVariavel = inferirTipoVariavel(valor);
+        }
+
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
-            tipo: tipo,
+            tipo: tipoVariavel,
             subtipo: undefined,
             imutavel,
         };
 
-        if (subtipo !== undefined) {
-            (elementoAlvo.subtipo as any) = subtipo;
+        if (tipo !== undefined) {
+            (elementoAlvo.subtipo as any) = inferirTipoVariavel(valor);
         }
 
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = elementoAlvo;

@@ -98,7 +98,10 @@ function verificarOperandosNumeros(
 ): void {
     const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
     const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : typeof esquerda === 'number' ? 'número' : String(NaN);
-    if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
+
+    const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
+    if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
+
     throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
 }
 
@@ -163,7 +166,9 @@ export async function visitarExpressaoBinaria(
                 return Number(valorEsquerdo) - Number(valorDireito);
 
             case tiposDeSimbolos.ADICAO:
-                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                let tiposNumericos = ['inteiro', 'numero', 'número', 'real']
+                if (tiposNumericos.includes(tipoEsquerdo.toLowerCase())
+                    && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 } else {
                     return String(valorEsquerdo) + String(valorDireito);

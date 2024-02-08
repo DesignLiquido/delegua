@@ -225,7 +225,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                         Number(dadosVariaveis.simbolo.linha),
                                         this.criarVetorNDimensional(dimensoes)
                                     ),
-                                    this.dicionarioTiposPrimitivos[simboloTipo.lexema.toLowerCase()]
+                                    // this.dicionarioTiposPrimitivos[simboloTipo.lexema.toLowerCase()]
+                                    'vetor'
                                 )
                             );
                         }

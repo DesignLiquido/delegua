@@ -239,7 +239,8 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
             : typeof esquerda === 'number'
             ? 'número'
             : String(NaN);
-        if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
+        const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
+        if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 
@@ -705,12 +706,12 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        let subtipo;
-        if (declaracao.tipo !== undefined) {
-            subtipo = declaracao.tipo;
+        let tipo;
+        if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
+            tipo = declaracao.tipo;
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, tipo);
 
         return null;
     }
