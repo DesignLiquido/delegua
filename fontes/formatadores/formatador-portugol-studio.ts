@@ -1,5 +1,6 @@
 import { AcessoIndiceVariavel, AcessoMetodoOuPropriedade, Agrupamento, AtribuicaoPorIndice, Atribuir, Binario, Chamada, Construto, DefinirValor, Dicionario, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Isto, Literal, Logico, Super, TipoDe, Tupla, Unario, Variavel, Vetor } from "../construtos";
 import { Classe, Const, ConstMultiplo, Expressao, FuncaoDeclaracao, Enquanto, Escolha, Escreva, Fazer, Importar, Para, ParaCada, Se, Tente, Var, VarMultiplo, Bloco, Continua, EscrevaMesmaLinha, Leia, LeiaMultiplo, Retorna, Sustar, Declaracao, Falhar, Aleatorio, CabecalhoPrograma } from "../declaracoes";
+import { InicioAlgoritmo } from "../declaracoes/inicio-algoritmo";
 import { VisitanteComumInterface } from "../interfaces";
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../quebras";
 
@@ -19,6 +20,10 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        throw new Error("Método não implementado.");
     }
 
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {

@@ -18,8 +18,13 @@ import { inferirTipoVariavel } from '../../inferenciador';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorBase } from '../../interpretador-base';
+import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
 export async function visitarDeclaracaoCabecalhoPrograma(interpretador: InterpretadorBase, declaracao: CabecalhoPrograma): Promise<any> {
+    return Promise.resolve();
+}
+
+export async function visitarDeclaracaoInicioAlgoritmo(interpretador: InterpretadorBase, declaracao: InicioAlgoritmo): Promise<any> {
     return Promise.resolve();
 }
 

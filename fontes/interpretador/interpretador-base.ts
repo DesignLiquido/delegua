@@ -84,6 +84,7 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -166,6 +167,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+
+    async visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     async visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
