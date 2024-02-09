@@ -182,14 +182,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         return valores;
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        throw new Error('Método não implementado.');
-    }
-
     protected textoParaRegex(texto: string): RegExp {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match

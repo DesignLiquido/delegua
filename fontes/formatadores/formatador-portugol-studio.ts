@@ -105,9 +105,6 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error("Método não implementado");
     }
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        throw new Error("Método não implementado");
-    }
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error("Método não implementado");
     }
@@ -115,9 +112,6 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
         throw new Error("Método não implementado");
     }
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
-        throw new Error("Método não implementado");
-    }
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error("Método não implementado");
     }
     visitarExpressaoBinaria(expressao: any) {

@@ -113,14 +113,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
-
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
     
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');

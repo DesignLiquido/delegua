@@ -31,19 +31,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Visualg > Testes Interpretador",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "visualg/interpretador.test.ts",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "BIRL > Testes Interpretador",
             "type": "node",
             "request": "launch",
@@ -836,23 +823,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários - VisuAlg",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "visualg",
-                "--runInBand"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "Testes unitários - Tradutor Delégua para Javascript",
             "type": "node",
             "request": "launch",
@@ -894,23 +864,6 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "tradutor-portugol-ipt.test.ts",
-                "--runInBand"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "name": "Testes unitários - Tradutor Visualg para Delégua",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "tradutor-visualg.test.ts",
                 "--runInBand"
             ],
             "skipFiles": [

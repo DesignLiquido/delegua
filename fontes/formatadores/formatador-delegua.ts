@@ -375,16 +375,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += this.quebraLinha;
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        // Implementar somente para VisuAlg que tem atribuição diferente de Delégua - matriz[1, 2] = 1
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        // Implementar somente para VisuAlg que tem acesso ao elemento da matriz diferente de Delégua - var valor = matriz[1, 2]
-        throw new Error('Método não implementado.');
-    }
-
     visitarExpressaoBinaria(expressao: Binario) {
         this.formatarDeclaracaoOuConstruto(expressao.esquerda);
         switch (expressao.operador.tipo) {

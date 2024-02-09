@@ -75,12 +75,6 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         return Promise.resolve();
     }
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        return Promise.resolve();
-    }
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         return Promise.resolve();
     }
