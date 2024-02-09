@@ -448,12 +448,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
 
-        let tipo;
-        if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
-            tipo = declaracao.tipo;
-        }
-
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, tipo);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
 
         return null;
     }

@@ -1172,12 +1172,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        let subtipo;
-        if (declaracao.tipo !== undefined) {
-            subtipo = declaracao.tipo;
-        }
-
-        this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, subtipo);
+        this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
 
         return null;
     }
@@ -1191,12 +1186,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
         for (let [indice, valor] of valoresFinais.entries()) {
-            let subtipo;
-            if (declaracao.tipo !== undefined) {
-                subtipo = declaracao.tipo;
-            }
-
-            this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, subtipo);
+            this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, declaracao.tipo);
         }
 
         return null;
@@ -1569,12 +1559,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        let tipo;
-        if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
-            tipo = declaracao.tipo;
-        }
-
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, tipo);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
 
         return null;
     }
@@ -1588,12 +1573,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
         for (let [indice, valor] of valoresFinais.entries()) {
-            let tipo;
-            if (declaracao.tipo !== undefined) {
-                tipo = declaracao.tipo;
-            }
-
-            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, tipo);
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, declaracao.tipo);
         }
 
         return null;

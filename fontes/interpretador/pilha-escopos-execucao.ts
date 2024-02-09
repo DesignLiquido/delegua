@@ -5,6 +5,7 @@ import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
 import { inferirTipoVariavel } from './inferenciador';
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
@@ -54,37 +55,43 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         }
     }
 
-    definirConstante(nomeConstante: string, valor: any, subtipo?: string): void {
+    definirConstante(nomeConstante: string, valor: any, tipo?: string): void {
         const constante = this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante];
-        let tipo;
-        if (subtipo !== null && subtipo !== undefined) {
-            tipo = subtipo;
+
+        let tipoConstante;
+        if (constante && constante.hasOwnProperty('tipo')) {
+            tipoConstante = constante.tipo
+        } else if (tipo) {
+            tipoConstante = tipo
         } else {
-            tipo = constante && constante.hasOwnProperty('tipo') ? constante.tipo : inferirTipoVariavel(valor);
+            tipoConstante = inferirTipoVariavel(valor);
         }
 
         let elementoAlvo: VariavelInterface = {
             valor: this.converterValor(tipo, valor),
-            tipo: tipo,
+            tipo: tipoConstante,
             subtipo: undefined,
             imutavel: true,
         };
 
-        if (subtipo !== undefined) {
+        if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoConstante)) {
+            let subtipo = '';
+            if (valor instanceof Array) {
+                // TODO: verificar tipo lógico e outros possíveis tipos
+                let numeros = valor.some(v => typeof v === 'number')
+                let textos = valor.some(v => typeof v === 'string')
+                if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
+                else if (numeros) subtipo = tipoDeDadosDelegua.NUMERO;
+                else subtipo = tipoDeDadosDelegua.TEXTO;
+            }
             (elementoAlvo.subtipo as any) = subtipo;
         }
 
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante] = elementoAlvo;
     }
 
-    definirVariavel(nomeVariavel: string, valor: any, tipo?: string, imutavel: boolean = false) {
+    definirVariavel(nomeVariavel: string, valor: any, tipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
-        // TODO: Dois testes no VisuAlg falham por causa disso.
-        /* if (subtipo !== null && subtipo !== undefined) {
-            tipo = subtipo;
-        } else {
-            tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
-        } */
 
         let tipoVariavel;
         if (variavel && variavel.hasOwnProperty('tipo')) {
@@ -99,11 +106,20 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             valor: this.converterValor(tipo, valor),
             tipo: tipoVariavel,
             subtipo: undefined,
-            imutavel,
+            imutavel: false,
         };
 
-        if (tipo !== undefined) {
-            (elementoAlvo.subtipo as any) = inferirTipoVariavel(valor);
+        if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoVariavel)) {
+            let subtipo = '';
+            if (valor instanceof Array) {
+                // TODO: verificar tipo lógico e outros possíveis tipos
+                let numeros = valor.some(v => typeof v === 'number')
+                let textos = valor.some(v => typeof v === 'string')
+                if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
+                else if (numeros) subtipo = tipoDeDadosDelegua.NUMERO;
+                else subtipo = tipoDeDadosDelegua.TEXTO;
+            }
+            (elementoAlvo.subtipo as any) = subtipo;
         }
 
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = elementoAlvo;

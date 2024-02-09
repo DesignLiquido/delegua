@@ -706,12 +706,7 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        let tipo;
-        if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
-            tipo = declaracao.tipo;
-        }
-
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, tipo);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
 
         return null;
     }
