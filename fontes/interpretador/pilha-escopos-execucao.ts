@@ -77,7 +77,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoConstante)) {
             let subtipo = '';
             if (valor instanceof Array) {
-                // TODO: verificar tipo lógico e outros possíveis tipos
+                // TODO: verificar tipo lógico e outros possíveis subtipos
                 let numeros = valor.some(v => typeof v === 'number')
                 let textos = valor.some(v => typeof v === 'string')
                 if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
@@ -112,7 +112,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoVariavel)) {
             let subtipo = '';
             if (valor instanceof Array) {
-                // TODO: verificar tipo lógico e outros possíveis tipos
+                // TODO: verificar tipo lógico e outros possíveis subtipos
                 let numeros = valor.some(v => typeof v === 'number')
                 let textos = valor.some(v => typeof v === 'string')
                 if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
