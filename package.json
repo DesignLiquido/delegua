@@ -14,7 +14,7 @@
         "observar-testes-unitarios": "jest --watchAll",
         "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",
-        "prettier-format": "prettier --config .prettierrc --write fontes/**/*.ts"
+        "deixar-codigo-bonito": "prettier --config .prettierrc --write fontes/**/*.ts"
     },
     "repository": {
         "type": "git",
