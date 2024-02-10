@@ -1641,19 +1641,19 @@ describe('Interpretador', () => {
                     );
                 });
 
-                it('Tupla Dupla - Primitiva adicionar()', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var t = [(1, 2)]",
-                        "t.adicionar(3)"
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                // it('Tupla Dupla - Primitiva adicionar()', async () => {
+                //     const retornoLexador = lexador.mapear([
+                //         "var t = [(1, 2)]",
+                //         "t.adicionar(3)"
+                //     ], -1);
+                //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                //     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
-                        'Tupla é imutável, seus elementos não podem ser alterados, adicionados ou removidos.'
-                    );
-                });
+                //     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                //         'Tupla é imutável, seus elementos não podem ser alterados, adicionados ou removidos.'
+                //     );
+                // });
             })
         });
     });

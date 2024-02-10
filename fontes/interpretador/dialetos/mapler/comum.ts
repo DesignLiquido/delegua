@@ -32,7 +32,8 @@ function verificarOperandosNumeros(
 ): void {
     const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
     const tipoEsquerda: string = esquerda.tipo ? esquerda.tipo : typeof esquerda === 'number' ? 'número' : String(NaN);
-    if (tipoDireita === 'número' && tipoEsquerda === 'número') return;
+    const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
+    if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
     throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
 }
 

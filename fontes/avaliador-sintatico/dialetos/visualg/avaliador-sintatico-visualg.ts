@@ -48,13 +48,6 @@ import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
 export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     blocoPrincipalIniciado: boolean;
-    dicionarioTiposPrimitivos = {
-        caracter: 'texto',
-        caractere: 'texto',
-        inteiro: 'número',
-        logico: 'lógico',
-        real: 'número',
-    };
 
     constructor() {
         super();
@@ -226,7 +219,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                         Number(dadosVariaveis.simbolo.linha),
                                         this.criarVetorNDimensional(dimensoes)
                                     ),
-                                    this.dicionarioTiposPrimitivos[simboloTipo.lexema.toLowerCase()]
+                                    'vetor'
                                 )
                             );
                         }

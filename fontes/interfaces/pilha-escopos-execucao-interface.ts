@@ -7,8 +7,8 @@ import { VariavelInterface } from './variavel-interface';
 export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExecucao> {
     atribuirVariavel(simbolo: SimboloInterface, valor: any): void;
     atribuirVariavelEm(distancia: number, simbolo: SimboloInterface, valor: any): void;
-    definirConstante(nomeConstante: string, valor: any, subtipo?: string): void;
-    definirVariavel(nomeVariavel: string, valor: any, subtipo?: string, imutavel?: boolean): void;
+    definirConstante(nomeConstante: string, valor: any, tipo?: string): void;
+    definirVariavel(nomeVariavel: string, valor: any, tipo?: string): void;
     elementos(): number;
     naPosicao(posicao: number): EscopoExecucao;
     obterEscopoPorTipo(idChamada: string): EscopoExecucao | undefined;
