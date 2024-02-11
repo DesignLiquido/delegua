@@ -51,6 +51,7 @@ import {
     Falhar,
     Aleatorio,
     CabecalhoPrograma,
+    TendoComo,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { VisitanteComumInterface } from '../interfaces';
@@ -72,6 +73,10 @@ export class FormatadorPortugolStudio implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): void | Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {

@@ -51,6 +51,7 @@ import {
     Declaracao,
     Falhar,
     CabecalhoPrograma,
+    TendoComo,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
@@ -77,6 +78,10 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
         this.deveIndentar = true;
         this.contadorDeclaracaoVar = 0;
         this.retornoFuncaoAtual = undefined;
+    }
+
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): void | Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): any {

@@ -206,11 +206,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         return valores;
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): never {
+    async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoAcessoElementoMatriz(expressao: any): never {
+    async visitarExpressaoAcessoElementoMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -258,7 +258,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         throw new ErroEmTempoDeExecucao(expressao.simbolo, textoFalha, expressao.linha);
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara): never {
+    async visitarExpressaoFimPara(declaracao: FimPara): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

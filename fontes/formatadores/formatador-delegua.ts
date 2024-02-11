@@ -51,6 +51,7 @@ import {
     Falhar,
     Aleatorio,
     CabecalhoPrograma,
+    TendoComo,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { VisitanteComumInterface } from '../interfaces';
@@ -77,6 +78,13 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): void {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}tendo `;
+        this.formatarDeclaracaoOuConstruto(declaracao.inicializacaoVariavel);
+        this.codigoFormatado += ` como ${declaracao.simboloVariavel.lexema} `;
+        this.formatarDeclaracaoOuConstruto(declaracao.corpo);
     }
 
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
@@ -665,7 +673,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
     }
 
-    visitarExpressaoVetor(expressao: Vetor) {
+    visitarExpressaoVetor(expressao: Vetor): void {
         this.codigoFormatado += '[';
         for (let valor of expressao.valores) {
             this.formatarDeclaracaoOuConstruto(valor);
@@ -776,6 +784,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Sustar':
                 this.visitarExpressaoSustar(declaracaoOuConstruto as Sustar);
+                break;
+            case 'TendoComo':
+                this.visitarDeclaracaoTendoComo(declaracaoOuConstruto as TendoComo);
                 break;
             case 'Tente':
                 this.visitarDeclaracaoTente(declaracaoOuConstruto as Tente);

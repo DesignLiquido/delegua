@@ -57,11 +57,11 @@ export class InterpretadorVisuAlg extends InterpretadorBase {
         throw new Error('Método não implementado.');
     }
 
-    async visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> {
+    override async visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> {
         return await comum.visitarExpressaoAcessoElementoMatriz(this, expressao);
     }
 
-    async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
+    override async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
         return await comum.visitarExpressaoAtribuicaoPorIndicesMatriz(this, expressao);
     }
 
