@@ -1434,16 +1434,46 @@ describe('Interpretador', () => {
             });
 
             describe('Tendo ... Como', () => {
-                it('Trivial', async () => {
+                it('Trivial, sem finalizar() definido', async () => {
+                    let _saida: string = '';
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
                     const retornoLexador = lexador.mapear([
                         'funcao teste() { retorna "Ok" }',
                         'tendo teste() como a {',
+                        '    escreva(a)',
                         '}'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saida).toBe('Ok');
+                });
+
+                it('Trivial, com finalizar() definido, classe em Delégua', async () => {
+                    let _saida: string = '';
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    const retornoLexador = lexador.mapear([
+                        'classe MinhaClasse {',
+                        '    finalizar() {',
+                        '        escreva("Finalizei")',
+                        '    }',
+                        '}',
+                        'funcao teste() { retorna "Ok" }',
+                        'tendo MinhaClasse() como a {',
+                        '}'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saida).toBe('Finalizei');
                 });
             });
         });

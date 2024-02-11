@@ -174,8 +174,17 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
         this.pilhaEscoposExecucao.definirConstante(declaracao.simboloVariavel.lexema, retornoInicializacao);
-        console.log(retornoInicializacao);
-        return Promise.resolve();
+        await this.executar(declaracao.corpo);
+
+        if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
+            const metodoFinalizar = retornoInicializacao.classe.metodos['finalizar'];
+            if (metodoFinalizar) {
+                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(retornoInicializacao);
+                chamavel.chamar(this, []);
+            }
+        }
+
+        return null;
     }
 
     async visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
