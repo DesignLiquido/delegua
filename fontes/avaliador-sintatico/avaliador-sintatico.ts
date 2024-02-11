@@ -52,6 +52,7 @@ import {
     ParaCada,
     Falhar,
     PropriedadeClasse,
+    TendoComo,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
@@ -1046,6 +1047,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             case tiposDeSimbolos.RETORNA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoRetorna();
+            case tiposDeSimbolos.TENDO:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoTendoComo();
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
@@ -1074,6 +1078,26 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         }
 
         return this.declaracaoExpressao();
+    }
+
+    protected declaracaoTendoComo(): TendoComo {
+        const simboloTendo = this.simbolos[this.atual - 1];
+        const expressaoInicializacao = this.expressao();
+        this.consumir(tiposDeSimbolos.COMO, "Esperado palavra reservada 'como' após expressão de inicialização de variável, em declaração 'tendo'.");
+        const simboloNomeVariavel = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do identificador em declaração 'tendo'.");
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado chave esquerda para abertura de bloco em declaração 'tendo'.");
+        const blocoCorpo = this.blocoEscopo();
+        return new TendoComo(
+            simboloTendo.linha, 
+            simboloTendo.hashArquivo, 
+            simboloNomeVariavel, 
+            expressaoInicializacao, 
+            new Bloco(
+                simboloTendo.linha,
+                simboloTendo.hashArquivo, 
+                blocoCorpo
+            )
+        );
     }
 
     protected declaracaoDesestruturacaoVariavel(): Declaracao[] {

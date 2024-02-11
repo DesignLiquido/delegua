@@ -8,6 +8,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Constante,
     DefinirValor,
     Dicionario,
     ExpressaoRegular,
@@ -20,6 +21,7 @@ import {
     TipoDe,
     Tupla,
     Unario,
+    Variavel,
     Vetor,
 } from '../construtos';
 import {
@@ -92,7 +94,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoDeChamada(expressao: Chamada): Promise<any>;
     visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any>;
     visitarExpressaoDeleguaFuncao(expressao: FuncaoConstruto): Promise<any>;
-    visitarExpressaoDeVariavel(expressao: Var): Promise<any>;
+    visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any>;
     visitarExpressaoDicionario(expressao: Dicionario): Promise<any>;
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp>;
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any>;
