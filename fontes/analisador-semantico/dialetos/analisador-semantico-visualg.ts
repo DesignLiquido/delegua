@@ -48,9 +48,10 @@ import { FuncaoHipoteticaInterface } from '../../interfaces/funcao-hipotetica-in
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
 import { VariavelHipoteticaInterface } from '../../interfaces/variavel-hipotetica-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
+import { AnalisadorSemanticoBase } from '../analisador-semantico-base';
 import { PilhaVariaveis } from '../pilha-variaveis';
 
-export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface {
+export class AnalisadorSemanticoVisuAlg extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
@@ -58,23 +59,12 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     constructor() {
+        super();
         this.pilhaVariaveis = new PilhaVariaveis();
         this.variaveis = {};
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
-    }
-
-    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
-        return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagem: string): void {
@@ -215,18 +205,6 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         return Promise.resolve();
     }
 
-    visitarDeclaracaoClasse(declaracao: Classe) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
-        return Promise.resolve();
-    }
-
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         switch (declaracao.expressao.constructor.name) {
             case 'Atribuir':
@@ -265,18 +243,6 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         return Promise.resolve();
     }
 
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoEscolha(declaracao: Escolha) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoEscreva(declaracao: Escreva) {
-        return Promise.resolve();
-    }
-
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
         declaracao.argumentos.forEach((argumento: FormatacaoEscrita) => {
             if (argumento.expressao instanceof Variavel) {
@@ -287,75 +253,16 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
                     );
                     return Promise.resolve();
                 }
+
                 if (this.variaveis[argumento.expressao.simbolo.lexema]?.valor === undefined) {
                     this.aviso(
                         argumento.expressao.simbolo,
                         `Variável '${argumento.expressao.simbolo.lexema}' não foi inicializada.`
                     );
-                    return Promise.resolve();
                 }
             }
         });
 
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoFazer(declaracao: Fazer) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoImportar(declaracao: Importar) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoSe(declaracao: Se) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoTente(declaracao: Tente) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoVetor(expressao: any) {
-        return Promise.resolve();
-    }
-    visitarExpressaoAcessoMetodo(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoBinaria(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         return Promise.resolve();
     }
 
@@ -403,82 +310,8 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         return Promise.resolve();
     }
 
-    visitarExpressaoDeVariavel(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoDefinirValor(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoDeleguaFuncao(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoDicionario(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoFalhar(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoFimPara(declaracao: FimPara) {
-        return Promise.resolve();
-    }
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoIsto(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLogica(expressao: any) {
-        return Promise.resolve();
-    }
-
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         return Promise.resolve(null);
-    }
-
-    visitarExpressaoSuper(expressao: Super) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoUnaria(expressao: any) {
-        return Promise.resolve();
-    }
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        return Promise.resolve();
     }
 
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {

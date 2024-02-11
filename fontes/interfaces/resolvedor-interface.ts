@@ -16,7 +16,7 @@ export interface ResolvedorInterface {
     declarar(simbolo: SimboloInterface): void;
     inicioDoEscopo(): void;
     finalDoEscopo(): void;
-    resolver(declaracoes: any): RetornoResolvedor;
+    resolver(declaracoes: any): Promise<RetornoResolvedor>;
     resolverLocal(expressao: any, nome: any): void;
     visitarExpressaoBloco(declaracao: any): any;
     visitarExpressaoDeVariavel(expressao: any): any;

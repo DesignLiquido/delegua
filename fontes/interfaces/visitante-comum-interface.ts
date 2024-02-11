@@ -1,12 +1,29 @@
 import {
+    AcessoElementoMatriz,
+    AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
+    Agrupamento,
+    AtribuicaoPorIndice,
+    AtribuicaoPorIndicesMatriz,
     Atribuir,
+    Binario,
+    Chamada,
+    Constante,
+    DefinirValor,
+    Dicionario,
     ExpressaoRegular,
     FimPara,
+    FormatacaoEscrita,
+    FuncaoConstruto,
+    Isto,
     Literal,
+    Logico,
     Super,
     TipoDe,
     Tupla,
+    Unario,
+    Variavel,
+    Vetor,
 } from '../construtos';
 import {
     Aleatorio,
@@ -14,82 +31,83 @@ import {
     CabecalhoPrograma,
     Classe,
     Const,
+    ConstMultiplo,
     Continua,
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
+    Falhar,
     Fazer,
     FuncaoDeclaracao,
     Importar,
+    InicioAlgoritmo,
     Leia,
+    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
     Se,
     Sustar,
+    TendoComo,
     Tente,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
-import { EscrevaMesmaLinha } from '../declaracoes/escreva-mesma-linha';
-import { FormatacaoEscrita } from '../construtos/formatacao-escrita';
-import { LeiaMultiplo } from '../declaracoes/leia-multiplo';
-import { ConstMultiplo } from '../declaracoes/const-multiplo';
-import { VarMultiplo } from '../declaracoes/var-multiplo';
-import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
-
 export interface VisitanteComumInterface {
-    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any>;
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>;
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any>;
-    visitarDeclaracaoClasse(declaracao: Classe): any;
+    visitarDeclaracaoClasse(declaracao: Classe): Promise<any> | void;
     visitarDeclaracaoConst(declaracao: Const): Promise<any>;
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any>;
-    visitarExpressaoDeAtribuicao(expressao: Atribuir): any;
-    visitarDeclaracaoDeExpressao(declaracao: Expressao): any;
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): any;
-    visitarDeclaracaoEnquanto(declaracao: Enquanto): any;
-    visitarDeclaracaoEscolha(declaracao: Escolha): any;
-    visitarDeclaracaoEscreva(declaracao: Escreva): any;
-    visitarDeclaracaoFazer(declaracao: Fazer): any;
-    visitarDeclaracaoImportar(declaracao: Importar): any;
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> | void;
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void;
+    visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> | void;
+    visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> | void;
+    visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> | void;
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> | void;
+    visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> | void;
+    visitarDeclaracaoImportar(declaracao: Importar): Promise<any> | void;
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any>;
     visitarDeclaracaoPara(declaracao: Para): Promise<any>;
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any>;
-    visitarDeclaracaoSe(declaracao: Se): any;
-    visitarDeclaracaoTente(declaracao: Tente): any;
+    visitarDeclaracaoSe(declaracao: Se): Promise<any> | void;
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> | void;
+    visitarDeclaracaoTente(declaracao: Tente): Promise<any> | void;
     visitarDeclaracaoVar(declaracao: Var): Promise<any>;
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any>;
-    visitarExpressaoAcessoIndiceVariavel(expressao: any): any;
-    visitarExpressaoAcessoElementoMatriz(expressao: any): any;
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): any;
-    visitarExpressaoAgrupamento(expressao: any): Promise<any>;
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any>;
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any>;
-    visitarExpressaoBinaria(expressao: any): any;
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void;
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void;
+    visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void;
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> | void;
+    visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any>;
+    visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any>;
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any>;
+    visitarExpressaoBinaria(expressao: Binario): Promise<any> | void;
     visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
-    visitarExpressaoDeChamada(expressao: any): any;
-    visitarExpressaoDefinirValor(expressao: any): any;
-    visitarExpressaoDeleguaFuncao(expressao: any): any;
-    visitarExpressaoDeVariavel(expressao: any): any;
-    visitarExpressaoDicionario(expressao: any): any;
+    visitarExpressaoDeChamada(expressao: Chamada): Promise<any> | void;
+    visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> | void;
+    visitarExpressaoDeleguaFuncao(expressao: FuncaoConstruto): Promise<any> | void;
+    visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> | void;
+    visitarExpressaoDicionario(expressao: Dicionario): Promise<any> | void;
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp>;
-    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): any;
-    visitarExpressaoFalhar(expressao: any): Promise<any>;
-    visitarExpressaoFimPara(declaracao: FimPara): any;
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): any;
-    visitarExpressaoIsto(expressao: any): any;
+    visitarExpressaoFalhar(expressao: Falhar): Promise<any>;
+    visitarExpressaoFimPara(declaracao: FimPara): Promise<any> | void;
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<any> | void;
+    visitarExpressaoIsto(expressao: Isto): Promise<any> | void;
     visitarExpressaoLeia(expressao: Leia): Promise<any>;
     visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any>;
     visitarExpressaoLiteral(expressao: Literal): Promise<any>;
-    visitarExpressaoLogica(expressao: any): any;
+    visitarExpressaoLogica(expressao: Logico): Promise<any> | void;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra>;
-    visitarExpressaoSuper(expressao: Super): any;
+    visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra;
     visitarExpressaoTupla(expressao: Tupla): Promise<any>;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any>;
-    visitarExpressaoUnaria(expressao: any): any;
-    visitarExpressaoVetor(expressao: any): any;
+    visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
+    visitarExpressaoVetor(expressao: Vetor): Promise<any> | void;
 }

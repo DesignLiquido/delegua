@@ -1,8 +1,8 @@
 import * as sistemaOperacional from 'os';
 
-import { FormatadorDelegua } from '../../fontes/formatadores';
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { FormatadorDelegua } from '../../fontes/formatadores';
 
 describe('Formatadores > Delégua', () => {
     const formatador = new FormatadorDelegua(sistemaOperacional.EOL);
@@ -296,6 +296,24 @@ describe('Formatadores > Delégua', () => {
         
         // console.log(resultado);
         expect(linhasResultado).toHaveLength(6);
+    });
+
+    it('Tendo ... como', () => {
+        const resultadoLexador = lexador.mapear(
+            [
+                'funcao teste(){retorna "Ok" }',
+                'tendo teste() como a{escreva(a)',
+                '}'
+            ], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        // console.log(resultado);
+        expect(linhasResultado).toHaveLength(7);
     });
 
     it('Tente', () => {

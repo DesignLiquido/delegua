@@ -23,6 +23,7 @@ import {
     LeiaMultiplo,
     ParaCada,
     Se,
+    TendoComo,
     Var,
     VarMultiplo,
 } from '../../../../declaracoes';
@@ -49,7 +50,7 @@ const TipoClasse = {
     SUBCLASSE: 'SUBCLASSE',
 };
 
-const LoopType = {
+const TipoLoop = {
     NENHUM: 'NENHUM',
     ENQUANTO: 'ENQUANTO',
     ESCOLHA: 'ESCOLHA',
@@ -90,6 +91,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -102,7 +107,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+    visitarExpressaoAcessoElementoMatriz(expressao: any): never {
         throw new Error('Método não implementado.');
     }
 
@@ -138,15 +143,15 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara) {
+    visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): never {
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): never {
         throw new Error('Método não implementado.');
     }
 
@@ -394,11 +399,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarDeclaracaoImportar(declaracao: any): void {
+    async visitarDeclaracaoImportar(declaracao: any): Promise<void> {
         this.resolver(declaracao.caminho);
     }
 
-    visitarDeclaracaoEscreva(declaracao: any): void {
+    async visitarDeclaracaoEscreva(declaracao: any): Promise<void> {
         this.resolver(declaracao.expressao);
     }
 
@@ -421,9 +426,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarDeclaracaoEscolha(declaracao: any): void {
+    async visitarDeclaracaoEscolha(declaracao: any): Promise<void> {
         const enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.ESCOLHA;
+        this.cicloAtual = TipoLoop.ESCOLHA;
 
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
@@ -455,7 +460,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         }
 
         const enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.ENQUANTO;
+        this.cicloAtual = TipoLoop.ENQUANTO;
         this.resolver(declaracao.corpo);
         this.cicloAtual = enclosingType;
 
@@ -466,7 +471,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.resolver(declaracao.condicaoEnquanto);
 
         const enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.FAZER;
+        this.cicloAtual = TipoLoop.FAZER;
         this.resolver(declaracao.caminhoFazer);
         this.cicloAtual = enclosingType;
         return null;
@@ -561,15 +566,15 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    resolver(declaracoes: Construto | Declaracao | Declaracao[]): RetornoResolvedor {
+    async resolver(declaracoes: Construto | Declaracao | Declaracao[]): Promise<RetornoResolvedor> {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
-                    declaracoes[i].aceitar(this);
+                    await declaracoes[i].aceitar(this);
                 }
             }
         } else if (declaracoes) {
-            declaracoes.aceitar(this);
+            await declaracoes.aceitar(this);
         }
 
         return {

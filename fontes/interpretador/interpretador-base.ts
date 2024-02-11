@@ -26,12 +26,14 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
+    InicioAlgoritmo,
     Leia,
     LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
     Se,
+    TendoComo,
     Tente,
     Var,
     VarMultiplo,
@@ -56,6 +58,7 @@ import {
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
+    FuncaoConstruto,
     Literal,
     Logico,
     QualTipo,
@@ -84,7 +87,6 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -169,6 +171,22 @@ export class InterpretadorBase implements InterpretadorInterface {
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
 
+    async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
+        const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
+        this.pilhaEscoposExecucao.definirConstante(declaracao.simboloVariavel.lexema, retornoInicializacao);
+        await this.executar(declaracao.corpo);
+
+        if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
+            const metodoFinalizar = retornoInicializacao.classe.metodos['finalizar'];
+            if (metodoFinalizar) {
+                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(retornoInicializacao);
+                chamavel.chamar(this, []);
+            }
+        }
+
+        return null;
+    }
+
     async visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -188,11 +206,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         return valores;
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+    async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+    async visitarExpressaoAcessoElementoMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -240,7 +258,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         throw new ErroEmTempoDeExecucao(expressao.simbolo, textoFalha, expressao.linha);
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara) {
+    async visitarExpressaoFimPara(declaracao: FimPara): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
@@ -1207,8 +1225,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    visitarExpressaoDeleguaFuncao(declaracao: any): DeleguaFuncao {
-        return new DeleguaFuncao(null, declaracao);
+    async visitarExpressaoDeleguaFuncao(corpoDeclaracao: FuncaoConstruto): Promise<DeleguaFuncao> {
+        return new DeleguaFuncao(null, corpoDeclaracao);
     }
 
     async visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {

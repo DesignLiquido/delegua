@@ -35,6 +35,7 @@ import {
     Retorna,
     Se,
     Sustar,
+    TendoComo,
     Tente,
     Var,
     VarMultiplo,
@@ -89,6 +90,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
 
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -101,7 +106,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+    visitarExpressaoAcessoElementoMatriz(expressao: any): never {
         throw new Error('Método não implementado.');
     }
 
@@ -148,7 +153,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoUnaria(expressao: any) {
+    visitarExpressaoUnaria(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
@@ -266,11 +271,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
-    visitarExpressaoDeChamada(expressao: any) {
+    visitarExpressaoDeChamada(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): never {
         throw new Error('Método não implementado');
     }
 
@@ -282,7 +287,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo);
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): never {
         throw new Error('Método não implementado');
     }
 
@@ -305,7 +310,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoLogica(expressao: any) {
+    visitarExpressaoLogica(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
@@ -341,11 +346,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return Promise.reject('Método não implementado');
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara) {
+    visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoFazer(declaracao: Fazer) {
+    visitarDeclaracaoFazer(declaracao: Fazer): never {
         throw new Error('Método não implementado');
     }
 
@@ -369,16 +374,19 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return resultado;
     }
 
-    visitarDeclaracaoEscolha(declaracao: Escolha) {
+    visitarDeclaracaoEscolha(declaracao: Escolha): never {
         throw new Error('Método não implementado');
     }
-    visitarDeclaracaoTente(declaracao: Tente) {
+
+    visitarDeclaracaoTente(declaracao: Tente): never {
         throw new Error('Método não implementado');
     }
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+
+    visitarDeclaracaoEnquanto(declaracao: Enquanto): never {
         throw new Error('Método não implementado');
     }
-    visitarDeclaracaoImportar(declaracao: Importar) {
+    
+    visitarDeclaracaoImportar(declaracao: Importar): never {
         throw new Error('Método não implementado');
     }
 
@@ -489,7 +497,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
+    visitarExpressaoDeleguaFuncao(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
@@ -497,11 +505,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
+    visitarExpressaoAcessoIndiceVariavel(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoDefinirValor(expressao: any) {
+    visitarExpressaoDefinirValor(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
@@ -509,27 +517,27 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoClasse(declaracao: Classe) {
+    visitarDeclaracaoClasse(declaracao: Classe): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoAcessoMetodo(expressao: any) {
+    visitarExpressaoAcessoMetodo(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoIsto(expressao: any) {
+    visitarExpressaoIsto(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoDicionario(expressao: any) {
+    visitarExpressaoDicionario(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoVetor(expressao: any) {
+    visitarExpressaoVetor(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoSuper(expressao: Super) {
+    visitarExpressaoSuper(expressao: Super): never {
         throw new Error('Método não implementado');
     }
 
