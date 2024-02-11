@@ -171,8 +171,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
     }
 
-    async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<never> {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
+        const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
+        this.pilhaEscoposExecucao.definirConstante(declaracao.simboloVariavel.lexema, retornoInicializacao);
+        console.log(retornoInicializacao);
+        return Promise.resolve();
     }
 
     async visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
