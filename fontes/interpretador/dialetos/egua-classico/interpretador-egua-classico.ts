@@ -14,6 +14,7 @@ import {
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
+    Isto,
     Literal,
     QualTipo,
     Super,
@@ -41,6 +42,7 @@ import {
     Para,
     ParaCada,
     Se,
+    TendoComo,
     Tente,
     Var,
     VarMultiplo,
@@ -62,7 +64,7 @@ import { ArgumentoInterface } from '../../argumento-interface';
 import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser)
+ * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (_Parser_)
  * e de fato executa a lógica de programação descrita no código.
  */
 export class InterpretadorEguaClassico implements InterpretadorInterface {
@@ -102,6 +104,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -114,7 +120,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
+    visitarExpressaoAcessoElementoMatriz(expressao: any): never {
         throw new Error('Método não implementado.');
     }
 
@@ -150,15 +156,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoFimPara(declaracao: FimPara) {
+    visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
+    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): never {
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): never {
         throw new Error('Método não implementado.');
     }
 
@@ -420,8 +426,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
     }
 
-    visitarExpressaoDeVariavel(expressao: Variavel): VariavelInterface {
-        return this.procurarVariavel(expressao.simbolo, expressao);
+    visitarExpressaoDeVariavel(expressao: Variavel): Promise<VariavelInterface> {
+        return Promise.resolve(this.procurarVariavel(expressao.simbolo, expressao));
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
@@ -723,7 +729,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any) {
+    async visitarExpressaoDeleguaFuncao(expressao: any): Promise<DeleguaFuncao> {
         return new DeleguaFuncao(null, expressao);
     }
 
@@ -915,8 +921,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoIsto(expressao: any) {
-        return this.procurarVariavel(expressao.palavraChave, expressao);
+    async visitarExpressaoIsto(expressao: Isto): Promise<any> {
+        return Promise.resolve(this.procurarVariavel(expressao.palavraChave, expressao));
     }
 
     async visitarExpressaoDicionario(expressao: any) {
@@ -1014,7 +1020,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     async interpretar(declaracoes: Declaracao[]): Promise<RetornoInterpretador> {
         this.erros = [];
 
-        const retornoResolvedor = this.resolvedor.resolver(declaracoes);
+        const retornoResolvedor = await this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
 
         const escopoExecucao: EscopoExecucao = {

@@ -595,21 +595,22 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
         return null;
     }
 
-    async visitarExpressaoFimPara(declaracao: FimPara) {
+    visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado.');
     }
+
     async visitarDeclaracaoFazer(declaracao: Fazer) {
         throw new Error('Método não implementado.');
     }
-    // async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-    //     throw new Error('Método não implementado.');
-    // }
+
     async visitarDeclaracaoEscolha(declaracao: Escolha) {
         throw new Error('Método não implementado.');
     }
+
     async visitarDeclaracaoTente(declaracao: Tente) {
         throw new Error('Método não implementado.');
     }
+    
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: any;
         while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
@@ -727,38 +728,45 @@ export class InterpretadorBirl extends InterpretadorBase implements Interpretado
 
         return new RetornoQuebra(valor);
     }
-    // async visitarExpressaoDeleguaFuncao(expressao: any) {
-    //     throw new Error('Método não implementado.');
-    // }
+
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
+
     async visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     async visitarExpressaoDefinirValor(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
+
     async visitarDeclaracaoClasse(declaracao: Classe) {
         throw new Error('Método não implementado.');
     }
+
     async visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoIsto(expressao: any) {
+
+    visitarExpressaoIsto(expressao: any): never {
         throw new Error('Método não implementado.');
     }
+
     async visitarExpressaoDicionario(expressao: any) {
         throw new Error('Método não implementado.');
     }
+
     async visitarExpressaoVetor(expressao: any) {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoSuper(expressao: Super) {
+
+    visitarExpressaoSuper(expressao: Super): never {
         throw new Error('Método não implementado.');
     }
 

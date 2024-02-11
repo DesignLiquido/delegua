@@ -52,6 +52,7 @@ import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interf
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { AnalisadorSemanticoBase } from './analisador-semantico-base';
 import { PilhaVariaveis } from './pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
@@ -65,7 +66,7 @@ interface FuncaoHipoteticaInterface {
     valor: any;
 }
 
-export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
+export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
@@ -73,39 +74,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     constructor() {
+        super();
         this.pilhaVariaveis = new PilhaVariaveis();
         this.variaveis = {};
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
-    }
-
-    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
-        return Promise.resolve();
     }
 
     erro(simbolo: SimboloInterface, mensagem: string): void {
@@ -224,22 +198,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoUnaria(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoBinaria(expressao: any) {
-        return Promise.resolve();
-    }
-
     visitarExpressaoDeChamada(expressao: Chamada) {
         if (expressao.entidadeChamada instanceof Variavel) {
             const variavel = expressao.entidadeChamada as Variavel;
@@ -345,48 +303,8 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
     }
 
-    visitarExpressaoDeVariavel(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
-        return declaracao.expressao.aceitar(this);
-    }
-
-    visitarExpressaoLeia(expressao: Leia) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLogica(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoSe(declaracao: Se) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoFimPara(declaracao: FimPara) {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoFazer(declaracao: Fazer) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        return Promise.resolve();
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
+        return await declaracao.expressao.aceitar(this);
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
@@ -405,10 +323,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             }
         }
 
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoTente(declaracao: Tente) {
         return Promise.resolve();
     }
 
@@ -496,7 +410,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             this.verificarBinario(lado);
             return;
         }
-        return;
     }
 
     private verificarLogico(logio: Logico): Promise<void> {
@@ -509,8 +422,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         let funcaoChamada = chamada.entidadeChamada as Variavel;
         if (!this.funcoes[funcaoChamada.simbolo.lexema]) {
             this.erro(funcaoChamada.simbolo, `Chamada da função '${funcaoChamada.simbolo.lexema}' não existe.`);
-            return Promise.resolve();
         }
+
+        return Promise.resolve();
     }
 
     private verificarLadoLogico(lado: any): void {
@@ -520,10 +434,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
     }
 
-    visitarDeclaracaoImportar(declaracao: Importar) {
-        return Promise.resolve();
-    }
-
     visitarDeclaracaoEscreva(declaracao: Escreva) {
         const variaveis = declaracao.argumentos.filter((arg) => arg instanceof Variavel);
 
@@ -531,19 +441,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             if (!this.variaveis[variavel.simbolo.lexema]) {
                 this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`);
             }
+
             if (this.variaveis[variavel.simbolo.lexema]?.valor === undefined) {
                 this.aviso(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não foi inicializada.`);
             }
         }
 
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
         return Promise.resolve();
     }
 
@@ -583,10 +486,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
-        return Promise.resolve();
-    }
-
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
 
@@ -611,36 +510,8 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        return Promise.resolve();
-    }
-
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         return Promise.resolve(null);
-    }
-
-    visitarExpressaoDeleguaFuncao(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoDefinirValor(expressao: any) {
-        return Promise.resolve();
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
@@ -696,30 +567,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             valor: declaracao.funcao,
         };
 
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoClasse(declaracao: Classe) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAcessoMetodo(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoIsto(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoDicionario(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoVetor(expressao: any) {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoSuper(expressao: Super) {
         return Promise.resolve();
     }
 
