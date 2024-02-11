@@ -4,8 +4,25 @@ import {
     registrarBibliotecaNumericaVisuAlg,
     registrarBibliotecaCaracteresVisuAlg,
 } from '../../../bibliotecas/dialetos/visualg';
-import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico } from '../../../construtos';
-import { EscrevaMesmaLinha, Escreva, Fazer, Leia, Const, Para, Bloco, Aleatorio, CabecalhoPrograma } from '../../../declaracoes';
+import {
+    AcessoElementoMatriz,
+    AtribuicaoPorIndicesMatriz,
+    Binario,
+    Construto,
+    FimPara,
+    Logico,
+} from '../../../construtos';
+import {
+    EscrevaMesmaLinha,
+    Escreva,
+    Fazer,
+    Leia,
+    Const,
+    Para,
+    Bloco,
+    Aleatorio,
+    CabecalhoPrograma,
+} from '../../../declaracoes';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { InterpretadorComDepuracao } from '../../interpretador-com-depuracao';
 import * as comum from './comum';
@@ -158,7 +175,7 @@ export class InterpretadorVisuAlgComDepuracao extends InterpretadorComDepuracao 
 
         // Aqui precisamos clonar a declaração `Para` porque inserimos
         // ao final dela o incremento. Diferente de declarações `Para` de
-        // outros dialetos, o incremento dessa declaração é implícito. 
+        // outros dialetos, o incremento dessa declaração é implícito.
         const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
         const corpoExecucao = cloneDeclaracao.corpo as Bloco;
         // O incremento vai ao final do bloco de escopo.

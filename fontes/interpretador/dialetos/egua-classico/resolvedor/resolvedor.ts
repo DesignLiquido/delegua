@@ -1,4 +1,15 @@
-import { AcessoMetodoOuPropriedade, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, QualTipo, Super, TipoDe, Tupla, Variavel } from '../../../../construtos';
+import {
+    AcessoMetodoOuPropriedade,
+    Construto,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    QualTipo,
+    Super,
+    TipoDe,
+    Tupla,
+    Variavel,
+} from '../../../../construtos';
 import {
     Aleatorio,
     Bloco,

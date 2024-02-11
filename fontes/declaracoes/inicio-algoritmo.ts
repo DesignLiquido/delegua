@@ -1,8 +1,7 @@
-import { VisitanteComumInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
+import { VisitanteComumInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class InicioAlgoritmo extends Declaracao {
-
     constructor(linha: number, hashArquivo: number) {
         super(linha, hashArquivo);
     }

@@ -2,7 +2,6 @@ import { SimboloInterface } from '../interfaces';
 import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
 import { Construto } from './construto';
 
-
 export class QualTipo implements Construto {
     linha: number;
     hashArquivo: number;
@@ -21,4 +20,3 @@ export class QualTipo implements Construto {
         return Promise.resolve(visitante.visitarExpressaoQualTipo(this));
     }
 }
-

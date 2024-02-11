@@ -45,25 +45,25 @@ export class DeleguaFuncao extends Chamavel {
         for (let parametro of this.declaracao.parametros) {
             parametros += `${parametro.nome.lexema}${
                 parametro.tipoDado && parametro.tipoDado.tipo ? `: ${parametro.tipoDado.tipo}, ` : ', '
-            }`
+            }`;
         }
         if (this.declaracao.parametros.length > 0) {
             parametros = `argumentos=<${parametros.slice(0, -2)}>`;
         }
 
-        const retorna = this.declaracao.corpo.filter(c => c instanceof Retorna)[0];
+        const retorna = this.declaracao.corpo.filter((c) => c instanceof Retorna)[0];
         if (retorna instanceof Retorna) {
             const valor = retorna?.valor?.valor;
-            retorno = `retorna=<${typeof valor === 'number' ? valor : `'${valor}'`}>`
+            retorno = `retorna=<${typeof valor === 'number' ? valor : `'${valor}'`}>`;
         }
 
         if (parametros) {
-            resultado += ` ${parametros}`
+            resultado += ` ${parametros}`;
         }
         if (retorno) {
-            resultado += ` ${retorno}`
+            resultado += ` ${retorno}`;
         }
-        resultado += '>'
+        resultado += '>';
         return resultado;
     }
 
@@ -79,7 +79,9 @@ export class DeleguaFuncao extends Chamavel {
                 const argumentosResolvidos = [];
                 for (let indiceArgumentoAtual = i; indiceArgumentoAtual < argumentos.length; indiceArgumentoAtual++) {
                     const argumentoAtual = argumentos[indiceArgumentoAtual];
-                    argumentosResolvidos.push(argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual);
+                    argumentosResolvidos.push(
+                        argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual
+                    );
                 }
 
                 // TODO: Verificar se `imutavel` é `true` aqui mesmo.
@@ -89,10 +91,9 @@ export class DeleguaFuncao extends Chamavel {
                 if (argumentos[i] === null) {
                     argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
                 }
-    
+
                 ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
             }
-            
         }
 
         if (this.instancia !== undefined) {

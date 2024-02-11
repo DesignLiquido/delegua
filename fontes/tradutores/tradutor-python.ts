@@ -190,10 +190,10 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)
+            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema);
             if (funcaoTraduzida === 'in') {
                 return `in ${objetoVariavel.simbolo.lexema}`;
-            }else if(funcaoTraduzida === 'len'){
+            } else if (funcaoTraduzida === 'len') {
                 return `len(${objetoVariavel.simbolo.lexema})`;
             }
 
@@ -365,25 +365,25 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
         resultado += retorno;
 
-        if(!resultado.includes("in ") && !resultado.includes("len") && !resultado.includes("pop(")){
+        if (!resultado.includes('in ') && !resultado.includes('len') && !resultado.includes('pop(')) {
             resultado += '(';
         }
 
-        if(!resultado.includes("len(")){
+        if (!resultado.includes('len(')) {
             for (let parametro of chamada.argumentos) {
-                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro)
-                if(resultado.includes("in ") || resultado.includes("len")){
-                    resultado = `${parametroTratado} ${resultado}`
-                }else{
+                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro);
+                if (resultado.includes('in ') || resultado.includes('len')) {
+                    resultado = `${parametroTratado} ${resultado}`;
+                } else {
                     resultado += parametroTratado + ', ';
                 }
             }
 
-            if (chamada.argumentos.length > 0 && (!resultado.includes("in ") && !resultado.includes("len"))) {
+            if (chamada.argumentos.length > 0 && !resultado.includes('in ') && !resultado.includes('len')) {
                 resultado = resultado.slice(0, -2);
             }
 
-            if(!resultado.includes(")") && !resultado.includes("in ")){
+            if (!resultado.includes(')') && !resultado.includes('in ')) {
                 resultado += ')';
             }
         }

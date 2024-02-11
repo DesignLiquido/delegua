@@ -1,4 +1,14 @@
-import { Atribuir, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Tupla, Variavel } from '../../construtos';
+import {
+    Atribuir,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    Super,
+    TipoDe,
+    Tupla,
+    Variavel,
+} from '../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -67,7 +77,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         return Promise.resolve();
     }
-    
+
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         return Promise.resolve();
     }
@@ -101,7 +111,7 @@ export class AnalisadorSemanticoBirl implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         return Promise.resolve();
     }
 

@@ -172,10 +172,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoTupla(expressao: Tupla): Promise<any> {
-        const chaves = Object.keys(expressao)
+        const chaves = Object.keys(expressao);
         const valores = [];
         for (let chave of chaves) {
-            const valor = await this.avaliar(expressao[chave])
+            const valor = await this.avaliar(expressao[chave]);
             valores.push(valor);
         }
 
@@ -509,8 +509,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.MAIOR:
                 if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
                     return Number(valorEsquerdo) > Number(valorDireito);
-                } 
-                    
+                }
+
                 return String(valorEsquerdo) > String(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
@@ -520,8 +520,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.MENOR:
                 if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
                     return Number(valorEsquerdo) < Number(valorDireito);
-                } 
-                    
+                }
+
                 return String(valorEsquerdo) < String(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
@@ -535,14 +535,15 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
-                const tiposNumericos = [tipoDeDadosDelegua.INTEIRO, tipoDeDadosDelegua.NUMERO, tipoDeDadosDelegua.NÚMERO]
-                if (
-                    tiposNumericos.includes(tipoEsquerdo) &&
-                    tiposNumericos.includes(tipoDireito)
-                ) {
+                const tiposNumericos = [
+                    tipoDeDadosDelegua.INTEIRO,
+                    tipoDeDadosDelegua.NUMERO,
+                    tipoDeDadosDelegua.NÚMERO,
+                ];
+                if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) + Number(valorDireito);
-                } 
-    
+                }
+
                 return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
 
             case tiposDeSimbolos.DIVISAO:
@@ -659,7 +660,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (expressao instanceof Chamada) {
                     if (expressao.entidadeChamada instanceof AcessoMetodoOuPropriedade) {
                         if (expressao.entidadeChamada.objeto instanceof Variavel) {
-                            let eTupla = this.procurarVariavel(expressao.entidadeChamada.objeto.simbolo)
+                            let eTupla = this.procurarVariavel(expressao.entidadeChamada.objeto.simbolo);
                             if (eTupla.subtipo === tipoDeDadosDelegua.TUPLA) {
                                 return Promise.reject(
                                     new ErroEmTempoDeExecucao(
@@ -1447,13 +1448,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto.obter(expressao.simbolo) || null;
         }
 
-        // Objeto simples do JavaScript, ou dicionário de Delégua. 
+        // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
             if (metodoDePrimitivaDicionario) {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
-            
+
             return objeto[expressao.simbolo.lexema] || null;
         }
 
@@ -1482,7 +1483,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
         }
 
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de 
+        // Como internamente um dicionário de Delégua é simplesmente um objeto de
         // JavaScript, as primitivas de dicionário, especificamente, são tratadas
         // mais acima.
         switch (tipoObjeto) {
@@ -1613,9 +1614,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (Array.isArray(objeto)) return objeto;
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse 
-            || objeto instanceof DeleguaFuncao) 
-            return objeto.paraTexto();
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao) return objeto.paraTexto();
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) return JSON.stringify(objeto);
 
         return objeto.toString();

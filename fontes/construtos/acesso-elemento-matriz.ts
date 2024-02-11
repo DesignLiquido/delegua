@@ -10,7 +10,13 @@ export class AcessoElementoMatriz implements Construto {
     indicePrimario: any;
     indiceSecundario: any;
 
-    constructor(hashArquivo: number, entidadeChamada: Construto, indicePrimario: any, indiceSegundario: any, simboloFechamento: SimboloInterface) {
+    constructor(
+        hashArquivo: number,
+        entidadeChamada: Construto,
+        indicePrimario: any,
+        indiceSegundario: any,
+        simboloFechamento: SimboloInterface
+    ) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
 

@@ -10,7 +10,14 @@ export class AtribuicaoPorIndicesMatriz implements Construto {
     indicePrimario: any;
     indiceSecundario: any;
 
-    constructor(hashArquivo: number, linha: number, objeto: any, indicePrimario: any, indiceSecundario: any, valor: any) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        objeto: any,
+        indicePrimario: any,
+        indiceSecundario: any,
+        valor: any
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

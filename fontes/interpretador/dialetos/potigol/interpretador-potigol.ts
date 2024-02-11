@@ -1,7 +1,16 @@
 import { InterpretadorBase } from '../../interpretador-base';
 
 import { registrarBibliotecaGlobalPotigol } from '../../../bibliotecas/dialetos/potigol/biblioteca-global';
-import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Unario, Variavel } from '../../../construtos';
+import {
+    AcessoMetodoOuPropriedade,
+    Binario,
+    ConstanteOuVariavel,
+    Construto,
+    Literal,
+    QualTipo,
+    Unario,
+    Variavel,
+} from '../../../construtos';
 
 import * as comum from './comum';
 import { ObjetoPadrao } from '../../../estruturas';
@@ -62,40 +71,39 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         let qualTipo = expressao.valor;
 
         if (expressao?.valor instanceof ConstanteOuVariavel) {
-            const nome = expressao?.valor.simbolo.lexema
-            qualTipo = this.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[nome].valor
+            const nome = expressao?.valor.simbolo.lexema;
+            qualTipo = this.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[nome].valor;
         }
-        
-         if (
-             qualTipo instanceof Binario ||
-             qualTipo instanceof Literal ||
-             qualTipo instanceof QualTipo ||
-             qualTipo instanceof Unario ||
-             qualTipo instanceof Variavel
-         ) {
-             qualTipo = await this.avaliar(qualTipo);
-             return qualTipo.tipo || inferirTipoVariavel(qualTipo);
-         }
 
-         return inferirTipoVariavel(qualTipo?.valores || qualTipo);
+        if (
+            qualTipo instanceof Binario ||
+            qualTipo instanceof Literal ||
+            qualTipo instanceof QualTipo ||
+            qualTipo instanceof Unario ||
+            qualTipo instanceof Variavel
+        ) {
+            qualTipo = await this.avaliar(qualTipo);
+            return qualTipo.tipo || inferirTipoVariavel(qualTipo);
+        }
+
+        return inferirTipoVariavel(qualTipo?.valores || qualTipo);
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
-    
+
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)},`;
         }
-    
+
         formatoTexto = formatoTexto.slice(0, -1);
 
         if (argumentos.length > 1) {
             formatoTexto = `(${formatoTexto})`;
         }
-    
+
         return formatoTexto;
     }
-    
 }

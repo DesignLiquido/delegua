@@ -282,13 +282,13 @@ export class TradutorReversoVisuAlg {
 
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
-        CabecalhoPrograma: () => "",
+        CabecalhoPrograma: () => '',
         EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         FimPara: this.traduzirDeclaracaoFimPara.bind(this),
-        InicioAlgoritmo: () => "",
+        InicioAlgoritmo: () => '',
         Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),

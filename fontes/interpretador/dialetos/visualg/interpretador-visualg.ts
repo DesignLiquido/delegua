@@ -1,5 +1,22 @@
-import { AcessoElementoMatriz, AtribuicaoPorIndicesMatriz, Binario, Construto, FimPara, Logico, Variavel } from '../../../construtos';
-import { Aleatorio, CabecalhoPrograma, Const, Escreva, EscrevaMesmaLinha, Fazer, Leia, Para } from '../../../declaracoes';
+import {
+    AcessoElementoMatriz,
+    AtribuicaoPorIndicesMatriz,
+    Binario,
+    Construto,
+    FimPara,
+    Logico,
+    Variavel,
+} from '../../../construtos';
+import {
+    Aleatorio,
+    CabecalhoPrograma,
+    Const,
+    Escreva,
+    EscrevaMesmaLinha,
+    Fazer,
+    Leia,
+    Para,
+} from '../../../declaracoes';
 import { InterpretadorBase } from '../..';
 import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 import { registrarBibliotecaNumericaVisuAlg } from '../../../bibliotecas/dialetos/visualg/numerica';

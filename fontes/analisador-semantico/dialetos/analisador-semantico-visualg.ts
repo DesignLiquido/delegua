@@ -1,4 +1,17 @@
-import { Atribuir, Chamada, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Super, TipoDe, Tupla, Variavel, Vetor } from "../../construtos";
+import {
+    Atribuir,
+    Chamada,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    FuncaoConstruto,
+    Literal,
+    Super,
+    TipoDe,
+    Tupla,
+    Variavel,
+    Vetor,
+} from '../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -25,23 +38,22 @@ import {
     Sustar,
     Tente,
     Var,
-    VarMultiplo
-} from "../../declaracoes";
-import { InicioAlgoritmo } from "../../declaracoes/inicio-algoritmo";
-import { SimboloInterface } from "../../interfaces";
-import { AnalisadorSemanticoInterface } from "../../interfaces/analisador-semantico-interface";
-import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from "../../interfaces/erros";
-import { FuncaoHipoteticaInterface } from "../../interfaces/funcao-hipotetica-interface";
-import { RetornoAnalisadorSemantico } from "../../interfaces/retornos/retorno-analisador-semantico";
-import { VariavelHipoteticaInterface } from "../../interfaces/variavel-hipotetica-interface";
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from "../../quebras";
-import { PilhaVariaveis } from "../pilha-variaveis";
-
+    VarMultiplo,
+} from '../../declaracoes';
+import { InicioAlgoritmo } from '../../declaracoes/inicio-algoritmo';
+import { SimboloInterface } from '../../interfaces';
+import { AnalisadorSemanticoInterface } from '../../interfaces/analisador-semantico-interface';
+import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
+import { FuncaoHipoteticaInterface } from '../../interfaces/funcao-hipotetica-interface';
+import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
+import { VariavelHipoteticaInterface } from '../../interfaces/variavel-hipotetica-interface';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../../quebras';
+import { PilhaVariaveis } from '../pilha-variaveis';
 
 export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
-    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface }
+    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
@@ -56,7 +68,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         return Promise.resolve();
     }
-    
+
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         return Promise.resolve();
     }
@@ -71,7 +83,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
             mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.ERRO
+            severidade: DiagnosticoSeveridade.ERRO,
         });
     }
 
@@ -81,7 +93,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
             mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.AVISO
+            severidade: DiagnosticoSeveridade.AVISO,
         });
     }
 
@@ -89,13 +101,9 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         const { simbolo, valor } = expressao;
         let variavel = this.variaveis[simbolo.lexema];
         if (!variavel) {
-            this.erro(
-                simbolo,
-                `Variável ${simbolo.lexema} ainda não foi declarada.`
-            );
+            this.erro(simbolo, `Variável ${simbolo.lexema} ainda não foi declarada.`);
             return Promise.resolve();
         }
-
 
         if (variavel.tipo) {
             if (valor instanceof Literal && variavel.tipo.includes('[]')) {
@@ -131,7 +139,6 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         }
     }
 
-
     private gerarNumeroAleatorio(min: number, max: number) {
         return Math.floor(Math.random() * (max - min) + min);
     }
@@ -139,7 +146,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     private encontrarLeiaNoAleatorio(declaracao: Declaracao, menorNumero: number, maiorNumero: number) {
         if ('declaracoes' in declaracao) {
             // Se a declaração tiver um campo 'declaracoes', ela é um Bloco
-            const declaracoes = declaracao.declaracoes as Declaracao[]
+            const declaracoes = declaracao.declaracoes as Declaracao[];
             for (const subDeclaracao of declaracoes) {
                 this.encontrarLeiaNoAleatorio(subDeclaracao, menorNumero, maiorNumero);
             }
@@ -154,16 +161,21 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     private atualizarVariavelComValorAleatorio(variavel: Variavel, menorNumero: number, maiorNumero: number) {
         if (this.variaveis[variavel.simbolo.lexema]) {
             let valor: number | string = 0;
-            if (this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === "inteiro" || this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === "real") valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
-            else if (this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === "caracter") valor = this.palavraAleatoriaCom5Digitos()
+            if (
+                this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === 'inteiro' ||
+                this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === 'real'
+            )
+                valor = this.gerarNumeroAleatorio(menorNumero, maiorNumero);
+            else if (this.variaveis[variavel.simbolo.lexema].tipo.toLowerCase() === 'caracter')
+                valor = this.palavraAleatoriaCom5Digitos();
 
             this.variaveis[variavel.simbolo.lexema].valor = valor;
         }
     }
 
     private palavraAleatoriaCom5Digitos(): string {
-        const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        let palavra = "";
+        const caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let palavra = '';
 
         for (let i = 0; i < 5; i++) {
             const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
@@ -175,12 +187,11 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         //Isso acontece quando não é informado os número máximos e mínimos
         let menorNumero = 0;
-        let maiorNumero = 100
+        let maiorNumero = 100;
 
         if (declaracao.argumentos) {
             menorNumero = Math.min(declaracao.argumentos.min, declaracao.argumentos.max);
             maiorNumero = Math.max(declaracao.argumentos.min, declaracao.argumentos.max);
-
         }
 
         for (let corpoDeclaracao of declaracao.corpo.declaracoes) {
@@ -194,8 +205,13 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor: declaracao.inicializador !== null ? declaracao.inicializador.valor !== undefined ? declaracao.inicializador.valor : declaracao.inicializador : undefined
-        }
+            valor:
+                declaracao.inicializador !== null
+                    ? declaracao.inicializador.valor !== undefined
+                        ? declaracao.inicializador.valor
+                        : declaracao.inicializador
+                    : undefined,
+        };
         return Promise.resolve();
     }
 
@@ -243,8 +259,8 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         }
 
         this.funcoes[declaracao.simbolo.lexema] = {
-            valor: declaracao.funcao
-        }
+            valor: declaracao.funcao,
+        };
 
         return Promise.resolve();
     }
@@ -265,15 +281,21 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         declaracao.argumentos.forEach((argumento: FormatacaoEscrita) => {
             if (argumento.expressao instanceof Variavel) {
                 if (!this.variaveis[argumento.expressao.simbolo.lexema]) {
-                    this.erro(argumento.expressao.simbolo, `Variável '${argumento.expressao.simbolo.lexema}' não existe.`)
+                    this.erro(
+                        argumento.expressao.simbolo,
+                        `Variável '${argumento.expressao.simbolo.lexema}' não existe.`
+                    );
                     return Promise.resolve();
                 }
                 if (this.variaveis[argumento.expressao.simbolo.lexema]?.valor === undefined) {
-                    this.aviso(argumento.expressao.simbolo, `Variável '${argumento.expressao.simbolo.lexema}' não foi inicializada.`)
+                    this.aviso(
+                        argumento.expressao.simbolo,
+                        `Variável '${argumento.expressao.simbolo.lexema}' não foi inicializada.`
+                    );
                     return Promise.resolve();
                 }
             }
-        })
+        });
 
         return Promise.resolve();
     }
@@ -340,33 +362,36 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
     visitarExpressaoDeChamada(expressao: Chamada) {
         if (expressao.entidadeChamada instanceof Variavel) {
             const variavel = expressao.entidadeChamada as Variavel;
-            const funcaoChamada = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema]
+            const funcaoChamada = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema];
             if (!funcaoChamada) {
-                this.erro(
-                    variavel.simbolo,
-                    `Função '${variavel.simbolo.lexema}' não foi declarada.`
-                )
+                this.erro(variavel.simbolo, `Função '${variavel.simbolo.lexema}' não foi declarada.`);
                 return Promise.resolve();
             }
             const funcao = funcaoChamada.valor as FuncaoConstruto;
             if (funcao.parametros.length != expressao.argumentos.length) {
                 this.erro(
                     variavel.simbolo,
-                    `Esperava ${funcao.parametros.length} ${funcao.parametros.length > 1 ? "argumentos" : "argumento"}, mas obteve ${expressao.argumentos.length}.`
-                )
+                    `Esperava ${funcao.parametros.length} ${
+                        funcao.parametros.length > 1 ? 'argumentos' : 'argumento'
+                    }, mas obteve ${expressao.argumentos.length}.`
+                );
             }
 
             for (let [indice, argumentoFuncao] of funcao.parametros.entries()) {
                 const argumentoChamada = expressao.argumentos[indice];
                 if (argumentoChamada) {
-                    if (argumentoFuncao.tipoDado?.tipo.toLowerCase() === 'caracter' && typeof argumentoChamada.valor !== 'string') {
+                    if (
+                        argumentoFuncao.tipoDado?.tipo.toLowerCase() === 'caracter' &&
+                        typeof argumentoChamada.valor !== 'string'
+                    ) {
                         this.erro(
                             variavel.simbolo,
                             `O tipo do valor passado para o parâmetro '${argumentoFuncao.nome.lexema}' (${argumentoFuncao.tipoDado.nome}) é diferente do esperado pela função.`
                         );
-                    }
-                    else if (['inteiro', 'real'].includes(argumentoFuncao.tipoDado?.tipo.toLowerCase())
-                        && typeof argumentoChamada.valor !== 'number') {
+                    } else if (
+                        ['inteiro', 'real'].includes(argumentoFuncao.tipoDado?.tipo.toLowerCase()) &&
+                        typeof argumentoChamada.valor !== 'number'
+                    ) {
                         this.erro(
                             variavel.simbolo,
                             `O tipo do valor passado para o parâmetro '${argumentoFuncao.nome.lexema}' (${argumentoFuncao.tipoDado.nome}) é diferente do esperado pela função.`
@@ -375,7 +400,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
                 }
             }
         }
-        return Promise.resolve()
+        return Promise.resolve();
     }
 
     visitarExpressaoDeVariavel(expressao: any) {
@@ -449,11 +474,11 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         return Promise.resolve();
     }
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        return Promise.resolve()
+        return Promise.resolve();
     }
 
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
-        return Promise.resolve()
+        return Promise.resolve();
     }
 
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
@@ -466,7 +491,7 @@ export class AnalisadorSemanticoVisuAlg implements AnalisadorSemanticoInterface 
         }
 
         return {
-            diagnosticos: this.diagnosticos
-        } as RetornoAnalisadorSemantico
+            diagnosticos: this.diagnosticos,
+        } as RetornoAnalisadorSemantico;
     }
 }

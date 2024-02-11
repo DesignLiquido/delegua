@@ -13,5 +13,5 @@ export default {
     TEXTO: 'texto',
     TUPLA: 'tupla',
     VAZIO: 'vazio',
-    VETOR: 'vetor'
+    VETOR: 'vetor',
 };

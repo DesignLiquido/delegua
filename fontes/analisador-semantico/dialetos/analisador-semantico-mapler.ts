@@ -1,4 +1,17 @@
-import { Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, Super, TipoDe, Tupla, Vetor } from '../../construtos';
+import {
+    Atribuir,
+    Binario,
+    Chamada,
+    Construto,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    Super,
+    TipoDe,
+    Tupla,
+    Vetor,
+} from '../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -41,7 +54,7 @@ import { PilhaVariaveis } from './../pilha-variaveis';
 export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
-    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface }
+    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
@@ -56,7 +69,7 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         return Promise.resolve();
     }
-    
+
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         return Promise.resolve();
     }
@@ -74,7 +87,7 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         return Promise.resolve();
     }
 
@@ -84,7 +97,7 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
             mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.ERRO
+            severidade: DiagnosticoSeveridade.ERRO,
         });
     }
 
@@ -94,7 +107,7 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
             mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.AVISO
+            severidade: DiagnosticoSeveridade.AVISO,
         });
     }
 
@@ -257,7 +270,12 @@ export class AnalisadorSemanticoMapler implements AnalisadorSemanticoInterface {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor: declaracao.inicializador !== null ? declaracao.inicializador.valor !== undefined ? declaracao.inicializador.valor : declaracao.inicializador : undefined
+            valor:
+                declaracao.inicializador !== null
+                    ? declaracao.inicializador.valor !== undefined
+                        ? declaracao.inicializador.valor
+                        : declaracao.inicializador
+                    : undefined,
         };
 
         return Promise.resolve();

@@ -1,4 +1,13 @@
-import { AcessoMetodoOuPropriedade, Atribuir, ExpressaoRegular, FimPara, Literal, Super, TipoDe, Tupla } from '../construtos';
+import {
+    AcessoMetodoOuPropriedade,
+    Atribuir,
+    ExpressaoRegular,
+    FimPara,
+    Literal,
+    Super,
+    TipoDe,
+    Tupla,
+} from '../construtos';
 import {
     Aleatorio,
     Bloco,

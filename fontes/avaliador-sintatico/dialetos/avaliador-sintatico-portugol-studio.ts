@@ -45,7 +45,7 @@ import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
 export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
-    private declaracoes: Declaracao[] = []
+    private declaracoes: Declaracao[] = [];
 
     declaracaoEscreva(): Escreva {
         throw new Error('Método não implementado.');
@@ -126,7 +126,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-    
+
                 return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
 
             case tiposDeSimbolos.CADEIA:
@@ -268,7 +268,6 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             let caminhoPadrao = null;
             while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-
                     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTRARIO)) {
                         if (caminhoPadrao !== null) {
                             const excecao = new ErroAvaliadorSintatico(
@@ -278,20 +277,20 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                             this.erros.push(excecao);
                             throw excecao;
                         }
-    
+
                         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'contrario'.");
-    
+
                         const declaracoes = [];
                         do {
                             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
 
-                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARE)
+                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARE);
                         } while (
                             !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                             !this.verificarTipoSimboloAtual(tiposDeSimbolos.CONTRARIO) &&
                             !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
                         );
-    
+
                         caminhoPadrao = {
                             declaracoes,
                         };
@@ -315,7 +314,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                         } else {
                             declaracoes.push(retornoDeclaracao as Declaracao);
                         }
-                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARE)
+                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARE);
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CONTRARIO) &&
@@ -326,7 +325,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                         condicoes: caminhoCondicoes,
                         declaracoes,
                     });
-                } 
+                }
             }
 
             return new Escolha(condicao, caminhos, caminhoPadrao);
@@ -470,7 +469,9 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 valorInicializacao = literalInicializacao.literal;
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloCadeia.linha), valorInicializacao)));
+            inicializacoes.push(
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloCadeia.linha), valorInicializacao))
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -635,14 +636,16 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 valorInicializacao = literalInicializacao.lexema.toLowerCase() === 'verdadeiro' ? true : false;
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao)));
+            inicializacoes.push(
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao))
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
     }
 
     declaracaoRetorne(): Retorna {
-        this.avancarEDevolverAnterior()
+        this.avancarEDevolverAnterior();
         const simboloChave = this.simbolos[this.atual];
         let valor = null;
 
@@ -688,7 +691,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
             let incrementar = null;
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 incrementar = this.expressao();
-                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR)
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR);
             }
 
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
@@ -721,7 +724,9 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
                 valorInicializacao = Number(literalInicializacao.literal);
             }
 
-            inicializacoes.push(new Var(identificador, new Literal(this.hashArquivo, Number(simboloReal.linha), valorInicializacao)));
+            inicializacoes.push(
+                new Var(identificador, new Literal(this.hashArquivo, Number(simboloReal.linha), valorInicializacao))
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;
@@ -836,7 +841,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
-        this.declaracoes = []
+        this.declaracoes = [];
 
         this.validarEscopoPrograma();
 

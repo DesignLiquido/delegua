@@ -23,7 +23,7 @@ export class Classe extends Declaracao {
         this.superClasse = superClasse;
         this.metodos = metodos;
         this.propriedades = propriedades;
-        this.decoradores = decoradores
+        this.decoradores = decoradores;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

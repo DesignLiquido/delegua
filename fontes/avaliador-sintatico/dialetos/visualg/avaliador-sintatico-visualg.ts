@@ -64,7 +64,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     private validarSegmentoAlgoritmo(): SimboloInterface {
         this.consumir(tiposDeSimbolos.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
 
-        const descricaoAlgoritmo = this.consumir(tiposDeSimbolos.CARACTERE, "Esperada cadeia de caracteres após palavra-chave 'algoritmo'.");
+        const descricaoAlgoritmo = this.consumir(
+            tiposDeSimbolos.CARACTERE,
+            "Esperada cadeia de caracteres após palavra-chave 'algoritmo'."
+        );
 
         this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
 
@@ -233,7 +236,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                         this.atual++;
                     } else {
                         for (let identificador of dadosVariaveis.identificadores) {
-                            const tipo = dadosVariaveis.tipo as TiposDadosInterface
+                            const tipo = dadosVariaveis.tipo as TiposDadosInterface;
                             switch (dadosVariaveis.tipo) {
                                 case tiposDeSimbolos.CARACTER:
                                 case tiposDeSimbolos.CARACTERE:
@@ -349,7 +352,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
 
-        throw this.erro(this.simbolos[this.atual], "Esperado expressão.");
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     comparacaoIgualdade(): Construto {
@@ -457,7 +460,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 if (!indices[1]) {
                     expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indices[0], simboloFechamento);
                 } else {
-                    expressao = new AcessoElementoMatriz(this.hashArquivo, expressao, indices[0], indices[1], simboloFechamento);
+                    expressao = new AcessoElementoMatriz(
+                        this.hashArquivo,
+                        expressao,
+                        indices[0],
+                        indices[1],
+                        simboloFechamento
+                    );
                 }
             } else {
                 break;
@@ -504,7 +513,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
 
         // Tipo retornado pela função.
-        let tipoRetorno = null
+        let tipoRetorno = null;
         if (
             !this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.INTEIRO,
@@ -990,8 +999,8 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 const tipoDadoParametro = {
                     nome: dadosParametros.simbolo.lexema,
                     tipo: dadosParametros.tipo as TiposDadosInterface,
-                    tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null
-                }
+                    tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null,
+                };
 
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
@@ -1125,13 +1134,12 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
     declaracaoAleatorio(): Aleatorio {
         const simboloAleatorio: SimboloInterface = this.avancarEDevolverAnterior();
 
-        let argumentos: { min: number, max: number } | null = {
+        let argumentos: { min: number; max: number } | null = {
             min: 0,
-            max: 0
+            max: 0,
         };
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO)) {
-
             this.consumir(tiposDeSimbolos.VIRGULA, "Esperado ',' após declaração do primeiro número.");
 
             argumentos.min = Number(this.simboloAtual().literal);
@@ -1139,31 +1147,41 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
             this.consumir(tiposDeSimbolos.NUMERO, "Esperado um número após ','.");
 
             argumentos.max = Number(this.simbolos[this.atual - 1].literal);
-
         } else if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ON)) {
             this.consumir(
                 simboloAleatorio.tipo,
                 "Esperado palavra reservada 'ON'ou 'on' ou combinação de número'(min, max)' após declaração 'aleatorio'"
-            )
-            argumentos = null
+            );
+            argumentos = null;
         }
 
-        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, "Esperado quebra de linha após declaração do último número.");
+        this.consumir(tiposDeSimbolos.QUEBRA_LINHA, 'Esperado quebra de linha após declaração do último número.');
 
         const decoracoes = [];
 
         do {
-            const decoracao = this.resolverDeclaracaoForaDeBloco()
-            if(decoracao instanceof Leia) decoracao.eParaInterromper = true;
+            const decoracao = this.resolverDeclaracaoForaDeBloco();
+            if (decoracao instanceof Leia) decoracao.eParaInterromper = true;
             decoracoes.push(decoracao);
-        } while (![tiposDeSimbolos.ALEATORIO, tiposDeSimbolos.FIM_ALGORITMO].includes(this.simbolos[this.atual].tipo))
+        } while (![tiposDeSimbolos.ALEATORIO, tiposDeSimbolos.FIM_ALGORITMO].includes(this.simbolos[this.atual].tipo));
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ALEATORIO)) {
-            this.consumir(tiposDeSimbolos.OFF, "Esperado palavra reservada 'off' ou 'OFF' após declaração 'aleatorio'.");
+            this.consumir(
+                tiposDeSimbolos.OFF,
+                "Esperado palavra reservada 'off' ou 'OFF' após declaração 'aleatorio'."
+            );
         }
 
-        return new Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo, new Bloco(simboloAleatorio.hashArquivo, Number(simboloAleatorio.linha), decoracoes.filter((d) => d)), argumentos)
-
+        return new Aleatorio(
+            simboloAleatorio.linha,
+            simboloAleatorio.hashArquivo,
+            new Bloco(
+                simboloAleatorio.hashArquivo,
+                Number(simboloAleatorio.linha),
+                decoracoes.filter((d) => d)
+            ),
+            argumentos
+        );
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
@@ -1250,7 +1268,13 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
         let declaracoes: Declaracao[] = [];
         const simboloNomeAlgoritmo = this.validarSegmentoAlgoritmo();
-        declaracoes.push(new CabecalhoPrograma(simboloNomeAlgoritmo.linha, simboloNomeAlgoritmo.hashArquivo, simboloNomeAlgoritmo.literal));
+        declaracoes.push(
+            new CabecalhoPrograma(
+                simboloNomeAlgoritmo.linha,
+                simboloNomeAlgoritmo.hashArquivo,
+                simboloNomeAlgoritmo.literal
+            )
+        );
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
             const declaracao = this.resolverDeclaracaoForaDeBloco();
@@ -1265,7 +1289,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         if (ultimoSimbolo.tipo !== tiposDeSimbolos.FIM_ALGORITMO) {
             throw new ErroAvaliadorSintatico(
                 ultimoSimbolo,
-                `Programa não termina com 'fimalgoritmo'. Último símbolo: '${ultimoSimbolo.lexema || ultimoSimbolo.literal}'.`
+                `Programa não termina com 'fimalgoritmo'. Último símbolo: '${
+                    ultimoSimbolo.lexema || ultimoSimbolo.literal
+                }'.`
             );
         }
 

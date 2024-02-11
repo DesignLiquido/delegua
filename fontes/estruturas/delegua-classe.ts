@@ -17,9 +17,9 @@ export class DeleguaClasse extends Chamavel {
     dialetoRequerDeclaracaoPropriedades: boolean;
 
     constructor(
-        simboloOriginal?: SimboloInterface, 
-        superClasse?: DeleguaClasse, 
-        metodos?: { [nome: string]: DeleguaFuncao }, 
+        simboloOriginal?: SimboloInterface,
+        superClasse?: DeleguaClasse,
+        metodos?: { [nome: string]: DeleguaFuncao },
         propriedades?: PropriedadeClasse[]
     ) {
         super();
@@ -52,7 +52,10 @@ export class DeleguaClasse extends Chamavel {
         }
 
         if (this.dialetoRequerDeclaracaoPropriedades) {
-            throw new ErroEmTempoDeExecucao(this.simboloOriginal, `Propriedade "${nome}" não declarada na classe ${this.simboloOriginal.lexema}.`);
+            throw new ErroEmTempoDeExecucao(
+                this.simboloOriginal,
+                `Propriedade "${nome}" não declarada na classe ${this.simboloOriginal.lexema}.`
+            );
         }
 
         return undefined;

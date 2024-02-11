@@ -12,5 +12,5 @@ export enum DiagnosticoSeveridade {
     ERRO = 0,
     AVISO = 1,
     INFORMACAO = 2,
-    SUGESTAO = 3
+    SUGESTAO = 3,
 }

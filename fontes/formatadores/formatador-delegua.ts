@@ -88,15 +88,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoTupla(expressao: Tupla): any {
-        return "";
+        return '';
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${this.quebraLinha}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${
+            this.quebraLinha
+        }`;
 
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let propriedade of declaracao.propriedades) {
-            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${propriedade.tipo || 'qualquer'}${this.quebraLinha}`;
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${
+                propriedade.tipo || 'qualquer'
+            }${this.quebraLinha}`;
         }
 
         this.codigoFormatado += `${this.quebraLinha}`;
@@ -131,7 +135,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        if (expressao.valor instanceof Binario &&
+        if (
+            expressao.valor instanceof Binario &&
             [
                 tiposDeSimbolos.MAIS_IGUAL,
                 tiposDeSimbolos.MENOS_IGUAL,
@@ -264,7 +269,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de ${declaracao.vetor.simbolo.lexema}`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de ${
+            declaracao.vetor.simbolo.lexema
+        }`;
         this.visitarExpressaoBloco(declaracao.corpo);
     }
 
@@ -726,7 +733,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 this.visitarExpressaoExpressaoRegular(declaracaoOuConstruto as ExpressaoRegular);
                 break;
             case 'Falhar':
-                this.visitarExpressaoFalhar(declaracaoOuConstruto as Falhar)
+                this.visitarExpressaoFalhar(declaracaoOuConstruto as Falhar);
                 break;
             case 'Fazer':
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);

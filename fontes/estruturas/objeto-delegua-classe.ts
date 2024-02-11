@@ -9,7 +9,7 @@ import { DeleguaClasse } from './delegua-classe';
  */
 export class ObjetoDeleguaClasse {
     classe: DeleguaClasse;
-    propriedades: {[nome: string]: any};
+    propriedades: { [nome: string]: any };
 
     constructor(classe: DeleguaClasse) {
         this.classe = classe;
@@ -38,7 +38,10 @@ export class ObjetoDeleguaClasse {
 
     definir(simbolo: SimboloInterface, valor: any): void {
         if (this.classe.dialetoRequerDeclaracaoPropriedades && !this.propriedades.hasOwnProperty(simbolo.lexema)) {
-            throw new ErroEmTempoDeExecucao(simbolo, `Propriedade "${simbolo.lexema}" não foi definida na declaração da classe ${this.classe.simboloOriginal.lexema}.`);
+            throw new ErroEmTempoDeExecucao(
+                simbolo,
+                `Propriedade "${simbolo.lexema}" não foi definida na declaração da classe ${this.classe.simboloOriginal.lexema}.`
+            );
         }
 
         this.propriedades[simbolo.lexema] = valor;

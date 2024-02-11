@@ -11,7 +11,7 @@ export class PropriedadeClasse extends Declaracao {
         super(Number(nome.linha), nome.hashArquivo);
         this.nome = nome;
         this.tipo = tipo;
-        this.decoradores = decoradores
+        this.decoradores = decoradores;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

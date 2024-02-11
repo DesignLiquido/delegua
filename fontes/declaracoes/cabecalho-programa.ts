@@ -1,5 +1,5 @@
-import { VisitanteComumInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
+import { VisitanteComumInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 export class CabecalhoPrograma extends Declaracao {
     nomeProgramaAlgoritmo: string;

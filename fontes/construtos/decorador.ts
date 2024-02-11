@@ -15,10 +15,6 @@ export class Decorador implements Construto {
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return Promise.reject(
-            new Error(
-                'Este método não deveria ser chamado.'
-            )
-        );
+        return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }

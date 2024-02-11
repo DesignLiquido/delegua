@@ -278,8 +278,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 const resolucaoTipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
                 parametro.tipoDado = {
                     nome: simbolos[indice - 2].lexema,
-                    tipo: resolucaoTipo
-                }
+                    tipo: resolucaoTipo,
+                };
                 tipagemDefinida = true;
             }
 
@@ -372,9 +372,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.PARENTESE_ESQUERDO,
                     `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`
                 );
-                
+
                 const argumento = this.expressao();
-                
+
                 this.consumir(
                     tiposDeSimbolos.PARENTESE_DIREITO,
                     `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`
@@ -412,11 +412,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     const simbolo = this.simbolos[this.atual];
                     const valor = expressao ? expressao : identificador.lexema;
                     this.avancarEDevolverAnterior();
-                    return new QualTipo(
-                        this.hashArquivo,
-                        simbolo,
-                        valor
-                    );
+                    return new QualTipo(this.hashArquivo, simbolo, valor);
                 } else {
                     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
                     const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
@@ -454,19 +450,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         const argumentos: Construto[] = [];
 
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
 
         do {
             argumentos.push(this.ou());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
 
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
@@ -819,7 +814,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
 
             const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
-            
+
             let tipoConversao: TiposDadosInterface;
             switch (inicializadorLeia.simbolo.tipo) {
                 case tiposDeSimbolos.LEIA_INTEIROS:
@@ -989,10 +984,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             simboloTipo.linha,
             propriedades.map(
                 (p) =>
-                ({
-                    abrangencia: 'padrao',
-                    nome: p.nome,
-                } as ParametroInterface)
+                    ({
+                        abrangencia: 'padrao',
+                        nome: p.nome,
+                    } as ParametroInterface)
             ),
             instrucoesConstrutor
         );
@@ -1033,7 +1028,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     return new Const(
                         (expressao as Constante).simbolo,
                         valorAtribuicao,
-                        tipoVariavelOuConstante ? this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TiposDadosInterface : undefined
+                        tipoVariavelOuConstante
+                            ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TiposDadosInterface)
+                            : undefined
                     );
             }
         }

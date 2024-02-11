@@ -195,7 +195,10 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
     }
 
     declaracaoEnquanto(): Enquanto {
-        const simboloNegatica = this.consumir(tiposDeSimbolos.NEGATIVA, 'Esperado expressão `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
+        const simboloNegatica = this.consumir(
+            tiposDeSimbolos.NEGATIVA,
+            'Esperado expressão `NEGATIVA` para iniciar o bloco `ENQUANTO`.'
+        );
         this.consumir(
             tiposDeSimbolos.BAMBAM,
             'Esperado expressão `BAMBAM` após `NEGATIVA` para iniciar o bloco `ENQUANTO`.'
@@ -715,8 +718,8 @@ export class AvaliadorSintaticoBirl extends AvaliadorSintaticoBase {
             const resolucaoTipo = this.resolveSimboloInterfaceParaTiposDadosInterface(tipo);
             parametro.tipoDado = {
                 nome: this.simbolos[this.atual].lexema,
-                tipo: resolucaoTipo
-            }
+                tipo: resolucaoTipo,
+            };
             this.avancarEDevolverAnterior();
             parametro.nome = this.simbolos[this.atual];
 

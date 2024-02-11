@@ -1,4 +1,16 @@
-import { Atribuir, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, Literal, QualTipo, Super, TipoDe, Tupla, Variavel } from '../../../construtos';
+import {
+    Atribuir,
+    Construto,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    Literal,
+    QualTipo,
+    Super,
+    TipoDe,
+    Tupla,
+    Variavel,
+} from '../../../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -96,7 +108,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -562,7 +574,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
         return resultado;
     }
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         throw new Error('Método não implementado.');
     }
     /**

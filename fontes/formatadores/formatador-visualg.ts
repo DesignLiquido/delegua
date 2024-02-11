@@ -538,7 +538,7 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
     visitarExpressaoSustar(declaracao?: Sustar): any {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}interrompa${this.quebraLinha}`;
     }
-    
+
     visitarExpressaoTipoDe(expressao: TipoDe): any {
         throw new Error('Método não implementado.');
     }
@@ -740,7 +740,7 @@ export class FormatadorVisuAlg implements VisitanteComumInterface {
 
     formatar(declaracoes: Declaracao[]): string {
         this.indentacaoAtual = 0;
-        this.codigoFormatado = "";
+        this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
         this.indentacaoAtual += this.tamanhoIndentacao;

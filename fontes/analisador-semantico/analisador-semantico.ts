@@ -1,4 +1,21 @@
-import { Agrupamento, Atribuir, Binario, Chamada, Construto, ExpressaoRegular, FimPara, FormatacaoEscrita, FuncaoConstruto, Literal, Logico, Super, TipoDe, Tupla, Variavel, Vetor } from '../construtos';
+import {
+    Agrupamento,
+    Atribuir,
+    Binario,
+    Chamada,
+    Construto,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
+    FuncaoConstruto,
+    Literal,
+    Logico,
+    Super,
+    TipoDe,
+    Tupla,
+    Variavel,
+    Vetor,
+} from '../construtos';
 import {
     Aleatorio,
     Bloco,
@@ -41,17 +58,17 @@ interface VariavelHipoteticaInterface {
     tipo: TiposDadosInterface;
     subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
     imutavel: boolean;
-    valor?: any
+    valor?: any;
 }
 
 interface FuncaoHipoteticaInterface {
-    valor: any
+    valor: any;
 }
 
 export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
-    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface }
+    funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
@@ -97,7 +114,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.ERRO
+            severidade: DiagnosticoSeveridade.ERRO,
         });
     }
 
@@ -107,7 +124,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             mensagem: mensagem,
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.AVISO
+            severidade: DiagnosticoSeveridade.AVISO,
         });
     }
 
@@ -117,7 +134,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
                     if (declaracao.tipo === 'inteiro[]') {
-                        const v = vetor.valores.find(v => typeof v?.valor !== 'number')
+                        const v = vetor.valores.find((v) => typeof v?.valor !== 'number');
                         if (v) {
                             this.erro(
                                 declaracao.simbolo,
@@ -126,7 +143,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                         }
                     }
                     if (declaracao.tipo === 'texto[]') {
-                        const v = vetor.valores.find(v => typeof v?.valor !== 'string')
+                        const v = vetor.valores.find((v) => typeof v?.valor !== 'string');
                         if (v) {
                             this.erro(
                                 declaracao.simbolo,
@@ -135,25 +152,37 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                         }
                     }
                 } else {
-                    this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de elementos.`);
+                    this.erro(
+                        declaracao.simbolo,
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de elementos.`
+                    );
                 }
             }
             if (declaracao.inicializador instanceof Literal) {
                 const literal = declaracao.inicializador as Literal;
                 if (declaracao.tipo === 'texto') {
                     if (typeof literal.valor !== 'string') {
-                        this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'texto'.`);
+                        this.erro(
+                            declaracao.simbolo,
+                            `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'texto'.`
+                        );
                     }
                 }
                 if (['inteiro', 'real'].includes(declaracao.tipo)) {
                     if (typeof literal.valor !== 'number') {
-                        this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'número'.`);
+                        this.erro(
+                            declaracao.simbolo,
+                            `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'número'.`
+                        );
                     }
                 }
             }
             if (declaracao.inicializador instanceof Leia) {
                 if (declaracao.tipo !== 'texto') {
-                    this.erro(declaracao.simbolo, `Atribuição inválida para '${declaracao.simbolo.lexema}', Leia só pode receber tipo 'texto'.`);
+                    this.erro(
+                        declaracao.simbolo,
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}', Leia só pode receber tipo 'texto'.`
+                    );
                 }
             }
         }
@@ -238,9 +267,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
                             expressao.entidadeChamada.simbolo,
                             `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
                         );
-                    }
-                    else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo)
-                        && typeof arg1.valor !== 'number') {
+                    } else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo) && typeof arg1.valor !== 'number') {
                         this.erro(
                             expressao.entidadeChamada.simbolo,
                             `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
@@ -411,11 +438,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     private verificarVariavelBinaria(variavel: Variavel): Promise<void> {
         this.verificarVariavel(variavel);
         const variavelHipotetica = this.variaveis[variavel.simbolo.lexema];
-        if (variavelHipotetica && !(variavelHipotetica.valor instanceof Binario) && (typeof variavelHipotetica.valor !== 'boolean')) {
-            this.erro(
-                variavel.simbolo,
-                `Esperado tipo 'lógico' na condição do 'enquanto'.`
-            );
+        if (
+            variavelHipotetica &&
+            !(variavelHipotetica.valor instanceof Binario) &&
+            typeof variavelHipotetica.valor !== 'boolean'
+        ) {
+            this.erro(variavel.simbolo, `Esperado tipo 'lógico' na condição do 'enquanto'.`);
         }
         return Promise.resolve();
     }
@@ -423,10 +451,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     private verificarVariavel(variavel: Variavel): Promise<void> {
         const variavelHipotetica = this.variaveis[variavel.simbolo.lexema];
         if (!variavelHipotetica) {
-            this.erro(
-                variavel.simbolo,
-                `Variável ${variavel.simbolo.lexema} ainda não foi declarada até este ponto.`
-            );
+            this.erro(variavel.simbolo, `Variável ${variavel.simbolo.lexema} ainda não foi declarada até este ponto.`);
         }
         return Promise.resolve();
     }
@@ -464,10 +489,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
 
     private verificarLadoBinario(lado: Construto): void {
         if (lado instanceof Variavel && !this.variaveis[lado.simbolo.lexema]) {
-            this.erro(
-                lado.simbolo,
-                `Variável ${lado.simbolo.lexema} ainda não foi declarada até este ponto.`
-            );
+            this.erro(lado.simbolo, `Variável ${lado.simbolo.lexema} ainda não foi declarada até este ponto.`);
             return;
         }
         if (lado instanceof Binario) {
@@ -484,12 +506,9 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     private verificarChamada(chamada: Chamada): Promise<void> {
-        let funcaoChamada = (chamada.entidadeChamada as Variavel);
+        let funcaoChamada = chamada.entidadeChamada as Variavel;
         if (!this.funcoes[funcaoChamada.simbolo.lexema]) {
-            this.erro(
-                funcaoChamada.simbolo,
-                `Chamada da função '${funcaoChamada.simbolo.lexema}' não existe.`
-            );
+            this.erro(funcaoChamada.simbolo, `Chamada da função '${funcaoChamada.simbolo.lexema}' não existe.`);
             return Promise.resolve();
         }
     }
@@ -497,7 +516,7 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     private verificarLadoLogico(lado: any): void {
         if (lado instanceof Variavel) {
             let variavel = lado as Variavel;
-            this.verificarVariavelBinaria(variavel)
+            this.verificarVariavelBinaria(variavel);
         }
     }
 
@@ -506,14 +525,14 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
-        const variaveis = declaracao.argumentos.filter(arg => arg instanceof Variavel)
+        const variaveis = declaracao.argumentos.filter((arg) => arg instanceof Variavel);
 
         for (let variavel of variaveis as Variavel[]) {
             if (!this.variaveis[variavel.simbolo.lexema]) {
-                this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`)
+                this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`);
             }
             if (this.variaveis[variavel.simbolo.lexema]?.valor === undefined) {
-                this.aviso(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não foi inicializada.`)
+                this.aviso(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não foi inicializada.`);
             }
         }
 
@@ -529,7 +548,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-
         this.verificarTipoAtribuido(declaracao);
 
         if (this.variaveis.hasOwnProperty(declaracao.simbolo.lexema)) {
@@ -538,12 +556,11 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
             this.variaveis[declaracao.simbolo.lexema] = {
                 imutavel: true,
                 tipo: declaracao.tipo,
-                valor: declaracao.inicializador.valor
+                valor: declaracao.inicializador.valor,
             };
         }
 
         this.virificarTipoDeclaracaoConst(declaracao);
-
 
         return Promise.resolve();
     }
@@ -571,7 +588,6 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
     }
 
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-
         this.verificarTipoAtribuido(declaracao);
 
         if (declaracao.inicializador instanceof FuncaoConstruto) {
@@ -584,7 +600,12 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor: declaracao.inicializador !== null ? declaracao.inicializador.valor !== undefined ? declaracao.inicializador.valor : declaracao.inicializador : undefined
+            valor:
+                declaracao.inicializador !== null
+                    ? declaracao.inicializador.valor !== undefined
+                        ? declaracao.inicializador.valor
+                        : declaracao.inicializador
+                    : undefined,
         };
 
         return Promise.resolve();
@@ -672,8 +693,8 @@ export class AnalisadorSemantico implements AnalisadorSemanticoInterface {
         }
 
         this.funcoes[declaracao.simbolo.lexema] = {
-            valor: declaracao.funcao
-        }
+            valor: declaracao.funcao,
+        };
 
         return Promise.resolve();
     }

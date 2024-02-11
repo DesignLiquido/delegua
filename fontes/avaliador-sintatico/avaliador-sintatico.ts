@@ -109,14 +109,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
     verificarDefinicaoTipoAtual(): TiposDadosInterface {
         // const tipos = [
-        //     tipoDeDadosDelegua.INTEIRO, 
+        //     tipoDeDadosDelegua.INTEIRO,
         //     tipoDeDadosDelegua.QUALQUER,
-        //     tipoDeDadosDelegua.REAL, 
+        //     tipoDeDadosDelegua.REAL,
         //     tipoDeDadosDelegua.TEXTO,
-        //     tipoDeDadosDelegua.VAZIO, 
+        //     tipoDeDadosDelegua.VAZIO,
         //     tipoDeDadosDelegua.VETOR
         // ];
-        const tipos = [...Object.values(tipoDeDadosDelegua)]
+        const tipos = [...Object.values(tipoDeDadosDelegua)];
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
         const contemTipo = tipos.find((tipo) => tipo === lexema);
@@ -202,14 +202,14 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     let valor: any = null;
-                    if(this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                         const expressao = this.expressao();
                         const argumentos = [expressao];
                         while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
                             this.avancarEDevolverAnterior();
                             argumentos.push(this.expressao());
                         }
-        
+
                         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                         this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após a expressão.");
                         return new SeletorTuplas(...argumentos) as Tupla;
@@ -286,12 +286,22 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.PARENTESE_ESQUERDO:
                         return new Super(
-                            this.hashArquivo, 
-                            simboloSuper, 
-                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'construtor', null, simboloSuper.linha, this.hashArquivo));
+                            this.hashArquivo,
+                            simboloSuper,
+                            new Simbolo(
+                                tiposDeSimbolos.IDENTIFICADOR,
+                                'construtor',
+                                null,
+                                simboloSuper.linha,
+                                this.hashArquivo
+                            )
+                        );
                     default:
                         this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-                        const metodoSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
+                        const metodoSuperclasse = this.consumir(
+                            tiposDeSimbolos.IDENTIFICADOR,
+                            'Esperado nome do método da Superclasse.'
+                        );
                         return new Super(this.hashArquivo, simboloSuper, metodoSuperclasse);
                 }
 
@@ -963,7 +973,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     }
 
     resolverDecorador(): void {
-        this.pilhaDecoradores = []
+        this.pilhaDecoradores = [];
         while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
             let nomeDecorador: string = '';
             let linha: number;
@@ -973,16 +983,16 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === linha);
 
             for (let simbolo of simbolosLinhaAtual) {
-                parenteseEsquerdo = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)
-                if(parenteseEsquerdo) {
+                parenteseEsquerdo = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                if (parenteseEsquerdo) {
                     if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                         parametros = this.logicaComumParametros();
                     }
                     this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
                     break;
                 }
-                this.avancarEDevolverAnterior()
-                nomeDecorador += simbolo.lexema || '.'
+                this.avancarEDevolverAnterior();
+                nomeDecorador += simbolo.lexema || '.';
             }
 
             this.pilhaDecoradores.push(new Decorador(this.hashArquivo, linha, nomeDecorador, parametros));
@@ -1073,8 +1083,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, 'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.');
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado igual após relação de propriedades da desestruturação.");
+        this.consumir(
+            tiposDeSimbolos.CHAVE_DIREITA,
+            'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
+        );
+        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado igual após relação de propriedades da desestruturação.');
 
         const inicializador = this.expressao();
         // TODO: Para cada variável dos identificadores, emitir um `AcessoMetodoOuPropriedade` usando
@@ -1082,14 +1095,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const retornos = [];
         for (let identificador of identificadores) {
             retornos.push(
-                new Var(
-                    identificador, 
-                    new AcessoMetodoOuPropriedade(
-                        this.hashArquivo,
-                        inicializador,
-                        identificador
-                    )
-                )
+                new Var(identificador, new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador))
             );
         }
 
@@ -1156,8 +1162,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, 'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.');
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado igual após relação de propriedades da desestruturação.");
+        this.consumir(
+            tiposDeSimbolos.CHAVE_DIREITA,
+            'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
+        );
+        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado igual após relação de propriedades da desestruturação.');
 
         const inicializador = this.expressao();
         // TODO: Para cada variável dos identificadores, emitir um `AcessoMetodoOuPropriedade` usando
@@ -1165,14 +1174,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         const retornos = [];
         for (let identificador of identificadores) {
             retornos.push(
-                new Const(
-                    identificador, 
-                    new AcessoMetodoOuPropriedade(
-                        this.hashArquivo,
-                        inicializador,
-                        identificador
-                    )
-                )
+                new Const(identificador, new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador))
             );
         }
 
@@ -1323,8 +1325,8 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 this.resolverDecorador();
                 continue;
             }
-            
-            // Se o próximo símbolo ao atual for um parênteses, é um método. 
+
+            // Se o próximo símbolo ao atual for um parênteses, é um método.
             // Caso contrário, é uma propriedade.
             const proximoSimbolo = this.simbolos[this.atual + 1];
             switch (proximoSimbolo.tipo) {
@@ -1333,16 +1335,15 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                     this.pilhaDecoradores = [];
                     break;
                 case tiposDeSimbolos.DOIS_PONTOS:
-                    const nomePropriedade = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado identificador para nome de propriedade.');
+                    const nomePropriedade = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        'Esperado identificador para nome de propriedade.'
+                    );
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
                     const tipoPropriedade = this.avancarEDevolverAnterior();
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                     propriedades.push(
-                        new PropriedadeClasse(
-                            nomePropriedade,
-                            tipoPropriedade.lexema,
-                            this.pilhaDecoradores
-                        )
+                        new PropriedadeClasse(nomePropriedade, tipoPropriedade.lexema, this.pilhaDecoradores)
                     );
                     this.pilhaDecoradores = [];
                     break;
@@ -1425,11 +1426,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
-        this.pilhaDecoradores = []
+        this.pilhaDecoradores = [];
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            this.resolverDecorador()
+            this.resolverDecorador();
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);

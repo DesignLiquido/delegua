@@ -105,7 +105,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -121,7 +121,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -183,7 +183,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        throw new Error('Método não implementado')
+        throw new Error('Método não implementado');
     }
 
     eVerdadeiro(objeto: any): boolean {

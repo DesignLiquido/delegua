@@ -22,7 +22,7 @@ export class InterpretadorMapler extends InterpretadorBase {
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>{
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

@@ -9,15 +9,16 @@ export class FuncaoDeclaracao extends Declaracao {
     decoradores: Decorador[];
 
     constructor(
-        simbolo: SimboloInterface, 
-        funcao: FuncaoConstruto, 
-        tipoRetorno?: SimboloInterface, 
-        decoradores: Decorador[] = []) {
+        simbolo: SimboloInterface,
+        funcao: FuncaoConstruto,
+        tipoRetorno?: SimboloInterface,
+        decoradores: Decorador[] = []
+    ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.funcao = funcao;
         this.tipoRetorno = tipoRetorno;
-        this.decoradores = decoradores
+        this.decoradores = decoradores;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
