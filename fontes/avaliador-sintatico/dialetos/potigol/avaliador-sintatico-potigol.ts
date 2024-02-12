@@ -42,7 +42,7 @@ import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/r
 import { AvaliadorSintaticoBase } from '../../avaliador-sintatico-base';
 
 import { ParametroInterface, SimboloInterface } from '../../../interfaces';
-import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
+import { TipoDadosElementar } from '../../../tipo-dados-elementar';
 import { Simbolo } from '../../../lexador';
 import { ErroAvaliadorSintatico } from '../../erro-avaliador-sintatico';
 import { RetornoDeclaracao } from '../../retornos';
@@ -815,7 +815,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
 
-            let tipoConversao: TiposDadosInterface;
+            let tipoConversao: TipoDadosElementar;
             switch (inicializadorLeia.simbolo.tipo) {
                 case tiposDeSimbolos.LEIA_INTEIROS:
                     tipoConversao = 'inteiro[]';
@@ -1029,7 +1029,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         (expressao as Constante).simbolo,
                         valorAtribuicao,
                         tipoVariavelOuConstante
-                            ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TiposDadosInterface)
+                            ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
                             : undefined
                     );
             }

@@ -42,7 +42,7 @@ import { Simbolo } from '../../../lexador';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/visualg';
 import { ParametroVisuAlg } from './parametro-visualg';
-import { TiposDadosInterface } from '../../../interfaces/tipos-dados-interface';
+import { TipoDadosElementar } from '../../../tipo-dados-elementar';
 import { ErroAvaliadorSintatico } from '../../erro-avaliador-sintatico';
 import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
@@ -76,9 +76,9 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 novoArray[i] = this.criarVetorNDimensional(resto);
             }
             return novoArray;
-        } else {
-            return undefined;
-        }
+        } 
+            
+        return undefined;
     }
 
     private validarDimensoesVetor(): number[] {
@@ -161,9 +161,6 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         const inicializacoes = [];
         this.avancarEDevolverAnterior(); // Var
 
-        // Quebra de linha é opcional aqui.
-        // this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
-
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.INICIO)) {
             // Se ainda houver quebras de linha, volta para o começo do `while`.
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA)) {
@@ -222,14 +219,14 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                                         Number(dadosVariaveis.simbolo.linha),
                                         this.criarVetorNDimensional(dimensoes)
                                     ),
-                                    'vetor'
+                                    `${simboloTipo.lexema}[]` as TipoDadosElementar
                                 )
                             );
                         }
                         this.atual++;
                     } else {
                         for (let identificador of dadosVariaveis.identificadores) {
-                            const tipo = dadosVariaveis.tipo as TiposDadosInterface;
+                            const tipo = dadosVariaveis.tipo as TipoDadosElementar;
                             switch (dadosVariaveis.tipo) {
                                 case tiposDeSimbolos.CARACTER:
                                 case tiposDeSimbolos.CARACTERE:
@@ -473,7 +470,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
         return this.simbolos[this.atual - 2];
     }
 
-    verificarDefinicaoTipoAtual(): TiposDadosInterface {
+    verificarDefinicaoTipoAtual(): TipoDadosElementar {
         const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor', 'caracter'];
 
         const lexema = this.simboloAtual().lexema.toLowerCase();
@@ -492,10 +489,10 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
 
             this.avancarEDevolverAnterior();
 
-            return contemTipoVetor as TiposDadosInterface;
+            return contemTipoVetor as TipoDadosElementar;
         }
 
-        return contemTipo as TiposDadosInterface;
+        return contemTipo as TipoDadosElementar;
     }
 
     corpoDaFuncao(tipo: any): FuncaoConstruto {
@@ -991,7 +988,7 @@ export class AvaliadorSintaticoVisuAlg extends AvaliadorSintaticoBase {
                 const dadosParametros = this.logicaComumParametroVisuAlg();
                 const tipoDadoParametro = {
                     nome: dadosParametros.simbolo.lexema,
-                    tipo: dadosParametros.tipo as TiposDadosInterface,
+                    tipo: dadosParametros.tipo as TipoDadosElementar,
                     tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null,
                 };
 

@@ -4,7 +4,7 @@ import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
-import { inferirTipoVariavel } from './inferenciador';
+import { TipoInferencia, inferirTipoVariavel } from './inferenciador';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
@@ -148,7 +148,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         `Constante '${simbolo.lexema}' não pode receber novos valores.`
                     );
                 }
-                const tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor);
+                const tipo = (variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor)).toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
                 ambiente.valores[simbolo.lexema] = {

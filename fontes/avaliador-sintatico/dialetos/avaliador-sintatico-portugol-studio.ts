@@ -37,7 +37,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-studio';
 import { RetornoDeclaracao } from '../retornos';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
-import { TiposDadosInterface } from '../../interfaces/tipos-dados-interface';
+import { TipoDadosElementar } from '../../tipo-dados-elementar';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -782,7 +782,7 @@ export class AvaliadorSintaticoPortugolStudio extends AvaliadorSintaticoBase {
 
         const inicializador = this.expressao();
 
-        return new Const(identificador, inicializador, tipo.lexema as TiposDadosInterface);
+        return new Const(identificador, inicializador, tipo.lexema as TipoDadosElementar);
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
