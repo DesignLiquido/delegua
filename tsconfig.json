@@ -3,7 +3,7 @@
         "outDir": "dist",
         "module": "CommonJS",
         "target": "es2017",
-        "rootDir": ".",
+        "rootDir": "fontes",
         "allowJs": true,
         "sourceMap": true,
         "declaration": true,
