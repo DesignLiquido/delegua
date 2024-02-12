@@ -10,3 +10,8 @@ export * from './simbolo-interface';
 export * from './tradutor-interface';
 export * from './variavel-interface';
 export * from './visitante-comum-interface';
+
+export * from './construtos';
+export * from './dialetos';
+export * from './erros';
+export * from './retornos';

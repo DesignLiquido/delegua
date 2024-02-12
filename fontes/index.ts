@@ -1,4 +1,5 @@
 export * from './avaliador-sintatico';
+export * from './construtos';
 export * from './declaracoes';
 export { PontoParada, cyrb53 } from './depuracao';
 export * from './formatadores';
