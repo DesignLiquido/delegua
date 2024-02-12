@@ -3,9 +3,6 @@ import hrtime from 'browser-process-hrtime';
 import { EspacoVariaveis } from '../espaco-variaveis';
 import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
 
-import { MicroLexador } from './../../fontes/lexador/micro-lexador';
-import { MicroAvaliadorSintatico } from './../../fontes/avaliador-sintatico/micro-avaliador-sintatico';
-
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import {
@@ -87,6 +84,8 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import { MicroLexador } from '../lexador';
+import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
