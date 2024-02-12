@@ -1,4 +1,4 @@
-export type TiposDadosInterface =
+export type TipoDadosElementar =
     | 'dicionário'
     | 'função'
     | 'inteiro'

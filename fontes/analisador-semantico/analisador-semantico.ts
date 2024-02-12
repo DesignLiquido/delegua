@@ -50,13 +50,13 @@ import { SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
-import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
+import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { AnalisadorSemanticoBase } from './analisador-semantico-base';
 import { PilhaVariaveis } from './pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
-    tipo: TiposDadosInterface;
+    tipo: TipoDadosElementar;
     subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
     imutavel: boolean;
     valor?: any;

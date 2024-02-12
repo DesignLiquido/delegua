@@ -1,9 +1,9 @@
 import { SimboloInterface } from './simbolo-interface';
-import { TiposDadosInterface } from './tipos-dados-interface';
+import { TipoDadosElementar } from '../tipo-dados-elementar';
 
 interface TipoDadoParametroInterface {
     nome: string;
-    tipo: TiposDadosInterface;
+    tipo: TipoDadosElementar;
     tipoInvalido?: string;
 }
 export interface ParametroInterface {

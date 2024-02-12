@@ -57,7 +57,7 @@ import {
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { RetornoDeclaracao } from './retornos';
-import { TiposDadosInterface } from '../interfaces/tipos-dados-interface';
+import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { Simbolo } from '../lexador';
 import { SeletorTuplas, Tupla } from '../construtos/tuplas';
 
@@ -108,7 +108,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
-    verificarDefinicaoTipoAtual(): TiposDadosInterface {
+    verificarDefinicaoTipoAtual(): TipoDadosElementar {
         // const tipos = [
         //     tipoDeDadosDelegua.INTEIRO,
         //     tipoDeDadosDelegua.QUALQUER,
@@ -134,10 +134,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
 
             this.avancarEDevolverAnterior();
 
-            return contemTipoVetor as TiposDadosInterface;
+            return contemTipoVetor as TipoDadosElementar;
         }
 
-        return contemTipo as TiposDadosInterface;
+        return contemTipo as TipoDadosElementar;
     }
 
     simboloAtual(): SimboloInterface {
