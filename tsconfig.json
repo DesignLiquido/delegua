@@ -4,6 +4,8 @@
         "module": "CommonJS",
         "target": "es2017",
         "rootDir": "fontes",
+        "sourceRoot": "fontes",
+        "mapRoot": "dist",
         "allowJs": true,
         "sourceMap": true,
         "declaration": true,
