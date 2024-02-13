@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "empacotar": "rimraf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
-        "gerar-documentacao-tecnica": "typedoc --out docs index.ts",
+        "gerar-documentacao-tecnica": "typedoc --out docs fontes/index.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
         "testes-unitarios": "jest --coverage",
