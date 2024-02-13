@@ -534,7 +534,6 @@ describe('Interpretador', () => {
                     expect(saidasMensagens.includes(saida)).toBeTruthy()
                 }
 
-
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -623,13 +622,18 @@ describe('Interpretador', () => {
             it('Sucesso - Negativos', async () => {
                 // Aqui vamos simular a resposta para três variáveis de `leia()`.
                 const respostas = [
-                    2, -1, 3
+                    "2", "-1", "3"
                 ];
                 interpretador.interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     }
                 };
+
+                const saidas: string[] = [];
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    saidas.push(String(saida));
+                }
 
                 const retornoLexador = lexador.mapear([
                     'algoritmo "negativos"',
@@ -657,6 +661,8 @@ describe('Interpretador', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(saidas.length).toBeGreaterThanOrEqual(6);
+                expect(saidas[5]).toBe('-1');
             });
         });
     });
