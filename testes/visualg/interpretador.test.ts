@@ -399,7 +399,7 @@ describe('Interpretador', () => {
                 const saidasMensagens = ['Digite um valor: ', '10', '8', '6', '4', '2', '0']
                 // Aqui vamos simular a resposta para uma variável de `leia()`.
                 const respostas = [
-                    10
+                    "10"
                 ];
                 interpretador.interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
