@@ -5,15 +5,20 @@ import { Construto } from './construto';
  * Definido como `Subscript` em Égua Clássico, esse construto serve para acessar índices de
  * vetores e dicionários.
  */
-export class AcessoIndiceVariavel implements Construto {
+export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
     entidadeChamada: Construto;
-    simboloFechamento: SimboloInterface;
+    simboloFechamento: SimboloInterface<TTipoSimbolo>;
     indice: any;
 
-    constructor(hashArquivo: number, entidadeChamada: Construto, indice: any, simboloFechamento: SimboloInterface) {
+    constructor(
+        hashArquivo: number, 
+        entidadeChamada: Construto, 
+        indice: any, 
+        simboloFechamento: SimboloInterface<TTipoSimbolo>
+    ) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
 

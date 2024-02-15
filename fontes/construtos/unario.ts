@@ -1,18 +1,18 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class Unario implements Construto {
+export class Unario<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
-    operador: SimboloInterface;
-    operando: any;
+    operador: SimboloInterface<TTipoSimbolo>;
+    operando: Construto;
     incidenciaOperador: 'ANTES' | 'DEPOIS';
 
     constructor(
         hashArquivo: number,
-        operador: SimboloInterface,
-        operando: any,
+        operador: SimboloInterface<TTipoSimbolo>,
+        operando: Construto,
         incidenciaOperador: 'ANTES' | 'DEPOIS' = 'ANTES'
     ) {
         this.linha = operador.linha;

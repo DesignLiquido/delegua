@@ -1,12 +1,12 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class AcessoElementoMatriz implements Construto {
+export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
     entidadeChamada: Construto;
-    simboloFechamento: SimboloInterface;
+    simboloFechamento: SimboloInterface<TTipoSimbolo>;
     indicePrimario: any;
     indiceSecundario: any;
 
@@ -15,7 +15,7 @@ export class AcessoElementoMatriz implements Construto {
         entidadeChamada: Construto,
         indicePrimario: any,
         indiceSegundario: any,
-        simboloFechamento: SimboloInterface
+        simboloFechamento: SimboloInterface<TTipoSimbolo>
     ) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;

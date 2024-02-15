@@ -1,15 +1,21 @@
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class DefinirValor implements Construto {
+export class DefinirValor<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
     objeto: Construto;
-    nome: SimboloInterface;
+    nome: SimboloInterface<TTipoSimbolo>;
     valor: any;
 
-    constructor(hashArquivo: number, linha: number, objeto: Construto, nome: SimboloInterface, valor: any) {
+    constructor(
+        hashArquivo: number, 
+        linha: number, 
+        objeto: Construto, 
+        nome: SimboloInterface<TTipoSimbolo>, 
+        valor: any
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

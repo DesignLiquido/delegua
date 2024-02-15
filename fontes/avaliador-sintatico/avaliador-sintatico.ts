@@ -61,6 +61,9 @@ import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { Simbolo } from '../lexador';
 import { SeletorTuplas, Tupla } from '../construtos/tuplas';
 
+// Será usado para forçar tipagem em construtos e em algumas funções internas.
+type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
+
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.

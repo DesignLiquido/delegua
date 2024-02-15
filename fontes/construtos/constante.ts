@@ -1,13 +1,19 @@
 import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class Constante implements Construto {
+/**
+ * O construto de constante. 
+ */
+export class Constante<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
-    simbolo: SimboloInterface;
+    simbolo: SimboloInterface<TTipoSimbolo>;
 
-    constructor(hashArquivo: number, simbolo: SimboloInterface) {
+    constructor(
+        hashArquivo: number, 
+        simbolo: SimboloInterface<TTipoSimbolo>
+    ) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
 

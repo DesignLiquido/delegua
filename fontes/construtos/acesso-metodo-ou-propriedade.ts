@@ -5,14 +5,14 @@ import { Construto } from './construto';
  * Chamado de `Get` em Égua Clássico, é o construto de acesso a métodos ou membros de
  * classe.
  */
-export class AcessoMetodoOuPropriedade implements Construto {
+export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
     objeto: Construto;
-    simbolo: SimboloInterface;
+    simbolo: SimboloInterface<TTipoSimbolo>;
 
-    constructor(hashArquivo: number, objeto: Construto, simbolo: SimboloInterface) {
+    constructor(hashArquivo: number, objeto: Construto, simbolo: SimboloInterface<TTipoSimbolo>) {
         this.linha = objeto.linha;
         this.hashArquivo = hashArquivo;
 

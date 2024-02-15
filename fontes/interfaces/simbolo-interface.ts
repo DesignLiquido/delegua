@@ -1,6 +1,6 @@
-export interface SimboloInterface {
+export interface SimboloInterface<TTipo = string> {
     lexema: string;
-    tipo: string;
+    tipo: TTipo;
     literal: string;
     linha: number;
     hashArquivo: number;

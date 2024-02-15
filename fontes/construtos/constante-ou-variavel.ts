@@ -11,13 +11,16 @@ import { Construto } from './construto';
  * resolver para `Constante`, `Variavel` ou algum construto de chamada/declaração de
  * função.
  */
-export class ConstanteOuVariavel implements Construto {
+export class ConstanteOuVariavel<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
-    simbolo: SimboloInterface;
+    simbolo: SimboloInterface<TTipoSimbolo>;
 
-    constructor(hashArquivo: number, simbolo: SimboloInterface) {
+    constructor(
+        hashArquivo: number, 
+        simbolo: SimboloInterface<TTipoSimbolo>
+    ) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
 

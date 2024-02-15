@@ -12,15 +12,20 @@ import { Construto } from './construto';
  * - `%` (Módulo) e `%=` (Módulo com Atribuição)
  * - `**` (Exponenciação)
  */
-export class Binario implements Construto {
+export class Binario<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
     esquerda: Construto;
-    operador: SimboloInterface;
+    operador: SimboloInterface<TTipoSimbolo>;
     direita: Construto;
 
-    constructor(hashArquivo: number, esquerda: any, operador: SimboloInterface, direita: any) {
+    constructor(
+        hashArquivo: number, 
+        esquerda: any, 
+        operador: SimboloInterface<TTipoSimbolo>, 
+        direita: any
+    ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
 
