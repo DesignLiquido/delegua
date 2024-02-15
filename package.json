@@ -3,6 +3,7 @@
     "version": "0.33.4",
     "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
     "main": "index.js",
+    "types": "index.d.ts",
     "scripts": {
         "empacotar": "rimraf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
         "gerar-documentacao-tecnica": "typedoc --out docs fontes/index.ts",
