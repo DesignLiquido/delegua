@@ -1127,7 +1127,7 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('1,2,3');
+                        expect(saida).toEqual('[1,2,3]');
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1149,7 +1149,7 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('Olá,mundo');
+                        expect(saida).toEqual('[Olá,mundo]');
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1168,7 +1168,7 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('maçã,banana,morango');
+                        expect(saida).toEqual('[maçã,banana,morango]');
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1381,8 +1381,8 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(saidas).toHaveLength(2);
-                        expect(saidas[0]).toEqual('a,b,c');
-                        expect(saidas[1]).toEqual('1,2,3');
+                        expect(saidas[0]).toEqual('[a,b,c]');
+                        expect(saidas[1]).toEqual('[1,2,3]');
                     });
                 });
 
@@ -1401,7 +1401,7 @@ describe('Interpretador', () => {
                         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                         interpretador.funcaoDeRetorno = (saida: string) => {
-                            expect(saida).toEqual('12,8,4,2');
+                            expect(saida).toEqual('[12,8,4,2]');
                         };
 
                         const retornoInterpretador = await interpretador.interpretar(
