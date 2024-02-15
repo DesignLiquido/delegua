@@ -1,6 +1,6 @@
 import { ArgumentoInterface } from '../interpretador/argumento-interface';
 
-export class Chamavel {
+export abstract class Chamavel {
     valorAridade: number;
 
     aridade(): number {

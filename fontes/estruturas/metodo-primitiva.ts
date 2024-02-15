@@ -15,7 +15,7 @@ export class MetodoPrimitiva extends Chamavel {
     primitiva: any;
     metodo: Function;
 
-    constructor(primitiva: any, metodo: Function, requerInterpretador: boolean = false) {
+    constructor(primitiva: any, metodo: Function) {
         super();
         this.primitiva = primitiva;
         this.metodo = metodo;
@@ -24,5 +24,21 @@ export class MetodoPrimitiva extends Chamavel {
 
     async chamar(interpretador: VisitanteComumInterface, argumentos: any[] = []): Promise<any> {
         return await this.metodo(interpretador, this.primitiva, ...argumentos);
+    }
+
+    /**
+     * Método utilizado por Delégua para inspecionar este método em depuração.
+     * @returns {string} A representação do método como texto.
+     */
+    paraTexto(): string {
+        return `<método nome=${this.metodo} primitiva=${this.primitiva}>`;
+    }
+
+    /**
+     * Método utilizado pelo VSCode para representar este método quando impressa.
+     * @returns {string} A representação do método como texto.
+     */
+    toString(): string {
+        return this.paraTexto();
     }
 }

@@ -36,6 +36,10 @@ export class DeleguaFuncao extends Chamavel {
         return this.declaracao?.parametros?.length || 0;
     }
 
+    /**
+     * Método utilizado por Delégua para representar esta função quando impressa.
+     * @returns {string} A representação da função como texto.
+     */
     paraTexto(): string {
         if (this.nome === null) return '<função>';
         let resultado = `<função ${this.nome}`;
@@ -47,6 +51,7 @@ export class DeleguaFuncao extends Chamavel {
                 parametro.tipoDado && parametro.tipoDado.tipo ? `: ${parametro.tipoDado.tipo}, ` : ', '
             }`;
         }
+        
         if (this.declaracao.parametros.length > 0) {
             parametros = `argumentos=<${parametros.slice(0, -2)}>`;
         }
@@ -60,11 +65,21 @@ export class DeleguaFuncao extends Chamavel {
         if (parametros) {
             resultado += ` ${parametros}`;
         }
+
         if (retorno) {
             resultado += ` ${retorno}`;
         }
+
         resultado += '>';
         return resultado;
+    }
+
+    /**
+     * Método utilizado pelo VSCode para inspecionar esta função em depuração.
+     * @returns {string} A representação da função como texto.
+     */
+    toString(): string {
+        return this.paraTexto();
     }
 
     async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {

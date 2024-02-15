@@ -61,6 +61,10 @@ export class DeleguaClasse extends Chamavel {
         return undefined;
     }
 
+    /**
+     * Método utilizado por Delégua para representar esta classe quando impressa.
+     * @returns {string} A representação da classe como texto.
+     */
     paraTexto(): string {
         let texto = `<classe ${this.simboloOriginal.lexema}`;
         for (let propriedade of this.propriedades) {
@@ -76,6 +80,10 @@ export class DeleguaClasse extends Chamavel {
         return texto;
     }
 
+    /**
+     * Método utilizado pelo VSCode para inspecionar esta classe em depuração.
+     * @returns {string} A representação da classe como texto.
+     */
     toString(): string {
         return this.paraTexto();
     }
