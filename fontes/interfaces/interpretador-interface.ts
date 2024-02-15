@@ -1,9 +1,9 @@
 import { Construto } from '../construtos';
 import { Declaracao } from '../declaracoes';
 import { EspacoVariaveis } from '../espaco-variaveis';
+import { ErroInterpretador } from './erros/erro-interpretador';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
-import { ErroInterpretador } from '../interpretador';
 import { RetornoInterpretador } from './retornos/retorno-interpretador';
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
