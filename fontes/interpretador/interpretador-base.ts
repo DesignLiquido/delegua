@@ -1610,9 +1610,28 @@ export class InterpretadorBase implements InterpretadorInterface {
             return formato.format(objeto);
         }
 
-        if (Array.isArray(objeto)) return objeto;
+        if (Array.isArray(objeto)) {
+            let retornoVetor: string = '[';
+            for (let elemento of objeto) {
+                retornoVetor += this.paraTexto(elemento);
+            }
+            retornoVetor += ']';
+            return retornoVetor;
+        }
+
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao) return objeto.paraTexto();
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor.paraTexto();
+                    }
+                }
+        }
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) return JSON.stringify(objeto);
 
         return objeto.toString();

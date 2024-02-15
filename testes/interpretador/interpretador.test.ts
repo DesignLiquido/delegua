@@ -1,6 +1,6 @@
-import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { InterpretadorBase } from '../fontes/interpretador';
-import { Lexador } from '../fontes/lexador';
+import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { InterpretadorBase } from '../../fontes/interpretador';
+import { Lexador } from '../../fontes/lexador';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
@@ -270,6 +270,28 @@ describe('Interpretador', () => {
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(_saida).toBe('<função retorneAlgo>');
+                });
+
+                it('Escrita de vetor com outros objetos dentro', async () => {
+                    let saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        `funcao retorne() {`,
+                        `    retorna ''`,
+                        `}`,
+                        `const dic = {`,
+                        `    "chave": 10`,
+                        `}`,
+                        `escreva([dic])`,
+                        `escreva([retorne])"`,
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(saida);
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(saidas).toBeTruthy();
                 });
             });
 
