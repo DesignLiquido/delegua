@@ -6,7 +6,7 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
     hashArquivo: number;
 
     operador: SimboloInterface<TTipoSimbolo>;
-    operando: Construto;
+    operando: any;
     incidenciaOperador: 'ANTES' | 'DEPOIS';
 
     constructor(

@@ -1,6 +1,6 @@
 /**
  * Um objeto padrão é uma instância de uma Classe Padrão (JavaScript).
- * TODO: Marcado para depreciação na próxima versão.
+ * TODO: Marcado para depreciação em futuras versões.
  */
 export class ObjetoPadrao {
     classePadrao: string;
@@ -9,6 +9,10 @@ export class ObjetoPadrao {
         this.classePadrao = classePadrao;
     }
 
+    /**
+     * Método utilizado por Delégua para inspecionar este objeto em depuração.
+     * @returns {string} A representação do objeto como texto.
+     */
     paraTexto(): string {
         let retornoTexto = `<objeto-padrão da classe ${this.classePadrao}>\n`;
         for (const [nome, valor] of Object.entries(this)) {
@@ -16,5 +20,13 @@ export class ObjetoPadrao {
         }
         retornoTexto += `</objeto-padrão>`;
         return retornoTexto;
+    }
+
+    /**
+     * Método utilizado pelo VSCode para representar este objeto quando impresso.
+     * @returns {string} A representação do objeto como texto.
+     */
+    toString(): string {
+        return this.paraTexto();
     }
 }

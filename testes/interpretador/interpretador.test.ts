@@ -1,6 +1,6 @@
-import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { InterpretadorBase } from '../fontes/interpretador';
-import { Lexador } from '../fontes/lexador';
+import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { InterpretadorBase } from '../../fontes/interpretador';
+import { Lexador } from '../../fontes/lexador';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
@@ -270,6 +270,28 @@ describe('Interpretador', () => {
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(_saida).toBe('<função retorneAlgo>');
+                });
+
+                it('Escrita de vetor com outros objetos dentro', async () => {
+                    let saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        `funcao retorne() {`,
+                        `    retorna ''`,
+                        `}`,
+                        `const dic = {`,
+                        `    "chave": 10`,
+                        `}`,
+                        `escreva([dic])`,
+                        `escreva([retorne])"`,
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(saida);
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(saidas).toBeTruthy();
                 });
             });
 
@@ -1105,7 +1127,7 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('1,2,3');
+                        expect(saida).toEqual('[1,2,3]');
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1127,7 +1149,7 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('Olá,mundo');
+                        expect(saida).toEqual('[Olá,mundo]');
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1146,7 +1168,7 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('maçã,banana,morango');
+                        expect(saida).toEqual('[maçã,banana,morango]');
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1359,8 +1381,8 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(saidas).toHaveLength(2);
-                        expect(saidas[0]).toEqual('a,b,c');
-                        expect(saidas[1]).toEqual('1,2,3');
+                        expect(saidas[0]).toEqual('[a,b,c]');
+                        expect(saidas[1]).toEqual('[1,2,3]');
                     });
                 });
 
@@ -1379,7 +1401,7 @@ describe('Interpretador', () => {
                         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                         interpretador.funcaoDeRetorno = (saida: string) => {
-                            expect(saida).toEqual('12,8,4,2');
+                            expect(saida).toEqual('[12,8,4,2]');
                         };
 
                         const retornoInterpretador = await interpretador.interpretar(

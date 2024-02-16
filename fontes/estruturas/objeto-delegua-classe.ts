@@ -47,7 +47,19 @@ export class ObjetoDeleguaClasse {
         this.propriedades[simbolo.lexema] = valor;
     }
 
+    /**
+     * Método utilizado por Delégua para inspecionar este objeto em depuração.
+     * @returns {string} A representação do objeto como texto.
+     */
     paraTexto(): string {
         return '<Objeto ' + this.classe.simboloOriginal.lexema + '>';
+    }
+
+    /**
+     * Método utilizado pelo VSCode para representar este objeto quando impresso.
+     * @returns {string} A representação do objeto como texto.
+     */
+    toString(): string {
+        return this.paraTexto();
     }
 }

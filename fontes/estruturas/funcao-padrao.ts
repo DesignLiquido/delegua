@@ -19,7 +19,19 @@ export class FuncaoPadrao extends Chamavel {
         return await this.funcao.apply(this, argumentos);
     }
 
+    /**
+     * Método utilizado por Delégua para inspecionar esta função em depuração.
+     * @returns {string} A representação da função como texto.
+     */
     paraTexto(): string {
+        return '<função>';
+    }
+
+    /**
+     * Método utilizado pelo VSCode para representar esta função quando impressa.
+     * @returns {string} A representação da classe como texto.
+     */
+    toString(): string {
         return '<função>';
     }
 }
