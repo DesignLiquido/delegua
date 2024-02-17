@@ -17,12 +17,20 @@ export default {
         interpretador: VisitanteComumInterface,
         vetor: Array<any>,
         inicio: number,
-        excluirQuantidade: number,
+        excluirQuantidade?: number,
         ...items: any[]
     ): Promise<any> => {
-        const elementos = !items.length
+        let elementos = [];
+
+        if(excluirQuantidade || excluirQuantidade === 0){
+            elementos = !items.length
             ? vetor.splice(inicio, excluirQuantidade)
             : vetor.splice(inicio, excluirQuantidade, ...items);
+        } else {
+            elementos = !items.length
+            ? vetor.splice(inicio)
+            : vetor.splice(inicio, ...items);
+        }
         return Promise.resolve(elementos);
     },
     fatiar: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> =>
