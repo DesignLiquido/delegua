@@ -1630,7 +1630,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         case 'dicionário':
                             return JSON.stringify(objeto.valor);
                         default:
-                            return objeto.valor.paraTexto();
+                            return objeto.valor;
                     }
                 }
         }
