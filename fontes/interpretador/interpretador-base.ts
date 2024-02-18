@@ -126,9 +126,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     regexInterpolacao = /\${(.*?)}/g;
     private tiposNumericos = [
-        tipoDeDadosDelegua.INTEIRO, 
-        tipoDeDadosDelegua.NUMERO, 
-        tipoDeDadosDelegua.NÚMERO, 
+        tipoDeDadosDelegua.INTEIRO,
+        tipoDeDadosDelegua.NUMERO,
+        tipoDeDadosDelegua.NÚMERO,
         tipoDeDadosDelegua.REAL
     ];
 
@@ -1630,7 +1630,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         case 'dicionário':
                             return JSON.stringify(objeto.valor);
                         default:
-                            return objeto.valor.paraTexto();
+                            return objeto.valor;
                     }
                 }
         }
