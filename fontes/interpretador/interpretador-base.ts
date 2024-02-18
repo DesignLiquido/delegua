@@ -126,9 +126,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     regexInterpolacao = /\${(.*?)}/g;
     private tiposNumericos = [
-        tipoDeDadosDelegua.INTEIRO, 
-        tipoDeDadosDelegua.NUMERO, 
-        tipoDeDadosDelegua.NÚMERO, 
+        tipoDeDadosDelegua.INTEIRO,
+        tipoDeDadosDelegua.NUMERO,
+        tipoDeDadosDelegua.NÚMERO,
         tipoDeDadosDelegua.REAL
     ];
 
@@ -528,7 +528,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
-                if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
+                if ((tipoEsquerdo === tipoDeDadosDelegua.NUMERO) || (tipoEsquerdo === tipoDeDadosDelegua.NÚMERO) && (tipoDireito === tipoDeDadosDelegua.NUMERO) || (tipoDireito === tipoDeDadosDelegua.NÚMERO)) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
 
@@ -539,7 +539,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
-                if (tipoEsquerdo === tipoDeDadosDelegua.NUMERO && tipoDireito === tipoDeDadosDelegua.NUMERO) {
+                if ((tipoEsquerdo === tipoDeDadosDelegua.NUMERO) || (tipoEsquerdo === tipoDeDadosDelegua.NÚMERO) && (tipoDireito === tipoDeDadosDelegua.NUMERO) || (tipoDireito === tipoDeDadosDelegua.NÚMERO)) {
                     return Number(valorEsquerdo) < Number(valorDireito);
                 }
 
