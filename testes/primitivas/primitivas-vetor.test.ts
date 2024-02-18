@@ -129,6 +129,14 @@ describe('Primitivas de vetor', () => {
             expect(vetor).toStrictEqual([1, 'texto1', 'texto2', 5]);
             expect(resultado).toStrictEqual([2, 3, 4]);
         });
+
+        it('Apenas um parâmetro', async () => {
+            let vetor = ['Oscilador', 'Circuito', 'Modulador', 'Refrigerador']
+            const resultado = await primitivasVetor.encaixar(interpretador, vetor, 1);
+            
+            expect(vetor).toStrictEqual(['Oscilador']);
+            expect(resultado).toStrictEqual([ 'Circuito', 'Modulador', 'Refrigerador' ]);
+        });
     });
 
     describe('somar()', () => {
