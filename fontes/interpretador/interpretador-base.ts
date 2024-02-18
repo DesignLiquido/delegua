@@ -126,9 +126,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     regexInterpolacao = /\${(.*?)}/g;
     private tiposNumericos = [
-        tipoDeDadosDelegua.INTEIRO, 
-        tipoDeDadosDelegua.NUMERO, 
-        tipoDeDadosDelegua.NÚMERO, 
+        tipoDeDadosDelegua.INTEIRO,
+        tipoDeDadosDelegua.NUMERO,
+        tipoDeDadosDelegua.NÚMERO,
         tipoDeDadosDelegua.REAL
     ];
 
@@ -217,12 +217,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match
             ? new RegExp(
-                  match[2],
-                  match[3]
-                      .split('')
-                      .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
-                      .join('')
-              )
+                match[2],
+                match[3]
+                    .split('')
+                    .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
+                    .join('')
+            )
             : new RegExp(texto);
     }
 
@@ -501,13 +501,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tipoDireita: string = direita.tipo
             ? direita.tipo
             : typeof direita === tipoDeDadosPrimitivos.NUMERO
-            ? tipoDeDadosDelegua.NUMERO
-            : String(NaN);
+                ? tipoDeDadosDelegua.NUMERO
+                : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
-            ? tipoDeDadosDelegua.NUMERO
-            : String(NaN);
+                ? tipoDeDadosDelegua.NUMERO
+                : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda)) return;
 
@@ -1634,7 +1634,17 @@ export class InterpretadorBase implements InterpretadorInterface {
                     }
                 }
         }
-        if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) return JSON.stringify(objeto);
+        if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
+            for (const obj in objeto) {
+                let valor = objeto[obj]
+                if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {
+                    valor = valor ? 'verdadeiro' : 'falso';
+
+                    objeto[obj] = valor;
+                }
+            }
+            return JSON.stringify(objeto);
+        }
 
         return objeto.toString();
     }
