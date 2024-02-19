@@ -1,65 +1,57 @@
-import { ErroEmTempoDeExecucao } from '../excecoes';
-import { SimboloInterface } from '../interfaces';
-import { DeleguaClasse } from './delegua-classe';
+class DelegatedClassObject {
+    delegatedClass: DelegatedClass;
+    properties: { [name: string]: any };
 
-/**
- * A instância de uma classe em Delégua.
- * Possui propriedades e métodos. Propriedades são definidas localmente.
- * Métodos são extraídos da definição de classe.
- */
-export class ObjetoDeleguaClasse {
-    classe: DeleguaClasse;
-    propriedades: { [nome: string]: any };
+    constructor(delegatedClass: DelegatedClass) {
+        this.delegatedClass = delegatedClass;
+        this.properties = {};
 
-    constructor(classe: DeleguaClasse) {
-        this.classe = classe;
-        this.propriedades = {};
-        if (this.classe.superClasse) {
-            for (let propriedade of this.classe.superClasse.propriedades) {
-                this.propriedades[propriedade.nome.lexema] = undefined;
+        if (this.delegatedClass.superClass) {
+            for (let property of this.delegatedClass.superClass.properties) {
+                this.properties[property.name.lexeme] = undefined;
             }
         }
 
-        for (let propriedade of classe.propriedades) {
-            this.propriedades[propriedade.nome.lexema] = undefined;
+        for (let property of delegatedClass.properties) {
+            this.properties[property.name.lexeme] = undefined;
         }
     }
 
-    obter(simbolo: SimboloInterface): any {
-        if (this.propriedades.hasOwnProperty(simbolo.lexema)) {
-            return this.propriedades[simbolo.lexema];
+    getValue(symbol: SymbolInterface): any {
+        if (this.properties.hasOwnProperty(symbol.lexeme)) {
+            return this.properties[symbol.lexeme];
         }
 
-        const metodo = this.classe.encontrarMetodo(simbolo.lexema);
-        if (metodo) return metodo.funcaoPorMetodoDeClasse(this);
+        const method = this.delegatedClass.findMethod(symbol.lexeme);
+        if (method) return method.executeMethodOfClass(this);
 
-        throw new ErroEmTempoDeExecucao(simbolo, `Método ou propriedade "${simbolo.lexema}" não existe neste objeto.`);
+        throw new RuntimeExecutionError(symbol, `Method or property "${symbol.lexeme}" does not exist in this object.`);
     }
 
-    definir(simbolo: SimboloInterface, valor: any): void {
-        if (this.classe.dialetoRequerDeclaracaoPropriedades && !this.propriedades.hasOwnProperty(simbolo.lexema)) {
-            throw new ErroEmTempoDeExecucao(
-                simbolo,
-                `Propriedade "${simbolo.lexema}" não foi definida na declaração da classe ${this.classe.simboloOriginal.lexema}.`
+    setValue(symbol: SymbolInterface, value: any): void {
+        if (this.delegatedClass.requiresPropertyDeclaration && !this.properties.hasOwnProperty(symbol.lexeme)) {
+            throw new RuntimeExecutionError(
+                symbol,
+                `Property "${symbol.lexeme}" was not defined in the declaration of the class ${this.delegatedClass.originalSymbol.lexeme}.`
             );
         }
 
-        this.propriedades[simbolo.lexema] = valor;
+        this.properties[symbol.lexeme] = value;
     }
 
     /**
-     * Método utilizado por Delégua para inspecionar este objeto em depuração.
-     * @returns {string} A representação do objeto como texto.
+     * Method used by Delegua to inspect this object during debugging.
+     * @returns {string} The object representation as text.
      */
-    paraTexto(): string {
-        return '<Objeto ' + this.classe.simboloOriginal.lexema + '>';
+    toText(): string {
+        return `<Object ${this.delegatedClass.originalSymbol.lexeme}>`;
     }
 
     /**
-     * Método utilizado pelo VSCode para representar este objeto quando impresso.
-     * @returns {string} A representação do objeto como texto.
+     * Method used by VSCode to represent this object when printed.
+     * @returns {string} The object representation as text.
      */
     toString(): string {
-        return this.paraTexto();
+        return this.toText();
     }
 }
