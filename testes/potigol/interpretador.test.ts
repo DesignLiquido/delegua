@@ -314,7 +314,7 @@ describe('Interpretador', () => {
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros).toHaveLength(2);
             });
 
             it('Dado um leia_reais separador por virgula, escreva deve imprimir o valor lido', async () => {

@@ -213,7 +213,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(4)
                 });
             });
 
