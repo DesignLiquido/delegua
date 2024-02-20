@@ -296,7 +296,9 @@ describe('Interpretador', () => {
 
             it('Dado um leia_inteiros, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
-                    'escreva(leia_inteiros(3))'
+                    'programa',
+                    'escreva(leia_inteiros(3))',
+                    'fim',
                 ], -1);
 
                 const respostas = [1, 2, 3];
