@@ -819,6 +819,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 tiposDeSimbolos.SUPER,
                 tiposDeSimbolos.TEXTO,
                 tiposDeSimbolos.VERDADEIRO,
+                tiposDeSimbolos.CHAVE_ESQUERDA
             ].includes(this.simbolos[this.atual].tipo)
         ) {
             valor = this.expressao();
@@ -1091,13 +1092,13 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado chave esquerda para abertura de bloco em declaração 'tendo'.");
         const blocoCorpo = this.blocoEscopo();
         return new TendoComo(
-            simboloTendo.linha, 
-            simboloTendo.hashArquivo, 
-            simboloNomeVariavel, 
-            expressaoInicializacao, 
+            simboloTendo.linha,
+            simboloTendo.hashArquivo,
+            simboloNomeVariavel,
+            expressaoInicializacao,
             new Bloco(
                 simboloTendo.linha,
-                simboloTendo.hashArquivo, 
+                simboloTendo.hashArquivo,
                 blocoCorpo
             )
         );

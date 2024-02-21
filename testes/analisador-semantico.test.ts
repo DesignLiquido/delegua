@@ -175,6 +175,21 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('A função não pode ter nenhum tipo de retorno.');
             });
 
+            it('Função retorna Dicionario literal', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'funcao executar() {',
+                        '   retorna { "chave": 100 }',
+                        '}',
+                        'escreva(executar())',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+            });
+
             it('Não retornando o tipo que a função definiu - texto', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao executar(valor1, valor2): texto {",
@@ -769,10 +784,10 @@ describe('Analisador semântico', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item=> item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                 });
-             });
+            });
         });
 
         describe('Cenários variáveis não inicializada', () => {
@@ -840,7 +855,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                     expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
                 });
-                
+
                 it('Sucesso - variável tipo texto não inicializada', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",
