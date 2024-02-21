@@ -254,6 +254,41 @@ describe('Avaliador sintático', () => {
     
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
                 });
+
+                it('Função retorna vazio mas tem retorno de valores', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao executar(valor1, valor2): vazio {',
+                            '   var resultado = valor1 + valor2',
+                            '   retorna resultado',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Retorno texto sem retorno dentro da função', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao executar(valor1, valor2): texto {', '   var resultado = valor1 + valor2', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Função com retorno de vetor', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao executar(): texto[] {', '   retorna ["1", "2"]', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
             })
 
             describe('Declarações de tuplas', () => {
@@ -380,43 +415,6 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros[0].message).toBe(
                     'Não é permitido ter dois identificadores seguidos na mesma linha.'
                 );
-            });
-
-            describe('Funções Anônimas', () => {
-                it('Função retorna vazio mas tem retorno de valores', async () => {
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'funcao executar(valor1, valor2): vazio {',
-                            '   var resultado = valor1 + valor2',
-                            '   retorna resultado',
-                            '}',
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
-                });
-
-                it('Retorno texto sem retorno dentro da função', async () => {
-                    const retornoLexador = lexador.mapear(
-                        ['funcao executar(valor1, valor2): texto {', '   var resultado = valor1 + valor2', '}'],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
-                });
-
-                it('Função com retorno de vetor', () => {
-                    const retornoLexador = lexador.mapear(
-                        ['funcao executar(): texto[] {', '   retorna ["1", "2"]', '}'],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                });
             });
 
             it('Declaração `tente`', () => {
