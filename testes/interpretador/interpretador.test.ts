@@ -408,6 +408,7 @@ describe('Interpretador', () => {
                         'nulo',
                         'texto',
                         'número',
+                        'dicionário'
                     ];
                     const retornoLexador = lexador.mapear(
                         [
@@ -437,6 +438,7 @@ describe('Interpretador', () => {
                             'escreva(tipo de tipo de tipo de "a")',
                             'var letras = "abc"',
                             'escreva(tipo de letras.tamanho())',
+                            'escreva(tipo de { "chave": verdadeiro })',
                         ],
                         -1
                     );
