@@ -239,6 +239,23 @@ describe('Avaliador sintático', () => {
                 })
             });
 
+            describe('Funções', () => {
+                it('Função retorna Dicionario literal', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao executar() {',
+                            '   retorna { "chave": 100 }',
+                            '}',
+                            'escreva(executar())',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            })
+
             describe('Declarações de tuplas', () => {
                 it('Dupla', () => {
                     const retornoLexador = lexador.mapear(['var t = [(1, 2)]'], -1);

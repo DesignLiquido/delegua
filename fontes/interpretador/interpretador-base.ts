@@ -530,7 +530,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
-                if ((tipoEsquerdo === tipoDeDadosDelegua.NUMERO) || (tipoEsquerdo === tipoDeDadosDelegua.NÚMERO) && (tipoDireito === tipoDeDadosDelegua.NUMERO) || (tipoDireito === tipoDeDadosDelegua.NÚMERO)) {
+                
+                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
 
@@ -541,7 +542,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
-                if ((tipoEsquerdo === tipoDeDadosDelegua.NUMERO) || (tipoEsquerdo === tipoDeDadosDelegua.NÚMERO) && (tipoDireito === tipoDeDadosDelegua.NUMERO) || (tipoDireito === tipoDeDadosDelegua.NÚMERO)) {
+                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) < Number(valorDireito);
                 }
 
