@@ -235,13 +235,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         let tipoDe = expressao.valor;
 
         if (
+            tipoDe instanceof Agrupamento ||
             tipoDe instanceof Binario ||
             tipoDe instanceof Chamada ||
+            tipoDe instanceof Dicionario ||
             tipoDe instanceof TipoDe ||
             tipoDe instanceof Unario ||
-            tipoDe instanceof Variavel ||
-            tipoDe instanceof Agrupamento ||
-            tipoDe instanceof Dicionario
+            tipoDe instanceof Variavel
         ) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || inferirTipoVariavel(tipoDe);
