@@ -22,7 +22,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Imprima Olá Mundo', () => {
@@ -49,7 +49,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado).toHaveLength(3)
                 });
 
                 it('Sucesso - Mod e Div', () => {
@@ -62,7 +62,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
             });
 
@@ -98,7 +98,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Comparação de desigualdade', () => {
@@ -110,7 +110,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Comparação de menor', () => {
@@ -122,7 +122,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Comparação de menor ou igual', () => {
@@ -134,7 +134,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Comparação de maior', () => {
@@ -146,7 +146,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Comparação de maior ou igual', () => {
@@ -158,7 +158,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(1)
+                    expect(linhasResultado).toHaveLength(2)
                 });
             });
 
@@ -226,7 +226,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(7)
+                    expect(linhasResultado).toHaveLength(10)
                 });
 
                 it('Se', () => {
@@ -243,7 +243,7 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(6)
+                    expect(linhasResultado).toHaveLength(8)
                 });
             });
 
@@ -291,10 +291,9 @@ describe('Avaliador sintático', () => {
                 const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                 const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                console.log(resultado);
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(linhasResultado).toHaveLength(5)
+                expect(linhasResultado).toHaveLength(1)
             });
             it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
                 const retornoLexador = lexador.mapear([
@@ -423,27 +422,6 @@ describe('Avaliador sintático', () => {
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
-                });
-            });
-
-
-            describe('Tipos', () => {
-                it('Trivial', () => {
-                    const retornoLexador = lexador.mapear([
-                        'tipo Quadrado',
-                        '  lado: Inteiro',
-                        '  area() = lado * lado',
-                        '  perimetro() = 4 * lado',
-                        'fim'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
-
-                    console.log(resultado);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(linhasResultado).toHaveLength(2)

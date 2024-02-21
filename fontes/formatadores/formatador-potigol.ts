@@ -118,8 +118,6 @@ export class FormatadorPotigol implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoConst(declaracao: Const): any {
-        console.log(declaracao);
-
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}${declaracao.simbolo.lexema}`
 
         if (declaracao.tipo) {
@@ -256,8 +254,6 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         throw new Error('Método não implementado');
     }
     visitarDeclaracaoPara(declaracao: Para): any {
-        console.log(declaracao);
-
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
         this.indentacaoAtual += this.tamanhoIndentacao
         this.devePularLinha = false;

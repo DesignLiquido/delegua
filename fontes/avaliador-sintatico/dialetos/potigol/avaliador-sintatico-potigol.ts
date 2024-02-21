@@ -61,7 +61,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     tiposPotigolParaDelegua = {
         Caractere: 'texto',
         Inteiro: 'inteiro',
-        Logico: 'lógico',
+        Logico: 'logico',
         Lógico: 'lógico',
         Real: 'real',
         Texto: 'texto',
