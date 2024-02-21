@@ -1090,6 +1090,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
+            console.log(formatoTexto);
+
         }
 
         return formatoTexto.trimEnd();
@@ -1616,8 +1618,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 retornoVetor += `${this.paraTexto(elemento)},`;
             }
 
-            retornoVetor = retornoVetor.slice(0, -1);
+            if(retornoVetor.length > 1){
+                retornoVetor = retornoVetor.slice(0, -1);
+            }
             retornoVetor += ']';
+
             return retornoVetor;
         }
 
