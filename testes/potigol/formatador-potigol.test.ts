@@ -163,34 +163,27 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Atribuição de variáveis', () => {
-                /*
-                    TODO - Erros com os tipos das constantes
-
-                    it('Sucesso - Declaração de inteiro constante, inferência', () => {
+                it('Sucesso - Declaração de inteiro constante, inferência', () => {
                     const retornoLexador = lexador.mapear(['a = 10'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                    console.log(resultado);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(linhasResultado).toHaveLength(1)
                 });
 
                 it('Sucesso - Declaração de caractere constante, dica de tipo', () => {
-                    const retornoLexador = lexador.mapear(["c: Caractere = 'z'"], -1);
+                    const retornoLexador = lexador.mapear(["c: Real = 3.5"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                    console.log(resultado);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(linhasResultado).toHaveLength(1)
                 });
-
-                */
 
                 it('Sucesso - Declaração de inteiro variável, inferência', () => {
                     const retornoLexador = lexador.mapear(['var a := 10'], -1);
@@ -267,10 +260,9 @@ describe('Avaliador sintático', () => {
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                    console.log(resultado);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(4)
+                    expect(linhasResultado).toHaveLength(5)
                 });
 
                 it('Para', () => {
@@ -291,37 +283,30 @@ describe('Avaliador sintático', () => {
                 });
             });
 
-            /*
+            it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', () => {
+                const retornoLexador = lexador.mapear([
+                    'soma(x: Inteiro, y: Inteiro) = x + y'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                TODO - Problema da constante afeta aqui também
-            describe('Declarações de funções', () => {
-                it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', () => {
-                    const retornoLexador = lexador.mapear([
-                        'soma(x: Inteiro, y: Inteiro) = x + y'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                console.log(resultado);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(linhasResultado).toHaveLength(5)
+            });
+            it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
+                const retornoLexador = lexador.mapear([
+                    'soma(x: Inteiro, y: Inteiro): Inteiro = x + y'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
-                    console.log(resultado);
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(5)
-                });
-
-                it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
-                    const retornoLexador = lexador.mapear([
-                        'soma(x: Inteiro, y: Inteiro): Inteiro = x + y'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
-
-                    console.log(resultado);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                });
-            }); */
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
 
             describe('Declarações de tuplas', () => {
                 it('Dupla', () => {
@@ -444,9 +429,7 @@ describe('Avaliador sintático', () => {
                 });
             });
 
-            /*
 
-             TODO - CONSTANTES AFETA AQUI TAMBÉM
             describe('Tipos', () => {
                 it('Trivial', () => {
                     const retornoLexador = lexador.mapear([
@@ -465,7 +448,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(linhasResultado).toHaveLength(2)
                 });
-            }); */
+            });
         });
     });
 });

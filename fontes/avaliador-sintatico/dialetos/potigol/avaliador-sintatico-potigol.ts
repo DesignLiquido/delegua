@@ -60,10 +60,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     tiposPotigolParaDelegua = {
         Caractere: 'texto',
-        Inteiro: 'numero',
+        Inteiro: 'inteiro',
         Logico: 'lógico',
         Lógico: 'lógico',
-        Real: 'numero',
+        Real: 'real',
         Texto: 'texto',
         undefined: undefined,
     };
@@ -169,8 +169,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 this.simbolos[this.atual],
                 'Esperado tipo válido após dois-pontos como retorno de função.'
             );
-
-            tipoRetorno = this.simbolos[this.atual - 1];
+            tipoRetorno = this.simbolos[this.atual];
         }
 
         // Se houver símbolo de igual, seja após fechamento de parênteses,
@@ -984,10 +983,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             simboloTipo.linha,
             propriedades.map(
                 (p) =>
-                    ({
-                        abrangencia: 'padrao',
-                        nome: p.nome,
-                    } as ParametroInterface)
+                ({
+                    abrangencia: 'padrao',
+                    nome: p.nome,
+                } as ParametroInterface)
             ),
             instrucoesConstrutor
         );
