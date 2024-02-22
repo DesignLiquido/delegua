@@ -1412,6 +1412,32 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                     });
+
+                    it('função que retorna lista', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                "funcao retorneLista() {",
+                                    "var lista = []",
+
+                                    "retorna lista",
+                                  "}",
+
+                                  "escreva(retorneLista())"
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: string) => {
+                            expect(saida).toEqual('[]');
+                        };
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
                 });
             });
 

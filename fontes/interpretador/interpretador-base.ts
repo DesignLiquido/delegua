@@ -1619,8 +1619,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 retornoVetor += `${this.paraTexto(elemento)},`;
             }
 
-            retornoVetor = retornoVetor.slice(0, -1);
+            if(retornoVetor.length > 1){
+                retornoVetor = retornoVetor.slice(0, -1);
+            }
             retornoVetor += ']';
+
             return retornoVetor;
         }
 
