@@ -1090,8 +1090,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             const resultadoAvaliacao = await this.avaliar(argumento);
             let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
-            console.log(formatoTexto);
-
         }
 
         return formatoTexto.trimEnd();
