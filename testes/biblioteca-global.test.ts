@@ -159,13 +159,32 @@ describe('Biblioteca Global', () => {
     });
 
     describe('todosEmCondicao()', () => {
-        it('Sucesso', async () => {
+        it('Sucesso - todosEmCondicao', async () => {
             const codigo = [
                 "var f = funcao(x) { retorna(x < 10) }",
                 "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - filtrarPor', async () => {
+            const codigo = [
+                "var numeros = ['verdadeiro', 'falso', 'falso', 'verdadeiro']",
+                "var f = funcao(numero) { retorna numero == 'verdadeiro' }",
+                "var numerosFiltrados = filtrarPor(numeros, f)",
+                "escreva(numerosFiltrados)"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            interpretador.funcaoDeRetorno = (saida: any) => {
+                expect(saida).toEqual('[\'verdadeiro\', \'verdadeiro\']');
+            };
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 

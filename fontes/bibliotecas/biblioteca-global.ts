@@ -406,9 +406,9 @@ export default function (interpretador: VisitanteComumInterface, pilhaEscoposExe
             const resultados = [];
             for (let indice = 0; indice < valorVetor.length; ++indice) {
                 const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
-                if (deveRetornarValor) {
-                    resultados.push(valorVetor[indice]);
-                }
+                if (deveRetornarValor === 'falso') continue;
+                
+                resultados.push(valorVetor[indice]);
             }
 
             return resultados;
