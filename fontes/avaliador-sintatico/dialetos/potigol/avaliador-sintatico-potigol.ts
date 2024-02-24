@@ -63,7 +63,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         Inteiro: 'inteiro',
         Logico: 'logico',
         Lógico: 'lógico',
-        Real: 'real',
+        Real: 'numero',
         Texto: 'texto',
         undefined: undefined,
     };

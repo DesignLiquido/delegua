@@ -126,10 +126,10 @@ export class FormatadorPotigol implements VisitanteComumInterface {
                 case tiposDeSimbolos.TEXTO:
                     this.codigoFormatado += 'Caractere = '
                     break;
-                case "NUMERO":
                 case tiposDeSimbolos.INTEIRO:
                     this.codigoFormatado += 'Inteiro = '
                     break;
+                case "NUMERO":
                 case tiposDeSimbolos.REAL:
                     this.codigoFormatado += 'Real = '
                     break;
