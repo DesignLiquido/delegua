@@ -1628,7 +1628,6 @@ export class InterpretadorBase implements InterpretadorInterface {
                 retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';
-            console.log(retornoVetor)
 
             return retornoVetor;
         }
