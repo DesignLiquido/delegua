@@ -435,6 +435,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarDeclaracaoEscreva(declaracao: Escreva) {
+        if (declaracao.argumentos.length === 0) {
+            const { linha, hashArquivo } = declaracao;
+            const simbolo: SimboloInterface<''> = { literal: '', tipo:'', lexema: 'escreva', linha, hashArquivo }
+            this.erro(simbolo, `É preciso ter um ou mais parametros para 'escreva(...)'`);
+            return Promise.resolve();
+        }
+
         const variaveis = declaracao.argumentos.filter((arg) => arg instanceof Variavel);
 
         for (let variavel of variaveis as Variavel[]) {

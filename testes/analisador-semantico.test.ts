@@ -841,7 +841,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
                 });
 
-                it('Sucesso - variável tipo texto não inicializada', () => {
+                it('Aviso - variável tipo texto não inicializada', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",
                         "var teste: Texto;",
@@ -852,6 +852,18 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                     expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
+                });
+
+                it('Erro - escreva sem parametro', () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva(); ",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.ERRO)).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('É preciso ter um ou mais parametros para \'escreva(...)\'');
                 });
             });
         });
