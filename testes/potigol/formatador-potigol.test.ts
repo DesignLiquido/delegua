@@ -4,7 +4,7 @@ import { AvaliadorSintaticoPotigol } from "../../fontes/avaliador-sintatico/dial
 import { LexadorPotigol } from "../../fontes/lexador/dialetos";
 import { FormatadorPotigol } from "../../fontes/formatadores";
 
-describe('Avaliador sintático', () => {
+describe('Formatador > Potigol', () => {
     describe('analisar()', () => {
         const formatadorPotigol = new FormatadorPotigol(sistemaOperacional.EOL);
         let avaliadorSintatico = new AvaliadorSintaticoPotigol();
