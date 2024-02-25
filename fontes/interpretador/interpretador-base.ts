@@ -1621,13 +1621,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (Array.isArray(objeto)) {
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
-                retornoVetor += `${this.paraTexto(elemento)}, `;
+                retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
             }
 
             if(retornoVetor.length > 1){
                 retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';
+            console.log(retornoVetor)
 
             return retornoVetor;
         }

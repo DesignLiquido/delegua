@@ -174,8 +174,8 @@ describe('Biblioteca Global', () => {
 
         it('Sucesso - filtrarPor', async () => {
             const codigo = [
-                "var valoresLogicos = [verdadeiro, 'falso', 'falso', verdadeiro, 'falso', 'verdadeiro']",
-                "var f = funcao(valor) { retorna valor == verdadeiro }",
+                "var valoresLogicos = ['verdadeiro', 'falso', 'falso', 'verdadeiro', 'falso', 'verdadeiro']",
+                "var f = funcao(valor) { retorna valor == 'verdadeiro' }",
                 "var valoresVerdadeiros = filtrarPor(valoresLogicos, f)",
                 "escreva(valoresVerdadeiros)"
             ];
@@ -183,7 +183,7 @@ describe('Biblioteca Global', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.funcaoDeRetorno = (saida: any) => {
-                expect(saida).toEqual('[verdadeiro, verdadeiro]');
+                expect(saida).toEqual('[\'verdadeiro\', \'verdadeiro\', \'verdadeiro\']');
             };
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
