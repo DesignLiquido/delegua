@@ -174,7 +174,7 @@ describe('Biblioteca Global', () => {
 
         it('Sucesso - filtrarPor', async () => {
             const codigo = [
-                "var valoresLogicos = [verdadeiro, falso, falso, verdadeiro]",
+                "var valoresLogicos = [verdadeiro, 'falso', 'falso', verdadeiro, 'falso', 'verdadeiro']",
                 "var f = funcao(valor) { retorna valor == verdadeiro }",
                 "var valoresVerdadeiros = filtrarPor(valoresLogicos, f)",
                 "escreva(valoresVerdadeiros)"
