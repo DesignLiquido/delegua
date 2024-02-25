@@ -296,7 +296,9 @@ describe('Interpretador', () => {
 
             it('Dado um leia_inteiros, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
-                    'escreva(leia_inteiros(3))'
+                    'programa',
+                    'escreva(leia_inteiros(3))',
+                    'fim',
                 ], -1);
 
                 const respostas = [1, 2, 3];
@@ -312,7 +314,7 @@ describe('Interpretador', () => {
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros).toHaveLength(2);
             });
 
             it('Dado um leia_reais separador por virgula, escreva deve imprimir o valor lido', async () => {

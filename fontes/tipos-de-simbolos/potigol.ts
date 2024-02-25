@@ -33,6 +33,7 @@ export default {
     LEIA_TEXTO: 'LEIA_TEXTO',
     LEIA_TEXTOS: 'LEIA_TEXTOS',
     LOGICO: 'LOGICO',
+    LÓGICO: 'LÓGICO',
     MAIOR: 'MAIOR',
     MAIOR_IGUAL: 'MAIOR_IGUAL',
     MENOR: 'MENOR',
