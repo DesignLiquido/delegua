@@ -74,8 +74,12 @@ describe('Primitivas de vetor', () => {
                     ]
                 )
             );
-            const resultado = await primitivasVetor.filtrarPor(interpretador, [1, 2, 3, 4, 5], deleguaFuncao);
-            expect(resultado).toStrictEqual([2, 3]);
+            const resultado = await primitivasVetor.filtrarPor(
+                interpretador, 
+                ['verdadeiro', 'falso', 'falso', 'verdadeiro', 'falso', 'verdadeiro'], 
+                deleguaFuncao
+            );
+            expect(resultado).toStrictEqual(['verdadeiro', 'verdadeiro', 'verdadeiro']);
         });
     });
 
