@@ -1605,6 +1605,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto ? 'verdadeiro' : 'falso';
         }
 
+        if (objeto instanceof RetornoQuebra) {
+            if (typeof objeto.valor === 'boolean')
+                return objeto.valor ? 'verdadeiro' : 'falso';
+        }
+
         if (objeto instanceof Date) {
             const formato = Intl.DateTimeFormat('pt', {
                 dateStyle: 'full',
@@ -1616,11 +1621,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (Array.isArray(objeto)) {
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
-                retornoVetor += `${this.paraTexto(elemento)},`;
+                retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
             }
 
             if(retornoVetor.length > 1){
-                retornoVetor = retornoVetor.slice(0, -1);
+                retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';
 

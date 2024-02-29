@@ -1,5 +1,10 @@
 import primitivasVetor from '../../fontes/bibliotecas/primitivas-vetor';
+import { Binario, FuncaoConstruto, Literal, Logico, Variavel } from '../../fontes/construtos';
+import { Retorna } from '../../fontes/declaracoes';
+import { DeleguaFuncao } from '../../fontes/estruturas';
 import { InterpretadorBase } from '../../fontes/interpretador';
+import { Simbolo } from '../../fontes/lexador';
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
 describe('Primitivas de vetor', () => {
     let interpretador: InterpretadorBase;
@@ -29,6 +34,52 @@ describe('Primitivas de vetor', () => {
         it('Trivial', async () => {
             const resultado = await primitivasVetor.fatiar(interpretador, [1, 2, 3, 4, 5], 1, 3);
             expect(resultado).toStrictEqual([2, 3]);
+        });
+    });
+
+    describe('filtrarPor()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao = new DeleguaFuncao(
+                'qualquernome', 
+                new FuncaoConstruto(
+                    -1,
+                    -1,
+                    [{
+                        abrangencia: 'padrao', 
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'valor', null, -1, -1)
+                    }],
+                    [
+                        new Retorna(
+                            new Simbolo(tiposDeSimbolos.RETORNA, 'retorna', null, -1, -1),
+                            new Logico(-1, 
+                                new Binario(
+                                    -1,
+                                    new Variavel(-1, 
+                                        new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'valor', null, -1, -1)    
+                                    ),
+                                    new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, '==', null, -1, -1),
+                                    new Literal(-1, -1, 'verdadeiro'),
+                                ),
+                                new Simbolo(tiposDeSimbolos.OU, 'ou', null, -1, -1),
+                                new Binario(
+                                    -1,
+                                    new Variavel(-1, 
+                                        new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'valor', null, -1, -1)    
+                                    ),
+                                    new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, '==', null, -1, -1),
+                                    new Literal(-1, -1, true),
+                                )
+                            )
+                        )
+                    ]
+                )
+            );
+            const resultado = await primitivasVetor.filtrarPor(
+                interpretador, 
+                ['verdadeiro', 'falso', 'falso', 'verdadeiro', 'falso', 'verdadeiro'], 
+                deleguaFuncao
+            );
+            expect(resultado).toStrictEqual(['verdadeiro', 'verdadeiro', 'verdadeiro']);
         });
     });
 
