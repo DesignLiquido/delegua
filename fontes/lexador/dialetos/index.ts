@@ -6,4 +6,3 @@ export * from './lexador-mapler';
 export * from './lexador-potigol';
 export * from './lexador-portugol-ipt';
 export * from './lexador-portugol-studio';
-export * from './lexador-visualg';

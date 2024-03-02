@@ -6,4 +6,3 @@ export * from './avaliador-sintatico-portugol-ipt';
 export * from './avaliador-sintatico-portugol-studio';
 
 export * from './potigol';
-export * from './visualg';
