@@ -5,19 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Portugol-studio > Testes Interpretador",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "portugol-studio/interpretador.test.ts",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "Potigol > Testes Interpretador",
             "type": "node",
             "request": "launch",
@@ -25,19 +12,6 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "potigol/interpretador.test.ts",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "name": "Visualg > Testes Interpretador",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "visualg/interpretador.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",
@@ -819,23 +793,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários - Portugol Studio",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "portugol-studio/avaliador-sintatico",
-                "--runInBand"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "Testes unitários - Tradutor Delégua para Javascript",
             "type": "node",
             "request": "launch",
@@ -1478,29 +1435,6 @@
                 "${workspaceFolder}${pathSeparator}execucao.ts",
                 "--dialeto",
                 "pitugues"
-            ],
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Portugol Studio > Olá Mundo",
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "cwd": "${workspaceRoot}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}${pathSeparator}execucao.ts",
-                "--dialeto",
-                "portugol-studio",
-                "./exemplos/dialetos/portugol-studio/ola-mundo.por"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": [
