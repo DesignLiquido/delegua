@@ -18,33 +18,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "BIRL > Testes Interpretador",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "birl/interpretador.test.ts",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "name": "BIRL > Testes unitários",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "birl/avaliador-sintatico.test.ts",
-                "birl",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "type": "node",
             "request": "launch",
             "name": "Delégua > Bhaskara",
@@ -681,23 +654,6 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "--runInBand"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "name": "Testes unitários - Birl",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "birl/interpretador",
                 "--runInBand"
             ],
             "skipFiles": [

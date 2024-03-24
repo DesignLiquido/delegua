@@ -8,8 +8,7 @@ export default async (): Promise<Config.InitialOptions> => {
         testEnvironment: 'node',
         coverageReporters: ['json-summary', 'lcov', 'text', 'text-summary'],
         coveragePathIgnorePatterns: [
-            "fontes/tradutores/python/*.*",
-            "fontes/interpretador/dialetos/birl/*.*"
+            "fontes/tradutores/python/*.*"
         ]
     };
 };
