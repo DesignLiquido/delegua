@@ -21,14 +21,12 @@
         "url": "git+https://github.com/DesignLiquido/delegua.git"
     },
     "keywords": [
-        "birl",
         "egua",
         "pitugues",
         "delegua",
         "mapler",
         "português",
-        "portugol",
-        "visualg"
+        "portugol"
     ],
     "author": "Leonel Sanches da Silva",
     "contributors": [
