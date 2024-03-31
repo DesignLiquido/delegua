@@ -2,6 +2,7 @@ import { SimboloInterface } from '../interfaces';
 import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
 import { Construto } from './construto';
 
+// TODO: Depreciado. Priorizar `TipoDe`.
 export class QualTipo<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;

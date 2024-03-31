@@ -250,6 +250,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return inferirTipoVariavel(tipoDe?.valores || tipoDe);
     }
 
+    // TODO: Depreciado. Priorizar `visitarExpressaoTipoDe`.
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         throw new Error('Método não implementado.');
     }
