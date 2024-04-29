@@ -10,6 +10,7 @@ import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
 import {
     AcessoIndiceVariavel,
     Atribuir,
+    Comentario,
     Construto,
     ExpressaoRegular,
     FimPara,
@@ -102,6 +103,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
@@ -407,8 +412,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
+                undefined,
                 argumentos.map((a) => (a !== null && a.hasOwnProperty('valor') ? a.valor : a)),
-                expressao.entidadeChamada.nome
+                expressao.entidadeChamada.simbolo
             );
         }
 

@@ -1,5 +1,6 @@
 import {
     AcessoMetodoOuPropriedade,
+    Comentario,
     Construto,
     ExpressaoRegular,
     FimPara,
@@ -89,6 +90,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {

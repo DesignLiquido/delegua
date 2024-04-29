@@ -22,6 +22,7 @@ import {
     TipoDe,
     Unario,
     Vetor,
+    Comentario,
 } from '../construtos';
 import {
     Declaracao,
@@ -54,7 +55,6 @@ import {
     Retorna,
     Sustar,
 } from '../declaracoes';
-import { DeleguaFuncao } from '../estruturas';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -65,15 +65,8 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    
     abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
-
-    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
-        return Promise.resolve();
-    }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         return Promise.resolve();
@@ -84,6 +77,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoComentario(declaracao: Comentario): void | Promise<any> {
         return Promise.resolve();
     }
 
@@ -127,6 +124,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+        return Promise.resolve();
+    }
+
     visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         return Promise.resolve();
     }
@@ -136,6 +137,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarDeclaracaoSe(declaracao: Se): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         return Promise.resolve();
     }
 

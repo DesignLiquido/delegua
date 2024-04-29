@@ -8,6 +8,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     Constante,
     DefinirValor,
     Dicionario,
@@ -25,6 +26,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
+
 import {
     Aleatorio,
     Bloco,
@@ -61,6 +63,7 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any>;
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any>;
     visitarDeclaracaoClasse(declaracao: Classe): Promise<any> | void;
+    visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> | void;
     visitarDeclaracaoConst(declaracao: Const): Promise<any>;
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any>;
     visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> | void;

@@ -51,6 +51,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     Construto,
     Dicionario,
     ExpressaoRegular,
@@ -170,6 +171,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+    }
+
+    /**
+     * Construtos de comentários não têm utilidade para o Interpretador.
+     * Apenas retornamos `Promise.resolve()` para não termos erros.
+     * @param declaracao A declaração de comentário.
+     */
+    visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
+        return Promise.resolve();
     }
 
     async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
@@ -633,11 +643,67 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
+     * Faz a chamada do método de uma primitiva (por exemplo, número, texto, etc.) com seus
+     * respectivos argumentos.
+     * @param {Chamada} expressao A expressão de chamada.
+     * @param {MetodoPrimitiva} entidadeChamada O método da primitiva chamado.
+     * @returns O resultado da chamada do método da primitiva.
+     */
+    protected async chamarMetodoPrimitiva(expressao: Chamada, entidadeChamada: MetodoPrimitiva): Promise<any> {
+        const argumentosResolvidos: any[] = [];
+
+        for (const argumento of expressao.argumentos) {
+            const valorResolvido: any = await this.avaliar(argumento);
+            argumentosResolvidos.push(
+                valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
+            );
+        }
+
+        return await entidadeChamada.chamar(this, argumentosResolvidos);
+    }
+
+    protected async resolverArgumentosChamada(expressao: Chamada): Promise<ArgumentoInterface[]> {
+        const argumentos: ArgumentoInterface[] = [];
+        for (let i = 0; i < expressao.argumentos.length; i++) {
+            const variavelArgumento = expressao.argumentos[i];
+            const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
+                ? variavelArgumento.simbolo.lexema
+                : undefined;
+
+            argumentos.push({
+                nome: nomeArgumento,
+                valor: await this.avaliar(variavelArgumento),
+            });
+        }
+
+        return argumentos;
+    }
+
+    /**
+     * Resolve paraâmetros da chamada de acordo com o tipo da entidade chamada.
+     * @param {Chamavel} entidadeChamada A entidade chamada.
+     * @returns Os parâmetros resolvidos.
+     */
+    protected resolverParametrosChamada(entidadeChamada: Chamavel): ParametroInterface[] {
+        if (entidadeChamada instanceof DeleguaFuncao) {
+            return entidadeChamada.declaracao.parametros;
+        } 
+        
+        if (entidadeChamada instanceof DeleguaClasse) {
+            return entidadeChamada.metodos.construtor
+                ? entidadeChamada.metodos.construtor.declaracao.parametros
+                : [];
+        } 
+        
+        return [];
+    }
+
+    /**
      * Executa uma chamada de função, método ou classe.
      * @param expressao A expressão chamada.
      * @returns O resultado da chamada.
      */
-    async visitarExpressaoDeChamada(expressao: any): Promise<any> {
+    async visitarExpressaoDeChamada(expressao: Chamada | any): Promise<any> {
         try {
             const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
 
@@ -655,19 +721,6 @@ export class InterpretadorBase implements InterpretadorInterface {
                 ? variavelEntidadeChamada.valor
                 : variavelEntidadeChamada;
 
-            let argumentos: ArgumentoInterface[] = [];
-            for (let i = 0; i < expressao.argumentos.length; i++) {
-                const variavelArgumento = expressao.argumentos[i];
-                const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
-                    ? variavelArgumento.simbolo.lexema
-                    : undefined;
-
-                argumentos.push({
-                    nome: nomeArgumento,
-                    valor: await this.avaliar(variavelArgumento),
-                });
-            }
-
             if (entidadeChamada instanceof DeleguaModulo) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -679,45 +732,14 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             if (entidadeChamada instanceof MetodoPrimitiva) {
-                const argumentosResolvidos: any[] = [];
-
-                // if (expressao instanceof Chamada) {
-                //     if (expressao.entidadeChamada instanceof AcessoMetodoOuPropriedade) {
-                //         if (expressao.entidadeChamada.objeto instanceof Variavel) {
-                //             let eTupla = this.procurarVariavel(expressao.entidadeChamada.objeto.simbolo)
-                //             if (eTupla.tipo === tipoDeDadosDelegua.TUPLA) {
-                //                 return Promise.reject(
-                //                     new ErroEmTempoDeExecucao(
-                //                         expressao.entidadeChamada.objeto.simbolo,
-                //                         'Tupla é imutável, seus elementos não podem ser alterados, adicionados ou removidos.',
-                //                         expressao.linha
-                //                     )
-                //                 );
-                //             }
-                //         }
-                //     }
-                // }
-
-                for (const argumento of expressao.argumentos) {
-                    const valorResolvido: any = await this.avaliar(argumento);
-                    argumentosResolvidos.push(
-                        valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
-                    );
-                }
-
-                return await entidadeChamada.chamar(this, argumentosResolvidos);
+                return await this.chamarMetodoPrimitiva(expressao, entidadeChamada);
             }
 
-            let parametros: ParametroInterface[];
-            if (entidadeChamada instanceof DeleguaFuncao) {
-                parametros = entidadeChamada.declaracao.parametros;
-            } else if (entidadeChamada instanceof DeleguaClasse) {
-                parametros = entidadeChamada.metodos.construtor
-                    ? entidadeChamada.metodos.construtor.declaracao.parametros
-                    : [];
-            } else {
-                parametros = [];
-            }
+            const argumentos: ArgumentoInterface[] = await this.resolverArgumentosChamada(expressao);
+            // TODO: Aparentemente isso nunca é usado se o bloco de resolução de parâmetros,
+            // mais abaixo, também não é.
+            // Estudar remoção mais adiante.
+            const parametros: ParametroInterface[] = this.resolverParametrosChamada(entidadeChamada);
 
             const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
 
@@ -727,7 +749,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push(null);
                 }
-            } else {
+            } /* else {
                 // TODO: Aparentemente isso aqui nunca funcionou.
                 // Avaliar de simplesmente apagar este código, e usar o que foi
                 // implementado em `DeleguaFuncao.chamar`.
@@ -742,15 +764,16 @@ export class InterpretadorBase implements InterpretadorInterface {
                     );
                     argumentos = novosArgumentos;
                 }
-            }
+            } */
 
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
                     return entidadeChamada.chamar(
+                        undefined,
                         argumentos.map((a) =>
                             a && a.valor && a.valor.hasOwnProperty('valor') ? a.valor.valor : a?.valor
                         ),
-                        expressao.entidadeChamada.nome
+                        expressao.entidadeChamada.simbolo
                     );
                 } catch (erro: any) {
                     this.erros.push({
@@ -771,6 +794,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             // A função chamada pode ser de uma biblioteca JavaScript.
             // Neste caso apenas testamos se o tipo é uma função.
+            // TODO: Descobrir qual caso exatamente passa aqui.
             if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
                 if (expressao.entidadeChamada.objeto) {

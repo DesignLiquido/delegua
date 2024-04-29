@@ -1,6 +1,9 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
 
+/**
+ * Construto de atribuição de um valor a um símbolo.
+ */
 export class Atribuir<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;

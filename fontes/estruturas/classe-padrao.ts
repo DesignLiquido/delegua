@@ -1,3 +1,4 @@
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 
 /**
@@ -37,7 +38,7 @@ export class ClassePadrao extends Chamavel {
      * @param argumentos
      * @param simbolo
      */
-    chamar(argumentos: any[], simbolo: any): any {
+    chamar(visitante: VisitanteComumInterface, argumentos: any[], simbolo: SimboloInterface): any {
         const novoObjeto: any = new this.funcaoDeClasse(argumentos);
         return novoObjeto;
     }

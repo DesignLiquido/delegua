@@ -6,6 +6,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     Construto,
     DefinirValor,
     Dicionario,
@@ -78,6 +79,22 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoComentario(declaracao: Comentario): void | Promise<any> {
+        if (declaracao.multilinha) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}/* `;
+
+            for (let linhaConteudo of (declaracao.conteudo as string[])) {
+                this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}  ${linhaConteudo.replace(/\s+/g, " ")}${this.quebraLinha}`;
+            }
+
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)} */${this.quebraLinha}`;
+        } else {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}// `;
+            this.codigoFormatado += (declaracao.conteudo as string).replace(/\s+/g, " ");
+            this.codigoFormatado += `${this.quebraLinha}`;
+        }
     }
 
     visitarDeclaracaoTendoComo(declaracao: TendoComo): void {

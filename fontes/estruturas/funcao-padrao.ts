@@ -1,12 +1,14 @@
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 
 /**
- * Uma `FuncaoPadrao` normalmente é uma função em JavaScript.
+ * Uma `FuncaoPadrao` normalmente é uma função em JavaScript que representa um 
+ * método de uma biblioteca global, mas que pode ser usada para outros casos.
  */
 export class FuncaoPadrao extends Chamavel {
     valorAridade: number;
     funcao: Function;
-    simbolo: any;
+    simbolo: SimboloInterface;
 
     constructor(valorAridade: number, funcao: Function) {
         super();
@@ -14,7 +16,11 @@ export class FuncaoPadrao extends Chamavel {
         this.funcao = funcao;
     }
 
-    async chamar(argumentos: any[], simbolo: any): Promise<any> {
+    async chamar(visitante: VisitanteComumInterface, argumentos: any[], simbolo: SimboloInterface): Promise<any> {
+        return this.chamarInterno(argumentos, simbolo);
+    }
+
+    protected async chamarInterno(argumentos: any[], simbolo: SimboloInterface): Promise<any> {
         this.simbolo = simbolo;
         return await this.funcao.apply(this, argumentos);
     }
@@ -24,7 +30,7 @@ export class FuncaoPadrao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        return '<função>';
+        return `<função padrão nome=${this.simbolo.lexema}>`;
     }
 
     /**
@@ -32,6 +38,6 @@ export class FuncaoPadrao extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     toString(): string {
-        return '<função>';
+        return this.paraTexto();
     }
 }

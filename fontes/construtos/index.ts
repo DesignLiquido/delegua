@@ -7,6 +7,7 @@ export * from './atribuicao-por-indices-matriz';
 export * from './atribuir';
 export * from './binario';
 export * from './chamada';
+export * from './comentario';
 export * from './constante';
 export * from './constante-ou-variavel';
 export * from './construto';

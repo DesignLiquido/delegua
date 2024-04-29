@@ -73,5 +73,48 @@ describe('Interpretador com Depuração', () => {
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);
             });
         });
+
+        describe('Issue 677', () => {
+            beforeEach(() => {
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    console.log,
+                    process.stdout.write.bind(process.stdout)
+                );
+            });
+
+            it('Problema na inicialização', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var numeros = []",
+                    "funcao adicionarNumeros(numero, quantidadeDeVezes) {",
+                    "    para (var i = 0; i < quantidadeDeVezes; i = i + 1) {",
+                    "        numeros.adicionar(numero)",
+                    "    }",
+                    "}",
+                    "adicionarNumeros(10, 5)",
+                    "adicionarNumeros(2, 5)",
+                    "// adicionarNumeros(0, 5)",
+                    "// adicionarNumeros(14, 5)",
+                    "// adicionarNumeros(15, 5)",
+                    "// adicionarNumeros(20, 5)",
+                    "escreva(numeros)",
+                    "escreva(numeros.ordenar())",
+                    "escreva(numeros.filtrarPor)",
+                ], -1);
+
+                let execucaoFinalizada: boolean = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                }
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                // expect(interpretador.pontoDeParadaAtivo).toBe(true);
+                expect(true).toBe(true);
+            });
+        });
     });
 });

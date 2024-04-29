@@ -4,54 +4,31 @@ import {
     Binario,
     Chamada,
     Construto,
-    ExpressaoRegular,
-    FimPara,
-    FormatacaoEscrita,
     FuncaoConstruto,
     Literal,
     Logico,
-    Super,
     TipoDe,
-    Tupla,
     Variavel,
     Vetor,
 } from '../construtos';
 import {
-    Aleatorio,
-    Bloco,
-    CabecalhoPrograma,
-    Classe,
     Const,
-    ConstMultiplo,
-    Continua,
     Declaracao,
     Enquanto,
     Escolha,
     Escreva,
-    EscrevaMesmaLinha,
     Expressao,
     Falhar,
-    Fazer,
     FuncaoDeclaracao,
-    Importar,
     Leia,
-    LeiaMultiplo,
-    Para,
-    ParaCada,
     Retorna,
-    Se,
-    Sustar,
-    Tente,
     Var,
-    VarMultiplo,
 } from '../declaracoes';
-import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { SimboloInterface } from '../interfaces';
-import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { TipoDadosElementar } from '../tipo-dados-elementar';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { RetornoQuebra } from '../quebras';
 import { AnalisadorSemanticoBase } from './analisador-semantico-base';
 import { PilhaVariaveis } from './pilha-variaveis';
 

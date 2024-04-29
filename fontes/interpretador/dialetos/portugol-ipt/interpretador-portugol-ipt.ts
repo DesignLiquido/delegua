@@ -1,5 +1,6 @@
 import {
     Atribuir,
+    Comentario,
     Construto,
     ExpressaoRegular,
     FimPara,
@@ -88,6 +89,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+    
+    visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
