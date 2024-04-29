@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2022-2023 Design Líquido
+Copyright (c) 2022-2024 Design Líquido
 
 Permissão concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia
 deste software e arquivos de documentação associados (o "Software"), para lidar

@@ -1,7 +1,7 @@
 {
     "name": "@designliquido/delegua",
     "version": "0.33.16",
-    "description": "Linguagem de programação simples e moderna usando português estruturado, com suporte a múltiplos dialetos",
+    "description": "Linguagem de programação simples e moderna usando português estruturado.",
     "main": "index.js",
     "types": "index.d.ts",
     "scripts": {

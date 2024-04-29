@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { Bloco, Declaracao, Enquanto, Escreva, Leia, LeiaMultiplo, Para, Retorna, Var } from '../declaracoes';
 import { PontoParada } from '../depuracao';
@@ -202,24 +204,30 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        const corpoExecucao = declaracao.corpo as Bloco;
-        const declaracaoInicializador = Array.isArray(declaracao.inicializador)
+        // Aqui precisamos clonar a declaração porque modificamos
+        // algumas propriedades que indicam o estado da execução dela.
+        // Por exemplo, se chamamos uma função que tem dentro dela um bloco Para,
+        // cada execução do bloco precisa de uma inicialização diferente.
+        const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
+        const corpoExecucao = cloneDeclaracao.corpo as Bloco;
+        
+        const declaracaoInicializador = Array.isArray(cloneDeclaracao.inicializador)
             ? declaracao.inicializador[0]
             : declaracao.inicializador;
 
-        if (declaracaoInicializador !== null && !declaracao.inicializada) {
+        if (declaracaoInicializador !== null) {
             await this.avaliar(declaracaoInicializador);
             // O incremento vai ao final do bloco de escopo.
-            if (declaracao.incrementar !== null) {
-                corpoExecucao.declaracoes.push(declaracao.incrementar);
+            if (cloneDeclaracao.incrementar !== null) {
+                corpoExecucao.declaracoes.push(cloneDeclaracao.incrementar);
             }
         }
 
-        declaracao.inicializada = true;
+        cloneDeclaracao.inicializada = true;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
             case 'proximo':
-                if (declaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                if (cloneDeclaracao.condicao !== null && this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
                     escopoAtual.emLacoRepeticao = true;
 
                     const resultadoBloco = this.executarBloco(corpoExecucao.declaracoes);
@@ -231,7 +239,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
             default:
                 let retornoExecucao: any;
                 while (!(retornoExecucao instanceof Quebra) && !this.pontoDeParadaAtivo) {
-                    if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+                    if (cloneDeclaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(cloneDeclaracao.condicao))) {
                         break;
                     }
 
