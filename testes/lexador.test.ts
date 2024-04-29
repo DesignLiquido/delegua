@@ -138,14 +138,18 @@ describe('Lexador', () => {
                 const resultado = lexador.mapear(["/* comentário ", "outro comentário*/"], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(2);
+                expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.LINHA_COMENTARIO);
+                expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.LINHA_COMENTARIO);
             });
 
-            it('Sucesso - Comentários uma linha', () => {
+            it('Sucesso - Comentários de uma linha', () => {
                 const resultado = lexador.mapear(["// comentário ", "// outro comentário"], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(2);
+                expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.COMENTARIO);
+                expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.COMENTARIO);
             });
 
             it('Sucesso - Se', () => {
