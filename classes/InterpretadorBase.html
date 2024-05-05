@@ -32,7 +32,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/InterpretadorInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">InterpretadorInterface</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L97">fontes/interpretador/interpretador-base.ts:97</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L100">fontes/interpretador/interpretador-base.ts:100</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -67,6 +67,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <div class="tsd-index-list"><a href="InterpretadorBase.html#avaliacaoDeclaracaoVarOuConst" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>avaliacao<wbr/>Declaracao<wbr/>Var<wbr/>Ou<wbr/>Const</span></a>
 <a href="InterpretadorBase.html#avaliar" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>avaliar</span></a>
 <a href="InterpretadorBase.html#avaliarArgumentosEscreva" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>avaliar<wbr/>Argumentos<wbr/>Escreva</span></a>
+<a href="InterpretadorBase.html#chamarMetodoPrimitiva" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>chamar<wbr/>Metodo<wbr/>Primitiva</span></a>
 <a href="InterpretadorBase.html#eIgual" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>e<wbr/>Igual</span></a>
 <a href="InterpretadorBase.html#eVerdadeiro" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>e<wbr/>Verdadeiro</span></a>
 <a href="InterpretadorBase.html#executar" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>executar</span></a>
@@ -75,7 +76,9 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <a href="InterpretadorBase.html#interpretar" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>interpretar</span></a>
 <a href="InterpretadorBase.html#paraTexto" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>para<wbr/>Texto</span></a>
 <a href="InterpretadorBase.html#procurarVariavel" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>procurar<wbr/>Variavel</span></a>
+<a href="InterpretadorBase.html#resolverArgumentosChamada" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolver<wbr/>Argumentos<wbr/>Chamada</span></a>
 <a href="InterpretadorBase.html#resolverInterpolacoes" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolver<wbr/>Interpolacoes</span></a>
+<a href="InterpretadorBase.html#resolverParametrosChamada" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolver<wbr/>Parametros<wbr/>Chamada</span></a>
 <a href="InterpretadorBase.html#retirarInterpolacao" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>retirar<wbr/>Interpolacao</span></a>
 <a href="InterpretadorBase.html#textoParaRegex" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>texto<wbr/>Para<wbr/>Regex</span></a>
 <a href="InterpretadorBase.html#verificarOperandoNumero" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>verificar<wbr/>Operando<wbr/>Numero</span></a>
@@ -83,6 +86,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <a href="InterpretadorBase.html#visitarDeclaracaoAleatorio" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>Aleatorio</span></a>
 <a href="InterpretadorBase.html#visitarDeclaracaoCabecalhoPrograma" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>Cabecalho<wbr/>Programa</span></a>
 <a href="InterpretadorBase.html#visitarDeclaracaoClasse" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>Classe</span></a>
+<a href="InterpretadorBase.html#visitarDeclaracaoComentario" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>Comentario</span></a>
 <a href="InterpretadorBase.html#visitarDeclaracaoConst" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>Const</span></a>
 <a href="InterpretadorBase.html#visitarDeclaracaoConstMultiplo" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>Const<wbr/>Multiplo</span></a>
 <a href="InterpretadorBase.html#visitarDeclaracaoDeExpressao" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>visitar<wbr/>Declaracao<wbr/>De<wbr/>Expressao</span></a>
@@ -154,99 +158,99 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h5>funcaoDeRetornoMesmaLinha: <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol"> = null</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="InterpretadorBase.html" class="tsd-signature-type" data-tsd-kind="Class">InterpretadorBase</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L135">fontes/interpretador/interpretador-base.ts:135</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L138">fontes/interpretador/interpretador-base.ts:138</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="declaracoes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracoes</span><a href="#declaracoes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">declaracoes<span class="tsd-signature-symbol">:</span> <a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L100">fontes/interpretador/interpretador-base.ts:100</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L103">fontes/interpretador/interpretador-base.ts:103</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="diretorioBase" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>diretorio<wbr/>Base</span><a href="#diretorioBase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">diretorio<wbr/>Base<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#diretorioBase">diretorioBase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L98">fontes/interpretador/interpretador-base.ts:98</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L101">fontes/interpretador/interpretador-base.ts:101</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="emDeclaracaoTente" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>em<wbr/>Declaracao<wbr/>Tente</span><a href="#emDeclaracaoTente" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">em<wbr/>Declaracao<wbr/>Tente<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L120">fontes/interpretador/interpretador-base.ts:120</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L123">fontes/interpretador/interpretador-base.ts:123</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="erros" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>erros</span><a href="#erros" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">erros<span class="tsd-signature-symbol">:</span> <a href="../interfaces/ErroInterpretador.html" class="tsd-signature-type" data-tsd-kind="Interface">ErroInterpretador</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
+<div class="tsd-signature">erros<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ErroInterpretador</span><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#erros">erros</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L99">fontes/interpretador/interpretador-base.ts:99</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L102">fontes/interpretador/interpretador-base.ts:102</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="expandirPropriedadesDeObjetosEmEspacoVariaveis" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>expandir<wbr/>Propriedades<wbr/>De<wbr/>Objetos<wbr/>Em<wbr/>Espaco<wbr/>Variaveis</span><a href="#expandirPropriedadesDeObjetosEmEspacoVariaveis" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">expandir<wbr/>Propriedades<wbr/>De<wbr/>Objetos<wbr/>Em<wbr/>Espaco<wbr/>Variaveis<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L107">fontes/interpretador/interpretador-base.ts:107</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L110">fontes/interpretador/interpretador-base.ts:110</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="funcaoDeRetorno" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>funcao<wbr/>De<wbr/>Retorno</span><a href="#funcaoDeRetorno" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">funcao<wbr/>De<wbr/>Retorno<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol"> = null</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#funcaoDeRetorno">funcaoDeRetorno</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L116">fontes/interpretador/interpretador-base.ts:116</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L119">fontes/interpretador/interpretador-base.ts:119</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="funcaoDeRetornoMesmaLinha" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>funcao<wbr/>De<wbr/>Retorno<wbr/>Mesma<wbr/>Linha</span><a href="#funcaoDeRetornoMesmaLinha" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">funcao<wbr/>De<wbr/>Retorno<wbr/>Mesma<wbr/>Linha<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol"> = null</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L117">fontes/interpretador/interpretador-base.ts:117</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L120">fontes/interpretador/interpretador-base.ts:120</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="interfaceDeEntrada" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>interface<wbr/>De<wbr/>Entrada</span><a href="#interfaceDeEntrada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">interface<wbr/>De<wbr/>Entrada<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L118">fontes/interpretador/interpretador-base.ts:118</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L121">fontes/interpretador/interpretador-base.ts:121</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="interfaceEntradaSaida" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>interface<wbr/>Entrada<wbr/>Saida</span><a href="#interfaceEntradaSaida" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">interface<wbr/>Entrada<wbr/>Saida<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#interfaceEntradaSaida">interfaceEntradaSaida</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L119">fontes/interpretador/interpretador-base.ts:119</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L122">fontes/interpretador/interpretador-base.ts:122</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="microAvaliadorSintatico" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>micro<wbr/>Avaliador<wbr/>Sintatico</span><a href="#microAvaliadorSintatico" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">micro<wbr/>Avaliador<wbr/>Sintatico<span class="tsd-signature-symbol">:</span> <a href="MicroAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Class">MicroAvaliadorSintatico</a><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
+<div class="tsd-signature">micro<wbr/>Avaliador<wbr/>Sintatico<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">MicroAvaliadorSintaticoBase</span><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L125">fontes/interpretador/interpretador-base.ts:125</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L128">fontes/interpretador/interpretador-base.ts:128</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="microLexador" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>micro<wbr/>Lexador</span><a href="#microLexador" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">micro<wbr/>Lexador<span class="tsd-signature-symbol">:</span> <a href="MicroLexador.html" class="tsd-signature-type" data-tsd-kind="Class">MicroLexador</a><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L124">fontes/interpretador/interpretador-base.ts:124</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L127">fontes/interpretador/interpretador-base.ts:127</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="performance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>performance</span><a href="#performance" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">performance<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L115">fontes/interpretador/interpretador-base.ts:115</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L118">fontes/interpretador/interpretador-base.ts:118</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="pilhaEscoposExecucao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pilha<wbr/>Escopos<wbr/>Execucao</span><a href="#pilhaEscoposExecucao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">pilha<wbr/>Escopos<wbr/>Execucao<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PilhaEscoposExecucaoInterface</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#pilhaEscoposExecucao">pilhaEscoposExecucao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L122">fontes/interpretador/interpretador-base.ts:122</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L125">fontes/interpretador/interpretador-base.ts:125</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="regexInterpolacao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>regex<wbr/>Interpolacao</span><a href="#regexInterpolacao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">regex<wbr/>Interpolacao<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L127">fontes/interpretador/interpretador-base.ts:127</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L130">fontes/interpretador/interpretador-base.ts:130</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="requerDeclaracaoPropriedades" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>requer<wbr/>Declaracao<wbr/>Propriedades</span><a href="#requerDeclaracaoPropriedades" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">requer<wbr/>Declaracao<wbr/>Propriedades<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L113">fontes/interpretador/interpretador-base.ts:113</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L116">fontes/interpretador/interpretador-base.ts:116</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="resultadoInterpretador" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resultado<wbr/>Interpretador</span><a href="#resultadoInterpretador" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">resultado<wbr/>Interpretador<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L101">fontes/interpretador/interpretador-base.ts:101</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L104">fontes/interpretador/interpretador-base.ts:104</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="tiposNumericos" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>tipos<wbr/>Numericos</span><a href="#tiposNumericos" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">tipos<wbr/>Numericos<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L128">fontes/interpretador/interpretador-base.ts:128</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L131">fontes/interpretador/interpretador-base.ts:131</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="avaliacaoDeclaracaoVarOuConst" class="tsd-anchor"></a>
@@ -261,7 +265,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h5>declaracao: <a href="Const.html" class="tsd-signature-type" data-tsd-kind="Class">Const</a><span class="tsd-signature-symbol"> | </span><a href="ConstMultiplo.html" class="tsd-signature-type" data-tsd-kind="Class">ConstMultiplo</a><span class="tsd-signature-symbol"> | </span><a href="Var.html" class="tsd-signature-type" data-tsd-kind="Class">Var</a><span class="tsd-signature-symbol"> | </span><a href="VarMultiplo.html" class="tsd-signature-type" data-tsd-kind="Class">VarMultiplo</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1168">fontes/interpretador/interpretador-base.ts:1168</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1200">fontes/interpretador/interpretador-base.ts:1200</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="avaliar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>avaliar</span><a href="#avaliar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -275,7 +279,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#avaliar">avaliar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L264">fontes/interpretador/interpretador-base.ts:264</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L278">fontes/interpretador/interpretador-base.ts:278</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="avaliarArgumentosEscreva" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>avaliar<wbr/>Argumentos<wbr/>Escreva</span><a href="#avaliarArgumentosEscreva" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -288,7 +292,31 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h5>argumentos: <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1086">fontes/interpretador/interpretador-base.ts:1086</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1118">fontes/interpretador/interpretador-base.ts:1118</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="chamarMetodoPrimitiva" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>chamar<wbr/>Metodo<wbr/>Primitiva</span><a href="#chamarMetodoPrimitiva" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+<li class="tsd-signature tsd-anchor-link" id="chamarMetodoPrimitiva.chamarMetodoPrimitiva-1">chamar<wbr/>Metodo<wbr/>Primitiva<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Chamada.html" class="tsd-signature-type" data-tsd-kind="Class">Chamada</a>, entidadeChamada<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MetodoPrimitiva</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#chamarMetodoPrimitiva.chamarMetodoPrimitiva-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Faz a chamada do método de uma primitiva (por exemplo, número, texto, etc.) com seus
+respectivos argumentos.</p>
+
+<h3>Returns</h3><p>O resultado da chamada do método da primitiva.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>expressao: <a href="Chamada.html" class="tsd-signature-type" data-tsd-kind="Class">Chamada</a></h5>
+<div class="tsd-comment tsd-typography"><p>A expressão de chamada.</p>
+</div></li>
+<li>
+<h5>entidadeChamada: <span class="tsd-signature-type">MetodoPrimitiva</span></h5>
+<div class="tsd-comment tsd-typography"><p>O método da primitiva chamado.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L652">fontes/interpretador/interpretador-base.ts:652</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="eIgual" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>e<wbr/>Igual</span><a href="#eIgual" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -303,7 +331,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h5>direita: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L482">fontes/interpretador/interpretador-base.ts:482</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L496">fontes/interpretador/interpretador-base.ts:496</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="eVerdadeiro" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>e<wbr/>Verdadeiro</span><a href="#eVerdadeiro" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -317,7 +345,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#eVerdadeiro">eVerdadeiro</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L392">fontes/interpretador/interpretador-base.ts:392</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L406">fontes/interpretador/interpretador-base.ts:406</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="executar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>executar</span><a href="#executar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -340,7 +368,7 @@ recomendado para uso em execuções que ocorrem no navegador de internet.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#executar">executar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1627">fontes/interpretador/interpretador-base.ts:1627</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1709">fontes/interpretador/interpretador-base.ts:1709</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="executarBloco" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>executar<wbr/>Bloco</span><a href="#executarBloco" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -366,7 +394,7 @@ Isso é usado, por exemplo, em blocos tente ... pegue ... finalmente.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#executarBloco">executarBloco</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1147">fontes/interpretador/interpretador-base.ts:1147</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1179">fontes/interpretador/interpretador-base.ts:1179</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="executarUltimoEscopo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>executar<wbr/>Ultimo<wbr/>Escopo</span><a href="#executarUltimoEscopo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -389,7 +417,7 @@ Em outros blocos, pode ser desejável ter o erro em tela.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1649">fontes/interpretador/interpretador-base.ts:1649</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1731">fontes/interpretador/interpretador-base.ts:1731</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="interpretar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>interpretar</span><a href="#interpretar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -415,7 +443,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/RetornoInterpretador.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoInterpretador</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#interpretar">interpretar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1694">fontes/interpretador/interpretador-base.ts:1694</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1776">fontes/interpretador/interpretador-base.ts:1776</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="paraTexto" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>para<wbr/>Texto</span><a href="#paraTexto" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -429,20 +457,33 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#paraTexto">paraTexto</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1599">fontes/interpretador/interpretador-base.ts:1599</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1642">fontes/interpretador/interpretador-base.ts:1642</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="procurarVariavel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>procurar<wbr/>Variavel</span><a href="#procurarVariavel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="procurarVariavel.procurarVariavel-1">procurar<wbr/>Variavel<span class="tsd-signature-symbol">(</span>simbolo<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#procurarVariavel.procurarVariavel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="procurarVariavel.procurarVariavel-1">procurar<wbr/>Variavel<span class="tsd-signature-symbol">(</span>simbolo<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#procurarVariavel.procurarVariavel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>simbolo: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h5></li></ul></div>
+<h5>simbolo: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L799">fontes/interpretador/interpretador-base.ts:799</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L831">fontes/interpretador/interpretador-base.ts:831</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="resolverArgumentosChamada" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>resolver<wbr/>Argumentos<wbr/>Chamada</span><a href="#resolverArgumentosChamada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+<li class="tsd-signature tsd-anchor-link" id="resolverArgumentosChamada.resolverArgumentosChamada-1">resolver<wbr/>Argumentos<wbr/>Chamada<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Chamada.html" class="tsd-signature-type" data-tsd-kind="Class">Chamada</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArgumentoInterface</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#resolverArgumentosChamada.resolverArgumentosChamada-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>expressao: <a href="Chamada.html" class="tsd-signature-type" data-tsd-kind="Class">Chamada</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArgumentoInterface</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L665">fontes/interpretador/interpretador-base.ts:665</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="resolverInterpolacoes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>resolver<wbr/>Interpolacoes</span><a href="#resolverInterpolacoes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -463,7 +504,26 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h5>linha: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L349">fontes/interpretador/interpretador-base.ts:349</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L363">fontes/interpretador/interpretador-base.ts:363</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="resolverParametrosChamada" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>resolver<wbr/>Parametros<wbr/>Chamada</span><a href="#resolverParametrosChamada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+<li class="tsd-signature tsd-anchor-link" id="resolverParametrosChamada.resolverParametrosChamada-1">resolver<wbr/>Parametros<wbr/>Chamada<span class="tsd-signature-symbol">(</span>entidadeChamada<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Chamavel</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/ParametroInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">ParametroInterface</a><span class="tsd-signature-symbol">[]</span><a href="#resolverParametrosChamada.resolverParametrosChamada-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Resolve paraâmetros da chamada de acordo com o tipo da entidade chamada.</p>
+
+<h3>Returns</h3><p>Os parâmetros resolvidos.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>entidadeChamada: <span class="tsd-signature-type">Chamavel</span></h5>
+<div class="tsd-comment tsd-typography"><p>A entidade chamada.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/ParametroInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">ParametroInterface</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L687">fontes/interpretador/interpretador-base.ts:687</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="retirarInterpolacao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>retirar<wbr/>Interpolacao</span><a href="#retirarInterpolacao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -486,7 +546,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L329">fontes/interpretador/interpretador-base.ts:329</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L343">fontes/interpretador/interpretador-base.ts:343</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="textoParaRegex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>texto<wbr/>Para<wbr/>Regex</span><a href="#textoParaRegex" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -499,26 +559,26 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h5>texto: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">RegExp</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L216">fontes/interpretador/interpretador-base.ts:216</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L228">fontes/interpretador/interpretador-base.ts:228</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="verificarOperandoNumero" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>verificar<wbr/>Operando<wbr/>Numero</span><a href="#verificarOperandoNumero" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="verificarOperandoNumero.verificarOperandoNumero-1">verificar<wbr/>Operando<wbr/>Numero<span class="tsd-signature-symbol">(</span>operador<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a>, operando<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#verificarOperandoNumero.verificarOperandoNumero-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="verificarOperandoNumero.verificarOperandoNumero-1">verificar<wbr/>Operando<wbr/>Numero<span class="tsd-signature-symbol">(</span>operador<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span>, operando<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#verificarOperandoNumero.verificarOperandoNumero-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>operador: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h5></li>
+<h5>operador: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
 <li>
 <h5>operando: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L402">fontes/interpretador/interpretador-base.ts:402</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L416">fontes/interpretador/interpretador-base.ts:416</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="verificarOperandosNumeros" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>verificar<wbr/>Operandos<wbr/>Numeros</span><a href="#verificarOperandosNumeros" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="verificarOperandosNumeros.verificarOperandosNumeros-1">verificar<wbr/>Operandos<wbr/>Numeros<span class="tsd-signature-symbol">(</span>operador<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a>, direita<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, esquerda<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#verificarOperandosNumeros.verificarOperandosNumeros-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="verificarOperandosNumeros.verificarOperandosNumeros-1">verificar<wbr/>Operandos<wbr/>Numeros<span class="tsd-signature-symbol">(</span>operador<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span>, direita<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, esquerda<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#verificarOperandosNumeros.verificarOperandosNumeros-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Verifica se operandos são números, que podem ser tanto variáveis puras do JavaScript
 (neste caso, <code>number</code>), ou podem ser variáveis de Delégua com inferência (<code>VariavelInterface</code>).</p>
@@ -529,7 +589,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>operador: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h5>
+<h5>operador: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
 <div class="tsd-comment tsd-typography"><p>O símbolo do operador.</p>
 </div></li>
 <li>
@@ -542,7 +602,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L496">fontes/interpretador/interpretador-base.ts:496</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L510">fontes/interpretador/interpretador-base.ts:510</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoAleatorio" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Aleatorio</span><a href="#visitarDeclaracaoAleatorio" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -556,7 +616,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoAleatorio">visitarDeclaracaoAleatorio</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1534">fontes/interpretador/interpretador-base.ts:1534</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1577">fontes/interpretador/interpretador-base.ts:1577</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoCabecalhoPrograma" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Cabecalho<wbr/>Programa</span><a href="#visitarDeclaracaoCabecalhoPrograma" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -570,7 +630,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoCabecalhoPrograma">visitarDeclaracaoCabecalhoPrograma</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L193">fontes/interpretador/interpretador-base.ts:193</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L205">fontes/interpretador/interpretador-base.ts:205</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoClasse" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Classe</span><a href="#visitarDeclaracaoClasse" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -590,7 +650,26 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoClasse">visitarDeclaracaoClasse</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1397">fontes/interpretador/interpretador-base.ts:1397</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1429">fontes/interpretador/interpretador-base.ts:1429</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoComentario" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Comentario</span><a href="#visitarDeclaracaoComentario" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="visitarDeclaracaoComentario.visitarDeclaracaoComentario-1">visitar<wbr/>Declaracao<wbr/>Comentario<span class="tsd-signature-symbol">(</span>declaracao<span class="tsd-signature-symbol">: </span><a href="Comentario.html" class="tsd-signature-type" data-tsd-kind="Class">Comentario</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarDeclaracaoComentario.visitarDeclaracaoComentario-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Construtos de comentários não têm utilidade para o Interpretador.
+Apenas retornamos <code>Promise.resolve()</code> para não termos erros.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>declaracao: <a href="Comentario.html" class="tsd-signature-type" data-tsd-kind="Class">Comentario</a></h5>
+<div class="tsd-comment tsd-typography"><p>A declaração de comentário.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoComentario">visitarDeclaracaoComentario</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L181">fontes/interpretador/interpretador-base.ts:181</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoConst" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Const</span><a href="#visitarDeclaracaoConst" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -610,7 +689,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoConst">visitarDeclaracaoConst</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1189">fontes/interpretador/interpretador-base.ts:1189</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1221">fontes/interpretador/interpretador-base.ts:1221</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoConstMultiplo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Const<wbr/>Multiplo</span><a href="#visitarDeclaracaoConstMultiplo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -630,7 +709,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoConstMultiplo">visitarDeclaracaoConstMultiplo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1202">fontes/interpretador/interpretador-base.ts:1202</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1234">fontes/interpretador/interpretador-base.ts:1234</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoDeExpressao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>De<wbr/>Expressao</span><a href="#visitarDeclaracaoDeExpressao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -644,7 +723,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoDeExpressao">visitarDeclaracaoDeExpressao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L807">fontes/interpretador/interpretador-base.ts:807</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L839">fontes/interpretador/interpretador-base.ts:839</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoDefinicaoFuncao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Definicao<wbr/>Funcao</span><a href="#visitarDeclaracaoDefinicaoFuncao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -658,7 +737,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoDefinicaoFuncao">visitarDeclaracaoDefinicaoFuncao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1387">fontes/interpretador/interpretador-base.ts:1387</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1419">fontes/interpretador/interpretador-base.ts:1419</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoEnquanto" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Enquanto</span><a href="#visitarDeclaracaoEnquanto" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -672,7 +751,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoEnquanto">visitarDeclaracaoEnquanto</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L945">fontes/interpretador/interpretador-base.ts:945</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L977">fontes/interpretador/interpretador-base.ts:977</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoEscolha" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Escolha</span><a href="#visitarDeclaracaoEscolha" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -686,7 +765,7 @@ Método que efetivamente inicia o processo de interpretação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoEscolha">visitarDeclaracaoEscolha</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L970">fontes/interpretador/interpretador-base.ts:970</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1002">fontes/interpretador/interpretador-base.ts:1002</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoEscreva" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Escreva</span><a href="#visitarDeclaracaoEscreva" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -707,7 +786,7 @@ alguma função para escrever numa página Web.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoEscreva">visitarDeclaracaoEscreva</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1124">fontes/interpretador/interpretador-base.ts:1124</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1156">fontes/interpretador/interpretador-base.ts:1156</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoEscrevaMesmaLinha" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Escreva<wbr/>Mesma<wbr/>Linha</span><a href="#visitarDeclaracaoEscrevaMesmaLinha" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -728,7 +807,7 @@ Implementada para alguns dialetos, como VisuAlg.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoEscrevaMesmaLinha">visitarDeclaracaoEscrevaMesmaLinha</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1104">fontes/interpretador/interpretador-base.ts:1104</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1136">fontes/interpretador/interpretador-base.ts:1136</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoFazer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Fazer</span><a href="#visitarDeclaracaoFazer" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -742,7 +821,7 @@ Implementada para alguns dialetos, como VisuAlg.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoFazer">visitarDeclaracaoFazer</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1014">fontes/interpretador/interpretador-base.ts:1014</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1046">fontes/interpretador/interpretador-base.ts:1046</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoImportar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Importar</span><a href="#visitarDeclaracaoImportar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -756,7 +835,7 @@ Implementada para alguns dialetos, como VisuAlg.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DeleguaModulo</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoImportar">visitarDeclaracaoImportar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1082">fontes/interpretador/interpretador-base.ts:1082</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1114">fontes/interpretador/interpretador-base.ts:1114</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoInicioAlgoritmo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Inicio<wbr/>Algoritmo</span><a href="#visitarDeclaracaoInicioAlgoritmo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -770,7 +849,7 @@ Implementada para alguns dialetos, como VisuAlg.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoInicioAlgoritmo">visitarDeclaracaoInicioAlgoritmo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L189">fontes/interpretador/interpretador-base.ts:189</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L201">fontes/interpretador/interpretador-base.ts:201</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoPara" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Para</span><a href="#visitarDeclaracaoPara" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -784,7 +863,7 @@ Implementada para alguns dialetos, como VisuAlg.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoPara">visitarDeclaracaoPara</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L839">fontes/interpretador/interpretador-base.ts:839</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L871">fontes/interpretador/interpretador-base.ts:871</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoParaCada" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Para<wbr/>Cada</span><a href="#visitarDeclaracaoParaCada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -798,7 +877,7 @@ Implementada para alguns dialetos, como VisuAlg.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoParaCada">visitarDeclaracaoParaCada</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L880">fontes/interpretador/interpretador-base.ts:880</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L912">fontes/interpretador/interpretador-base.ts:912</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoSe" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Se</span><a href="#visitarDeclaracaoSe" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -819,7 +898,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoSe">visitarDeclaracaoSe</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L925">fontes/interpretador/interpretador-base.ts:925</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L957">fontes/interpretador/interpretador-base.ts:957</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoTendoComo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Tendo<wbr/>Como</span><a href="#visitarDeclaracaoTendoComo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -833,7 +912,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoTendoComo">visitarDeclaracaoTendoComo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L173">fontes/interpretador/interpretador-base.ts:173</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L185">fontes/interpretador/interpretador-base.ts:185</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoTente" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Tente</span><a href="#visitarDeclaracaoTente" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -851,7 +930,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoTente">visitarDeclaracaoTente</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1044">fontes/interpretador/interpretador-base.ts:1044</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1076">fontes/interpretador/interpretador-base.ts:1076</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoVar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Var</span><a href="#visitarDeclaracaoVar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -871,7 +950,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoVar">visitarDeclaracaoVar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1576">fontes/interpretador/interpretador-base.ts:1576</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1619">fontes/interpretador/interpretador-base.ts:1619</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarDeclaracaoVarMultiplo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Declaracao<wbr/>Var<wbr/>Multiplo</span><a href="#visitarDeclaracaoVarMultiplo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -891,7 +970,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarDeclaracaoVarMultiplo">visitarDeclaracaoVarMultiplo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1589">fontes/interpretador/interpretador-base.ts:1589</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1632">fontes/interpretador/interpretador-base.ts:1632</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoAcessoElementoMatriz" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Acesso<wbr/>Elemento<wbr/>Matriz</span><a href="#visitarExpressaoAcessoElementoMatriz" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -905,7 +984,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoAcessoElementoMatriz">visitarExpressaoAcessoElementoMatriz</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L212">fontes/interpretador/interpretador-base.ts:212</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L224">fontes/interpretador/interpretador-base.ts:224</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoAcessoIndiceVariavel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Acesso<wbr/>Indice<wbr/>Variavel</span><a href="#visitarExpressaoAcessoIndiceVariavel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -919,11 +998,11 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoAcessoIndiceVariavel">visitarExpressaoAcessoIndiceVariavel</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1286">fontes/interpretador/interpretador-base.ts:1286</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1318">fontes/interpretador/interpretador-base.ts:1318</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoAcessoMetodo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Acesso<wbr/>Metodo</span><a href="#visitarExpressaoAcessoMetodo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoAcessoMetodo.visitarExpressaoAcessoMetodo-1">visitar<wbr/>Expressao<wbr/>Acesso<wbr/>Metodo<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="AcessoMetodoOuPropriedade.html" class="tsd-signature-type" data-tsd-kind="Class">AcessoMetodoOuPropriedade</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoAcessoMetodo.visitarExpressaoAcessoMetodo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoAcessoMetodo.visitarExpressaoAcessoMetodo-1">visitar<wbr/>Expressao<wbr/>Acesso<wbr/>Metodo<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="AcessoMetodoOuPropriedade.html" class="tsd-signature-type" data-tsd-kind="Class">AcessoMetodoOuPropriedade</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoAcessoMetodo.visitarExpressaoAcessoMetodo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Executa um acesso a método, normalmente de um objeto de classe.</p>
 
@@ -933,13 +1012,13 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="AcessoMetodoOuPropriedade.html" class="tsd-signature-type" data-tsd-kind="Class">AcessoMetodoOuPropriedade</a></h5>
+<h5>expressao: <a href="AcessoMetodoOuPropriedade.html" class="tsd-signature-type" data-tsd-kind="Class">AcessoMetodoOuPropriedade</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
 <div class="tsd-comment tsd-typography"><p>A expressão de acesso.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoAcessoMetodo">visitarExpressaoAcessoMetodo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1452">fontes/interpretador/interpretador-base.ts:1452</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1484">fontes/interpretador/interpretador-base.ts:1484</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoAgrupamento" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Agrupamento</span><a href="#visitarExpressaoAgrupamento" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -953,7 +1032,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoAgrupamento">visitarExpressaoAgrupamento</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L388">fontes/interpretador/interpretador-base.ts:388</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L402">fontes/interpretador/interpretador-base.ts:402</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoAtribuicaoPorIndice" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Atribuicao<wbr/>Por<wbr/>Indice</span><a href="#visitarExpressaoAtribuicaoPorIndice" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -967,7 +1046,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoAtribuicaoPorIndice">visitarExpressaoAtribuicaoPorIndice</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1231">fontes/interpretador/interpretador-base.ts:1231</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1263">fontes/interpretador/interpretador-base.ts:1263</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoAtribuicaoPorIndicesMatriz" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Atribuicao<wbr/>Por<wbr/>Indices<wbr/>Matriz</span><a href="#visitarExpressaoAtribuicaoPorIndicesMatriz" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -981,7 +1060,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoAtribuicaoPorIndicesMatriz">visitarExpressaoAtribuicaoPorIndicesMatriz</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L208">fontes/interpretador/interpretador-base.ts:208</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L220">fontes/interpretador/interpretador-base.ts:220</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoBinaria" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Binaria</span><a href="#visitarExpressaoBinaria" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -995,7 +1074,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoBinaria">visitarExpressaoBinaria</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L517">fontes/interpretador/interpretador-base.ts:517</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L531">fontes/interpretador/interpretador-base.ts:531</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoBloco" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Bloco</span><a href="#visitarExpressaoBloco" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1009,7 +1088,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoBloco">visitarExpressaoBloco</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1164">fontes/interpretador/interpretador-base.ts:1164</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1196">fontes/interpretador/interpretador-base.ts:1196</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoContinua" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Continua</span><a href="#visitarExpressaoContinua" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1023,11 +1102,11 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ContinuarQuebra</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoContinua">visitarExpressaoContinua</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1212">fontes/interpretador/interpretador-base.ts:1212</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1244">fontes/interpretador/interpretador-base.ts:1244</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoDeAtribuicao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>De<wbr/>Atribuicao</span><a href="#visitarExpressaoDeAtribuicao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoDeAtribuicao.visitarExpressaoDeAtribuicao-1">visitar<wbr/>Expressao<wbr/>De<wbr/>Atribuicao<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Atribuir.html" class="tsd-signature-type" data-tsd-kind="Class">Atribuir</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoDeAtribuicao.visitarExpressaoDeAtribuicao-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoDeAtribuicao.visitarExpressaoDeAtribuicao-1">visitar<wbr/>Expressao<wbr/>De<wbr/>Atribuicao<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Atribuir.html" class="tsd-signature-type" data-tsd-kind="Class">Atribuir</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoDeAtribuicao.visitarExpressaoDeAtribuicao-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Execução de uma expressão de atribuição.</p>
 
@@ -1037,13 +1116,13 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="Atribuir.html" class="tsd-signature-type" data-tsd-kind="Class">Atribuir</a></h5>
+<h5>expressao: <a href="Atribuir.html" class="tsd-signature-type" data-tsd-kind="Class">Atribuir</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
 <div class="tsd-comment tsd-typography"><p>A expressão.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoDeAtribuicao">visitarExpressaoDeAtribuicao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L791">fontes/interpretador/interpretador-base.ts:791</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L823">fontes/interpretador/interpretador-base.ts:823</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoDeChamada" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>De<wbr/>Chamada</span><a href="#visitarExpressaoDeChamada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1063,21 +1142,21 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoDeChamada">visitarExpressaoDeChamada</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L635">fontes/interpretador/interpretador-base.ts:635</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L706">fontes/interpretador/interpretador-base.ts:706</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoDeVariavel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>De<wbr/>Variavel</span><a href="#visitarExpressaoDeVariavel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoDeVariavel.visitarExpressaoDeVariavel-1">visitar<wbr/>Expressao<wbr/>De<wbr/>Variavel<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Variavel.html" class="tsd-signature-type" data-tsd-kind="Class">Variavel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#visitarExpressaoDeVariavel.visitarExpressaoDeVariavel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoDeVariavel.visitarExpressaoDeVariavel-1">visitar<wbr/>Expressao<wbr/>De<wbr/>Variavel<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Variavel.html" class="tsd-signature-type" data-tsd-kind="Class">Variavel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#visitarExpressaoDeVariavel.visitarExpressaoDeVariavel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="Variavel.html" class="tsd-signature-type" data-tsd-kind="Class">Variavel</a></h5></li></ul></div>
+<h5>expressao: <a href="Variavel.html" class="tsd-signature-type" data-tsd-kind="Class">Variavel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoDeVariavel">visitarExpressaoDeVariavel</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L803">fontes/interpretador/interpretador-base.ts:803</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L835">fontes/interpretador/interpretador-base.ts:835</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoDefinirValor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Definir<wbr/>Valor</span><a href="#visitarExpressaoDefinirValor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1091,7 +1170,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoDefinirValor">visitarExpressaoDefinirValor</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1364">fontes/interpretador/interpretador-base.ts:1364</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1396">fontes/interpretador/interpretador-base.ts:1396</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoDeleguaFuncao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Delegua<wbr/>Funcao</span><a href="#visitarExpressaoDeleguaFuncao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1105,7 +1184,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DeleguaFuncao</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoDeleguaFuncao">visitarExpressaoDeleguaFuncao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1227">fontes/interpretador/interpretador-base.ts:1227</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1259">fontes/interpretador/interpretador-base.ts:1259</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoDicionario" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Dicionario</span><a href="#visitarExpressaoDicionario" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1119,21 +1198,21 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoDicionario">visitarExpressaoDicionario</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1538">fontes/interpretador/interpretador-base.ts:1538</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1581">fontes/interpretador/interpretador-base.ts:1581</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoExpressaoRegular" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Expressao<wbr/>Regular</span><a href="#visitarExpressaoExpressaoRegular" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoExpressaoRegular.visitarExpressaoExpressaoRegular-1">visitar<wbr/>Expressao<wbr/>Expressao<wbr/>Regular<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="ExpressaoRegular.html" class="tsd-signature-type" data-tsd-kind="Class">ExpressaoRegular</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoExpressaoRegular.visitarExpressaoExpressaoRegular-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoExpressaoRegular.visitarExpressaoExpressaoRegular-1">visitar<wbr/>Expressao<wbr/>Expressao<wbr/>Regular<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="ExpressaoRegular.html" class="tsd-signature-type" data-tsd-kind="Class">ExpressaoRegular</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoExpressaoRegular.visitarExpressaoExpressaoRegular-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="ExpressaoRegular.html" class="tsd-signature-type" data-tsd-kind="Class">ExpressaoRegular</a></h5></li></ul></div>
+<h5>expressao: <a href="ExpressaoRegular.html" class="tsd-signature-type" data-tsd-kind="Class">ExpressaoRegular</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoExpressaoRegular">visitarExpressaoExpressaoRegular</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L229">fontes/interpretador/interpretador-base.ts:229</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L241">fontes/interpretador/interpretador-base.ts:241</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoFalhar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Falhar</span><a href="#visitarExpressaoFalhar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1147,7 +1226,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoFalhar">visitarExpressaoFalhar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L255">fontes/interpretador/interpretador-base.ts:255</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L269">fontes/interpretador/interpretador-base.ts:269</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoFimPara" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Fim<wbr/>Para</span><a href="#visitarExpressaoFimPara" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1161,7 +1240,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoFimPara">visitarExpressaoFimPara</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L260">fontes/interpretador/interpretador-base.ts:260</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L274">fontes/interpretador/interpretador-base.ts:274</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoFormatacaoEscrita" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Formatacao<wbr/>Escrita</span><a href="#visitarExpressaoFormatacaoEscrita" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1181,7 +1260,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoFormatacaoEscrita">visitarExpressaoFormatacaoEscrita</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L459">fontes/interpretador/interpretador-base.ts:459</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L473">fontes/interpretador/interpretador-base.ts:473</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoIsto" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Isto</span><a href="#visitarExpressaoIsto" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1195,7 +1274,7 @@ Senão, e múltiplos blocos Senão-se.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoIsto">visitarExpressaoIsto</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1530">fontes/interpretador/interpretador-base.ts:1530</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1573">fontes/interpretador/interpretador-base.ts:1573</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoLeia" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Leia</span><a href="#visitarExpressaoLeia" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1216,7 +1295,7 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoLeia">visitarExpressaoLeia</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L281">fontes/interpretador/interpretador-base.ts:281</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L295">fontes/interpretador/interpretador-base.ts:295</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoLeiaMultiplo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Leia<wbr/>Multiplo</span><a href="#visitarExpressaoLeiaMultiplo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1237,7 +1316,7 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoLeiaMultiplo">visitarExpressaoLeiaMultiplo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L296">fontes/interpretador/interpretador-base.ts:296</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L310">fontes/interpretador/interpretador-base.ts:310</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoLiteral" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Literal</span><a href="#visitarExpressaoLiteral" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1251,34 +1330,34 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoLiteral">visitarExpressaoLiteral</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L378">fontes/interpretador/interpretador-base.ts:378</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L392">fontes/interpretador/interpretador-base.ts:392</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoLogica" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Logica</span><a href="#visitarExpressaoLogica" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoLogica.visitarExpressaoLogica-1">visitar<wbr/>Expressao<wbr/>Logica<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Logico.html" class="tsd-signature-type" data-tsd-kind="Class">Logico</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoLogica.visitarExpressaoLogica-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoLogica.visitarExpressaoLogica-1">visitar<wbr/>Expressao<wbr/>Logica<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Logico.html" class="tsd-signature-type" data-tsd-kind="Class">Logico</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoLogica.visitarExpressaoLogica-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="Logico.html" class="tsd-signature-type" data-tsd-kind="Class">Logico</a></h5></li></ul></div>
+<h5>expressao: <a href="Logico.html" class="tsd-signature-type" data-tsd-kind="Class">Logico</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoLogica">visitarExpressaoLogica</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L811">fontes/interpretador/interpretador-base.ts:811</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L843">fontes/interpretador/interpretador-base.ts:843</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoQualTipo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Qual<wbr/>Tipo</span><a href="#visitarExpressaoQualTipo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoQualTipo.visitarExpressaoQualTipo-1">visitar<wbr/>Expressao<wbr/>Qual<wbr/>Tipo<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="QualTipo.html" class="tsd-signature-type" data-tsd-kind="Class">QualTipo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoQualTipo.visitarExpressaoQualTipo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoQualTipo.visitarExpressaoQualTipo-1">visitar<wbr/>Expressao<wbr/>Qual<wbr/>Tipo<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="QualTipo.html" class="tsd-signature-type" data-tsd-kind="Class">QualTipo</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoQualTipo.visitarExpressaoQualTipo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="QualTipo.html" class="tsd-signature-type" data-tsd-kind="Class">QualTipo</a></h5></li></ul></div>
+<h5>expressao: <a href="QualTipo.html" class="tsd-signature-type" data-tsd-kind="Class">QualTipo</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L251">fontes/interpretador/interpretador-base.ts:251</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L265">fontes/interpretador/interpretador-base.ts:265</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoRetornar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Retornar</span><a href="#visitarExpressaoRetornar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1292,21 +1371,21 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">RetornoQuebra</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoRetornar">visitarExpressaoRetornar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1220">fontes/interpretador/interpretador-base.ts:1220</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1252">fontes/interpretador/interpretador-base.ts:1252</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoSuper" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Super</span><a href="#visitarExpressaoSuper" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoSuper.visitarExpressaoSuper-1">visitar<wbr/>Expressao<wbr/>Super<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Super.html" class="tsd-signature-type" data-tsd-kind="Class">Super</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#visitarExpressaoSuper.visitarExpressaoSuper-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoSuper.visitarExpressaoSuper-1">visitar<wbr/>Expressao<wbr/>Super<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Super.html" class="tsd-signature-type" data-tsd-kind="Class">Super</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#visitarExpressaoSuper.visitarExpressaoSuper-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="Super.html" class="tsd-signature-type" data-tsd-kind="Class">Super</a></h5></li></ul></div>
+<h5>expressao: <a href="Super.html" class="tsd-signature-type" data-tsd-kind="Class">Super</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoSuper">visitarExpressaoSuper</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1556">fontes/interpretador/interpretador-base.ts:1556</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1599">fontes/interpretador/interpretador-base.ts:1599</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoSustar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Sustar</span><a href="#visitarExpressaoSustar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1320,21 +1399,21 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SustarQuebra</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoSustar">visitarExpressaoSustar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1216">fontes/interpretador/interpretador-base.ts:1216</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1248">fontes/interpretador/interpretador-base.ts:1248</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoTipoDe" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Tipo<wbr/>De</span><a href="#visitarExpressaoTipoDe" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoTipoDe.visitarExpressaoTipoDe-1">visitar<wbr/>Expressao<wbr/>Tipo<wbr/>De<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="TipoDe.html" class="tsd-signature-type" data-tsd-kind="Class">TipoDe</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoTipoDe.visitarExpressaoTipoDe-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoTipoDe.visitarExpressaoTipoDe-1">visitar<wbr/>Expressao<wbr/>Tipo<wbr/>De<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="TipoDe.html" class="tsd-signature-type" data-tsd-kind="Class">TipoDe</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoTipoDe.visitarExpressaoTipoDe-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="TipoDe.html" class="tsd-signature-type" data-tsd-kind="Class">TipoDe</a></h5></li></ul></div>
+<h5>expressao: <a href="TipoDe.html" class="tsd-signature-type" data-tsd-kind="Class">TipoDe</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoTipoDe">visitarExpressaoTipoDe</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L233">fontes/interpretador/interpretador-base.ts:233</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L245">fontes/interpretador/interpretador-base.ts:245</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoTupla" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Tupla</span><a href="#visitarExpressaoTupla" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1348,21 +1427,21 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoTupla">visitarExpressaoTupla</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L197">fontes/interpretador/interpretador-base.ts:197</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L209">fontes/interpretador/interpretador-base.ts:209</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoUnaria" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Unaria</span><a href="#visitarExpressaoUnaria" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoUnaria.visitarExpressaoUnaria-1">visitar<wbr/>Expressao<wbr/>Unaria<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Unario.html" class="tsd-signature-type" data-tsd-kind="Class">Unario</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoUnaria.visitarExpressaoUnaria-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="visitarExpressaoUnaria.visitarExpressaoUnaria-1">visitar<wbr/>Expressao<wbr/>Unaria<span class="tsd-signature-symbol">(</span>expressao<span class="tsd-signature-symbol">: </span><a href="Unario.html" class="tsd-signature-type" data-tsd-kind="Class">Unario</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#visitarExpressaoUnaria.visitarExpressaoUnaria-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>expressao: <a href="Unario.html" class="tsd-signature-type" data-tsd-kind="Class">Unario</a></h5></li></ul></div>
+<h5>expressao: <a href="Unario.html" class="tsd-signature-type" data-tsd-kind="Class">Unario</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoUnaria">visitarExpressaoUnaria</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L407">fontes/interpretador/interpretador-base.ts:407</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L421">fontes/interpretador/interpretador-base.ts:421</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="visitarExpressaoVetor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visitar<wbr/>Expressao<wbr/>Vetor</span><a href="#visitarExpressaoVetor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1376,7 +1455,7 @@ início da aplicação.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/InterpretadorInterface.html">InterpretadorInterface</a>.<a href="../interfaces/InterpretadorInterface.html#visitarExpressaoVetor">visitarExpressaoVetor</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/interpretador/interpretador-base.ts#L1548">fontes/interpretador/interpretador-base.ts:1548</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/interpretador/interpretador-base.ts#L1591">fontes/interpretador/interpretador-base.ts:1591</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -1423,6 +1502,7 @@ início da aplicação.</p>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#avaliacaoDeclaracaoVarOuConst" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>avaliacao<wbr/>Declaracao<wbr/>Var<wbr/>Ou<wbr/>Const</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#avaliar" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>avaliar</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#avaliarArgumentosEscreva" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>avaliar<wbr/>Argumentos<wbr/>Escreva</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#chamarMetodoPrimitiva" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>chamar<wbr/>Metodo<wbr/>Primitiva</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#eIgual" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>e<wbr/>Igual</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#eVerdadeiro" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>e<wbr/>Verdadeiro</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#executar" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>executar</a></li>
@@ -1431,7 +1511,9 @@ início da aplicação.</p>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#interpretar" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>interpretar</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#paraTexto" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>para<wbr/>Texto</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#procurarVariavel" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>procurar<wbr/>Variavel</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#resolverArgumentosChamada" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>resolver<wbr/>Argumentos<wbr/>Chamada</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#resolverInterpolacoes" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>resolver<wbr/>Interpolacoes</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#resolverParametrosChamada" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>resolver<wbr/>Parametros<wbr/>Chamada</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#retirarInterpolacao" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>retirar<wbr/>Interpolacao</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#textoParaRegex" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>texto<wbr/>Para<wbr/>Regex</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="InterpretadorBase.html#verificarOperandoNumero" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>verificar<wbr/>Operando<wbr/>Numero</a></li>
@@ -1439,6 +1521,7 @@ início da aplicação.</p>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoAleatorio" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>Aleatorio</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoCabecalhoPrograma" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>Cabecalho<wbr/>Programa</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoClasse" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>Classe</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoComentario" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>Comentario</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoConst" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>Const</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoConstMultiplo" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>Const<wbr/>Multiplo</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="InterpretadorBase.html#visitarDeclaracaoDeExpressao" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>visitar<wbr/>Declaracao<wbr/>De<wbr/>Expressao</a></li>

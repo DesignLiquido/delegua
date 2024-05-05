@@ -29,7 +29,7 @@ Há dois grupos de estruturas de alto nível: Construtos e Declarações.</p>
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/AvaliadorSintaticoInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">AvaliadorSintaticoInterface</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">, </span><a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">&gt;</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L69">fontes/avaliador-sintatico/avaliador-sintatico.ts:69</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L73">fontes/avaliador-sintatico/avaliador-sintatico.ts:73</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -64,6 +64,8 @@ Há dois grupos de estruturas de alto nível: Construtos e Declarações.</p>
 <a href="AvaliadorSintatico.html#comparar" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>comparar</span></a>
 <a href="AvaliadorSintatico.html#consumir" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>consumir</span></a>
 <a href="AvaliadorSintatico.html#corpoDaFuncao" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>corpo<wbr/>Da<wbr/>Funcao</span></a>
+<a href="AvaliadorSintatico.html#declaracaoComentarioMultilinha" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>declaracao<wbr/>Comentario<wbr/>Multilinha</span></a>
+<a href="AvaliadorSintatico.html#declaracaoComentarioUmaLinha" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>declaracao<wbr/>Comentario<wbr/>Uma<wbr/>Linha</span></a>
 <a href="AvaliadorSintatico.html#declaracaoContinua" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>declaracao<wbr/>Continua</span></a>
 <a href="AvaliadorSintatico.html#declaracaoDeClasse" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>declaracao<wbr/>De<wbr/>Classe</span></a>
 <a href="AvaliadorSintatico.html#declaracaoDeConstantes" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>declaracao<wbr/>De<wbr/>Constantes</span></a>
@@ -102,6 +104,7 @@ Há dois grupos de estruturas de alto nível: Construtos e Declarações.</p>
 <a href="AvaliadorSintatico.html#resolverDeclaracao" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolver<wbr/>Declaracao</span></a>
 <a href="AvaliadorSintatico.html#resolverDeclaracaoForaDeBloco" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolver<wbr/>Declaracao<wbr/>Fora<wbr/>De<wbr/>Bloco</span></a>
 <a href="AvaliadorSintatico.html#resolverDecorador" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolver<wbr/>Decorador</span></a>
+<a href="AvaliadorSintatico.html#simboloAnterior" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>simbolo<wbr/>Anterior</span></a>
 <a href="AvaliadorSintatico.html#simboloAtual" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>simbolo<wbr/>Atual</span></a>
 <a href="AvaliadorSintatico.html#sincronizar" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>sincronizar</span></a>
 <a href="AvaliadorSintatico.html#unario" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>unario</span></a>
@@ -124,7 +127,7 @@ Há dois grupos de estruturas de alto nível: Construtos e Declarações.</p>
 <h5>performance: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="AvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Class">AvaliadorSintatico</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L79">fontes/avaliador-sintatico/avaliador-sintatico.ts:79</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L83">fontes/avaliador-sintatico/avaliador-sintatico.ts:83</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="atual" class="tsd-anchor"></a>
@@ -132,40 +135,40 @@ Há dois grupos de estruturas de alto nível: Construtos e Declarações.</p>
 <div class="tsd-signature">atual<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#atual">atual</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L75">fontes/avaliador-sintatico/avaliador-sintatico.ts:75</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L79">fontes/avaliador-sintatico/avaliador-sintatico.ts:79</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="blocos" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>blocos</span><a href="#blocos" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">blocos<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#blocos">blocos</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L76">fontes/avaliador-sintatico/avaliador-sintatico.ts:76</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L80">fontes/avaliador-sintatico/avaliador-sintatico.ts:80</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="erros" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>erros</span><a href="#erros" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">erros<span class="tsd-signature-symbol">:</span> <a href="ErroAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Class">ErroAvaliadorSintatico</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#erros">erros</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L72">fontes/avaliador-sintatico/avaliador-sintatico.ts:72</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L76">fontes/avaliador-sintatico/avaliador-sintatico.ts:76</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="hashArquivo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>hash<wbr/>Arquivo</span><a href="#hashArquivo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">hash<wbr/>Arquivo<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L74">fontes/avaliador-sintatico/avaliador-sintatico.ts:74</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L78">fontes/avaliador-sintatico/avaliador-sintatico.ts:78</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="performance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>performance</span><a href="#performance" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">performance<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L77">fontes/avaliador-sintatico/avaliador-sintatico.ts:77</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L81">fontes/avaliador-sintatico/avaliador-sintatico.ts:81</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="pilhaDecoradores" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pilha<wbr/>Decoradores</span><a href="#pilhaDecoradores" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">pilha<wbr/>Decoradores<span class="tsd-signature-symbol">:</span> <a href="Decorador.html" class="tsd-signature-type" data-tsd-kind="Class">Decorador</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L70">fontes/avaliador-sintatico/avaliador-sintatico.ts:70</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L74">fontes/avaliador-sintatico/avaliador-sintatico.ts:74</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="simbolos" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>simbolos</span><a href="#simbolos" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">simbolos<span class="tsd-signature-symbol">:</span> <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
+<div class="tsd-signature">simbolos<span class="tsd-signature-symbol">:</span> <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#simbolos">simbolos</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L71">fontes/avaliador-sintatico/avaliador-sintatico.ts:71</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L75">fontes/avaliador-sintatico/avaliador-sintatico.ts:75</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="adicaoOuSubtracao" class="tsd-anchor"></a>
@@ -181,23 +184,23 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#adicaoOuSubtracao">adicaoOuSubtracao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L444">fontes/avaliador-sintatico/avaliador-sintatico.ts:444</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L466">fontes/avaliador-sintatico/avaliador-sintatico.ts:466</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="analisar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>analisar</span><a href="#analisar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="analisar.analisar-1">analisar<span class="tsd-signature-symbol">(</span>retornoLexador<span class="tsd-signature-symbol">: </span><a href="../interfaces/RetornoLexador.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoLexador</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&gt;</span>, hashArquivo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/RetornoAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoAvaliadorSintatico</a><span class="tsd-signature-symbol">&lt;</span><a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">&gt;</span><a href="#analisar.analisar-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="analisar.analisar-1">analisar<span class="tsd-signature-symbol">(</span>retornoLexador<span class="tsd-signature-symbol">: </span><a href="../interfaces/RetornoLexador.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoLexador</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span>, hashArquivo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/RetornoAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoAvaliadorSintatico</a><span class="tsd-signature-symbol">&lt;</span><a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">&gt;</span><a href="#analisar.analisar-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>retornoLexador: <a href="../interfaces/RetornoLexador.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoLexador</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5>retornoLexador: <a href="../interfaces/RetornoLexador.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoLexador</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
 <li>
 <h5>hashArquivo: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/RetornoAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Interface">RetornoAvaliadorSintatico</a><span class="tsd-signature-symbol">&lt;</span><a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#analisar">analisar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1442">fontes/avaliador-sintatico/avaliador-sintatico.ts:1442</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1498">fontes/avaliador-sintatico/avaliador-sintatico.ts:1498</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="atribuir" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>atribuir</span><a href="#atribuir" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -209,16 +212,16 @@ ser avaliado pelo Interpretador.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L570">fontes/avaliador-sintatico/avaliador-sintatico.ts:570</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L592">fontes/avaliador-sintatico/avaliador-sintatico.ts:592</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="avancarEDevolverAnterior" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>avancarEDevolver<wbr/>Anterior</span><a href="#avancarEDevolverAnterior" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="avancarEDevolverAnterior.avancarEDevolverAnterior-1">avancarEDevolver<wbr/>Anterior<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><a href="#avancarEDevolverAnterior.avancarEDevolverAnterior-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="avancarEDevolverAnterior.avancarEDevolverAnterior-1">avancarEDevolver<wbr/>Anterior<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#avancarEDevolverAnterior.avancarEDevolverAnterior-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#avancarEDevolverAnterior">avancarEDevolverAnterior</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L151">fontes/avaliador-sintatico/avaliador-sintatico.ts:151</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L151">fontes/avaliador-sintatico/avaliador-sintatico.ts:151</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="bitE" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>bitE</span><a href="#bitE" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -227,7 +230,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#bitE">bitE</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L475">fontes/avaliador-sintatico/avaliador-sintatico.ts:475</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L497">fontes/avaliador-sintatico/avaliador-sintatico.ts:497</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="bitOu" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>bit<wbr/>Ou</span><a href="#bitOu" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -236,7 +239,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#bitOu">bitOu</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L487">fontes/avaliador-sintatico/avaliador-sintatico.ts:487</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L509">fontes/avaliador-sintatico/avaliador-sintatico.ts:509</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="bitShift" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>bit<wbr/>Shift</span><a href="#bitShift" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -245,16 +248,16 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#bitShift">bitShift</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L463">fontes/avaliador-sintatico/avaliador-sintatico.ts:463</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L485">fontes/avaliador-sintatico/avaliador-sintatico.ts:485</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="blocoEscopo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>bloco<wbr/>Escopo</span><a href="#blocoEscopo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="blocoEscopo.blocoEscopo-1">bloco<wbr/>Escopo<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">RetornoDeclaracao</span><span class="tsd-signature-symbol">[]</span><a href="#blocoEscopo.blocoEscopo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="blocoEscopo.blocoEscopo-1">bloco<wbr/>Escopo<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../types/RetornoDeclaracao.html" class="tsd-signature-type" data-tsd-kind="Type alias">RetornoDeclaracao</a><span class="tsd-signature-symbol">[]</span><a href="#blocoEscopo.blocoEscopo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">RetornoDeclaracao</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="../types/RetornoDeclaracao.html" class="tsd-signature-type" data-tsd-kind="Type alias">RetornoDeclaracao</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#blocoEscopo">blocoEscopo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L663">fontes/avaliador-sintatico/avaliador-sintatico.ts:663</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L637">fontes/avaliador-sintatico/avaliador-sintatico.ts:637</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="chamar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>chamar</span><a href="#chamar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -263,7 +266,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#chamar">chamar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L362">fontes/avaliador-sintatico/avaliador-sintatico.ts:362</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L384">fontes/avaliador-sintatico/avaliador-sintatico.ts:384</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="comparacaoIgualdade" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>comparacao<wbr/>Igualdade</span><a href="#comparacaoIgualdade" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -272,7 +275,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#comparacaoIgualdade">comparacaoIgualdade</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L518">fontes/avaliador-sintatico/avaliador-sintatico.ts:518</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L540">fontes/avaliador-sintatico/avaliador-sintatico.ts:540</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="comparar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>comparar</span><a href="#comparar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -281,11 +284,11 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#comparar">comparar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L499">fontes/avaliador-sintatico/avaliador-sintatico.ts:499</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L521">fontes/avaliador-sintatico/avaliador-sintatico.ts:521</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="consumir" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>consumir</span><a href="#consumir" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="consumir.consumir-1">consumir<span class="tsd-signature-symbol">(</span>tipo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, mensagemDeErro<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><a href="#consumir.consumir-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="consumir.consumir-1">consumir<span class="tsd-signature-symbol">(</span>tipo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, mensagemDeErro<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#consumir.consumir-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -294,10 +297,10 @@ ser avaliado pelo Interpretador.</p>
 <h5>tipo: <span class="tsd-signature-type">string</span></h5></li>
 <li>
 <h5>mensagemDeErro: <span class="tsd-signature-type">string</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#consumir">consumir</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L97">fontes/avaliador-sintatico/avaliador-sintatico.ts:97</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L101">fontes/avaliador-sintatico/avaliador-sintatico.ts:101</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="corpoDaFuncao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>corpo<wbr/>Da<wbr/>Funcao</span><a href="#corpoDaFuncao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -311,7 +314,23 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="FuncaoConstruto.html" class="tsd-signature-type" data-tsd-kind="Class">FuncaoConstruto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#corpoDaFuncao">corpoDaFuncao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1302">fontes/avaliador-sintatico/avaliador-sintatico.ts:1302</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1358">fontes/avaliador-sintatico/avaliador-sintatico.ts:1358</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoComentarioMultilinha" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>declaracao<wbr/>Comentario<wbr/>Multilinha</span><a href="#declaracaoComentarioMultilinha" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="declaracaoComentarioMultilinha.declaracaoComentarioMultilinha-1">declaracao<wbr/>Comentario<wbr/>Multilinha<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Comentario.html" class="tsd-signature-type" data-tsd-kind="Class">Comentario</a><a href="#declaracaoComentarioMultilinha.declaracaoComentarioMultilinha-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="Comentario.html" class="tsd-signature-type" data-tsd-kind="Class">Comentario</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L698">fontes/avaliador-sintatico/avaliador-sintatico.ts:698</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoComentarioUmaLinha" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>declaracao<wbr/>Comentario<wbr/>Uma<wbr/>Linha</span><a href="#declaracaoComentarioUmaLinha" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="declaracaoComentarioUmaLinha.declaracaoComentarioUmaLinha-1">declaracao<wbr/>Comentario<wbr/>Uma<wbr/>Linha<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Comentario.html" class="tsd-signature-type" data-tsd-kind="Class">Comentario</a><a href="#declaracaoComentarioUmaLinha.declaracaoComentarioUmaLinha-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="Comentario.html" class="tsd-signature-type" data-tsd-kind="Class">Comentario</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L714">fontes/avaliador-sintatico/avaliador-sintatico.ts:714</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoContinua" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Continua</span><a href="#declaracaoContinua" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -320,7 +339,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Continua.html" class="tsd-signature-type" data-tsd-kind="Class">Continua</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoContinua">declaracaoContinua</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L792">fontes/avaliador-sintatico/avaliador-sintatico.ts:792</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L724">fontes/avaliador-sintatico/avaliador-sintatico.ts:724</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoDeClasse" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>De<wbr/>Classe</span><a href="#declaracaoDeClasse" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -329,7 +348,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Classe.html" class="tsd-signature-type" data-tsd-kind="Class">Classe</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoDeClasse">declaracaoDeClasse</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1330">fontes/avaliador-sintatico/avaliador-sintatico.ts:1330</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1386">fontes/avaliador-sintatico/avaliador-sintatico.ts:1386</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoDeConstantes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>De<wbr/>Constantes</span><a href="#declaracaoDeConstantes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -341,7 +360,7 @@ ser avaliado pelo Interpretador.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1212">fontes/avaliador-sintatico/avaliador-sintatico.ts:1212</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1268">fontes/avaliador-sintatico/avaliador-sintatico.ts:1268</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="declaracaoDeVariaveis" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>declaracao<wbr/>De<wbr/>Variaveis</span><a href="#declaracaoDeVariaveis" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -353,7 +372,7 @@ ser avaliado pelo Interpretador.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1133">fontes/avaliador-sintatico/avaliador-sintatico.ts:1133</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1189">fontes/avaliador-sintatico/avaliador-sintatico.ts:1189</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoDeVariavel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>De<wbr/>Variavel</span><a href="#declaracaoDeVariavel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -362,7 +381,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Var.html" class="tsd-signature-type" data-tsd-kind="Class">Var</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoDeVariavel">declaracaoDeVariavel</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L87">fontes/avaliador-sintatico/avaliador-sintatico.ts:87</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L91">fontes/avaliador-sintatico/avaliador-sintatico.ts:91</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="declaracaoDesestruturacaoConstante" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>declaracao<wbr/>Desestruturacao<wbr/>Constante</span><a href="#declaracaoDesestruturacaoConstante" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -370,7 +389,7 @@ ser avaliado pelo Interpretador.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1182">fontes/avaliador-sintatico/avaliador-sintatico.ts:1182</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1238">fontes/avaliador-sintatico/avaliador-sintatico.ts:1238</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="declaracaoDesestruturacaoVariavel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>declaracao<wbr/>Desestruturacao<wbr/>Variavel</span><a href="#declaracaoDesestruturacaoVariavel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -378,7 +397,7 @@ ser avaliado pelo Interpretador.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="Declaracao.html" class="tsd-signature-type" data-tsd-kind="Class">Declaracao</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1103">fontes/avaliador-sintatico/avaliador-sintatico.ts:1103</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1159">fontes/avaliador-sintatico/avaliador-sintatico.ts:1159</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoEnquanto" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Enquanto</span><a href="#declaracaoEnquanto" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -387,7 +406,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Enquanto.html" class="tsd-signature-type" data-tsd-kind="Class">Enquanto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoEnquanto">declaracaoEnquanto</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L695">fontes/avaliador-sintatico/avaliador-sintatico.ts:695</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L656">fontes/avaliador-sintatico/avaliador-sintatico.ts:656</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoEscolha" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Escolha</span><a href="#declaracaoEscolha" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -396,7 +415,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Escolha.html" class="tsd-signature-type" data-tsd-kind="Class">Escolha</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoEscolha">declaracaoEscolha</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L829">fontes/avaliador-sintatico/avaliador-sintatico.ts:829</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L734">fontes/avaliador-sintatico/avaliador-sintatico.ts:734</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoEscreva" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Escreva</span><a href="#declaracaoEscreva" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -405,7 +424,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Escreva.html" class="tsd-signature-type" data-tsd-kind="Class">Escreva</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoEscreva">declaracaoEscreva</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L615">fontes/avaliador-sintatico/avaliador-sintatico.ts:615</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L669">fontes/avaliador-sintatico/avaliador-sintatico.ts:669</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoExpressao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Expressao</span><a href="#declaracaoExpressao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -414,7 +433,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Expressao.html" class="tsd-signature-type" data-tsd-kind="Class">Expressao</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoExpressao">declaracaoExpressao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L634">fontes/avaliador-sintatico/avaliador-sintatico.ts:634</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L691">fontes/avaliador-sintatico/avaliador-sintatico.ts:691</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoFalhar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Falhar</span><a href="#declaracaoFalhar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -422,7 +441,7 @@ ser avaliado pelo Interpretador.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="Falhar.html" class="tsd-signature-type" data-tsd-kind="Class">Falhar</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L900">fontes/avaliador-sintatico/avaliador-sintatico.ts:900</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L805">fontes/avaliador-sintatico/avaliador-sintatico.ts:805</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoFazer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Fazer</span><a href="#declaracaoFazer" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -431,7 +450,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Fazer.html" class="tsd-signature-type" data-tsd-kind="Class">Fazer</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoFazer">declaracaoFazer</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L959">fontes/avaliador-sintatico/avaliador-sintatico.ts:959</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L810">fontes/avaliador-sintatico/avaliador-sintatico.ts:810</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoImportar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Importar</span><a href="#declaracaoImportar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -440,7 +459,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Importar.html" class="tsd-signature-type" data-tsd-kind="Class">Importar</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoImportar">declaracaoImportar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L905">fontes/avaliador-sintatico/avaliador-sintatico.ts:905</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L827">fontes/avaliador-sintatico/avaliador-sintatico.ts:827</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoLeia" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Leia</span><a href="#declaracaoLeia" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -453,7 +472,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Leia.html" class="tsd-signature-type" data-tsd-kind="Class">Leia</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoLeia">declaracaoLeia</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L645">fontes/avaliador-sintatico/avaliador-sintatico.ts:645</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L841">fontes/avaliador-sintatico/avaliador-sintatico.ts:841</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoPara" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Para</span><a href="#declaracaoPara" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -462,33 +481,33 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Para.html" class="tsd-signature-type" data-tsd-kind="Class">Para</a><span class="tsd-signature-symbol"> | </span><a href="ParaCada.html" class="tsd-signature-type" data-tsd-kind="Class">ParaCada</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoPara">declaracaoPara</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L767">fontes/avaliador-sintatico/avaliador-sintatico.ts:767</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L859">fontes/avaliador-sintatico/avaliador-sintatico.ts:859</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="declaracaoParaCada" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>declaracao<wbr/>Para<wbr/>Cada</span><a href="#declaracaoParaCada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="declaracaoParaCada.declaracaoParaCada-1">declaracao<wbr/>Para<wbr/>Cada<span class="tsd-signature-symbol">(</span>simboloPara<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ParaCada.html" class="tsd-signature-type" data-tsd-kind="Class">ParaCada</a><a href="#declaracaoParaCada.declaracaoParaCada-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="declaracaoParaCada.declaracaoParaCada-1">declaracao<wbr/>Para<wbr/>Cada<span class="tsd-signature-symbol">(</span>simboloPara<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ParaCada.html" class="tsd-signature-type" data-tsd-kind="Class">ParaCada</a><a href="#declaracaoParaCada.declaracaoParaCada-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>simboloPara: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h5></li></ul></div>
+<h5>simboloPara: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ParaCada.html" class="tsd-signature-type" data-tsd-kind="Class">ParaCada</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L708">fontes/avaliador-sintatico/avaliador-sintatico.ts:708</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L874">fontes/avaliador-sintatico/avaliador-sintatico.ts:874</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="declaracaoParaTradicional" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>declaracao<wbr/>Para<wbr/>Tradicional</span><a href="#declaracaoParaTradicional" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="declaracaoParaTradicional.declaracaoParaTradicional-1">declaracao<wbr/>Para<wbr/>Tradicional<span class="tsd-signature-symbol">(</span>simboloPara<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Para.html" class="tsd-signature-type" data-tsd-kind="Class">Para</a><a href="#declaracaoParaTradicional.declaracaoParaTradicional-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="declaracaoParaTradicional.declaracaoParaTradicional-1">declaracao<wbr/>Para<wbr/>Tradicional<span class="tsd-signature-symbol">(</span>simboloPara<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Para.html" class="tsd-signature-type" data-tsd-kind="Class">Para</a><a href="#declaracaoParaTradicional.declaracaoParaTradicional-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>simboloPara: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h5></li></ul></div>
+<h5>simboloPara: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Para.html" class="tsd-signature-type" data-tsd-kind="Class">Para</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L727">fontes/avaliador-sintatico/avaliador-sintatico.ts:727</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L893">fontes/avaliador-sintatico/avaliador-sintatico.ts:893</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoRetorna" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Retorna</span><a href="#declaracaoRetorna" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -497,7 +516,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Retorna.html" class="tsd-signature-type" data-tsd-kind="Class">Retorna</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoRetorna">declaracaoRetorna</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L802">fontes/avaliador-sintatico/avaliador-sintatico.ts:802</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L933">fontes/avaliador-sintatico/avaliador-sintatico.ts:933</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoSe" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Se</span><a href="#declaracaoSe" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -506,7 +525,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Se.html" class="tsd-signature-type" data-tsd-kind="Class">Se</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoSe">declaracaoSe</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L682">fontes/avaliador-sintatico/avaliador-sintatico.ts:682</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L961">fontes/avaliador-sintatico/avaliador-sintatico.ts:961</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoSustar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Sustar</span><a href="#declaracaoSustar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -515,7 +534,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Sustar.html" class="tsd-signature-type" data-tsd-kind="Class">Sustar</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoSustar">declaracaoSustar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L782">fontes/avaliador-sintatico/avaliador-sintatico.ts:782</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L974">fontes/avaliador-sintatico/avaliador-sintatico.ts:974</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a id="declaracaoTendoComo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>declaracao<wbr/>Tendo<wbr/>Como</span><a href="#declaracaoTendoComo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -523,7 +542,7 @@ ser avaliado pelo Interpretador.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="TendoComo.html" class="tsd-signature-type" data-tsd-kind="Class">TendoComo</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1083">fontes/avaliador-sintatico/avaliador-sintatico.ts:1083</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1139">fontes/avaliador-sintatico/avaliador-sintatico.ts:1139</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="declaracaoTente" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>declaracao<wbr/>Tente</span><a href="#declaracaoTente" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -532,7 +551,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="Tente.html" class="tsd-signature-type" data-tsd-kind="Class">Tente</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#declaracaoTente">declaracaoTente</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L915">fontes/avaliador-sintatico/avaliador-sintatico.ts:915</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L984">fontes/avaliador-sintatico/avaliador-sintatico.ts:984</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="e" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>e</span><a href="#e" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -541,7 +560,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#e">e</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L542">fontes/avaliador-sintatico/avaliador-sintatico.ts:542</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L564">fontes/avaliador-sintatico/avaliador-sintatico.ts:564</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="em" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>em</span><a href="#em" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -550,23 +569,23 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#em">em</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L530">fontes/avaliador-sintatico/avaliador-sintatico.ts:530</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L552">fontes/avaliador-sintatico/avaliador-sintatico.ts:552</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="erro" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>erro</span><a href="#erro" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="erro.erro-1">erro<span class="tsd-signature-symbol">(</span>simbolo<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a>, mensagemDeErro<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ErroAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Class">ErroAvaliadorSintatico</a><a href="#erro.erro-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="erro.erro-1">erro<span class="tsd-signature-symbol">(</span>simbolo<span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span>, mensagemDeErro<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ErroAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Class">ErroAvaliadorSintatico</a><a href="#erro.erro-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>simbolo: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h5></li>
+<h5>simbolo: <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
 <li>
 <h5>mensagemDeErro: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ErroAvaliadorSintatico.html" class="tsd-signature-type" data-tsd-kind="Class">ErroAvaliadorSintatico</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#erro">erro</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L91">fontes/avaliador-sintatico/avaliador-sintatico.ts:91</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L95">fontes/avaliador-sintatico/avaliador-sintatico.ts:95</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="estaNoFinal" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>esta<wbr/>No<wbr/>Final</span><a href="#estaNoFinal" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -575,7 +594,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#estaNoFinal">estaNoFinal</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L147">fontes/avaliador-sintatico/avaliador-sintatico.ts:147</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L147">fontes/avaliador-sintatico/avaliador-sintatico.ts:147</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="exponenciacao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>exponenciacao</span><a href="#exponenciacao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -584,7 +603,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#exponenciacao">exponenciacao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L404">fontes/avaliador-sintatico/avaliador-sintatico.ts:404</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L426">fontes/avaliador-sintatico/avaliador-sintatico.ts:426</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="expressao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>expressao</span><a href="#expressao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -593,7 +612,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#expressao">expressao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L610">fontes/avaliador-sintatico/avaliador-sintatico.ts:610</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L632">fontes/avaliador-sintatico/avaliador-sintatico.ts:632</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="finalizarChamada" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>finalizar<wbr/>Chamada</span><a href="#finalizarChamada" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -607,7 +626,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#finalizarChamada">finalizarChamada</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L345">fontes/avaliador-sintatico/avaliador-sintatico.ts:345</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L367">fontes/avaliador-sintatico/avaliador-sintatico.ts:367</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="funcao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>funcao</span><a href="#funcao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -621,7 +640,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="FuncaoDeclaracao.html" class="tsd-signature-type" data-tsd-kind="Class">FuncaoDeclaracao</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#funcao">funcao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1253">fontes/avaliador-sintatico/avaliador-sintatico.ts:1253</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1309">fontes/avaliador-sintatico/avaliador-sintatico.ts:1309</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="logicaComumParametros" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>logica<wbr/>Comum<wbr/>Parametros</span><a href="#logicaComumParametros" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -629,7 +648,7 @@ ser avaliado pelo Interpretador.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ParametroInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">ParametroInterface</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1267">fontes/avaliador-sintatico/avaliador-sintatico.ts:1267</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1323">fontes/avaliador-sintatico/avaliador-sintatico.ts:1323</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="multiplicar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>multiplicar</span><a href="#multiplicar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -638,7 +657,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#multiplicar">multiplicar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L416">fontes/avaliador-sintatico/avaliador-sintatico.ts:416</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L438">fontes/avaliador-sintatico/avaliador-sintatico.ts:438</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="ou" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>ou</span><a href="#ou" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -647,7 +666,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#ou">ou</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L554">fontes/avaliador-sintatico/avaliador-sintatico.ts:554</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L576">fontes/avaliador-sintatico/avaliador-sintatico.ts:576</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="primario" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>primario</span><a href="#primario" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -656,7 +675,7 @@ ser avaliado pelo Interpretador.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#primario">primario</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L168">fontes/avaliador-sintatico/avaliador-sintatico.ts:168</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L168">fontes/avaliador-sintatico/avaliador-sintatico.ts:168</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="resolverDeclaracao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolver<wbr/>Declaracao</span><a href="#resolverDeclaracao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -674,11 +693,11 @@ ocorrer em blocos de escopo elementares.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#resolverDeclaracao">resolverDeclaracao</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1011">fontes/avaliador-sintatico/avaliador-sintatico.ts:1011</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1063">fontes/avaliador-sintatico/avaliador-sintatico.ts:1063</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="resolverDeclaracaoForaDeBloco" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolver<wbr/>Declaracao<wbr/>Fora<wbr/>De<wbr/>Bloco</span><a href="#resolverDeclaracaoForaDeBloco" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="resolverDeclaracaoForaDeBloco.resolverDeclaracaoForaDeBloco-1">resolver<wbr/>Declaracao<wbr/>Fora<wbr/>De<wbr/>Bloco<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">RetornoDeclaracao</span><a href="#resolverDeclaracaoForaDeBloco.resolverDeclaracaoForaDeBloco-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="resolverDeclaracaoForaDeBloco.resolverDeclaracaoForaDeBloco-1">resolver<wbr/>Declaracao<wbr/>Fora<wbr/>De<wbr/>Bloco<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../types/RetornoDeclaracao.html" class="tsd-signature-type" data-tsd-kind="Type alias">RetornoDeclaracao</a><a href="#resolverDeclaracaoForaDeBloco.resolverDeclaracaoForaDeBloco-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Declarações fora de bloco precisam ser verificadas primeiro porque
 não é possível declarar uma classe/função dentro de um bloco <code>enquanto</code>,
@@ -689,10 +708,10 @@ não é possível declarar uma classe/função dentro de um bloco <code>enquanto
 
 <h3>See</h3><p>resolverDeclaracao</p>
 </div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">RetornoDeclaracao</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="../types/RetornoDeclaracao.html" class="tsd-signature-type" data-tsd-kind="Type alias">RetornoDeclaracao</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#resolverDeclaracaoForaDeBloco">resolverDeclaracaoForaDeBloco</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1391">fontes/avaliador-sintatico/avaliador-sintatico.ts:1391</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1447">fontes/avaliador-sintatico/avaliador-sintatico.ts:1447</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="resolverDecorador" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolver<wbr/>Decorador</span><a href="#resolverDecorador" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -700,15 +719,23 @@ não é possível declarar uma classe/função dentro de um bloco <code>enquanto
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L976">fontes/avaliador-sintatico/avaliador-sintatico.ts:976</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1028">fontes/avaliador-sintatico/avaliador-sintatico.ts:1028</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="simboloAnterior" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>simbolo<wbr/>Anterior</span><a href="#simboloAnterior" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="simboloAnterior.simboloAnterior-1">simbolo<wbr/>Anterior<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#simboloAnterior.simboloAnterior-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L143">fontes/avaliador-sintatico/avaliador-sintatico.ts:143</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="simboloAtual" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>simbolo<wbr/>Atual</span><a href="#simboloAtual" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="simboloAtual.simboloAtual-1">simbolo<wbr/>Atual<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><a href="#simboloAtual.simboloAtual-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="simboloAtual.simboloAtual-1">simbolo<wbr/>Atual<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#simboloAtual.simboloAtual-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/SimboloInterface.html" class="tsd-signature-type" data-tsd-kind="Interface">SimboloInterface</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L143">fontes/avaliador-sintatico/avaliador-sintatico.ts:143</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L139">fontes/avaliador-sintatico/avaliador-sintatico.ts:139</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="sincronizar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sincronizar</span><a href="#sincronizar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -721,7 +748,7 @@ Garante que o código não entre em loop infinito.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1419">fontes/avaliador-sintatico/avaliador-sintatico.ts:1419</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L1475">fontes/avaliador-sintatico/avaliador-sintatico.ts:1475</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="unario" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>unario</span><a href="#unario" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -730,7 +757,7 @@ Garante que o código não entre em loop infinito.</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/Construto.html" class="tsd-signature-type" data-tsd-kind="Interface">Construto</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#unario">unario</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L386">fontes/avaliador-sintatico/avaliador-sintatico.ts:386</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L408">fontes/avaliador-sintatico/avaliador-sintatico.ts:408</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="verificarDefinicaoTipoAtual" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>verificar<wbr/>Definicao<wbr/>Tipo<wbr/>Atual</span><a href="#verificarDefinicaoTipoAtual" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -738,7 +765,7 @@ Garante que o código não entre em loop infinito.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">TipoDadosElementar</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L111">fontes/avaliador-sintatico/avaliador-sintatico.ts:111</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L115">fontes/avaliador-sintatico/avaliador-sintatico.ts:115</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="verificarSeSimboloAtualEIgualA" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>verificar<wbr/>Se<wbr/>Simbolo<wbr/>AtualEIgualA</span><a href="#verificarSeSimboloAtualEIgualA" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -752,7 +779,7 @@ Garante que o código não entre em loop infinito.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#verificarSeSimboloAtualEIgualA">verificarSeSimboloAtualEIgualA</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L156">fontes/avaliador-sintatico/avaliador-sintatico.ts:156</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L156">fontes/avaliador-sintatico/avaliador-sintatico.ts:156</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="verificarTipoProximoSimbolo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>verificar<wbr/>Tipo<wbr/>Proximo<wbr/>Simbolo</span><a href="#verificarTipoProximoSimbolo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -766,7 +793,7 @@ Garante que o código não entre em loop infinito.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#verificarTipoProximoSimbolo">verificarTipoProximoSimbolo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L107">fontes/avaliador-sintatico/avaliador-sintatico.ts:107</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L111">fontes/avaliador-sintatico/avaliador-sintatico.ts:111</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="verificarTipoSimboloAtual" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>verificar<wbr/>Tipo<wbr/>Simbolo<wbr/>Atual</span><a href="#verificarTipoSimboloAtual" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -780,7 +807,7 @@ Garante que o código não entre em loop infinito.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/AvaliadorSintaticoInterface.html">AvaliadorSintaticoInterface</a>.<a href="../interfaces/AvaliadorSintaticoInterface.html#verificarTipoSimboloAtual">verificarTipoSimboloAtual</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/5ed540a/fontes/avaliador-sintatico/avaliador-sintatico.ts#L102">fontes/avaliador-sintatico/avaliador-sintatico.ts:102</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/DesignLiquido/delegua/blob/af4c0a0/fontes/avaliador-sintatico/avaliador-sintatico.ts#L106">fontes/avaliador-sintatico/avaliador-sintatico.ts:106</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -827,6 +854,8 @@ Garante que o código não entre em loop infinito.</p>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#comparar" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>comparar</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#consumir" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>consumir</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#corpoDaFuncao" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>corpo<wbr/>Da<wbr/>Funcao</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#declaracaoComentarioMultilinha" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>declaracao<wbr/>Comentario<wbr/>Multilinha</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#declaracaoComentarioUmaLinha" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>declaracao<wbr/>Comentario<wbr/>Uma<wbr/>Linha</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#declaracaoContinua" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>declaracao<wbr/>Continua</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#declaracaoDeClasse" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>declaracao<wbr/>De<wbr/>Classe</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#declaracaoDeConstantes" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>declaracao<wbr/>De<wbr/>Constantes</a></li>
@@ -865,6 +894,7 @@ Garante que o código não entre em loop infinito.</p>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#resolverDeclaracao" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>resolver<wbr/>Declaracao</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#resolverDeclaracaoForaDeBloco" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>resolver<wbr/>Declaracao<wbr/>Fora<wbr/>De<wbr/>Bloco</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#resolverDecorador" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>resolver<wbr/>Decorador</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#simboloAnterior" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>simbolo<wbr/>Anterior</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#simboloAtual" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>simbolo<wbr/>Atual</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#sincronizar" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>sincronizar</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="AvaliadorSintatico.html#unario" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>unario</a></li>
