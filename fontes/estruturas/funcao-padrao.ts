@@ -17,12 +17,8 @@ export class FuncaoPadrao extends Chamavel {
     }
 
     async chamar(visitante: VisitanteComumInterface, argumentos: any[], simbolo: SimboloInterface): Promise<any> {
-        return this.chamarInterno(argumentos, simbolo);
-    }
-
-    protected async chamarInterno(argumentos: any[], simbolo: SimboloInterface): Promise<any> {
         this.simbolo = simbolo;
-        return await this.funcao.apply(this, argumentos);
+        return await this.funcao.apply(this, [visitante, ...argumentos]);
     }
 
     /**

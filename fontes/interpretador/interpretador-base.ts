@@ -1,10 +1,5 @@
 import hrtime from 'browser-process-hrtime';
 
-import { EspacoVariaveis } from '../espaco-variaveis';
-import carregarBibliotecasGlobais from '../bibliotecas/biblioteca-global';
-
-import { ErroEmTempoDeExecucao } from '../excecoes';
-import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import {
     Aleatorio,
     Bloco,
@@ -78,6 +73,15 @@ import { inferirTipoVariavel } from './inferenciador';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 import { ArgumentoInterface } from './argumento-interface';
 
+import { MicroLexador } from '../lexador';
+import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
+import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
+
+import { EspacoVariaveis } from '../espaco-variaveis';
+import { carregarBibliotecasGlobais } from './comum';
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
@@ -86,9 +90,6 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import { MicroLexador } from '../lexador';
-import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
-import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -170,7 +171,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
-        carregarBibliotecasGlobais(this, this.pilhaEscoposExecucao);
+        carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
     /**
@@ -769,7 +770,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
                     return entidadeChamada.chamar(
-                        undefined,
+                        this,
                         argumentos.map((a) =>
                             a && a.valor && a.valor.hasOwnProperty('valor') ? a.valor.valor : a?.valor
                         ),
