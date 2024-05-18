@@ -103,4 +103,9 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'todosEmCondicao', 
         new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
     );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'tupla', 
+        new FuncaoPadrao(1, bibliotecaGlobal.tupla)
+    );
 }

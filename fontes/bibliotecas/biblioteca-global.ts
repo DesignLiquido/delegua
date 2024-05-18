@@ -5,6 +5,7 @@ import { DeleguaClasse } from '../estruturas/delegua-classe';
 import { VisitanteComumInterface, VariavelInterface } from '../interfaces';
 import { InterpretadorInterface } from "../interfaces";
 import { DeleguaFuncao } from '../estruturas';
+import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, Septeto, Sexteto, Trio, Tupla } from '../construtos';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -410,7 +411,7 @@ export async function inteiro(
  * @returns 
  */
 export async function mapear(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any, 
     funcaoMapeamento: VariavelInterface | any
 ): Promise<any[]> {
@@ -460,7 +461,7 @@ export async function mapear(
  * @returns 
  */
 export async function ordenar(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     vetor: VariavelInterface | Array<any>
 ): Promise<any[]> {
     if (vetor === null || vetor === undefined)
@@ -500,7 +501,7 @@ export async function ordenar(
  * @returns 
  */
 export async function paraCada(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any, 
     funcaoFiltragem: VariavelInterface | any
 ): Promise<any> {
@@ -547,7 +548,7 @@ export async function paraCada(
  * @returns 
  */
 export async function primeiroEmCondicao(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any, 
     funcaoFiltragem: VariavelInterface | any
 ) {
@@ -599,7 +600,7 @@ export async function primeiroEmCondicao(
  * @returns 
  */
 export async function real(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     numero: VariavelInterface | any
 ): Promise<number> {
     if (numero === null || numero === undefined) return Promise.resolve(parseFloat('0'));
@@ -626,7 +627,7 @@ export async function real(
  * @returns 
  */
 export async function reduzir(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoReducao: VariavelInterface | any,
     padrao: VariavelInterface | any = null
@@ -674,7 +675,7 @@ export async function reduzir(
  * @returns 
  */
 export async function tamanho(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     objeto: any
 ) {
     const valorObjeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
@@ -713,8 +714,14 @@ export async function tamanho(
     return Promise.resolve(valorObjeto.length);
 }
 
+/**
+ * 
+ * @param interpretador 
+ * @param valorOuVariavel 
+ * @returns 
+ */
 export async function texto(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     valorOuVariavel: VariavelInterface | any
 ) {
     return Promise.resolve(
@@ -722,8 +729,15 @@ export async function texto(
     );
 }
 
+/**
+ * 
+ * @param interpretador 
+ * @param vetor 
+ * @param funcaoCondicional 
+ * @returns 
+ */
 export async function todosEmCondicao(
-    interpretador: VisitanteComumInterface,
+    interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoCondicional: VariavelInterface | any
 ): Promise<boolean> {
@@ -762,4 +776,76 @@ export async function todosEmCondicao(
     }
 
     return true;
+}
+
+/**
+ * Transforma um vetor de elementos em uma tupla de N elementos, sendo N a 
+ * largura do vetor.
+ * @param interpretador 
+ * @param vetor 
+ * @returns 
+ */
+export async function tupla(
+    interpretador: InterpretadorInterface,
+    vetor: VariavelInterface | any[], 
+): Promise<Tupla> {
+    const valorVetor: any[] = !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? 
+        vetor.valor : 
+        vetor;
+
+    if (!Array.isArray(valorVetor)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                this.simbolo,
+                'Argumento de função nativa `tupla` não parece ser um vetor.'
+            )
+        );
+    }
+
+    switch (valorVetor.length) {
+        case 2:
+            return Promise.resolve(
+                new Dupla(valorVetor[0], valorVetor[1])
+            );
+        case 3:
+            return Promise.resolve(
+                new Trio(valorVetor[0], valorVetor[1], valorVetor[2])
+            );
+        case 4:
+            return Promise.resolve(
+                new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3])
+            );
+        case 5:
+            return Promise.resolve(
+                new Quinteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4])
+            );
+        case 6:
+            return Promise.resolve(
+                new Sexteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5])
+            );
+        case 7:
+            return Promise.resolve(
+                new Septeto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6])
+            );
+        case 8:
+            return Promise.resolve(
+                new Octeto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6], valorVetor[7])
+            );
+        case 9:
+            return Promise.resolve(
+                new Noneto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6], valorVetor[7], valorVetor[8])
+            );
+        case 10:
+            return Promise.resolve(
+                new Deceto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6], valorVetor[7], valorVetor[8], valorVetor[9])
+            );
+        case 1:
+        default:
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.'
+                )
+            );
+    }
 }

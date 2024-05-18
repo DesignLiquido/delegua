@@ -371,4 +371,47 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
     });
+
+    describe('tupla()', () => {
+        it('Trivial', async () => {
+            let _saidas = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saidas += saida;
+            }
+
+            const retornoLexador = lexador.mapear(["escreva(tupla([1,2,3]))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toBe('{"primeiro":1,"segundo":2,"terceiro":3}');
+        });
+
+        it('Falha - Não é vetor', async () => {
+            const retornoLexador = lexador.mapear(["escreva(tupla(0))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            const erro = retornoInterpretador.erros[0];
+            expect(erro.erroInterno).toBeDefined();
+            expect(erro.erroInterno.mensagem).toBeDefined();
+            expect(erro.erroInterno.mensagem).toBe('Argumento de função nativa `tupla` não parece ser um vetor.');
+        });
+
+        it('Falha - Vetor com mais de 10 elementos', async () => {
+            const retornoLexador = lexador.mapear(["escreva(tupla([1,2,3,4,5,6,7,8,9,10,11]))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            const erro = retornoInterpretador.erros[0];
+            expect(erro.erroInterno).toBeDefined();
+            expect(erro.erroInterno.mensagem).toBeDefined();
+            expect(erro.erroInterno.mensagem).toBe('Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.');
+        });
+    });
 });
