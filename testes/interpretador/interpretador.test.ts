@@ -15,6 +15,24 @@ describe('Interpretador', () => {
         });
 
         describe('Cenários de sucesso', () => {
+            describe('Acesso a operações matemáticas em posições de array', () => {
+                it('Espera-se que atribuição com acumulador seja bem sucedida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var pilha = [1, 2, 3, 4]', 'pilha[0] += 8', 'escreva(pilha[0])'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('9');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                })
+            })
+
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
                     const retornoLexador = lexador.mapear(['var a = [1, 2, 3]', 'escreva(a[1])'], -1);
