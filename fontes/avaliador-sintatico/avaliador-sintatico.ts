@@ -1,66 +1,66 @@
-import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import hrtime from 'browser-process-hrtime';
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 import {
-    AcessoMetodoOuPropriedade as AcessoMetodoOuPropriedade,
+    AcessoIndiceVariavel,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     Construto,
-    Dicionario,
+    Decorador,
     DefinirValor,
+    Dicionario,
+    ExpressaoRegular,
     FuncaoConstruto,
+    Isto,
     Literal,
     Logico,
-    AcessoIndiceVariavel,
     Super,
     TipoDe,
     Unario,
     Variavel,
     Vetor,
-    Isto,
-    ExpressaoRegular,
-    Decorador,
-    Comentario,
 } from '../construtos';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
+import { SeletorTuplas, Tupla } from '../construtos/tuplas';
 import {
     Bloco,
     Classe,
+    Const,
     Continua,
     Declaracao,
     Enquanto,
     Escolha,
     Escreva,
     Expressao,
+    Falhar,
     Fazer,
-    FuncaoDeclaracao as FuncaoDeclaracao,
+    FuncaoDeclaracao,
     Importar,
+    Leia,
     Para,
-    Sustar,
+    ParaCada,
+    PropriedadeClasse,
     Retorna,
     Se,
+    Sustar,
+    TendoComo,
     Tente,
     Var,
-    Leia,
-    Const,
-    ParaCada,
-    Falhar,
-    PropriedadeClasse,
-    TendoComo,
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
-import { RetornoDeclaracao } from './retornos';
-import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { Simbolo } from '../lexador';
-import { SeletorTuplas, Tupla } from '../construtos/tuplas';
+import { TipoDadosElementar } from '../tipo-dados-elementar';
+import { RetornoDeclaracao } from './retornos';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -603,7 +603,11 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 tiposDeSimbolos.MODULO_IGUAL,
             ].includes(expressao.operador.tipo)
         ) {
-            return new Atribuir(this.hashArquivo, (expressao.esquerda as Variavel).simbolo, expressao);
+            let simbolo = (expressao.esquerda as Variavel).simbolo
+            if (expressao.esquerda instanceof AcessoIndiceVariavel)
+                simbolo = expressao.esquerda.simboloFechamento;
+
+            return new Atribuir(this.hashArquivo, simbolo, expressao);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
@@ -704,9 +708,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         } while (simboloComentario.tipo === tiposDeSimbolos.LINHA_COMENTARIO);
 
         return new Comentario(
-            simboloComentario.hashArquivo, 
-            simboloComentario.linha, 
-            conteudos, 
+            simboloComentario.hashArquivo,
+            simboloComentario.linha,
+            conteudos,
             true
         );
     }
@@ -714,9 +718,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     declaracaoComentarioUmaLinha(): Comentario {
         const simboloComentario = this.avancarEDevolverAnterior();
         return new Comentario(
-            simboloComentario.hashArquivo, 
-            simboloComentario.linha, 
-            simboloComentario.literal, 
+            simboloComentario.hashArquivo,
+            simboloComentario.linha,
+            simboloComentario.literal,
             false
         );
     }
@@ -729,7 +733,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Continua(this.simbolos[this.atual - 1]);
-    }   
+    }
 
     declaracaoEscolha(): Escolha {
         try {
