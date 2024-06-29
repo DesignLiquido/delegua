@@ -551,7 +551,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
-                
+
                 if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
@@ -696,14 +696,14 @@ export class InterpretadorBase implements InterpretadorInterface {
     protected resolverParametrosChamada(entidadeChamada: Chamavel): ParametroInterface[] {
         if (entidadeChamada instanceof DeleguaFuncao) {
             return entidadeChamada.declaracao.parametros;
-        } 
-        
+        }
+
         if (entidadeChamada instanceof DeleguaClasse) {
             return entidadeChamada.metodos.construtor
                 ? entidadeChamada.metodos.construtor.declaracao.parametros
                 : [];
-        } 
-        
+        }
+
         return [];
     }
 
@@ -793,7 +793,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
             }
 
-            // Por algum motivo misterioso, `entidadeChamada instanceof Chamavel` dá `false` em Liquido, 
+            // Por algum motivo misterioso, `entidadeChamada instanceof Chamavel` dá `false` em Liquido,
             // mesmo que esteja tudo certo com `DeleguaFuncao`,
             // então precisamos testar o nome do construtor também.
             if (entidadeChamada instanceof Chamavel || entidadeChamada.constructor.name === 'DeleguaFuncao') {
@@ -832,7 +832,13 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido = valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);
+        let indice: any = null;
+
+        if (expressao.indice) {
+            indice =  await this.avaliar(expressao.indice);
+        }
+
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido, indice);
 
         return valorResolvido;
     }
@@ -1421,7 +1427,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto.definir(expressao.nome, valor);
             return valor;
         }
-        
+
         if (objeto.constructor === Object) {
             objeto[expressao.nome.lexema] = valor;
         }
@@ -1495,9 +1501,9 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
-        // Este caso acontece quando há encadeamento de métodos. 
+        // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
-        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o 
+        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
         if (variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
@@ -1505,7 +1511,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
-        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido, 
+        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obter(expressao.simbolo) || null;

@@ -140,7 +140,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         };
     }
 
-    atribuirVariavel(simbolo: SimboloInterface, valor: any) {
+    atribuirVariavel(simbolo: SimboloInterface, valor: any, indice?: number) {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
@@ -154,11 +154,21 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 const tipo = (variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor)).toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
-                ambiente.valores[simbolo.lexema] = {
-                    valor: valorResolvido,
-                    tipo,
-                    imutavel: false,
-                };
+
+                if (indice !== undefined && indice !== null) {
+                    if (variavel.valor instanceof Array) {
+                        variavel.valor[indice] = valorResolvido;
+                    } else {
+                        throw new ErroEmTempoDeExecucao(simbolo, "Variável não é um vetor.");
+                    }
+                } else {
+                    ambiente.valores[simbolo.lexema] = {
+                        valor: valorResolvido,
+                        tipo,
+                        imutavel: false,
+                    };
+                }
+
                 return;
             }
         }
