@@ -84,7 +84,7 @@ export class DeleguaFuncao extends Chamavel {
 
     private resolverParametrosEspalhados(argumentos: Array<ArgumentoInterface>, indiceArgumentoAtual: number) {
         const argumentosResolvidos = [];
-        for (let i = indiceArgumentoAtual; i < argumentos.length; indiceArgumentoAtual++) {
+        for (let i = indiceArgumentoAtual; i < argumentos.length; i++) {
             const argumentoAtual = argumentos[i];
             argumentosResolvidos.push(
                 argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual
