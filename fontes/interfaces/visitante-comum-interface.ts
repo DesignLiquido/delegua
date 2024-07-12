@@ -26,6 +26,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
+import { MetodoOuPropriedade } from '../construtos/metodo-ou-propriedade';
 
 import {
     Aleatorio,
@@ -113,4 +114,5 @@ export interface VisitanteComumInterface {
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
     visitarExpressaoVetor(expressao: Vetor): Promise<any> | void;
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade): Promise<any> | void;
 }
