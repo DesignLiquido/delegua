@@ -24,6 +24,7 @@ import {
     Vetor,
     Comentario,
 } from '../construtos';
+import { MetodoOuPropriedade } from '../construtos/metodo-ou-propriedade';
 import {
     Declaracao,
     TendoComo,
@@ -66,13 +67,16 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade<string>): void | Promise<any> {
+        throw new Error('Method not implemented.');
+    }
     diagnosticos: DiagnosticoAnalisadorSemantico[];
-    
+
     abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
 
     adicionarDiagnostico(
-        simbolo: SimboloInterface, 
-        mensagem: string, 
+        simbolo: SimboloInterface,
+        mensagem: string,
         severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.ERRO
     ): void {
         this.diagnosticos.push({

@@ -63,6 +63,7 @@ import carregarBibliotecaGlobal from '../../../bibliotecas/dialetos/egua-classic
 import { ResolvedorEguaClassico } from './resolvedor/resolvedor';
 import { ArgumentoInterface } from '../../argumento-interface';
 import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
+import { MetodoOuPropriedade } from '../../../construtos/metodo-ou-propriedade';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (_Parser_)
@@ -103,6 +104,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade<string>): void | Promise<any> {
+        throw new Error('Method not implemented.');
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
@@ -251,8 +255,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-            ? 'número'
-            : String(NaN);
+                ? 'número'
+                : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
         if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);

@@ -24,6 +24,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
+import { MetodoOuPropriedade } from '../construtos/metodo-ou-propriedade';
 import {
     Classe,
     Const,
@@ -80,6 +81,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.devePularLinha = true;
         this.deveIndentar = true;
     }
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade<string>): void | Promise<any> {
+        throw new Error('Method not implemented.');
+    }
 
     visitarDeclaracaoComentario(declaracao: Comentario): void | Promise<any> {
         if (declaracao.multilinha) {
@@ -117,15 +121,13 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${
-            this.quebraLinha
-        }`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${this.quebraLinha
+            }`;
 
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let propriedade of declaracao.propriedades) {
-            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${
-                propriedade.tipo || 'qualquer'
-            }${this.quebraLinha}`;
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${propriedade.tipo || 'qualquer'
+                }${this.quebraLinha}`;
         }
 
         this.codigoFormatado += `${this.quebraLinha}`;
@@ -294,9 +296,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de ${
-            declaracao.vetor.simbolo.lexema
-        }`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de ${declaracao.vetor.simbolo.lexema
+            }`;
         this.visitarExpressaoBloco(declaracao.corpo);
     }
 
@@ -577,9 +578,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
         this.codigoFormatado += `(`;
         for (let argumento of expressao.parametros) {
-            this.codigoFormatado += `${argumento.nome.lexema}${
-                argumento.tipoDado && argumento.tipoDado.tipo ? `: ${argumento.tipoDado.tipo}, ` : ', '
-            }`;
+            this.codigoFormatado += `${argumento.nome.lexema}${argumento.tipoDado && argumento.tipoDado.tipo ? `: ${argumento.tipoDado.tipo}, ` : ', '
+                }`;
         }
 
         if (expressao.parametros.length > 0) {

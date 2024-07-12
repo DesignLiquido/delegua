@@ -92,6 +92,7 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import { MetodoOuPropriedade } from '../construtos/metodo-ou-propriedade';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -174,6 +175,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
+    }
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade<string>): void | Promise<any> {
+        throw new Error('Method not implemented.');
     }
 
     /**
@@ -835,7 +839,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let indice: any = null;
 
         if (expressao.indice) {
-            indice =  await this.avaliar(expressao.indice);
+            indice = await this.avaliar(expressao.indice);
         }
 
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido, indice);
@@ -1367,12 +1371,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             return objeto[valorIndice];
-        } 
+        }
 
         if (objeto instanceof Vetor) {
             return objeto.valores[valorIndice];
         }
-        
+
         if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
@@ -1381,8 +1385,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DeleguaModulo
         ) {
             return objeto[valorIndice] || null;
-        } 
-        
+        }
+
         if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
@@ -1692,7 +1696,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
             }
 
-            if(retornoVetor.length > 1){
+            if (retornoVetor.length > 1) {
                 retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';

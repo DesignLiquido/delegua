@@ -11,6 +11,7 @@ import {
     Tupla,
     Variavel,
 } from '../../../../construtos';
+import { MetodoOuPropriedade } from '../../../../construtos/metodo-ou-propriedade';
 import {
     Aleatorio,
     Bloco,
@@ -90,6 +91,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade<string>): void | Promise<any> {
+        throw new Error('Method not implemented.');
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {

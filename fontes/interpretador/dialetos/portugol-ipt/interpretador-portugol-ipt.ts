@@ -55,6 +55,7 @@ import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
+import { MetodoOuPropriedade } from '../../../construtos/metodo-ou-propriedade';
 
 export class InterpretadorPortugolIpt implements InterpretadorInterface {
     diretorioBase: any;
@@ -90,7 +91,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
-    
+    visitarExpressaoMetodoOuPropriedade(expressao: MetodoOuPropriedade<string>): void | Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
         return Promise.resolve();
     }
@@ -179,8 +183,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-            ? 'número'
-            : String(NaN);
+                ? 'número'
+                : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
         if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
@@ -390,7 +394,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     visitarDeclaracaoEnquanto(declaracao: Enquanto): never {
         throw new Error('Método não implementado');
     }
-    
+
     visitarDeclaracaoImportar(declaracao: Importar): never {
         throw new Error('Método não implementado');
     }
