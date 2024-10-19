@@ -2,7 +2,7 @@ import { Simbolo } from "../lexador";
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-export type TipoInferencia = "texto" | "número" | "longo" | "vetor" | "dicionário" | "nulo" | "lógico" | "função" | "símbolo" | "objeto" | "módulo";
+export type TipoInferencia = "texto" | "cadeia" | "inteiro" | "real" | "vazio" | "caracter" | "número" | "longo" | "vetor" | "dicionário" | "nulo" | "lógico" | "função" | "símbolo" | "objeto" | "módulo";
 
 export enum TIPO_NATIVO {
     ESCREVA = '<palavra reservada escreva ajuda="palavra reservada usada para apresentar informações">',
