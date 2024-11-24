@@ -1,6 +1,6 @@
 import { Lexador } from '../fontes/lexador';
 import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { Bloco, TendoComo } from '../fontes/declaracoes';
+import { Bloco, Classe, TendoComo } from '../fontes/declaracoes';
 import { Chamada } from '../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -137,15 +137,15 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Decoradores', () => {
-                it('Sucesso - decorador de classe simples', () => {
+                it('Decoradores de classe simples, empilhados', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             '@meu.decorador1',
                             '@meu.decorador2',
                             'classe Teste {',
-                            'testeFuncao() {',
-                            'escreva("olá")',
-                            '}',
+                            '    testeFuncao() {',
+                            '        escreva("olá")',
+                            '    }',
                             '}',
                         ],
                         -1
@@ -154,17 +154,50 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao).toBeInstanceOf(Classe);
+                    const decoradores = (declaracao as Classe).decoradores;
+                    expect(decoradores).toHaveLength(2);
+                    expect(decoradores[0].nome).toBe("@meu.decorador1");
+                    expect(decoradores[1].nome).toBe("@meu.decorador2");
                 });
 
-                it('Sucesso - decorador de classe com parametros', () => {
+                it('Decorador de classe com parametros', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             '@decorador1(atributo1="123", atributo2=4)',
                             'classe Teste {',
-                            '@decorador2(atributo1="123", atributo2=4)',
-                            'testeFuncao() {',
-                            'escreva("olá")',
+                            '    @decorador2(atributo1="123", atributo2=4)',
+                            '    testeFuncao() {',
+                            '        escreva("olá")',
+                            '    }',
                             '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao).toBeInstanceOf(Classe);
+                    const decoradores = (declaracao as Classe).decoradores;
+                    expect(decoradores).toHaveLength(1);
+                    const decorador1 = decoradores[0];
+                    expect(decorador1.nome).toBe("@decorador1");
+                });
+
+                it('Decorador de classe/método', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@meu.decorador1',
+                            'classe Teste {',
+                            '    @meu.decorador2',
+                            '    testeFuncao() {',
+                            '        escreva("olá")',
+                            '    }',
                             '}',
                         ],
                         -1
@@ -175,36 +208,17 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
-                it('Sucesso - decorador de classe/método', () => {
+                it('Decorador de classe/método/propriedade', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             '@meu.decorador1',
                             'classe Teste {',
-                            '@meu.decorador2',
-                            'testeFuncao() {',
-                            'escreva("olá")',
-                            '}',
-                            '}',
-                        ],
-                        -1
-                    );
-
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                });
-
-                it('Sucesso - decorador de classe/método/propriedade', () => {
-                    const retornoLexador = lexador.mapear(
-                        [
-                            '@meu.decorador1',
-                            'classe Teste {',
-                            '@meu.decorador3',
-                            'propriedade1: texto',
-                            '@meu.decorador2',
-                            'testeFuncao() {',
-                            'escreva("olá")',
-                            '}',
+                            '    @meu.decorador3',
+                            '    propriedade1: texto',
+                            '    @meu.decorador2',
+                            '    testeFuncao() {',
+                            '        escreva("olá")',
+                            '    }',
                             '}',
                         ],
                         -1

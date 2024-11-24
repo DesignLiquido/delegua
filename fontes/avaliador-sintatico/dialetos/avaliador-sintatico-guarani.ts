@@ -1,23 +1,26 @@
 import {
-    AcessoIndiceVariavel,
-    AcessoMetodoOuPropriedade,
-    AtribuicaoPorIndice,
-    Atribuir,
-    Binario,
     Construto,
-    DefinirValor,
     FuncaoConstruto,
-    Literal,
-    Variavel,
+    Literal
 } from '../../construtos';
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from '../../declaracoes';
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, Leia } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
 import { SimboloInterface } from '../../interfaces';
 
+/**
+ * Este avaliador sintático é produto de uma reunião entre pessoas da
+ * Design Líquido e representantes de comunidades indígenas da América do Sul.
+ * Um dia pode ser terminado para virar um dialeto completo.
+ */
 export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
+
+    protected declaracaoLeia(): Leia {
+        throw new Error('Method not implemented.');
+    }
+
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
@@ -155,7 +158,6 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
     }
 
     expressao(): Construto {
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
         return this.atribuir();
     }
 

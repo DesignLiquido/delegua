@@ -1,7 +1,6 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
 import {
     Classe,
-    Const,
     Continua,
     Declaracao,
     Enquanto,
@@ -13,6 +12,7 @@ import {
     Importar,
     Leia,
     Para,
+    ParaCada,
     Retorna,
     Se,
     Sustar,
@@ -38,49 +38,47 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     atual: number;
     blocos: number;
 
-    protected declaracaoDeVariaveis(): Var[] {
-        throw new Error('Método não implementado.');
-    }
-
-    consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
+    protected consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
+    protected erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
         this.erros.push(excecao);
         return excecao;
     }
 
-    simboloAnterior(): SimboloInterface {
+    protected simboloAnterior(): SimboloInterface {
         return this.simbolos[this.atual - 1];
     }
 
-    verificarTipoSimboloAtual(tipo: string): boolean {
+    protected verificarTipoSimboloAtual(tipo: string): boolean {
         if (this.estaNoFinal()) return false;
         return this.simbolos[this.atual].tipo === tipo;
     }
 
-    verificarTipoProximoSimbolo(tipo: string): boolean {
+    protected verificarTipoProximoSimbolo(tipo: string): boolean {
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
-    estaNoFinal(): boolean {
+    protected estaNoFinal(): boolean {
         return this.atual === this.simbolos.length;
     }
 
-    avancarEDevolverAnterior(): SimboloInterface {
+    protected avancarEDevolverAnterior(): SimboloInterface {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simbolos[this.atual - 1];
     }
 
-    regredirEDevolverAtual(): SimboloInterface {
+    // TODO: Verificar possibilidade de remoção. 
+    // Regressão de símbolo é uma roubada por N razões.
+    protected regredirEDevolverAtual(): SimboloInterface {
         if (this.atual > 0) this.atual -= 1;
         return this.simbolos[this.atual];
     }
 
-    verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
+    protected verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
@@ -92,17 +90,36 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return false;
     }
 
-    declaracaoLeia(): Leia {
-        throw new Error('Método não implementado.');
-    }
+    /**
+     * Os métodos a seguir devem ser implementados nos seus respectivos 
+     * dialetos por diferentes razões: seja porque o dialeto correspondente
+     * tem uma abordagem diferente sobre entrada e saída, seja porque a 
+     * funcionalidade sequer existe, mas é suprimida por outra.
+     * 
+     * Esses métodos não precisam ser expostos. A recomendação geral é
+     * implementá-los como `protected`.
+     */
+    protected abstract atribuir(): Construto; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou 
+                                    // binário de visita na implementação.
+    protected abstract blocoEscopo(): Declaracao[];
+    protected abstract chamar(): Construto;
+    protected abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
+    protected abstract declaracaoEnquanto(): Enquanto;
+    protected abstract declaracaoEscolha(): Escolha;
+    protected abstract declaracaoEscreva(): Escreva;
+    protected abstract declaracaoFazer(): Fazer;
+    protected abstract declaracaoLeia(): Leia
+    protected abstract declaracaoPara(): Para | ParaCada;
+    protected abstract declaracaoSe(): Se;
+    protected abstract primario(): Construto;
+    protected abstract resolverDeclaracaoForaDeBloco(): Declaracao;
 
-    abstract primario(): Construto;
-
-    finalizarChamada(entidadeChamada: Construto): Construto {
+    protected finalizarChamada(entidadeChamada: Construto): Construto {
         const argumentos: Array<Construto> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
+                // `apply()` em JavaScript aceita até 255 parâmetros.
                 if (argumentos.length >= 255) {
                     throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
                 }
@@ -115,9 +132,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return new Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
     }
 
-    abstract chamar(): Construto;
-
-    unario(): Construto {
+    protected unario(): Construto {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
@@ -127,7 +142,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return this.chamar();
     }
 
-    exponenciacao(): Construto {
+    protected exponenciacao(): Construto {
         let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -139,7 +154,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    multiplicar(): Construto {
+    protected multiplicar(): Construto {
         let expressao = this.exponenciacao();
 
         while (
@@ -158,7 +173,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    adicaoOuSubtracao(): Construto {
+    protected adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
@@ -170,19 +185,15 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    bitShift(): Construto {
+    /**
+     * Este método é usado por alguns dialetos de Portugol que possuem declarações
+     * de múltiplas variáveis na mesma linha.
+     */
+    protected declaracaoDeVariaveis(): Var[] {
         throw new Error('Método não implementado.');
     }
 
-    bitE(): Construto {
-        throw new Error('Método não implementado.');
-    }
-
-    bitOu(): Construto {
-        throw new Error('Método não implementado.');
-    }
-
-    comparar(): Construto {
+    protected comparar(): Construto {
         let expressao = this.adicaoOuSubtracao();
 
         while (
@@ -201,7 +212,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    comparacaoIgualdade(): Construto {
+    protected comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
         while (
@@ -219,11 +230,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    em(): Construto {
-        throw new Error('Método não implementado.');
-    }
-
-    e(): Construto {
+    protected e(): Construto {
         let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -235,7 +242,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    ou(): Construto {
+    protected ou(): Construto {
         let expressao = this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -247,72 +254,15 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    /**
-     * `atribuir()` deve chamar `ou()` na implementação.
-     */
-    abstract atribuir(): Construto;
-
-    expressao(): Construto {
+    protected expressao(): Construto {
         return this.atribuir();
     }
 
-    abstract declaracaoEscreva(): Escreva;
-
-    declaracaoExpressao(simboloAnterior?: SimboloInterface): Expressao {
-        throw new Error('Método não implementado.');
-    }
-
-    abstract blocoEscopo(): Declaracao[];
-
-    abstract declaracaoSe(): Se;
-
-    abstract declaracaoEnquanto(): Enquanto;
-
-    abstract declaracaoPara(): Para;
-
-    declaracaoSustar(): Sustar {
-        throw new Error('Método não implementado.');
-    }
-
-    declaracaoContinua(): Continua {
-        throw new Error('Método não implementado.');
-    }
-
-    declaracaoRetorna(): Retorna {
-        throw new Error('Método não implementado.');
-    }
-
-    abstract declaracaoEscolha(): Escolha;
-
-    declaracaoImportar(): Importar {
-        throw new Error('Método não implementado.');
-    }
-
-    declaracaoTente(): Tente {
-        throw new Error('Método não implementado.');
-    }
-
-    abstract declaracaoFazer(): Fazer;
-
-    resolverDeclaracao() {
-        throw new Error('Método não implementado.');
-    }
-
-    declaracaoDeVariavel(): Var {
-        throw new Error('Método não implementado.');
-    }
-
-    funcao(tipo: string): FuncaoDeclaracao {
+    protected funcao(tipo: string): FuncaoDeclaracao {
         const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
 
         const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
-    }
-
-    abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
-
-    declaracaoDeClasse(): Classe {
-        throw new Error('Método não implementado.');
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -345,8 +295,70 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return parametros;
     }
 
-    abstract resolverDeclaracaoForaDeBloco(): Declaracao;
+    /**
+     * Os métodos a seguir só devem ser implementados se o dialeto
+     * em questão realmente possui a funcionalidade, e devem levantar
+     * erro em caso contrário.
+     */
 
+    protected bitShift(): Construto {
+        throw new Error('Método não implementado.');
+    }
+
+    protected bitE(): Construto {
+        throw new Error('Método não implementado.');
+    }
+
+    protected bitOu(): Construto {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoContinua(): Continua {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoDeClasse(): Classe {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoDeVariavel(): Var {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoExpressao(simboloAnterior?: SimboloInterface): Expressao {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoImportar(): Importar {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoRetorna(): Retorna {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoSustar(): Sustar {
+        throw new Error('Método não implementado.');
+    }
+
+    protected declaracaoTente(): Tente {
+        throw new Error('Método não implementado.');
+    }
+
+    protected em(): Construto {
+        throw new Error('Método não implementado.');
+    }
+
+    protected resolverDeclaracao() {
+        throw new Error('Método não implementado.');
+    }
+
+    /**
+     * Este é o ponto de entrada de toda a avaliação sintática. É o 
+     * único método mencionado na interface do avaliador sintático. 
+     * @param retornoLexador O retorno do Lexador.
+     * @param hashArquivo O hash do arquivo, gerado pela função `cyrb53`. 
+     */
     abstract analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
