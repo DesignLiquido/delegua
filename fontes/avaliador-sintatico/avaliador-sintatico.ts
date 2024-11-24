@@ -938,7 +938,7 @@ export class AvaliadorSintatico
         while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
             let nomeDecorador: string = '';
             let linha: number;
-            let parametros = [];
+            let parametros: ParametroInterface[] = [];
             let parenteseEsquerdo = false;
             linha = this.simbolos[this.atual].linha;
             let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === linha);
@@ -956,7 +956,16 @@ export class AvaliadorSintatico
                 nomeDecorador += simbolo.lexema || '.';
             }
 
-            this.pilhaDecoradores.push(new Decorador(this.hashArquivo, linha, nomeDecorador, parametros));
+            const atributos: {[key: string]: any} = {};
+            for (const parametro of parametros) {
+                if (parametro.nome.lexema in atributos) {
+                    throw this.erro(parametro.nome, `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`);
+                }
+
+                atributos[parametro.nome.lexema] = parametro.valorPadrao;
+            }
+
+            this.pilhaDecoradores.push(new Decorador(this.hashArquivo, linha, nomeDecorador, atributos));
         }
     }
 

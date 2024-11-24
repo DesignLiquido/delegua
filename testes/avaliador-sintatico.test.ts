@@ -1,7 +1,7 @@
 import { Lexador } from '../fontes/lexador';
 import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
 import { Bloco, Classe, TendoComo } from '../fontes/declaracoes';
-import { Chamada } from '../fontes/construtos';
+import { Chamada, Literal } from '../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -168,7 +168,7 @@ describe('Avaliador sintático', () => {
                         [
                             '@decorador1(atributo1="123", atributo2=4)',
                             'classe Teste {',
-                            '    @decorador2(atributo1="123", atributo2=4)',
+                            '    @decorador2(atributo3="567", atributo4=8)',
                             '    testeFuncao() {',
                             '        escreva("olá")',
                             '    }',
@@ -183,13 +183,34 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
                     expect(declaracao).toBeInstanceOf(Classe);
-                    const decoradores = (declaracao as Classe).decoradores;
+
+                    const classe = declaracao as Classe;
+                    const decoradores = classe.decoradores;
                     expect(decoradores).toHaveLength(1);
+
                     const decorador1 = decoradores[0];
                     expect(decorador1.nome).toBe("@decorador1");
+                    expect('atributo1' in decorador1.atributos).toBe(true);
+                    expect('atributo2' in decorador1.atributos).toBe(true);
+                    expect(decorador1.atributos['atributo1']).toBeInstanceOf(Literal);
+                    expect(decorador1.atributos['atributo2']).toBeInstanceOf(Literal);
+                    expect(decorador1.atributos['atributo1'].valor).toBe("123");
+                    expect(decorador1.atributos['atributo2'].valor).toBe(4);
+
+                    expect(classe.metodos).toHaveLength(1);
+                    const metodo = classe.metodos[0];
+                    expect(metodo.decoradores).toHaveLength(1);
+                    const decorador2 = metodo.decoradores[0];
+                    expect(decorador2.nome).toBe("@decorador2");
+                    expect('atributo3' in decorador2.atributos).toBe(true);
+                    expect('atributo4' in decorador2.atributos).toBe(true);
+                    expect(decorador2.atributos['atributo3']).toBeInstanceOf(Literal);
+                    expect(decorador2.atributos['atributo4']).toBeInstanceOf(Literal);
+                    expect(decorador2.atributos['atributo3'].valor).toBe("567");
+                    expect(decorador2.atributos['atributo4'].valor).toBe(8);
                 });
 
-                it('Decorador de classe/método', () => {
+                it('Decorador de classe/método pontuado, sem atributos', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             '@meu.decorador1',
@@ -206,16 +227,32 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao).toBeInstanceOf(Classe);
+
+                    const classe = declaracao as Classe;
+                    const decoradores = classe.decoradores;
+                    expect(decoradores).toHaveLength(1);
+
+                    const decorador1 = decoradores[0];
+                    expect(decorador1.nome).toBe("@meu.decorador1");
+                    expect(Object.entries(decorador1.atributos)).toHaveLength(0);
+
+                    expect(classe.metodos).toHaveLength(1);
+                    const metodo = classe.metodos[0];
+                    expect(metodo.decoradores).toHaveLength(1);
+                    const decorador2 = metodo.decoradores[0];
+                    expect(decorador2.nome).toBe("@meu.decorador2");
+                    expect(Object.entries(decorador2.atributos)).toHaveLength(0);
                 });
 
-                it('Decorador de classe/método/propriedade', () => {
+                it('Decorador de propriedade', () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            '@meu.decorador1',
                             'classe Teste {',
-                            '    @meu.decorador3',
+                            '    @meu.decorador',
                             '    propriedade1: texto',
-                            '    @meu.decorador2',
                             '    testeFuncao() {',
                             '        escreva("olá")',
                             '    }',
@@ -227,6 +264,17 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao).toBeInstanceOf(Classe);
+
+                    const classe = declaracao as Classe;
+                    expect(classe.propriedades).toHaveLength(1);
+                    const propriedade = classe.propriedades[0];
+                    expect(propriedade.decoradores).toHaveLength(1);
+                    const decorador = propriedade.decoradores[0];
+                    expect(decorador.nome).toBe("@meu.decorador");
+                    expect(Object.entries(decorador.atributos)).toHaveLength(0);
                 });
             });
 

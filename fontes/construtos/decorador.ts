@@ -9,9 +9,9 @@ export class Decorador implements Construto {
     linha: number;
     hashArquivo: number;
     nome: string;
-    atributos?: {[key: string]: any};
+    atributos: {[key: string]: any};
 
-    constructor(hashArquivo: number, linha: number, nome: string, atributos?: {[key: string]: any}) {
+    constructor(hashArquivo: number, linha: number, nome: string, atributos: {[key: string]: any}) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.nome = nome;
