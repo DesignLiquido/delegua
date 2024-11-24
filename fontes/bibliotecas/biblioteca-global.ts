@@ -3,7 +3,7 @@ import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
 import { DescritorTipoClasse } from '../estruturas/descritor-tipo-classe';
 import { VariavelInterface } from '../interfaces';
-import { InterpretadorInterface } from "../interfaces";
+import { InterpretadorInterface } from '../interfaces';
 import { DeleguaFuncao } from '../estruturas';
 import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, Septeto, Sexteto, Trio, Tupla } from '../construtos';
 
@@ -11,9 +11,7 @@ import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, Septeto, Sexteto, Tr
  * Retorna um número aleatório entre 0 e 1.
  * @returns {Promise<number>} Número real.
  */
-export async function aleatorio(
-    interpretador: InterpretadorInterface
-): Promise<number> {
+export async function aleatorio(interpretador: InterpretadorInterface): Promise<number> {
     return Promise.resolve(Math.random());
 }
 
@@ -26,14 +24,12 @@ export async function aleatorio(
  */
 export async function aleatorioEntre(
     interpretador: InterpretadorInterface,
-    minimo: VariavelInterface | number, 
+    minimo: VariavelInterface | number,
     maximo: VariavelInterface | number
 ): Promise<number> {
     // eslint-disable-next-line prefer-rest-params
     if (arguments.length <= 0) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.')
-        );
+        return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.'));
     }
 
     const valorMinimo = minimo.hasOwnProperty('valor') ? (minimo as VariavelInterface).valor : minimo;
@@ -55,9 +51,7 @@ export async function aleatorioEntre(
     const valorMaximo = maximo.hasOwnProperty('valor') ? (maximo as VariavelInterface).valor : maximo;
 
     if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.')
-        );
+        return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.'));
     }
 
     return Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) + valorMinimo);
@@ -72,7 +66,7 @@ export async function aleatorioEntre(
  */
 export async function algum(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
 ): Promise<boolean> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
@@ -116,7 +110,7 @@ export async function algum(
  */
 export async function encontrar(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
 ): Promise<any> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
@@ -160,7 +154,7 @@ export async function encontrar(
  */
 export async function encontrarIndice(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
 ): Promise<number> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
@@ -197,14 +191,14 @@ export async function encontrarIndice(
 /**
  * Encontrar o último elemento de um vetor cuja função de pesquisa retorne
  * verdadeiro na avaliação de cada elemento.
- * @param {InterpretadorInterface} interpretador A instância do interpretador. 
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript. 
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa. 
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
+ * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
  * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
  */
 export async function encontrarUltimo(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
 ): Promise<number> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
@@ -239,15 +233,15 @@ export async function encontrarUltimo(
 }
 
 /**
- * 
- * @param {InterpretadorInterface} interpretador A instância do interpretador. 
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript. 
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.  
+ *
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
+ * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
  * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
  */
 export async function encontrarUltimoIndice(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
 ): Promise<number> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
@@ -282,15 +276,15 @@ export async function encontrarUltimoIndice(
 }
 
 /**
- * 
- * @param interpretador 
- * @param vetor 
- * @param funcaoFiltragem 
- * @returns 
+ *
+ * @param interpretador
+ * @param vetor
+ * @param funcaoFiltragem
+ * @returns
  */
 export async function filtrarPor(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoFiltragem: VariavelInterface | any
 ) {
     if (vetor === null || vetor === undefined)
@@ -302,9 +296,7 @@ export async function filtrarPor(
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-        ? funcaoFiltragem.valor
-        : funcaoFiltragem;
+    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -327,7 +319,7 @@ export async function filtrarPor(
     for (let indice = 0; indice < valorVetor.length; ++indice) {
         const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
         if (deveRetornarValor === false) continue;
-        
+
         resultados.push(valorVetor[indice]);
     }
 
@@ -335,15 +327,15 @@ export async function filtrarPor(
 }
 
 /**
- * 
- * @param {InterpretadorInterface} interpretador A instância do interpretador.  
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.  
- * @param valor 
- * @returns 
+ *
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
+ * @param valor
+ * @returns
  */
 export async function incluido(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     valor: VariavelInterface | any
 ): Promise<boolean> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
@@ -369,15 +361,12 @@ export async function incluido(
 }
 
 /**
- * 
+ *
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param numero 
- * @returns 
+ * @param numero
+ * @returns
  */
-export async function inteiro(
-    interpretador: InterpretadorInterface,
-    numero: VariavelInterface | any
-) {
+export async function inteiro(interpretador: InterpretadorInterface, numero: VariavelInterface | any) {
     if (numero === null || numero === undefined) return Promise.resolve(0);
 
     const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
@@ -404,15 +393,15 @@ export async function inteiro(
 }
 
 /**
- * 
- * @param interpretador 
- * @param vetor 
- * @param funcaoMapeamento 
- * @returns 
+ *
+ * @param interpretador
+ * @param vetor
+ * @param funcaoMapeamento
+ * @returns
  */
 export async function mapear(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoMapeamento: VariavelInterface | any
 ): Promise<any[]> {
     if (vetor === null || vetor === undefined)
@@ -425,9 +414,7 @@ export async function mapear(
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor')
-        ? funcaoMapeamento.valor
-        : funcaoMapeamento;
+    const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor') ? funcaoMapeamento.valor : funcaoMapeamento;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
@@ -456,9 +443,9 @@ export async function mapear(
 }
 
 /**
- * 
- * @param vetor 
- * @returns 
+ *
+ * @param vetor
+ * @returns
  */
 export async function ordenar(
     interpretador: InterpretadorInterface,
@@ -494,15 +481,15 @@ export async function ordenar(
 }
 
 /**
- * 
- * @param interpretador 
- * @param vetor 
- * @param funcaoFiltragem 
- * @returns 
+ *
+ * @param interpretador
+ * @param vetor
+ * @param funcaoFiltragem
+ * @returns
  */
 export async function paraCada(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoFiltragem: VariavelInterface | any
 ): Promise<any> {
     if (vetor === null || vetor === undefined)
@@ -514,9 +501,7 @@ export async function paraCada(
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-        ? funcaoFiltragem.valor
-        : funcaoFiltragem;
+    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -541,15 +526,15 @@ export async function paraCada(
 }
 
 /**
- * 
- * @param interpretador 
- * @param vetor 
- * @param funcaoFiltragem 
- * @returns 
+ *
+ * @param interpretador
+ * @param vetor
+ * @param funcaoFiltragem
+ * @returns
  */
 export async function primeiroEmCondicao(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any, 
+    vetor: VariavelInterface | any,
     funcaoFiltragem: VariavelInterface | any
 ) {
     if (vetor === null || vetor === undefined)
@@ -562,9 +547,7 @@ export async function primeiroEmCondicao(
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-        ? funcaoFiltragem.valor
-        : funcaoFiltragem;
+    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -594,15 +577,12 @@ export async function primeiroEmCondicao(
 }
 
 /**
- * 
- * @param interpretador 
- * @param numero 
- * @returns 
+ *
+ * @param interpretador
+ * @param numero
+ * @returns
  */
-export async function real(
-    interpretador: InterpretadorInterface,
-    numero: VariavelInterface | any
-): Promise<number> {
+export async function real(interpretador: InterpretadorInterface, numero: VariavelInterface | any): Promise<number> {
     if (numero === null || numero === undefined) return Promise.resolve(parseFloat('0'));
 
     const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
@@ -619,12 +599,12 @@ export async function real(
 }
 
 /**
- * 
- * @param interpretador 
- * @param vetor 
- * @param funcaoReducao 
- * @param padrao 
- * @returns 
+ *
+ * @param interpretador
+ * @param vetor
+ * @param funcaoReducao
+ * @param padrao
+ * @returns
  */
 export async function reduzir(
     interpretador: InterpretadorInterface,
@@ -670,14 +650,11 @@ export async function reduzir(
 }
 
 /**
- * 
- * @param objeto 
- * @returns 
+ *
+ * @param objeto
+ * @returns
  */
-export async function tamanho(
-    interpretador: InterpretadorInterface,
-    objeto: any
-) {
+export async function tamanho(interpretador: InterpretadorInterface, objeto: any) {
     const valorObjeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
 
     if (typeof valorObjeto === 'number') {
@@ -715,26 +692,21 @@ export async function tamanho(
 }
 
 /**
- * 
- * @param interpretador 
- * @param valorOuVariavel 
- * @returns 
+ *
+ * @param interpretador
+ * @param valorOuVariavel
+ * @returns
  */
-export async function texto(
-    interpretador: InterpretadorInterface,
-    valorOuVariavel: VariavelInterface | any
-) {
-    return Promise.resolve(
-        `${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`
-    );
+export async function texto(interpretador: InterpretadorInterface, valorOuVariavel: VariavelInterface | any) {
+    return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
 }
 
 /**
- * 
- * @param interpretador 
- * @param vetor 
- * @param funcaoCondicional 
- * @returns 
+ *
+ * @param interpretador
+ * @param vetor
+ * @param funcaoCondicional
+ * @returns
  */
 export async function todosEmCondicao(
     interpretador: InterpretadorInterface,
@@ -779,42 +751,28 @@ export async function todosEmCondicao(
 }
 
 /**
- * Transforma um vetor de elementos em uma tupla de N elementos, sendo N a 
+ * Transforma um vetor de elementos em uma tupla de N elementos, sendo N a
  * largura do vetor.
- * @param interpretador 
- * @param vetor 
- * @returns 
+ * @param interpretador
+ * @param vetor
+ * @returns
  */
-export async function tupla(
-    interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any[], 
-): Promise<Tupla> {
-    const valorVetor: any[] = !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? 
-        vetor.valor : 
-        vetor;
+export async function tupla(interpretador: InterpretadorInterface, vetor: VariavelInterface | any[]): Promise<Tupla> {
+    const valorVetor: any[] = !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                this.simbolo,
-                'Argumento de função nativa `tupla` não parece ser um vetor.'
-            )
+            new ErroEmTempoDeExecucao(this.simbolo, 'Argumento de função nativa `tupla` não parece ser um vetor.')
         );
     }
 
     switch (valorVetor.length) {
         case 2:
-            return Promise.resolve(
-                new Dupla(valorVetor[0], valorVetor[1])
-            );
+            return Promise.resolve(new Dupla(valorVetor[0], valorVetor[1]));
         case 3:
-            return Promise.resolve(
-                new Trio(valorVetor[0], valorVetor[1], valorVetor[2])
-            );
+            return Promise.resolve(new Trio(valorVetor[0], valorVetor[1], valorVetor[2]));
         case 4:
-            return Promise.resolve(
-                new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3])
-            );
+            return Promise.resolve(new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3]));
         case 5:
             return Promise.resolve(
                 new Quinteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4])
@@ -825,19 +783,57 @@ export async function tupla(
             );
         case 7:
             return Promise.resolve(
-                new Septeto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6])
+                new Septeto(
+                    valorVetor[0],
+                    valorVetor[1],
+                    valorVetor[2],
+                    valorVetor[3],
+                    valorVetor[4],
+                    valorVetor[5],
+                    valorVetor[6]
+                )
             );
         case 8:
             return Promise.resolve(
-                new Octeto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6], valorVetor[7])
+                new Octeto(
+                    valorVetor[0],
+                    valorVetor[1],
+                    valorVetor[2],
+                    valorVetor[3],
+                    valorVetor[4],
+                    valorVetor[5],
+                    valorVetor[6],
+                    valorVetor[7]
+                )
             );
         case 9:
             return Promise.resolve(
-                new Noneto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6], valorVetor[7], valorVetor[8])
+                new Noneto(
+                    valorVetor[0],
+                    valorVetor[1],
+                    valorVetor[2],
+                    valorVetor[3],
+                    valorVetor[4],
+                    valorVetor[5],
+                    valorVetor[6],
+                    valorVetor[7],
+                    valorVetor[8]
+                )
             );
         case 10:
             return Promise.resolve(
-                new Deceto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5], valorVetor[6], valorVetor[7], valorVetor[8], valorVetor[9])
+                new Deceto(
+                    valorVetor[0],
+                    valorVetor[1],
+                    valorVetor[2],
+                    valorVetor[3],
+                    valorVetor[4],
+                    valorVetor[5],
+                    valorVetor[6],
+                    valorVetor[7],
+                    valorVetor[8],
+                    valorVetor[9]
+                )
             );
         case 1:
         default:

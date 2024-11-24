@@ -8,11 +8,7 @@ export class TipoDe<TTipoSimbolo extends string = string> implements Construto {
 
     simbolo: SimboloInterface<TTipoSimbolo>;
 
-    constructor(
-        hashArquivo: number, 
-        simbolo: SimboloInterface<TTipoSimbolo>, 
-        valor: any
-    ) {
+    constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>, valor: any) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
         this.valor = valor;

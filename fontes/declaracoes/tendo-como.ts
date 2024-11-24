@@ -13,7 +13,13 @@ export class TendoComo extends Declaracao {
     inicializacaoVariavel: Construto;
     corpo: Bloco;
 
-    constructor(linha: number, hashArquivo: number, simboloVariavel: SimboloInterface, inicializacaoVariavel: Construto, corpo: Bloco) {
+    constructor(
+        linha: number,
+        hashArquivo: number,
+        simboloVariavel: SimboloInterface,
+        inicializacaoVariavel: Construto,
+        corpo: Bloco
+    ) {
         super(linha, hashArquivo);
         this.simboloVariavel = simboloVariavel;
         this.inicializacaoVariavel = inicializacaoVariavel;

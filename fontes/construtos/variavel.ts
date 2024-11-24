@@ -7,10 +7,7 @@ export class Variavel<TTipoSimbolo extends string = string> implements Construto
 
     simbolo: SimboloInterface<TTipoSimbolo>;
 
-    constructor(
-        hashArquivo: number, 
-        simbolo: SimboloInterface<TTipoSimbolo>
-    ) {
+    constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
 

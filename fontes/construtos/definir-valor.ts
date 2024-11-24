@@ -10,10 +10,10 @@ export class DefinirValor<TTipoSimbolo extends string = string> implements Const
     valor: any;
 
     constructor(
-        hashArquivo: number, 
-        linha: number, 
-        objeto: Construto, 
-        nome: SimboloInterface<TTipoSimbolo>, 
+        hashArquivo: number,
+        linha: number,
+        objeto: Construto,
+        nome: SimboloInterface<TTipoSimbolo>,
         valor: any
     ) {
         this.linha = linha;

@@ -51,7 +51,7 @@ export class DeleguaFuncao extends Chamavel {
                 parametro.tipoDado && parametro.tipoDado.tipo ? `: ${parametro.tipoDado.tipo}, ` : ', '
             }`;
         }
-        
+
         if (this.declaracao.parametros.length > 0) {
             parametros = `argumentos=<${parametros.slice(0, -2)}>`;
         }
@@ -126,10 +126,7 @@ export class DeleguaFuncao extends Chamavel {
 
             // TODO: Apenass Potigol usa isso até então.
             // Estudar mover isso para o dialeto.
-            if (
-                this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis && 
-                this.nome !== 'construtor'
-            ) {
+            if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis && this.nome !== 'construtor') {
                 for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.propriedades)) {
                     ambiente.valores[nomeCampo] = {
                         valor: valorCampo,

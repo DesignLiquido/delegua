@@ -254,7 +254,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             ? 'número'
             : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
-        if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
+        if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase()))
+            return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 

@@ -6,7 +6,7 @@ import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 /**
- * Descritor de tipo de classe. Quando uma declaração de classe é visitada, o que 
+ * Descritor de tipo de classe. Quando uma declaração de classe é visitada, o que
  * vai para a pilha de escopos de execução é esta estrutura. Quando uma nova instância
  * de classe é criada, a referência para a instância é implementada aqui.
  */

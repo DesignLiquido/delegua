@@ -10,10 +10,10 @@ import { Construto } from './construto';
  * - `*` (Multiplicação);
  * - `/` (Divisão);
  * - `%` (Módulo);
- * 
+ *
  * Algumas outras operações podem ser suportadas de dialeto para dialeto,
  * como por exemplo:
- * 
+ *
  * - `+=` (Adição com Atribuição);
  * - `-=` (Subtração com Atribuição);
  * - `*=` (Multiplicação com Atribuição);
@@ -31,12 +31,7 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
     operador: SimboloInterface<TTipoSimbolo>;
     direita: Construto;
 
-    constructor(
-        hashArquivo: number, 
-        esquerda: any, 
-        operador: SimboloInterface<TTipoSimbolo>, 
-        direita: any
-    ) {
+    constructor(hashArquivo: number, esquerda: any, operador: SimboloInterface<TTipoSimbolo>, direita: any) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
 

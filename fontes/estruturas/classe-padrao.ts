@@ -8,9 +8,9 @@ export class ClassePadrao extends Chamavel {
     nome: string;
     // TypeScript não tem exatamente um tipo de construtor para classe.
     // O tipo abaixo é o mais próximo que existe desse tipo.
-    funcaoDeClasse: { new(...args: any[]): any; };
+    funcaoDeClasse: { new (...args: any[]): any };
 
-    constructor(nome: string, funcaoDeClasse: { new(...args: any[]): any; }) {
+    constructor(nome: string, funcaoDeClasse: { new (...args: any[]): any }) {
         super();
         this.nome = nome;
         this.funcaoDeClasse = funcaoDeClasse;

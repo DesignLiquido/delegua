@@ -2,7 +2,7 @@ import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Chamavel } from './chamavel';
 
 /**
- * Uma `FuncaoPadrao` normalmente é uma função em JavaScript que representa um 
+ * Uma `FuncaoPadrao` normalmente é uma função em JavaScript que representa um
  * método de uma biblioteca global, mas que pode ser usada para outros casos.
  */
 export class FuncaoPadrao extends Chamavel {

@@ -8,7 +8,11 @@ export abstract class Chamavel {
         return this.valorAridade;
     }
 
-    async chamar(visitante?: VisitanteComumInterface, argumentos?: ArgumentoInterface[], simbolo?: SimboloInterface): Promise<any> {
+    async chamar(
+        visitante?: VisitanteComumInterface,
+        argumentos?: ArgumentoInterface[],
+        simbolo?: SimboloInterface
+    ): Promise<any> {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
 }

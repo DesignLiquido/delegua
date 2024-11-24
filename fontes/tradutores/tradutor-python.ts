@@ -215,7 +215,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         let resultado = '';
         if (comentario.multilinha) {
             resultado += `'''`;
-            for (let linhaComentario of (comentario.conteudo as string[])) {
+            for (let linhaComentario of comentario.conteudo as string[]) {
                 resultado += `${linhaComentario}\n`;
             }
             resultado += `'''`;

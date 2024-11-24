@@ -1,5 +1,5 @@
-import { VisitanteComumInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { VisitanteComumInterface } from '../interfaces';
+import { Construto } from './construto';
 
 /**
  * Como construto, um comentário é normalmente útil para formatadores de código.

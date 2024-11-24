@@ -10,9 +10,9 @@ export class Logico<TTipoSimbolo extends string = string> implements Construto {
     direita: Construto;
 
     constructor(
-        hashArquivo: number, 
-        esquerda: Construto, 
-        operador: SimboloInterface<TTipoSimbolo>, 
+        hashArquivo: number,
+        esquerda: Construto,
+        operador: SimboloInterface<TTipoSimbolo>,
         direita: Construto
     ) {
         this.linha = esquerda.linha;

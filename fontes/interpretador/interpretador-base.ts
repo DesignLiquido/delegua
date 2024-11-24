@@ -135,7 +135,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         tipoDeDadosDelegua.INTEIRO,
         tipoDeDadosDelegua.NUMERO,
         tipoDeDadosDelegua.NÚMERO,
-        tipoDeDadosDelegua.REAL
+        tipoDeDadosDelegua.REAL,
     ];
 
     constructor(
@@ -232,12 +232,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match
             ? new RegExp(
-                match[2],
-                match[3]
-                    .split('')
-                    .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
-                    .join('')
-            )
+                  match[2],
+                  match[3]
+                      .split('')
+                      .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
+                      .join('')
+              )
             : new RegExp(texto);
     }
 
@@ -524,13 +524,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tipoDireita: string = direita.tipo
             ? direita.tipo
             : typeof direita === tipoDeDadosPrimitivos.NUMERO
-                ? tipoDeDadosDelegua.NUMERO
-                : String(NaN);
+            ? tipoDeDadosDelegua.NUMERO
+            : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
-                ? tipoDeDadosDelegua.NUMERO
-                : String(NaN);
+            ? tipoDeDadosDelegua.NUMERO
+            : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda)) return;
 
@@ -551,7 +551,6 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
-
                 if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
@@ -580,10 +579,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
-                if (
-                    this.tiposNumericos.includes(tipoEsquerdo) &&
-                    this.tiposNumericos.includes(tipoDireito)
-                ) {
+                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 }
 
@@ -663,9 +659,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const argumento of expressao.argumentos) {
             const valorResolvido: any = await this.avaliar(argumento);
-            argumentosResolvidos.push(
-                valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
-            );
+            argumentosResolvidos.push(valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido);
         }
 
         return await entidadeChamada.chamar(this, argumentosResolvidos);
@@ -699,9 +693,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (entidadeChamada instanceof DescritorTipoClasse) {
-            return entidadeChamada.metodos.construtor
-                ? entidadeChamada.metodos.construtor.declaracao.parametros
-                : [];
+            return entidadeChamada.metodos.construtor ? entidadeChamada.metodos.construtor.declaracao.parametros : [];
         }
 
         return [];
@@ -835,7 +827,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let indice: any = null;
 
         if (expressao.indice) {
-            indice =  await this.avaliar(expressao.indice);
+            indice = await this.avaliar(expressao.indice);
         }
 
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido, indice);
@@ -1367,12 +1359,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             return objeto[valorIndice];
-        } 
+        }
 
         if (objeto instanceof Vetor) {
             return objeto.valores[valorIndice];
         }
-        
+
         if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
@@ -1381,8 +1373,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DeleguaModulo
         ) {
             return objeto[valorIndice] || null;
-        } 
-        
+        }
+
         if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
@@ -1674,8 +1666,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto instanceof RetornoQuebra) {
-            if (typeof objeto.valor === 'boolean')
-                return objeto.valor ? 'verdadeiro' : 'falso';
+            if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
         }
 
         if (objeto instanceof Date) {
@@ -1692,7 +1683,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
             }
 
-            if(retornoVetor.length > 1){
+            if (retornoVetor.length > 1) {
                 retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';
@@ -1715,7 +1706,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
             for (const obj in objeto) {
-                let valor = objeto[obj]
+                let valor = objeto[obj];
                 if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {
                     valor = valor ? 'verdadeiro' : 'falso';
 

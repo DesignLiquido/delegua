@@ -128,7 +128,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 for (let linha of linhas) {
                     this.adicionarSimbolo(tiposDeSimbolos.LINHA_COMENTARIO, linha.trim());
                 }
-                
+
                 // Remove o asterisco da última linha
                 let lexemaUltimaLinha = this.simbolos[this.simbolos.length - 1].lexema;
                 lexemaUltimaLinha = lexemaUltimaLinha.substring(0, lexemaUltimaLinha.length - 1);

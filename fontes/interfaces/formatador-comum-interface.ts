@@ -1,5 +1,5 @@
-import { Declaracao } from "../declaracoes/declaracao";
-import { VisitanteComumInterface } from "./visitante-comum-interface";
+import { Declaracao } from '../declaracoes/declaracao';
+import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface FormatadorComumInterface extends VisitanteComumInterface {
     indentacaoAtual: number;

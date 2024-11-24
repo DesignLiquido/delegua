@@ -193,7 +193,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         if (!retorno.endsWith('length')) {
             resultado += '(';
         }
-        
+
         for (let parametro of chamada.argumentos) {
             resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
         }
@@ -205,7 +205,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         if (!retorno.endsWith('length')) {
             resultado += ')';
         }
-        
+
         return resultado;
     }
 
@@ -213,7 +213,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let resultado = '';
         if (comentario.multilinha) {
             resultado += `/*`;
-            for (let linhaComentario of (comentario.conteudo as string[])) {
+            for (let linhaComentario of comentario.conteudo as string[]) {
                 resultado += `${linhaComentario}\n`;
             }
             resultado += `*/`;

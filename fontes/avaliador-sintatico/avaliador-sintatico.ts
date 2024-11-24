@@ -314,24 +314,25 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 this.avancarEDevolverAnterior();
                 this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
                 let _expressao;
-                if (this.verificarSeSimboloAtualEIgualA(
-                    tiposDeSimbolos.ESCREVA,
-                    tiposDeSimbolos.LEIA,
-                    tiposDeSimbolos.FUNCAO,
-                    tiposDeSimbolos.FUNÇÃO,
-                    tiposDeSimbolos.SE,
-                    tiposDeSimbolos.ENQUANTO,
-                    tiposDeSimbolos.PARA,
-                    tiposDeSimbolos.RETORNA,
-                    tipoDeDadosDelegua.INTEIRO,
-                    tipoDeDadosDelegua.TEXTO,
-                    tipoDeDadosDelegua.VETOR,
-                    tipoDeDadosDelegua.LOGICO,
-                    tipoDeDadosDelegua.LÓGICO,
-                    tipoDeDadosDelegua.VAZIO,
-                )
+                if (
+                    this.verificarSeSimboloAtualEIgualA(
+                        tiposDeSimbolos.ESCREVA,
+                        tiposDeSimbolos.LEIA,
+                        tiposDeSimbolos.FUNCAO,
+                        tiposDeSimbolos.FUNÇÃO,
+                        tiposDeSimbolos.SE,
+                        tiposDeSimbolos.ENQUANTO,
+                        tiposDeSimbolos.PARA,
+                        tiposDeSimbolos.RETORNA,
+                        tipoDeDadosDelegua.INTEIRO,
+                        tipoDeDadosDelegua.TEXTO,
+                        tipoDeDadosDelegua.VETOR,
+                        tipoDeDadosDelegua.LOGICO,
+                        tipoDeDadosDelegua.LÓGICO,
+                        tipoDeDadosDelegua.VAZIO
+                    )
                 ) {
-                    _expressao = this.simboloAnterior()
+                    _expressao = this.simboloAnterior();
                 } else {
                     _expressao = this.expressao() as any;
                 }
@@ -348,7 +349,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 let eParExpressaoRegular =
                     this.simbolos.filter((l) => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
                         .length %
-                    2 ===
+                        2 ===
                     0;
                 if (eParExpressaoRegular) {
                     this.avancarEDevolverAnterior();
@@ -388,7 +389,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome de método ou propriedade após '.'.");
+                const nome = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome de método ou propriedade após '.'."
+                );
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
@@ -603,10 +607,9 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 tiposDeSimbolos.MODULO_IGUAL,
             ].includes(expressao.operador.tipo)
         ) {
-
-            let simbolo = (expressao.esquerda as Variavel).simbolo
+            let simbolo = (expressao.esquerda as Variavel).simbolo;
             if (expressao.esquerda instanceof AcessoIndiceVariavel) {
-                simbolo = (expressao.esquerda.entidadeChamada as Variavel).simbolo
+                simbolo = (expressao.esquerda.entidadeChamada as Variavel).simbolo;
                 return new Atribuir(
                     this.hashArquivo,
                     simbolo,
@@ -615,12 +618,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 );
             }
 
-            return new Atribuir(
-                this.hashArquivo,
-                simbolo,
-                expressao,
-            );
-
+            return new Atribuir(this.hashArquivo, simbolo, expressao);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
@@ -696,7 +694,6 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
 
         // Ponto-e-vírgula é opcional aqui.
@@ -720,22 +717,12 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             conteudos.push(simboloComentario.literal);
         } while (simboloComentario.tipo === tiposDeSimbolos.LINHA_COMENTARIO);
 
-        return new Comentario(
-            simboloComentario.hashArquivo,
-            simboloComentario.linha,
-            conteudos,
-            true
-        );
+        return new Comentario(simboloComentario.hashArquivo, simboloComentario.linha, conteudos, true);
     }
 
     declaracaoComentarioUmaLinha(): Comentario {
         const simboloComentario = this.avancarEDevolverAnterior();
-        return new Comentario(
-            simboloComentario.hashArquivo,
-            simboloComentario.linha,
-            simboloComentario.literal,
-            false
-        );
+        return new Comentario(simboloComentario.hashArquivo, simboloComentario.linha, simboloComentario.literal, false);
     }
 
     declaracaoContinua(): Continua {
@@ -1156,20 +1143,25 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
     protected declaracaoTendoComo(): TendoComo {
         const simboloTendo = this.simbolos[this.atual - 1];
         const expressaoInicializacao = this.expressao();
-        this.consumir(tiposDeSimbolos.COMO, "Esperado palavra reservada 'como' após expressão de inicialização de variável, em declaração 'tendo'.");
-        const simboloNomeVariavel = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do identificador em declaração 'tendo'.");
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado chave esquerda para abertura de bloco em declaração 'tendo'.");
+        this.consumir(
+            tiposDeSimbolos.COMO,
+            "Esperado palavra reservada 'como' após expressão de inicialização de variável, em declaração 'tendo'."
+        );
+        const simboloNomeVariavel = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado nome do identificador em declaração 'tendo'."
+        );
+        this.consumir(
+            tiposDeSimbolos.CHAVE_ESQUERDA,
+            "Esperado chave esquerda para abertura de bloco em declaração 'tendo'."
+        );
         const blocoCorpo = this.blocoEscopo();
         return new TendoComo(
             simboloTendo.linha,
             simboloTendo.hashArquivo,
             simboloNomeVariavel,
             expressaoInicializacao,
-            new Bloco(
-                simboloTendo.linha,
-                simboloTendo.hashArquivo,
-                blocoCorpo
-            )
+            new Bloco(simboloTendo.linha, simboloTendo.hashArquivo, blocoCorpo)
         );
     }
 

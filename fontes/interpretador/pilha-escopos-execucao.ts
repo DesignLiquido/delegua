@@ -63,9 +63,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
         let tipoConstante;
         if (constante && constante.hasOwnProperty('tipo')) {
-            tipoConstante = constante.tipo
+            tipoConstante = constante.tipo;
         } else if (tipo) {
-            tipoConstante = tipo
+            tipoConstante = tipo;
         } else {
             tipoConstante = inferirTipoVariavel(valor);
         }
@@ -81,8 +81,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             let subtipo = '';
             if (valor instanceof Array) {
                 // TODO: verificar tipo lógico e outros possíveis subtipos
-                let numeros = valor.some(v => typeof v === 'number')
-                let textos = valor.some(v => typeof v === 'string')
+                let numeros = valor.some((v) => typeof v === 'number');
+                let textos = valor.some((v) => typeof v === 'string');
                 if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
                 else if (numeros) subtipo = tipoDeDadosDelegua.NUMERO;
                 else subtipo = tipoDeDadosDelegua.TEXTO;
@@ -98,9 +98,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
         let tipoVariavel;
         if (variavel && variavel.hasOwnProperty('tipo')) {
-            tipoVariavel = variavel.tipo
+            tipoVariavel = variavel.tipo;
         } else if (tipo) {
-            tipoVariavel = tipo
+            tipoVariavel = tipo;
         } else {
             tipoVariavel = inferirTipoVariavel(valor);
         }
@@ -116,8 +116,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             let subtipo = '';
             if (valor instanceof Array) {
                 // TODO: verificar tipo lógico e outros possíveis subtipos
-                let numeros = valor.some(v => typeof v === 'number')
-                let textos = valor.some(v => typeof v === 'string')
+                let numeros = valor.some((v) => typeof v === 'number');
+                let textos = valor.some((v) => typeof v === 'string');
                 if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
                 else if (numeros) subtipo = tipoDeDadosDelegua.NUMERO;
                 else subtipo = tipoDeDadosDelegua.TEXTO;
@@ -151,7 +151,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         `Constante '${simbolo.lexema}' não pode receber novos valores.`
                     );
                 }
-                const tipo = (variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor)).toLowerCase() as TipoInferencia;
+                const tipo = (
+                    variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor)
+                ).toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
 
@@ -159,7 +161,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     if (variavel.valor instanceof Array) {
                         variavel.valor[indice] = valorResolvido;
                     } else {
-                        throw new ErroEmTempoDeExecucao(simbolo, "Variável não é um vetor.");
+                        throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor.');
                     }
                 } else {
                     ambiente.valores[simbolo.lexema] = {

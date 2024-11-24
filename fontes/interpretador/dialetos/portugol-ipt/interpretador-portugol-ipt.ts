@@ -90,7 +90,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
-    
+
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
         return Promise.resolve();
     }
@@ -182,7 +182,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             ? 'número'
             : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
-        if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase())) return;
+        if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase()))
+            return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 
@@ -390,7 +391,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     visitarDeclaracaoEnquanto(declaracao: Enquanto): never {
         throw new Error('Método não implementado');
     }
-    
+
     visitarDeclaracaoImportar(declaracao: Importar): never {
         throw new Error('Método não implementado');
     }

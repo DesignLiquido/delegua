@@ -9,8 +9,8 @@ export class Super<TTipoSimbolo extends string = string> implements Construto {
     metodo: SimboloInterface<TTipoSimbolo>;
 
     constructor(
-        hashArquivo: number, 
-        simboloChave: SimboloInterface<TTipoSimbolo>, 
+        hashArquivo: number,
+        simboloChave: SimboloInterface<TTipoSimbolo>,
         metodo: SimboloInterface<TTipoSimbolo>
     ) {
         this.linha = Number(simboloChave.linha);

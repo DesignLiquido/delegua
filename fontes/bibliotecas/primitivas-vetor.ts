@@ -22,14 +22,12 @@ export default {
     ): Promise<any> => {
         let elementos = [];
 
-        if(excluirQuantidade || excluirQuantidade === 0){
+        if (excluirQuantidade || excluirQuantidade === 0) {
             elementos = !items.length
-            ? vetor.splice(inicio, excluirQuantidade)
-            : vetor.splice(inicio, excluirQuantidade, ...items);
+                ? vetor.splice(inicio, excluirQuantidade)
+                : vetor.splice(inicio, excluirQuantidade, ...items);
         } else {
-            elementos = !items.length
-            ? vetor.splice(inicio)
-            : vetor.splice(inicio, ...items);
+            elementos = !items.length ? vetor.splice(inicio) : vetor.splice(inicio, ...items);
         }
         return Promise.resolve(elementos);
     },
