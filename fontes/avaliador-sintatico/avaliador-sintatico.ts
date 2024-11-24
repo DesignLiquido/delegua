@@ -9,6 +9,7 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
+    Chamada,
     Comentario,
     Construto,
     Decorador,
@@ -616,7 +617,8 @@ export class AvaliadorSintatico
         const expressao = this.expressao();
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Expressao(expressao);
+        const decoradores = Array.from(this.pilhaDecoradores);
+        return new Expressao(expressao, decoradores);
     }
 
     protected declaracaoComentarioMultilinha(): Comentario {
@@ -801,7 +803,7 @@ export class AvaliadorSintatico
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
 
-        let inicializador: Var | Expressao;
+        let inicializador: Var | Expressao | Const[];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
             inicializador = null;
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
@@ -934,7 +936,6 @@ export class AvaliadorSintatico
     }
 
     protected resolverDecorador(): void {
-        this.pilhaDecoradores = [];
         while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
             let nomeDecorador: string = '';
             let linha: number;
@@ -1078,7 +1079,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected declaracaoDesestruturacaoVariavel(): Declaracao[] {
+    protected declaracaoDesestruturacaoVariavel(): Var[] {
         const identificadores: SimboloInterface[] = [];
 
         do {
@@ -1096,11 +1097,12 @@ export class AvaliadorSintatico
         // como prefixo o nome do inicializador, e o sufixo o nome de cada propriedade.
         const retornos = [];
         for (let identificador of identificadores) {
-            retornos.push(
-                new Var(identificador, new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador))
-            );
+            const declaracaoVar = new Var(identificador, new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador));
+            declaracaoVar.decoradores = Array.from(this.pilhaDecoradores);
+            retornos.push(declaracaoVar);
         }
 
+        this.pilhaDecoradores = [];
         return retornos;
     }
 
@@ -1108,9 +1110,9 @@ export class AvaliadorSintatico
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
      */
-    protected declaracaoDeVariaveis(): any {
+    protected declaracaoDeVariaveis(): Var[] {
         const identificadores: SimboloInterface[] = [];
-        let retorno: Declaracao[] = [];
+        const retorno: Var[] = [];
         let tipo: any = null;
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
@@ -1128,10 +1130,19 @@ export class AvaliadorSintatico
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             // Inicialização de variáveis sem valor.
-            for (let [indice, identificador] of identificadores.entries()) {
-                retorno.push(new Var(identificador, null, tipo));
+            for (let identificador of identificadores.values()) {
+                retorno.push(
+                    new Var(
+                        identificador, 
+                        null, 
+                        tipo, 
+                        Array.from(this.pilhaDecoradores)
+                    )
+                );
             }
+
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+            this.pilhaDecoradores = [];
             return retorno;
         }
 
@@ -1149,15 +1160,22 @@ export class AvaliadorSintatico
 
         for (let [indice, identificador] of identificadores.entries()) {
             tipo = inicializadores[indice] instanceof Tupla ? tipoDeDadosDelegua.TUPLA : tipo;
-            retorno.push(new Var(identificador, inicializadores[indice], tipo));
+            retorno.push(
+                new Var(
+                    identificador, 
+                    inicializadores[indice], 
+                    tipo,
+                    Array.from(this.pilhaDecoradores)
+                )
+            );
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-
+        this.pilhaDecoradores = [];
         return retorno;
     }
 
-    protected declaracaoDesestruturacaoConstante(): Declaracao[] {
+    protected declaracaoDesestruturacaoConstante(): Const[] {
         const identificadores: SimboloInterface[] = [];
 
         do {
@@ -1173,11 +1191,15 @@ export class AvaliadorSintatico
         const inicializador = this.expressao();
         // TODO: Para cada variável dos identificadores, emitir um `AcessoMetodoOuPropriedade` usando
         // como prefixo o nome do inicializador, e o sufixo o nome de cada propriedade.
-        const retornos = [];
+        const retornos: Const[] = [];
         for (let identificador of identificadores) {
-            retornos.push(
-                new Const(identificador, new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador))
+            const declaracaoConst = new Const(
+                identificador, 
+                new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
             );
+
+            declaracaoConst.decoradores = Array.from(this.pilhaDecoradores);
+            retornos.push(declaracaoConst);
         }
 
         return retornos;
@@ -1187,7 +1209,7 @@ export class AvaliadorSintatico
      * Caso símbolo atual seja `const, constante ou fixo`, devolve uma declaração de const.
      * @returns Um Construto do tipo Const.
      */
-    declaracaoDeConstantes(): any {
+    declaracaoDeConstantes(): Const[] {
         const identificadores: SimboloInterface[] = [];
         let tipo: any = null;
 
@@ -1218,11 +1240,12 @@ export class AvaliadorSintatico
             );
         }
 
-        let retorno: Declaracao[] = [];
+        let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Const(identificador, inicializadores[indice], tipo));
+            retorno.push(new Const(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
         }
 
+        this.pilhaDecoradores = [];
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
         return retorno;
@@ -1233,13 +1256,15 @@ export class AvaliadorSintatico
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.CONSTRUTOR:
                 simbolo = this.avancarEDevolverAnterior();
-                this.pilhaDecoradores = [];
                 break;
             default:
                 simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome de ${tipo}.`);
                 break;
         }
-        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo), null, this.pilhaDecoradores);
+
+        const decoradores = Array.from(this.pilhaDecoradores);
+        this.pilhaDecoradores = []
+        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo), null, decoradores);
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -1307,7 +1332,7 @@ export class AvaliadorSintatico
 
     override declaracaoDeClasse(): Classe {
         const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da classe.');
-        const pilhaDecoradoresClasse = this.pilhaDecoradores;
+        const pilhaDecoradoresClasse = Array.from(this.pilhaDecoradores);
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
@@ -1334,7 +1359,6 @@ export class AvaliadorSintatico
             switch (proximoSimbolo.tipo) {
                 case tiposDeSimbolos.PARENTESE_ESQUERDO:
                     metodos.push(this.funcao('método'));
-                    this.pilhaDecoradores = [];
                     break;
                 case tiposDeSimbolos.DOIS_PONTOS:
                     const nomePropriedade = this.consumir(
@@ -1345,7 +1369,7 @@ export class AvaliadorSintatico
                     const tipoPropriedade = this.avancarEDevolverAnterior();
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                     propriedades.push(
-                        new PropriedadeClasse(nomePropriedade, tipoPropriedade.lexema, this.pilhaDecoradores)
+                        new PropriedadeClasse(nomePropriedade, tipoPropriedade.lexema, Array.from(this.pilhaDecoradores))
                     );
                     this.pilhaDecoradores = [];
                     break;
@@ -1359,15 +1383,23 @@ export class AvaliadorSintatico
     }
 
     /**
-     * Declarações fora de bloco precisam ser verificadas primeiro porque
-     * não é possível declarar uma classe/função dentro de um bloco `enquanto`,
-     * `fazer ... enquanto`, `para`, `escolha`, etc.
+     * Declarações fora de bloco precisam ser verificadas primeiro por 
+     * uma série de motivos, como, por exemplo: 
+     * 
+     * - Não é possível declarar uma classe/função dentro de um bloco `enquanto`,
+     *   `fazer ... enquanto`, `para`, `escolha`, etc;
+     * - Qualquer declaração pode ter um decorador.
      * @returns Uma função ou classe se o símbolo atual resolver aqui.
      *          O retorno de `resolverDeclaracao()` em caso contrário.
      * @see resolverDeclaracao
+     * @see resolverDecorador
      */
     override resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
         try {
+            while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
+                this.resolverDecorador();
+            }
+
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                     this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&

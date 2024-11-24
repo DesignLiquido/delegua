@@ -11,10 +11,16 @@ export class Chamada implements Construto {
     hashArquivo: number;
 
     entidadeChamada: Construto;
-    argumentos: any[];
+    argumentos: Construto[];
+    // TODO: Estudar retirar isso.
     parentese: any;
 
-    constructor(hashArquivo: number, entidadeChamada: Construto, parentese: any, argumentos: any[]) {
+    constructor(
+        hashArquivo: number, 
+        entidadeChamada: Construto, 
+        parentese: any, 
+        argumentos: Construto[]
+    ) {
         this.id = uuidv4();
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;

@@ -1,4 +1,4 @@
-import { Construto } from '../construtos';
+import { Construto, Decorador } from '../construtos';
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { Declaracao } from './declaracao';
@@ -11,8 +11,13 @@ export class Const extends Declaracao {
     inicializador: Construto;
     tipo: TipoDadosElementar;
 
-    constructor(simbolo: SimboloInterface, inicializador: Construto, tipo: TipoDadosElementar = undefined) {
-        super(Number(simbolo.linha), simbolo.hashArquivo);
+    constructor(
+        simbolo: SimboloInterface, 
+        inicializador: Construto, 
+        tipo: TipoDadosElementar = undefined,
+        decoradores: Decorador[] = []
+    ) {
+        super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
         this.tipo = tipo;

@@ -1,6 +1,6 @@
 import { Lexador } from '../fontes/lexador';
 import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { Bloco, Classe, TendoComo } from '../fontes/declaracoes';
+import { Bloco, Classe, Expressao, TendoComo } from '../fontes/declaracoes';
 import { Chamada, Literal } from '../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -275,6 +275,65 @@ describe('Avaliador sintático', () => {
                     const decorador = propriedade.decoradores[0];
                     expect(decorador.nome).toBe("@meu.decorador");
                     expect(Object.entries(decorador.atributos)).toHaveLength(0);
+                });
+
+                it('Decorador de chamadas de métodos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@rest.documentacao(',
+                            '    sumario = "Um exemplo de rota GET.", ',
+                            '    descricao = "Uma descrição mais detalhada sobre como a rota GET funciona.", ',
+                            '    idOperacao = "lerArtigos",',
+                            '    etiquetas = ["artigos"]',
+                            ')',
+                            '@rest.resposta(',
+                            '    codigo = 200, ',
+                            '    descricao = "Devolvido com sucesso", ',
+                            '    formatos = ["application/json", "application/xml"]',
+                            ')',
+                            'liquido.rotaGet(funcao(requisicao, resposta) {',
+                            '    resposta.json([{',
+                            '        "id": 1,',
+                            '        "titulo": "teste 1",',
+                            '        "descricao": "descricao 1"',
+                            '    }])',
+                            '})'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao).toBeInstanceOf(Expressao);
+
+                    expect(declaracao.decoradores).toHaveLength(2);
+                    const decoradorRestDocumentacao = declaracao.decoradores[0];
+                    expect(decoradorRestDocumentacao.nome).toBe('@rest.documentacao');
+                    expect(Object.entries(decoradorRestDocumentacao.atributos)).toHaveLength(4);
+                    expect('sumario' in decoradorRestDocumentacao.atributos).toBe(true);
+                    expect(decoradorRestDocumentacao.atributos['sumario'].valor).toBe('Um exemplo de rota GET.');
+                    expect('descricao' in decoradorRestDocumentacao.atributos).toBe(true);
+                    expect(decoradorRestDocumentacao.atributos['descricao'].valor).toBe('Uma descrição mais detalhada sobre como a rota GET funciona.');
+                    expect('idOperacao' in decoradorRestDocumentacao.atributos).toBe(true);
+                    expect(decoradorRestDocumentacao.atributos['idOperacao'].valor).toBe('lerArtigos');
+                    expect('etiquetas' in decoradorRestDocumentacao.atributos).toBe(true);
+                    expect(decoradorRestDocumentacao.atributos['etiquetas'].valores).toHaveLength(1);
+                    expect(decoradorRestDocumentacao.atributos['etiquetas'].valores[0].valor).toBe('artigos');
+
+                    const decoradorRestResposta = declaracao.decoradores[1];
+                    expect(decoradorRestResposta.nome).toBe('@rest.resposta');
+                    expect(Object.entries(decoradorRestResposta.atributos)).toHaveLength(3);
+                    expect('codigo' in decoradorRestResposta.atributos).toBe(true);
+                    expect(decoradorRestResposta.atributos['codigo'].valor).toBe(200);
+                    expect('descricao' in decoradorRestResposta.atributos).toBe(true);
+                    expect(decoradorRestResposta.atributos['descricao'].valor).toBe('Devolvido com sucesso');
+                    expect('formatos' in decoradorRestResposta.atributos).toBe(true);
+                    expect(decoradorRestResposta.atributos['formatos'].valores).toHaveLength(2);
+                    expect(decoradorRestResposta.atributos['formatos'].valores[0].valor).toBe('application/json');
+                    expect(decoradorRestResposta.atributos['formatos'].valores[1].valor).toBe('application/xml');
                 });
             });
 

@@ -114,7 +114,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected abstract primario(): Construto;
     protected abstract resolverDeclaracaoForaDeBloco(): Declaracao;
 
-    protected finalizarChamada(entidadeChamada: Construto): Construto {
+    protected finalizarChamada(entidadeChamada: Construto): Chamada {
         const argumentos: Array<Construto> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -128,7 +128,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         }
 
         const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
-
         return new Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
     }
 
