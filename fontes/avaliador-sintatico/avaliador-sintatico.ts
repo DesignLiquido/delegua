@@ -92,12 +92,7 @@ export class AvaliadorSintatico
         this.performance = performance;
     }
 
-    // TODO: Descobrir o porquê disso.
-    declaracaoDeVariavel(): Var {
-        throw new Error('Método não implementado.');
-    }
-
-    verificarDefinicaoTipoAtual(): TipoDadosElementar {
+    protected verificarDefinicaoTipoAtual(): TipoDadosElementar {
         const tipos = [...Object.values(tipoDeDadosDelegua)];
 
         const lexema = this.simbolos[this.atual].lexema.toLowerCase();
@@ -121,7 +116,7 @@ export class AvaliadorSintatico
         return contemTipo as TipoDadosElementar;
     }
 
-    primario(): Construto {
+    override primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
@@ -321,7 +316,7 @@ export class AvaliadorSintatico
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    chamar(): Construto {
+    override chamar(): Construto {
         let expressao = this.primario();
 
         while (true) {

@@ -5,64 +5,22 @@ import {
     Binario,
     Chamada,
     Construto,
-    Dicionario,
-    Isto,
     Literal,
     Logico,
-    Super,
     Unario,
-    Variavel,
-    Vetor,
+    Variavel
 } from '../construtos';
 import { Declaracao } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
-import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
+import { MicroAvaliadorSintaticoBase } from './micro-avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/microgramaticas/delegua';
-import { MicroAvaliadorSintaticoBase } from './micro-avaliador-sintatico-base';
 
 /**
  * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.
  */
 export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
-    // simbolos: SimboloInterface[];
-    // erros: ErroAvaliadorSintatico[];
-    // atual: number;
-    // linha: number;
-
-    avancarEDevolverAnterior(): SimboloInterface {
-        if (this.atual < this.simbolos.length) this.atual += 1;
-        return this.simbolos[this.atual - 1];
-    }
-
-    verificarTipoSimboloAtual(tipo: string): boolean {
-        if (this.atual === this.simbolos.length) return false;
-        return this.simbolos[this.atual].tipo === tipo;
-    }
-
-    verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
-        for (let i = 0; i < argumentos.length; i++) {
-            const tipoAtual = argumentos[i];
-            if (this.verificarTipoSimboloAtual(tipoAtual)) {
-                this.avancarEDevolverAnterior();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
-        this.erros.push(excecao);
-        return excecao;
-    }
-
-    consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
-        if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
-        throw this.erro(this.simbolos[this.atual], mensagemDeErro);
-    }
 
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
@@ -202,7 +160,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    unario(): Construto {
+    override unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
@@ -220,50 +178,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return this.chamar();
     }
 
-    exponenciacao(): Construto {
-        let expressao = this.unario();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
-            expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
-    multiplicar(): Construto {
-        let expressao = this.exponenciacao();
-
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.DIVISAO,
-                tiposDeSimbolos.DIVISAO_INTEIRA,
-                tiposDeSimbolos.MODULO,
-                tiposDeSimbolos.MULTIPLICACAO
-            )
-        ) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.exponenciacao();
-            expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
-    adicaoOuSubtracao(): Construto {
-        let expressao = this.multiplicar();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.multiplicar();
-            expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
-    bitShift(): Construto {
+    protected bitShift(): Construto {
         let expressao = this.adicaoOuSubtracao();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
@@ -275,7 +190,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    bitE(): Construto {
+    protected bitE(): Construto {
         let expressao = this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -287,7 +202,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    bitOu(): Construto {
+    protected bitOu(): Construto {
         let expressao = this.bitE();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
@@ -299,7 +214,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    comparar(): Construto {
+    override comparar(): Construto {
         let expressao = this.bitOu();
 
         while (
@@ -318,19 +233,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    comparacaoIgualdade(): Construto {
-        let expressao = this.comparar();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
-            expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
-    em(): Construto {
+    protected em(): Construto {
         let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
@@ -342,7 +245,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    e(): Construto {
+    override e(): Construto {
         let expressao = this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -352,22 +255,6 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         }
 
         return expressao;
-    }
-
-    ou(): Construto {
-        let expressao = this.e();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.e();
-            expressao = new Logico(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
-    declaracao(): Declaracao | Construto {
-        return this.ou();
     }
 
     analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {
