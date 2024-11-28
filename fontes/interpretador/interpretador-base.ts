@@ -1281,7 +1281,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (objeto.tipo === tipoDeDadosDelegua.TUPLA) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    expressao.objeto.simbolo.lexema,
+                    (expressao.objeto as any).simbolo.lexema,
                     'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
                     expressao.linha
                 )
@@ -1314,7 +1314,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         } else {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    expressao.objeto.nome,
+                    (expressao.objeto as any).nome,
                     'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
                     expressao.linha
                 )
