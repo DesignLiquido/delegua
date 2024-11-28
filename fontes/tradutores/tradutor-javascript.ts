@@ -124,6 +124,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
                 return 'toLowerCase';
             case 'substituir':
                 return 'replace';
+            case 'texto':
+                return 'String';
             default:
                 return metodo;
         }
@@ -153,25 +155,6 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         else resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
 
         return resultado;
-    }
-
-    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-        let resultado = '';
-        if (definirValor.objeto instanceof Isto) {
-            resultado = 'this.' + definirValor.nome.lexema + ' = ';
-        }
-
-        resultado += definirValor.valor.simbolo.lexema;
-        return resultado;
-    }
-
-    traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
-        return literal.valor;
-    }
-
-    traduzirConstrutoVariavel(variavel: Variavel): string {
-        return variavel.simbolo.lexema;
     }
 
     traduzirConstrutoChamada(chamada: Chamada): string {
@@ -223,7 +206,26 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
+    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
+        let resultado = '';
+        if (definirValor.objeto instanceof Isto) {
+            resultado = 'this.' + definirValor.nome.lexema + ' = ';
+        }
+
+        resultado += definirValor.valor.simbolo.lexema;
+        return resultado;
+    }
+
+    traduzirConstrutoLiteral(literal: Literal): string {
+        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        return literal.valor;
+    }
+
+    traduzirConstrutoVariavel(variavel: Variavel): string {
+        return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
+    }
+
+    protected logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '{\n';
         this.indentacao += 4;
 
@@ -412,15 +414,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
                     declaracaoPara.inicializador[0]
-                ) + ' ';
+                ) + '; ';
         } else {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](
                     declaracaoPara.inicializador
-                ) + ' ';
+                ) + '; ';
         }
-
-        resultado += !resultado.includes(';') ? ';' : '';
 
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
@@ -647,7 +647,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
-        return `throw '${falhar.explicacao.valor}'`;
+        const explicacao = this.dicionarioConstrutos[falhar.explicacao.constructor.name](falhar.explicacao);
+        return `throw ${explicacao}`;
     }
 
     traduzirConstrutoUnario(unario: Unario): string {

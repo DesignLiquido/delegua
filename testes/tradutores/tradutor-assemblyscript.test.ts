@@ -1,9 +1,10 @@
 import { Lexador, Simbolo } from "../../fontes/lexador";
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
-import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 import { TradutorAssemblyScript } from '../../fontes/tradutores/tradutor-assemblyscript';
 import { Bloco, Escreva, Se } from "../../fontes/declaracoes";
 import { Binario, Literal, Variavel } from "../../fontes/construtos";
+
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
 describe('Tradutor Delégua -> AssemblyScript', () => {
     const tradutor: TradutorAssemblyScript = new TradutorAssemblyScript();
