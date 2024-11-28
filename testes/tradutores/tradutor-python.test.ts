@@ -558,5 +558,49 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toContain('# Isto é um comentário');
         });
+
+        it('Bháskara', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao bhaskara(a,b,c) {',
+                    '    var d = b ** 2;',
+                    '    var f = 4 * a * c;',
+                    '    d = d - f;',
+                    '    escreva("O valor de Delta é: " + texto(d));',
+                    '    d = d ** 0.5;',
+                    '    var x1 = -b + d;',
+                    '    x1 = x1 / 2 * a;',
+                    '    escreva("O valor de X1 é: "+ texto(x1));',
+                    '    var x2 = -b-d;',
+                    '    x2 = x2 / 2 * a;',
+                    '    escreva("O valor de X2 é: "+ texto(x2));',
+                    '    var r1 = x1 ** 2;',
+                    '    r1 = a * r1;',
+                    '    r1 = b * x1 + r1;',
+                    '    r1 = r1 + c;',
+                    '    escreva("Substituindo X1 na equação obtém-se:"+ texto(r1));',
+                    '    var r2 = x2 ** 2;',
+                    '    r2 = a * r2;',
+                    '    r2 = b * x2 + r2;',
+                    '    r2 = r2 + c;',
+                    '    escreva("Substituindo X2 na equação obtém-se:"+ texto(r2));',
+                    '}',
+                    'var a = 1;',
+                    'var b = -1;',
+                    'var c = -30;',
+                    'bhaskara(a,b,c);',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('print(\'O valor de Delta é: \' + str(d))');
+            expect(resultado).toContain('print(\'O valor de X1 é: \' + str(x1))');
+            expect(resultado).toContain('print(\'Substituindo X1 na equação obtém-se:\' + str(r1))');
+            expect(resultado).toContain('print(\'Substituindo X2 na equação obtém-se:\' + str(r2))');
+        });
     });
 });

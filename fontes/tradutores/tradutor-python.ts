@@ -9,6 +9,7 @@ import {
     Isto,
     Literal,
     Logico,
+    Unario,
     Variavel,
     Vetor,
 } from '../construtos';
@@ -107,6 +108,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                 return 'lower';
             case 'substituir':
                 return 'replace';
+            case 'texto':
+                return 'str';
             default:
                 return metodo;
         }
@@ -246,15 +249,26 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoLogico(logico: Logico): string {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
-        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+        const direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+        const operador = this.traduzirSimboloOperador(logico.operador);
+        const esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
 
         return `${esquerda} ${operador} ${direita}`;
     }
 
+    traduzirConstrutoUnario(unario: Unario) {
+        const operador = this.traduzirSimboloOperador(unario.operador);
+        const operando = this.dicionarioConstrutos[unario.operando.constructor.name](unario.operando);
+        switch (unario.incidenciaOperador) {
+            case 'ANTES':
+                return `${operador}${operando}`;
+            case 'DEPOIS':
+                return `${operando}${operador}`;
+        }
+    }
+
     traduzirConstrutoVariavel(variavel: Variavel): string {
-        return variavel.simbolo.lexema;
+        return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
     }
 
     traduzirConstrutoVetor(vetor: Vetor): string {
@@ -527,6 +541,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
     };

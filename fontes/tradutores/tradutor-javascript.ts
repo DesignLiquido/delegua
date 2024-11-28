@@ -95,7 +95,6 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
     }
 
-    //TODO: @Samuel
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
             case 'adicionar':
