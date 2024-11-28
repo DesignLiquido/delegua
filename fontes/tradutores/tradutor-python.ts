@@ -34,10 +34,6 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export class TradutorPython implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
 
-    protected traduzirNomeVariavel(variavel: string): string {
-        return variavel.replace(/\.?([A-Z]+)/g, (x, y) => '_' + y.toLowerCase()).replace(/^_/, '');
-    }
-
     protected traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
             case tiposDeSimbolos.ADICAO:
@@ -390,9 +386,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoConst(declaracaoConst: Const): string {
-        let resultado = '';
-        resultado += this.traduzirNomeVariavel(declaracaoConst.simbolo.lexema);
-        resultado += ' = ';
+        let resultado = declaracaoConst.simbolo.lexema + ' = ';
         const inicializador = declaracaoConst.inicializador;
         if (inicializador) {
             if (this.dicionarioConstrutos[inicializador.constructor.name]) {
@@ -510,9 +504,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoVar(declaracaoVar: Var): string {
-        let resultado = '';
-        resultado += this.traduzirNomeVariavel(declaracaoVar.simbolo.lexema);
-        resultado += ' = ';
+        let resultado = declaracaoVar.simbolo.lexema + ' = ';
         const inicializador = declaracaoVar.inicializador;
         if (inicializador) {
             if (this.dicionarioConstrutos[inicializador.constructor.name]) {

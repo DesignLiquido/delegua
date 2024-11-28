@@ -335,7 +335,12 @@ describe('Tradutor Delégua -> Python', () => {
         });
 
         it('se -> if, código', () => {
-            const retornoLexador = lexador.mapear(['se (a == 1) {', '    escreva(10)', '}'], -1);
+            const retornoLexador = lexador.mapear(
+                [
+                    'se (a == 1) {', 
+                    '    escreva(10)', 
+                    '}'
+                ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
@@ -346,7 +351,13 @@ describe('Tradutor Delégua -> Python', () => {
 
         it('senão -> else, código', () => {
             const retornoLexador = lexador.mapear(
-                ['se (a == 1) {', '    escreva(10)', '} senão {', '   escreva(20)', '}'],
+                [
+                    'se (a == 1) {', 
+                    '    escreva(10)', 
+                    '} senão {', 
+                    '    escreva(20)', 
+                    '}'
+                ],
                 -1
             );
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -440,12 +451,12 @@ describe('Tradutor Delégua -> Python', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Teste {',
-                    'construtor(abc){',
-                    'isto.valor = abc',
-                    '}',
-                    'mostrarValor() {',
-                    'escreva(isto.valor)',
-                    '}',
+                    '    construtor(abc) {',
+                    '        isto.valor = abc',
+                    '    }',
+                    '    mostrarValor() {',
+                    '        escreva(isto.valor)',
+                    '    }',
                     '}',
                     'var teste = Teste(100);',
                     'teste.mostrarValor()',
@@ -469,9 +480,9 @@ describe('Tradutor Delégua -> Python', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
-                    'corre() {',
-                    'escreva("correndo");',
-                    '}',
+                    '    corre() {',
+                    '        escreva("correndo");',
+                    '    }',
                     '}',
                     'classe Cachorro herda Animal {}',
                     'var thor = Cachorro();',
@@ -496,8 +507,8 @@ describe('Tradutor Delégua -> Python', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Cachorro {',
-                    'corre() {',
-                    '}',
+                    '    corre() {',
+                    '    }',
                     '}',
                     'var thor = Cachorro();',
                     'thor.corre();',
@@ -513,6 +524,40 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/pass/i);
             expect(resultado).toMatch(/thor = Cachorro\(\)/i);
             expect(resultado).toMatch(/thor.corre\(\)/i);
+        });
+
+        it('Classes (2)', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    correr() {',
+                    '        escreva("Correndo Loucamente");',
+                    '    }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    latir() {',
+                    '        escreva("Au Au Au Au");',
+                    '    }',
+                    '}',
+                    'var nomeDoCachorro = Cachorro();',
+                    'nomeDoCachorro.correr();',
+                    'nomeDoCachorro.latir();'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('class Animal:');
+            expect(resultado).toContain('    def correr(self):');
+            expect(resultado).toContain('        print(\'Correndo Loucamente\')');
+            expect(resultado).toContain('class Cachorro(Animal):');
+            expect(resultado).toContain('    def latir(self):');
+            expect(resultado).toContain('        print(\'Au Au Au Au\')');
+            expect(resultado).toContain('nomeDoCachorro = Cachorro()');
+            expect(resultado).toContain('nomeDoCachorro.correr()');
+            expect(resultado).toContain('nomeDoCachorro.latir()');
         });
 
         it('tente - pegue - finalmente -> try - except - finally', () => {
