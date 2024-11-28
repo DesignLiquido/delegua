@@ -756,16 +756,16 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('escreva -> console.log', () => {
             const codigo = [
-                "var texto = 'Olá Mundo'", 
-                'escreva(texto)'
+                "var texto1 = 'Olá Mundo'", 
+                'escreva(texto1)'
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/let texto = 'Olá Mundo'/i);
-            expect(resultado).toMatch(/console\.log\(texto\)/i);
+            expect(resultado).toMatch(/let texto1 = 'Olá Mundo'/i);
+            expect(resultado).toMatch(/console\.log\(texto1\)/i);
         });
 
         it('escreva -> console.log com operação lógica', () => {
@@ -915,7 +915,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/function/i);
             expect(resultado).toMatch(/minhaFuncao/i);
-            expect(resultado).toMatch(/return 'Ola Mundo!!!'/i);
+            expect(resultado).toMatch(/return 'Olá Mundo!'/i);
         });
 
         it('função com retorno -> function', () => {
@@ -927,7 +927,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/function/i);
             expect(resultado).toMatch(/minhaFuncao/i);
-            expect(resultado).toMatch(/return 'Ola Mundo!!!'/i);
+            expect(resultado).toMatch(/return 'Olá Mundo!'/i);
         });
 
         it('função -> function - com parametro', () => {

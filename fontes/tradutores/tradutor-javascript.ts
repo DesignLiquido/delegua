@@ -413,12 +413,12 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         if (declaracaoPara.inicializador.constructor.name === 'Array') {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
-                    declaracaoPara.inicializador[0]
+                    declaracaoPara.inicializador[0], false
                 ) + '; ';
         } else {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](
-                    declaracaoPara.inicializador
+                    declaracaoPara.inicializador, false
                 ) + '; ';
         }
 
@@ -531,10 +531,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirDeclaracaoVar(declaracaoVar: Var): string {
+    traduzirDeclaracaoVar(declaracaoVar: Var, adicionarPontoEVirgula: boolean = true): string {
         let resultado = 'let ';
         resultado += declaracaoVar.simbolo.lexema;
-        if (!declaracaoVar?.inicializador) resultado += ';';
+        if (!declaracaoVar?.inicializador && adicionarPontoEVirgula) resultado += ';';
         else {
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
@@ -546,8 +546,9 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
                     declaracaoVar.inicializador
                 );
             }
-            resultado += ';';
+            if (adicionarPontoEVirgula) resultado += ';';
         }
+
         return resultado;
     }
 
