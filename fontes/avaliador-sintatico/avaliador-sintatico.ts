@@ -518,17 +518,18 @@ export class AvaliadorSintatico
                 tiposDeSimbolos.MODULO_IGUAL,
             ].includes(expressao.operador.tipo)
         ) {
-            let simbolo = (expressao.esquerda as Variavel).simbolo;
             if (expressao.esquerda instanceof AcessoIndiceVariavel) {
-                simbolo = (expressao.esquerda.entidadeChamada as Variavel).simbolo;
+                const entidade = expressao.esquerda as AcessoIndiceVariavel;
+                const simbolo = (entidade.entidadeChamada as Variavel).simbolo;
                 return new Atribuir(
                     this.hashArquivo,
                     simbolo,
                     expressao,
-                    (expressao.esquerda as AcessoIndiceVariavel).indice
+                    entidade.indice
                 );
             }
 
+            const simbolo = (expressao.esquerda as Variavel).simbolo;
             return new Atribuir(this.hashArquivo, simbolo, expressao);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
@@ -537,10 +538,14 @@ export class AvaliadorSintatico
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoMetodoOuPropriedade) {
+            } 
+            
+            if (expressao instanceof AcessoMetodoOuPropriedade) {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, igual.linha, get.objeto, get.simbolo, valor);
-            } else if (expressao instanceof AcessoIndiceVariavel) {
+            } 
+            
+            if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,
@@ -549,6 +554,7 @@ export class AvaliadorSintatico
                     valor
                 );
             }
+            
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
 

@@ -11,12 +11,12 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
 
     entidadeChamada: Construto;
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
-    indice: any;
+    indice: Construto;
 
     constructor(
         hashArquivo: number,
         entidadeChamada: Construto,
-        indice: any,
+        indice: Construto,
         simboloFechamento: SimboloInterface<TTipoSimbolo>
     ) {
         this.linha = entidadeChamada.linha;

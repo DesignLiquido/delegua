@@ -647,5 +647,368 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toContain('print(\'Substituindo X1 na equação obtém-se:\' + str(r1))');
             expect(resultado).toContain('print(\'Substituindo X2 na equação obtém-se:\' + str(r2))');
         });
+
+        it('MergeSort', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var vetor1 = [8, 2, 9, 5];',
+                    'var a = 0;',
+                    'var aux = 0;',
+                    'var i = 0;',
+                    'escreva ("Vetor: Posição[0]:" + texto(vetor1[0]));',
+                    'escreva ("Vetor: Posição[1]:" + texto(vetor1[1]));',
+                    'escreva ("Vetor: Posição[2]:" + texto(vetor1[2]));',
+                    'escreva ("Vetor: Posição[3]:" + texto(vetor1[3]));',
+                    'para (i = 0; i < 3; i = i + 1) {',
+                    '    se (vetor1[i] > vetor1[i+1]) {  ',
+                    '        escreva ("Vetor " + texto(i));',
+                    '        aux = vetor1[i];',
+                    '        vetor1[i] = vetor1[i+1];',
+                    '        vetor1[i+1] = aux;',
+                    '        escreva(vetor1[i]);',
+                    '        escreva(vetor1[i+1]);',
+                    '    }',
+                    '}',
+                    'var vetor2 = [vetor1[0], vetor1[1]];',
+                    'var vetor3 = [vetor1[2], vetor1[3]];',
+                    'var vetor4 = [];',
+                    'para (a = 0; a < 4; a = a + 1) {',
+                    '    escreva ("vetor1(" + texto(a) + ")");',
+                    '    escreva (vetor1[a]);',
+                    '}',
+                    'para (a = 0; a < 2; a = a + 1) {',
+                    '    escreva ("vetor2(" + texto(a) + ")");',
+                    '    escreva (vetor2[a]);',
+                    '}',
+                    'para (a = 0; a < 2; a = a + 1) {',
+                    '    escreva ("vetor3(" + texto(a) + ")");',
+                    '    escreva (vetor3[a]);',
+                    '}',
+                    'se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {',
+                    '    vetor4[0] = vetor2[0];',
+                    '    se (vetor3[0] < vetor2[1]) {',
+                    '        vetor4[1] = vetor3[0];',
+                    '        vetor4[2] = vetor2[1];',
+                    '        vetor4[3] = vetor3[1];',
+                    '    } senão {',
+                    '        vetor4[1] = vetor2[1];',
+                    '        vetor4[2] = vetor3[0];',
+                    '        vetor4[3] = vetor3[1];',
+                    '    }',
+                    '}',
+                    'para (a = 0; a < 4; a = a + 1) {',
+                    '    escreva ("vetor4(" + texto(vetor4[a]) + ")");',
+                    '}',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('vetor1 = [8, 2, 9, 5]');
+            expect(resultado).toContain('a = 0');
+            expect(resultado).toContain('aux = 0');
+            expect(resultado).toContain('i = 0');
+            expect(resultado).toContain('print(\'Vetor: Posição[0]:\' + str(vetor1[0]))');
+            expect(resultado).toContain('print(\'Vetor: Posição[1]:\' + str(vetor1[1]))');
+            expect(resultado).toContain('print(\'Vetor: Posição[2]:\' + str(vetor1[2]))');
+            expect(resultado).toContain('print(\'Vetor: Posição[3]:\' + str(vetor1[3]))');
+            expect(resultado).toContain('i = 0');
+            expect(resultado).toContain('while i < 3:');
+            expect(resultado).toContain('    if vetor1[i] > vetor1[i + 1]:');
+            expect(resultado).toContain('        print(\'Vetor \' + str(i))');
+            expect(resultado).toContain('        aux = vetor1[i]');
+            expect(resultado).toContain('        vetor1[i] = vetor1[i + 1]');
+            expect(resultado).toContain('        vetor1[i + 1] = aux');
+            expect(resultado).toContain('        print(vetor1[i])');
+            expect(resultado).toContain('        print(vetor1[i + 1])');
+            expect(resultado).toContain('    i = i + 1');
+            expect(resultado).toContain('vetor2 = [vetor1[0], vetor1[1]]');
+            expect(resultado).toContain('vetor3 = [vetor1[2], vetor1[3]]');
+            expect(resultado).toContain('vetor4 = []');
+            expect(resultado).toContain('a = 0');
+            expect(resultado).toContain('while a < 4:');
+            expect(resultado).toContain('    print(\'vetor1(\' + str(a) + \')\')');
+            expect(resultado).toContain('    print(vetor1[a])');
+            expect(resultado).toContain('    a = a + 1');
+            expect(resultado).toContain('a = 0');
+            expect(resultado).toContain('while a < 2:');
+            expect(resultado).toContain('    print(\'vetor2(\' + str(a) + \')\')');
+            expect(resultado).toContain('    print(vetor2[a])');
+            expect(resultado).toContain('    a = a + 1');
+            expect(resultado).toContain('a = 0');
+            expect(resultado).toContain('while a < 2:');
+            expect(resultado).toContain('    print(\'vetor3(\' + str(a) + \')\')');
+            expect(resultado).toContain('    print(vetor3[a])');
+            expect(resultado).toContain('    a = a + 1');
+            expect(resultado).toContain('if vetor2[0] < vetor3[0] and vetor2[1] < vetor3[1]:');
+            expect(resultado).toContain('    vetor4[0] = vetor2[0]');
+            expect(resultado).toContain('    if vetor3[0] < vetor2[1]:');
+            expect(resultado).toContain('        vetor4[1] = vetor3[0]');
+            expect(resultado).toContain('        vetor4[2] = vetor2[1]');
+            expect(resultado).toContain('        vetor4[3] = vetor3[1]');
+            expect(resultado).toContain('    else:');
+            expect(resultado).toContain('        vetor4[1] = vetor2[1]');
+            expect(resultado).toContain('        vetor4[2] = vetor3[0]');
+            expect(resultado).toContain('        vetor4[3] = vetor3[1]');
+            expect(resultado).toContain('a = 0');
+            expect(resultado).toContain('while a < 4:');
+            expect(resultado).toContain('    print(\'vetor4(\' + str(vetor4[a]) + \')\')');
+            expect(resultado).toContain('    a = a + 1');
+        });
+
+        it('Fibonacci', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    '// Recursão para o cálculo da sequência de Fibonacci',
+                    'funcao fibonacci(n) {',
+                    '    se (n == 0) {',
+                    '        retorna(0);',
+                    '    }',
+                    '    se (n == 1) {',
+                    '        retorna(1);',
+                    '    }',
+                    '    var n1 = n-1;',
+                    '    var n2 = n-2;',
+                    '    var f1 = fibonacci(n1);',
+                    '    var f2 = fibonacci(n2);',
+                    '    retorna(f1 + f2);',
+                    '}',
+                    'var a = fibonacci(0);',
+                    'escreva(a);',
+                    'a = fibonacci(1);',
+                    'escreva(a);',
+                    'a = fibonacci(2);',
+                    'escreva(a);',
+                    'a = fibonacci(3);',
+                    'escreva(a);',
+                    'a = fibonacci(4);',
+                    'escreva(a);',
+                    'a = fibonacci(5);',
+                    'escreva(a);',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('# Recursão para o cálculo da sequência de Fibonacci');
+            expect(resultado).toContain('def fibonacci(n):');
+            expect(resultado).toContain('    if n == 0:');
+            expect(resultado).toContain('        return 0');
+            expect(resultado).toContain('    if n == 1:');
+            expect(resultado).toContain('        return 1');
+            expect(resultado).toContain('    n1 = n - 1');
+            expect(resultado).toContain('    n2 = n - 2');
+            expect(resultado).toContain('    f1 = fibonacci(n1)');
+            expect(resultado).toContain('    f2 = fibonacci(n2)');
+            expect(resultado).toContain('    return f1 + f2');
+            expect(resultado).toContain('a = fibonacci(0)');
+            expect(resultado).toContain('print(a)');
+            expect(resultado).toContain('a = fibonacci(1)');
+            expect(resultado).toContain('print(a)');
+            expect(resultado).toContain('a = fibonacci(2)');
+            expect(resultado).toContain('print(a)');
+            expect(resultado).toContain('a = fibonacci(3)');
+            expect(resultado).toContain('print(a)');
+            expect(resultado).toContain('a = fibonacci(4)');
+            expect(resultado).toContain('print(a)');
+            expect(resultado).toContain('a = fibonacci(5)');
+            expect(resultado).toContain('print(a)');
+        });
+
+        it('Perceptron', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var pesoInicial1 = 0.3;',
+                    'var pesoInicial2 = 0.4;',
+                    'var entrada1 = 1;',
+                    'var entrada2 = 1;',
+                    'var erro = 1;',
+                    'var resultadoEsperado;',
+                    'enquanto (erro != 0) {',
+                    '    se (entrada1 == 1) {',
+                    '        se (entrada2 == 1) {',
+                    '            resultadoEsperado = 1;',
+                    '        }',
+                    '    } senão {',
+                    '        resultadoEsperado = 0;',
+                    '    }',
+                    '    var somatoria = pesoInicial1 * entrada1;',
+                    '    somatoria = pesoInicial2 * entrada2 + somatoria;',
+                    '    var resultado;',
+                    '    se (somatoria < 1) {',
+                    '        resultado = 0;',
+                    '    } senão {',
+                    '        se (somatoria >= 1) {',
+                    '            resultado = 1;',
+                    '        }',
+                    '    }',
+                    '    escreva("resultado: " + texto(resultado));',
+                    '    erro = resultadoEsperado - resultado;',
+                    '    escreva("p1: " + texto(pesoInicial1));',
+                    '    escreva("p2: " + texto(pesoInicial2));',
+                    '    pesoInicial1 = 0.1 * entrada1 * erro + pesoInicial1;',
+                    '    pesoInicial2 = 0.1 * entrada2 * erro + pesoInicial2;',
+                    '    escreva("erro: " + texto(erro));',
+                    '}'
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('pesoInicial1 = 0.3');
+            expect(resultado).toContain('pesoInicial2 = 0.4');
+            expect(resultado).toContain('entrada1 = 1');
+            expect(resultado).toContain('entrada2 = 1');
+            expect(resultado).toContain('erro = 1');
+            expect(resultado).toContain('resultadoEsperado = None');
+            expect(resultado).toContain('while erro != 0:');
+            expect(resultado).toContain('    if entrada1 == 1:');
+            expect(resultado).toContain('        if entrada2 == 1:');
+            expect(resultado).toContain('            resultadoEsperado = 1');
+            expect(resultado).toContain('    else:');
+            expect(resultado).toContain('        resultadoEsperado = 0');
+            expect(resultado).toContain('    somatoria = pesoInicial1 * entrada1');
+            expect(resultado).toContain('    somatoria = pesoInicial2 * entrada2 + somatoria');
+            expect(resultado).toContain('    resultado = None');
+            expect(resultado).toContain('    if somatoria < 1:');
+            expect(resultado).toContain('        resultado = 0');
+            expect(resultado).toContain('    else:');
+            expect(resultado).toContain('        if somatoria >= 1:');
+            expect(resultado).toContain('            resultado = 1');
+            expect(resultado).toContain('    print(\'resultado: \' + str(resultado))');
+            expect(resultado).toContain('    erro = resultadoEsperado - resultado');
+            expect(resultado).toContain('    print(\'p1: \' + str(pesoInicial1))');
+            expect(resultado).toContain('    print(\'p2: \' + str(pesoInicial2))');
+            expect(resultado).toContain('    pesoInicial1 = 0.1 * entrada1 * erro + pesoInicial1');
+            expect(resultado).toContain('    pesoInicial2 = 0.1 * entrada2 * erro + pesoInicial2');
+            expect(resultado).toContain('    print(\'erro: \' + str(erro))');
+        });
+
+        it('Fila Estática', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao enfileirar (valorEntrada) {',
+                    '    se (indexFinal == maximoDeElementos) {',
+                    '        escreva("Fila Cheia");',
+                    '    } senao {',
+                    '        filaEstatica[indexFinal] = valorEntrada;',
+                    '        escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));',
+                    '        retorna indexFinal = indexFinal + 1;',
+                    '    }',
+                    '}',
+                    'função desenfileirar() {',
+                    '    se (indexInicial == indexFinal) {',
+                    '        escreva("Fila Vazia");',
+                    '    } senao {',
+                    '        para (i = 0; i <= indexFinal; i = i + 1){',
+                    '            se (i + 1 == indexFinal) {',
+                    '                indexFinal = indexFinal - 1;',
+                    '                escreva("Valor retirado com sucesso.");',
+                    '            } senao {',
+                    '                filaEstatica[i] = filaEstatica[i+1];',
+                    '            }',
+                    '        }',
+                    '    }',
+                    '}',
+                    'função mostrar_fila() {',
+                    '    se (indexInicial == indexFinal) {',
+                    '        escreva("Fila Vazia");',
+                    '    } senao {',
+                    '        para (var i = 0; i < indexFinal; i = i + 1) {',
+                    '            escreva("index " + texto(i)); ',
+                    '            escreva(texto(filaEstatica[i]));',
+                    '        }',
+                    '    }',
+                    '}',
+                    'var maximoDeElementos = 4;',
+                    'var indexInicial = 0;',
+                    'var indexFinal = 0;',
+                    '// Variavel de controle em iterações',
+                    'var i = 0;',
+                    'var filaEstatica = [];',
+                    '// Demonstração de uso das funções:',
+                    'mostrar_fila();',
+                    'var valorEntrada = 2;',
+                    'enfileirar(valorEntrada);',
+                    'var valorEntrada = 8;',
+                    'enfileirar(valorEntrada);',
+                    'var valorEntrada = 23;',
+                    'enfileirar(valorEntrada);',
+                    'var valorEntrada = 7;',
+                    'enfileirar(valorEntrada);',
+                    'mostrar_fila();',
+                    'desenfileirar();',
+                    'mostrar_fila();',
+                    'var valorEntrada = 24;',
+                    'enfileirar(valorEntrada);',
+                    'mostrar_fila();'
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('def enfileirar(valorEntrada):');
+            expect(resultado).toContain('    if indexFinal == maximoDeElementos:');
+            expect(resultado).toContain('        print(\'Fila Cheia\')');
+            expect(resultado).toContain('    else:');
+            expect(resultado).toContain('        filaEstatica[indexFinal] = valorEntrada');
+            expect(resultado).toContain('        print(\'Valor inserido com sucesso: \' + str(filaEstatica[indexFinal]))');
+            expect(resultado).toContain('        return indexFinal = indexFinal + 1');
+            expect(resultado).toContain('def desenfileirar():');
+            expect(resultado).toContain('    if indexInicial == indexFinal:');
+            expect(resultado).toContain('        print(\'Fila Vazia\')');
+            expect(resultado).toContain('    else:');
+            expect(resultado).toContain('        i = 0');
+            expect(resultado).toContain('        while i <= indexFinal:');
+            expect(resultado).toContain('            if i + 1 == indexFinal:');
+            expect(resultado).toContain('                indexFinal = indexFinal - 1');
+            expect(resultado).toContain('                print(\'Valor retirado com sucesso.\')');
+            expect(resultado).toContain('            else:');
+            expect(resultado).toContain('                filaEstatica[i] = filaEstatica[i + 1]');
+            expect(resultado).toContain('            i = i + 1');
+            expect(resultado).toContain('def mostrar_fila():');
+            expect(resultado).toContain('    if indexInicial == indexFinal:');
+            expect(resultado).toContain('        print(\'Fila Vazia\')');
+            expect(resultado).toContain('    else:');
+            expect(resultado).toContain('        i = 0');
+            expect(resultado).toContain('        while i < indexFinal:');
+            expect(resultado).toContain('            print(\'index \' + str(i))');
+            expect(resultado).toContain('            print(str(filaEstatica[i]))');
+            expect(resultado).toContain('            i = i + 1');
+            expect(resultado).toContain('maximoDeElementos = 4');
+            expect(resultado).toContain('indexInicial = 0');
+            expect(resultado).toContain('indexFinal = 0');
+            expect(resultado).toContain('# Variavel de controle em iterações');
+            expect(resultado).toContain('i = 0');
+            expect(resultado).toContain('filaEstatica = []');
+            expect(resultado).toContain('# Demonstração de uso das funções:');
+            expect(resultado).toContain('mostrar_fila()');
+            expect(resultado).toContain('valorEntrada = 2');
+            expect(resultado).toContain('enfileirar(valorEntrada)');
+            expect(resultado).toContain('valorEntrada = 8');
+            expect(resultado).toContain('enfileirar(valorEntrada)');
+            expect(resultado).toContain('valorEntrada = 23');
+            expect(resultado).toContain('enfileirar(valorEntrada)');
+            expect(resultado).toContain('valorEntrada = 7');
+            expect(resultado).toContain('enfileirar(valorEntrada)');
+            expect(resultado).toContain('mostrar_fila()');
+            expect(resultado).toContain('desenfileirar()');
+            expect(resultado).toContain('mostrar_fila()');
+            expect(resultado).toContain('valorEntrada = 24');
+            expect(resultado).toContain('enfileirar(valorEntrada)');
+            expect(resultado).toContain('mostrar_fila()');
+        });
     });
 });

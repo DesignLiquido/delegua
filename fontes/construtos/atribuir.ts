@@ -1,6 +1,5 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
-import { Literal } from './literal';
 
 /**
  * Construto de atribuição de um valor a um símbolo.
@@ -9,7 +8,7 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
     linha: number;
     hashArquivo: number;
 
-    indice?: Literal;
+    indice?: Construto;
 
     simbolo: SimboloInterface<TTipoSimbolo>;
     valor: any;
@@ -19,8 +18,8 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
         simbolo: SimboloInterface<TTipoSimbolo>,
         valor: any,
         // indice so é usado para variaveis de vetores
-        // TODO: criar alguma validaçao para garantir que indice so seja passado para variaveis de vetores
-        indice?: Literal
+        // TODO: criar alguma validaçao para garantir que `indice` só seja passado para variáveis de vetores
+        indice?: Construto
     ) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
