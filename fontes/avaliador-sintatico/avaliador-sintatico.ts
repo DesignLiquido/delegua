@@ -1409,6 +1409,49 @@ export class AvaliadorSintatico
         return parametros;
     }
 
+    protected *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
+        for (const declaracao of construtoBloco.declaracoes) {
+            if (declaracao.constructor.name === 'Retorna') {
+                yield declaracao;
+            }
+        }
+    }
+
+    protected *buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
+        const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
+        for (const declaracao of this.buscarRetornosEmBloco(blocoEntao)) {
+            if (declaracao.constructor.name === 'Retorna') {
+                yield declaracao;
+            }
+        }
+
+        const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
+        if (!blocoSenao) return;
+        for (const declaracao of blocoSenao.declaracoes) {
+            if (declaracao.constructor.name === 'Retorna') {
+                yield declaracao;
+            }
+        }
+    }
+
+    protected buscarRetornos(declaracao: Declaracao): Retorna[] {
+        let retornasEncontrados: Retorna[] = [];
+        switch (declaracao.constructor.name) {
+            case 'Retorna':
+                retornasEncontrados.push(declaracao as Retorna);
+                break;
+            case 'Se':
+                for (const retorna of this.buscarRetornosEmSe(declaracao as Se)) {
+                    retornasEncontrados.push(retorna);
+                }
+                break;
+            default:
+                break;
+        }
+
+        return retornasEncontrados;
+    }
+
     override corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
@@ -1434,7 +1477,10 @@ export class AvaliadorSintatico
 
         const corpo = this.blocoEscopo();
         if (tipoRetorno !== 'qualquer') {
-            const expressoesRetorna: Retorna[] = corpo.filter(e => e.constructor.name === 'Retorna') as Retorna[];
+            let expressoesRetorna: Retorna[] = [];
+            for (const declaracao of corpo) {
+                expressoesRetorna = expressoesRetorna.concat(this.buscarRetornos(declaracao));
+            }
 
             if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
                 const retornosNaoVazios = expressoesRetorna.filter(e => e.tipo !== 'vazio');
@@ -1445,7 +1491,7 @@ export class AvaliadorSintatico
 
             const tiposRetornos = new Set(expressoesRetorna.map(e => e.tipo));
             if (tiposRetornos.size > 1 && !tiposRetornos.has('qualquer')) {
-                let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ');
+                let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ', '');
                 tiposEncontrados = tiposEncontrados.slice(0, -2);
                 throw this.erro(
                     parenteseEsquerdo, 

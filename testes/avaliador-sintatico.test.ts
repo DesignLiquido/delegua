@@ -696,6 +696,26 @@ describe('Avaliador sintático', () => {
                     const erro = retornoAvaliadorSintatico.erros[0];
                     expect(erro.message).toBe("Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.");
                 });
+
+                it('Função tem mais de um tipo de retorno', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao executar(valor1, valor2): número {',
+                            '    var resultado = 1',
+                            '    se valor1 == 2 {',
+                            '        retorna "teste"',
+                            '    }',
+                            '    retorna resultado',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    const erro = retornoAvaliadorSintatico.erros[0];
+                    expect(erro.message).toBe("Função retorna valores com mais de um tipo. Tipo esperado: número. Tipos encontrados: texto, número.");
+                });
             });
 
             describe('Laços de repetição', () => {
