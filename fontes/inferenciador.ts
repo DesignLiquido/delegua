@@ -38,7 +38,7 @@ export enum TipoNativoSimbolo {
 }
 
 function inferirVetor(vetor: Array<any>): TipoInferencia {
-    const tiposEmVetor = new Set(vetor.map((elemento) => typeof elemento));
+    const tiposEmVetor = new Set(vetor.map((elemento) => elemento.constructor.name));
     if (tiposEmVetor.size > 1) {
         return 'vetor';
     }
@@ -60,53 +60,76 @@ function inferirVetor(vetor: Array<any>): TipoInferencia {
             }
 
             return `${tiposObjetosEmVetor.values().next().value}[]` as TipoInferencia;
+        case 'Literal':
+            // TODO: Não sei se é seguro inferir pelo primeiro valor do vetor.
+            return `${vetor[0].tipo}[]` as TipoInferencia;
         default:
             return 'vetor';
     }
 }
 
 export function inferirTipoVariavel(
-    variavel: string | number | Array<any> | boolean | null | undefined
+    variavel: any
 ): TipoInferencia | TipoNativoSimbolo {
-    const tipo = typeof variavel;
+    if (variavel === null) {
+        return 'nulo';
+    }
+
+    const tipo = variavel.constructor.name;
     switch (tipo) {
+        case 'String':
         case 'string':
             return 'texto';
+        case 'Number':
         case 'number':
             return 'número';
         case 'bigint':
             return 'longo';
+        case 'Boolean':
         case 'boolean':
             return 'lógico';
         case 'undefined':
             return 'nulo';
+        case 'Object':
         case 'object':
-            if (Array.isArray(variavel)) {
-                return inferirVetor(variavel);
-            }
-
             if (variavel === null) return 'nulo';
-            if (variavel.constructor.name === 'DeleguaFuncao') return 'função';
-            if (variavel.constructor.name === 'DeleguaModulo') return 'módulo';
-            if (variavel.constructor.name === 'Classe') return 'objeto';
-            if (variavel.constructor.name === 'Simbolo') {
-                if (typeof variavel === 'object') {
-                    const simbolo = variavel as Simbolo;
-                    if (simbolo.tipo === tiposDeSimbolos.ESCREVA) return TipoNativoSimbolo.ESCREVA;
-                    if (simbolo.tipo === tiposDeSimbolos.FUNCAO || simbolo.tipo === tiposDeSimbolos.FUNÇÃO)
-                        return TipoNativoSimbolo.FUNCAO;
-                    if (simbolo.tipo === tiposDeSimbolos.LEIA) return TipoNativoSimbolo.LEIA;
-                    if (simbolo.tipo === tiposDeSimbolos.SE) return TipoNativoSimbolo.SE;
-                    if (simbolo.tipo === tiposDeSimbolos.ENQUANTO) return TipoNativoSimbolo.ENQUANTO;
-                    if (simbolo.tipo === tiposDeSimbolos.PARA) return TipoNativoSimbolo.PARA;
-                    if (simbolo.tipo === tiposDeSimbolos.RETORNA) return TipoNativoSimbolo.RETORNA;
-                    if (simbolo.tipo === tipoDeDadosPrimitivos.TEXTO) return TipoNativoSimbolo.TEXTO;
-                    if (simbolo.tipo === tipoDeDadosPrimitivos.BOOLEANO) return TipoNativoSimbolo.BOOLEANO;
-                    if (simbolo.tipo === tipoDeDadosDelegua.VAZIO) return TipoNativoSimbolo.VAZIO;
-                }
-            }
             return 'dicionário';
+        case 'Array':
+        case 'Vetor':
+            return inferirVetor(variavel as Array<any>);
+        case 'DeleguaFuncao':
+            return 'função';
+        case 'DeleguaModulo':
+            return 'módulo';
+        case 'Classe':
+            return 'objeto';
+        case 'Simbolo': // TODO: Repensar.
+            const simbolo = variavel as Simbolo;
+            switch (simbolo.tipo) {
+                case tipoDeDadosPrimitivos.BOOLEANO:
+                    return TipoNativoSimbolo.BOOLEANO;
+                case tiposDeSimbolos.ENQUANTO:
+                    return TipoNativoSimbolo.ENQUANTO;
+                case tiposDeSimbolos.ESCREVA:
+                    return TipoNativoSimbolo.ESCREVA;
+                case tiposDeSimbolos.FUNCAO:
+                case tiposDeSimbolos.FUNÇÃO:
+                    return TipoNativoSimbolo.FUNCAO;
+                case tiposDeSimbolos.LEIA:
+                    return TipoNativoSimbolo.LEIA;
+                case tiposDeSimbolos.PARA:
+                    return TipoNativoSimbolo.PARA;
+                case tiposDeSimbolos.RETORNA:
+                    return TipoNativoSimbolo.RETORNA;
+                case tiposDeSimbolos.SE:
+                    return TipoNativoSimbolo.SE;
+                case tipoDeDadosPrimitivos.TEXTO:
+                    return TipoNativoSimbolo.TEXTO;
+                case tipoDeDadosDelegua.VAZIO:
+                    return TipoNativoSimbolo.VAZIO;
+            }
         case 'function':
+        case 'FuncaoPadrao':
             return 'função';
         case 'symbol':
             return 'símbolo';

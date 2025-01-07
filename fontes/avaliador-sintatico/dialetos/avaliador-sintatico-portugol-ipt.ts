@@ -163,8 +163,13 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             }
 
             inicializacoes.push(
-                new Var(identificador, new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao))
-            );
+                new Var(
+                    identificador, 
+                    new Literal(this.hashArquivo, Number(simboloInteiro.linha), 
+                    valorInicializacao, 
+                    'inteiro'
+                )
+            ));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;

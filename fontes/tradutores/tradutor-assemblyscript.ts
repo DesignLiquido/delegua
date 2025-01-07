@@ -145,9 +145,12 @@ export class TradutorAssemblyScript {
             case 'texto':
                 return ': string';
             case 'inteiro':
+            case 'numero':
+            case 'número':
             case 'real':
                 return ': f64';
             case 'logico':
+            case 'lógico':
                 return ': bool';
             case 'nulo':
                 return ': null';
@@ -157,6 +160,7 @@ export class TradutorAssemblyScript {
             case 'texto[]':
                 return ': string[]';
             case 'logico[]':
+            case 'lógico[]':
                 return ': bool[]';
             default:
                 return ': any';

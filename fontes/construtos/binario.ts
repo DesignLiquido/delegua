@@ -58,6 +58,8 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
         if (['numero', 'número'].includes(this.esquerda.tipo)  || ['numero', 'número'].includes(this.direita.tipo)) {
             return 'número';
         }
+
+        return 'qualquer';
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

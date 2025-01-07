@@ -533,6 +533,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda)) return;
+        if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'qualquer') return;
+        if (this.tiposNumericos.includes(tipoDireita) && tipoEsquerda === 'qualquer') return;
 
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
@@ -581,6 +583,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.MAIS_IGUAL:
                 if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) + Number(valorDireito);
+                }
+
+                // TODO: Se tipo for 'qualquer', seria uma boa confiar nos operadores
+                // tradicionais do JavaScript?
+                if (tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer') {
+                    return valorEsquerdo + valorDireito;
                 }
 
                 return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);

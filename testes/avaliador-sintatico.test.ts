@@ -1,6 +1,6 @@
 import { Lexador } from '../fontes/lexador';
 import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { Bloco, Classe, Escreva, Expressao, FuncaoDeclaracao, Leia, Retorna, TendoComo, Var } from '../fontes/declaracoes';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Leia, Retorna, TendoComo, Var } from '../fontes/declaracoes';
 import { Binario, Chamada, FuncaoConstruto, Literal, Variavel } from '../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -133,6 +133,120 @@ describe('Avaliador sintático', () => {
                 });
             });
 
+            describe('Inferência de tipos', () => {
+                it('Var, inferindo de literal', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = 3'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao.constructor.name).toBe('Var');
+                    const declaracaoTipada = declaracao as Var;
+                    expect(declaracaoTipada.tipo).toBe('número');
+                });
+
+                it('Var, inferindo de outra variável', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = 3',
+                            'var b = a'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[1];
+                    expect(declaracao.constructor.name).toBe('Var');
+                    const declaracaoTipada = declaracao as Var;
+                    expect(declaracaoTipada.tipo).toBe('número');
+                });
+
+                it('Var, inferindo de valor de vetor', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [1, 2, 3]',
+                            'var b = a[2]'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[1];
+                    expect(declaracao.constructor.name).toBe('Var');
+                    const declaracaoTipada = declaracao as Var;
+                    expect(declaracaoTipada.tipo).toBe('número');
+                });
+
+                it('Const, inferindo de literal', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'const a = "teste"'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao.constructor.name).toBe('Const');
+                    const declaracaoTipada = declaracao as Const;
+                    expect(declaracaoTipada.tipo).toBe('texto');
+                });
+
+                it('Const, inferindo de variável', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = "teste"',
+                            'const b = a'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[1];
+                    expect(declaracao.constructor.name).toBe('Const');
+                    const declaracaoTipada = declaracao as Const;
+                    expect(declaracaoTipada.tipo).toBe('texto');
+                });
+
+                it('Const, inferindo de vetor de constantes', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'const a = ["teste1", "teste2", "teste3"]',
+                            'const b = a[1]'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[1];
+                    expect(declaracao.constructor.name).toBe('Const');
+                    const declaracaoTipada = declaracao as Const;
+                    expect(declaracaoTipada.tipo).toBe('texto');
+                });
+            });
+
             describe('Para cada', () => {
                 it('Trivial', async () => {
                     const retornoLexador = lexador.mapear(
@@ -146,6 +260,7 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
                 it('Para cada com ponto e vírgula no final', async () => {

@@ -1,3 +1,4 @@
+// TODO: Marcado para depreciação.
 export type TipoDadosElementar =
     | 'dicionário'
     | 'função'

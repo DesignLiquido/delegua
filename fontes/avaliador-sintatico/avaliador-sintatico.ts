@@ -75,6 +75,12 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
+ * 
+ * Construtos não existem por si só: cada construto precisa estar dentro de uma declaração para ser
+ * aceito pela próxima etapa, como tradução, interpretação, análise semântica, etc.
+ * 
+ * Diferentemente de outros dialetos, em Delégua um construto normalmente retorna um tipo.
+ * Por isso a separação deste avaliador sintático do avaliador sintático base.
  */
 export class AvaliadorSintatico
     extends AvaliadorSintaticoBase
@@ -1174,7 +1180,6 @@ export class AvaliadorSintatico
         const inicializador = this.expressao();
         const retornos = [];
         for (let identificador of identificadores) {
-            // TODO: Melhorar dicionário para intuir o tipo de cada propriedade.
             this.pilhaEscopos.definirTipoVariavel(identificador.lexema, 'qualquer');
             const declaracaoVar = new Var(
                 identificador,
@@ -1195,7 +1200,7 @@ export class AvaliadorSintatico
     protected declaracaoDeVariaveis(): Var[] {
         const identificadores: SimboloInterface[] = [];
         const retorno: Var[] = [];
-        let tipo: any = null;
+        let tipo: string = 'qualquer';
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
             return this.declaracaoDesestruturacaoVariavel();
@@ -1236,8 +1241,12 @@ export class AvaliadorSintatico
 
         for (let [indice, identificador] of identificadores.entries()) {
             // Se tipo ainda não foi definido, infere.
-            if (!tipo) {
+            if (tipo === 'qualquer') {
                 switch (inicializadores[indice].constructor.name) {
+                    case 'AcessoIndiceVariavel':
+                        const entidadeChamada = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
+                        tipo = entidadeChamada.tipo.slice(0, -2);
+                        break;
                     case 'Dupla':
                     case 'Trio':
                     case 'Quarteto':
@@ -1250,6 +1259,7 @@ export class AvaliadorSintatico
                         tipo = tipoDeDadosDelegua.TUPLA;
                         break;
                     case 'Literal':
+                    case 'Variavel':
                     case 'Vetor':
                         tipo = inicializadores[indice].tipo;
                         break;
@@ -1301,7 +1311,7 @@ export class AvaliadorSintatico
      */
     declaracaoDeConstantes(): Const[] {
         const identificadores: SimboloInterface[] = [];
-        let tipo: string = null;
+        let tipo: string = 'qualquer';
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
             return this.declaracaoDesestruturacaoConstante();
@@ -1332,8 +1342,29 @@ export class AvaliadorSintatico
 
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            if (!tipo) {
-                tipo = inferirTipoVariavel(inicializadores[indice]);
+            if (tipo === 'qualquer') {
+                switch (inicializadores[indice].constructor.name) {
+                    case 'AcessoIndiceVariavel':
+                        const entidadeChamada = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
+                        tipo = entidadeChamada.tipo.slice(0, -2);
+                        break;
+                    case 'Dupla':
+                    case 'Trio':
+                    case 'Quarteto':
+                    case 'Quinteto':
+                    case 'Sexteto':
+                    case 'Septeto':
+                    case 'Octeto':
+                    case 'Noneto':
+                    case 'Deceto':
+                        tipo = tipoDeDadosDelegua.TUPLA;
+                        break;
+                    case 'Literal':
+                    case 'Variavel':
+                    case 'Vetor':
+                        tipo = inicializadores[indice].tipo;
+                        break;
+                }
             }
 
             this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
@@ -1476,29 +1507,36 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
-        if (tipoRetorno !== 'qualquer') {
-            let expressoesRetorna: Retorna[] = [];
-            for (const declaracao of corpo) {
-                expressoesRetorna = expressoesRetorna.concat(this.buscarRetornos(declaracao));
-            }
+        let expressoesRetorna: Retorna[] = [];
+        for (const declaracao of corpo) {
+            expressoesRetorna = expressoesRetorna.concat(this.buscarRetornos(declaracao));
+        }
 
-            if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
-                const retornosNaoVazios = expressoesRetorna.filter(e => e.tipo !== 'vazio');
-                if (retornosNaoVazios.length > 0) {
-                    throw this.erro(retornosNaoVazios[0].simboloChave, `Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.`);
-                }
+        if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
+            const retornosNaoVazios = expressoesRetorna.filter(e => e.tipo !== 'vazio');
+            if (retornosNaoVazios.length > 0) {
+                throw this.erro(retornosNaoVazios[0].simboloChave, `Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.`);
             }
+        }
 
-            const tiposRetornos = new Set(expressoesRetorna.map(e => e.tipo));
-            if (tiposRetornos.size > 1 && !tiposRetornos.has('qualquer')) {
-                let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ', '');
-                tiposEncontrados = tiposEncontrados.slice(0, -2);
-                throw this.erro(
-                    parenteseEsquerdo, 
-                    `Função retorna valores com mais de um tipo. Tipo esperado: ${tipoRetorno}. Tipos encontrados: ${tiposEncontrados}.`);
-            }
+        const tiposRetornos = new Set(expressoesRetorna.map(e => e.tipo));
+        // if (tiposRetornos.size > 1 && !tiposRetornos.has('qualquer')) {
+        if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
+            let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ', '');
+            tiposEncontrados = tiposEncontrados.slice(0, -2);
+            throw this.erro(
+                parenteseEsquerdo, 
+                `Função retorna valores com mais de um tipo. Tipo esperado: ${tipoRetorno}. Tipos encontrados: ${tiposEncontrados}.`);
+        }
 
-            // console.log(expressoesRetorna);
+        tiposRetornos.delete('qualquer');
+
+        if (tipoRetorno === 'qualquer' && tiposRetornos.size === 1) {
+            // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
+            // este avaliador sintático pode restringir o tipo baseado nos retornos 
+            // encontrados nos blocos internos da função.
+            const tipoRetornoDeduzido = tiposRetornos.values().next().value;
+            tipoRetorno = tipoRetornoDeduzido;
         }
 
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
@@ -1511,6 +1549,7 @@ export class AvaliadorSintatico
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
             const simboloSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            // TODO: Colocar tipo aqui?
             superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1], simboloSuperclasse.lexema);
         }
 

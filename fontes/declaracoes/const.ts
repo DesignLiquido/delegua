@@ -9,18 +9,23 @@ import { Declaracao } from './declaracao';
 export class Const extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
-    tipo: TipoDadosElementar;
+    tipo: string;
 
     constructor(
         simbolo: SimboloInterface,
         inicializador: Construto,
-        tipo: TipoDadosElementar = undefined,
+        tipo: string = 'qualquer',
         decoradores: Decorador[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
-        this.tipo = tipo;
+
+        if (tipo !== 'qualquer') {
+            this.tipo = tipo;
+        } else {
+            this.tipo = inicializador?.tipo || tipo;
+        }
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

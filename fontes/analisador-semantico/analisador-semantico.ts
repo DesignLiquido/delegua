@@ -27,13 +27,12 @@ import {
 import { SimboloInterface } from '../interfaces';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
-import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { RetornoQuebra } from '../quebras';
 import { AnalisadorSemanticoBase } from './analisador-semantico-base';
 import { PilhaVariaveis } from './pilha-variaveis';
 
 interface VariavelHipoteticaInterface {
-    tipo: TipoDadosElementar;
+    tipo: string;
     subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
     imutavel: boolean;
     valor?: any;
@@ -126,7 +125,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
             // TODO: Estudar remoção.
             if (declaracao.inicializador instanceof Leia) {
-                if (declaracao.tipo !== 'texto') {
+                if (!['qualquer', 'texto'].includes(declaracao.tipo)) {
                     this.erro(
                         declaracao.simbolo,
                         `Atribuição inválida para '${declaracao.simbolo.lexema}', Leia só pode receber tipo 'texto'.`
@@ -248,7 +247,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         }
                     }
                     if (valorLiteral === 'number') {
-                        if (!['inteiro', 'real'].includes(valor.tipo)) {
+                        if (!['inteiro', 'número', 'real'].includes(valor.tipo)) {
                             this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }

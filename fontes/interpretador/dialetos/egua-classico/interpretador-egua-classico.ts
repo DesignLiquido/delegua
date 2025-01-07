@@ -882,7 +882,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             }
         }
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
+        // TODO: Estudar retirar isso.
+        // this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
 
         if (declaracao.superClasse !== null) {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
@@ -906,7 +907,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.ambiente = this.ambiente.enclosing;
         } */
 
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, deleguaClasse);
         return null;
     }
 

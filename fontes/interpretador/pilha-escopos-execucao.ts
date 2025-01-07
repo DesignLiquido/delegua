@@ -99,6 +99,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         let tipoVariavel;
         if (variavel && variavel.hasOwnProperty('tipo')) {
             tipoVariavel = variavel.tipo;
+        } else if (valor && valor.constructor.name === 'DeleguaFuncao') {
+            tipoVariavel = 'função';
         } else if (tipo) {
             tipoVariavel = tipo;
         } else {
@@ -151,9 +153,11 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         `Constante '${simbolo.lexema}' não pode receber novos valores.`
                     );
                 }
-                const tipo = (
-                    variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : inferirTipoVariavel(valor)
-                ).toLowerCase() as TipoInferencia;
+
+                const tipoInferido = variavel && variavel.hasOwnProperty('tipo') && variavel.tipo ? 
+                    variavel.tipo : 
+                    inferirTipoVariavel(valor);
+                const tipo = tipoInferido.toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
 

@@ -11,12 +11,14 @@ export class Agrupamento implements Construto {
     hashArquivo: number;
 
     expressao: Construto;
+    tipo: string;
 
     constructor(hashArquivo: number, linha: number, expressao: Construto) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 
         this.expressao = expressao;
+        this.tipo = expressao.tipo;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
