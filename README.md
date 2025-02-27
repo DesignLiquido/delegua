@@ -86,6 +86,8 @@ Delégua, a linguagem de programação totalmente em português, possui uma sér
 ## Aplicações
 
 - [Escrita de aplicações para Internet, usando o ferramentário (_framework_) liquido](https://github.com/DesignLiquido/liquido);
+- Aplicações em React
+    - https://www.stardust-app.com.br
 - [Aplicações em React Native](https://github.com/0thigs/StarDust).
 
 ## Instalação
