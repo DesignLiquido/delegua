@@ -120,6 +120,10 @@ describe('Interpretador', () => {
                 });
 
                 it('Dicionário com valor zero', async () => {
+                    const saidasMensagens = [
+                        '0'
+                    ];
+
                     const retornoLexador = lexador.mapear([
                         'var macacos = {',
                         '"Joe": 0,',
@@ -129,6 +133,10 @@ describe('Interpretador', () => {
                         'escreva(macacos[\'Joe\'])',
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
