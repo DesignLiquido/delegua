@@ -122,7 +122,9 @@ describe('Interpretador', () => {
                 it('Dicionário com valor zero', async () => {
                     const retornoLexador = lexador.mapear([
                         'var macacos = {',
-                        '"Joe": 0',
+                        '"Joe": 0,',
+                        '"Milo": 0,',
+                        '"Kiko": 0',
                         '}',
                         'escreva(macacos[\'Joe\'])',
                     ], -1);
