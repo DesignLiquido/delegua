@@ -119,6 +119,27 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Dicionário, atribuição e soma vetor', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var { estacaoTerraAteColoniaSolis, vilaOmegaAteCidadeNova, luaZetAteBaseDelta } = {',
+                        '"estacaoTerraAteColoniaSolis": 2000,',
+                        '"vilaOmegaAteCidadeNova": 500,',
+                        '"luaZetAteBaseDelta": 850,',
+                        '}',
+                        'var distanciaTotal = [',
+                        'estacaoTerraAteColoniaSolis,',
+                        'vilaOmegaAteCidadeNova,',
+                        'luaZetAteBaseDelta',
+                        '].somar()',
+                        'escreva(distanciaTotal)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {
                     const retornoLexador = lexador.mapear(["var a = 1 + '1'"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
