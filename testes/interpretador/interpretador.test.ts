@@ -119,7 +119,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it.only('Dicionário, atribuição e soma vetor', async () => {
+                it('Dicionário, atribuição e soma vetor', async () => {
                     const saidasMensagens = [
                         '3350'
                     ];
