@@ -49,7 +49,7 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Comentários', () => {
-                it('Sucesso - Comentários multilinha', async () => {
+                it('Comentários multilinha', async () => {
                     const retornoLexador = lexador.mapear(["/*", "comentário", "*/"], -1);
     
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

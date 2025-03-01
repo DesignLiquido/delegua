@@ -677,7 +677,7 @@ export class AvaliadorSintatico
         do {
             simboloComentario = this.avancarEDevolverAnterior();
             conteudos.push(simboloComentario.literal);
-        } while (simboloComentario.tipo === tiposDeSimbolos.LINHA_COMENTARIO && this.verificarTipoSimboloAtual(tiposDeSimbolos.LINHA_COMENTARIO));
+        } while (this.verificarTipoSimboloAtual(tiposDeSimbolos.LINHA_COMENTARIO));
 
         return new Comentario(simboloComentario.hashArquivo, simboloComentario.linha, conteudos, true);
     }
