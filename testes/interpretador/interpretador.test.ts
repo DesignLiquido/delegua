@@ -119,6 +119,35 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Dicionário, atribuição e soma vetor', async () => {
+                    const saidasMensagens = [
+                        '3350'
+                    ];
+
+                    const retornoLexador = lexador.mapear([
+                        'var { estacaoTerraAteColoniaSolis, vilaOmegaAteCidadeNova, luaZetAteBaseDelta } = {',
+                        '"estacaoTerraAteColoniaSolis": 2000,',
+                        '"vilaOmegaAteCidadeNova": 500,',
+                        '"luaZetAteBaseDelta": 850,',
+                        '}',
+                        'var distanciaTotal = [',
+                        'estacaoTerraAteColoniaSolis,',
+                        'vilaOmegaAteCidadeNova,',
+                        'luaZetAteBaseDelta',
+                        '].somar()',
+                        'escreva(distanciaTotal)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Dicionário com valor zero', async () => {
                     const saidasMensagens = [
                         '0'

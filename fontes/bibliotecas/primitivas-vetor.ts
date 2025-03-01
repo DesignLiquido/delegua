@@ -108,7 +108,10 @@ export default {
         let elemento = vetor.pop();
         return Promise.resolve(elemento);
     },
-    somar: (interpretador: VisitanteComumInterface, vetor: Array<number>): Promise<any> =>
-        Promise.resolve(vetor.reduce((a, b) => a + b)),
+    somar: (interpretador: VisitanteComumInterface, vetor: Array<number | { valor: number }>): Promise<number | { valor: number }> => {
+        return Promise.resolve(
+            vetor.reduce((acc: number, item) => acc + (typeof item === 'number' ? item : item.valor), 0)
+        );
+    },
     tamanho: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
 };
