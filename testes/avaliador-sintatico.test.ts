@@ -48,6 +48,17 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
+            describe('Comentários', () => {
+                it('Sucesso - Comentários multilinha', async () => {
+                    const retornoLexador = lexador.mapear(["/*", "comentário", "*/"], -1);
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+            })
+
             describe('Declarações com construto binário', () => {
                 it('Números literais, soma', () => {
                     const retornoLexador = lexador.mapear(['2 + 3'], -1);
