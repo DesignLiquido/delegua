@@ -1380,6 +1380,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DescritorTipoClasse ||
             objeto instanceof DeleguaModulo
         ) {
+            if (objeto[valorIndice] === 0) return 0;
             return objeto[valorIndice] || null;
         }
 

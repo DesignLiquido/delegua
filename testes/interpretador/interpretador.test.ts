@@ -119,6 +119,20 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Dicionário com valor zero', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var macacos = {',
+                        '"Joe": 0',
+                        '}',
+                        'escreva(macacos[\'Joe\'])',
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {
                     const retornoLexador = lexador.mapear(["var a = 1 + '1'"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
