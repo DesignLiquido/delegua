@@ -1488,6 +1488,38 @@ describe('Interpretador', () => {
                         expect(saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
                         expect(saidas[1]).toEqual('[1, 2, 3]');
                     });
+
+                    it('Obter valores do dicionário dentro de outro dicionário', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                `var planos = {`,
+                                `"base secreta": "Lua Oculta",`,
+                                `"armas": {`,
+                                `"tipo": "blaster 72",`,
+                                `"tempo de recuo": 120,`,
+                                `},`,
+                                `"defesa": "campo energético",`,
+                                `"duracao de ataque": 700`,
+                                `}`,
+                                `var dados = planos.valores()`,
+                                `escreva(dados)`
+                            ],
+                            -1
+                        );
+
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const saidas: string[] = ["['Lua Oculta', {\"tipo\":\"blaster 72\",\"tempo de recuo\":120}, 'campo energético', 700]"];
+
+                        interpretador.funcaoDeRetorno = (saida: string) => {
+                            saidas.push(saida);
+                        };
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
                 });
 
                 describe('Vetores', () => {
