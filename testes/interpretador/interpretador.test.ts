@@ -219,6 +219,36 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Incremento e decremento em propriedades de dicionário', async () => {
+                    const saidasMensagens = [
+                        '4',
+                        '-2'
+                    ];
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var macacos = {',
+                            '"Joe": 0,',
+                            '"Milo": 0,',
+                            '"Kiko": 0,',
+                            '}',
+                            "macacos['Joe'] += 4",
+                            "macacos['Milo'] -= 2",
+                            "escreva(macacos['Joe']);",
+                            "escreva(macacos['Milo']);",
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Incremento e decremento após variável ou literal', async () => {
                     const saidasMensagens = ['1', '1', '2', '0', '6', '4'];
                     const retornoLexador = lexador.mapear(
