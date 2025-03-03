@@ -440,12 +440,19 @@ export class AvaliadorSintatico
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.ADICAO,
-                tiposDeSimbolos.MAIS_IGUAL,
                 tiposDeSimbolos.MENOS_IGUAL
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
+
             const direito = this.multiplicar();
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)) {
+            const operador = this.simbolos[this.atual - 1];
+
+            const direito = this.atribuir();
             expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 

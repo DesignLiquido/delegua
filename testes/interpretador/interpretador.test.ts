@@ -181,6 +181,27 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Concatenação com atribuição de texto', async () => {
+                    const saidasMensagens = [
+                        'oi tudo bem'
+                    ];
+
+                    const retornoLexador = lexador.mapear([
+                        "var frase = ''",
+                        "frase += 'oi' + ' tudo bem'",
+                        "escreva(frase)"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Interpolação de Texto/Função/Expressão', async () => {
                     const saidasMensagens = [
                         'Minha comida favorita é strogonoff',
