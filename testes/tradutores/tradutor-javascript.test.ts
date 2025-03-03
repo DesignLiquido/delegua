@@ -65,6 +65,24 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(321\)/i);
         });
 
+        it('escreva chave e valor de dicionário', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'escreva({',
+                    '\'chave 1\': \'valor\',',
+                    '\'chave 2\': 2,',
+                    '})',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(\{\'chave 1\':\'valor\',\'chave 2\':2,\}\)/i);
+        });
+
+
         it('funções nativas', () => {
             const retornoLexador = lexador.mapear(
                 [

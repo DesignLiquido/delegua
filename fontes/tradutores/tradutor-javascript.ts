@@ -8,6 +8,7 @@ import {
     Chamada,
     Comentario,
     DefinirValor,
+    Dicionario,
     FuncaoConstruto,
     Isto,
     Literal,
@@ -213,6 +214,19 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
 
         resultado += definirValor.valor.simbolo.lexema;
+        return resultado;
+    }
+
+    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+        let resultado = '{';
+
+        for (let i = 0; i < dicionario.chaves.length; i++) {
+            resultado += this.dicionarioConstrutos[dicionario.chaves[i].constructor.name](dicionario.chaves[i]);
+            resultado += ":"
+            resultado += this.dicionarioConstrutos[dicionario.valores[i].constructor.name](dicionario.valores[i]) + ',';
+        }
+        resultado += '}';
+
         return resultado;
     }
 
@@ -690,6 +704,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Chamada: this.traduzirConstrutoChamada.bind(this),
         Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        Dicionario: this.traduzirConstrutoDicionario.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
