@@ -8,6 +8,7 @@ import {
     Chamada,
     Comentario,
     DefinirValor,
+    Dicionario,
     FuncaoConstruto,
     Isto,
     Literal,
@@ -216,8 +217,35 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
+    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+        let resultado = '{';
+
+        for (let i = 0; i < dicionario.chaves.length; i++) {
+            resultado += this.dicionarioConstrutos[dicionario.chaves[i].constructor.name](dicionario.chaves[i]);
+            resultado += ":"
+            resultado += this.dicionarioConstrutos[dicionario.valores[i].constructor.name](dicionario.valores[i]) + ',';
+        }
+        resultado += '}';
+
+        return resultado;
+    }
+
     traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        if (typeof literal.valor === 'string') {
+            const possuiInterpolacao = /\$\{(verdadeiro|falso|nulo)\}/.test(literal.valor);
+    
+            const valor = literal.valor.replace(/\$\{(verdadeiro|falso|nulo)\}/g, (_, match) => {
+                switch (match) {
+                    case 'verdadeiro': return '${true}';
+                    case 'falso': return '${false}';
+                    case 'nulo': return '${null}';
+                    default: return match;
+                }
+            });
+
+            return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
+        }
+        
         return literal.valor;
     }
 
@@ -676,6 +704,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Chamada: this.traduzirConstrutoChamada.bind(this),
         Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        Dicionario: this.traduzirConstrutoDicionario.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),

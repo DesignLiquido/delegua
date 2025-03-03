@@ -39,6 +39,50 @@ describe('Tradutor Delégua -> JavaScript', () => {
             avaliadorSintatico = new AvaliadorSintatico();
         });
 
+        it('escreva com interpolação de valores lógicos e não lógicos', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'escreva("${verdadeiro}")',
+                    'escreva("${falso}")',
+                    'escreva("${nulo}")',
+                    'escreva("test: ${verdadeiro} - ${falso} - ${nulo}")',
+                    'escreva("um texto qualquer")',
+                    'escreva("123")',
+                    'escreva(321)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(\`\$\{true\}\`\)/);
+            expect(resultado).toMatch(/console\.log\(\`\$\{false\}\`\)/);
+            expect(resultado).toMatch(/console\.log\(\`\$\{null\}\`\)/);
+            expect(resultado).toMatch(/console\.log\(\`test: \$\{true\} - \$\{false\} - \$\{null\}\`\)/);
+            expect(resultado).toMatch(/console\.log\(\'um texto qualquer\'\)/i);
+            expect(resultado).toMatch(/console\.log\(\'123'\)/i);
+            expect(resultado).toMatch(/console\.log\(321\)/i);
+        });
+
+        it('escreva chave e valor de dicionário', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'escreva({',
+                    '\'chave 1\': \'valor\',',
+                    '\'chave 2\': 2,',
+                    '})',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(\{\'chave 1\':\'valor\',\'chave 2\':2,\}\)/i);
+        });
+
+
         it('funções nativas', () => {
             const retornoLexador = lexador.mapear(
                 [
