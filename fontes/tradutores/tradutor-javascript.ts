@@ -217,9 +217,23 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        if (typeof literal.valor === 'string') {
+            const possuiInterpolacao = /\$\{(verdadeiro|falso|nulo)\}/.test(literal.valor);
+    
+            const valor = literal.valor.replace(/\$\{(verdadeiro|falso|nulo)\}/g, (_, match) => {
+                switch (match) {
+                    case 'verdadeiro': return '${true}';
+                    case 'falso': return '${false}';
+                    case 'nulo': return '${null}';
+                    default: return match;
+                }
+            });
+
+            return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
+        }
+        
         return literal.valor;
-    }
+    }    
 
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
