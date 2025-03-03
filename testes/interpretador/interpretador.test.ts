@@ -524,7 +524,8 @@ describe('Interpretador', () => {
                         'nulo',
                         'texto',
                         'número',
-                        'dicionário'
+                        'dicionário',
+                        'número',
                     ];
 
                     const retornoLexador = lexador.mapear(
@@ -556,6 +557,10 @@ describe('Interpretador', () => {
                             'var letras = "abc"',
                             'escreva(tipo de letras.tamanho())',
                             'escreva(tipo de { "chave": verdadeiro })',
+                            'var produtos = {',
+                            '"preco": 25',
+                            '}',
+                            'escreva(tipo de produtos[\'preco\'])',
                         ],
                         -1
                     );

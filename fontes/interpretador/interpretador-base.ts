@@ -249,6 +249,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let tipoDe = expressao.valor;
 
         if (
+            tipoDe instanceof AcessoIndiceVariavel ||
             tipoDe instanceof Agrupamento ||
             tipoDe instanceof Binario ||
             tipoDe instanceof Chamada ||
