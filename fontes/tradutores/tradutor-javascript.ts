@@ -233,7 +233,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
         
         return literal.valor;
-    }    
+    }
 
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
