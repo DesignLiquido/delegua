@@ -162,10 +162,11 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 const valorResolvido = this.converterValor(tipo, valor);
 
                 if (indice !== undefined && indice !== null) {
-                    if (variavel.valor instanceof Array) {
+                    if (variavel.valor instanceof Array || variavel.valor instanceof Object) {
                         variavel.valor[indice] = valorResolvido;
-                    } else {
-                        throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor.');
+                    }
+                    else {
+                        throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor ou dicionário.');
                     }
                 } else {
                     ambiente.valores[simbolo.lexema] = {

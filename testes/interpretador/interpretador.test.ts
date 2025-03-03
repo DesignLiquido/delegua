@@ -241,6 +241,36 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Incremento e decremento em propriedades de dicionário', async () => {
+                    const saidasMensagens = [
+                        '4',
+                        '-2'
+                    ];
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var macacos = {',
+                            '"Joe": 0,',
+                            '"Milo": 0,',
+                            '"Kiko": 0,',
+                            '}',
+                            "macacos['Joe'] += 4",
+                            "macacos['Milo'] -= 2",
+                            "escreva(macacos['Joe']);",
+                            "escreva(macacos['Milo']);",
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Incremento e decremento após variável ou literal', async () => {
                     const saidasMensagens = ['1', '1', '2', '0', '6', '4'];
                     const retornoLexador = lexador.mapear(
@@ -1509,6 +1539,38 @@ describe('Interpretador', () => {
                         expect(saidas).toHaveLength(2);
                         expect(saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
                         expect(saidas[1]).toEqual('[1, 2, 3]');
+                    });
+
+                    it('Obter valores do dicionário dentro de outro dicionário', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                `var planos = {`,
+                                `"base secreta": "Lua Oculta",`,
+                                `"armas": {`,
+                                `"tipo": "blaster 72",`,
+                                `"tempo de recuo": 120,`,
+                                `},`,
+                                `"defesa": "campo energético",`,
+                                `"duracao de ataque": 700`,
+                                `}`,
+                                `var dados = planos.valores()`,
+                                `escreva(dados)`
+                            ],
+                            -1
+                        );
+
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const saidas: string[] = ["['Lua Oculta', {\"tipo\":\"blaster 72\",\"tempo de recuo\":120}, 'campo energético', 700]"];
+
+                        interpretador.funcaoDeRetorno = (saida: string) => {
+                            saidas.push(saida);
+                        };
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
                     });
                 });
 
