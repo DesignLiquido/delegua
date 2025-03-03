@@ -1616,6 +1616,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (let i = 0; i < expressao.chaves.length; i++) {
             const promises = await Promise.all([this.avaliar(expressao.chaves[i]), this.avaliar(expressao.valores[i])]);
 
+            if (typeof promises[0] === 'boolean') {
+                const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
+                dicionario[chaveLogico] = promises[1];
+                continue;
+            }
+
             dicionario[promises[0]] = promises[1];
         }
         return dicionario;

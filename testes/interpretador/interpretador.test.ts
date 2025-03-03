@@ -172,6 +172,28 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Dicionário com chave lógica', async () => {
+                    const saidasMensagens = [,
+                        '{"verdadeiro":"valor","falso":"valor2"}'
+                    ];
+
+                    const retornoLexador = lexador.mapear([
+                        'escreva({',
+                        'verdadeiro: \'valor\',',
+                        'falso: \'valor2\'',
+                        '})',
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {
                     const retornoLexador = lexador.mapear(["var a = 1 + '1'"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
