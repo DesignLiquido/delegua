@@ -756,6 +756,34 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Operações lógicas - \'em\' com dicionário', async () => {
+                    const saidasMensagens = [
+                        'verdadeiro',
+                        'verdadeiro',
+                        'falso',
+                        'falso'
+                    ];
+
+                    const retornoLexador = lexador.mapear([
+                        'var dicionario = {',
+                        '"1": 1,',
+                        '}',
+                        'escreva("1" em {"1": 100})',
+                        'escreva("1" em dicionario)',
+                        'escreva("3" em {"1": 100})',
+                        'escreva("10" em dicionario)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Operações lógicas - bit a bit não', async () => {
                     const retornoLexador = lexador.mapear(['~1'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
