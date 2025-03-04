@@ -864,11 +864,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             if (Array.isArray(direita) || typeof direita === tipoDeDadosPrimitivos.TEXTO) {
                 return direita.includes(esquerda);
-            } else if (direita.constructor === Object) {
-                return esquerda in direita;
-            } else {
-                throw new ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
+            } else if (direita !== null && typeof direita === 'object') {
+                return esquerda in direita || (direita.valor !== undefined && esquerda in direita.valor);
             }
+            
+            throw new ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
         }
 
         // se um estado for verdadeiro, retorna verdadeiro
