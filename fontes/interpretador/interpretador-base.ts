@@ -1620,6 +1620,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
                 dicionario[chaveLogico] = promises[1];
                 continue;
+            } else if (typeof promises[1] === 'object') {
+                dicionario[promises[0]] = promises[1].valor;
+                continue;
             }
 
             dicionario[promises[0]] = promises[1];
