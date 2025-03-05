@@ -172,6 +172,26 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Dicionário com definição de variável externa', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var frase = "opa"',
+                        'var dicionario = {',
+                        '"resposta": frase,',
+                        '2: frase',
+                        '}',
+                        'escreva(dicionario)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('{"2":"opa","resposta":"opa"}');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Dicionário com chave lógica', async () => {
                     const saidasMensagens = [,
                         '{"verdadeiro":"valor","falso":"valor2"}'
