@@ -1,5 +1,5 @@
-import { MicroLexador } from './../fontes/lexador/micro-lexador';
-import { MicroAvaliadorSintatico } from '../fontes/avaliador-sintatico';
+import { MicroLexador } from '../../fontes/lexador/micro-lexador';
+import { MicroAvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {

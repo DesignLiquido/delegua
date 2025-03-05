@@ -1,7 +1,7 @@
-import { Lexador } from '../fontes/lexador';
-import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Leia, Retorna, TendoComo, Var } from '../fontes/declaracoes';
-import { Binario, Chamada, FuncaoConstruto, Literal, Variavel } from '../fontes/construtos';
+import { Lexador } from '../../fontes/lexador';
+import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Leia, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
+import { Binario, Chamada, FuncaoConstruto, Literal, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -773,7 +773,9 @@ describe('Avaliador sintático', () => {
             });
 
             it('Declaração `tente ... pegue com parâmetro`', () => {
-                const retornoLexador = lexador.mapear(['var i = nulo tente { i = i + 1 } pegue (erro) { escreva(erro) }'], -1);
+                const retornoLexador = lexador.mapear([
+                    'var i = nulo tente { i = i + 1 } pegue (erro) { escreva(erro) }'
+                ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();

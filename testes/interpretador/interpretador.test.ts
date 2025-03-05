@@ -1082,7 +1082,7 @@ describe('Interpretador', () => {
             });
 
             describe('Laços de repetição', () => {
-                it('Laços de repetição - enquanto', async () => {
+                it('enquanto', async () => {
                     const retornoLexador = lexador.mapear(['var a = 0;\nenquanto (a < 10) { a = a + 1 }'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -1091,7 +1091,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Laços de repetição - fazer ... enquanto', async () => {
+                it('fazer ... enquanto', async () => {
                     const retornoLexador = lexador.mapear(['var a = 0', 'fazer { a = a + 1 } enquanto (a < 10)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -1100,10 +1100,13 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Laços de repetição - para cada - trivial', async () => {
+                it('para cada - trivial', async () => {
                     const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
                     const retornoLexador = lexador.mapear(
-                        ['para cada elemento em [1, 2, 3] {', "   escreva('Valor: ', elemento)", '}'],
+                        [
+                            'para cada elemento em [1, 2, 3] {', 
+                            "   escreva('Valor: ', elemento)", '}'
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -1117,10 +1120,14 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Laços de repetição - para cada - vetor variável', async () => {
+                it('para cada - vetor variável', async () => {
                     const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
                     const retornoLexador = lexador.mapear(
-                        ['var v = [1, 2, 3]', 'para cada elemento em v {', "   escreva('Valor: ', elemento)", '}'],
+                        [
+                            'var v = [1, 2, 3]', 
+                            'para cada elemento em v {', 
+                            "   escreva('Valor: ', elemento)", '}'
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -1134,7 +1141,31 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Laços de repetição - para', async () => {
+                it('para cada - aninhado', async () => {
+                    let _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeros = [1, 2, 3, 4]',
+                            'para cada numero de numeros {',
+                            '    para cada numero de numeros {',
+                            '        escreva(numero)',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(16);
+                });
+
+                it('para', async () => {
                     const saidasMensagens = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
                     const retornoLexador = lexador.mapear(['para (var i = 0; i < 10; i = i + 1) { escreva(i) }'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
