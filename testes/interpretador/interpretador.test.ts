@@ -244,6 +244,35 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Interpolação de texto usando \'isto\'', async () => {
+                    const saidasMensagens = [
+                        'Olá, meu nome é Fernando, como posso lhe ajudar?',
+                    ];
+
+                    const retornoLexador = lexador.mapear([
+                        'classe Vendedor {',
+                        'nome: texto',
+                        'construtor(nome) {',
+                        'isto.nome = nome',
+                        '}',
+                        'recebaCliente() {',
+                        'escreva(\'Olá, meu nome é ${isto.nome}, como posso lhe ajudar?\')',
+                        '}',
+                        '}',
+                        'var vendedor = Vendedor(\'Fernando\')',
+                        'vendedor.recebaCliente()'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Interpolação de Texto/Função/Expressão', async () => {
                     const saidasMensagens = [
                         'Minha comida favorita é strogonoff',
