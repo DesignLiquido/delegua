@@ -224,7 +224,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Interpolação de texo usando \'isto\'', async () => {
+                it('Interpolação de texto usando \'isto\'', async () => {
                     const saidasMensagens = [
                         'Olá, meu nome é Fernando, como posso lhe ajudar?',
                     ];
