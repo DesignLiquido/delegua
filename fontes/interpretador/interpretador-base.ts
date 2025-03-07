@@ -1530,7 +1530,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
-            return objeto.obter(expressao.simbolo) || null;
+            const valor = objeto.obter(expressao.simbolo);
+            if (valor === 0) return 0;
+            return valor || null;
         }
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
