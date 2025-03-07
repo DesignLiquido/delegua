@@ -9,6 +9,8 @@ import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
 
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
+    AcessoPropriedade,
     Atribuir,
     Comentario,
     Construto,
@@ -103,6 +105,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
@@ -911,7 +921,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    async visitarExpressaoAcessoMetodo(expressao: any) {
+    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: any) {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {

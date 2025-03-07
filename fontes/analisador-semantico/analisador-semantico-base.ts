@@ -23,6 +23,8 @@ import {
     Unario,
     Vetor,
     Comentario,
+    AcessoMetodo,
+    AcessoPropriedade,
 } from '../construtos';
 import {
     Declaracao,
@@ -66,6 +68,7 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
@@ -82,6 +85,14 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             linha: simbolo.linha,
             severidade: severidade,
         });
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+        return Promise.resolve();
+    }
+    
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
@@ -180,7 +191,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         return Promise.resolve();
     }
 

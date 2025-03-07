@@ -1,17 +1,17 @@
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { InterpretadorBase } from '../../fontes/interpretador';
+import { Interpretador } from '../../fontes/interpretador';
 import { Lexador } from '../../fontes/lexador';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
         let lexador: Lexador;
         let avaliadorSintatico: AvaliadorSintatico;
-        let interpretador: InterpretadorBase;
+        let interpretador: Interpretador;
 
         beforeEach(() => {
             lexador = new Lexador();
             avaliadorSintatico = new AvaliadorSintatico();
-            interpretador = new InterpretadorBase(process.cwd());
+            interpretador = new Interpretador(process.cwd());
         });
 
         describe('Cenários de sucesso', () => {
@@ -126,14 +126,14 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear([
                         'var { estacaoTerraAteColoniaSolis, vilaOmegaAteCidadeNova, luaZetAteBaseDelta } = {',
-                        '"estacaoTerraAteColoniaSolis": 2000,',
-                        '"vilaOmegaAteCidadeNova": 500,',
-                        '"luaZetAteBaseDelta": 850,',
+                        '  "estacaoTerraAteColoniaSolis": 2000,',
+                        '  "vilaOmegaAteCidadeNova": 500,',
+                        '  "luaZetAteBaseDelta": 850,',
                         '}',
                         'var distanciaTotal = [',
-                        'estacaoTerraAteColoniaSolis,',
-                        'vilaOmegaAteCidadeNova,',
-                        'luaZetAteBaseDelta',
+                        '  estacaoTerraAteColoniaSolis,',
+                        '  vilaOmegaAteCidadeNova,',
+                        '  luaZetAteBaseDelta',
                         '].somar()',
                         'escreva(distanciaTotal)'
                     ], -1);
@@ -1192,6 +1192,29 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(16);
+                });
+
+                it('para cada - vetor gerado por método de primitiva', async () => {
+                    let _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var frase = "oi cara de boi"',
+                            'var palavras = frase.dividir(" ") // ["oi", "cara", "de", "boi"]',
+                            'para cada palavra de palavras {',
+                            '    escreva(palavra)',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(4);
                 });
 
                 it('para', async () => {

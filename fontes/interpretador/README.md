@@ -2,15 +2,21 @@
 
 O interpretador é o componente de Delégua que efetivamente executa todo o código fornecido. Pode ser uma ou várias linhas.
 
-Normalmente dialetos derivam do interpretador de Delégua, e variações podem ocorrer. Por exemplo, o interpretador de VisuAlg herda o interpretador de Delégua mas executa algumas partes de forma diferente, como a instrução `escreva()`.
+Normalmente dialetos derivam do interpretador base, e variações podem ocorrer. Por exemplo, [o interpretador de VisuAlg](https://github.com/DesignLiquido/visualg/blob/principal/fontes/interpretador/interpretador-visualg.ts) herda o interpretador base, mas executa algumas partes de forma diferente, como a instrução `escreva()`.
 
 A única exceção até então é o interpretador de Égua Clássico. O motivo é a forma como o interpretador original da linguagem Égua importa diferentes arquivos durante a execução, além de uma etapa de "resolução de variáveis", que os demais dialetos não possuem.
 
+## O interpretador base
+
+Por muitas versões, o interpretador base foi o interpretador padrão de Delégua, sendo separado em um outro interpretador dedicado na versão 0.39.0 deste núcleo de Delégua. É também o interpretador herdado por quase todos os outros dialetos. Como Delégua começou a evoluir diferentemente dos demais dialetos, o interpretador base foi colocado de dieta, e deve se tornar abstrato em versões futuras, até porque sua densidade de código torna sua manutenção um desafio.
+
+É nele que vivem as principais instruções de interpretação, e muitas delas são as mesmas independente de dialeto. Isso permite a qualquer desenvolvedor começar um novo dialeto de qualquer linguagem muito rapidamente, bastando herdar o interpretador base e implementar apenas os métodos que são diferentes, o que é o caso comum para entrada e saída.
+
 ## Interpretador, Construtos e Declarações
 
-Construtos e declarações não conhecem a implementação completa de um interpretador: apenas a interface correspondente, que expõe os métodos de visita.
+Construtos e declarações não conhecem a implementação completa de um interpretador: apenas a interface correspondente (`VisitanteComumInterface`), que expõe os métodos de visita.
 
-Cada declaração e cada construto possuem um método de visita correspondente no interpretador. Em outras palavras, o interpretador chama o método aceitar do construto ou declaração, que aponta de volta para o interpretador qual método executar dele mesmo.
+Cada declaração e cada construto possuem um método de visita correspondente no interpretador. Em outras palavras, o interpretador chama o método `aceitar()` do construto ou declaração, que aponta de volta para o interpretador qual método executar dele mesmo.
 
 Um exemplo de fluxo:
 
@@ -22,18 +28,18 @@ A sequência algorítmica de passos para executar essa instrução é:
 
 -   Interpretador chama método `aceitar()` da declaração `Escreva`, passando a si mesmo como argumento do método;
 -   O método `aceitar()` da declaração `Escreva`, por sua vez, chama o método `visitarDeclaracaoEscreva()` do interpretador, passando a si mesmo como argumento do método;
--   `visitarDeclaracaoEscreva()` recebe como argumento o objeto da declaração `Escreva`, com todas as informações para a execução. O método confere os argumentos (neste caso, apenas um, "Olá mundo"), formata esses argumentos como texto e os escreve na saída padrão. A saída padrão normalmente é o objeto `console` do ambiente de execução, mas pode ser outro quando configurado antes da execução.
+-   `visitarDeclaracaoEscreva()` recebe como argumento o objeto da declaração `Escreva`, com todas as informações para a execução. O método confere os argumentos (neste caso, apenas um, "Olá mundo"), formata esses argumentos como texto e os escreve na saída padrão. A saída padrão normalmente é o objeto `console` do ambiente de execução (o mais comum tanto para JavaScript no navegador quanto para ambientes como Node.js e Bun), mas pode ser outro quando configurado antes da execução.
 
 ## Interpretador com depuração
 
-O interpretador com depuração de Delégua herda do interpretador tradicional, mas a lógica é mais complexa para suportar os comandos e funcionalidades de mecanismos de depuração, que são:
+O interpretador com depuração de Delégua herda do interpretador base, mas a lógica é mais complexa para suportar os comandos e funcionalidades de mecanismos de depuração, que são:
 
 -   Executar normalmente, até que um ponto de parada seja encontrado (comando "continuar");
 -   Executar apenas uma instrução, sem necessariamente adentrar um escopo (comando "próximo");
 -   Adentrar um escopo e talvez executar uma instrução (comando "adentrar escopo");
 -   Executar as demais instruções de um escopo e sair dele, parando na próxima instrução do escopo anterior (comando "próximo e sair").
 
-Esse interpretador é controlado pelo servidor de depuração. A forma de manter a aplicação executando indefinidamente, esperando pelos comandos do usuário, é feita através de um _stream_ (fluxo de entrada e saída) aberto na forma de um _Socket_, um canal de comunicação por TCP/IP na porta 7777. [Mais informações podem ser encontradas no README.md correspondente](https://github.com/DesignLiquido/delegua/blob/principal/fontes/depuracao/README.md).
+Esse interpretador é controlado ou por um servidor de depuração, se for uma execução remota de código, ou por uma classe de tempo de execução ([implementada na extensão de Visual Studio Code da Design Líquido](https://github.com/DesignLiquido/vscode/blob/principal/fontes/depuracao/local/delegua-tempo-execucao-local.ts)). 
 
 A implementação mais fácil de entender neste interpretador é a do comando "continuar", exatamente por ser muito parecida com a implementação do interpretador tradicional. Um laço de repetição executa todas as declarações até que um ponto de parada seja encontrado, se houver. Se não houver pontos de parada, a execução é idêntica à de uma execução trivial, com alguma redução de performance com as conferências necessárias dos pontos de parada. Se houver pontos de parada, o interpretador com depuração avisa o servidor de depuração que um ponto de parada foi encontrado, e que um dos quatro comandos são necessários para reiniciar a execução.
 
@@ -128,3 +134,9 @@ Desta vez, mesmo que o desenvolvedor peça para adentrar o escopo, o interpretad
 Para que isso seja possível de ser implementado, o interpretador precisa designar identificadores únicos para cada construto de chamada de função ou método de classe. A forma de fazer isso é gerando GUIDs (UUIDs) para cada construto de chamada no momento da criação desses construtos. GUIDs (ou UUIDs) são estruturas de dados cujo valor tem uma chance de colisão tão baixa (ou seja, é praticamente impossível gerar dois valores iguais durante uma execução) que podemos considerar esses valores como únicos. Tendo esses identificadores, podemos guardar os resultados da execução de cada chamada de função no espaço de variáveis de [escopos de execução do interpretador](https://github.com/DesignLiquido/delegua/blob/principal/fontes/interfaces/escopo-execucao.ts).
 
 Por que precisamos manter isso? Porque, tecnicamente, cada execução em passo (comando "próximo", comando "adentrar-escopo") faz com que o interpretador perca boa parte do contexto de execução. Se por exemplo temos um escopo com 10 instruções e paramos a execução na terceira instrução para esperar o próximo comando do desenvolvedor, os valores que não foram definidos em variáveis simplesmente evaporam. Por isso foi criado na estrutura de espaço de variáveis um dicionário chamado `resolucoesChamadas`, em que a chave de cada entrada é o identificador único da chamada, mais os valores resolvidos de cada argumento, e o valor é o retorno já resolvido da chamada. Isso garante ao interpretador recuperar valores de chamadas feitas anteriormente, não importando quantas vezes o código parou e reiniciou. A chave de entrada contém os argumentos para evitar problemas em chamadas recursivas (o que poderia acontecer em neste algoritmo de Fibonacci).
+
+### Particularidades da depuração remota
+
+A forma de manter a aplicação executando indefinidamente, esperando pelos comandos do usuário, é feita através de um _stream_ (fluxo de entrada e saída) aberto na forma de um _Socket_, um canal de comunicação por TCP/IP na porta 7777. [Mais informações podem ser encontradas no README.md correspondente](https://github.com/DesignLiquido/delegua/blob/principal/fontes/depuracao/README.md).
+
+

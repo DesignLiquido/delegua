@@ -1,5 +1,6 @@
 import {
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Comentario,
     Construto,
     ExpressaoRegular,
@@ -90,6 +91,14 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+    
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: any) {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {
@@ -381,7 +390,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): any {
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): any {
         this.resolver(expressao.objeto);
         return null;
     }

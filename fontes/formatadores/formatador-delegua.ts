@@ -1,6 +1,8 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -79,6 +81,18 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '.';
+        this.codigoFormatado += expressao.nomeMetodo;
+    }
+
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '.';
+        this.codigoFormatado += expressao.nomePropriedade;
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): void | Promise<any> {
@@ -388,7 +402,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `]`;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade) {
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade) {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.simbolo.lexema;
@@ -710,7 +724,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
                 break;
             case 'AcessoMetodoOuPropriedade':
-                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                this.visitarExpressaoAcessoMetodoOuPropriedade(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
