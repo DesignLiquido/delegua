@@ -198,6 +198,10 @@ export class MicroLexador {
                 this.analisarTexto("'");
                 this.atual++;
                 break;
+            case '.':
+                this.atual++;
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
