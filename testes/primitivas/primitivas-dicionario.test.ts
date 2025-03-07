@@ -14,7 +14,7 @@ describe('Primitivas de dicionário', () => {
     describe('chaves()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
-            const resultado = await primitivasDicionario.chaves(interpretador, meuDicionario);
+            const resultado = await primitivasDicionario.chaves.implementacao(interpretador, meuDicionario);
             expect(resultado).toStrictEqual(["a", "b", "c"]);
         });
     });
@@ -22,7 +22,7 @@ describe('Primitivas de dicionário', () => {
     describe('valores()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
-            const resultado = await primitivasDicionario.valores(interpretador, meuDicionario);
+            const resultado = await primitivasDicionario.valores.implementacao(interpretador, meuDicionario);
             expect(resultado).toStrictEqual([1, 2, 3]);
         });
     });

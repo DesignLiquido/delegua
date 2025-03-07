@@ -126,14 +126,14 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear([
                         'var { estacaoTerraAteColoniaSolis, vilaOmegaAteCidadeNova, luaZetAteBaseDelta } = {',
-                        '"estacaoTerraAteColoniaSolis": 2000,',
-                        '"vilaOmegaAteCidadeNova": 500,',
-                        '"luaZetAteBaseDelta": 850,',
+                        '  "estacaoTerraAteColoniaSolis": 2000,',
+                        '  "vilaOmegaAteCidadeNova": 500,',
+                        '  "luaZetAteBaseDelta": 850,',
                         '}',
                         'var distanciaTotal = [',
-                        'estacaoTerraAteColoniaSolis,',
-                        'vilaOmegaAteCidadeNova,',
-                        'luaZetAteBaseDelta',
+                        '  estacaoTerraAteColoniaSolis,',
+                        '  vilaOmegaAteCidadeNova,',
+                        '  luaZetAteBaseDelta',
                         '].somar()',
                         'escreva(distanciaTotal)'
                     ], -1);

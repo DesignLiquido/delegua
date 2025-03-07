@@ -38,8 +38,8 @@ export class Interpretador extends InterpretadorBase {
         
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
-            const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.nomeMetodo].implementacao;
-            if (metodoDePrimitivaDicionario) {
+            if (expressao.nomeMetodo in primitivasDicionario) {
+                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.nomeMetodo].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
@@ -130,8 +130,8 @@ export class Interpretador extends InterpretadorBase {
         
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
-            const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.nomePropriedade].implementacao;
-            if (metodoDePrimitivaDicionario) {
+            if (expressao.nomePropriedade in primitivasDicionario) {
+                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.nomePropriedade].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 

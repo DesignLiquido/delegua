@@ -1,4 +1,6 @@
 import {
+    AcessoMetodo,
+    AcessoPropriedade,
     Atribuir,
     Comentario,
     Construto,
@@ -89,6 +91,14 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> {

@@ -1,6 +1,8 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -148,6 +150,21 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return `${entidade}[${indice}]`;
     }
 
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+        if (acessoMetodo.objeto instanceof Variavel) {
+            let objetoVariavel = acessoMetodo.objeto as Variavel;
+            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.nomeMetodo);
+            if (funcaoTraduzida === 'in') {
+                return `in ${objetoVariavel.simbolo.lexema}`;
+            } else if (funcaoTraduzida === 'len') {
+                return `len(${objetoVariavel.simbolo.lexema})`;
+            }
+
+            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+        }
+        return `self.${acessoMetodo.nomeMetodo}`;
+    }
+
     traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -161,6 +178,21 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
         }
         return `self.${acessoMetodo.simbolo.lexema}`;
+    }
+
+    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
+        if (acessoPropriedade.objeto instanceof Variavel) {
+            let objetoVariavel = acessoPropriedade.objeto as Variavel;
+            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoPropriedade.nomePropriedade);
+            if (funcaoTraduzida === 'in') {
+                return `in ${objetoVariavel.simbolo.lexema}`;
+            } else if (funcaoTraduzida === 'len') {
+                return `len(${objetoVariavel.simbolo.lexema})`;
+            }
+
+            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+        }
+        return `self.${acessoPropriedade.nomePropriedade}`;
     }
 
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
@@ -597,7 +629,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     dicionarioConstrutos = {
+        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
         AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
+        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),

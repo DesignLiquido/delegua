@@ -1544,8 +1544,8 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
-            const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema].implementacao;
-            if (metodoDePrimitivaDicionario) {
+            if (expressao.simbolo.lexema in primitivasDicionario) {
+                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 

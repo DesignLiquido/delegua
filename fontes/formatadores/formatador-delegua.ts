@@ -1,6 +1,8 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -79,6 +81,18 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '.';
+        this.codigoFormatado += expressao.nomeMetodo;
+    }
+
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '.';
+        this.codigoFormatado += expressao.nomePropriedade;
     }
 
     visitarDeclaracaoComentario(declaracao: Comentario): void | Promise<any> {

@@ -1,6 +1,8 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -582,12 +584,28 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+        if (acessoMetodo.objeto instanceof Variavel) {
+            let objetoVariavel = acessoMetodo.objeto as Variavel;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.nomeMetodo)}`;
+        }
+        return `this.${acessoMetodo.nomeMetodo}`;
+    }
+
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
         }
         return `this.${acessoMetodo.simbolo.lexema}`;
+    }
+
+    traduzirConstrutoAcessoPropriedade(acessoMetodo: AcessoPropriedade): string {
+        if (acessoMetodo.objeto instanceof Variavel) {
+            let objetoVariavel = acessoMetodo.objeto as Variavel;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.nomePropriedade)}`;
+        }
+        return `this.${acessoMetodo.nomePropriedade}`;
     }
 
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
@@ -696,7 +714,9 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
+        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
