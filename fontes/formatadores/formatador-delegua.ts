@@ -388,7 +388,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `]`;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade) {
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade) {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.simbolo.lexema;
@@ -710,7 +710,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
                 break;
             case 'AcessoMetodoOuPropriedade':
-                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                this.visitarExpressaoAcessoMetodoOuPropriedade(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);

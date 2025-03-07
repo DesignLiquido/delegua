@@ -45,8 +45,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     protected erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
-        // TODO: Estudar remover.
-        // this.erros.push(excecao);
         return excecao;
     }
 
@@ -128,8 +126,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
-        return new Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+        return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
     protected unario(): Construto {

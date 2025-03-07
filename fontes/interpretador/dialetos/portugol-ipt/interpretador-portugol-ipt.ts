@@ -527,7 +527,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoAcessoMetodo(expressao: any): never {
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: any): never {
         throw new Error('Método não implementado');
     }
 

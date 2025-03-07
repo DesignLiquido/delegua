@@ -1,7 +1,9 @@
 import {
     AcessoElementoMatriz,
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     AtribuicaoPorIndicesMatriz,
@@ -85,7 +87,9 @@ export interface VisitanteComumInterface {
     visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void;
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void;
     visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void;
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> | void;
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void;
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> | void;
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void;
     visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> | void;
     visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> | void;
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> | void;

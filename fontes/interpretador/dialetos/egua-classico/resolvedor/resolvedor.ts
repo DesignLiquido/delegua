@@ -381,7 +381,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): any {
+    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): any {
         this.resolver(expressao.objeto);
         return null;
     }

@@ -1,10 +1,16 @@
-import { VisitanteComumInterface } from '../interfaces';
+import { PrimitivaInterface, VisitanteComumInterface } from '../interfaces';
 
 export default {
-    chaves: (interpretador: VisitanteComumInterface, valor: Object): Promise<any> => {
-        return Promise.resolve(Object.keys(valor));
+    chaves: {
+        tipoRetorno: 'texto[]',
+        implementacao: (interpretador: VisitanteComumInterface, valor: Object): Promise<any> => {
+            return Promise.resolve(Object.keys(valor));
+        }
     },
-    valores: (interpretador: VisitanteComumInterface, valor: Object): Promise<any> => {
-        return Promise.resolve(Object.values(valor));
+    valores: {
+        tipoRetorno: 'qualquer[]',
+        implementacao: (interpretador: VisitanteComumInterface, valor: Object): Promise<any> => {
+            return Promise.resolve(Object.values(valor));
+        }
     },
-};
+} as {[key: string]: PrimitivaInterface };

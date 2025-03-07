@@ -911,7 +911,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return null;
     }
 
-    async visitarExpressaoAcessoMetodo(expressao: any) {
+    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: any) {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {

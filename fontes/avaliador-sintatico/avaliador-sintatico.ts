@@ -5,7 +5,9 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -67,6 +69,11 @@ import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../in
 import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
+
+import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../bibliotecas/primitivas-numero';
+import primitivasTexto from '../bibliotecas/primitivas-texto';
+import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -385,6 +392,76 @@ export class AvaliadorSintatico
         }
 
         return expressao;
+    }
+
+    override finalizarChamada(entidadeChamada: Construto): Chamada {
+        const argumentos: Array<Construto> = [];
+
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            do {
+                // `apply()` em JavaScript aceita até 255 parâmetros.
+                if (argumentos.length >= 255) {
+                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
+                }
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+
+        // Toda chamada precisa saber de antemão qual o tipo resolvido.
+        let entidadeChamadaResolvida = entidadeChamada;
+        if (entidadeChamadaResolvida.constructor.name === 'AcessoMetodoOuPropriedade') {
+            const acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade = entidadeChamadaResolvida as AcessoMetodoOuPropriedade;
+            switch (entidadeChamadaResolvida.tipo) {
+                case tipoDeDadosDelegua.INTEIRO:
+                case tipoDeDadosDelegua.NUMERO:
+                case tipoDeDadosDelegua.NÚMERO:
+                    if (!(acessoMetodoOuPropriedade.simbolo.lexema in primitivasNumero)) {
+                        throw this.erro(acessoMetodoOuPropriedade.simbolo, `${acessoMetodoOuPropriedade.simbolo.lexema} não é uma primitiva de número.`);
+                    }
+
+                    const primitivaNumeroSelecionada = primitivasNumero[acessoMetodoOuPropriedade.simbolo.lexema];
+                    entidadeChamadaResolvida = new AcessoMetodo(
+                        acessoMetodoOuPropriedade.hashArquivo,
+                        acessoMetodoOuPropriedade.objeto,
+                        acessoMetodoOuPropriedade.simbolo.lexema,
+                        primitivaNumeroSelecionada.tipoRetorno
+                    )
+                    break;
+                case tipoDeDadosDelegua.TEXTO:
+                    if (!(acessoMetodoOuPropriedade.simbolo.lexema in primitivasTexto)) {
+                        throw this.erro(acessoMetodoOuPropriedade.simbolo, `${acessoMetodoOuPropriedade.simbolo.lexema} não é uma primitiva de texto.`);
+                    }
+
+                    const primitivaTextoSelecionada = primitivasTexto[acessoMetodoOuPropriedade.simbolo.lexema];
+                    entidadeChamadaResolvida = new AcessoMetodo(
+                        acessoMetodoOuPropriedade.hashArquivo,
+                        acessoMetodoOuPropriedade.objeto,
+                        acessoMetodoOuPropriedade.simbolo.lexema,
+                        primitivaTextoSelecionada.tipoRetorno
+                    )
+                    break;
+                case tipoDeDadosDelegua.VETOR:
+                case tipoDeDadosDelegua.VETOR_NUMERO:
+                case tipoDeDadosDelegua.VETOR_NÚMERO:
+                case tipoDeDadosDelegua.VETOR_TEXTO:
+                    if (!(acessoMetodoOuPropriedade.simbolo.lexema in primitivasVetor)) {
+                        throw this.erro(acessoMetodoOuPropriedade.simbolo, `${acessoMetodoOuPropriedade.simbolo.lexema} não é uma primitiva de vetor.`);
+                    }
+
+                    const primitivaVetorSelecionada = primitivasVetor[acessoMetodoOuPropriedade.simbolo.lexema];
+                    entidadeChamadaResolvida = new AcessoMetodo(
+                        acessoMetodoOuPropriedade.hashArquivo,
+                        acessoMetodoOuPropriedade.objeto,
+                        acessoMetodoOuPropriedade.simbolo.lexema,
+                        primitivaVetorSelecionada.tipoRetorno
+                    )
+                    break;
+            }
+        }
+
+        return new Chamada(this.hashArquivo, entidadeChamadaResolvida, argumentos);
     }
 
     override unario(): Construto {
@@ -1251,8 +1328,22 @@ export class AvaliadorSintatico
             if (tipo === 'qualquer') {
                 switch (inicializadores[indice].constructor.name) {
                     case 'AcessoIndiceVariavel':
-                        const entidadeChamada = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
-                        tipo = entidadeChamada.tipo.slice(0, -2);
+                        const entidadeChamadaAcessoIndiceVariavel = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
+                        tipo = entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+                        break;
+                    case 'Chamada':
+                        const entidadeChamadaChamada = (inicializadores[indice] as Chamada).entidadeChamada;
+                        switch (entidadeChamadaChamada.constructor.name) {
+                            case 'AcessoMetodo':
+                                const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
+                                tipo = entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                                break;
+                            case 'AcessoPropriedade':
+                                const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
+                                tipo = entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
+                                break;
+                        }
+                        
                         break;
                     case 'Dupla':
                     case 'Trio':

@@ -41,7 +41,9 @@ import {
 } from '../estruturas';
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -174,6 +176,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /**
@@ -1114,7 +1124,6 @@ export class InterpretadorBase implements InterpretadorInterface {
                         const chamadaPegue = new Chamada(
                             declaracao.caminhoPegue.hashArquivo,
                             declaracao.caminhoPegue,
-                            null,
                             [literalErro]
                         );
                         valorRetorno = await chamadaPegue.aceitar(this);
@@ -1514,7 +1523,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso.
      * @returns O resultado da execução.
      */
-    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
@@ -1535,7 +1544,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
-            const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema];
+            const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaDicionario) {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
@@ -1575,13 +1584,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
-                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
+                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
-                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
+                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
                 }
@@ -1590,7 +1599,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tipoDeDadosDelegua.VETOR_NUMERO:
             case tipoDeDadosDelegua.VETOR_NÚMERO:
             case tipoDeDadosDelegua.VETOR_TEXTO:
-                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
+                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
                 }

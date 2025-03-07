@@ -3,7 +3,9 @@ import { Construto } from './construto';
 
 /**
  * Chamado de `Get` em Égua Clássico, é o construto de acesso a métodos ou membros de
- * classe.
+ * classe. Foi usado por Delégua até a versão 0.38.4, em que uma especialização maior
+ * de tipos é necessária para o correto funcionamento da compilação por LLVM. Os demais
+ * dialetos ainda a usam sem problemas.
  */
 export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
@@ -23,6 +25,6 @@ export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> imp
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoAcessoMetodo(this);
+        return await visitante.visitarExpressaoAcessoMetodoOuPropriedade(this);
     }
 }
