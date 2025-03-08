@@ -18,7 +18,11 @@ describe('Interpretador', () => {
             describe('Acesso a operações matemáticas em posições de array', () => {
                 it('Espera-se que atribuição com acumulador seja bem sucedida', async () => {
                     const retornoLexador = lexador.mapear(
-                        ['var pilha = [1, 2, 3, 4]', 'pilha[0] += 8', 'escreva(pilha[0])'],
+                        [
+                            'var pilha = [1, 2, 3, 4]', 
+                            'pilha[0] += 8', 
+                            'escreva(pilha[0])'
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

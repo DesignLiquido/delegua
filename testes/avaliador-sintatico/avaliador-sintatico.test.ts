@@ -807,6 +807,24 @@ describe('Avaliador sintático', () => {
                 );
             });
 
+            describe('Dicionários', () => {
+                it('Tipo de chave de dicionário inválida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var dicionarioInvalido = {',
+                            '    [1, 2, [1, 2, 3]]: "valor",',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    const erro = retornoAvaliadorSintatico.erros[0];
+                    expect(erro.message).toBe('Esperado parêntese esquerdo após colchete esquerdo para definição de chave de dicionário. Atual: NUMERO.');
+                });
+            });
+
             describe('Funções', () => {
                 it('Função retorna vazio mas tem retorno de valores', async () => {
                     const retornoLexador = lexador.mapear(
