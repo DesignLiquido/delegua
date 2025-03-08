@@ -1,8 +1,5 @@
 import hrtime from 'browser-process-hrtime';
 
-import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-
 import {
     AcessoIndiceVariavel,
     AcessoMetodo,
@@ -69,6 +66,9 @@ import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../in
 import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
+
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -152,33 +152,83 @@ export class AvaliadorSintatico
         return tipoElementarResolvido as TipoDadosElementar;
     }
 
+    protected obterChaveDicionario(): Construto {
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.NUMERO:
+            case tiposDeSimbolos.TEXTO:
+            case tiposDeSimbolos.FALSO:
+            case tiposDeSimbolos.VERDADEIRO:
+                return this.primario();
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+                let tipoOperando: string;
+                if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
+                    tipoOperando = simboloIdentificador.lexema;
+                } else {
+                    tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(simboloIdentificador.lexema);
+                }
+
+                if (!['numero', 'número', 'texto', 'lógico'].includes(tipoOperando)) {
+                    throw this.erro(simboloIdentificador, `Tipo ${tipoOperando} de identificador ${simboloIdentificador.lexema} não é válido como chave de dicionário.`);
+                }
+
+                return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
+            case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                    return this.construtoTupla();
+                }
+
+                throw this.erro(this.simbolos[this.atual], `Esperado parêntese esquerdo após colchete esquerdo para definição de chave de dicionário. Atual: ${this.simbolos[this.atual].tipo}.`);
+            default:
+                throw this.erro(this.simbolos[this.atual], `Símbolo ${this.simbolos[this.atual].tipo} inesperado ou inválido como chave de dicionário.`);
+        }
+    }
+
+    protected construtoDicionario(simboloChaveEsquerda: SimboloInterface): Dicionario {
+        this.avancarEDevolverAnterior();
+        const chaves = [];
+        const valores = [];
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
+            return new Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), [], []);
+        }
+
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
+            const chave = this.obterChaveDicionario();
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+            const valor = this.atribuir();
+
+            chaves.push(chave);
+            valores.push(valor);
+
+            if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
+                this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+            }
+        }
+
+        return new Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), chaves, valores);
+    }
+
+    protected construtoTupla(): Tupla {
+        const expressao = this.expressao();
+        const argumentos = [expressao];
+        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
+            this.avancarEDevolverAnterior();
+            argumentos.push(this.expressao());
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+        this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após a expressão.");
+        return new SeletorTuplas(...argumentos) as Tupla;
+    }
+
     override primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
-                this.avancarEDevolverAnterior();
-                const chaves = [];
-                valores = [];
-
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), [], []);
-                }
-
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    const chave = this.atribuir();
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                    const valor = this.atribuir();
-
-                    chaves.push(chave);
-                    valores.push(valor);
-
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
-                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
-                    }
-                }
-
-                return new Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
+                return this.construtoDicionario(simboloAtual);
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -189,21 +239,11 @@ export class AvaliadorSintatico
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    let valor: any = null;
                     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                        const expressao = this.expressao();
-                        const argumentos = [expressao];
-                        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
-                            this.avancarEDevolverAnterior();
-                            argumentos.push(this.expressao());
-                        }
-
-                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                        this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após a expressão.");
-                        return new SeletorTuplas(...argumentos) as Tupla;
+                        return this.construtoTupla();
                     }
 
-                    valor = this.atribuir();
+                    const valor = this.atribuir();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
