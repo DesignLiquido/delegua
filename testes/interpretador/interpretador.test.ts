@@ -1271,14 +1271,14 @@ describe('Interpretador', () => {
                 it('Chamada de método com `super`', async () => {
                     const codigo = [
                         'classe A {',
-                        'data(data) {',
-                        'escreva(data);',
-                        '}',
+                        '  data(data) {',
+                        '    escreva(data);',
+                        '  }',
                         '}',
                         'classe B herda A {',
-                        'construtor(data) {',
-                        'super.data(data);',
-                        '}',
+                        '  construtor(data) {',
+                        '    super.data(data);',
+                        '  }',
                         '}',
                         'var a = B("13/12/1981");',
                     ];
@@ -1298,19 +1298,19 @@ describe('Interpretador', () => {
                 it('Chamada de método com `super` e definição de propriedade com `isto`', async () => {
                     const codigo = [
                         'classe A {',
-                        '   dataA: texto',
-                        '   construtor() {',
-                        "   isto.dataA = '01/01/2001'",
-                        '}',
-                        'data(data1) {',
-                        'escreva(isto.dataA + " - ", data1)',
-                        '}',
+                        '  dataA: texto',
+                        '  construtor() {',
+                        "    isto.dataA = '01/01/2001'",
+                        '  }',
+                        '  data(data1) {',
+                        '    escreva(isto.dataA + " - ", data1)',
+                        '  }',
                         '}',
                         'classe B herda A {',
-                        'construtor(data) {',
-                        'super();',
-                        'super.data(data);',
-                        '}',
+                        '  construtor(data) {',
+                        '    super();',
+                        '    super.data(data);',
+                        '  }',
                         '}',
                         'var a = B("13/12/1981");',
                     ];
@@ -1372,6 +1372,36 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas.length).toBeGreaterThan(0);
+                });
+
+                it('Interpolação com `isto`', async () => {
+                    let _saidas = "";
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        _saidas += saida;
+                    }
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Vendedor {',
+                            '  nome: texto',
+                            '  construtor(nome) {',
+                            '    isto.nome = nome',
+                            '  }',
+                            '  recebaCliente() {',
+                            '    escreva("Olá, meu nome é ${isto.nome}, como posso lhe ajudar?")',
+                            '  }',
+                            '}',
+                            'var vendedor = Vendedor("Fernando")',
+                            'vendedor.recebaCliente()',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBeGreaterThan(0);
+                    expect(_saidas).toBe("Olá, meu nome é Fernando, como posso lhe ajudar?");
                 });
             });
 
