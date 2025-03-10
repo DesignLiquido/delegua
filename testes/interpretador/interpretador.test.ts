@@ -1584,7 +1584,7 @@ describe('Interpretador', () => {
 
                 it('Dias de vida', async () => {
                     // Aqui vamos simular a resposta para uma variável de `leia()`.
-                    const respostas = [38];
+                    const respostas = ['38'];
                     interpretador.interfaceEntradaSaida = {
                         question: (mensagem: string, callback: Function) => {
                             callback(respostas.shift());
@@ -1592,7 +1592,7 @@ describe('Interpretador', () => {
                     };
 
                     const codigo = [
-                        'var n1 = leia("digite sua idade");',
+                        'var n1 = inteiro(leia("digite sua idade"));',
                         'var n2 = (365*n1);',
                         'escreva("Você tem " +n2+" dias de vida");',
                     ];
@@ -1622,10 +1622,10 @@ describe('Interpretador', () => {
                         );
 
                         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                        const saidas: string[] = [];
+                        const _saidas: string[] = [];
 
                         interpretador.funcaoDeRetorno = (saida: string) => {
-                            saidas.push(saida);
+                            _saidas.push(saida);
                         };
 
                         const retornoInterpretador = await interpretador.interpretar(
@@ -1633,9 +1633,9 @@ describe('Interpretador', () => {
                         );
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(saidas).toHaveLength(2);
-                        expect(saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
-                        expect(saidas[1]).toEqual('[1, 2, 3]');
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
+                        expect(_saidas[1]).toEqual('[1, 2, 3]');
                     });
 
                     it('Obter valores do dicionário dentro de outro dicionário', async () => {

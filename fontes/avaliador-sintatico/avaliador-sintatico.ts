@@ -551,7 +551,7 @@ export class AvaliadorSintatico
                         throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de dicionário.`);
                     }
 
-                    const primitivaDicionarioSelecionada = primitivasNumero[construtoTipado.simbolo.lexema];
+                    const primitivaDicionarioSelecionada = primitivasDicionario[construtoTipado.simbolo.lexema];
                     entidadeChamadaResolvida = new AcessoMetodo(
                         construtoTipado.hashArquivo,
                         construtoTipado.objeto,
@@ -1460,9 +1460,7 @@ export class AvaliadorSintatico
             case 'Noneto':
             case 'Deceto':
                 return tipoDeDadosDelegua.TUPLA;
-            case 'Literal':
-            case 'Variavel':
-            case 'Vetor':
+            default:
                 return inicializador.tipo;
         }
     }
