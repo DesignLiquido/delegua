@@ -1421,6 +1421,52 @@ export class AvaliadorSintatico
         return retornos;
     }
 
+    protected logicaComumInferenciaTiposVariaveisEConstantes(inicializador: Construto, tipo: string): string {
+        if (tipo !== 'qualquer') {
+            return tipo
+        }
+
+        switch (inicializador.constructor.name) {
+            case 'AcessoIndiceVariavel':
+                const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel).entidadeChamada;
+                return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+            case 'Chamada':
+                const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;
+                switch (entidadeChamadaChamada.constructor.name) {
+                    case 'AcessoMetodo':
+                        const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
+                        return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                    case 'AcessoPropriedade':
+                        const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
+                        return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
+                    case 'Variavel':
+                        const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
+                        return entidadeChamadaVariavel.tipo;
+                }
+                
+                break;
+            case 'FuncaoConstruto':
+                const funcaoConstruto = inicializador as FuncaoConstruto;
+                return `função<${funcaoConstruto.tipoRetorno}>`;
+            case 'Leia':
+                return 'texto';
+            case 'Dupla':
+            case 'Trio':
+            case 'Quarteto':
+            case 'Quinteto':
+            case 'Sexteto':
+            case 'Septeto':
+            case 'Octeto':
+            case 'Noneto':
+            case 'Deceto':
+                return tipoDeDadosDelegua.TUPLA;
+            case 'Literal':
+            case 'Variavel':
+            case 'Vetor':
+                return inicializador.tipo;
+        }
+    }
+
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
@@ -1476,52 +1522,7 @@ export class AvaliadorSintatico
 
         for (let [indice, identificador] of identificadores.entries()) {
             // Se tipo ainda não foi definido, infere.
-            if (tipo === 'qualquer') {
-                switch (inicializadores[indice].constructor.name) {
-                    case 'AcessoIndiceVariavel':
-                        const entidadeChamadaAcessoIndiceVariavel = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
-                        tipo = entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
-                        break;
-                    case 'Chamada':
-                        const entidadeChamadaChamada = (inicializadores[indice] as Chamada).entidadeChamada;
-                        switch (entidadeChamadaChamada.constructor.name) {
-                            case 'AcessoMetodo':
-                                const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
-                                tipo = entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
-                                break;
-                            case 'AcessoPropriedade':
-                                const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
-                                tipo = entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
-                                break;
-                            case 'Variavel':
-                                const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
-                                tipo = entidadeChamadaVariavel.tipo;
-                                break;
-                        }
-                        
-                        break;
-                    case 'FuncaoConstruto':
-                        const funcaoConstruto = inicializadores[indice] as FuncaoConstruto;
-                        tipo = `função<${funcaoConstruto.tipoRetorno}>`;
-                        break;
-                    case 'Dupla':
-                    case 'Trio':
-                    case 'Quarteto':
-                    case 'Quinteto':
-                    case 'Sexteto':
-                    case 'Septeto':
-                    case 'Octeto':
-                    case 'Noneto':
-                    case 'Deceto':
-                        tipo = tipoDeDadosDelegua.TUPLA;
-                        break;
-                    case 'Literal':
-                    case 'Variavel':
-                    case 'Vetor':
-                        tipo = inicializadores[indice].tipo;
-                        break;
-                }
-            }
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
             this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
             retorno.push(new Var(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
@@ -1599,30 +1600,8 @@ export class AvaliadorSintatico
 
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            if (tipo === 'qualquer') {
-                switch (inicializadores[indice].constructor.name) {
-                    case 'AcessoIndiceVariavel':
-                        const entidadeChamada = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
-                        tipo = entidadeChamada.tipo.slice(0, -2);
-                        break;
-                    case 'Dupla':
-                    case 'Trio':
-                    case 'Quarteto':
-                    case 'Quinteto':
-                    case 'Sexteto':
-                    case 'Septeto':
-                    case 'Octeto':
-                    case 'Noneto':
-                    case 'Deceto':
-                        tipo = tipoDeDadosDelegua.TUPLA;
-                        break;
-                    case 'Literal':
-                    case 'Variavel':
-                    case 'Vetor':
-                        tipo = inicializadores[indice].tipo;
-                        break;
-                }
-            }
+            // Se tipo ainda não foi definido, infere.
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
             this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
             retorno.push(

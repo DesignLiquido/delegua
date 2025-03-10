@@ -223,6 +223,10 @@ export class Interpretador extends InterpretadorBase {
                 // TODO: Deve ser removido mais futuramente. 
                 // Apenas `AcessoMetodo` e `AcessoPropriedade` devem funcionar aqui.
                 throw new ErroEmTempoDeExecucao(expressao.simbolo, "Não deveria cair aqui.");
+            case 'Escreva':
+                return 'função<vazio>';
+            case 'Leia':
+                return 'função<texto>';
             case 'Literal':
                 const tipoLiteral = valorTipoDe as Literal;
                 return tipoLiteral.tipo;

@@ -1812,6 +1812,14 @@ describe('Interpretador', () => {
 
             describe('Tipo de', () => {
                 it('Trivial', async () => {
+                    // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                    const respostas = ['5', '5'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
                     const saidasMensagens = [
                         'lógico',
                         'lógico',
@@ -1834,6 +1842,8 @@ describe('Interpretador', () => {
                         'número',
                         'dicionário',
                         'número',
+                        'texto',
+                        'inteiro'
                     ];
 
                     const retornoLexador = lexador.mapear(
@@ -1869,6 +1879,10 @@ describe('Interpretador', () => {
                             '  "preco": 25',
                             '}',
                             'escreva(tipo de produtos[\'preco\'])',
+                            'var resultadoLeia = leia("string: ")',
+                            'var leiaInteiro = inteiro(leia("number: "))',
+                            'escreva(tipo de resultadoLeia)',
+                            'escreva(tipo de leiaInteiro)'
                         ],
                         -1
                     );
