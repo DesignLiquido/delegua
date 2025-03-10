@@ -11,6 +11,7 @@ import {
     Binario,
     Chamada,
     Comentario,
+    ComponenteLinguagem,
     Construto,
     Decorador,
     DefinirValor,
@@ -299,7 +300,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAtual.linha), null);
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), null, 'nulo');
 
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
@@ -355,7 +356,7 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.TIPO:
                 this.avancarEDevolverAnterior();
                 this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
-                let _expressao;
+                let construto: Construto;
                 if (
                     this.verificarSeSimboloAtualEIgualA(
                         tiposDeSimbolos.ESCREVA,
@@ -374,15 +375,105 @@ export class AvaliadorSintatico
                         tipoDeDadosDelegua.VAZIO
                     )
                 ) {
-                    _expressao = this.simboloAnterior();
+                    construto = new ComponenteLinguagem(this.hashArquivo, this.simboloAnterior());
                 } else {
-                    _expressao = this.expressao() as any;
+                    construto = this.expressao();
+                }
+
+                if (construto.constructor.name === 'AcessoMetodoOuPropriedade') {
+                    const construtoTipado = construto as AcessoMetodoOuPropriedade;
+                    switch (construtoTipado.tipo) {
+                        case tipoDeDadosDelegua.DICIONARIO:
+                        case tipoDeDadosDelegua.DICIONÁRIO:
+                            if (!(construtoTipado.simbolo.lexema in primitivasDicionario)) {
+                                throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de dicionário.`);
+                            }
+        
+                            const primitivaDicionarioSelecionada = primitivasDicionario[construtoTipado.simbolo.lexema];
+                            construto = new AcessoMetodo(
+                                construtoTipado.hashArquivo,
+                                construtoTipado.objeto,
+                                construtoTipado.simbolo.lexema,
+                                primitivaDicionarioSelecionada.tipoRetorno
+                            )
+                            break;
+                        case tipoDeDadosDelegua.INTEIRO:
+                        case tipoDeDadosDelegua.NUMERO:
+                        case tipoDeDadosDelegua.NÚMERO:
+                            if (!(construtoTipado.simbolo.lexema in primitivasNumero)) {
+                                throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de número.`);
+                            }
+        
+                            const primitivaNumeroSelecionada = primitivasNumero[construtoTipado.simbolo.lexema];
+                            construto = new AcessoMetodo(
+                                construtoTipado.hashArquivo,
+                                construtoTipado.objeto,
+                                construtoTipado.simbolo.lexema,
+                                primitivaNumeroSelecionada.tipoRetorno
+                            )
+                            break;
+                        case tipoDeDadosDelegua.TEXTO:
+                            if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
+                                throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`);
+                            }
+        
+                            const primitivaTextoSelecionada = primitivasTexto[construtoTipado.simbolo.lexema];
+                            construto = new AcessoMetodo(
+                                construtoTipado.hashArquivo,
+                                construtoTipado.objeto,
+                                construtoTipado.simbolo.lexema,
+                                primitivaTextoSelecionada.tipoRetorno
+                            )
+                            break;
+                        case tipoDeDadosDelegua.VETOR:
+                        case tipoDeDadosDelegua.VETOR_NUMERO:
+                        case tipoDeDadosDelegua.VETOR_NÚMERO:
+                        case tipoDeDadosDelegua.VETOR_TEXTO:
+                            if (!(construtoTipado.simbolo.lexema in primitivasVetor)) {
+                                throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de vetor.`);
+                            }
+        
+                            const primitivaVetorSelecionada = primitivasVetor[construtoTipado.simbolo.lexema];
+                            construto = new AcessoMetodo(
+                                construtoTipado.hashArquivo,
+                                construtoTipado.objeto,
+                                construtoTipado.simbolo.lexema,
+                                primitivaVetorSelecionada.tipoRetorno
+                            )
+                            break;
+                        default:
+                            if (construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
+                                const tipoCorrespondente = this.tiposDefinidosEmCodigo[construtoTipado.tipo] as Classe;
+
+                                const possivelMetodo = tipoCorrespondente.metodos.filter(m => m.simbolo.lexema === construtoTipado.simbolo.lexema);
+                                if (possivelMetodo.length > 0) {
+                                    construto = new AcessoMetodo(
+                                        construtoTipado.hashArquivo,
+                                        construtoTipado.objeto,
+                                        construtoTipado.simbolo.lexema,
+                                        possivelMetodo[0].tipoRetorno
+                                    );
+                                    break;
+                                }
+
+                                const possivelPropriedade = tipoCorrespondente.propriedades.filter(p => p.nome.lexema === construtoTipado.simbolo.lexema);
+                                if (possivelPropriedade.length > 0) {
+                                    construto = new AcessoPropriedade(
+                                        construtoTipado.hashArquivo,
+                                        construtoTipado.objeto,
+                                        construtoTipado.simbolo.lexema,
+                                        possivelPropriedade[0].tipo
+                                    );
+                                    break;
+                                }
+                            }
+                    }
                 }
 
                 return new TipoDe(
                     this.hashArquivo,
                     simboloAtual,
-                    _expressao instanceof Literal ? _expressao.valor : _expressao
+                    construto
                 );
 
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
@@ -452,33 +543,47 @@ export class AvaliadorSintatico
         // Toda chamada precisa saber de antemão qual o tipo resolvido.
         let entidadeChamadaResolvida = entidadeChamada;
         if (entidadeChamadaResolvida.constructor.name === 'AcessoMetodoOuPropriedade') {
-            const acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade = entidadeChamadaResolvida as AcessoMetodoOuPropriedade;
+            const construtoTipado: AcessoMetodoOuPropriedade = entidadeChamadaResolvida as AcessoMetodoOuPropriedade;
             switch (entidadeChamadaResolvida.tipo) {
+                case tipoDeDadosDelegua.DICIONARIO:
+                case tipoDeDadosDelegua.DICIONÁRIO:
+                    if (!(construtoTipado.simbolo.lexema in primitivasDicionario)) {
+                        throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de dicionário.`);
+                    }
+
+                    const primitivaDicionarioSelecionada = primitivasDicionario[construtoTipado.simbolo.lexema];
+                    entidadeChamadaResolvida = new AcessoMetodo(
+                        construtoTipado.hashArquivo,
+                        construtoTipado.objeto,
+                        construtoTipado.simbolo.lexema,
+                        primitivaDicionarioSelecionada.tipoRetorno
+                    )
+                    break;
                 case tipoDeDadosDelegua.INTEIRO:
                 case tipoDeDadosDelegua.NUMERO:
                 case tipoDeDadosDelegua.NÚMERO:
-                    if (!(acessoMetodoOuPropriedade.simbolo.lexema in primitivasNumero)) {
-                        throw this.erro(acessoMetodoOuPropriedade.simbolo, `${acessoMetodoOuPropriedade.simbolo.lexema} não é uma primitiva de número.`);
+                    if (!(construtoTipado.simbolo.lexema in primitivasNumero)) {
+                        throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de número.`);
                     }
 
-                    const primitivaNumeroSelecionada = primitivasNumero[acessoMetodoOuPropriedade.simbolo.lexema];
+                    const primitivaNumeroSelecionada = primitivasNumero[construtoTipado.simbolo.lexema];
                     entidadeChamadaResolvida = new AcessoMetodo(
-                        acessoMetodoOuPropriedade.hashArquivo,
-                        acessoMetodoOuPropriedade.objeto,
-                        acessoMetodoOuPropriedade.simbolo.lexema,
+                        construtoTipado.hashArquivo,
+                        construtoTipado.objeto,
+                        construtoTipado.simbolo.lexema,
                         primitivaNumeroSelecionada.tipoRetorno
                     )
                     break;
                 case tipoDeDadosDelegua.TEXTO:
-                    if (!(acessoMetodoOuPropriedade.simbolo.lexema in primitivasTexto)) {
-                        throw this.erro(acessoMetodoOuPropriedade.simbolo, `${acessoMetodoOuPropriedade.simbolo.lexema} não é uma primitiva de texto.`);
+                    if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
+                        throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`);
                     }
 
-                    const primitivaTextoSelecionada = primitivasTexto[acessoMetodoOuPropriedade.simbolo.lexema];
+                    const primitivaTextoSelecionada = primitivasTexto[construtoTipado.simbolo.lexema];
                     entidadeChamadaResolvida = new AcessoMetodo(
-                        acessoMetodoOuPropriedade.hashArquivo,
-                        acessoMetodoOuPropriedade.objeto,
-                        acessoMetodoOuPropriedade.simbolo.lexema,
+                        construtoTipado.hashArquivo,
+                        construtoTipado.objeto,
+                        construtoTipado.simbolo.lexema,
                         primitivaTextoSelecionada.tipoRetorno
                     )
                     break;
@@ -486,15 +591,15 @@ export class AvaliadorSintatico
                 case tipoDeDadosDelegua.VETOR_NUMERO:
                 case tipoDeDadosDelegua.VETOR_NÚMERO:
                 case tipoDeDadosDelegua.VETOR_TEXTO:
-                    if (!(acessoMetodoOuPropriedade.simbolo.lexema in primitivasVetor)) {
-                        throw this.erro(acessoMetodoOuPropriedade.simbolo, `${acessoMetodoOuPropriedade.simbolo.lexema} não é uma primitiva de vetor.`);
+                    if (!(construtoTipado.simbolo.lexema in primitivasVetor)) {
+                        throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de vetor.`);
                     }
 
-                    const primitivaVetorSelecionada = primitivasVetor[acessoMetodoOuPropriedade.simbolo.lexema];
+                    const primitivaVetorSelecionada = primitivasVetor[construtoTipado.simbolo.lexema];
                     entidadeChamadaResolvida = new AcessoMetodo(
-                        acessoMetodoOuPropriedade.hashArquivo,
-                        acessoMetodoOuPropriedade.objeto,
-                        acessoMetodoOuPropriedade.simbolo.lexema,
+                        construtoTipado.hashArquivo,
+                        construtoTipado.objeto,
+                        construtoTipado.simbolo.lexema,
                         primitivaVetorSelecionada.tipoRetorno
                     )
                     break;
@@ -703,8 +808,7 @@ export class AvaliadorSintatico
             }
 
             if (expressao instanceof AcessoMetodoOuPropriedade) {
-                const get = expressao;
-                return new DefinirValor(this.hashArquivo, igual.linha, get.objeto, get.simbolo, valor);
+                return new DefinirValor(this.hashArquivo, igual.linha, expressao.objeto, expressao.simbolo, valor);
             }
 
             if (expressao instanceof AcessoIndiceVariavel) {
@@ -1317,6 +1421,50 @@ export class AvaliadorSintatico
         return retornos;
     }
 
+    protected logicaComumInferenciaTiposVariaveisEConstantes(inicializador: Construto, tipo: string): string {
+        if (tipo !== 'qualquer') {
+            return tipo
+        }
+
+        switch (inicializador.constructor.name) {
+            case 'AcessoIndiceVariavel':
+                const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel).entidadeChamada;
+                return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+            case 'Chamada':
+                const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;
+                switch (entidadeChamadaChamada.constructor.name) {
+                    case 'AcessoMetodo':
+                        const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
+                        return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                    case 'AcessoPropriedade':
+                        const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
+                        return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
+                    case 'Variavel':
+                        const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
+                        return entidadeChamadaVariavel.tipo;
+                }
+                
+                break;
+            case 'FuncaoConstruto':
+                const funcaoConstruto = inicializador as FuncaoConstruto;
+                return `função<${funcaoConstruto.tipoRetorno}>`;
+            case 'Leia':
+                return 'texto';
+            case 'Dupla':
+            case 'Trio':
+            case 'Quarteto':
+            case 'Quinteto':
+            case 'Sexteto':
+            case 'Septeto':
+            case 'Octeto':
+            case 'Noneto':
+            case 'Deceto':
+                return tipoDeDadosDelegua.TUPLA;
+            default:
+                return inicializador.tipo;
+        }
+    }
+
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
@@ -1343,7 +1491,14 @@ export class AvaliadorSintatico
             // Inicialização de variáveis sem valor.
             for (let identificador of identificadores.values()) {
                 this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
-                retorno.push(new Var(identificador, null, tipo, Array.from(this.pilhaDecoradores)));
+                retorno.push(
+                    new Var(
+                        identificador, 
+                        null, 
+                        tipo, 
+                        Array.from(this.pilhaDecoradores)
+                    )
+                );
             }
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -1365,44 +1520,7 @@ export class AvaliadorSintatico
 
         for (let [indice, identificador] of identificadores.entries()) {
             // Se tipo ainda não foi definido, infere.
-            if (tipo === 'qualquer') {
-                switch (inicializadores[indice].constructor.name) {
-                    case 'AcessoIndiceVariavel':
-                        const entidadeChamadaAcessoIndiceVariavel = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
-                        tipo = entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
-                        break;
-                    case 'Chamada':
-                        const entidadeChamadaChamada = (inicializadores[indice] as Chamada).entidadeChamada;
-                        switch (entidadeChamadaChamada.constructor.name) {
-                            case 'AcessoMetodo':
-                                const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
-                                tipo = entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
-                                break;
-                            case 'AcessoPropriedade':
-                                const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
-                                tipo = entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
-                                break;
-                        }
-                        
-                        break;
-                    case 'Dupla':
-                    case 'Trio':
-                    case 'Quarteto':
-                    case 'Quinteto':
-                    case 'Sexteto':
-                    case 'Septeto':
-                    case 'Octeto':
-                    case 'Noneto':
-                    case 'Deceto':
-                        tipo = tipoDeDadosDelegua.TUPLA;
-                        break;
-                    case 'Literal':
-                    case 'Variavel':
-                    case 'Vetor':
-                        tipo = inicializadores[indice].tipo;
-                        break;
-                }
-            }
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
             this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
             retorno.push(new Var(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
@@ -1480,30 +1598,8 @@ export class AvaliadorSintatico
 
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            if (tipo === 'qualquer') {
-                switch (inicializadores[indice].constructor.name) {
-                    case 'AcessoIndiceVariavel':
-                        const entidadeChamada = (inicializadores[indice] as AcessoIndiceVariavel).entidadeChamada;
-                        tipo = entidadeChamada.tipo.slice(0, -2);
-                        break;
-                    case 'Dupla':
-                    case 'Trio':
-                    case 'Quarteto':
-                    case 'Quinteto':
-                    case 'Sexteto':
-                    case 'Septeto':
-                    case 'Octeto':
-                    case 'Noneto':
-                    case 'Deceto':
-                        tipo = tipoDeDadosDelegua.TUPLA;
-                        break;
-                    case 'Literal':
-                    case 'Variavel':
-                    case 'Vetor':
-                        tipo = inicializadores[indice].tipo;
-                        break;
-                }
-            }
+            // Se tipo ainda não foi definido, infere.
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
             this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
             retorno.push(
@@ -1541,8 +1637,8 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, 'qualquer');
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
-        this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, corpoDaFuncao.tipoRetorno || 'qualquer');
-        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipoRetorno || 'qualquer', decoradores);
+        this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, corpoDaFuncao.tipoRetorno);
+        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipoRetorno, decoradores);
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -1637,9 +1733,11 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         let tipoRetorno: string = 'qualquer';
+        let definicaoExplicitaDeTipo: boolean = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipoRetorno = this.verificarDefinicaoTipoAtual();
             this.avancarEDevolverAnterior();
+            definicaoExplicitaDeTipo = true;
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
@@ -1658,7 +1756,6 @@ export class AvaliadorSintatico
         }
 
         const tiposRetornos = new Set(expressoesRetorna.map(e => e.tipo));
-        // if (tiposRetornos.size > 1 && !tiposRetornos.has('qualquer')) {
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ', '');
             tiposEncontrados = tiposEncontrados.slice(0, -2);
@@ -1669,12 +1766,18 @@ export class AvaliadorSintatico
 
         tiposRetornos.delete('qualquer');
 
-        if (tipoRetorno === 'qualquer' && tiposRetornos.size === 1) {
-            // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
-            // este avaliador sintático pode restringir o tipo baseado nos retornos 
-            // encontrados nos blocos internos da função.
-            const tipoRetornoDeduzido = tiposRetornos.values().next().value;
-            tipoRetorno = tipoRetornoDeduzido;
+        if (tipoRetorno === 'qualquer') {
+            if (tiposRetornos.size > 0) {
+                // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
+                // este avaliador sintático pode restringir o tipo baseado nos construtos
+                // de retornos encontrados nos blocos internos da função.
+                const tipoRetornoDeduzido = tiposRetornos.values().next().value;
+                tipoRetorno = tipoRetornoDeduzido;
+            } else if (!definicaoExplicitaDeTipo) {
+                // Ou, se esses retornos sequer existem, e o tipo explícito não é
+                // 'qualquer', o tipo inferido é 'vazio'.
+                tipoRetorno = 'vazio';
+            }
         }
 
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);

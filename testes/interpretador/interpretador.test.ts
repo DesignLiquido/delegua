@@ -599,111 +599,13 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Tipo de', async () => {
-                    const saidasMensagens = [
-                        'lógico',
-                        'lógico',
-                        'número',
-                        'número',
-                        'texto',
-                        'número[]',
-                        'vetor',
-                        'número[]',
-                        'função',
-                        'qualquer',
-                        'número',
-                        'texto',
-                        'número',
-                        'número',
-                        'objeto',
-                        'objeto',
-                        'nulo',
-                        'texto',
-                        'número',
-                        'dicionário',
-                        'número',
-                    ];
-
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'escreva(tipo de verdadeiro)',
-                            'escreva(tipo de falso)',
-                            'escreva(tipo de 123)',
-                            'escreva(tipo de -1)',
-                            'escreva(tipo de "123")',
-                            'escreva(tipo de [1,2,3])',
-                            'escreva(tipo de [])',
-                            "escreva(tipo de [1, '2'])",
-                            'var f = funcao(algumTexto) { }',
-                            'var a;',
-                            'var c = 1',
-                            "var d = '2'",
-                            'escreva(tipo de f)',
-                            'escreva(tipo de a)',
-                            'escreva(tipo de c)',
-                            'escreva(tipo de d)',
-                            'escreva(tipo de 4 + 2)',
-                            'escreva(tipo de 4 * 2 + (3 ^ 2))',
-                            'classe Teste {}',
-                            'escreva(tipo de Teste)',
-                            'classe OutroTeste {}',
-                            'escreva(tipo de OutroTeste)',
-                            'escreva(tipo de nulo)',
-                            'escreva(tipo de tipo de tipo de "a")',
-                            'var letras = "abc"',
-                            'escreva(tipo de letras.tamanho())',
-                            'escreva(tipo de { "chave": verdadeiro })',
-                            'var produtos = {',
-                            '"preco": 25',
-                            '}',
-                            'escreva(tipo de produtos[\'preco\'])',
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    let _saidas: string[] = [];
-                    interpretador.funcaoDeRetorno = (saida: string) => {
-                        _saidas.push(saida);
-                    }
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toStrictEqual(saidasMensagens);
-                });
-
-                it('Tipo de número', async () => {
-                    const retornoLexador = lexador.mapear(['escreva(tipo de 123)'], -1);
-
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('número');
-                    };
-
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
-                it('Tipo de com agrupamento', async () => {
-                    const retornoLexador = lexador.mapear(['var a = 1', 'var b = tipo de (a)', 'escreva(b)'], -1);
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('número');
-                    };
-
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
                 it('Ordem lexicográfica de textos', async () => {
                     const saidasMensagens = ['verdadeiro', 'falso'];
                     const retornoLexador = lexador.mapear(
-                        ["escreva('batata' > 'arroz')", "escreva('batata' < 'arroz')"],
+                        [
+                            "escreva('batata' > 'arroz')", 
+                            "escreva('batata' < 'arroz')"
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -719,7 +621,11 @@ describe('Interpretador', () => {
 
                 it('Escreva múltiplas variáveis', async () => {
                     const retornoLexador = lexador.mapear(
-                        ["const a = 'batata'", "const b = 'arroz'", 'escreva(a, b)'],
+                        [
+                            "const a = 'batata'", 
+                            "const b = 'arroz'", 
+                            'escreva(a, b)'
+                        ],
                         -1
                     );
 
@@ -1678,7 +1584,7 @@ describe('Interpretador', () => {
 
                 it('Dias de vida', async () => {
                     // Aqui vamos simular a resposta para uma variável de `leia()`.
-                    const respostas = [38];
+                    const respostas = ['38'];
                     interpretador.interfaceEntradaSaida = {
                         question: (mensagem: string, callback: Function) => {
                             callback(respostas.shift());
@@ -1686,7 +1592,7 @@ describe('Interpretador', () => {
                     };
 
                     const codigo = [
-                        'var n1 = leia("digite sua idade");',
+                        'var n1 = inteiro(leia("digite sua idade"));',
                         'var n2 = (365*n1);',
                         'escreva("Você tem " +n2+" dias de vida");',
                     ];
@@ -1716,10 +1622,10 @@ describe('Interpretador', () => {
                         );
 
                         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                        const saidas: string[] = [];
+                        const _saidas: string[] = [];
 
                         interpretador.funcaoDeRetorno = (saida: string) => {
-                            saidas.push(saida);
+                            _saidas.push(saida);
                         };
 
                         const retornoInterpretador = await interpretador.interpretar(
@@ -1727,9 +1633,9 @@ describe('Interpretador', () => {
                         );
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(saidas).toHaveLength(2);
-                        expect(saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
-                        expect(saidas[1]).toEqual('[1, 2, 3]');
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
+                        expect(_saidas[1]).toEqual('[1, 2, 3]');
                     });
 
                     it('Obter valores do dicionário dentro de outro dicionário', async () => {
@@ -1901,6 +1807,149 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saida).toBe('Finalizei');
+                });
+            });
+
+            describe('Tipo de', () => {
+                it('Trivial', async () => {
+                    // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                    const respostas = ['5', '5'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const saidasMensagens = [
+                        'lógico',
+                        'lógico',
+                        'número',
+                        'número',
+                        'texto',
+                        'número[]',
+                        'vetor',
+                        'número[]',
+                        'função<vazio>',
+                        'qualquer',
+                        'número',
+                        'texto',
+                        'número',
+                        'número',
+                        'Teste',
+                        'OutroTeste',
+                        'nulo',
+                        'tipo de<tipo de<texto>>',
+                        'número',
+                        'dicionário',
+                        'número',
+                        'texto',
+                        'inteiro'
+                    ];
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(tipo de verdadeiro)',
+                            'escreva(tipo de falso)',
+                            'escreva(tipo de 123)',
+                            'escreva(tipo de -1)',
+                            'escreva(tipo de "123")',
+                            'escreva(tipo de [1,2,3])',
+                            'escreva(tipo de [])',
+                            "escreva(tipo de [1, '2'])",
+                            'var f = funcao(algumTexto) { }',
+                            'var a;',
+                            'var c = 1',
+                            "var d = '2'",
+                            'escreva(tipo de f)',
+                            'escreva(tipo de a)',
+                            'escreva(tipo de c)',
+                            'escreva(tipo de d)',
+                            'escreva(tipo de 4 + 2)',
+                            'escreva(tipo de 4 * 2 + (3 ^ 2))',
+                            'classe Teste {}',
+                            'escreva(tipo de Teste)',
+                            'classe OutroTeste {}',
+                            'escreva(tipo de OutroTeste)',
+                            'escreva(tipo de nulo)',
+                            'escreva(tipo de tipo de tipo de "a")',
+                            'var letras = "abc"',
+                            'escreva(tipo de letras.tamanho())',
+                            'escreva(tipo de { "chave": verdadeiro })',
+                            'var produtos = {',
+                            '  "preco": 25',
+                            '}',
+                            'escreva(tipo de produtos[\'preco\'])',
+                            'var resultadoLeia = leia("string: ")',
+                            'var leiaInteiro = inteiro(leia("number: "))',
+                            'escreva(tipo de resultadoLeia)',
+                            'escreva(tipo de leiaInteiro)'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    let _saidas: string[] = [];
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        _saidas.push(saida);
+                    }
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toStrictEqual(saidasMensagens);
+                });
+
+                it('Tipo de número', async () => {
+                    const retornoLexador = lexador.mapear(['escreva(tipo de 123)'], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('número');
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Tipo de com agrupamento', async () => {
+                    const retornoLexador = lexador.mapear(['var a = 1', 'var b = tipo de (a)', 'escreva(b)'], -1);
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toEqual('número');
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Tipo de elementos de objeto', async () => {
+                    let _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        'classe Vendedor {',
+                        '  recebaCliente() {}',
+                        '}',
+                        'var vendedor = Vendedor()',
+                        'escreva(tipo de [1, 2, 3].adicionar)',
+                        'escreva(tipo de {"chave": "valor"}.valores)',
+                        'escreva(tipo de vendedor.recebaCliente)',
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(3);
+                    expect(_saidas[0]).toBe('método<qualquer[]>');
+                    expect(_saidas[1]).toBe('método<qualquer[]>');
+                    expect(_saidas[2]).toBe('método<vazio>');
                 });
             });
         });

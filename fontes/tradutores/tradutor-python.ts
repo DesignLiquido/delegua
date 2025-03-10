@@ -670,8 +670,12 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
-        for (const declaracao of declaracoes) {
-            resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
+        try {
+            for (const declaracao of declaracoes) {
+                resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
+            }
+        } catch (erro) {
+            console.error(`Erro em tradução para Python: ${erro}`);
         }
 
         return resultado.replace(/\n{2,}/g, '\n');
