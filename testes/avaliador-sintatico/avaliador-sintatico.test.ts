@@ -787,6 +787,13 @@ describe('Avaliador sintático', () => {
         });
 
         describe('Cenários de falha', () => {
+            it('Identificador indefinido', async () => {
+                const retornoLexador = lexador.mapear(['oi'], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+            });
+
             it('Declaração de variáveis com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
                 const retornoLexador = lexador.mapear(['var a, b, c = 1, 2'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
