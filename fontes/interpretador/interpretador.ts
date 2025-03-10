@@ -1,4 +1,4 @@
-import { AcessoMetodo, AcessoPropriedade } from "../construtos";
+import { AcessoMetodo, AcessoPropriedade, Literal, TipoDe, Vetor } from "../construtos";
 import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "../estruturas";
 import { VariavelInterface } from "../interfaces";
 import { InterpretadorBase } from "./interpretador-base";
@@ -17,7 +17,7 @@ import { ErroEmTempoDeExecucao } from "../excecoes";
  * O interpretador de Delégua.
  */
 export class Interpretador extends InterpretadorBase {
-    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         
         // Este caso acontece quando há encadeamento de métodos.
@@ -109,7 +109,7 @@ export class Interpretador extends InterpretadorBase {
         );
     }
 
-    async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
+    override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         
         // Este caso acontece quando há encadeamento de métodos.
@@ -199,5 +199,42 @@ export class Interpretador extends InterpretadorBase {
                 expressao.linha
             )
         );
+    }
+
+    override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
+        let valorTipoDe = expressao.valor;
+
+        switch (valorTipoDe.constructor.name) {
+            case 'AcessoIndiceVariavel':
+            case 'Agrupamento':
+            case 'Binario':
+            case 'Chamada':
+            case 'Dicionario':
+            case 'Unario':
+                valorTipoDe = await this.avaliar(valorTipoDe);
+                return valorTipoDe.tipo || inferirTipoVariavel(valorTipoDe);
+            case 'AcessoMetodo':
+                const acessoMetodo = valorTipoDe as AcessoMetodo;
+                return `método<${acessoMetodo.tipoRetornoMetodo}>`;
+            case 'AcessoPropriedade':
+                const acessoPropriedade = valorTipoDe as AcessoPropriedade;
+                return acessoPropriedade.tipoRetornoPropriedade;
+            case 'AcessoMetodoOuPropriedade':
+                // TODO: Deve ser removido mais futuramente. 
+                // Apenas `AcessoMetodo` e `AcessoPropriedade` devem funcionar aqui.
+                throw new ErroEmTempoDeExecucao(expressao.simbolo, "Não deveria cair aqui.");
+            case 'Literal':
+                const tipoLiteral = valorTipoDe as Literal;
+                return tipoLiteral.tipo;
+            case 'TipoDe':
+                const alvoTipoDe = await this.avaliar(valorTipoDe);
+                return `tipo de<${alvoTipoDe}>`;
+            case 'Variavel':
+                return valorTipoDe.tipo;
+            case 'Vetor':
+                return inferirTipoVariavel((valorTipoDe as Vetor)?.valores);
+            default:
+                return inferirTipoVariavel(valorTipoDe);
+        }
     }
 }

@@ -7,6 +7,7 @@ export class Dicionario implements Construto {
 
     chaves: any[];
     valores: any[];
+    tipo: 'dicionário';
 
     constructor(hashArquivo: number, linha: number, chaves: any[], valores: any[]) {
         this.linha = linha;
@@ -14,6 +15,7 @@ export class Dicionario implements Construto {
 
         this.chaves = chaves;
         this.valores = valores;
+        this.tipo = 'dicionário';
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

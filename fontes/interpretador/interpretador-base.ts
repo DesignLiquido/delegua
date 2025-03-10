@@ -255,27 +255,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         return Promise.resolve(this.textoParaRegex(expressao.valor));
     }
 
-    async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
-        let tipoDe = expressao.valor;
-
-        if (
-            tipoDe instanceof AcessoIndiceVariavel ||
-            tipoDe instanceof Agrupamento ||
-            tipoDe instanceof Binario ||
-            tipoDe instanceof Chamada ||
-            tipoDe instanceof Dicionario ||
-            tipoDe instanceof TipoDe ||
-            tipoDe instanceof Unario ||
-            tipoDe instanceof Variavel
-        ) {
-            tipoDe = await this.avaliar(tipoDe);
-            return tipoDe.tipo || inferirTipoVariavel(tipoDe);
-        }
-
-        return inferirTipoVariavel(tipoDe?.valores || tipoDe);
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
+        throw new Error('Método não implementado.');
     }
 
     // TODO: Depreciado. Priorizar `visitarExpressaoTipoDe`.
+    // Estudar remoção.
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         throw new Error('Método não implementado.');
     }
