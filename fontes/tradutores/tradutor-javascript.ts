@@ -589,7 +589,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.nomeMetodo)}`;
         }
-        return `this.${acessoMetodo.nomeMetodo}`;
+
+        if (acessoMetodo.objeto instanceof Isto) {
+            return `this.${acessoMetodo.nomeMetodo}`;
+        }
+        
+        const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](acessoMetodo.objeto);
+        return `${objetoResolvido}.${acessoMetodo.nomeMetodo}`;
     }
 
     traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade): string {

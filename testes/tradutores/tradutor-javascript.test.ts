@@ -39,6 +39,19 @@ describe('Tradutor Delégua -> JavaScript', () => {
             avaliadorSintatico = new AvaliadorSintatico();
         });
 
+        it('Literais com primitivas', () => {
+            const retornoLexador = lexador.mapear(
+                ['[1, 2, 3].adicionar(1)'],
+                -1
+            );
+    
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+    
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/\[1, 2, 3\].adicionar\(1\)/i);
+        });
+
         it('escreva com interpolação de valores lógicos e não lógicos', () => {
             const retornoLexador = lexador.mapear(
                 [

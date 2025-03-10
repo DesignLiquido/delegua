@@ -162,7 +162,13 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
             return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
         }
-        return `self.${acessoMetodo.nomeMetodo}`;
+        
+        if (acessoMetodo.objeto instanceof Isto) {
+            return `self.${acessoMetodo.nomeMetodo}`;
+        }
+        
+        const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](acessoMetodo.objeto);
+        return `${objetoResolvido}.${acessoMetodo.nomeMetodo}`;
     }
 
     traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade): string {
