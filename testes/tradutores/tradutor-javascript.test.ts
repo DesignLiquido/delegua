@@ -82,8 +82,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'escreva({',
-                    '\'chave 1\': \'valor\',',
-                    '\'chave 2\': 2,',
+                    '  \'chave 1\': \'valor\',',
+                    '  \'chave 2\': 2,',
                     '})',
                 ],
                 -1
@@ -874,6 +874,25 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(
                 /console\.log\(soma, subtracao, diferente, igual, divisao, menor, maior, maiorOuIgual, menorOuIgual, multiplicacao, modulo, exponenciacao\)/i
             );
+        });
+
+        it('Soma com incremento', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    `var frase = ''`,
+                    `frase += "oi"`,
+                    `escreva(frase)`
+                ],
+                -1
+            );
+    
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+    
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let frase = ''/i);
+            expect(resultado).toMatch(/frase \+= 'oi'/i);
+            expect(resultado).toMatch(/console\.log\(frase\)/i);
         });
 
         it('chamada de função com parametros -> function', () => {

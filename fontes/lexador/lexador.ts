@@ -255,10 +255,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL, '-=');
                     this.avancar();
                 } else if (this.simboloAtual() === '-') {
-                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
+                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR, '--');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
@@ -269,10 +269,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL, '+=');
                     this.avancar();
                 } else if (this.simboloAtual() === '+') {
-                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
+                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR, '++');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
@@ -290,7 +290,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 switch (this.simboloAtual()) {
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MODULO_IGUAL);
+                        this.adicionarSimbolo(tiposDeSimbolos.MODULO_IGUAL, '%=');
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.MODULO);
@@ -304,11 +304,11 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 switch (this.simboloAtual()) {
                     case '*':
                         this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                        this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO, '**');
                         break;
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL, '*=');
                         break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
@@ -319,7 +319,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
             case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE, '!=');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
@@ -329,7 +329,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
             case '=':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL, '==');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
@@ -365,10 +365,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
             case '<':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL, '<=');
                     this.avancar();
                 } else if (this.simboloAtual() === '<') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR, '<<');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
@@ -378,10 +378,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
             case '>':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL, '>=');
                     this.avancar();
                 } else if (this.simboloAtual() === '>') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR, '>>');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
@@ -398,7 +398,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                         this.comentarioMultilinha();
                         break;
                     case '=':
-                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL, '/=');
                         this.avancar();
                         break;
                     default:
@@ -413,7 +413,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 switch (this.simboloAtual()) {
                     case '=':
-                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL);
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL, '\\=');
                         this.avancar();
                         break;
                     default:
@@ -423,7 +423,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
                 break;
 
-            // Esta sessão ignora espaços em branco na tokenização.
+            // Esta sessão ignora espaços em branco (ou similares) na tokenização.
 
             case ' ':
             case '\0':

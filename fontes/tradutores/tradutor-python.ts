@@ -218,7 +218,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoAtribuir(atribuir: Atribuir): string {
         let resultado = this.dicionarioConstrutos[atribuir.alvo.constructor.name](atribuir.alvo);
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        const operador = atribuir.simboloOperador?.lexema || '=';
+        resultado += ` ${operador} ` + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }
 
