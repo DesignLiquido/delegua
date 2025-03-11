@@ -56,9 +56,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
-                const simbolo = expressao.simbolo;
-                return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoIndiceVariavel) {
+                return new Atribuir(this.hashArquivo, expressao, valor);
+            } 
+            
+            if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
                     expressao.linha,

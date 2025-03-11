@@ -434,7 +434,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         const valor = await this.avaliar(expressao.valor);
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.alvo, valor);
 
         return valor;
     }

@@ -626,7 +626,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoAtribuir(atribuir: Atribuir): string {
-        let resultado = atribuir.simbolo.lexema;
+        let resultado = atribuir.alvo.lexema;
         resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }

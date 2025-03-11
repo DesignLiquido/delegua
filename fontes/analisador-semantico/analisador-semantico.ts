@@ -219,22 +219,22 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        let valor = this.variaveis[expressao.simbolo.lexema];
+        let valor = this.variaveis[expressao.alvo.lexema];
         if (!valor) {
             this.erro(
-                expressao.simbolo,
-                `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`
+                expressao.alvo,
+                `Variável ${expressao.alvo.lexema} ainda não foi declarada até este ponto.`
             );
             return Promise.resolve();
         }
 
         if (valor.tipo) {
             if (expressao.valor instanceof Literal && valor.tipo.includes('[]')) {
-                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                this.erro(expressao.alvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
                 return Promise.resolve();
             }
             if (expressao.valor instanceof Vetor && !valor.tipo.includes('[]')) {
-                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                this.erro(expressao.alvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
                 return Promise.resolve();
             }
             if (expressao.valor instanceof Literal) {
@@ -242,13 +242,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 if (!['qualquer'].includes(valor.tipo)) {
                     if (valorLiteral === 'string') {
                         if (valor.tipo != 'texto') {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (valorLiteral === 'number') {
                         if (!['inteiro', 'número', 'real'].includes(valor.tipo)) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -259,13 +259,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valores.every((v) => typeof v.valor === 'string')) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
                         if (!valores.every((v) => typeof v.valor === 'number')) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -274,11 +274,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         if (valor.imutavel) {
-            this.erro(expressao.simbolo, `Constante ${expressao.simbolo.lexema} não pode ser modificada.`);
+            this.erro(expressao.alvo, `Constante ${expressao.alvo.lexema} não pode ser modificada.`);
             return Promise.resolve();
         } else {
-            if (this.variaveis[expressao.simbolo.lexema]) {
-                this.variaveis[expressao.simbolo.lexema].valor = expressao.valor;
+            if (this.variaveis[expressao.alvo.lexema]) {
+                this.variaveis[expressao.alvo.lexema].valor = expressao.valor;
             }
         }
     }

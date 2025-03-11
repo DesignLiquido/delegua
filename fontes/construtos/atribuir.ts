@@ -4,27 +4,27 @@ import { Construto } from './construto';
 /**
  * Construto de atribuição de um valor a um símbolo.
  */
-export class Atribuir<TTipoSimbolo extends string = string> implements Construto {
+export class Atribuir implements Construto {
     linha: number;
     hashArquivo: number;
 
     indice?: Construto;
 
-    simbolo: SimboloInterface<TTipoSimbolo>;
+    alvo: Construto;
     valor: any;
 
     constructor(
         hashArquivo: number,
-        simbolo: SimboloInterface<TTipoSimbolo>,
+        alvo: Construto,
         valor: any,
         // indice so é usado para variaveis de vetores
         // TODO: criar alguma validaçao para garantir que `indice` só seja passado para variáveis de vetores
         indice?: Construto
     ) {
-        this.linha = Number(simbolo.linha);
+        this.linha = Number(alvo.linha);
         this.hashArquivo = hashArquivo;
 
-        this.simbolo = simbolo;
+        this.alvo = alvo;
         this.valor = valor;
 
         if (indice !== undefined) {

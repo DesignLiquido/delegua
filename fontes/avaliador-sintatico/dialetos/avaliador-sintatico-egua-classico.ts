@@ -432,8 +432,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
-                const simbolo = expressao.simbolo;
-                return new Atribuir(this.hashArquivo, simbolo, valor);
+                return new Atribuir(this.hashArquivo, expressao, valor);
             } else if (expressao instanceof AcessoMetodoOuPropriedade) {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);

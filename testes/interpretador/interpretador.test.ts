@@ -15,12 +15,12 @@ describe('Interpretador', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            describe('Acesso a operações matemáticas em posições de array', () => {
+            describe('Acesso a operações matemáticas em posições de vetor', () => {
                 it('Espera-se que atribuição com acumulador seja bem sucedida', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var pilha = [1, 2, 3, 4]', 
-                            'pilha[0] += 8', 
+                            'var pilha = [1, 2, 3, 4]',
+                            'pilha[0] += 8',
                             'escreva(pilha[0])'
                         ],
                         -1
@@ -39,7 +39,10 @@ describe('Interpretador', () => {
 
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
-                    const retornoLexador = lexador.mapear(['var a = [1, 2, 3]', 'escreva(a[1])'], -1);
+                    const retornoLexador = lexador.mapear([
+                        'var a = [1, 2, 3]', 
+                        'escreva(a[1])'
+                    ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
@@ -255,13 +258,13 @@ describe('Interpretador', () => {
 
                     const retornoLexador = lexador.mapear([
                         'classe Vendedor {',
-                        'nome: texto',
-                        'construtor(nome) {',
-                        'isto.nome = nome',
-                        '}',
-                        'recebaCliente() {',
-                        'escreva(\'Olá, meu nome é ${isto.nome}, como posso lhe ajudar?\')',
-                        '}',
+                        '  nome: texto',
+                        '  construtor(nome) {',
+                        '    isto.nome = nome',
+                        '  }',
+                        '  recebaCliente() {',
+                        '    escreva(\'Olá, meu nome é ${isto.nome}, como posso lhe ajudar?\')',
+                        '  }',
                         '}',
                         'var vendedor = Vendedor(\'Fernando\')',
                         'vendedor.recebaCliente()'
@@ -375,8 +378,8 @@ describe('Interpretador', () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
                         [
-                            'var a = { "prop1": "b" }', 
-                            'var { prop1 } = a', 
+                            'var a = { "prop1": "b" }',
+                            'var { prop1 } = a',
                             'escreva(prop1)'
                         ],
                         -1
@@ -396,8 +399,8 @@ describe('Interpretador', () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
                         [
-                            'const a = { "prop1": "c" }', 
-                            'const { prop1 } = a', 
+                            'const a = { "prop1": "c" }',
+                            'const { prop1 } = a',
                             'escreva(prop1)'
                         ],
                         -1
@@ -436,8 +439,8 @@ describe('Interpretador', () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
                         [
-                            'funcao retorneAlgo(a, b) {', 
-                            '}', 
+                            'funcao retorneAlgo(a, b) {',
+                            '}',
                             'escreva(retorneAlgo)'
                         ],
                         -1
@@ -456,7 +459,11 @@ describe('Interpretador', () => {
                 it('Descrever função com retorno - DeleguaFuncao', async () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
-                        ['funcao retorneAlgo() {', '   retorna "Algo"', '}', 'escreva(retorneAlgo)'],
+                        [
+                            'funcao retorneAlgo() {', 
+                            '   retorna "Algo"', '}', 
+                            'escreva(retorneAlgo)'
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -603,7 +610,7 @@ describe('Interpretador', () => {
                     const saidasMensagens = ['verdadeiro', 'falso'];
                     const retornoLexador = lexador.mapear(
                         [
-                            "escreva('batata' > 'arroz')", 
+                            "escreva('batata' > 'arroz')",
                             "escreva('batata' < 'arroz')"
                         ],
                         -1
@@ -622,8 +629,8 @@ describe('Interpretador', () => {
                 it('Escreva múltiplas variáveis', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            "const a = 'batata'", 
-                            "const b = 'arroz'", 
+                            "const a = 'batata'",
+                            "const b = 'arroz'",
                             'escreva(a, b)'
                         ],
                         -1
@@ -1043,7 +1050,7 @@ describe('Interpretador', () => {
                     const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
                     const retornoLexador = lexador.mapear(
                         [
-                            'para cada elemento em [1, 2, 3] {', 
+                            'para cada elemento em [1, 2, 3] {',
                             "   escreva('Valor: ', elemento)", '}'
                         ],
                         -1
@@ -1063,8 +1070,8 @@ describe('Interpretador', () => {
                     const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
                     const retornoLexador = lexador.mapear(
                         [
-                            'var v = [1, 2, 3]', 
-                            'para cada elemento em v {', 
+                            'var v = [1, 2, 3]',
+                            'para cada elemento em v {',
                             "   escreva('Valor: ', elemento)", '}'
                         ],
                         -1
@@ -1309,6 +1316,37 @@ describe('Interpretador', () => {
                     expect(_saidas.length).toBeGreaterThan(0);
                     expect(_saidas).toBe("Olá, meu nome é Fernando, como posso lhe ajudar?");
                 });
+
+                it('Incremento e decremento com `isto`', async () => {
+                    let _saidas = "";
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        _saidas += saida;
+                    }
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Carteira {',
+                            '  saldo: numero',
+                            '  construtor() {',
+                            '    isto.saldo = 100',
+                            '  }',
+                            '  depositar(dinheiro) {',
+                            '    isto.saldo += dinheiro ',
+                            '  }',
+                            '}',
+                            'var carteira = Carteira();',
+                            'carteira.depositar(200)',
+                            'escreva(carteira.saldo);'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toBe('300');
+                })
             });
 
             describe('Declaração e chamada de funções', () => {
@@ -1700,12 +1738,12 @@ describe('Interpretador', () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 "funcao retorneLista() {",
-                                    "var lista = []",
+                                "var lista = []",
 
-                                    "retorna lista",
-                                  "}",
+                                "retorna lista",
+                                "}",
 
-                                  "escreva(retorneLista())"
+                                "escreva(retorneLista())"
                             ],
                             -1
                         );
@@ -2105,7 +2143,7 @@ describe('Interpretador', () => {
                 it('Tupla Dupla - Atribuição por indice', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var t = [(1, 2)]', 
+                            'var t = [(1, 2)]',
                             't[0] = 3'
                         ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
