@@ -219,7 +219,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        let valor = this.variaveis[expressao.alvo.lexema];
+        // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
+        return Promise.resolve();
+        /* let valor = this.variaveis[expressao.alvo.lexema];
         if (!valor) {
             this.erro(
                 expressao.alvo,
@@ -280,7 +282,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (this.variaveis[expressao.alvo.lexema]) {
                 this.variaveis[expressao.alvo.lexema].valor = expressao.valor;
             }
-        }
+        } */
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {

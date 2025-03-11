@@ -189,7 +189,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         ) {
             this.visitarExpressaoBinaria(expressao.valor);
         } else {
-            this.codigoFormatado += `${expressao.alvo.lexema} = `;
+            this.codigoFormatado += `${this.formatarDeclaracaoOuConstruto(expressao.alvo)} = `;
             this.formatarDeclaracaoOuConstruto(expressao.valor);
         }
 
