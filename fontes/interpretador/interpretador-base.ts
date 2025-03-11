@@ -834,7 +834,26 @@ export class InterpretadorBase implements InterpretadorInterface {
             indice = await this.avaliar(expressao.indice);
         }
 
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido, indice);
+        switch (expressao.alvo.constructor.name) {
+            case 'Variavel':
+                const alvoVariavel = expressao.alvo as Variavel;
+                this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+                break;
+            case 'AcessoMetodoOuPropriedade':
+                // Nunca será método aqui: apenas propriedade.
+                const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
+                const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
+                const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+
+                const valor = await this.avaliar(expressao.valor);
+                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                    const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
+                    objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                }
+                break;
+            default:
+                throw new ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`);
+        }
 
         return valorResolvido;
     }

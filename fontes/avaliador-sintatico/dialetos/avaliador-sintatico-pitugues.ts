@@ -495,8 +495,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             const valor = this.atribuir();
 
             if (expressao instanceof Variavel) {
-                const simbolo = expressao.simbolo;
-                return new Atribuir(this.hashArquivo, simbolo, valor);
+                return new Atribuir(this.hashArquivo, expressao, valor);
             } 
             
             if (expressao instanceof AcessoMetodoOuPropriedade) {

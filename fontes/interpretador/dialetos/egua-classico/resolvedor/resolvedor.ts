@@ -1,6 +1,7 @@
 import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
+    Atribuir,
     Comentario,
     Construto,
     ExpressaoRegular,
@@ -286,9 +287,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoDeAtribuicao(expressao: any): any {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): any {
         this.resolver(expressao.valor);
-        this.resolverLocal(expressao, expressao.simbolo);
+        const alvoVariavel = expressao.alvo as Variavel;
+        this.resolverLocal(expressao, alvoVariavel.simbolo);
         return null;
     }
 

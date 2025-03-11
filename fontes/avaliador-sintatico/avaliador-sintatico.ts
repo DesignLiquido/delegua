@@ -792,19 +792,16 @@ export class AvaliadorSintatico
         ) {
             if (expressao.esquerda instanceof AcessoIndiceVariavel) {
                 const entidade = expressao.esquerda as AcessoIndiceVariavel;
-                const simbolo = (entidade.entidadeChamada as Variavel).simbolo;
-                return new Atribuir(this.hashArquivo, simbolo, expressao, entidade.indice);
+                return new Atribuir(this.hashArquivo, entidade.entidadeChamada, expressao, entidade.indice);
             }
 
-            const simbolo = (expressao.esquerda as Variavel).simbolo;
-            return new Atribuir(this.hashArquivo, simbolo, expressao);
+            return new Atribuir(this.hashArquivo, expressao.esquerda, expressao);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
 
             if (expressao instanceof Variavel) {
-                const simbolo = expressao.simbolo;
-                return new Atribuir(this.hashArquivo, simbolo, valor);
+                return new Atribuir(this.hashArquivo, expressao, valor);
             }
 
             if (expressao instanceof AcessoMetodoOuPropriedade) {

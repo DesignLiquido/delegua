@@ -153,7 +153,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[4].mensagem).toBe('Atribuição inválida para \'v3\', é esperado um vetor de elementos.');
             });
 
-            // TODO: Provavelmente obsoleto por causa do avaliador sintático.
+            // TODO: `retornoAnalisadorSemantico.diagnosticos` vazio.
             it.skip('Retorno vazio', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao olaMundo (): vazio {",
