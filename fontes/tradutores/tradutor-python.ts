@@ -10,6 +10,7 @@ import {
     Chamada,
     Comentario,
     DefinirValor,
+    Dicionario,
     Isto,
     Literal,
     Logico,
@@ -306,6 +307,20 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
 
         resultado += definirValor.valor.simbolo.lexema;
+        return resultado;
+    }
+
+    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+        let resultado = `{${dicionario.chaves.length > 0 ? '\n' : ''}`;
+        for (let indice = 0; indice < dicionario.chaves.length; indice++) {
+            resultado += ' '.repeat(this.indentacao + 4);
+            const chave = dicionario.chaves[indice];
+            resultado += `${this.dicionarioConstrutos[chave.constructor.name](chave)}: `;
+            const valor = dicionario.valores[indice];
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)},\n`;
+        }
+
+        resultado += '}';
         return resultado;
     }
 
@@ -657,6 +672,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         Chamada: this.traduzirConstrutoChamada.bind(this),
         Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        Dicionario: this.traduzirConstrutoDicionario.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),

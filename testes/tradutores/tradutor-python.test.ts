@@ -38,6 +38,21 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toMatch(/\[1, 2, 3\].adicionar\(1\)/i);
     });
 
+    it('Literais com primitivas', () => {
+        const retornoLexador = lexador.mapear(
+            [`escreva({ 'chave 1': 'valor' })`],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain('print({');
+        expect(resultado).toContain("'chave 1': 'valor'");
+        expect(resultado).toContain('})');
+    });
+
     it('funções nativas', () => {
         const retornoLexador = lexador.mapear(
             [
