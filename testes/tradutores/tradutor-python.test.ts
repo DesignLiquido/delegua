@@ -116,6 +116,25 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toMatch(/2 \* 2/i);
     });
 
+    it('Soma com incremento', () => {
+        const retornoLexador = lexador.mapear(
+            [
+                `var frase = ''`,
+                `frase += "oi"`,
+                `escreva(frase)`
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toMatch(/frase = ''/i);
+        expect(resultado).toMatch(/frase \+= 'oi'/i);
+        expect(resultado).toMatch(/print\(frase\)/i);
+    });
+
     it('Escreva verdadeiro e falso com operadores lógicos', () => {
         const retornoLexador = lexador.mapear(
             [
@@ -132,7 +151,6 @@ describe('Tradutor Delégua -> Python', () => {
         );
 
         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         expect(resultado).toBeTruthy();
@@ -150,7 +168,7 @@ describe('Tradutor Delégua -> Python', () => {
         const retornoLexador = lexador.mapear(
             [
                 'funcao olaMundo () {',
-                'escreva(\'Olá Mundo!!!\')',
+                '    escreva(\'Olá Mundo!!!\')',
                 '}',
             ],
             -1
@@ -169,7 +187,7 @@ describe('Tradutor Delégua -> Python', () => {
         const retornoLexador = lexador.mapear(
             [
                 'funcao olaMundo (textoQualquer) {',
-                'escreva(\'Olá Mundo!!!\', textoQualquer)',
+                '    escreva(\'Olá Mundo!!!\', textoQualquer)',
                 '}',
             ],
             -1

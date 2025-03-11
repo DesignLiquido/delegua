@@ -792,10 +792,10 @@ export class AvaliadorSintatico
         ) {
             if (expressao.esquerda instanceof AcessoIndiceVariavel) {
                 const entidade = expressao.esquerda as AcessoIndiceVariavel;
-                return new Atribuir(this.hashArquivo, entidade.entidadeChamada, expressao, entidade.indice);
+                return new Atribuir(this.hashArquivo, entidade.entidadeChamada, expressao.direita, entidade.indice);
             }
 
-            return new Atribuir(this.hashArquivo, expressao.esquerda, expressao);
+            return new Atribuir(this.hashArquivo, expressao.esquerda, expressao.direita, undefined, expressao.operador);
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
