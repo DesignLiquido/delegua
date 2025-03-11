@@ -220,23 +220,33 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
-        return Promise.resolve();
-        /* let valor = this.variaveis[expressao.alvo.lexema];
+        let simboloAlvo: SimboloInterface;
+        switch (expressao.alvo.constructor.name) {
+            case 'Variavel':
+                const alvoVariavel = expressao.alvo as Variavel;
+                simboloAlvo = alvoVariavel.simbolo;
+                break;
+            default:
+                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor.name}.`);
+                return Promise.resolve();
+        }
+
+        let valor = this.variaveis[simboloAlvo.lexema];
         if (!valor) {
             this.erro(
-                expressao.alvo,
-                `Variável ${expressao.alvo.lexema} ainda não foi declarada até este ponto.`
+                simboloAlvo,
+                `Variável ${simboloAlvo.lexema} ainda não foi declarada até este ponto.`
             );
             return Promise.resolve();
         }
 
         if (valor.tipo) {
             if (expressao.valor instanceof Literal && valor.tipo.includes('[]')) {
-                this.erro(expressao.alvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                this.erro(simboloAlvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
                 return Promise.resolve();
             }
             if (expressao.valor instanceof Vetor && !valor.tipo.includes('[]')) {
-                this.erro(expressao.alvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                this.erro(simboloAlvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
                 return Promise.resolve();
             }
             if (expressao.valor instanceof Literal) {
@@ -244,13 +254,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 if (!['qualquer'].includes(valor.tipo)) {
                     if (valorLiteral === 'string') {
                         if (valor.tipo != 'texto') {
-                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (valorLiteral === 'number') {
                         if (!['inteiro', 'número', 'real'].includes(valor.tipo)) {
-                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -261,13 +271,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valores.every((v) => typeof v.valor === 'string')) {
-                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
                         if (!valores.every((v) => typeof v.valor === 'number')) {
-                            this.erro(expressao.alvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -276,13 +286,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         if (valor.imutavel) {
-            this.erro(expressao.alvo, `Constante ${expressao.alvo.lexema} não pode ser modificada.`);
+            this.erro(simboloAlvo, `Constante ${simboloAlvo.lexema} não pode ser modificada.`);
             return Promise.resolve();
         } else {
-            if (this.variaveis[expressao.alvo.lexema]) {
-                this.variaveis[expressao.alvo.lexema].valor = expressao.valor;
+            if (this.variaveis[simboloAlvo.lexema]) {
+                this.variaveis[simboloAlvo.lexema].valor = expressao.valor;
             }
-        } */
+        }
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {

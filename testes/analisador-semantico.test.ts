@@ -94,8 +94,7 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários de falha', () => {
-            // TODO: Reabilitar após reescrever heurística de atribuição.
-            it.skip('Atribuição de constante + reatribuição de constante', () => {
+            it('Atribuição de constante + reatribuição de constante', () => {
                 const retornoLexador = lexador.mapear([
                     "const a = 1",
                     "a = 2"
@@ -107,8 +106,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
 
-            // TODO: Reabilitar após reescrever heurística de atribuição.
-            it.skip('Atribuindo tipos inválidos para variáveis', () => {
+            it('Atribuindo tipos inválidos para variáveis', () => {
                 const retornoLexador = lexador.mapear([
                     "var a: inteiro = 123",
                     "a = 'abc'",
@@ -155,7 +153,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[4].mensagem).toBe('Atribuição inválida para \'v3\', é esperado um vetor de elementos.');
             });
 
-            // TODO: Provavelmente obsoleto por causa do avaliador sintático.
+            // TODO: `retornoAnalisadorSemantico.diagnosticos` vazio.
             it.skip('Retorno vazio', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao olaMundo (): vazio {",
@@ -623,8 +621,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
 
-                // TODO: Reabilitar após reescrever heurística de atribuição.
-                it.skip('Sucesso - variável de classe inicializada após declaração', () => {
+                it('Sucesso - variável de classe inicializada após declaração', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",
                         "var teste: Teste;",
@@ -649,8 +646,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
 
-                // TODO: Reabilitar após reescrever heurística de atribuição.
-                it.skip('Sucesso - variável tipo texto inicializada após declaração', () => {
+                it('Sucesso - variável tipo texto inicializada após declaração', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",
                         "var teste: Texto;",
