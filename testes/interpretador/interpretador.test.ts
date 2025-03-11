@@ -415,6 +415,36 @@ describe('Interpretador', () => {
 
                     expect(_saida).toBe('c');
                 });
+
+                it('Desestruturação de constantes 2', async () => {
+                    let _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var panda = {',
+                            '    "nome": "Panda",',
+                            '    "idade": 2500,',
+                            '    "planeta": "Planeta dos Pandas"',
+                            '}',
+                            'const { nome, idade, planeta } = panda',
+                            'escreva(nome)',
+                            'escreva(idade)',
+                            'escreva(planeta)'
+                        ],
+                        -1
+                    );
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saidas).toHaveLength(3);
+                    expect(_saidas[0]).toBe('Panda');
+                    expect(_saidas[1]).toBe('2500');
+                    expect(_saidas[2]).toBe('Planeta dos Pandas');
+                });
             });
 
             describe('Descrever objetos - paraTexto()', () => {
