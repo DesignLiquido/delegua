@@ -326,9 +326,9 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'var macacos = {',
-                            '"Joe": 0,',
-                            '"Milo": 0,',
-                            '"Kiko": 0,',
+                            '  "Joe": 0,',
+                            '  "Milo": 0,',
+                            '  "Kiko": 0,',
                             '}',
                             "macacos['Joe'] += 4",
                             "macacos['Milo'] -= 2",
