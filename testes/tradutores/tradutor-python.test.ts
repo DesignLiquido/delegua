@@ -35,7 +35,7 @@ describe('Tradutor Delégua -> Python', () => {
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         expect(resultado).toBeTruthy();
-        expect(resultado).toMatch(/\[1, 2, 3\].adicionar\(1\)/i);
+        expect(resultado).toMatch(/\[1, 2, 3\].append\(1\)/i);
     });
 
     it('Literais com primitivas', () => {

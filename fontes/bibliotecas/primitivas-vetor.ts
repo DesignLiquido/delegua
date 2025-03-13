@@ -80,7 +80,7 @@ export default {
             Promise.resolve(vetor.reverse())
     },
     juntar: {
-        tipoRetorno: 'qualquer[]',
+        tipoRetorno: 'texto',
         implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> =>
             Promise.resolve(vetor.join(separador))
     },
