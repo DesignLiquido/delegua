@@ -49,7 +49,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
     
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/\[1, 2, 3\].adicionar\(1\)/i);
+            expect(resultado).toMatch(/\[1, 2, 3\].push\(1\)/i);
         });
 
         it('escreva com interpolação de valores lógicos e não lógicos', () => {
