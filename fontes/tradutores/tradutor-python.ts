@@ -41,6 +41,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export class TradutorPython implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
+    classesConhecidas: string[] = [];
 
     protected traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
@@ -85,38 +86,49 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
-    protected traduzirFuncoesNativas(metodo: string): string {
-        switch (metodo.toLowerCase()) {
-            case 'adicionar':
-            case 'empilhar':
-                return 'append';
-            case 'fatiar':
-                return 'slice';
-            case 'inclui':
-                return 'in';
-            case 'inverter':
-                return 'reverse';
-            case 'juntar':
-                return 'join';
-            case 'ordenar':
-                return 'sort';
-            case 'removerprimeiro':
-                return 'pop(0)';
-            case 'removerultimo':
-                return 'pop';
-            case 'tamanho':
-                return 'len';
-            case 'maiusculo':
-                return 'upper';
-            case 'minusculo':
-                return 'lower';
-            case 'substituir':
-                return 'replace';
-            case 'texto':
-                return 'str';
-            default:
-                return metodo;
+    protected traduzirFuncaoOuMetodo(nomeMetodo: string, objetoResolvido: string, argumentos: Construto[]): string {
+        const argumentosResolvidos: string[] = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
         }
+
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+
+        switch (nomeMetodo) {
+            case 'adicionar':
+            case 'empilhar':        
+                return `${objetoResolvido}.append(${textoArgumentos})`;
+            case 'fatiar':
+                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
+            case 'inclui':
+                return `${argumentosResolvidos[0]} in ${objetoResolvido}`;
+            case 'inverter':
+                return `reversed(${objetoResolvido})`;
+            case 'juntar':
+                return `${argumentosResolvidos[0]}.join(${objetoResolvido})`;
+            case 'maiusculo':
+                return `${objetoResolvido}.upper()`;
+            case 'mapear':
+                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+            case 'minusculo':
+                return `${objetoResolvido}.lower()`;
+            case 'ordenar':
+                return `${objetoResolvido}.sort()`;
+            case 'remover':
+                return `del ${objetoResolvido}[${argumentosResolvidos[0]}]`;
+            case 'removerPrimeiro':
+                return `${objetoResolvido}.pop(0)`;
+            case 'removerUltimo':
+                return `${objetoResolvido}.pop()`;
+            case 'somar':
+                return `sum(${objetoResolvido})`;
+            case 'tamanho':
+                return `len(${objetoResolvido})`;
+        }
+
+        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos}))`;
     }
 
     protected logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
@@ -202,14 +214,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                 return `self.${acessoMetodo.nomeMetodo}`;
             case 'Variavel':
                 let objetoVariavel = acessoMetodo.objeto as Variavel;
-                let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.nomeMetodo);
-                if (funcaoTraduzida === 'in') {
-                    return `in ${objetoVariavel.simbolo.lexema}`;
-                } else if (funcaoTraduzida === 'len') {
-                    return `len(${objetoVariavel.simbolo.lexema})`;
-                }
-
-                return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+                return this.traduzirFuncaoOuMetodo(acessoMetodo.nomeMetodo, objetoVariavel.simbolo.lexema, argumentos);
             case 'Vetor':
                 return this.traduzirAcessoMetodoVetor(acessoMetodo.objeto, acessoMetodo.nomeMetodo, argumentos);
             default:
@@ -218,37 +223,19 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade): string {
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade, argumentos: Construto[]): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema);
-            if (funcaoTraduzida === 'in') {
-                return `in ${objetoVariavel.simbolo.lexema}`;
-            } 
-            
-            if (funcaoTraduzida === 'len') {
-                return `len(${objetoVariavel.simbolo.lexema})`;
-            }
-
-            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+            return this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos);
         }
 
         return `self.${acessoMetodo.simbolo.lexema}`;
     }
 
-    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
+    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade, argumentos: Construto[]): string {
         if (acessoPropriedade.objeto instanceof Variavel) {
             let objetoVariavel = acessoPropriedade.objeto as Variavel;
-            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoPropriedade.nomePropriedade);
-            if (funcaoTraduzida === 'in') {
-                return `in ${objetoVariavel.simbolo.lexema}`;
-            } 
-            
-            if (funcaoTraduzida === 'len') {
-                return `len(${objetoVariavel.simbolo.lexema})`;
-            }
-
-            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+            return this.traduzirFuncaoOuMetodo(objetoVariavel.simbolo.lexema, acessoPropriedade.nomePropriedade, argumentos);
         }
 
         return `self.${acessoPropriedade.nomePropriedade}`;
@@ -288,16 +275,20 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoBinario(binario: Binario): string {
         let resultado = '';
+        const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda)
         if (binario.esquerda.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
-        else resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+            resultado += '(' + valorEsquerdo + ')';
+        else 
+            resultado += valorEsquerdo;
 
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
 
+        const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
         if (binario.direita.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
-        else resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+            resultado += '(' + valorDireito + ')';
+        else 
+            resultado += valorDireito;
 
         return resultado;
     }
@@ -378,8 +369,28 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel): string {
-        return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
+    traduzirConstrutoVariavel(variavel: Variavel, argumentos: Construto[]): string {
+        const argumentosResolvidos: string[] = [];
+        const argumentosValidados = argumentos || [];
+        for (const argumento of argumentosValidados) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+
+        switch (variavel.simbolo.lexema) {
+            case 'texto':
+                return `str(${textoArgumentos})`;
+            default:
+                if (argumentosValidados.length === 0 && !this.classesConhecidas.includes(variavel.simbolo.lexema)) {
+                    return `${variavel.simbolo.lexema}`;
+                }
+
+                return `${variavel.simbolo.lexema}(${textoArgumentos})`;
+                // return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
+        }
     }
 
     traduzirConstrutoVetor(vetor: Vetor): string {
@@ -441,13 +452,17 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         if (declaracaoClasse.superClasse)
             resultado += `${declaracaoClasse.simbolo.lexema}(${declaracaoClasse.superClasse.simbolo.lexema}):\n`;
         else resultado += declaracaoClasse.simbolo.lexema + ':\n';
-
-        if (declaracaoClasse.metodos.length === 0) return (resultado += '    pass\n');
+        
+        if (declaracaoClasse.metodos.length === 0) { 
+            this.classesConhecidas.push(declaracaoClasse.simbolo.lexema);
+            return (resultado += '    pass\n');
+        }
 
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
         }
-
+        
+        this.classesConhecidas.push(declaracaoClasse.simbolo.lexema);
         return resultado;
     }
 
@@ -667,7 +682,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         let resultado = declaracaoVar.simbolo.lexema + ' = ';
         const inicializador = declaracaoVar.inicializador;
         if (inicializador) {
-            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
+            if (inicializador.constructor.name in this.dicionarioConstrutos) {
                 resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
                     declaracaoVar.inicializador
                 );
@@ -725,6 +740,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
+        this.classesConhecidas = [];
 
         try {
             for (const declaracao of declaracoes) {

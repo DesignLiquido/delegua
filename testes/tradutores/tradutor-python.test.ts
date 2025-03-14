@@ -53,7 +53,7 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toContain('})');
     });
 
-    it('funções nativas', () => {
+    it('funções nativas de vetor', () => {
         const retornoLexador = lexador.mapear(
             [
                 'var vetor = [1, 2];',
@@ -79,11 +79,10 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toMatch(/vetor.append\(3\)/i);
         expect(resultado).toMatch(/vetor.append\(4\)/i);
         expect(resultado).toMatch(/vetor.pop\(\)/i);
-        expect(resultado).toMatch(/vetor.reverse()/i)
+        expect(resultado).toMatch(/reversed\(vetor\)/i)
         expect(resultado).toMatch(/2 in vetor/i)
-        expect(resultado).toMatch(/vetor.sort()/i)
+        expect(resultado).toMatch(/vetor.sort\(\)/i)
         expect(resultado).toMatch(/vetor.pop\(0\)/i);
-
 
         expect(resultado).toMatch(/nome.upper\(\)/i);
         expect(resultado).toMatch(/nome.lower\(\)/i);
@@ -494,7 +493,7 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toMatch(/teste.mostrarValor\(\)/i);
     });
 
-    it('herda', () => {
+    it('Herança de classes', () => {
         const retornoLexador = lexador.mapear(
             [
                 'classe Animal {',
