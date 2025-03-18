@@ -118,13 +118,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             case 'inclui':
                 return `${objetoResolvido}.includes(${argumentosResolvidos[0]})`;
             case 'inverter':
-                return `${objetoResolvido}.reverse()`;
+                return `${objetoResolvido}.toReversed()`;
             case 'juntar':
                 return `${argumentosResolvidos[0]}.join(${objetoResolvido})`;
             case 'maiusculo':
                 return `${objetoResolvido}.toUpperCase()`;
             case 'mapear':
-                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+                return `${objetoResolvido}.map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])})`;
             case 'minusculo':
                 return `${objetoResolvido}.toLowerCase()`;
             case 'ordenar':
@@ -136,9 +136,9 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             case 'removerUltimo':
                 return `${objetoResolvido}.pop()`;
             case 'somar':
-                return `sum(${objetoResolvido})`;
+                return `${objetoResolvido}.reduce((acumulador, valorAtual) => acumulador + valorAtual, 0)`;
             case 'tamanho':
-                return `len(${objetoResolvido})`;
+                return `${objetoResolvido}.length`;
         }
 
         return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos}))`;
@@ -188,30 +188,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             chamada.entidadeChamada, chamada.argumentos
         )}`;
 
-        const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
-        if (instanciaClasse) {
-            const classe = this.declaracoesDeClasses.find((declaracao) => declaracao?.simbolo?.lexema === retorno);
-            if (classe.simbolo.lexema === retorno) resultado += `new ${retorno}`;
-        } else {
-            resultado += retorno;
-        }
-
-        if (!retorno.endsWith('length')) {
-            resultado += '(';
-        }
-
-        for (let parametro of chamada.argumentos) {
-            resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
-        }
-
-        if (chamada.argumentos.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
-
-        if (!retorno.endsWith('length')) {
-            resultado += ')';
-        }
-
+        resultado += retorno;
         return resultado;
     }
 
@@ -287,9 +264,14 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             case 'texto':
                 return `String(${textoArgumentos})`;
             default:
-                // if (argumentosValidados.length === 0 && !this.classesConhecidas.includes(variavel.simbolo.lexema)) {
-                if (argumentosValidados.length === 0) {
+                const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(d => d.simbolo.lexema === variavel.simbolo.lexema);
+                
+                if (buscaClasseCorrespondente.length === 0 && argumentosValidados.length === 0) {
                     return `${variavel.simbolo.lexema}`;
+                }
+                
+                if (buscaClasseCorrespondente.length > 0) {
+                    return `new ${variavel.simbolo.lexema}(${textoArgumentos})`;    
                 }
 
                 return `${variavel.simbolo.lexema}(${textoArgumentos})`;
@@ -688,7 +670,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade, argumentos: Construto[]): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${this.traduzirFuncaoOuMetodo(objetoVariavel.simbolo.lexema, acessoMetodo.simbolo.lexema, argumentos)}`;
+            return `${this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos)}`;
         }
 
         return `this.${acessoMetodo.simbolo.lexema}`;
@@ -782,10 +764,19 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
         let resultado = 'typeof ';
 
-        if (!tipoDe.valor) resultado += tipoDe.valor;
+        if (!tipoDe.valor) resultado += tipoDe.valor; // Qual o sentido disso?
         else if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
         else if (typeof tipoDe.valor === 'number') resultado += tipoDe.valor;
-        else resultado += `${this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor)}`;
+        else {
+            // Talvez isso seja uma péssima ideia.
+            // Pensar em algo melhor.
+            let alvoTipoDe = String(this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor));
+            if (alvoTipoDe.startsWith('new')) {
+                alvoTipoDe = alvoTipoDe.slice(4, -2);
+            }
+
+            resultado += `${alvoTipoDe}`;
+        }
 
         return resultado;
     }

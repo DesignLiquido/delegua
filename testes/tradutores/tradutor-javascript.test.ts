@@ -122,7 +122,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/vetor.push\(4\)/i);
             expect(resultado).toMatch(/vetor.pop\(\)/i);
             expect(resultado).toMatch(/vetor.length/i);
-            expect(resultado).toMatch(/vetor.reverse\(\)/i);
+            expect(resultado).toMatch(/vetor.toReversed\(\)/i);
             expect(resultado).toMatch(/vetor.shift\(\)/i);
 
             expect(resultado).toMatch(/nome.toUpperCase\(\)/i);
@@ -182,7 +182,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/typeof -1/i);
             expect(resultado).toMatch(/typeof \'2\'/i);
             expect(resultado).toMatch(/typeof null/i);
-            expect(resultado).toMatch(/typeof teste\(\)/i);
+            expect(resultado).toMatch(/typeof teste/i);
             expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
             expect(resultado).toMatch(/typeof Cachorro/i);
         });
