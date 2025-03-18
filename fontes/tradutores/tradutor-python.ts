@@ -164,6 +164,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return `${entidade}[${indice}]`;
     }
 
+    // TODO: Talvez terminar (ou remover, sei lá).
     traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
         return "";
     }
@@ -389,7 +390,6 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                 }
 
                 return `${variavel.simbolo.lexema}(${textoArgumentos})`;
-                // return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
         }
     }
 
