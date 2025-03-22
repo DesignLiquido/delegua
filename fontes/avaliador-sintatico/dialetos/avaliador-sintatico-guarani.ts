@@ -13,7 +13,7 @@ import { SimboloInterface } from '../../interfaces';
  */
 export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
     protected declaracaoLeia(): Leia {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     primario(): Construto {

@@ -41,7 +41,7 @@
  */
 parser grammar DeleguaParser;
 
-// Emsira aqui um @header para o avaliador sintático em C++.
+// Insira aqui um @header para o avaliador sintático em C++.
 
 options {
     tokenVocab=DeleguaLexer;

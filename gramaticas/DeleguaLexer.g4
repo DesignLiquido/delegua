@@ -139,34 +139,34 @@ BigDecimalInteiroLiteral:       DecimalInteiroLiteral 'n';
 
 /// Keywords
 
-Sustar:                         'break';
-Do:                             'do';
+Sustar:                          'break';
+Do:                              'do';
 InstanciaDe:                     'instanceof';
-TipoDe:                         'typeof';
-Caso:                           'case';
+TipoDe:                          'typeof';
+Caso:                            'case';
 Senao:                           'else';
 Novo:                            'new';
-Var:                            'var';
-Pegue:                          'catch';
-Finalmente:                     'finally';
-Retorna:                        'return';
+Var:                             'var';
+Pegue:                           'catch';
+Finalmente:                      'finally';
+Retorna:                         'return';
 Vazio:                           'void';
-Continua:                       'continue';
-Para:                           'for';
+Continua:                        'continue';
+Para:                            'for';
 Escolha:                         'switch';
-Enquanto:                       'while';
-Debugger:                       'debugger';
-Funcao_:                        'function';
-Isto:                           'this';
-Com:                            'with';
-Padrao:                         'default';
-Se:                             'if';
-Falhar:                         'throw';
+Enquanto:                        'while';
+Debugger:                        'debugger';
+Funcao_:                         'function';
+Isto:                            'this';
+Com:                             'with';
+Padrao:                          'default';
+Se:                              'if';
+Falhar:                          'throw';
 Excluir:                         'delete';
-Em:                             'in';
-Tente:                          'try';
-Como:                             'as';
-De:                           'from';
+Em:                              'in';
+Tente:                           'try';
+Como:                            'as';
+De:                              'from';
 
 /// Future Reserved Words
 
@@ -178,9 +178,9 @@ Const:                          'const';
 Exportar:                       'export';
 Importar:                       'import';
 
-Assincrono:                          'async';
-Aguardar:                          'await';
-Acumular:                          'yield';
+Assincrono:                     'async';
+Aguardar:                       'await';
+Acumular:                       'yield';
 
 /// The following tokens are also considered to be FutureReservedWords
 /// when parsing strict mode
@@ -189,11 +189,11 @@ Implementa:                     'implements' {this.IsStrictMode()}?;
 StrictLet:                      'let' {this.IsStrictMode()}?;
 NonStrictLet:                   'let' {!this.IsStrictMode()}?;
 Privado:                        'private' {this.IsStrictMode()}?;
-Publico:                         'public' {this.IsStrictMode()}?;
+Publico:                        'public' {this.IsStrictMode()}?;
 Interface:                      'interface' {this.IsStrictMode()}?;
-Pacote:                        'package' {this.IsStrictMode()}?;
+Pacote:                         'package' {this.IsStrictMode()}?;
 Protegido:                      'protected' {this.IsStrictMode()}?;
-Estatico:                         'static' {this.IsStrictMode()}?;
+Estatico:                       'static' {this.IsStrictMode()}?;
 
 /// Identificador Nomes and Identificadors
 
