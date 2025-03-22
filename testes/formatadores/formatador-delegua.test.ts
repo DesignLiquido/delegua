@@ -49,11 +49,10 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(13);
     });
 
-    // TODO: Corrigir avaliação de estrutura `super` antes de religar este teste.
-    it.skip('Classes com herança, uso de super', () => {
+    it('Classes com herança, uso de super', () => {
         const resultadoLexador = lexador.mapear([
-            `classe Ancestral{propriedade1: numero construtor(){super.propriedade1=0 }}`,
-            `classe Teste herda Ancestral{ super()}`,
+            `classe Ancestral{ propriedade1:numero}`,
+            `classe Teste herda Ancestral{ construtor(){super.propriedade1=0 }}`,
         ], -1);
 
         const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
@@ -61,7 +60,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(13);
+        expect(linhasResultado).toHaveLength(11);
     });
 
     it('Dicionários', () => {
