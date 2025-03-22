@@ -115,8 +115,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/const a: string = 'teste'/i);
             });
 
-            // TODO: Voltar nesses testes ao finalizar esforço de tipagem de referências de variáveis.
-            it.skip('var -> let com tipo iniciado -> number -> f64', () => {
+            it('var -> let com tipo iniciado -> number -> f64', () => {
                 const retornoLexador = lexador.mapear([
                     'var a: inteiro = 1'
                 ], -1)
@@ -140,8 +139,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/let a: string = 'teste'/i);
             });
 
-            // TODO: Voltar nesses testes ao finalizar esforço de tipagem de referências de variáveis.
-            it.skip('var -> let com tipo iniciado -> real -> f64', () => {
+            it('var -> let com tipo iniciado -> real -> f64', () => {
                 const retornoLexador = lexador.mapear([
                     'var a: real = 1.1'
                 ], -1)
@@ -167,16 +165,13 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/throw 'erro inesperado!'/i);
             });
 
-            // TODO: Voltar nesses testes ao finalizar esforço de tipagem de referências de variáveis.
-            it.skip('tipo de - typeof', () => {
+            it('tipo de - typeof', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'escreva(tipo de 1)',
                         'escreva(tipo de \'2\')',
                         'escreva(tipo de nulo)',
-                        'escreva(tipo de [1, 2, 3])',
-                        // 'classe Cachorro {}',
-                        // 'escreva(tipo de Cachorro)'
+                        'escreva(tipo de [1, 2, 3])'
                     ],
                     -1
                 );
@@ -190,8 +185,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
             });
 
-            // TODO: Voltar nesses testes ao finalizar esforço de tipagem de referências de variáveis.
-            it.skip('bit a bit', () => {
+            it('bit a bit', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'escreva(8 | 1)',
@@ -212,7 +206,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
                 expect(resultado).toMatch(/console\.log\(~2\)/i);
                 expect(resultado).toMatch(/let a: f64 = 3/i);
-                expect(resultado).toMatch(/let c: any = -a \+ 3/i);
+                expect(resultado).toMatch(/let c: f64 = -a \+ 3/i);
             });
         });
 

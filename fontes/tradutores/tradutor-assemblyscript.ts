@@ -529,7 +529,7 @@ export class TradutorAssemblyScript {
 
         if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
         else if (tipoDe.valor instanceof Vetor) resultado += this.traduzirConstrutoVetor(tipoDe.valor);
-        else resultado += tipoDe.valor;
+        else resultado += this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor);
 
         return resultado;
     }
