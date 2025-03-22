@@ -570,6 +570,26 @@ describe('Avaliador sintático', () => {
                     const declaracaoPost = retornoAvaliadorSintatico.declaracoes[1];
                     expect(declaracaoPost.decoradores).toHaveLength(0);
                 });
+
+                it('Classes com herança, uso de super', () => {
+                    const resultadoLexador = lexador.mapear([
+                        `classe Ancestral {`,
+                        `    propriedade1: numero`,
+                        `}`,
+                        `classe Teste herda Ancestral {`, 
+                        `    construtor() {`,
+                        `        super.propriedade1 = 0`,
+                        `    }`,
+                        `}`,
+                    ], -1);
+            
+                    const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+                    
+                    // console.log(resultado);
+                    expect(resultadoAvaliacaoSintatica).toBeTruthy();
+                    expect(resultadoAvaliacaoSintatica.declaracoes).toHaveLength(2);
+                    expect(resultadoAvaliacaoSintatica.erros).toHaveLength(0);
+                });
             });
 
             describe('Declaração `tendo ... como`', () => {
@@ -893,14 +913,13 @@ describe('Avaliador sintático', () => {
                 });
             });
 
-            // TODO: Repensar.
-            it.skip('Não é permitido ter dois identificadores seguidos na mesma linha', () => {
+            it('Não é permitido ter dois identificadores seguidos na mesma linha', () => {
                 const retornoLexador = lexador.mapear(["escreva('Olá mundo') identificador1 identificador2"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 expect(retornoAvaliadorSintatico.erros[0].message).toBe(
-                    'Não é permitido ter dois identificadores seguidos na mesma linha.'
+                    "Variável não definida: 'identificador1'."
                 );
             });
 

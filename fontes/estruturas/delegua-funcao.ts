@@ -92,7 +92,7 @@ export class DeleguaFuncao extends Chamavel {
         return argumentosResolvidos;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
+    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoVariaveis {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros || [];
 
@@ -114,6 +114,12 @@ export class DeleguaFuncao extends Chamavel {
                 ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
             }
         }
+
+        return ambiente;
+    }
+
+    async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
+        const ambiente = this.resolverAmbiente(argumentos);
 
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {

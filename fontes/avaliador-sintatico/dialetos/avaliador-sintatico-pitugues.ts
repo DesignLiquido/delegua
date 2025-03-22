@@ -71,6 +71,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     blocos: number;
     escopos: number[];
     performance: boolean;
+    superclassseAtual: string | undefined;
 
     constructor(performance = false) {
         this.atual = 0;
@@ -102,8 +103,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
             return retorno;
         }
-
-        //this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
 
         const inicializadores = [];
         do {
@@ -204,9 +203,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     primario(): RetornoPrimario {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
-            this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
-            return new Super(this.hashArquivo, simboloChave, metodo);
+            /* this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
+            const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.'); */
+            return new Super(this.hashArquivo, simboloChave, this.superclassseAtual);
         }
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
@@ -960,7 +959,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            const simboloSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            this.superclassseAtual = simboloSuperclasse.lexema;
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
         }
 
@@ -978,6 +978,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             metodos.push(this.funcao('método', this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR));
         }
 
+        this.superclassseAtual = undefined;
         return new Classe(simbolo, superClasse, metodos);
     }
 

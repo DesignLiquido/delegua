@@ -1211,7 +1211,8 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Chamada de método com `super`', async () => {
+                it('Chamada de método com `super`, trivial', async () => {
+                    const _saidas: string[] = [];
                     const codigo = [
                         'classe A {',
                         '  data(data) {',
@@ -1230,15 +1231,17 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('13/12/1981');
+                        _saidas.push(saida);
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('13/12/1981');
                 });
 
                 it('Chamada de método com `super` e definição de propriedade com `isto`', async () => {
+                    const _saidas: string[] = [];
                     const codigo = [
                         'classe A {',
                         '  dataA: texto',
@@ -1261,9 +1264,14 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('01/01/2001 -  13/12/1981');
                 });
 
                 it('Construtor', async () => {

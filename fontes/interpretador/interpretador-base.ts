@@ -687,23 +687,6 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
-     * Resolve paraâmetros da chamada de acordo com o tipo da entidade chamada.
-     * @param {Chamavel} entidadeChamada A entidade chamada.
-     * @returns Os parâmetros resolvidos.
-     */
-    protected resolverParametrosChamada(entidadeChamada: Chamavel): ParametroInterface[] {
-        if (entidadeChamada instanceof DeleguaFuncao) {
-            return entidadeChamada.declaracao.parametros;
-        }
-
-        if (entidadeChamada instanceof DescritorTipoClasse) {
-            return entidadeChamada.metodos.construtor ? entidadeChamada.metodos.construtor.declaracao.parametros : [];
-        }
-
-        return [];
-    }
-
-    /**
      * Executa uma chamada de função, método ou classe.
      * @param expressao A expressão chamada.
      * @returns O resultado da chamada.
@@ -741,11 +724,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             const argumentos: ArgumentoInterface[] = await this.resolverArgumentosChamada(expressao);
-            // TODO: Aparentemente isso nunca é usado se o bloco de resolução de parâmetros,
-            // mais abaixo, também não é.
-            // Estudar remoção mais adiante.
-            const parametros: ParametroInterface[] = this.resolverParametrosChamada(entidadeChamada);
-
             const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
 
             // Completar os parâmetros não preenchidos com nulos.
@@ -754,22 +732,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push(null);
                 }
-            } /* else {
-                // TODO: Aparentemente isso aqui nunca funcionou.
-                // Avaliar de simplesmente apagar este código, e usar o que foi
-                // implementado em `DeleguaFuncao.chamar`.
-                if (
-                    parametros &&
-                    parametros.length > 0 &&
-                    parametros[parametros.length - 1].abrangencia === 'multiplo'
-                ) {
-                    let novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                    novosArgumentos = novosArgumentos.concat(
-                        argumentos.slice(parametros.length - 1, argumentos.length)
-                    );
-                    argumentos = novosArgumentos;
-                }
-            } */
+            }
 
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
@@ -795,6 +758,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof Chamavel || entidadeChamada.constructor.name === 'DeleguaFuncao') {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
+            }
+
+            // Chamadas a `super()`.
+            // Basicamente, chamar o construtor da superclasse.
+            if (expressao.entidadeChamada instanceof Super) {
+                const descritorSuperclasse: DescritorTipoClasse = variavelEntidadeChamada.classe.superClasse;
+                const metodoConstrutor = descritorSuperclasse.encontrarMetodo('construtor');
+                await metodoConstrutor.chamar(this, argumentos);
+                return null;
             }
 
             // A função chamada pode ser de uma biblioteca JavaScript.
@@ -1657,18 +1629,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     visitarExpressaoSuper(expressao: Super): any {
-        const superClasse: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
         const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
-
-        const metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
-
-        if (metodo === undefined) {
-            throw new ErroEmTempoDeExecucao(expressao.metodo, 'Método chamado indefinido.', expressao.linha);
-        }
-
-        metodo.instancia = objeto.valor;
-
-        return metodo;
+        return objeto.valor;
     }
 
     /**

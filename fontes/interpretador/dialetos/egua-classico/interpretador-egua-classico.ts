@@ -961,18 +961,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoSuper(expressao: Super) {
-        const distancia = this.locais.get(expressao);
-        const superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
-
-        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
-
-        const metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
-
-        if (metodo === undefined) {
-            throw new ErroEmTempoDeExecucao(expressao.metodo, 'Método chamado indefinido.', expressao.linha);
-        }
-
-        return metodo.definirInstancia(objeto.valor);
+        const objeto: VariavelInterface = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
+        return objeto.valor;
     }
 
     paraTexto(objeto: any): any {

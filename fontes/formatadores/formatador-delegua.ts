@@ -663,9 +663,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoSuper(expressao: Super) {
-        // TODO: `expressao.metodo` deveria ser um `Construto`, não um `Simbolo` aqui.
-        this.codigoFormatado += `super.${expressao.metodo.lexema}()`;
-        console.log(expressao);
+        this.codigoFormatado += `super`;
     }
 
     visitarExpressaoSustar(declaracao?: Sustar): any {

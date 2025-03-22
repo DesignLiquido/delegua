@@ -68,7 +68,7 @@ export class DescritorTipoClasse extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     paraTexto(): string {
-        let texto = `<classe ${this.simboloOriginal.lexema}`;
+        let texto = `<DescritorTipoClasse ${this.simboloOriginal.lexema}`;
         for (let propriedade of this.propriedades) {
             texto += ` ${propriedade.nome.lexema}`;
             if (propriedade.tipo) {

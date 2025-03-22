@@ -62,6 +62,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     hashArquivo: number;
     atual: number;
     blocos: number;
+    superclasseAtual: string | undefined;
 
     constructor(simbolos?: SimboloInterface[]) {
         this.simbolos = simbolos;
@@ -161,10 +162,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     primario(): RetornoPrimario {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
-            this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
+            return new Super(this.hashArquivo, simboloChave, this.superclasseAtual);
+            /* this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
             const metodo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método da Superclasse.');
-            return new Super(this.hashArquivo, simboloChave, metodo);
+            return new Super(this.hashArquivo, simboloChave, metodo); */
         }
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const valores = [];
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
@@ -798,7 +801,8 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            const simboloSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            this.superclasseAtual = simboloSuperclasse.lexema;
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
         }
 
@@ -810,6 +814,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
+        this.superclasseAtual = undefined;
         return new Classe(nome, superClasse, metodos);
     }
 

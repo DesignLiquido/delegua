@@ -6,18 +6,18 @@ export class Super<TTipoSimbolo extends string = string> implements Construto {
     hashArquivo: number;
 
     simboloChave: SimboloInterface<TTipoSimbolo>;
-    metodo: SimboloInterface<TTipoSimbolo>;
+    superclasse: string;
 
     constructor(
         hashArquivo: number,
         simboloChave: SimboloInterface<TTipoSimbolo>,
-        metodo: SimboloInterface<TTipoSimbolo>
+        superclasse: string
     ) {
         this.linha = Number(simboloChave.linha);
         this.hashArquivo = hashArquivo;
 
         this.simboloChave = simboloChave;
-        this.metodo = metodo;
+        this.superclasse = superclasse;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
