@@ -59,7 +59,6 @@ import {
 } from '../declaracoes';
 import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
-import { Simbolo } from '../lexador';
 import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { RetornoDeclaracao } from './retornos';
 import { AvaliadorSintaticoBase } from './avaliador-sintatico-base';
