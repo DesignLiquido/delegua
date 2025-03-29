@@ -47,7 +47,6 @@ import {
     Continua,
     EscrevaMesmaLinha,
     Leia,
-    LeiaMultiplo,
     Retorna,
     Sustar,
     Declaracao,
@@ -620,10 +619,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
 
         this.codigoFormatado += `)`;
-    }
-
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {

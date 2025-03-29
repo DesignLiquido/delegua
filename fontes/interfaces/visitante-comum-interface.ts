@@ -48,7 +48,6 @@ import {
     Importar,
     InicioAlgoritmo,
     Leia,
-    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
@@ -107,7 +106,6 @@ export interface VisitanteComumInterface {
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<any> | void;
     visitarExpressaoIsto(expressao: Isto): Promise<any> | void;
     visitarExpressaoLeia(expressao: Leia): Promise<any> | void;
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> | void;
     visitarExpressaoLiteral(expressao: Literal): Promise<any> | void;
     visitarExpressaoLogica(expressao: Logico): Promise<any> | void;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> | void;

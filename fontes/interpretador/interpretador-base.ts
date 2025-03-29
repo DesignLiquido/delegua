@@ -20,7 +20,6 @@ import {
     Importar,
     InicioAlgoritmo,
     Leia,
-    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
@@ -298,39 +297,6 @@ export class InterpretadorBase implements InterpretadorInterface {
                 resolucao(resposta);
             })
         );
-    }
-
-    /**
-     * Execução da leitura de valores da entrada configurada no
-     * início da aplicação.
-     * @param expressao Expressão do tipo `LeiaMultiplo`.
-     * @returns Promise com o resultado da leitura.
-     */
-    async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        const mensagem = '> ';
-        if (expressao.argumento instanceof Literal) {
-            let valor = expressao.argumento.valor;
-            if (typeof valor === tipoDeDadosPrimitivos.TEXTO) {
-                return new Promise((resolucao) =>
-                    this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                        resolucao(
-                            String(resposta)
-                                .split(valor)
-                                .filter((r) => !/(\s+)/.test(r))
-                        );
-                    })
-                );
-            }
-
-            let respostas = [];
-            for (let i = 0; i < valor; i++) {
-                this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                    respostas.push(resposta);
-                });
-            }
-            return Promise.resolve(respostas);
-        }
-        return Promise.resolve();
     }
 
     /**

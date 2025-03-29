@@ -17,7 +17,6 @@ export * from './funcao';
 export * from './importar';
 export * from './inicio-algoritmo';
 export * from './leia';
-export * from './leia-multiplo';
 export * from './para';
 export * from './para-cada';
 export * from './propriedade-classe';

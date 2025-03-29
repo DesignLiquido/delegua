@@ -32,7 +32,6 @@ import {
     FuncaoDeclaracao,
     Importar,
     Leia,
-    LeiaMultiplo,
     Para,
     ParaCada,
     Retorna,
@@ -321,11 +320,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             })
         );
     }
-
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        throw new Error('Método não implementado');
-    }
-
+    
     visitarExpressaoLogica(expressao: any): never {
         throw new Error('Método não implementado');
     }

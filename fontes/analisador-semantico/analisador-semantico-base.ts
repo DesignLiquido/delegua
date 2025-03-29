@@ -53,7 +53,6 @@ import {
     EscrevaMesmaLinha,
     Falhar,
     Leia,
-    LeiaMultiplo,
     Retorna,
     Sustar,
 } from '../declaracoes';
@@ -264,10 +263,6 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         return Promise.resolve();
     }
 

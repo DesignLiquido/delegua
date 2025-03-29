@@ -23,7 +23,6 @@ import {
     EscrevaMesmaLinha,
     Expressao,
     Leia,
-    LeiaMultiplo,
     ParaCada,
     Se,
     TendoComo,
@@ -195,10 +194,6 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
