@@ -10,6 +10,7 @@ export class Var extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
     tipo: string;
+    tipoExplicito: boolean;
     referencia: boolean;
     desestruturacao: boolean;
 
@@ -22,10 +23,13 @@ export class Var extends Declaracao {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
+
         if (tipo !== 'qualquer') {
             this.tipo = tipo;
+            this.tipoExplicito = true;
         } else {
             this.tipo = inicializador?.tipo || tipo;
+            this.tipoExplicito = false;
         }
         
         this.referencia = false;
