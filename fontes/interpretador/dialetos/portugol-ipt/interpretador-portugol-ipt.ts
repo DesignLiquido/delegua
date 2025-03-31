@@ -8,7 +8,6 @@ import {
     FimPara,
     FormatacaoEscrita,
     Literal,
-    QualTipo,
     Super,
     TipoDe,
     Tupla,
@@ -133,10 +132,6 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoQualTipo(expressao: QualTipo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

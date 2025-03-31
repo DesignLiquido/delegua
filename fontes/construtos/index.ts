@@ -23,7 +23,6 @@ export * from './funcao';
 export * from './isto';
 export * from './literal';
 export * from './logico';
-export * from './qual-tipo';
 export * from './super';
 export * from './tipo-de';
 export * from './tuplas';

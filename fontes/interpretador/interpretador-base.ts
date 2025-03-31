@@ -46,19 +46,16 @@ import {
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
-    Binario,
     Chamada,
     Comentario,
     Construto,
     DefinirValor,
-    Dicionario,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
     FuncaoConstruto,
     Literal,
     Logico,
-    QualTipo,
     Super,
     TipoDe,
     Tupla,
@@ -255,12 +252,6 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
-        throw new Error('Método não implementado.');
-    }
-
-    // TODO: Depreciado. Priorizar `visitarExpressaoTipoDe`.
-    // Estudar remoção.
-    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         throw new Error('Método não implementado.');
     }
 

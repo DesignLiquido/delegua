@@ -7,7 +7,6 @@ import {
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
-    QualTipo,
     Super,
     TipoDe,
     Tupla,
@@ -134,10 +133,6 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoQualTipo(expressao: QualTipo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
