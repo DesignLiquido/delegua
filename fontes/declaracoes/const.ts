@@ -10,6 +10,7 @@ export class Const extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
     tipo: string;
+    tipoExplicito: boolean;
 
     constructor(
         simbolo: SimboloInterface,
@@ -23,8 +24,10 @@ export class Const extends Declaracao {
 
         if (tipo !== 'qualquer') {
             this.tipo = tipo;
+            this.tipoExplicito = true;
         } else {
             this.tipo = inicializador?.tipo || tipo;
+            this.tipoExplicito = false;
         }
     }
 
