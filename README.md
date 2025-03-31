@@ -51,8 +51,10 @@ aplicações por linha de comando. Em outras palavras, todo programa escrito em 
 ## Motivação
 
 - Atualmente, há 300 milhões de falantes de português no mundo, seja como primeira ou segunda língua;
-- A língua materna é substancialmente mais eficiente para expressão em passos lógicos, largamente documentada no meio acadêmico;
-- Apenas considerando o Brasil, 5% de toda a população fala inglês em algum nível, seja ele elementar, intermediário ou fluente, com apenas 1% sendo efetivamente fluente. Aqui consideramos "fluência" como a dominância de 10000 palavras em inglês, além de plena capacidade de leitura, escrita e conversação;
+- A língua materna é substancialmente mais eficiente para expressão em passos lógicos do que uma segunda língua, com conjunto de evidências farto e [largamente documentado no meio acadêmico](https://www.researchgate.net/publication/382758173_The_Influence_of_Mother_Tongue_Thinking_on_Second_Language_Writing);
+- Apenas considerando o Brasil, [5% de toda a população entende inglês em algum nível](https://www.britishcouncil.org.br/sites/default/files/learning_english_in_brazil.pdf?utm_source=chatgpt.com), seja ele elementar, intermediário ou fluente, [com apenas 1% sendo efetivamente fluente](https://www.youtube.com/watch?v=G3LdyaacfDI). Aqui consideramos "fluência" como a dominância de 10000 palavras em inglês, além de plena capacidade de leitura, escrita e conversação. [O Brasil está na 81a posição do English Proficiency Index, da Education First, organização focada em educação global](https://www.ef.com/wwen/epi/regions/latin-america/brazil/?utm_source=chatgpt.com), com pontuação abaixo de 500 e em queda contínua, nível considerado "baixo";
+    - [Angola está na 110a posição, e nível "muito baixo"](https://www.ef.com/wwen/epi/regions/africa/angola/);
+    - [Cabo Verde, na 89a posição, nível "baixo"](https://www.ef.com/wwen/epi/regions/africa/cabo-verde/).
 - Ainda considerando apenas o Brasil, menos de 1 milhão de pessoas trabalha com programação;
 - Como carreira, a programação é uma das formas mais eficazes de geração de emprego e renda com a aplicação de poucos recursos, especialmente quando em código aberto e acessível a todos. 
 
