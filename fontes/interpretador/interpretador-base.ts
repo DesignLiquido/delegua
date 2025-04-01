@@ -1194,9 +1194,9 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
-
+        const tipoIndividual = declaracao.tipo.replace('[]', '');
         for (let [indice, valor] of valoresFinais.entries()) {
-            this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, declaracao.tipo);
+            this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, tipoIndividual);
         }
 
         return null;
@@ -1610,9 +1610,9 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
-
+        const tipoIndividual = declaracao.tipo.replace('[]', '');
         for (let [indice, valor] of valoresFinais.entries()) {
-            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, declaracao.tipo);
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, tipoIndividual);
         }
 
         return null;
