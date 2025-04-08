@@ -585,7 +585,6 @@ describe('Avaliador sintático', () => {
             
                     const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
                     
-                    // console.log(resultado);
                     expect(resultadoAvaliacaoSintatica).toBeTruthy();
                     expect(resultadoAvaliacaoSintatica.declaracoes).toHaveLength(2);
                     expect(resultadoAvaliacaoSintatica.erros).toHaveLength(0);

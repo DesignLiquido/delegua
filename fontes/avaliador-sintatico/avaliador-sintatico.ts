@@ -332,32 +332,6 @@ export class AvaliadorSintatico
                     simboloSuper,
                     this.superclasseAtual
                 );
-                /* Se o próximo símbolo for uma abertura de parênteses, significa que
-                // é uma chamada ao construtor da classe ancestral (superclasse).
-                // Se o próximo símbolo for um ponto, significa que é uma chamada
-                // a um método da superclasse.
-                switch (this.simbolos[this.atual].tipo) {
-                    case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                        return new Super(
-                            this.hashArquivo,
-                            simboloSuper,
-                            new Simbolo(
-                                tiposDeSimbolos.IDENTIFICADOR,
-                                'construtor',
-                                null,
-                                simboloSuper.linha,
-                                this.hashArquivo
-                            )
-                        );
-                    default:
-                        this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-                        const metodoSuperclasse = this.consumir(
-                            tiposDeSimbolos.IDENTIFICADOR,
-                            'Esperado nome do método da Superclasse.'
-                        );
-                        // TODO: Validar se o método existe no ancestral.
-                        return new Super(this.hashArquivo, simboloSuper, metodoSuperclasse);
-                } */
 
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
@@ -573,6 +547,24 @@ export class AvaliadorSintatico
                     construtoTipado.simbolo.lexema,
                     primitivaNumeroSelecionada.tipoRetorno
                 );
+
+            case tipoDeDadosDelegua.MODULO:
+            case tipoDeDadosDelegua.MÓDULO:
+                if (construtoTipado.simbolo.lexema in this.tiposDefinidosEmCodigo) {
+                    // Construtor de classe.
+                    return new Variavel(
+                        construtoTipado.hashArquivo, 
+                        construtoTipado.simbolo, 
+                        construtoTipado.objeto.tipo
+                    );
+                }
+
+                return new AcessoMetodo(
+                    construtoTipado.hashArquivo, 
+                    construtoTipado.objeto,
+                    construtoTipado.simbolo.lexema,
+                );
+
             case tipoDeDadosDelegua.TEXTO:
                 if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
                     throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`);
@@ -883,52 +875,6 @@ export class AvaliadorSintatico
         return declaracoes;
     }
 
-    override declaracaoEnquanto(): Enquanto {
-        try {
-            this.blocos += 1;
-
-            const condicao = this.expressao();
-            const corpo = this.resolverDeclaracao();
-
-            return new Enquanto(condicao, corpo);
-        } finally {
-            this.blocos -= 1;
-        }
-    }
-
-    override declaracaoEscreva(): Escreva {
-        const simboloAtual = this.simbolos[this.atual];
-
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
-
-        const argumentos: Construto[] = [];
-
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            do {
-                argumentos.push(this.expressao());
-            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-        }
-
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
-
-        // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-
-        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
-    }
-
-    protected declaracaoExpressao(): Expressao {
-        // Se há decoradores a serem adicionados aqui, obtemo-los agora,
-        // para evitar que outros passos recursivos peguem-los antes.
-        const decoradores = Array.from(this.pilhaDecoradores);
-        this.pilhaDecoradores = [];
-
-        const expressao = this.expressao();
-        // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Expressao(expressao, decoradores);
-    }
-
     protected declaracaoComentarioMultilinha(): Comentario {
         let simboloComentario: SimboloInterface;
         const conteudos: string[] = [];
@@ -953,6 +899,19 @@ export class AvaliadorSintatico
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Continua(this.simbolos[this.atual - 1]);
+    }
+
+    override declaracaoEnquanto(): Enquanto {
+        try {
+            this.blocos += 1;
+
+            const condicao = this.expressao();
+            const corpo = this.resolverDeclaracao();
+
+            return new Enquanto(condicao, corpo);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     override declaracaoEscolha(): Escolha {
@@ -1026,6 +985,39 @@ export class AvaliadorSintatico
         }
     }
 
+    override declaracaoEscreva(): Escreva {
+        const simboloAtual = this.simbolos[this.atual];
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
+
+        const argumentos: Construto[] = [];
+
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            do {
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
+
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+    }
+
+    protected declaracaoExpressao(): Expressao {
+        // Se há decoradores a serem adicionados aqui, obtemo-los agora,
+        // para evitar que outros passos recursivos peguem-los antes.
+        const decoradores = Array.from(this.pilhaDecoradores);
+        this.pilhaDecoradores = [];
+
+        const expressao = this.expressao();
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        return new Expressao(expressao, decoradores);
+    }
+
     protected declaracaoFalhar(): Falhar {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
         return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
@@ -1045,11 +1037,17 @@ export class AvaliadorSintatico
         }
     }
 
+    /**
+     * O símbolo é emitido aqui para fins de formatação, mas este método é
+     * sobrescrito em `delegua-node`. 
+     * @returns {Importar} Uma declaração `Importar`.
+     */
     override declaracaoImportar(): Importar {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
         const caminho = this.expressao();
-        const simboloFechamento = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
-        return new Importar(caminho as Literal, simboloFechamento);
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+
+        return new Importar(caminho as Literal);
     }
 
     /**
@@ -1947,6 +1945,8 @@ export class AvaliadorSintatico
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         // Funções nativas de Delégua
+        this.pilhaEscopos.definirTipoVariavel('aleatorio', 'inteiro');
+        this.pilhaEscopos.definirTipoVariavel('aleatorioEntre', 'inteiro');
         this.pilhaEscopos.definirTipoVariavel('filtrarPor', 'qualquer[]');
         this.pilhaEscopos.definirTipoVariavel('inteiro', 'inteiro');
         this.pilhaEscopos.definirTipoVariavel('mapear', 'qualquer[]');

@@ -1,6 +1,6 @@
 # Avaliador Sintático
 
-O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível. Essas estruturas de alto nível são as partes que contêm lógica de programação de fato. É a funcionalidade mais importante de Delégua, já que seu resultado é utilizado para:
+O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível. Essas estruturas de alto nível são as partes chamadas resolvidas do código, e que podem conter lógica de programação de fato, ou que contêm informações importantes a serem consideradas em etapas posteriores. É a funcionalidade mais importante de Delégua, já que seu resultado é utilizado para:
 
 - Interpretar o código e executá-lo;
 - Formatar o código;
@@ -10,7 +10,7 @@ O avaliador sintático (_Parser_) é responsável por transformar os símbolos d
 Há dois grupos de estruturas de alto nível: Construtos e Declarações. 
 
 - Um Construto não executa por si só;
-- Uma combinação de Construtos forma uma Expressão;
+- Uma combinação de Construtos precisa estar contida em uma Expressão para ser válida;
 - Uma Expressão é um tipo de Declaração;
 - Uma Declaração é um elemento que
     - Pode ser executado pelo Interpretador;
