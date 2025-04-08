@@ -18,14 +18,13 @@ jobs:
       with:
         node-version: '20'
     # Maneira tradicional de build, sem cobertura.
+    # Usado quando o `jest-coverage-report-action` dá problema.
     # - name: NPM - Dependências
     #   run: |
     #     sudo npm install
     # - name: Testes unitários
     #   run: |
     #     sudo npm run testes-unitarios
-    # Cobertura de código: Trava o GitHub Actions inteiro por algum motivo.
-    # Reabilitar quando conseguirmos descobrir a causa.
     - uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage
       if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'DesignLiquido/delegua' }}
