@@ -760,12 +760,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
     declaracaoImportar(): Importar {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-
         const caminho = this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
 
-        const simboloFechamento = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
-
-        return new Importar(caminho as Literal, simboloFechamento);
+        return new Importar(caminho as Literal);
     }
 
     declaracaoTente(): Tente {

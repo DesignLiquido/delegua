@@ -32,7 +32,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(7);
     })
 
@@ -45,7 +44,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(13);
     });
 
@@ -59,7 +57,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(11);
     });
 
@@ -72,7 +69,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(2);
     });
 
@@ -85,7 +81,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(10);
     });
 
@@ -99,7 +94,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(8);
     });
 
@@ -115,7 +109,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
     });
 
@@ -139,7 +132,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(10);
     });
 
@@ -153,7 +145,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(5);
     });
 
@@ -167,7 +158,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(6);
     });
 
@@ -191,7 +181,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(10);
     });
 
@@ -207,7 +196,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
     });
 
@@ -223,7 +211,6 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
         expect(linhasResultado).toHaveLength(3);
     });
 

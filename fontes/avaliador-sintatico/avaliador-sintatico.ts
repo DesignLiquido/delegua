@@ -45,6 +45,7 @@ import {
     Falhar,
     Fazer,
     FuncaoDeclaracao,
+    Importar,
     Leia,
     Para,
     ParaCada,
@@ -874,52 +875,6 @@ export class AvaliadorSintatico
         return declaracoes;
     }
 
-    override declaracaoEnquanto(): Enquanto {
-        try {
-            this.blocos += 1;
-
-            const condicao = this.expressao();
-            const corpo = this.resolverDeclaracao();
-
-            return new Enquanto(condicao, corpo);
-        } finally {
-            this.blocos -= 1;
-        }
-    }
-
-    override declaracaoEscreva(): Escreva {
-        const simboloAtual = this.simbolos[this.atual];
-
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
-
-        const argumentos: Construto[] = [];
-
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            do {
-                argumentos.push(this.expressao());
-            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-        }
-
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
-
-        // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-
-        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
-    }
-
-    protected declaracaoExpressao(): Expressao {
-        // Se há decoradores a serem adicionados aqui, obtemo-los agora,
-        // para evitar que outros passos recursivos peguem-los antes.
-        const decoradores = Array.from(this.pilhaDecoradores);
-        this.pilhaDecoradores = [];
-
-        const expressao = this.expressao();
-        // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Expressao(expressao, decoradores);
-    }
-
     protected declaracaoComentarioMultilinha(): Comentario {
         let simboloComentario: SimboloInterface;
         const conteudos: string[] = [];
@@ -944,6 +899,19 @@ export class AvaliadorSintatico
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Continua(this.simbolos[this.atual - 1]);
+    }
+
+    override declaracaoEnquanto(): Enquanto {
+        try {
+            this.blocos += 1;
+
+            const condicao = this.expressao();
+            const corpo = this.resolverDeclaracao();
+
+            return new Enquanto(condicao, corpo);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     override declaracaoEscolha(): Escolha {
@@ -1017,6 +985,39 @@ export class AvaliadorSintatico
         }
     }
 
+    override declaracaoEscreva(): Escreva {
+        const simboloAtual = this.simbolos[this.atual];
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
+
+        const argumentos: Construto[] = [];
+
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            do {
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
+
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+    }
+
+    protected declaracaoExpressao(): Expressao {
+        // Se há decoradores a serem adicionados aqui, obtemo-los agora,
+        // para evitar que outros passos recursivos peguem-los antes.
+        const decoradores = Array.from(this.pilhaDecoradores);
+        this.pilhaDecoradores = [];
+
+        const expressao = this.expressao();
+        // Ponto-e-vírgula é opcional aqui.
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        return new Expressao(expressao, decoradores);
+    }
+
     protected declaracaoFalhar(): Falhar {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
         return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
@@ -1034,6 +1035,19 @@ export class AvaliadorSintatico
         } finally {
             this.blocos -= 1;
         }
+    }
+
+    /**
+     * O símbolo é emitido aqui para fins de formatação, mas este método é
+     * sobrescrito em `delegua-node`. 
+     * @returns {Importar} Uma declaração `Importar`.
+     */
+    override declaracaoImportar(): Importar {
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
+        const caminho = this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+
+        return new Importar(caminho as Literal);
     }
 
     /**

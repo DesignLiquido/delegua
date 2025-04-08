@@ -601,7 +601,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     // TODO: Implementar em `delegua-node`.
     async visitarDeclaracaoImportar(declaracao: Importar) {
         throw new ErroEmTempoDeExecucao(
-            declaracao.simboloFechamento,
+            {
+                lexema: declaracao.caminho.valor,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.caminho.hashArquivo
+            } as SimboloInterface,
             'Importação não suportada em núcleo da linguagem puro. Favor executar a aplicação usando o pacote NPM `delegua-node`.',
             declaracao.linha
         );

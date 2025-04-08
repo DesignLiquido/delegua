@@ -9,6 +9,7 @@ import {
     Expressao,
     Fazer,
     FuncaoDeclaracao,
+    Importar,
     Leia,
     Para,
     ParaCada,
@@ -326,7 +327,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoImportar(): Construto {
+    protected declaracaoImportar(): Importar {
         throw new Error('Método não implementado.');
     }
 
