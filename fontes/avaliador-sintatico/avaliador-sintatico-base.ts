@@ -9,7 +9,6 @@ import {
     Expressao,
     Fazer,
     FuncaoDeclaracao,
-    Importar,
     Leia,
     Para,
     ParaCada,
@@ -327,7 +326,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoImportar(): Importar {
+    protected declaracaoImportar(): Construto {
         throw new Error('Método não implementado.');
     }
 
@@ -353,7 +352,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     /**
      * Este é o ponto de entrada de toda a avaliação sintática. É o
-     * único método mencionado na interface do avaliador sintático.
+     * único método mencionado na interface do avaliador sintático, e cada
+     * avaliador sintático deve implementar o seu método.
      * @param retornoLexador O retorno do Lexador.
      * @param hashArquivo O hash do arquivo, gerado pela função `cyrb53`.
      */

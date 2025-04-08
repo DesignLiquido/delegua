@@ -45,7 +45,6 @@ import {
     Falhar,
     Fazer,
     FuncaoDeclaracao,
-    Importar,
     Leia,
     Para,
     ParaCada,
@@ -332,32 +331,6 @@ export class AvaliadorSintatico
                     simboloSuper,
                     this.superclasseAtual
                 );
-                /* Se o próximo símbolo for uma abertura de parênteses, significa que
-                // é uma chamada ao construtor da classe ancestral (superclasse).
-                // Se o próximo símbolo for um ponto, significa que é uma chamada
-                // a um método da superclasse.
-                switch (this.simbolos[this.atual].tipo) {
-                    case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                        return new Super(
-                            this.hashArquivo,
-                            simboloSuper,
-                            new Simbolo(
-                                tiposDeSimbolos.IDENTIFICADOR,
-                                'construtor',
-                                null,
-                                simboloSuper.linha,
-                                this.hashArquivo
-                            )
-                        );
-                    default:
-                        this.consumir(tiposDeSimbolos.PONTO, "Esperado '.' após 'super'.");
-                        const metodoSuperclasse = this.consumir(
-                            tiposDeSimbolos.IDENTIFICADOR,
-                            'Esperado nome do método da Superclasse.'
-                        );
-                        // TODO: Validar se o método existe no ancestral.
-                        return new Super(this.hashArquivo, simboloSuper, metodoSuperclasse);
-                } */
 
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
@@ -573,6 +546,24 @@ export class AvaliadorSintatico
                     construtoTipado.simbolo.lexema,
                     primitivaNumeroSelecionada.tipoRetorno
                 );
+
+            case tipoDeDadosDelegua.MODULO:
+            case tipoDeDadosDelegua.MÓDULO:
+                if (construtoTipado.simbolo.lexema in this.tiposDefinidosEmCodigo) {
+                    // Construtor de classe.
+                    return new Variavel(
+                        construtoTipado.hashArquivo, 
+                        construtoTipado.simbolo, 
+                        construtoTipado.objeto.tipo
+                    );
+                }
+
+                return new AcessoMetodo(
+                    construtoTipado.hashArquivo, 
+                    construtoTipado.objeto,
+                    construtoTipado.simbolo.lexema,
+                );
+
             case tipoDeDadosDelegua.TEXTO:
                 if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
                     throw this.erro(construtoTipado.simbolo, `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`);
@@ -1043,13 +1034,6 @@ export class AvaliadorSintatico
         } finally {
             this.blocos -= 1;
         }
-    }
-
-    override declaracaoImportar(): Importar {
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-        const caminho = this.expressao();
-        const simboloFechamento = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
-        return new Importar(caminho as Literal, simboloFechamento);
     }
 
     /**
@@ -1947,6 +1931,8 @@ export class AvaliadorSintatico
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         // Funções nativas de Delégua
+        this.pilhaEscopos.definirTipoVariavel('aleatorio', 'inteiro');
+        this.pilhaEscopos.definirTipoVariavel('aleatorioEntre', 'inteiro');
         this.pilhaEscopos.definirTipoVariavel('filtrarPor', 'qualquer[]');
         this.pilhaEscopos.definirTipoVariavel('inteiro', 'inteiro');
         this.pilhaEscopos.definirTipoVariavel('mapear', 'qualquer[]');

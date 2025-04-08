@@ -4,6 +4,8 @@ export default {
     INTEIRO: 'inteiro',
     LOGICO: 'logico',
     LÓGICO: 'lógico',
+    MODULO: 'modulo',
+    MÓDULO: 'módulo',
     NUMERO: 'numero',
     NÚMERO: 'número',
     NULO: 'nulo',
