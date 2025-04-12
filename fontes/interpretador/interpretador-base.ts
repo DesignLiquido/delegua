@@ -728,7 +728,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             // A função chamada pode ser de uma biblioteca JavaScript.
             // Neste caso apenas testamos se o tipo é uma função.
-            // TODO: Descobrir qual caso exatamente passa aqui.
+            // Casos que passam aqui: chamadas a métodos de bibliotecas de Delégua.
             if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
                 if (expressao.entidadeChamada.objeto) {
