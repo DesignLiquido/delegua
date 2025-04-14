@@ -1,10 +1,19 @@
+var maximoDeElementos = 4;
+var indexInicial = 0;
+var indexFinal = 0;
+
+// Variavel de controle em iterações
+var i = 0;
+
+var filaEstatica = [];
+
 funcao enfileirar (valorEntrada) {
   se (indexFinal == maximoDeElementos) {
     escreva("Fila Cheia");
   } senao {
     filaEstatica[indexFinal] = valorEntrada;
     escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));
-    retorna indexFinal = indexFinal + 1;
+    indexFinal = indexFinal + 1;
   }
 }
 
@@ -35,15 +44,6 @@ função mostrar_fila() {
     }
   }
 }
-
-var maximoDeElementos = 4;
-var indexInicial = 0;
-var indexFinal = 0;
-
-// Variavel de controle em iterações
-var i = 0;
-
-var filaEstatica = [];
 
 // Demonstração de uso das funções:
 mostrar_fila();
