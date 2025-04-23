@@ -169,8 +169,7 @@ export class DeleguaFuncao extends Chamavel {
 
         for (let referencia of referencias) {
             let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
-            // TODO: Aparentemente, esta lógica foi implementada para algum dialeto que
-            // trabalha con referência, mas até então não encontrei este dialeto.
+            // TODO: Lógica implementada para o VisuAlg. 
             /* pilha.atribuirVariavel(
                 {
                     
