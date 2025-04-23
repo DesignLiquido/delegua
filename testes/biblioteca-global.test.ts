@@ -1,16 +1,16 @@
 import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
-import { InterpretadorBase } from "../fontes/interpretador";
+import { Interpretador, InterpretadorBase } from "../fontes/interpretador";
 import { Lexador } from "../fontes/lexador";
 
 describe('Biblioteca Global', () => {
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
-    let interpretador: InterpretadorBase;
+    let interpretador: Interpretador;
 
     beforeEach(() => {
         lexador = new Lexador();
         avaliadorSintatico = new AvaliadorSintatico();
-        interpretador = new InterpretadorBase(process.cwd());
+        interpretador = new Interpretador(process.cwd());
     });
 
     describe('aleatorio()', () => {

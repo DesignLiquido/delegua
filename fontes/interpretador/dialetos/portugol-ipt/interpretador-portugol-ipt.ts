@@ -1,6 +1,7 @@
 import {
     AcessoMetodo,
     AcessoPropriedade,
+    ArgumentoReferenciaFuncao,
     Atribuir,
     Comentario,
     Construto,
@@ -8,6 +9,7 @@ import {
     FimPara,
     FormatacaoEscrita,
     Literal,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -51,10 +53,10 @@ import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos
 import { RetornoInterpretador } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
-
-import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
+
+import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
 
 export class InterpretadorPortugolIpt implements InterpretadorInterface {
     diretorioBase: any;
@@ -89,6 +91,14 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {

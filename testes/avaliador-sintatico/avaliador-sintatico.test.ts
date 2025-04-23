@@ -697,7 +697,7 @@ describe('Avaliador sintático', () => {
                     const construtoFuncao = declaracaoTipada.funcao;
                     expect(construtoFuncao.constructor.name).toBe('FuncaoConstruto');
                     const construtoFuncaoTipado = construtoFuncao as FuncaoConstruto;
-                    expect(construtoFuncaoTipado.tipoRetorno).toBe('inteiro');
+                    expect(construtoFuncaoTipado.tipo).toBe('inteiro');
                     expect(construtoFuncaoTipado.parametros).toHaveLength(2);
                     expect(construtoFuncaoTipado.parametros[0].tipoDado).toBe('inteiro');
                     expect(construtoFuncaoTipado.parametros[1].tipoDado).toBe('inteiro');
@@ -714,6 +714,27 @@ describe('Avaliador sintático', () => {
                     const corpoRetornaBinarioDireita = corpoRetornaBinario.direita as Variavel;
                     expect(corpoRetornaBinarioEsquerda.tipo).toBe('inteiro');
                     expect(corpoRetornaBinarioDireita.tipo).toBe('inteiro');
+                });
+
+                it('Função que retorna função', () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao some(a, b) {",
+                        "  retorna a + b",
+                        "}",
+                        "funcao facaCurrying(minhaFuncao) {",
+                        "  retorna funcao(a) {",
+                        "    retorna funcao(b) {",
+                        "      retorna minhaFuncao(a, b)",
+                        "    }",
+                        "  }",
+                        "}",
+                        "var someViaCurryng = facaCurrying(some)",
+                        "escreva(someViaCurryng(1)(2))"
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
             })
 

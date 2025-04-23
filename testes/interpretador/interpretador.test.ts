@@ -8,10 +8,16 @@ describe('Interpretador', () => {
         let avaliadorSintatico: AvaliadorSintatico;
         let interpretador: Interpretador;
 
+        let _saidas: string[] = [];
+        const funcaoSaida = (texto: string) => {
+            _saidas.push(texto);
+        }
+
         beforeEach(() => {
+            _saidas = [];
             lexador = new Lexador();
             avaliadorSintatico = new AvaliadorSintatico();
-            interpretador = new Interpretador(process.cwd());
+            interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {
@@ -1607,6 +1613,37 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Função que retorna função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao some(a, b) {",
+                        "  retorna a + b",
+                        "}",
+                        "funcao facaCurrying(minhaFuncao) {",
+                        "  retorna funcao(a) {",
+                        "    retorna funcao(b) {",
+                        "      retorna minhaFuncao(a, b)",
+                        "    }",
+                        "  }",
+                        "}",
+                        "var someViaCurryng = facaCurrying(some)",
+                        "escreva(someViaCurryng(1)(2))"
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                    let _saidas = "";
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas += saida;
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toBe('3');
                 });
             });
 

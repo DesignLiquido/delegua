@@ -4,6 +4,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -19,6 +20,7 @@ import {
     Isto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -82,13 +84,21 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.deveIndentar = true;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): void {
+        this.codigoFormatado += expressao.simboloFuncao.lexema;
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): void {
+        this.codigoFormatado += expressao.simboloFuncao.lexema;
+    }
+
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): void {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.nomeMetodo;
     }
 
-    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): void {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.nomePropriedade;
@@ -438,6 +448,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.ADICAO:
                 this.codigoFormatado += ` + `;
                 break;
+            case tiposDeSimbolos.DIFERENTE:
+                this.codigoFormatado += ` != `;
+                break;
             case tiposDeSimbolos.DIVISAO:
                 this.codigoFormatado += ` / `;
                 break;
@@ -621,9 +634,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `)`;
     }
 
-    visitarExpressaoLiteral(expressao: Literal): any {
+    visitarExpressaoLiteral(expressao: Literal): void {
         if (typeof expressao.valor === 'string') {
             this.codigoFormatado += `'${expressao.valor}'`;
+            return;
+        }
+
+        if (['logico', 'lógico'].includes(expressao.tipo)) {
+            this.codigoFormatado += `${expressao.valor ? 'verdadeiro' : 'falso'}`;
             return;
         }
 
@@ -651,6 +669,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}retorna`;
         if (declaracao.valor) {
             this.codigoFormatado += ` `;
+            if (declaracao.valor.constructor.name === 'FuncaoConstruto') {
+                this.codigoFormatado += `função`;
+            }
+
             this.formatarDeclaracaoOuConstruto(declaracao.valor);
         }
 
@@ -721,6 +743,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
+                break;
+            case 'ArgumentoReferenciaFuncao':
+                this.visitarExpressaoArgumentoReferenciaFuncao(declaracaoOuConstruto as ArgumentoReferenciaFuncao);
                 break;
             case 'AtribuicaoPorIndice':
                 this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
@@ -796,6 +821,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'ParaCada':
                 this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);
+                break;
+            case 'ReferenciaFuncao':
+                this.visitarExpressaoReferenciaFuncao(declaracaoOuConstruto as ReferenciaFuncao);
                 break;
             case 'Retorna':
                 this.visitarExpressaoRetornar(declaracaoOuConstruto as Retorna);

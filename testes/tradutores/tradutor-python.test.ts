@@ -925,7 +925,7 @@ describe('Tradutor Delégua -> Python', () => {
                 '    } senao {',
                 '        filaEstatica[indexFinal] = valorEntrada;',
                 '        escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));',
-                '        retorna indexFinal = indexFinal + 1;',
+                '        indexFinal = indexFinal + 1;',
                 '    }',
                 '}',
                 'função desenfileirar() {',
@@ -982,7 +982,7 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toContain('    else:');
         expect(resultado).toContain('        filaEstatica[indexFinal] = valorEntrada');
         expect(resultado).toContain('        print(\'Valor inserido com sucesso: \' + str(filaEstatica[indexFinal]))');
-        expect(resultado).toContain('        return indexFinal = indexFinal + 1');
+        expect(resultado).toContain('        indexFinal = indexFinal + 1');
         expect(resultado).toContain('def desenfileirar():');
         expect(resultado).toContain('    if indexInicial == indexFinal:');
         expect(resultado).toContain('        print(\'Fila Vazia\')');

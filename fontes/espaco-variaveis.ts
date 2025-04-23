@@ -1,3 +1,4 @@
+import { DeleguaFuncao } from './estruturas';
 import { VariavelInterface } from './interfaces';
 
 /**
@@ -12,9 +13,11 @@ import { VariavelInterface } from './interfaces';
 export class EspacoVariaveis {
     valores: { [nome: string]: VariavelInterface };
     resolucoesChamadas: { [id: string]: any };
+    referencias: { [id: string]: DeleguaFuncao };
 
     constructor() {
         this.valores = {};
         this.resolucoesChamadas = {};
+        this.referencias = {};
     }
 }

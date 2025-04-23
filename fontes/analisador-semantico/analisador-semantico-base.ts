@@ -25,6 +25,8 @@ import {
     Comentario,
     AcessoMetodo,
     AcessoPropriedade,
+    ArgumentoReferenciaFuncao,
+    ReferenciaFuncao,
 } from '../construtos';
 import {
     Declaracao,
@@ -67,7 +69,6 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
-    
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
@@ -84,6 +85,14 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             linha: simbolo.linha,
             severidade: severidade,
         });
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        return Promise.resolve();
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
@@ -215,7 +224,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        return Promise.resolve();
+        return null;
     }
 
     visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
@@ -283,7 +292,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        return Promise.resolve();
+        return null;
     }
 
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {

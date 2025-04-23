@@ -1,6 +1,7 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 import { Decorador, FuncaoConstruto } from '../construtos';
+import { uuidv4 } from '../geracao-identificadores';
 
 /**
  * Uma declaração de função. 
@@ -8,8 +9,9 @@ import { Decorador, FuncaoConstruto } from '../construtos';
 export class FuncaoDeclaracao extends Declaracao {
     simbolo: SimboloInterface;
     funcao: FuncaoConstruto;
-    tipoRetorno: string;
+    tipo: string;
     decoradores: Decorador[];
+    id: string;
 
     constructor(
         simbolo: SimboloInterface,
@@ -18,9 +20,10 @@ export class FuncaoDeclaracao extends Declaracao {
         decoradores: Decorador[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
+        this.id = uuidv4();
         this.simbolo = simbolo;
         this.funcao = funcao;
-        this.tipoRetorno = tipoRetorno;
+        this.tipo = tipoRetorno;
         this.decoradores = decoradores;
     }
 

@@ -6,6 +6,7 @@ export class Variavel<TTipoSimbolo extends string = string> implements Construto
     hashArquivo: number;
     simbolo: SimboloInterface<TTipoSimbolo>;
     tipo: string;
+    idReferencia?: string;
 
     constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>, tipo: string = 'qualquer') {
         this.linha = Number(simbolo.linha);

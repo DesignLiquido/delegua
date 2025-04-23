@@ -4,6 +4,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -15,6 +16,7 @@ import {
     Isto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     Unario,
     Variavel,
     Vetor,
@@ -246,6 +248,23 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
 
+    traduzirConstrutoArgumentoReferenciaFuncao(
+        argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
+        argumentos: Construto[]
+    ): string {
+        const argumentosResolvidos: string[] = [];
+        const argumentosValidados = argumentos || [];
+        for (const argumento of argumentosValidados) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+
+        return `${argumentoReferenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
+    }
+
     traduzirConstrutoAtribuicaoPorIndice(atribuicaoPorIndice: AtribuicaoPorIndice): string {
         const objeto = this.dicionarioConstrutos[atribuicaoPorIndice.objeto.constructor.name](
             atribuicaoPorIndice.objeto
@@ -357,6 +376,23 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
 
         return `${esquerda} ${operador} ${direita}`;
+    }
+
+    traduzirConstrutoReferenciaFuncao(
+        referenciaFuncao: ReferenciaFuncao,
+        argumentos: Construto[]
+    ): string {
+        const argumentosResolvidos: string[] = [];
+        const argumentosValidados = argumentos || [];
+        for (const argumento of argumentosValidados) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+
+        return `${referenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
     }
 
     traduzirConstrutoUnario(unario: Unario) {
@@ -704,6 +740,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
@@ -713,6 +750,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),

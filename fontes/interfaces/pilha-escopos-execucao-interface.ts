@@ -12,10 +12,12 @@ export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExec
     elementos(): number;
     naPosicao(posicao: number): EscopoExecucao;
     obterEscopoPorTipo(idChamada: string): EscopoExecucao | undefined;
+    obterTodasDeclaracoesClasse(): any;
     obterTodasVariaveis(todasVariaveis: any[]): { valor: any; nome: string; tipo: string }[];
+    obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao };
+    obterReferenciaFuncao(idFuncao: string): DeleguaFuncao;
     obterValorVariavel(simbolo: SimboloInterface): VariavelInterface;
     obterVariavelEm(distancia: number, nome: string): VariavelInterface;
     obterVariavelPorNome(nome: string): VariavelInterface;
-    obterTodasDeclaracaoClasse(): any;
-    obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao };
+    registrarReferenciaFuncao(idFuncao: string, funcao: DeleguaFuncao): void;
 }

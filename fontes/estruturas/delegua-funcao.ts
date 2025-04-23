@@ -92,7 +92,9 @@ export class DeleguaFuncao extends Chamavel {
         return argumentosResolvidos;
     }
 
-    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoVariaveis {
+    protected resolverAmbiente(
+        argumentos: Array<ArgumentoInterface>
+    ): EspacoVariaveis {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros || [];
 
@@ -112,6 +114,12 @@ export class DeleguaFuncao extends Chamavel {
                 }
 
                 ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+
+                // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_, 
+                // copiamos seu valor para o escopo atual. Nem sempre podemos contar com a tipagem explícita aqui.
+                if (argumento.valor && ['funcao', 'função'].includes(argumento.valor.tipo)) {
+                    parametro.referencia = true;
+                }
             }
         }
 
@@ -141,7 +149,8 @@ export class DeleguaFuncao extends Chamavel {
             }
         }
 
-        // TODO: Repensar essa dinâmica para análise semântica.
+        // TODO: Repensar essa dinâmica para análise semântica (levar toda a lógica abaixo para
+        // o interpretador).
         const interpretador = visitante as any;
         interpretador.proximoEscopo = 'funcao';
         const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
@@ -160,10 +169,17 @@ export class DeleguaFuncao extends Chamavel {
 
         for (let referencia of referencias) {
             let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
-            pilha.atribuirVariavel(
+            // TODO: Aparentemente, esta lógica foi implementada para algum dialeto que
+            // trabalha con referência, mas até então não encontrei este dialeto.
+            /* pilha.atribuirVariavel(
                 {
-                    lexema: argumentos[referencia.indice].nome,
+                    
+                    lexema: argumentos[referencia.indice].nome
                 } as any,
+                argumentoReferencia.valor
+            ); */
+            pilha.definirVariavel(
+                referencia.parametro.nome.lexema,
                 argumentoReferencia.valor
             );
         }

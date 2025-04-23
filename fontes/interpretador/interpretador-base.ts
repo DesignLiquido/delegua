@@ -44,6 +44,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Chamada,
@@ -56,6 +57,7 @@ import {
     FuncaoConstruto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -80,7 +82,7 @@ import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avalia
 import { EspacoVariaveis } from '../espaco-variaveis';
 import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { InterpretadorInterface, ParametroInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -172,6 +174,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
@@ -1667,16 +1677,19 @@ export class InterpretadorBase implements InterpretadorInterface {
                     }
                 }
         }
+
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
-            for (const obj in objeto) {
-                let valor = objeto[obj];
+            const objetoEscrita = {};
+            for (const propriedade in objeto) {
+                let valor = objeto[propriedade];
                 if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {
                     valor = valor ? 'verdadeiro' : 'falso';
-
-                    objeto[obj] = valor;
                 }
+
+                objetoEscrita[propriedade] = valor;
             }
-            return JSON.stringify(objeto);
+
+            return JSON.stringify(objetoEscrita);
         }
 
         return objeto.toString();
@@ -1712,8 +1725,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async executarUltimoEscopo(manterAmbiente = false): Promise<any> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        let retornoExecucao: any;
         try {
-            let retornoExecucao: any;
             for (
                 ;
                 !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
@@ -1738,7 +1751,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
-            if (manterAmbiente) {
+            if (manterAmbiente || (retornoExecucao && retornoExecucao.preservarEscopo === true)) {
                 escopoAnterior.ambiente.valores = Object.assign(
                     escopoAnterior.ambiente.valores,
                     ultimoEscopo.ambiente.valores

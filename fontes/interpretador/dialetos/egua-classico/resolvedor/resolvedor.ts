@@ -1,12 +1,14 @@
 import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
+    ArgumentoReferenciaFuncao,
     Atribuir,
     Comentario,
     Construto,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -90,6 +92,14 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
     
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {

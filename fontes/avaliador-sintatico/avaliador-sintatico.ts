@@ -6,6 +6,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -21,6 +22,7 @@ import {
     Isto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Unario,
@@ -99,6 +101,7 @@ export class AvaliadorSintatico
     tiposDefinidosEmCodigo: { [key: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: {[key: string]: {[key: string]: string}};
+    primitivasConhecidas: string[];
 
     hashArquivo: number;
     atual: number;
@@ -115,6 +118,14 @@ export class AvaliadorSintatico
         this.performance = performance;
         this.tiposDefinidosEmCodigo = {};
         this.tiposDeFerramentasExternas = {};
+        this.primitivasConhecidas = [
+            ...Object.keys(primitivasDicionario),
+            ...Object.keys(primitivasNumero),
+            ...Object.keys(primitivasTexto),
+            ...Object.keys(primitivasVetor),
+            'inteiro',
+            'texto'
+        ];
         this.pilhaEscopos = new PilhaEscopos();
     }
 
@@ -261,7 +272,9 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
-                return this.corpoDaFuncao(simboloFuncao.lexema);
+                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
+                this.pilhaEscopos.definirTipoVariavel(simboloFuncao.lexema, 'função');
+                return corpoDaFuncao;
 
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -435,7 +448,7 @@ export class AvaliadorSintatico
                                         construtoTipado.hashArquivo,
                                         construtoTipado.objeto,
                                         construtoTipado.simbolo.lexema,
-                                        possivelMetodo[0].tipoRetorno
+                                        possivelMetodo[0].tipo
                                     );
                                     break;
                                 }
@@ -597,6 +610,43 @@ export class AvaliadorSintatico
         return entidadeChamadaResolvida;
     }
 
+    protected resolverEntidadeChamada(entidadeChamada: Construto): Construto {
+        if (entidadeChamada.constructor.name === 'Variavel') {
+            const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
+
+            if (this.primitivasConhecidas.includes(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
+                return entidadeChamadaResolvidaVariavel;
+            }
+
+            if (entidadeChamadaResolvidaVariavel.simbolo.lexema in this.tiposDefinidosEmCodigo) {
+                return entidadeChamadaResolvidaVariavel;
+            }
+
+            const possivelReferencia = this.pilhaEscopos.obterReferenciaFuncao(entidadeChamadaResolvidaVariavel.simbolo.lexema);
+            if (possivelReferencia !== null) {
+                return new ReferenciaFuncao(
+                    entidadeChamada.hashArquivo, 
+                    entidadeChamada.linha, 
+                    entidadeChamadaResolvidaVariavel.simbolo,
+                    entidadeChamadaResolvidaVariavel.tipo,
+                    possivelReferencia.id
+                );
+            }
+
+            return new ArgumentoReferenciaFuncao(
+                entidadeChamada.hashArquivo, 
+                entidadeChamada.linha, 
+                entidadeChamadaResolvidaVariavel.simbolo
+            )
+        }
+
+        if (entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+            return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(entidadeChamada as AcessoMetodoOuPropriedade);
+        }
+
+        return entidadeChamada;
+    }
+
     override finalizarChamada(entidadeChamada: Construto): Chamada {
         const argumentos: Array<Construto> = [];
 
@@ -613,13 +663,12 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
 
         // Toda chamada precisa saber de antemão qual o tipo resolvido.
-        let entidadeChamadaResolvida = entidadeChamada;
-        if (entidadeChamadaResolvida.constructor.name === 'AcessoMetodoOuPropriedade') {
-            entidadeChamadaResolvida = this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(entidadeChamadaResolvida as AcessoMetodoOuPropriedade);
-        }
+        const entidadeChamadaResolvida = this.resolverEntidadeChamada(entidadeChamada);
 
         // TODO: Criar forma de validar tipos dos argumentos da entidade chamada.
-        return new Chamada(this.hashArquivo, entidadeChamadaResolvida, argumentos);
+        const construtoChamada = new Chamada(this.hashArquivo, entidadeChamadaResolvida, argumentos);
+        construtoChamada.tipo = 'qualquer';
+        return construtoChamada;
     }
 
     override unario(): Construto {
@@ -681,6 +730,7 @@ export class AvaliadorSintatico
             const operador = this.simbolos[this.atual - 1];
 
             const direito = this.multiplicar();
+            // const tipoInferido = inferirTipoParaBinario(expressao, operador, direito);
             expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -825,13 +875,6 @@ export class AvaliadorSintatico
                         expressaoAcessoMetodoOuPropriedade.simbolo, 
                         valor
                     );
-                /* case 'Super':
-                    const expressaoSuper = expressao as Super;
-                    return new DefinirValor(
-                        this.hashArquivo,
-                        igual.linha,
-                        expressaoSuper.
-                    ); */
                 case 'AcessoIndiceVariavel':
                     const expressaoAcessoIndiceVariavel = expressao as AcessoIndiceVariavel;
                     return new AtribuicaoPorIndice(
@@ -1165,6 +1208,8 @@ export class AvaliadorSintatico
                 tiposDeSimbolos.CHAVE_ESQUERDA,
                 tiposDeSimbolos.COLCHETE_ESQUERDO,
                 tiposDeSimbolos.FALSO,
+                tiposDeSimbolos.FUNCAO,
+                tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
                 tiposDeSimbolos.NEGACAO,
@@ -1467,6 +1512,12 @@ export class AvaliadorSintatico
                     case 'AcessoPropriedade':
                         const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
+                    case 'ArgumentoReferenciaFuncao':
+                        // TODO: Voltar aqui se necessário.
+                        return 'qualquer';
+                    case 'ReferenciaFuncao':
+                        const entidadeChamadaReferenciaFuncao = entidadeChamadaChamada as ReferenciaFuncao;
+                        return entidadeChamadaReferenciaFuncao.tipo;
                     case 'Variavel':
                         const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
                         return entidadeChamadaVariavel.tipo;
@@ -1475,7 +1526,7 @@ export class AvaliadorSintatico
                 break;
             case 'FuncaoConstruto':
                 const funcaoConstruto = inicializador as FuncaoConstruto;
-                return `função<${funcaoConstruto.tipoRetorno}>`;
+                return `função<${funcaoConstruto.tipo}>`;
             case 'Leia':
                 return 'texto';
             case 'Dupla':
@@ -1665,8 +1716,10 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, 'qualquer');
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
-        this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, corpoDaFuncao.tipoRetorno);
-        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipoRetorno, decoradores);
+        this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, corpoDaFuncao.tipo);
+        const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipo, decoradores);
+        this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
+        return funcaoDeclaracao;
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -1784,6 +1837,7 @@ export class AvaliadorSintatico
         }
 
         const tiposRetornos = new Set(expressoesRetorna.map(e => e.tipo));
+        let retornaChamadoExplicitamente = tiposRetornos.size > 0;
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ', '');
             tiposEncontrados = tiposEncontrados.slice(0, -2);
@@ -1801,7 +1855,7 @@ export class AvaliadorSintatico
                 // de retornos encontrados nos blocos internos da função.
                 const tipoRetornoDeduzido = tiposRetornos.values().next().value;
                 tipoRetorno = tipoRetornoDeduzido;
-            } else if (!definicaoExplicitaDeTipo) {
+            } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                 // Ou, se esses retornos sequer existem, e o tipo explícito não é
                 // 'qualquer', o tipo inferido é 'vazio'.
                 tipoRetorno = 'vazio';

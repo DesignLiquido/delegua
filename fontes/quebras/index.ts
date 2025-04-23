@@ -1,4 +1,10 @@
-export class Quebra {}
+export class Quebra {
+    preservarEscopo: boolean;
+
+    constructor() {
+        this.preservarEscopo = false;
+    }
+}
 
 export class RetornoQuebra extends Quebra {
     valor: any;

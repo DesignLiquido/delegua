@@ -7,7 +7,7 @@ export class FuncaoConstruto implements Construto {
     hashArquivo: number;
 
     parametros: ParametroInterface[];
-    tipoRetorno?: string;
+    tipo?: string;
     corpo: Declaracao[];
 
     constructor(
@@ -21,7 +21,7 @@ export class FuncaoConstruto implements Construto {
         this.hashArquivo = hashArquivo;
 
         this.parametros = parametros;
-        this.tipoRetorno = tipoRetorno;
+        this.tipo = tipoRetorno;
         this.corpo = corpo;
     }
 

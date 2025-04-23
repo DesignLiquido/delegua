@@ -199,6 +199,27 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(4);
     });
 
+    it('Função que retorna função', async () => {
+        const retornoLexador = lexador.mapear([
+            "funcao some(a, b) {",
+            "  retorna a +b",
+            "}",
+            "funcao facaCurrying(minhaFuncao) {",
+            "  retorna funcao(a) {",
+            "retorna funcao(b) {",
+            " retorna minhaFuncao(a, b)",
+            "    } }}",
+            "var someViaCurryng=facaCurrying(some)",
+            "escreva(someViaCurryng(1)(2))"
+        ], -1);
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = formatador.formatar(retornoAvaliadorSintatico.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        expect(linhasResultado).toHaveLength(15);
+    });
+
     it('Importar', () => {
         const resultadoLexador = lexador.mapear(
             [

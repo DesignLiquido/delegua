@@ -1,5 +1,6 @@
 import {
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     Atribuir,
     Binario,
     Chamada,
@@ -7,6 +8,7 @@ import {
     FuncaoConstruto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     TipoDe,
     Variavel,
     Vetor,
@@ -24,7 +26,7 @@ import {
     Retorna,
     Var,
 } from '../declaracoes';
-import { SimboloInterface } from '../interfaces';
+import { ParametroInterface, SimboloInterface } from '../interfaces';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { RetornoQuebra } from '../quebras';
@@ -39,7 +41,7 @@ interface VariavelHipoteticaInterface {
 }
 
 interface FuncaoHipoteticaInterface {
-    valor: any;
+    valor: FuncaoConstruto;
 }
 
 export class AnalisadorSemantico extends AnalisadorSemanticoBase {
@@ -140,16 +142,20 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     private verificarTipoDe(valor: Construto): Promise<any> {
-        if (valor instanceof Binario) {
-            this.verificarTipoDe(valor.direita);
-            this.verificarTipoDe(valor.esquerda);
+        switch (valor.constructor.name) {
+            case 'Agrupamento':
+                const valorAgrupamento = valor as Agrupamento;
+                return this.verificarTipoDe(valorAgrupamento.expressao);
+            case 'Binario':
+                const valorBinario = valor as Binario;
+                this.verificarTipoDe(valorBinario.direita);
+                this.verificarTipoDe(valorBinario.esquerda);
+                break;
+            case 'Variavel':
+                const valorVariavel = valor as Variavel;
+                return this.verificarVariavel(valorVariavel);
         }
-        if (valor instanceof Agrupamento) {
-            return this.verificarTipoDe(valor.expressao);
-        }
-        if (valor instanceof Variavel) {
-            return this.verificarVariavel(valor);
-        }
+        
         return Promise.resolve();
     }
 
@@ -171,48 +177,107 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    visitarExpressaoDeChamada(expressao: Chamada) {
-        if (expressao.entidadeChamada instanceof Variavel) {
-            const variavel = expressao.entidadeChamada as Variavel;
-            const funcaoChamada = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema];
-            if (!funcaoChamada) {
-                this.erro(
-                    expressao.entidadeChamada.simbolo,
-                    `Chamada da função '${expressao.entidadeChamada.simbolo.lexema}' não existe.`
-                );
-                return Promise.resolve();
-            }
+    comparacaoArgumentosContraParametrosFuncao(
+        simboloFuncao: SimboloInterface, 
+        parametros: ParametroInterface[], 
+        argumentos: Construto[]
+    ) {
+        if (parametros.length !== argumentos.length) {
+            this.erro(
+                simboloFuncao,
+                `Função '${simboloFuncao.lexema}' espera ${parametros.length} parâmetros. Atual: ${argumentos.length}.`
+            );
+        }
 
-            const funcao = funcaoChamada.valor as FuncaoConstruto;
-            if (funcao.parametros.length !== expressao.argumentos.length) {
-                this.erro(
-                    expressao.entidadeChamada.simbolo,
-                    `Função '${expressao.entidadeChamada.simbolo.lexema}' espera ${funcao.parametros.length} parâmetros. Atual: ${expressao.argumentos.length}.`
-                );
-            }
-
-            for (let [indice, parametro] of funcao.parametros.entries()) {
-                // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
-                const argumento = expressao.argumentos[indice] as any;
-                if (argumento) {
-                    if (parametro.tipoDado === 'texto' && argumento.tipo !== 'texto') {
+        for (let [indice, parametro] of parametros.entries()) {
+            // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
+            const argumento = argumentos[indice] as any;
+            if (argumento) {
+                if (parametro.tipoDado === 'texto' && argumento.tipo !== 'texto') {
+                    this.erro(
+                        simboloFuncao,
+                        `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
+                    );
+                } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+                    // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro,
+                    // porque Delégua pode trabalhar com conversões implícitas.
+                    // Isso pode ou não mudar no futuro.
+                    if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
                         this.erro(
-                            expressao.entidadeChamada.simbolo,
+                            simboloFuncao,
                             `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
                         );
-                    } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
-                        // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro,
-                        // porque Delégua pode trabalhar com conversões implícitas.
-                        // Isso pode ou não mudar no futuro.
-                        if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
-                            this.erro(
-                                expressao.entidadeChamada.simbolo,
-                                `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
-                            );
-                        }
                     }
                 }
             }
+        }
+    }
+
+    visitarChamadaPorArgumentoReferenciaFuncao(
+        argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
+        argumentos: Construto[]
+    ) {
+        const variavelCorrespondente: FuncaoConstruto = this.variaveis[argumentoReferenciaFuncao.simboloFuncao.lexema].valor;
+        if (!variavelCorrespondente) {
+            return;
+        }
+
+        this.comparacaoArgumentosContraParametrosFuncao(
+            argumentoReferenciaFuncao.simboloFuncao,
+            variavelCorrespondente.parametros,
+            argumentos
+        );
+    }
+
+    visitarChamadaPorReferenciaFuncao(
+        referenciaFuncao: ReferenciaFuncao,
+        argumentos: Construto[]
+    ) {
+        const funcaoCorrespondente: FuncaoHipoteticaInterface = this.funcoes[referenciaFuncao.simboloFuncao.lexema];
+        if (!funcaoCorrespondente) {
+            return;
+        }
+
+        this.comparacaoArgumentosContraParametrosFuncao(
+            referenciaFuncao.simboloFuncao,
+            funcaoCorrespondente.valor.parametros,
+            argumentos
+        );
+    }
+
+    visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
+        const variavel = entidadeChamadaVariavel as Variavel;
+        const funcaoChamada = this.variaveis[variavel.simbolo.lexema] || this.funcoes[variavel.simbolo.lexema];
+        if (!funcaoChamada) {
+            this.erro(
+                entidadeChamadaVariavel.simbolo,
+                `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`
+            );
+            return Promise.resolve();
+        }
+
+        const funcao = funcaoChamada.valor as FuncaoConstruto;
+        this.comparacaoArgumentosContraParametrosFuncao(
+            entidadeChamadaVariavel.simbolo,
+            funcao.parametros,
+            argumentos
+        );
+    }
+
+    visitarExpressaoDeChamada(expressao: Chamada) {
+        switch (expressao.entidadeChamada.constructor.name) {
+            case 'ArgumentoReferenciaFuncao':
+                const entidadeChamadaArgumentoReferenciaFuncao = expressao.entidadeChamada as ArgumentoReferenciaFuncao;
+                this.visitarChamadaPorArgumentoReferenciaFuncao(entidadeChamadaArgumentoReferenciaFuncao, expressao.argumentos);
+                break;
+            case 'ReferenciaFuncao':
+                const entidadeChamadaReferenciaFuncao = expressao.entidadeChamada as ReferenciaFuncao;
+                this.visitarChamadaPorReferenciaFuncao(entidadeChamadaReferenciaFuncao, expressao.argumentos);
+                break;
+            case 'Variavel':
+                const entidadeChamadaVariavel = expressao.entidadeChamada as Variavel;
+                this.visitarChamadaPorVariavel(entidadeChamadaVariavel, expressao.argumentos);
+                break;
         }
 
         return Promise.resolve();
@@ -411,9 +476,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     private verificarChamada(chamada: Chamada): Promise<void> {
-        let funcaoChamada = chamada.entidadeChamada as Variavel;
-        if (!this.funcoes[funcaoChamada.simbolo.lexema]) {
-            this.erro(funcaoChamada.simbolo, `Chamada da função '${funcaoChamada.simbolo.lexema}' não existe.`);
+        switch (chamada.entidadeChamada.constructor.name) {
+            case 'Variavel':
+                let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
+                if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
+                    this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`);
+                }
+                break;
         }
 
         return Promise.resolve();
@@ -488,22 +557,25 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
 
-        if (declaracao.inicializador instanceof FuncaoConstruto) {
-            const funcao = declaracao.inicializador;
-            if (funcao.parametros.length >= 255) {
-                this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
+        if (declaracao.inicializador) {
+            switch (declaracao.inicializador.constructor.name) {
+                case 'FuncaoConstruto':
+                    const funcaoConstruto = declaracao.inicializador as FuncaoConstruto;
+                    if (funcaoConstruto.parametros.length >= 255) {
+                        this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
+                    }
+                    break;
             }
         }
+        
+        const valorInicializador = declaracao.inicializador && declaracao.inicializador.valor ? 
+            declaracao.inicializador.valor : 
+            declaracao.inicializador;
 
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,
             tipo: declaracao.tipo,
-            valor:
-                declaracao.inicializador !== null
-                    ? declaracao.inicializador.valor !== undefined
-                        ? declaracao.inicializador.valor
-                        : declaracao.inicializador
-                    : undefined,
+            valor: valorInicializador || undefined,
         };
 
         return Promise.resolve();
@@ -514,7 +586,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        if (declaracao.funcao.tipoRetorno === undefined) {
+        if (declaracao.funcao.tipo === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
         }
 
@@ -522,7 +594,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
         }
 
-        let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;
+        let tipoRetornoFuncao = declaracao.funcao.tipo;
         if (tipoRetornoFuncao) {
             let funcaoContemRetorno = declaracao.funcao.corpo.find((c) => c instanceof Retorna) as Retorna;
             if (funcaoContemRetorno) {
