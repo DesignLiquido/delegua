@@ -33,7 +33,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(7);
-    })
+    });
 
     it('Classes', () => {
         const resultadoLexador = lexador.mapear([

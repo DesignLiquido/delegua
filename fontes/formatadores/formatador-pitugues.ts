@@ -27,6 +27,8 @@ import {
     TipoDe,
     Unario,
     Vetor,
+    ArgumentoReferenciaFuncao,
+    ReferenciaFuncao,
 } from '../construtos';
 import {
     Aleatorio,
@@ -61,6 +63,12 @@ import { VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 export class FormatadorPitugues implements VisitanteComumInterface {
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
