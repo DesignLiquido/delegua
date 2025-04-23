@@ -84,21 +84,21 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.deveIndentar = true;
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
-        this.codigoFormatado += expressao.simboloFuncao;
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): void {
+        this.codigoFormatado += expressao.simboloFuncao.lexema;
     }
 
-    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): void {
+        this.codigoFormatado += expressao.simboloFuncao.lexema;
     }
 
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): void {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.nomeMetodo;
     }
 
-    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
+    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): void {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += '.';
         this.codigoFormatado += expressao.nomePropriedade;
@@ -669,6 +669,10 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}retorna`;
         if (declaracao.valor) {
             this.codigoFormatado += ` `;
+            if (declaracao.valor.constructor.name === 'FuncaoConstruto') {
+                this.codigoFormatado += `função`;
+            }
+
             this.formatarDeclaracaoOuConstruto(declaracao.valor);
         }
 
@@ -739,6 +743,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
+                break;
+            case 'ArgumentoReferenciaFuncao':
+                this.visitarExpressaoArgumentoReferenciaFuncao(declaracaoOuConstruto as ArgumentoReferenciaFuncao);
                 break;
             case 'AtribuicaoPorIndice':
                 this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
@@ -814,6 +821,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case 'ParaCada':
                 this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);
+                break;
+            case 'ReferenciaFuncao':
+                this.visitarExpressaoReferenciaFuncao(declaracaoOuConstruto as ReferenciaFuncao);
                 break;
             case 'Retorna':
                 this.visitarExpressaoRetornar(declaracaoOuConstruto as Retorna);

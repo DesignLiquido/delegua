@@ -58,10 +58,6 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
             }
         }
 
-        // TODO: Levantar erro ou devolver nulo?
-        /* throw new Error(
-            "Função não definida: '" + nome + "'."
-        ); */
         return null;
     }
 }
