@@ -4,6 +4,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -19,6 +20,7 @@ import {
     Isto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -80,6 +82,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        this.codigoFormatado += expressao.simboloFuncao;
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
@@ -438,6 +448,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.ADICAO:
                 this.codigoFormatado += ` + `;
                 break;
+            case tiposDeSimbolos.DIFERENTE:
+                this.codigoFormatado += ` != `;
+                break;
             case tiposDeSimbolos.DIVISAO:
                 this.codigoFormatado += ` / `;
                 break;
@@ -621,9 +634,14 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `)`;
     }
 
-    visitarExpressaoLiteral(expressao: Literal): any {
+    visitarExpressaoLiteral(expressao: Literal): void {
         if (typeof expressao.valor === 'string') {
             this.codigoFormatado += `'${expressao.valor}'`;
+            return;
+        }
+
+        if (['logico', 'lógico'].includes(expressao.tipo)) {
+            this.codigoFormatado += `${expressao.valor ? 'verdadeiro' : 'falso'}`;
             return;
         }
 

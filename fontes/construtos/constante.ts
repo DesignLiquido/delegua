@@ -9,6 +9,7 @@ export class Constante<TTipoSimbolo extends string = string> implements Construt
     hashArquivo: number;
 
     simbolo: SimboloInterface<TTipoSimbolo>;
+    idReferencia?: string;
 
     constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>) {
         this.linha = Number(simbolo.linha);

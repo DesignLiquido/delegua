@@ -11,6 +11,7 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     AcessoPropriedade,
+    ArgumentoReferenciaFuncao,
     Atribuir,
     Comentario,
     Construto,
@@ -19,6 +20,7 @@ import {
     FormatacaoEscrita,
     Isto,
     Literal,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -103,6 +105,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {

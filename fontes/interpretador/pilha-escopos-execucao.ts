@@ -264,7 +264,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      * Obtém todas as declarações de classe do último escopo.
      * @returns
      */
-    obterTodasDeclaracaoClasse(): any {
+    obterTodasDeclaracoesClasse(): any {
         const retorno = {};
         const ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
@@ -275,5 +275,24 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         }
 
         return retorno;
+    }
+
+    registrarReferenciaFuncao(idFuncao: string, funcao: DeleguaFuncao): void {
+        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
+        ambiente.referencias[idFuncao] = funcao;
+    }
+
+    obterReferenciaFuncao(idFuncao: string): DeleguaFuncao {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+            if (ambiente.referencias[idFuncao] !== undefined) {
+                return ambiente.referencias[idFuncao];
+            }
+        }
+
+        throw new ErroEmTempoDeExecucao(
+            new Simbolo('especial', idFuncao, idFuncao, -1, -1),
+            "Referência para função não encontrada: '" + idFuncao + "'."
+        );
     }
 }

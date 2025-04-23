@@ -1,3 +1,4 @@
+export * from './aleatorio';
 export * from './bloco';
 export * from './cabecalho-programa';
 export * from './classe';
@@ -20,11 +21,10 @@ export * from './leia';
 export * from './para';
 export * from './para-cada';
 export * from './propriedade-classe';
-export * from './sustar';
 export * from './retorna';
 export * from './se';
+export * from './sustar';
 export * from './tendo-como';
 export * from './tente';
 export * from './var';
 export * from './var-multiplo';
-export * from './aleatorio';

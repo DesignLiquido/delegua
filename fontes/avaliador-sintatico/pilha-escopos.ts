@@ -1,3 +1,4 @@
+import { FuncaoDeclaracao } from "../declaracoes";
 import { PilhaInterface, VariavelInterface } from "../interfaces";
 import { InformacaoEscopo } from "./informacao-escopo";
 
@@ -42,5 +43,25 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     definirTipoVariavel(nomeVariavel: string, tipo: string) {
         const topoDaPilha = this.topoDaPilha();
         topoDaPilha.variaveisEConstantes[nomeVariavel] = tipo;
+    }
+
+    registrarReferenciaFuncao(nome: string, definicao: FuncaoDeclaracao) {
+        const topoDaPilha = this.topoDaPilha();
+        topoDaPilha.referenciasFuncoes[nome] = definicao;
+    }
+
+    obterReferenciaFuncao(nome: string) {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const informacaoEscopo = this.pilha[this.pilha.length - i];
+            if (informacaoEscopo.referenciasFuncoes[nome] !== undefined) {
+                return informacaoEscopo.referenciasFuncoes[nome];
+            }
+        }
+
+        // TODO: Levantar erro ou devolver nulo?
+        /* throw new Error(
+            "Função não definida: '" + nome + "'."
+        ); */
+        return null;
     }
 }

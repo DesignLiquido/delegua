@@ -5,6 +5,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     AtribuicaoPorIndicesMatriz,
     Atribuir,
@@ -21,6 +22,7 @@ import {
     Isto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     Super,
     TipoDe,
     Tupla,
@@ -90,6 +92,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> | void;
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void;
     visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> | void;
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void;
     visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> | void;
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> | void;
     visitarExpressaoBinaria(expressao: Binario): Promise<any> | void;
@@ -108,6 +111,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoLeia(expressao: Leia): Promise<any> | void;
     visitarExpressaoLiteral(expressao: Literal): Promise<any> | void;
     visitarExpressaoLogica(expressao: Logico): Promise<any> | void;
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void;
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> | void;
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;

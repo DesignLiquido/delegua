@@ -252,6 +252,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função \'f\' espera 2 parâmetros. Atual: 1.');
             });
 
@@ -626,6 +627,7 @@ describe('Analisador semântico', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
@@ -639,6 +641,7 @@ describe('Analisador semântico', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                     expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);

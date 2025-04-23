@@ -12,6 +12,7 @@ export class Chamada implements Construto {
 
     entidadeChamada: Construto;
     argumentos: Construto[];
+    tipo?: string;
 
     constructor(hashArquivo: number, entidadeChamada: Construto, argumentos: Construto[]) {
         this.id = uuidv4();

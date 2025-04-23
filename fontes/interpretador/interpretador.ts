@@ -1,7 +1,10 @@
-import { AcessoMetodo, AcessoPropriedade, Literal, TipoDe, Vetor } from "../construtos";
-import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "../estruturas";
+import { AcessoMetodo, AcessoPropriedade, ArgumentoReferenciaFuncao, Chamada, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
+import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "../estruturas";
 import { VariavelInterface } from "../interfaces";
 import { InterpretadorBase } from "./interpretador-base";
+import { inferirTipoVariavel } from "../inferenciador";
+import { ErroEmTempoDeExecucao } from "../excecoes";
+import { FuncaoDeclaracao, Retorna } from "../declaracoes";
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -10,13 +13,20 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import { inferirTipoVariavel } from "../inferenciador";
-import { ErroEmTempoDeExecucao } from "../excecoes";
+import { RetornoQuebra } from "../quebras";
 
 /**
  * O interpretador de Delégua.
  */
 export class Interpretador extends InterpretadorBase {
+
+    override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        // TODO: Depreciar essa abordagem a favor do uso por referências.
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
+        this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
+    }
+
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         
@@ -199,6 +209,34 @@ export class Interpretador extends InterpretadorBase {
                 expressao.linha
             )
         );
+    }
+
+    override async visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(expressao.simboloFuncao.lexema);
+        return deleguaFuncao;
+    }
+
+    override async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterReferenciaFuncao(expressao.idFuncao);
+        return deleguaFuncao;
+    }
+
+    override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+        let valor = null;
+        if (declaracao.valor !== null) {
+            valor = await this.avaliar(declaracao.valor);
+        }
+
+        const retornoQuebra = new RetornoQuebra(valor);
+
+        // Se o retorno for uma função anônima, o escopo precisa ser preservado.
+        // Como quebras matam o topo da pilha de escopos, precisamos dizer
+        // para a finalização para copiar as variáveis para o escopo de baixo.
+        if (retornoQuebra.valor.constructor.name === 'DeleguaFuncao') {
+            retornoQuebra.preservarEscopo = true;
+        }
+
+        return retornoQuebra;
     }
 
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {

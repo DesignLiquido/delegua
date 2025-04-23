@@ -2,16 +2,19 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
     Comentario,
+    Construto,
     DefinirValor,
     FuncaoConstruto,
     Isto,
     Literal,
     Logico,
+    ReferenciaFuncao,
     TipoDe,
     Unario,
     Variavel,
@@ -121,6 +124,35 @@ export class TradutorAssemblyScript {
             default:
                 return metodo;
         }
+    }
+
+    traduzirConstrutoArgumentoReferenciaFuncao(
+        argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
+        argumentos: Construto[]
+    ): string {
+        const argumentosResolvidos: string[] = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
+        textoArgumentos = textoArgumentos.slice(0, -2);
+
+        return `${argumentoReferenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
+    }
+
+    traduzirConstrutoReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: Construto[]): string {
+        const argumentosResolvidos: string[] = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
+        textoArgumentos = textoArgumentos.slice(0, -2);
+
+        return `${referenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
@@ -573,7 +605,8 @@ export class TradutorAssemblyScript {
         let resultado = '';
 
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
-            chamada.entidadeChamada
+            chamada.entidadeChamada,
+            chamada.argumentos
         )}`;
 
         const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
@@ -651,11 +684,7 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
-    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
-    }
-
-    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
@@ -663,7 +692,7 @@ export class TradutorAssemblyScript {
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
 
-    traduzirAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
+    traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
         let resultado = '';
 
         resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](
@@ -676,10 +705,15 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
+    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
+        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
+    }
+
     dicionarioConstrutos = {
-        AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
@@ -690,6 +724,7 @@ export class TradutorAssemblyScript {
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),

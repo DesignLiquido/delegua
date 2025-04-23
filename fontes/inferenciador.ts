@@ -3,6 +3,7 @@ import tipoDeDadosPrimitivos from './tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from './tipos-de-dados/delegua';
 import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 import { TipoDadosElementar } from './tipo-dados-elementar';
+import { Construto } from './construtos';
 export type TipoInferencia =
     | 'cadeia'
     | 'caracter'
