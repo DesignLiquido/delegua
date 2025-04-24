@@ -235,7 +235,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: FuncaoConstruto): Promise<any> {
+    visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto): Promise<any> {
         return Promise.resolve();
     }
 

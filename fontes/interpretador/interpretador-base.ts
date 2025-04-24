@@ -693,11 +693,14 @@ export class InterpretadorBase implements InterpretadorInterface {
             const argumentos: ArgumentoInterface[] = await this.resolverArgumentosChamada(expressao);
             const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
 
-            // Completar os parâmetros não preenchidos com nulos.
+            // Completar os argumentos não preenchidos com valores indefinidos.
             if (argumentos.length < aridade) {
                 const diferenca = aridade - argumentos.length;
                 for (let i = 0; i < diferenca; i++) {
-                    argumentos.push(null);
+                    argumentos.push({
+                        nome: null,
+                        valor: null
+                    });
                 }
             }
 
@@ -1227,8 +1230,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    async visitarExpressaoDeleguaFuncao(corpoDeclaracao: FuncaoConstruto): Promise<DeleguaFuncao> {
-        return new DeleguaFuncao(null, corpoDeclaracao);
+    async visitarExpressaoFuncaoConstruto(funcaoConstruto: FuncaoConstruto): Promise<DeleguaFuncao> {
+        return new DeleguaFuncao(null, funcaoConstruto);
     }
 
     async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {

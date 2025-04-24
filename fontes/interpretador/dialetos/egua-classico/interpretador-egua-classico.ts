@@ -751,7 +751,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    async visitarExpressaoDeleguaFuncao(expressao: any): Promise<DeleguaFuncao> {
+    async visitarExpressaoFuncaoConstruto(expressao: any): Promise<DeleguaFuncao> {
         return new DeleguaFuncao(null, expressao);
     }
 

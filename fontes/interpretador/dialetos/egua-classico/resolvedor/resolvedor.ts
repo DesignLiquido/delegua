@@ -94,6 +94,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
+    visitarExpressaoDeleguaFuncao(declaracao: any) {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -322,7 +326,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    visitarExpressaoDeleguaFuncao(declaracao: any): any {
+    visitarExpressaoFuncaoConstruto(declaracao: any): any {
         this.resolverFuncao(declaracao, TipoFuncao.FUNÇÃO);
         return null;
     }

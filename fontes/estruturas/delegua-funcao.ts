@@ -109,8 +109,8 @@ export class DeleguaFuncao extends Chamavel {
                 ambiente.valores[nome] = { tipo: 'vetor', valor: argumentosResolvidos, imutavel: true };
             } else {
                 let argumento = argumentos[i];
-                if (argumentos[i] === null) {
-                    argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
+                if (argumento.valor === null) {
+                    argumentos[i].valor = parametro['padrao'] ? parametro['padrao'].valor : null;
                 }
 
                 ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
@@ -169,14 +169,7 @@ export class DeleguaFuncao extends Chamavel {
 
         for (let referencia of referencias) {
             let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
-            // TODO: Lógica implementada para o VisuAlg. 
-            /* pilha.atribuirVariavel(
-                {
-                    
-                    lexema: argumentos[referencia.indice].nome
-                } as any,
-                argumentoReferencia.valor
-            ); */
+
             pilha.definirVariavel(
                 referencia.parametro.nome.lexema,
                 argumentoReferencia.valor

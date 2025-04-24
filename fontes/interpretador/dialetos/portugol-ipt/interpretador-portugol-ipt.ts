@@ -513,7 +513,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoDeleguaFuncao(expressao: any): never {
+    visitarExpressaoFuncaoConstruto(expressao: any): never {
         throw new Error('Método não implementado');
     }
 

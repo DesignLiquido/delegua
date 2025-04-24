@@ -100,7 +100,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoDeChamada(expressao: Chamada): Promise<any> | void;
     visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> | void;
-    visitarExpressaoDeleguaFuncao(expressao: FuncaoConstruto): Promise<any> | void;
+    visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto): Promise<any> | void;
     visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> | void;
     visitarExpressaoDicionario(expressao: Dicionario): Promise<any> | void;
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> | void;
