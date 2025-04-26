@@ -2065,6 +2065,56 @@ describe('Interpretador', () => {
                     expect(_saidas[2]).toBe('método<vazio>');
                 });
             });
+
+            describe('Casos complexos', () => {
+                it('Perceptron', async () => {
+                    let _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        'var pesoInicial1 = 0.3;',
+                        'var pesoInicial2 = 0.4;',
+                        'var entrada1 = 1;',
+                        'var entrada2 = 1;',
+                        'var erro = 1;',
+                        'var resultadoEsperado;',
+                        'enquanto (erro != 0) {',
+                        '    se (entrada1 == 1) {',
+                        '        se (entrada2 == 1) {',
+                        '           resultadoEsperado = 1;',
+                        '        }',
+                        '    } senão {',
+                        '        resultadoEsperado = 0;',
+                        '    }',
+                        '    var somatoria = pesoInicial1 * entrada1;',
+                        '    somatoria = pesoInicial2 * entrada2 + somatoria;',
+                        '    var resultado;',
+                        '    se (somatoria < 1) {',
+                        '        resultado = 0;',
+                        '    } senão {',
+                        '        se (somatoria >= 1) {',
+                        '           resultado = 1;',
+                        '        }',
+                        '    }',
+                        '    escreva("resultado: " + texto(resultado));',
+                        '    erro = resultadoEsperado - resultado;',
+                        '    escreva("p1: " + texto(pesoInicial1));',
+                        '    escreva("p2: " + texto(pesoInicial2));',
+                        '    pesoInicial1 = 0.1 * entrada1 * erro + pesoInicial1;',
+                        '    pesoInicial2 = 0.1 * entrada2 * erro + pesoInicial2;',
+                        '    escreva("erro: " + texto(erro));',
+                        '}',
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBeGreaterThan(0);
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
@@ -2231,20 +2281,6 @@ describe('Interpretador', () => {
                         'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.'
                     );
                 });
-
-                // it('Tupla Dupla - Primitiva adicionar()', async () => {
-                //     const retornoLexador = lexador.mapear([
-                //         "var t = [(1, 2)]",
-                //         "t.adicionar(3)"
-                //     ], -1);
-                //     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                //     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                //     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
-                //         'Tupla é imutável, seus elementos não podem ser alterados, adicionados ou removidos.'
-                //     );
-                // });
             });
         });
     });

@@ -499,6 +499,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'qualquer') return;
         if (this.tiposNumericos.includes(tipoDireita) && tipoEsquerda === 'qualquer') return;
 
+        // Se operador é subtração, os dois tipos são `qualquer`, mas ambos podem ser convertidos
+        // para número, a operação é válida.
+        if (operador.tipo === tiposDeSimbolos.SUBTRACAO) {
+            if (typeof esquerda.valor === 'number' && typeof direita.valor === 'number') {
+                return;
+            }
+        }
+
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
 
