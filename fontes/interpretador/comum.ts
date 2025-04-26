@@ -1,6 +1,6 @@
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 
-import { FuncaoPadrao } from '../estruturas/funcao-padrao';
+import { FuncaoPadrao } from './estruturas/funcao-padrao';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 

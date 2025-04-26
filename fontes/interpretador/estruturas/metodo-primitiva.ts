@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../../interfaces';
 import { Chamavel } from './chamavel';
 
 /**

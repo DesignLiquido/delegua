@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from '../estruturas';
+import { DeleguaFuncao } from '../interpretador/estruturas';
 import { PrimitivaInterface, VisitanteComumInterface } from '../interfaces';
 
 export default {

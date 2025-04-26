@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from './estruturas';
+import { DeleguaFuncao } from './interpretador/estruturas';
 import { VariavelInterface } from './interfaces';
 
 /**

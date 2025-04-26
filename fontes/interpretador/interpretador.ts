@@ -1,5 +1,5 @@
 import { AcessoMetodo, AcessoPropriedade, ArgumentoReferenciaFuncao, Chamada, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
-import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "../estruturas";
+import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "./estruturas";
 import { VariavelInterface } from "../interfaces";
 import { InterpretadorBase } from "./interpretador-base";
 import { inferirTipoVariavel } from "../inferenciador";

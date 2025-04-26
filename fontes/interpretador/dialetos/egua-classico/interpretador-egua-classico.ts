@@ -1,11 +1,11 @@
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 
-import { Chamavel } from '../../../estruturas/chamavel';
-import { DescritorTipoClasse } from '../../../estruturas/descritor-tipo-classe';
-import { DeleguaFuncao } from '../../../estruturas/delegua-funcao';
-import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
-import { DeleguaModulo } from '../../../estruturas/modulo';
-import { ObjetoDeleguaClasse } from '../../../estruturas/objeto-delegua-classe';
+import { Chamavel } from '../../estruturas/chamavel';
+import { DescritorTipoClasse } from '../../estruturas/descritor-tipo-classe';
+import { DeleguaFuncao } from '../../estruturas/delegua-funcao';
+import { FuncaoPadrao } from '../../estruturas/funcao-padrao';
+import { DeleguaModulo } from '../../estruturas/modulo';
+import { ObjetoDeleguaClasse } from '../../estruturas/objeto-delegua-classe';
 
 import {
     AcessoIndiceVariavel,

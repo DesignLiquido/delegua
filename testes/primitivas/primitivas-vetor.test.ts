@@ -1,9 +1,10 @@
-import primitivasVetor from '../../fontes/bibliotecas/primitivas-vetor';
 import { Binario, FuncaoConstruto, Literal, Logico, Variavel } from '../../fontes/construtos';
 import { Retorna } from '../../fontes/declaracoes';
-import { DeleguaFuncao } from '../../fontes/estruturas';
 import { InterpretadorBase } from '../../fontes/interpretador';
+import { DeleguaFuncao } from '../../fontes/interpretador/estruturas';
 import { Simbolo } from '../../fontes/lexador';
+
+import primitivasVetor from '../../fontes/bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
 describe('Primitivas de vetor', () => {

@@ -1,5 +1,5 @@
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
-import { ArgumentoInterface } from '../interpretador/argumento-interface';
+import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
+import { ArgumentoInterface } from '../argumento-interface';
 
 export abstract class Chamavel {
     valorAridade: number;
@@ -9,7 +9,7 @@ export abstract class Chamavel {
     }
 
     async chamar(
-        visitante?: VisitanteComumInterface,
+        visitante?: InterpretadorInterface,
         argumentos?: ArgumentoInterface[],
         simbolo?: SimboloInterface
     ): Promise<any> {

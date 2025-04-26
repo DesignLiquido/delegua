@@ -1,6 +1,6 @@
-import { PropriedadeClasse } from '../declaracoes';
-import { ErroEmTempoDeExecucao } from '../excecoes';
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { PropriedadeClasse } from '../../declaracoes';
+import { ErroEmTempoDeExecucao } from '../../excecoes';
+import { SimboloInterface, VisitanteComumInterface } from '../../interfaces';
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';

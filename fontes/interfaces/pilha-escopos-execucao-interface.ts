@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from '../estruturas';
+import { DeleguaFuncao } from '../interpretador/estruturas';
 import { EscopoExecucao } from './escopo-execucao';
 import { PilhaInterface } from './pilha-interface';
 import { SimboloInterface } from './simbolo-interface';

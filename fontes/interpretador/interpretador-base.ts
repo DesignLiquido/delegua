@@ -37,7 +37,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
     ObjetoPadrao,
-} from '../estruturas';
+} from './estruturas';
 import {
     AcessoIndiceVariavel,
     AcessoMetodo,
@@ -72,7 +72,7 @@ import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { inferirTipoVariavel } from '../inferenciador';
-import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
+import { MetodoPrimitiva } from './estruturas/metodo-primitiva';
 import { ArgumentoInterface } from './argumento-interface';
 
 import { MicroLexador } from '../lexador';

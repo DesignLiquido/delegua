@@ -1,10 +1,10 @@
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
-import { FuncaoPadrao } from '../estruturas/funcao-padrao';
-import { DescritorTipoClasse } from '../estruturas/descritor-tipo-classe';
+import { ObjetoDeleguaClasse } from '../interpretador/estruturas/objeto-delegua-classe';
+import { FuncaoPadrao } from '../interpretador/estruturas/funcao-padrao';
+import { DescritorTipoClasse } from '../interpretador/estruturas/descritor-tipo-classe';
 import { VariavelInterface } from '../interfaces';
 import { InterpretadorInterface } from '../interfaces';
-import { DeleguaFuncao } from '../estruturas';
+import { DeleguaFuncao } from '../interpretador/estruturas';
 import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, Septeto, Sexteto, Trio, Tupla } from '../construtos';
 
 /**

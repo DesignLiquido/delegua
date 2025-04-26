@@ -1,4 +1,4 @@
-import { DescritorTipoClasse, DeleguaFuncao } from '../estruturas';
+import { DescritorTipoClasse, DeleguaFuncao } from './estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';

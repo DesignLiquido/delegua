@@ -1,4 +1,4 @@
-import { DeleguaFuncao, FuncaoPadrao } from '../../../estruturas';
+import { DeleguaFuncao, FuncaoPadrao } from '../../../interpretador/estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 /* eslint-disable prefer-rest-params */

@@ -1,4 +1,4 @@
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { SimboloInterface, VisitanteComumInterface } from '../../interfaces';
 import { Chamavel } from './chamavel';
 
 /**

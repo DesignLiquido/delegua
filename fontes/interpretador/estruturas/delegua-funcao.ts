@@ -1,14 +1,14 @@
 import { Chamavel } from './chamavel';
-import { EspacoVariaveis } from '../espaco-variaveis';
+import { EspacoVariaveis } from '../../espaco-variaveis';
 
-import { VisitanteComumInterface } from '../interfaces';
-import { RetornoQuebra } from '../quebras';
+import { VisitanteComumInterface } from '../../interfaces';
+import { RetornoQuebra } from '../../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
-import { FuncaoConstruto } from '../construtos';
-import { ArgumentoInterface } from '../interpretador/argumento-interface';
-import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
-import { inferirTipoVariavel } from '../inferenciador';
-import { Retorna } from '../declaracoes';
+import { FuncaoConstruto } from '../../construtos';
+import { ArgumentoInterface } from '../argumento-interface';
+import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
+import { inferirTipoVariavel } from '../../inferenciador';
+import { Retorna } from '../../declaracoes';
 
 /**
  * Qualquer função declarada em código é uma DeleguaFuncao.

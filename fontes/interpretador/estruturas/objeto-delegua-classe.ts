@@ -1,5 +1,5 @@
-import { ErroEmTempoDeExecucao } from '../excecoes';
-import { SimboloInterface } from '../interfaces';
+import { ErroEmTempoDeExecucao } from '../../excecoes';
+import { SimboloInterface } from '../../interfaces';
 import { DescritorTipoClasse } from './descritor-tipo-classe';
 
 /**

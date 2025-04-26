@@ -1,6 +1,6 @@
 import definirBibliotecaGlobal from '../../fontes/bibliotecas/dialetos/egua-classico/biblioteca-global';
-import { FuncaoPadrao } from '../../fontes/estruturas';
 import { InterpretadorEguaClassico } from '../../fontes/interpretador/dialetos/egua-classico/interpretador-egua-classico';
+import { FuncaoPadrao } from '../../fontes/interpretador/estruturas';
 
 const funcoes = {};
 
@@ -14,6 +14,7 @@ describe('Biblioteca Global', () => {
     let interpretador: InterpretadorEguaClassico;
 
     beforeAll(() => {
+        interpretador = new InterpretadorEguaClassico(process.cwd());
         definirBibliotecaGlobal(interpretador, mockGlobals);
     });
 

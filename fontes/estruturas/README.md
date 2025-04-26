@@ -1,3 +1,0 @@
-# Estruturas
-
-Estruturas são porções de código auxiliares para interpretação em Delégua. Devem ser gradativamente convertidas em construtos ou declarações, visto que o método `chamar()`, muito presente em várias delas, pode ser considerado como uma variação do método `visitar()`, de construtos e declarações. Além disso, a existência de lógica de interpretação fora de interpretadores complica a implementação de certas funcionalidades de interpretação em dialetos que dependem de Delégua.
