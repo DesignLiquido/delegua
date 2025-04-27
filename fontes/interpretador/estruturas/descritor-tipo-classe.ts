@@ -1,6 +1,6 @@
 import { PropriedadeClasse } from '../../declaracoes';
 import { ErroEmTempoDeExecucao } from '../../excecoes';
-import { SimboloInterface, VisitanteComumInterface } from '../../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
@@ -95,7 +95,7 @@ export class DescritorTipoClasse extends Chamavel {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: any[]): Promise<ObjetoDeleguaClasse> {
+    async chamar(visitante: InterpretadorInterface, argumentos: any[]): Promise<ObjetoDeleguaClasse> {
         const instancia = new ObjetoDeleguaClasse(this);
 
         const inicializador = this.encontrarMetodo('construtor');

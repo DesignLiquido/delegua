@@ -1,7 +1,7 @@
 import { Chamavel } from './chamavel';
 import { EspacoVariaveis } from '../../espaco-variaveis';
 
-import { VisitanteComumInterface } from '../../interfaces';
+import { InterpretadorInterface } from '../../interfaces';
 import { RetornoQuebra } from '../../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../../construtos';
@@ -126,7 +126,7 @@ export class DeleguaFuncao extends Chamavel {
         return ambiente;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
+    async chamar(visitante: InterpretadorInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
         const ambiente = this.resolverAmbiente(argumentos);
 
         if (this.instancia !== undefined) {

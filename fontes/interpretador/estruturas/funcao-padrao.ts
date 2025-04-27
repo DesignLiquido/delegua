@@ -1,4 +1,4 @@
-import { SimboloInterface, VisitanteComumInterface } from '../../interfaces';
+import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Chamavel } from './chamavel';
 
 /**
@@ -16,7 +16,7 @@ export class FuncaoPadrao extends Chamavel {
         this.funcao = funcao;
     }
 
-    async chamar(visitante: VisitanteComumInterface, argumentos: any[], simbolo: SimboloInterface): Promise<any> {
+    async chamar(visitante: InterpretadorInterface, argumentos: any[], simbolo: SimboloInterface): Promise<any> {
         this.simbolo = simbolo;
         return await this.funcao.apply(this, [visitante, ...argumentos]);
     }
