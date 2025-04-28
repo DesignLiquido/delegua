@@ -1,23 +1,23 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
-import { PrimitivaInterface, VisitanteComumInterface } from '../interfaces';
+import { InterpretadorInterface, PrimitivaInterface, VisitanteComumInterface } from '../interfaces';
 
 export default {
     adicionar: {
         tipoRetorno: 'qualquer[]',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         }
     },
     concatenar: {
         tipoRetorno: 'qualquer[]',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, outroVetor: Array<any>): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, outroVetor: Array<any>): Promise<any> => {
             return Promise.resolve(vetor.concat(outroVetor));
         }
     },
     empilhar: {
         tipoRetorno: 'qualquer[]',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         }
@@ -25,7 +25,7 @@ export default {
     encaixar: {
         tipoRetorno: 'qualquer[]',
         implementacao: (
-            interpretador: VisitanteComumInterface,
+            interpretador: InterpretadorInterface,
             vetor: Array<any>,
             inicio: number,
             excluirQuantidade?: number,
@@ -45,13 +45,13 @@ export default {
     },
     fatiar: {
         tipoRetorno: 'qualquer[]',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> =>
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, inicio: number, fim: number): Promise<any> =>
             Promise.resolve(vetor.slice(inicio, fim)),
     },
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
         implementacao: async (
-            interpretador: VisitanteComumInterface,
+            interpretador: InterpretadorInterface,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -71,22 +71,22 @@ export default {
     },
     inclui: {
         tipoRetorno: 'lógico',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> =>
             Promise.resolve(vetor.includes(elemento))
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.reverse())
     },
     juntar: {
         tipoRetorno: 'texto',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> =>
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, separador: string): Promise<any> =>
             Promise.resolve(vetor.join(separador))
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
-        implementacao: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        implementacao: async (interpretador: InterpretadorInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
             if (funcao === undefined || funcao === null) {
                 return Promise.reject("É necessário passar uma função para o método 'mapear'");
             }
@@ -103,7 +103,7 @@ export default {
     ordenar: {
         tipoRetorno: 'qualquer[]',
         implementacao: async (
-            interpretador: VisitanteComumInterface,
+            interpretador: InterpretadorInterface,
             vetor: Array<any>,
             funcaoOrdenacao: DeleguaFuncao
         ): Promise<any> => {
@@ -130,7 +130,7 @@ export default {
     },
     remover: {
         tipoRetorno: 'qualquer[]',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
             const index = vetor.indexOf(elemento);
             if (index !== -1) vetor.splice(index, 1);
             return Promise.resolve(vetor);
@@ -138,21 +138,21 @@ export default {
     },
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         }
     },
     removerUltimo: {
         tipoRetorno: 'qualquer',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         }
     },
     somar: {
         tipoRetorno: 'qualquer',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<number | { valor: number }>): Promise<number | { valor: number }> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<number | { valor: number }>): Promise<number | { valor: number }> => {
             return Promise.resolve(
                 vetor.reduce((acc: number, item) => acc + (typeof item === 'number' ? item : item.valor), 0)
             );
@@ -160,6 +160,6 @@ export default {
     },
     tamanho: {
         tipoRetorno: 'número',
-        implementacao: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length)
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length)
     }
 } as { [key: string]: PrimitivaInterface };

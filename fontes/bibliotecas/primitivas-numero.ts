@@ -1,15 +1,15 @@
-import { PrimitivaInterface, VisitanteComumInterface } from '../interfaces';
+import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
 export default {
     arredondarParaBaixo: {
         tipoRetorno: 'número',
-        implementacao: (interpretador: VisitanteComumInterface, valor: number): Promise<number> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.floor(valor));
         }
     },
     arredondarParaCima: {
         tipoRetorno: 'número',
-        implementacao: (interpretador: VisitanteComumInterface, valor: number): Promise<number> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.ceil(valor));
         }
     },
