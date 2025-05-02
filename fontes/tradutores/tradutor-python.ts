@@ -39,6 +39,7 @@ import {
     Var,
 } from '../declaracoes';
 import { SimboloInterface, TradutorInterface } from '../interfaces';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export class TradutorPython implements TradutorInterface<Declaracao> {
