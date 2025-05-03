@@ -92,6 +92,29 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha5(enquanto a for menor que 5)-->Fim;");
     });
 
+    it('Para', () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'para (var i = 0; i < 5; i = i + 1) {',
+                '    escreva(i);', 
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha1(para uma variável i inicializada com 0)-->Linha1Condicao{se i for menor que 5};");
+        expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->Linha2(escreva: i);");
+        expect(resultado).toContain("Linha2(escreva: i)-->Linha1Incremento(i recebe: somar i e 1);");
+        expect(resultado).toContain("Linha1Incremento(i recebe: somar i e 1)-->Linha1Condicao{se i for menor que 5};");
+        expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->Fim;");
+    });
+
     it('Se e senão', () => {
         const retornoLexador = lexador.mapear(
             [
