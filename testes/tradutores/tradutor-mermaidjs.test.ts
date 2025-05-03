@@ -66,6 +66,32 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha4(devolver valor de a, incrementar a em 1)-->Fim;");
     });
 
+    it('Fazer ... Enquanto', () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var a = 1',
+                'fazer {',
+                '    escreva(a)',
+                '    a++',
+                '} enquanto a < 5'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha1(variável: a, iniciada com: 1)-->Linha2(fazer);");
+        expect(resultado).toContain("Linha2(fazer)-->Linha3(escreva: a);");
+        expect(resultado).toContain("Linha3(escreva: a)-->Linha4(devolver valor de a, incrementar a em 1);");
+        expect(resultado).toContain("Linha4(devolver valor de a, incrementar a em 1)-->Linha5(enquanto a for menor que 5);");
+        expect(resultado).toContain("Linha5(enquanto a for menor que 5)-->Linha2(fazer);");
+        expect(resultado).toContain("Linha5(enquanto a for menor que 5)-->Fim;");
+    });
+
     it('Se e senão', () => {
         const retornoLexador = lexador.mapear(
             [

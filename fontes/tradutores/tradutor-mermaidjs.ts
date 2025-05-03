@@ -1,5 +1,5 @@
-import { Binario, Literal, Unario, Variavel } from '../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Se, Var } from '../declaracoes';
+import { Agrupamento, Binario, Literal, Unario, Variavel } from '../construtos';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Se, Var } from '../declaracoes';
 import { TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -46,6 +46,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     anteriores: ArestaFluxograma[];
     vertices: VerticeFluxograma[];
     ultimaDicaVertice: string | undefined;
+
+    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
+        return this.dicionarioConstrutos[agrupamento.expressao.constructor.name](agrupamento.expressao);
+    }
 
     traduzirConstrutoBinario(binario: Binario): string {
         const operandoEsquerdo: string = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
@@ -169,6 +173,33 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         return vertices;
     }
 
+    traduzirDeclaracaoFazerEnquanto(declaracaoFazerEnquanto: Fazer) {
+        const texto = `Linha${declaracaoFazerEnquanto.linha}(fazer)`;
+        const aresta = new ArestaFluxograma(declaracaoFazerEnquanto, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoFazerEnquanto.caminhoFazer.constructor.name](declaracaoFazerEnquanto.caminhoFazer);
+        vertices = vertices.concat(verticesCorpo);
+
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        const condicao: string = this.dicionarioConstrutos[declaracaoFazerEnquanto.condicaoEnquanto.constructor.name](declaracaoFazerEnquanto.condicaoEnquanto);
+        let textoEnquanto = `Linha${declaracaoFazerEnquanto.condicaoEnquanto.linha}(enquanto ${condicao})`;
+
+        const arestaEnquanto = new ArestaFluxograma(declaracaoFazerEnquanto, textoEnquanto);
+        const verticeEnquanto = new VerticeFluxograma(ultimaArestaCorpo, arestaEnquanto);
+        vertices.push(verticeEnquanto);
+
+        const verticeCondicaoComFazer = new VerticeFluxograma(arestaEnquanto, aresta);
+        vertices.push(verticeCondicaoComFazer);
+
+        this.anteriores.pop();
+        this.anteriores.push(arestaEnquanto);
+        return vertices;
+    }
+
     traduzirDeclaracaoSe(declaracaoSe: Se): VerticeFluxograma[] {
         let texto = `Linha${declaracaoSe.linha}{se `;
         const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
@@ -216,6 +247,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     dicionarioConstrutos = {
+        Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
@@ -227,6 +259,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+        Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this)
     };
