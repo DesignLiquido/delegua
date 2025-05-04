@@ -5,6 +5,7 @@ import {
     Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
+    Leia,
     Literal,
     Variavel,
 } from '../../construtos';
@@ -17,8 +18,7 @@ import {
     Escolha,
     Fazer,
     EscrevaMesmaLinha,
-    Var,
-    Leia,
+    Var
 } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -180,7 +180,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
      * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
      * @returns Uma declaração `Leia`.
      */
-    declaracaoLeia(): Leia {
+    expressaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         const argumentos = [];
@@ -203,7 +203,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.INTEIRO:
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.LER:
-                return this.declaracaoLeia();
+                return this.expressaoLeia();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;

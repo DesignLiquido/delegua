@@ -2,7 +2,10 @@ import {
     Atribuir,
     AcessoIndiceVariavel,
     AcessoElementoMatriz,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
+    ArgumentoReferenciaFuncao,
     Agrupamento,
     AtribuicaoPorIndice,
     AtribuicaoPorIndicesMatriz,
@@ -22,11 +25,8 @@ import {
     TipoDe,
     Unario,
     Vetor,
-    Comentario,
-    AcessoMetodo,
-    AcessoPropriedade,
-    ArgumentoReferenciaFuncao,
     ReferenciaFuncao,
+    Leia,
 } from '../construtos';
 import {
     Declaracao,
@@ -54,9 +54,9 @@ import {
     Continua,
     EscrevaMesmaLinha,
     Falhar,
-    Leia,
     Retorna,
     Sustar,
+    Comentario,
 } from '../declaracoes';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade, SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';

@@ -6,6 +6,7 @@ import {
     Chamada,
     Construto,
     FuncaoConstruto,
+    Leia,
     Literal,
     Logico,
     ReferenciaFuncao,
@@ -22,7 +23,6 @@ import {
     Expressao,
     Falhar,
     FuncaoDeclaracao,
-    Leia,
     Retorna,
     Var,
 } from '../declaracoes';

@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Comentario,
     Construto,
     DefinirValor,
     Dicionario,
@@ -18,6 +17,7 @@ import {
     FormatacaoEscrita,
     FuncaoConstruto,
     Isto,
+    Leia,
     Literal,
     Logico,
     ReferenciaFuncao,
@@ -48,7 +48,6 @@ import {
     Bloco,
     Continua,
     EscrevaMesmaLinha,
-    Leia,
     Retorna,
     Sustar,
     Declaracao,
@@ -56,6 +55,7 @@ import {
     Aleatorio,
     CabecalhoPrograma,
     TendoComo,
+    Comentario,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { VisitanteComumInterface } from '../interfaces';
@@ -319,9 +319,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de ${
-            declaracao.vetor.simbolo.lexema
-        }`;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de `;
+        this.formatarDeclaracaoOuConstruto(declaracao.vetor);
         this.visitarExpressaoBloco(declaracao.corpo);
     }
 

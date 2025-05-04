@@ -38,9 +38,10 @@ class VerticeFluxograma {
  * Este tradutor converte estruturas da avaliação sintática em um fluxograma
  * compatível com o MermaidJs.
  * 
- * Diferenteente de outros tradutores, este não trabalha diretamente com `string`s. 
+ * Diferentemente de outros tradutores, este não trabalha diretamente com `string`s. 
  * Construtos sim devolvem `string`s, mas declarações devolvem um vetor de 
  * `VerticeFluxograma`. 
+ * @see VerticeFluxograma
  */
 export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     anteriores: ArestaFluxograma[];
