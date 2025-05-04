@@ -1,5 +1,5 @@
-import { Agrupamento, Atribuir, Binario, Literal, Unario, Variavel } from '../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Para, Se, Var } from '../declaracoes';
+import { Agrupamento, Atribuir, Binario, Literal, Unario, Variavel, Vetor } from '../construtos';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Para, ParaCada, Se, Var } from '../declaracoes';
 import { TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -103,6 +103,18 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return variavel.simbolo.lexema;
+    }
+
+    traduzirConstrutoVetor(vetor: Vetor): string {
+        let texto = `vetor: `;
+        for (const elemento of vetor.valores) {
+            // Na grande maioria dos casos, cada elemento é um construto.
+            const textoValor = this.dicionarioConstrutos[elemento.constructor.name](elemento);
+            texto += `${textoValor}, `;
+        }
+
+        texto = texto.slice(0, -2);
+        return texto;
     }
 
     protected logicaComumConexaoArestas(aresta: ArestaFluxograma) {
@@ -234,8 +246,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         vertices = vertices.concat(this.logicaComumConexaoArestas(arestaCondicao));
 
         this.anteriores.push(arestaCondicao);
+        this.ultimaDicaVertice = 'Sim';
 
-        // Corpo
         // Corpo, normalmente um `Bloco`.
         const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](declaracaoPara.corpo);
         vertices = vertices.concat(verticesCorpo);
@@ -253,6 +265,26 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         // Configura a condição como anterior
         this.anteriores.pop();
         this.anteriores.push(arestaCondicao);
+        this.ultimaDicaVertice = 'Não';
+        return vertices;
+    }
+
+    traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): VerticeFluxograma[] {
+        let texto = `Linha${declaracaoParaCada.linha}(para cada ${declaracaoParaCada.nomeVariavelIteracao} em `;
+        const textoVariavelIterada = this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor);
+        texto += textoVariavelIterada + ')';
+        const aresta = new ArestaFluxograma(declaracaoParaCada, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
+        vertices = vertices.concat(verticesCorpo);
+
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        vertices.push(new VerticeFluxograma(ultimaArestaCorpo, aresta));
+
         return vertices;
     }
 
@@ -308,7 +340,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Binario: this.traduzirConstrutoBinario.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
-        Variavel: this.traduzirConstrutoVariavel.bind(this)
+        Variavel: this.traduzirConstrutoVariavel.bind(this),
+        Vetor: this.traduzirConstrutoVetor.bind(this)
     };
 
     dicionarioDeclaracoes = {
@@ -318,6 +351,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
+        ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this)
     };
@@ -344,7 +378,13 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         if (this.anteriores.length > 0) {
             while (this.anteriores.length > 0) {
                 const anterior = this.anteriores.shift();
-                resultado += `    ${anterior.texto}-->Fim;\n`;
+                let seta = '-->';
+                if (this.ultimaDicaVertice) {
+                    seta = `-->|${this.ultimaDicaVertice}|`;
+                    this.ultimaDicaVertice = undefined;
+                }
+
+                resultado += `    ${anterior.texto}${seta}Fim;\n`;
             }
         }
 

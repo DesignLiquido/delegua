@@ -109,10 +109,31 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toBeTruthy();
         expect(resultado).toContain("graph TD;");
         expect(resultado).toContain("Linha1(para uma variável i inicializada com 0)-->Linha1Condicao{se i for menor que 5};");
-        expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->Linha2(escreva: i);");
+        expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->|Sim|Linha2(escreva: i);");
         expect(resultado).toContain("Linha2(escreva: i)-->Linha1Incremento(i recebe: somar i e 1);");
         expect(resultado).toContain("Linha1Incremento(i recebe: somar i e 1)-->Linha1Condicao{se i for menor que 5};");
-        expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->Fim;");
+        expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->|Não|Fim;");
+    });
+
+    it('Para cada', () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'para cada elemento em [1, 2, 3, 4, 5] {',
+                '    escreva(elemento);', 
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha1(para cada elemento em vetor: 1, 2, 3, 4, 5)-->Linha2(escreva: elemento);");
+        expect(resultado).toContain("Linha2(escreva: elemento)-->Linha1(para cada elemento em vetor: 1, 2, 3, 4, 5);");
+        expect(resultado).toContain("Linha2(escreva: elemento)-->Fim;");
     });
 
     it('Se e senão', () => {
