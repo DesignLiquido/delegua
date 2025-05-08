@@ -1,4 +1,4 @@
-import { Agrupamento, Atribuir, Binario, Leia, Literal, Unario, Variavel, Vetor } from '../construtos';
+import { AcessoIndiceVariavel, AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, Agrupamento, Atribuir, Binario, Chamada, DefinirValor, Dicionario, FuncaoConstruto, Leia, Literal, Unario, Variavel, Vetor } from '../construtos';
 import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Para, ParaCada, Se, Var } from '../declaracoes';
 import { CaminhoEscolha, TradutorInterface } from '../interfaces';
 
@@ -48,6 +48,23 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     vertices: VerticeFluxograma[];
     ultimaDicaVertice: string | undefined;
 
+    traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
+        const textoIndice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice);
+        return `no índice ${textoIndice}`;
+    }
+
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+        return `método ${acessoMetodo.nomeMetodo}`;
+    }
+
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade): string {
+        return `método ou propriedade ${acessoMetodoOuPropriedade.simbolo.lexema}`;
+    }
+
+    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
+        return `propriedade ${acessoPropriedade.nomePropriedade}`;
+    }
+
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
         return this.dicionarioConstrutos[agrupamento.expressao.constructor.name](agrupamento.expressao);
     }
@@ -69,6 +86,49 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         }
         
         return "";
+    }
+
+    traduzirConstrutoChamada(chamada: Chamada): string {
+        const textoEntidadeChamada = this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada);
+        let texto = `chamada a ${textoEntidadeChamada}`;
+
+        if (chamada.argumentos.length > 0) {
+            texto += `, com argumentos: `;
+            for (const argumento of chamada.argumentos) {
+                const textoArgumento = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+                texto += `${textoArgumento}, `;
+            }
+
+            texto = texto.slice(0, -2);
+        } else {
+            texto += `, sem argumentos`;
+        }
+
+        return texto;
+    }
+
+    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
+        const textoObjeto = this.dicionarioConstrutos[definirValor.objeto.constructor.name](definirValor.objeto);
+        const textoValor = this.dicionarioConstrutos[definirValor.valor.constructor.name](definirValor.valor);
+        return `${definirValor.nome.lexema} em ${textoObjeto} recebe ${textoValor}`;
+    }
+
+    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+        let texto = `dicionário`;
+        if (dicionario.chaves.length > 0) {
+            texto += `, com `;
+            for (const [chave, indice] of Object.entries(dicionario.chaves)) {
+                texto += `chave ${chave} definida com o valor ${dicionario.valores[0]}`;
+            }
+        } else {
+            texto += ' vazio';
+        }
+
+        return texto;
+    }
+
+    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
+        return `função`;
     }
 
     traduzirConstrutoLeia(leia: Leia): string {
@@ -434,9 +494,19 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     dicionarioConstrutos = {
+        AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
+        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
+        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
+        Chamada: this.traduzirConstrutoChamada.bind(this),
+        Comentario: () => '',
+        DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        Dicionario: this.traduzirConstrutoDicionario.bind(this),
+        FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
+        Isto: () => 'this',
         Leia: this.traduzirConstrutoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
