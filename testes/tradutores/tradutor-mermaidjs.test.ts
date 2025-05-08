@@ -189,8 +189,8 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toBeTruthy();
         expect(resultado).toContain("graph TD;");
         expect(resultado).toContain("Linha1{se verdadeiro}-->|Sim|Linha2(escreva: \\'Verdadeiro!\\');");
-        expect(resultado).toContain("Linha1{se verdadeiro}-->|Não|Linha3(Senão);");
-        expect(resultado).toContain("Linha3(Senão)-->Linha4(escreva: \\'Falso!\\');");
+        expect(resultado).toContain("Linha1{se verdadeiro}-->|Não|Linha3(senão);");
+        expect(resultado).toContain("Linha3(senão)-->Linha4(escreva: \\'Falso!\\');");
         expect(resultado).toContain("Linha4(escreva: \\'Falso!\\')-->Fim;");
         expect(resultado).toContain("Linha2(escreva: \\'Verdadeiro!\\')-->Fim;");
     });

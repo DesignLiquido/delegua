@@ -370,13 +370,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         const tipo = typeof valor;
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
-                if (valor instanceof Leia && typeof condicao?.valor !== 'string') {
+                // TODO: Reimplementar considerando que `condicao` é um construto.
+                /* if (valor instanceof Leia && typeof condicao?.valor !== 'string') {
                     this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
                     continue;
                 }
                 if (!(valor instanceof Leia) && typeof condicao?.valor !== tipo) {
                     this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
-                }
+                } */
             }
         }
 

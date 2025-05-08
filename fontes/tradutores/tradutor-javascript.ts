@@ -194,7 +194,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoComentario(comentario: Comentario): string {
+    traduzirDeclaracaoComentario(comentario: Comentario): string {
         let resultado = '';
         if (comentario.multilinha) {
             resultado += `/*`;
@@ -355,10 +355,16 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
         
-        for (let condicao of caminho.condicoes) {
-            resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+        if (caminho.condicoes && caminho.condicoes.length > 0) {
+            for (let condicao of caminho.condicoes) {
+                resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+                resultado += ' '.repeat(this.indentacao);
+            }
+        } else {
+            resultado += 'default:\n';
             resultado += ' '.repeat(this.indentacao);
         }
+        
 
         for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
@@ -455,7 +461,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
-    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
+    traduzirConstrutoLeia(declaracaoLeia: Leia) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
@@ -848,11 +854,11 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
-        Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
+        Leia: this.traduzirConstrutoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
@@ -866,7 +872,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
         Const: this.traduzirDeclaracaoConst.bind(this),
-        Comentario: this.traduzirConstrutoComentario.bind(this),
+        Comentario: this.traduzirDeclaracaoComentario.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
@@ -876,7 +882,6 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Falhar: this.traduzirDeclaracaoFalhar.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
         Importar: this.traduzirDeclaracaoImportar.bind(this),
-        Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),
