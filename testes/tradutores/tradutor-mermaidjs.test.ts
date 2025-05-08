@@ -66,6 +66,40 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha4(devolver valor de a, incrementar a em 1)-->Fim;");
     });
 
+    it('Escolha', () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var teste = leia("Digite alguma coisa: ")',
+                'escolha teste {',
+                '  caso "1":',
+                '    escreva("correspondente à opção 1");',
+                '  caso "2":',
+                '    escreva("correspondente à opção 2");',
+                '  padrao:',
+                '    escreva("Sem opção correspondente");',
+                '}',
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha1(variável: teste, iniciada com: leia da entrada, imprimindo antes: \\'\\'Digite alguma coisa: \\'\\')-->Linha2(escolha um caminho pelo valor de teste);");
+        expect(resultado).toContain("Linha2(escolha um caminho pelo valor de teste)-->Linha3(caso teste seja igual a \\'1\\':);");
+        expect(resultado).toContain("Linha3(caso teste seja igual a \\'1\\':)-->Linha4(escreva: \\'correspondente à opção 1\\');");
+        expect(resultado).toContain("Linha2(escolha um caminho pelo valor de teste)-->Linha5(caso teste seja igual a \\'2\\':);");
+        expect(resultado).toContain("Linha5(caso teste seja igual a \\'2\\':)-->Linha6(escreva: \\'correspondente à opção 2\\');");
+        expect(resultado).toContain("Linha2(escolha um caminho pelo valor de teste)-->Linha7(caso teste tenha qualquer outro valor:);");
+        expect(resultado).toContain("Linha7(caso teste tenha qualquer outro valor:)-->Linha8(escreva: \\'Sem opção correspondente\\');");
+        expect(resultado).toContain("Linha4(escreva: \\'correspondente à opção 1\\')-->Fim;");
+        expect(resultado).toContain("Linha6(escreva: \\'correspondente à opção 2\\')-->Fim;");
+        expect(resultado).toContain("Linha8(escreva: \\'Sem opção correspondente\\')-->Fim;");
+    });
+
     it('Fazer ... Enquanto', () => {
         const retornoLexador = lexador.mapear(
             [

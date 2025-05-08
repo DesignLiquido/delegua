@@ -354,24 +354,29 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        if (caminho?.condicoes?.length) {
-            for (let condicao of caminho.condicoes) {
-                resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-                resultado += ' '.repeat(this.indentacao);
-            }
+        
+        for (let condicao of caminho.condicoes) {
+            resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+            resultado += ' '.repeat(this.indentacao);
         }
-        if (caminho?.declaracoes?.length) {
-            for (let declaracao of caminho.declaracoes) {
-                resultado += ' '.repeat(this.indentacao + 4);
-                if (declaracao?.simboloChave?.lexema === 'retorna') {
-                    resultado +=
-                        'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
-                }
-                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-            }
+
+        for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
-            resultado += 'break' + '\n';
+            switch (declaracao.constructor.name) {
+                case 'Retorna':
+                    const declaracaoRetorna = declaracao as Retorna;
+                    resultado +=
+                    'return ' + this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
+                    break;
+                default:
+                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                    break;
+            }
         }
+
+        resultado += ' '.repeat(this.indentacao + 4);
+        resultado += 'break' + '\n';
+        
 
         this.indentacao -= 4;
         return resultado;

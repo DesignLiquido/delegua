@@ -1,6 +1,6 @@
-import { Agrupamento, Atribuir, Binario, Literal, Unario, Variavel, Vetor } from '../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Para, ParaCada, Se, Var } from '../declaracoes';
-import { TradutorInterface } from '../interfaces';
+import { Agrupamento, Atribuir, Binario, Leia, Literal, Unario, Variavel, Vetor } from '../construtos';
+import { Bloco, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Para, ParaCada, Se, Var } from '../declaracoes';
+import { CaminhoEscolha, TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -69,6 +69,16 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         }
         
         return "";
+    }
+
+    traduzirConstrutoLeia(leia: Leia): string {
+        let texto = "leia da entrada";
+        if (leia.argumentos && leia.argumentos.length > 0) {
+            const textoArgumento = this.dicionarioConstrutos[leia.argumentos[0].constructor.name](leia.argumentos[0]);
+            texto += `, imprimindo antes: \\'${textoArgumento}\\'`
+        }
+
+        return texto;
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
@@ -163,6 +173,94 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         const verticeLaco = new VerticeFluxograma(ultimaArestaCorpo, aresta);
         vertices.push(verticeLaco);
 
+        return vertices;
+    }
+
+    protected logicaComumCaminhoEscolha(
+        declaracaoEscolha: Escolha, 
+        caminhoEscolha: CaminhoEscolha, 
+        linha: number, 
+        textoIdentificadorOuLiteral: string, 
+        caminhoPadrao: boolean
+    ): {
+        caminho: ArestaFluxograma,
+        declaracoesCaminho: VerticeFluxograma[] 
+    } {
+        let textoCaso: string = '';
+        if (!caminhoPadrao) {
+            textoCaso = `caso ${textoIdentificadorOuLiteral} seja igual a `;
+            for (const condicao of caminhoEscolha.condicoes) {
+                const textoCondicao = this.dicionarioConstrutos[condicao.constructor.name](condicao);
+                textoCaso += `${textoCondicao} ou `;
+            }
+    
+            textoCaso = textoCaso.slice(0, -4);
+            textoCaso += ':';
+        } else {
+            textoCaso = `caso ${textoIdentificadorOuLiteral} tenha qualquer outro valor:`;
+        }
+        
+        let textoCaminho = `Linha${linha}(${textoCaso})`;
+
+        const arestaCondicaoCaminho = new ArestaFluxograma(declaracaoEscolha, textoCaminho);
+        this.anteriores.push(arestaCondicaoCaminho);
+        let verticesResolvidos: VerticeFluxograma[] = [];
+
+        for (const declaracaoCaminho of caminhoEscolha.declaracoes) {
+            const verticesDeclaracoes: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoCaminho.constructor.name](declaracaoCaminho);
+            verticesResolvidos = verticesResolvidos.concat(verticesDeclaracoes);
+            this.anteriores.pop();
+            this.anteriores.push(verticesDeclaracoes[verticesDeclaracoes.length - 1].destino);
+        }
+
+        this.anteriores.pop();
+
+        return { 
+            caminho: arestaCondicaoCaminho, 
+            declaracoesCaminho: verticesResolvidos
+        };
+    }
+
+    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): VerticeFluxograma[] {
+        let texto = `Linha${declaracaoEscolha.linha}(escolha um caminho pelo valor de `;
+        const textoIdentificadorOuLiteral = this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](declaracaoEscolha.identificadorOuLiteral);
+        texto += textoIdentificadorOuLiteral + ')';
+        const aresta = new ArestaFluxograma(declaracaoEscolha, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        const arestasCaminho: {
+            caminho: ArestaFluxograma,
+            declaracoesCaminho: VerticeFluxograma[] 
+        }[] = [];
+
+        for (const caminho of declaracaoEscolha.caminhos) {
+            arestasCaminho.push(this.logicaComumCaminhoEscolha(
+                declaracaoEscolha, 
+                caminho, 
+                caminho.condicoes[0].linha,
+                textoIdentificadorOuLiteral, 
+                false)
+            );
+        }
+
+        if (declaracaoEscolha.caminhoPadrao) {
+            arestasCaminho.push(this.logicaComumCaminhoEscolha(
+                declaracaoEscolha, 
+                declaracaoEscolha.caminhoPadrao, 
+                declaracaoEscolha.caminhoPadrao.declaracoes[0].linha - 1,
+                textoIdentificadorOuLiteral,
+                true)
+            );
+        }
+
+        for (const conjunto of Object.values(arestasCaminho)) {
+            const verticeEscolhaECaminho = new VerticeFluxograma(aresta, conjunto.caminho);
+            vertices.push(verticeEscolhaECaminho);
+            vertices = vertices.concat(conjunto.declaracoesCaminho);
+            this.anteriores.push(conjunto.declaracoesCaminho[conjunto.declaracoesCaminho.length - 1].destino);
+        }
+
+        // console.log(vertices);
         return vertices;
     }
 
@@ -339,6 +437,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
+        Leia: this.traduzirConstrutoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
@@ -348,6 +447,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),

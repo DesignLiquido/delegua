@@ -1,4 +1,7 @@
+import { Construto } from "../../construtos";
+import { Declaracao } from "../../declaracoes";
+
 export interface CaminhoEscolha {
-    condicoes: any[];
-    declaracoes: any[];
+    condicoes: Construto[];
+    declaracoes: Declaracao[];
 }
