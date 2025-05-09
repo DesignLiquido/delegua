@@ -1,13 +1,13 @@
 import _ from 'lodash';
 
 import { EspacoVariaveis } from '../espaco-variaveis';
-import { Bloco, Declaracao, Enquanto, Escreva, Leia, Para, Retorna, Var } from '../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
-import { Chamada, Construto } from '../construtos';
+import { Chamada, Construto, Leia } from '../construtos';
 import { inferirTipoVariavel } from '../inferenciador';
 import { InterpretadorBase } from './interpretador-base';
 

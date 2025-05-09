@@ -19,6 +19,7 @@ import {
     Unario,
     Variavel,
     Vetor,
+    Leia,
 } from '../../construtos';
 import {
     Escreva,
@@ -38,7 +39,6 @@ import {
     Expressao,
     Bloco,
     Sustar,
-    Leia,
     Const,
     Falhar,
 } from '../../declaracoes';
@@ -48,7 +48,7 @@ import { Pragma } from '../../lexador/dialetos/pragma';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoDeclaracao, RetornoPrimario, RetornoResolverDeclaracao } from '../retornos';
+import { RetornoPrimario } from '../retornos';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 import { Simbolo } from '../../lexador';
@@ -78,6 +78,22 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         this.blocos = 0;
         this.performance = performance;
         this.escopos = [];
+    }
+
+    expressaoLeia(): Leia {
+        const simboloLeia = this.simbolos[this.atual];
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
+
+        const argumentos: Construto[] = [];
+
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
+
+        return new Leia(simboloLeia, argumentos);
     }
 
     declaracaoDeConstantes(): Const[] {
@@ -511,7 +527,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     }
 
     expressao(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.expressaoLeia();
         return this.atribuir();
     }
 
@@ -536,24 +552,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         return new Expressao(expressao);
     }
 
-    declaracaoLeia(): Leia {
-        const simboloLeia = this.simbolos[this.atual];
-
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
-
-        const argumentos: Construto[] = [];
-
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
-
-        return new Leia(simboloLeia, argumentos);
-    }
-
     blocoEscopo(): any[] {
-        let declaracoes: Array<RetornoDeclaracao> = [];
+        let declaracoes: Array<Declaracao> = [];
         let simboloAtual = this.simboloAtual();
         const simboloAnterior = this.simboloAnterior();
 
@@ -991,7 +991,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
      * ou uma expressão.
      * @returns Objeto do tipo `Declaracao`.
      */
-    resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
+    resolverDeclaracaoForaDeBloco(): Declaracao {
         try {
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||

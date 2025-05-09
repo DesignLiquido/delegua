@@ -18,6 +18,7 @@ import {
     Vetor,
     Isto,
     Construto,
+    Leia,
 } from '../../construtos';
 
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
@@ -38,14 +39,13 @@ import {
     Se,
     Tente,
     Var,
-    Leia,
     Const,
     Declaracao,
 } from '../../declaracoes';
 
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { RetornoDeclaracao, RetornoPrimario } from '../retornos';
+import { RetornoPrimario } from '../retornos';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
@@ -472,8 +472,8 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return new Expressao(expressao);
     }
 
-    blocoEscopo(): RetornoDeclaracao[] {
-        const declaracoes: Array<RetornoDeclaracao> = [];
+    blocoEscopo(): Declaracao[] {
+        const declaracoes: Array<Declaracao> = [];
 
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
@@ -816,7 +816,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return new Classe(nome, superClasse, metodos);
     }
 
-    resolverDeclaracaoForaDeBloco(): RetornoDeclaracao {
+    resolverDeclaracaoForaDeBloco(): Declaracao {
         try {
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) &&

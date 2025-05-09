@@ -9,11 +9,11 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Comentario,
     Construto,
     DefinirValor,
     Dicionario,
     Isto,
+    Leia,
     Literal,
     Logico,
     ReferenciaFuncao,
@@ -24,13 +24,13 @@ import {
 import {
     Bloco,
     Classe,
+    Comentario,
     Const,
     Declaracao,
     Enquanto,
     Escreva,
     Expressao,
     FuncaoDeclaracao,
-    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -39,6 +39,7 @@ import {
     Var,
 } from '../declaracoes';
 import { SimboloInterface, TradutorInterface } from '../interfaces';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export class TradutorPython implements TradutorInterface<Declaracao> {

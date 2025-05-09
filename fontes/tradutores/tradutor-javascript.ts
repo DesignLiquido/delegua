@@ -9,12 +9,12 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Comentario,
     Construto,
     DefinirValor,
     Dicionario,
     FuncaoConstruto,
     Isto,
+    Leia,
     Literal,
     Logico,
     ReferenciaFuncao,
@@ -26,6 +26,7 @@ import {
 import {
     Bloco,
     Classe,
+    Comentario,
     Const,
     Declaracao,
     Enquanto,
@@ -36,7 +37,6 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
-    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -194,7 +194,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoComentario(comentario: Comentario): string {
+    traduzirDeclaracaoComentario(comentario: Comentario): string {
         let resultado = '';
         if (comentario.multilinha) {
             resultado += `/*`;
@@ -354,24 +354,35 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        if (caminho?.condicoes?.length) {
+        
+        if (caminho.condicoes && caminho.condicoes.length > 0) {
             for (let condicao of caminho.condicoes) {
                 resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
                 resultado += ' '.repeat(this.indentacao);
             }
+        } else {
+            resultado += 'default:\n';
+            resultado += ' '.repeat(this.indentacao);
         }
-        if (caminho?.declaracoes?.length) {
-            for (let declaracao of caminho.declaracoes) {
-                resultado += ' '.repeat(this.indentacao + 4);
-                if (declaracao?.simboloChave?.lexema === 'retorna') {
-                    resultado +=
-                        'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
-                }
-                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-            }
+        
+
+        for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
-            resultado += 'break' + '\n';
+            switch (declaracao.constructor.name) {
+                case 'Retorna':
+                    const declaracaoRetorna = declaracao as Retorna;
+                    resultado +=
+                    'return ' + this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
+                    break;
+                default:
+                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                    break;
+            }
         }
+
+        resultado += ' '.repeat(this.indentacao + 4);
+        resultado += 'break' + '\n';
+        
 
         this.indentacao -= 4;
         return resultado;
@@ -450,7 +461,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
-    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
+    traduzirConstrutoLeia(declaracaoLeia: Leia) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
@@ -843,11 +854,11 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
-        Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
+        Leia: this.traduzirConstrutoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
@@ -861,7 +872,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
         Const: this.traduzirDeclaracaoConst.bind(this),
-        Comentario: this.traduzirConstrutoComentario.bind(this),
+        Comentario: this.traduzirDeclaracaoComentario.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
@@ -871,7 +882,6 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Falhar: this.traduzirDeclaracaoFalhar.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
         Importar: this.traduzirDeclaracaoImportar.bind(this),
-        Leia: this.traduzirDeclaracaoLeia.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),

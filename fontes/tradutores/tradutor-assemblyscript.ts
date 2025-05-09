@@ -7,11 +7,11 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Comentario,
     Construto,
     DefinirValor,
     FuncaoConstruto,
     Isto,
+    Leia,
     Literal,
     Logico,
     ReferenciaFuncao,
@@ -23,6 +23,7 @@ import {
 import {
     Bloco,
     Classe,
+    Comentario,
     Const,
     Declaracao,
     Enquanto,
@@ -33,7 +34,6 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
-    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -465,21 +465,27 @@ export class TradutorAssemblyScript {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        if (caminho?.condicoes?.length) {
-            for (let condicao of caminho.condicoes) {
-                resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-                resultado += ' '.repeat(this.indentacao);
-            }
+        
+        for (let condicao of caminho.condicoes) {
+            resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+            resultado += ' '.repeat(this.indentacao);
         }
-        if (caminho?.declaracoes?.length) {
-            for (let declaracao of caminho.declaracoes) {
-                resultado += ' '.repeat(this.indentacao + 4);
-                if (declaracao?.simboloChave?.lexema === 'retorna') {
+        
+
+        
+        for (let declaracao of caminho.declaracoes) {
+            resultado += ' '.repeat(this.indentacao + 4);
+            switch (declaracao.constructor.name) {
+                case 'Retorna':
+                    const declaracaoRetorna = declaracao as Retorna;
                     resultado +=
-                        'return ' + this.dicionarioConstrutos[declaracao.valor.constructor.name](declaracao.valor);
-                }
-                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                    'return ' + this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
+                    break;
+                default:
+                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                    break;
             }
+
             resultado += ' '.repeat(this.indentacao + 4);
             resultado += 'break' + '\n';
         }

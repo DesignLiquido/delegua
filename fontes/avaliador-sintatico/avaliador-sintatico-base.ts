@@ -1,4 +1,4 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Logico, Unario } from '../construtos';
+import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
 import {
     Classe,
     Continua,
@@ -10,7 +10,6 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
-    Leia,
     Para,
     ParaCada,
     Retorna,
@@ -107,11 +106,11 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected abstract declaracaoEscolha(): Escolha;
     protected abstract declaracaoEscreva(): Escreva;
     protected abstract declaracaoFazer(): Fazer;
-    protected abstract declaracaoLeia(): Leia;
     protected abstract declaracaoPara(): Para | ParaCada;
     protected abstract declaracaoSe(): Se;
+    protected abstract expressaoLeia(): Leia;
     protected abstract primario(): Construto;
-    protected abstract resolverDeclaracaoForaDeBloco(): Declaracao;
+    protected abstract resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[];
 
     protected finalizarChamada(entidadeChamada: Construto): Chamada {
         const argumentos: Array<Construto> = [];

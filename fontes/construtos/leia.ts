@@ -1,13 +1,15 @@
-import { Construto } from '../construtos';
+import { Construto } from '.';
 import { uuidv4 } from '../geracao-identificadores';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
-import { Declaracao } from './declaracao';
 
 /**
  * Declaração que pede a leitura de uma informação pela entrada
  * configurada no início da aplicação (por exemplo, o console).
  */
-export class Leia extends Declaracao {
+export class Leia implements Construto {
+    linha: number;
+    hashArquivo: number;
+
     simbolo: SimboloInterface;
     id: string;
     argumentos: Construto[];
@@ -16,7 +18,8 @@ export class Leia extends Declaracao {
     eParaInterromper?: boolean;
 
     constructor(simbolo: SimboloInterface, argumentos: Construto[]) {
-        super(simbolo.linha, simbolo.hashArquivo);
+        this.linha = simbolo.linha;
+        this.hashArquivo = simbolo.hashArquivo;
         this.simbolo = simbolo;
         this.id = uuidv4();
         this.argumentos = argumentos;

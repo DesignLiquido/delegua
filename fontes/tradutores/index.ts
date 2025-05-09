@@ -1,5 +1,6 @@
 export * from './tradutor-assemblyscript';
 export * from './tradutor-javascript';
+export * from './tradutor-mermaidjs';
 export * from './tradutor-portugol-ipt';
 export * from './tradutor-python';
 export * from './tradutor-reverso-javascript';

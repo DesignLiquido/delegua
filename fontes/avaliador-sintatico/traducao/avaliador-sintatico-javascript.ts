@@ -1,11 +1,10 @@
 /* istanbul ignore file */
 import { Directive, ModuleDeclaration, Statement } from 'estree';
-import { Construto, FuncaoConstruto } from '../../construtos';
+import { Construto, FuncaoConstruto, Leia } from '../../construtos';
 import {
     Enquanto,
     Escreva,
     Expressao,
-    Leia,
     Para,
     ParaCada,
     Se,

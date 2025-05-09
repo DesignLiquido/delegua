@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Leia, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, FuncaoConstruto, Literal, Variavel } from '../../fontes/construtos';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
+import { Binario, Chamada, FuncaoConstruto, Leia, Literal, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
