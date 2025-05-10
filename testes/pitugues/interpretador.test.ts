@@ -1,17 +1,23 @@
 import { AvaliadorSintaticoPitugues } from "../../fontes/avaliador-sintatico/dialetos";
-import { InterpretadorBase } from "../../fontes/interpretador";
+import { Interpretador } from "../../fontes/interpretador";
 import { LexadorPitugues } from "../../fontes/lexador/dialetos";
 
 describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPitugues;
         let avaliadorSintatico: AvaliadorSintaticoPitugues;
-        let interpretador: InterpretadorBase;
+        let interpretador: Interpretador;
+
+        let _saidas: string[] = [];
+        const funcaoSaida = (texto: string) => {
+            _saidas.push(texto);
+        }
 
         beforeEach(() => {
+            _saidas = [];
             lexador = new LexadorPitugues();
             avaliadorSintatico = new AvaliadorSintaticoPitugues();
-            interpretador = new InterpretadorBase(process.cwd());
+            interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {
@@ -20,6 +26,17 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoLexador = lexador.mapear([
                         "var a = 1",
                         "var b, c = 1, 2"
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Constantes', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "const g, h, i = 1, '2', 3",
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -252,6 +269,108 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
             });
+
+            describe('Uso de bibliotecas', () => {
+                it('aparar', async () => {
+                    const codigo = [
+                        'escreva("   texto com espaços        ".aparar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('texto com espaços');
+                });
+
+                it('mapear', async () => {
+                    const codigo = [
+                        'var vetor = [1, 2, 3]',
+                        'var fn = funcao(valor):',
+                        '    retorna valor * 2',
+                        'escreva(mapear(vetor, fn))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[2, 4, 6]');
+                });
+            });
+
+            describe('Uso de primitivas de número', () => {
+                it('arredondarParaBaixo', async () => {
+                    const codigo = [
+                        'var n1 = 3.1415',
+                        'escreva(n1.arredondarParaBaixo())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('3');
+                });
+
+                it('arredondarParaCima', async () => {
+                    const codigo = [
+                        'var n1 = 3.1415',
+                        'escreva(n1.arredondarParaCima())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('4');
+                });
+            });
+
+            describe('Uso de primitivas de texto', () => {
+                it('concatenar', async () => {
+                    const codigo = [
+                        'var t1 = "um texto"',
+                        'var t2 = " concatenado com outro"',
+                        'escreva(t1.concatenar(t2))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('um texto concatenado com outro');
+                });
+
+                it('dividir', async () => {
+                    const codigo = [
+                        'var t1 = "um dois três"',
+                        'escreva(t1.dividir(" "))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("['um', 'dois', 'três']");
+                });
+            });
+
+            /* describe('Uso de primitivas de vetor', () => {
+                
+            }); */
         });
 
         describe('Cenários de falha', () => {
