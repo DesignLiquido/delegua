@@ -284,7 +284,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, []);
+                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
@@ -295,7 +295,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                     }
                 }
 
-                return new Vetor(this.hashArquivo, simboloAtual.linha, valores);
+                const tipoVetor = inferirTipoVariavel(valores);
+                return new Vetor(this.hashArquivo, simboloAtual.linha, valores, valores.length, tipoVetor);
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 this.avancarEDevolverAnterior();
                 const chaves = [];

@@ -271,20 +271,6 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Uso de bibliotecas', () => {
-                it('aparar', async () => {
-                    const codigo = [
-                        'escreva("   texto com espaços        ".aparar())'
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('texto com espaços');
-                });
-
                 it('mapear', async () => {
                     const codigo = [
                         'var vetor = [1, 2, 3]',
@@ -336,6 +322,20 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Uso de primitivas de texto', () => {
+                it('aparar', async () => {
+                    const codigo = [
+                        'escreva("   texto com espaços        ".aparar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('texto com espaços');
+                });
+
                 it('concatenar', async () => {
                     const codigo = [
                         'var t1 = "um texto"',
@@ -366,11 +366,106 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe("['um', 'dois', 'três']");
                 });
+
+                it('maiusculo', async () => {
+                    const codigo = [
+                        'var t1 = "um dois três"',
+                        'escreva(t1.maiusculo())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("UM DOIS TRÊS");
+                });
+
+                it('minusculo', async () => {
+                    const codigo = [
+                        'var t1 = "UM DOIS TRÊS"',
+                        'escreva(t1.minusculo())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("um dois três");
+                });
             });
 
-            /* describe('Uso de primitivas de vetor', () => {
-                
-            }); */
+            describe('Uso de primitivas de vetor', () => {
+                it('fatiar', async () => {
+                    const codigo = [
+                        'var lista = ["Ser", "ou", "não", "ser"]',
+                        'escreva(lista.fatiar(2))',
+                        'escreva(lista.fatiar(1, 2))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe("['não', 'ser']");
+                    expect(_saidas[1]).toBe("['ou']");
+                });
+
+                it('inclui', async () => {
+                    const codigo = [
+                        'var lista = [1, 2, 3, 4, 5, 6]',
+                        'var lista2 = ["Ser", "ou", "não", "ser"]',
+                        'escreva(lista.inclui(5))',
+                        'escreva(lista2.inclui("ser"))',
+                        'escreva(lista2.inclui("abc"))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(3);
+                    expect(_saidas[0]).toBe("verdadeiro");
+                    expect(_saidas[1]).toBe("verdadeiro");
+                    expect(_saidas[2]).toBe("falso");
+                });
+
+                it('substituir', async () => {
+                    const codigo = [
+                        'var t = "Ser ou não ser, eis a questão"',
+                        'escreva(t.substituir("Ser", "Salmão"));'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("Salmão ou não ser, eis a questão");
+                });
+
+                it('subtexto', async () => {
+                    const codigo = [
+                        'var t = "Ser ou não ser, eis a questão"',
+                        'escreva(t.subtexto(4, 10))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("ou não");
+                });
+            });
         });
 
         describe('Cenários de falha', () => {

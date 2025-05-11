@@ -255,7 +255,7 @@ export class AvaliadorSintatico
                 valores = [];
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, Number(simboloAtual.linha), [], 0, 'qualquer');
+                    return new Vetor(this.hashArquivo, Number(simboloAtual.linha), [], 0, 'qualquer[]');
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
