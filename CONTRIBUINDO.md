@@ -32,6 +32,8 @@ Nós usamos testes unitários para testar todos os componentes de Delégua. Noss
 
 ### Trabalhando na sua modificação
 
+É fundamental entender como Git e GitHub funcionam. Recomendamos [o livro da Cumbuca.dev](https://git-e-github.para-humanos.cumbuca.dev/) como uma introdução.
+
 Recomendamos fazer um _fork_ do projeto (ou seja, uma cópia em separado), modificar essa cópia e abrir uma _Pull Request_ da sua cópia para o repositório oficial. [Este vídeo pode ajudar](https://www.youtube.com/watch?v=l1rwvDvD1og). 
 
 Ao abrir uma _Pull Request_, fazemos alguns testes automatizados para verificar se sua modificação tem ou não problemas. Você pode fazer os mesmos testes no seu ambiente local usando o comando:
