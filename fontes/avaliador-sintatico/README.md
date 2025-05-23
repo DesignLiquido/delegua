@@ -18,6 +18,10 @@ Há dois grupos de estruturas de alto nível: Construtos e Declarações.
     - Pode ser analisado pelo Analisador Semântico;
     - Pode ser compilado em instruções binárias.
 
+## Dialetos
+
+No diretório `dialetos`, temos a implementação de avaliadores sintáticos de dialetos de Delégua que começam sendo implementados aqui. Conforme a necessidade, são separados em diferentes pacotes. Outros dialetos, como VisuAlg, Portugol Studio, Mapler, Potigol e BIRL, começaram sendo implementados aqui, mas maturaram e foram separados. Os dialetos que ainda estão aqui podem um dia ser separados também, mas isso requer uma certa evolução nas suas particularidades.
+
 ## Micro Avaliador Sintático
 
 Há algumas situações em que a avaliação sintática de uma linguagem precisa ser feita num âmbito reduzido, como por exemplo em interpolações de texto (como no analisador sintático de Delégua), ou em verificação preguiçosa de parâmetros de funções (ver [avaliador sintático de Potigol](https://github.com/DesignLiquido/potigol/tree/principal/fontes/avaliador-sintatico) para um exemplo). Por exemplo, não faz sentido em uma interpolação de texto termos funcionalidades totais de Delégua, como uma declaração de classe, de tipo ou de função, mas faz sentido avaliarmos expressões menores, como operações matemáticas ou de texto. 
