@@ -9,7 +9,7 @@ import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { Chamada, Construto, Leia } from '../construtos';
 import { inferirTipoVariavel } from '../inferenciador';
-import { InterpretadorBase } from './interpretador-base';
+import { Interpretador } from './interpretador';
 
 /**
  * Implementação do Interpretador com suporte a depuração.
@@ -31,7 +31,7 @@ import { InterpretadorBase } from './interpretador-base';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao extends InterpretadorBase implements InterpretadorComDepuracaoInterface {
+export class InterpretadorComDepuracao extends Interpretador implements InterpretadorComDepuracaoInterface {
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
@@ -65,7 +65,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param expressao A expressão a ser avaliada.
      * @returns O resultado da avaliação.
      */
-    async avaliar(expressao: Construto | Declaracao): Promise<any> {
+    override async avaliar(expressao: Construto | Declaracao): Promise<any> {
         if (expressao.hasOwnProperty('id')) {
             const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
             const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao);
@@ -114,7 +114,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
         );
     }
 
-    async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
+    override async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
         const _idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao);
         // Usado na abertura do bloco de escopo da chamada.
         this.idChamadaAtual = _idChamadaComArgumentos;
@@ -128,7 +128,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
         return retorno;
     }
 
-    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+    override async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
         switch (this.comando) {
             case 'proximo':
@@ -166,7 +166,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
         }
     }
 
-    async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
@@ -185,7 +185,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
+    override async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             if (this.pontoDeParadaAtivo) {
@@ -203,7 +203,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
         }
     }
 
-    async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+    override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         // Aqui precisamos clonar a declaração porque modificamos
         // algumas propriedades que indicam o estado da execução dela.
         // Por exemplo, se chamamos uma função que tem dentro dela um bloco Para,
@@ -273,7 +273,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param declaracao Uma declaracao Retorna
      * @returns O resultado da execução da visita.
      */
-    async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+    override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         const retorno = await super.visitarExpressaoRetornar(declaracao);
 
         // O escopo atual é marcado como finalizado, para notificar a
@@ -305,7 +305,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    override async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
         // Se o escopo atual não é o último.
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
@@ -390,7 +390,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
      * @returns O retorno da execução.
      */
-    async executarUltimoEscopo(manterAmbiente = false, naoVerificarPrimeiraExecucao = false): Promise<any> {
+    override async executarUltimoEscopo(manterAmbiente = false, naoVerificarPrimeiraExecucao = false): Promise<any> {
         switch (this.comando) {
             case 'adentrarEscopo':
             case 'proximo':
@@ -645,7 +645,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param mostrarResultado Sempre falso.
      * @returns O resultado da execução.
      */
-    async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+    override async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
         return await declaracao.aceitar(this);
     }
 
@@ -656,7 +656,7 @@ export class InterpretadorComDepuracao extends InterpretadorBase implements Inte
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
+    override async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
         this.erros = [];
         this.declaracoes = declaracoes;
 

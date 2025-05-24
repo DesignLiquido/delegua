@@ -692,10 +692,10 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
 }
 
 /**
- *
- * @param interpretador
- * @param valorOuVariavel
- * @returns
+ * Transforma o valor ou variável em texto.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} valorOuVariavel O valor ou variável.
+ * @returns {string} O valor resolvido em texto.
  */
 export async function texto(interpretador: InterpretadorInterface, valorOuVariavel: VariavelInterface | any) {
     return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
@@ -753,8 +753,8 @@ export async function todosEmCondicao(
 /**
  * Transforma um vetor de elementos em uma tupla de N elementos, sendo N a
  * largura do vetor.
- * @param interpretador
- * @param vetor
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any[]} vetor O vetor.
  * @returns
  */
 export async function tupla(interpretador: InterpretadorInterface, vetor: VariavelInterface | any[]): Promise<Tupla> {
