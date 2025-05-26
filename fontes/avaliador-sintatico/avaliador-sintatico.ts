@@ -100,7 +100,8 @@ export class AvaliadorSintatico
     tiposDefinidosEmCodigo: { [key: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [key: string]: { [key: string]: string } };
-    primitivasConhecidas: string[];
+    // TODO: Transformar em dicionário (delegua-node).
+    primitivasConhecidas: {[key: string]: string };
 
     hashArquivo: number;
     atual: number;
@@ -117,14 +118,27 @@ export class AvaliadorSintatico
         this.performance = performance;
         this.tiposDefinidosEmCodigo = {};
         this.tiposDeFerramentasExternas = {};
-        this.primitivasConhecidas = [
-            ...Object.keys(primitivasDicionario),
-            ...Object.keys(primitivasNumero),
-            ...Object.keys(primitivasTexto),
-            ...Object.keys(primitivasVetor),
-            'inteiro',
-            'texto',
-        ];
+        this.primitivasConhecidas = {};
+
+        for (const nomePrimitivaDicionario of Object.keys(primitivasDicionario)) {
+            this.primitivasConhecidas[nomePrimitivaDicionario] = 'dicionário';
+        }
+
+        for (const nomePrimitivaNumero of Object.keys(primitivasNumero)) {
+            this.primitivasConhecidas[nomePrimitivaNumero] = 'número';
+        }
+
+        for (const nomePrimitivaTexto of Object.keys(primitivasTexto)) {
+            this.primitivasConhecidas[nomePrimitivaTexto] = 'texto';
+        }
+
+        for (const nomePrimitivaVetor of Object.keys(primitivasVetor)) {
+            this.primitivasConhecidas[nomePrimitivaVetor] = 'vetor';
+        }
+
+        this.primitivasConhecidas['inteiro'] = 'inteiro';
+        this.primitivasConhecidas['texto'] = 'texto';
+
         this.pilhaEscopos = new PilhaEscopos();
     }
 
@@ -647,7 +661,7 @@ export class AvaliadorSintatico
         if (entidadeChamada.constructor.name === 'Variavel') {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
-            if (this.primitivasConhecidas.includes(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
+            if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
                 return entidadeChamadaResolvidaVariavel;
             }
 
