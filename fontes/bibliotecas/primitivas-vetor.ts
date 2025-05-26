@@ -1,5 +1,5 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
-import { InterpretadorInterface, PrimitivaInterface, VisitanteComumInterface } from '../interfaces';
+import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
 export default {
     adicionar: {

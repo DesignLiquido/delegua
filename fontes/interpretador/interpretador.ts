@@ -1,4 +1,4 @@
-import { AcessoMetodo, AcessoPropriedade, ArgumentoReferenciaFuncao, Chamada, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
+import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, ArgumentoReferenciaFuncao, Chamada, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
 import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "./estruturas";
 import { VariavelInterface } from "../interfaces";
 import { InterpretadorBase } from "./interpretador-base";
@@ -40,9 +40,7 @@ export class Interpretador extends InterpretadorBase {
         
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
         
-        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
-        // então testamos também o nome do construtor.
-        if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
         }
         
@@ -119,6 +117,81 @@ export class Interpretador extends InterpretadorBase {
         );
     }
 
+    /**
+     * Casos que ocorrem aqui:
+     * 
+     * - Quando o método ou propriedade é ou 'qualquer', ou vetor
+     *   de 'qualquer' ('qualquer[]'), e uma primitiva é usada. 
+     * - Quando o objeto é uma classe definida em código.
+     * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso a método ou propriedade.
+     * @returns A primitiva encontrada.
+     */
+    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+        
+        // Este caso acontece quando há encadeamento de métodos.
+        // Por exemplo, `objeto1.metodo1().metodo2()`.
+        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
+        // valor dele primeiro.
+        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+            variavelObjeto = variavelObjeto.valor;
+        }
+        
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+            return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
+        }
+
+        // Objeto simples do JavaScript, ou dicionário de Delégua.
+        if (objeto.constructor === Object) {
+            if (expressao.simbolo.lexema in primitivasDicionario) {
+                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema].implementacao;
+                return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+            }
+
+            return objeto[expressao.simbolo.lexema] || null;
+        }
+
+        let tipoObjeto = variavelObjeto.tipo;
+        if (tipoObjeto === null || tipoObjeto === undefined) {
+            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+        }
+
+        // Como internamente um dicionário de Delégua é simplesmente um objeto de
+        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
+        // mais acima.
+        switch (tipoObjeto) {
+            case tipoDeDadosDelegua.INTEIRO:
+            case tipoDeDadosDelegua.NUMERO:
+            case tipoDeDadosDelegua.NÚMERO:
+                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema].implementacao;
+                if (metodoDePrimitivaNumero) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                }
+                break;
+            case tipoDeDadosDelegua.TEXTO:
+                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema].implementacao;
+                if (metodoDePrimitivaTexto) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                }
+                break;
+            case tipoDeDadosDelegua.VETOR:
+            case tipoDeDadosDelegua.VETOR_INTEIRO:
+            case tipoDeDadosDelegua.VETOR_LOGICO:
+            case tipoDeDadosDelegua.VETOR_LÓGICO:
+            case tipoDeDadosDelegua.VETOR_NUMERO:
+            case tipoDeDadosDelegua.VETOR_NÚMERO:
+            case tipoDeDadosDelegua.VETOR_QUALQUER:
+            case tipoDeDadosDelegua.VETOR_TEXTO:
+                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema].implementacao;
+                if (metodoDePrimitivaVetor) {
+                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                }
+                break;
+        }
+    }
+
     override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         
@@ -173,39 +246,10 @@ export class Interpretador extends InterpretadorBase {
             tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
         }
 
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de
-        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
-        // mais acima.
-        switch (tipoObjeto) {
-            case tipoDeDadosDelegua.INTEIRO:
-            case tipoDeDadosDelegua.NUMERO:
-            case tipoDeDadosDelegua.NÚMERO:
-                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.nomePropriedade].implementacao;
-                if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
-                }
-                break;
-            case tipoDeDadosDelegua.TEXTO:
-                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.nomePropriedade].implementacao;
-                if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
-                }
-                break;
-            case tipoDeDadosDelegua.VETOR:
-            case tipoDeDadosDelegua.VETOR_NUMERO:
-            case tipoDeDadosDelegua.VETOR_NÚMERO:
-            case tipoDeDadosDelegua.VETOR_TEXTO:
-                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.nomePropriedade].implementacao;
-                if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 null,
-                `Método para objeto ou primitiva não encontrado: ${expressao.nomePropriedade}.`,
+                `Propriedade para objeto ou primitiva não encontrado: ${expressao.nomePropriedade}.`,
                 expressao.linha
             )
         );

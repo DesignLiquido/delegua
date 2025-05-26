@@ -85,9 +85,6 @@ import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../bibliotecas/primitivas-numero';
-import primitivasTexto from '../bibliotecas/primitivas-texto';
-import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
@@ -95,7 +92,9 @@ import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
- * e de fato executa a lógica de programação descrita no código.
+ * e de fato executa a lógica de programação descrita no código. Este interpretador base é usado
+ * por Delégua e todos os seus dialetos, contendo somente os pontos em comum entre todas as
+ * linguagens.
  *
  * O Interpretador Base não contém dependências com o Node.js. É
  * recomendado para uso em execuções que ocorrem no navegador de internet.
@@ -1459,14 +1458,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.propriedades
         );
 
+        // TODO: Mover para Potigol, que é o único dialeto que realmente usa isso.
         descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
         descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
-
-        // TODO: Recolocar isso se for necessário.
-        /* if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
-        } */
 
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return null;
@@ -1533,39 +1528,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
         }
 
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de
-        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
-        // mais acima.
-        switch (tipoObjeto) {
-            case tipoDeDadosDelegua.INTEIRO:
-            case tipoDeDadosDelegua.NUMERO:
-            case tipoDeDadosDelegua.NÚMERO:
-                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
-                }
-                break;
-            case tipoDeDadosDelegua.TEXTO:
-                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
-                }
-                break;
-            case tipoDeDadosDelegua.VETOR:
-            case tipoDeDadosDelegua.VETOR_NUMERO:
-            case tipoDeDadosDelegua.VETOR_NÚMERO:
-            case tipoDeDadosDelegua.VETOR_TEXTO:
-                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 expressao.simbolo,
-                `Método para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
+                `Método ou propriedade para objeto não encontrado: ${expressao.simbolo.lexema}.`,
                 expressao.linha
             )
         );
@@ -1715,6 +1681,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
         const resultado: any = await declaracao.aceitar(this);
         /* console.log("Resultado aceitar: " + resultado, this); */
+        // TODO: Mover a lógica abaixo para `delegua-node`.
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
