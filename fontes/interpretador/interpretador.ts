@@ -190,6 +190,20 @@ export class Interpretador extends InterpretadorBase {
                 }
                 break;
         }
+
+        // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
+        // Exemplos: classes de LinConEs, como `RetornoComando`.
+        if (objeto.hasOwnProperty(expressao.simbolo.lexema)) {
+            return objeto[expressao.simbolo.lexema];
+        }
+
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                `Método ou propriedade para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
+                expressao.linha
+            )
+        );
     }
 
     override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
