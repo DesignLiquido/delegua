@@ -1,10 +1,11 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, ArgumentoReferenciaFuncao, Chamada, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
+import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, ArgumentoReferenciaFuncao, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
 import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "./estruturas";
 import { VariavelInterface } from "../interfaces";
 import { InterpretadorBase } from "./interpretador-base";
 import { inferirTipoVariavel } from "../inferenciador";
 import { ErroEmTempoDeExecucao } from "../excecoes";
 import { FuncaoDeclaracao, Retorna } from "../declaracoes";
+import { RetornoQuebra } from "../quebras";
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -13,7 +14,6 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import { RetornoQuebra } from "../quebras";
 
 /**
  * O interpretador de Delégua.

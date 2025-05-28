@@ -50,6 +50,7 @@ import {
     Chamada,
     Construto,
     DefinirValor,
+    Dicionario,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
@@ -1545,7 +1546,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return Promise.resolve();
     }
 
-    async visitarExpressaoDicionario(expressao: any): Promise<any> {
+    async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             const promises = await Promise.all([this.avaliar(expressao.chaves[i]), this.avaliar(expressao.valores[i])]);
@@ -1554,13 +1555,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
                 dicionario[chaveLogico] = promises[1];
                 continue;
-            } else if (typeof promises[1] === 'object') {
-                dicionario[promises[0]] = promises[1].valor;
-                continue;
             }
-
-            dicionario[promises[0]] = promises[1];
+                
+            dicionario[promises[0]] = promises[1].hasOwnProperty('valor') ? promises[1].valor : promises[1];
         }
+
         return dicionario;
     }
 
@@ -1678,16 +1677,9 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
      */
-    async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
+    async executar(declaracao: Declaracao): Promise<any> {
         const resultado: any = await declaracao.aceitar(this);
         /* console.log("Resultado aceitar: " + resultado, this); */
-        // TODO: Mover a lógica abaixo para `delegua-node`.
-        if (mostrarResultado) {
-            this.funcaoDeRetorno(this.paraTexto(resultado));
-        }
-        if (resultado || typeof resultado === tipoDeDadosPrimitivos.BOOLEANO) {
-            this.resultadoInterpretador.push(this.paraTexto(resultado));
-        }
         return resultado;
     }
 

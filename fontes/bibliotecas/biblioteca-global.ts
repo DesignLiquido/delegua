@@ -695,18 +695,21 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
  * Transforma o valor ou variável em texto.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | any} valorOuVariavel O valor ou variável.
- * @returns {string} O valor resolvido em texto.
+ * @returns {Promise<string>} O valor resolvido em texto.
  */
-export async function texto(interpretador: InterpretadorInterface, valorOuVariavel: VariavelInterface | any) {
+export async function texto(interpretador: InterpretadorInterface, valorOuVariavel: VariavelInterface | any): Promise<string> {
     return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoCondicional
- * @returns
+ * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao 
+ * serem aplicados como argumentos da função passada como segundo parâmetro.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor O primeiro parâmetro, um vetor.
+ * @param {VariavelInterface | any} funcaoCondicional A função que será executada com cada
+ *                                  valor do vetor passado como primeiro parâmetro.
+ * @returns {Promise<boolean>} Verdadeiro, se todos os valores do vetor fazem a função passada
+ *                             por parâmetro devolver verdadeiro, ou falso em caso contrário.
  */
 export async function todosEmCondicao(
     interpretador: InterpretadorInterface,
