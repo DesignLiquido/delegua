@@ -2,7 +2,7 @@ import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '..
 import { Construto } from './construto';
 
 /**
- * Construto que solicita o tipo do valor. Normalmente usado em operações de 
+ * Construto que solicita o tipo do valor. Normalmente usado em operações de
  * reflexão e metaprogramação.
  */
 export class TipoDe<TTipoSimbolo extends string = string> implements Construto {

@@ -697,12 +697,15 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
  * @param {VariavelInterface | any} valorOuVariavel O valor ou variável.
  * @returns {Promise<string>} O valor resolvido em texto.
  */
-export async function texto(interpretador: InterpretadorInterface, valorOuVariavel: VariavelInterface | any): Promise<string> {
+export async function texto(
+    interpretador: InterpretadorInterface,
+    valorOuVariavel: VariavelInterface | any
+): Promise<string> {
     return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
 }
 
 /**
- * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao 
+ * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao
  * serem aplicados como argumentos da função passada como segundo parâmetro.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | any} vetor O primeiro parâmetro, um vetor.

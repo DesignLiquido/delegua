@@ -487,13 +487,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tipoDireita: string = direita.tipo
             ? direita.tipo
             : typeof direita === tipoDeDadosPrimitivos.NUMERO
-            ? tipoDeDadosDelegua.NUMERO
-            : String(NaN);
+              ? tipoDeDadosDelegua.NUMERO
+              : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
-            ? tipoDeDadosDelegua.NUMERO
-            : String(NaN);
+              ? tipoDeDadosDelegua.NUMERO
+              : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda)) return;
         if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'qualquer') return;
@@ -707,7 +707,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push({
                         nome: null,
-                        valor: null
+                        valor: null,
                     });
                 }
             }
@@ -802,7 +802,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
                 break;
             default:
-                throw new ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`);
+                throw new ErroEmTempoDeExecucao(
+                    null,
+                    `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`
+                );
         }
 
         return valorResolvido;
@@ -831,7 +834,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             } else if (direita !== null && typeof direita === 'object') {
                 return esquerda in direita || (direita.valor !== undefined && esquerda in direita.valor);
             }
-            
+
             throw new ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
         }
 
@@ -1075,11 +1078,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                             Number(declaracao.linha),
                             erro.mensagem
                         );
-                        const chamadaPegue = new Chamada(
-                            declaracao.caminhoPegue.hashArquivo,
-                            declaracao.caminhoPegue,
-                            [literalErro]
-                        );
+                        const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, [
+                            literalErro,
+                        ]);
                         valorRetorno = await chamadaPegue.aceitar(this);
                     }
                 }
@@ -1497,7 +1498,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaDicionario: Function =
+                    primitivasDicionario[expressao.simbolo.lexema].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
@@ -1556,7 +1558,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 dicionario[chaveLogico] = promises[1];
                 continue;
             }
-                
+
             dicionario[promises[0]] = promises[1].hasOwnProperty('valor') ? promises[1].valor : promises[1];
         }
 
@@ -1626,7 +1628,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
                 if (typeof elemento === 'object') {
-                    retornoVetor += `${JSON.stringify(elemento)}, `
+                    retornoVetor += `${JSON.stringify(elemento)}, `;
                     continue;
                 }
                 retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
@@ -1758,8 +1760,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
                 this.erros.push(retornoOuErro);
             }
-        } catch (erro: any) { // TODO: Estudar remoção do `catch`.
-            throw new Error(`Não deveria estar caindo aqui. Há erros no interpretador que não estão tratados corretamente. Erro atual: ${JSON.stringify(erro)}.`);
+        } catch (erro: any) {
+            // TODO: Estudar remoção do `catch`.
+            throw new Error(
+                `Não deveria estar caindo aqui. Há erros no interpretador que não estão tratados corretamente. Erro atual: ${JSON.stringify(erro)}.`
+            );
         } finally {
             if (this.performance) {
                 const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);

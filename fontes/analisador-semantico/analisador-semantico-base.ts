@@ -98,7 +98,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
         return Promise.resolve();
     }
-    
+
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
         return Promise.resolve();
     }

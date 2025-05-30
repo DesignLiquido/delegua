@@ -1,5 +1,5 @@
-import { SimboloInterface, VisitanteComumInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class ReferenciaFuncao implements Construto {
     linha: number;

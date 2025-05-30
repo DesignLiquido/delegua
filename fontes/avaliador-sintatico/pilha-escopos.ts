@@ -1,6 +1,6 @@
-import { FuncaoDeclaracao } from "../declaracoes";
-import { PilhaInterface, VariavelInterface } from "../interfaces";
-import { InformacaoEscopo } from "./informacao-escopo";
+import { FuncaoDeclaracao } from '../declaracoes';
+import { PilhaInterface, VariavelInterface } from '../interfaces';
+import { InformacaoEscopo } from './informacao-escopo';
 
 export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     pilha: InformacaoEscopo[];
@@ -26,7 +26,7 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
     }
- 
+
     obterTipoVariavelPorNome(nome: string): string {
         for (let i = 1; i <= this.pilha.length; i++) {
             const informacaoEscopo = this.pilha[this.pilha.length - i];
@@ -35,9 +35,7 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
             }
         }
 
-        throw new Error(
-            "Variável não definida: '" + nome + "'."
-        );
+        throw new Error("Variável não definida: '" + nome + "'.");
     }
 
     definirTipoVariavel(nomeVariavel: string, tipo: string) {

@@ -1,11 +1,20 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, ArgumentoReferenciaFuncao, Literal, ReferenciaFuncao, TipoDe, Vetor } from "../construtos";
-import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "./estruturas";
-import { VariavelInterface } from "../interfaces";
-import { InterpretadorBase } from "./interpretador-base";
-import { inferirTipoVariavel } from "../inferenciador";
-import { ErroEmTempoDeExecucao } from "../excecoes";
-import { FuncaoDeclaracao, Retorna } from "../declaracoes";
-import { RetornoQuebra } from "../quebras";
+import {
+    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
+    ArgumentoReferenciaFuncao,
+    Literal,
+    ReferenciaFuncao,
+    TipoDe,
+    Vetor,
+} from '../construtos';
+import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from './estruturas';
+import { VariavelInterface } from '../interfaces';
+import { InterpretadorBase } from './interpretador-base';
+import { inferirTipoVariavel } from '../inferenciador';
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { FuncaoDeclaracao, Retorna } from '../declaracoes';
+import { RetornoQuebra } from '../quebras';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -19,7 +28,6 @@ import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
  * O interpretador de Delégua.
  */
 export class Interpretador extends InterpretadorBase {
-
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         // TODO: Depreciar essa abordagem a favor do uso por referências.
@@ -29,7 +37,7 @@ export class Interpretador extends InterpretadorBase {
 
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
-        
+
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
@@ -37,13 +45,13 @@ export class Interpretador extends InterpretadorBase {
         if (variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
-        
+
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
-        
+
         if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
         }
-        
+
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomeMetodo in primitivasDicionario) {
@@ -119,16 +127,16 @@ export class Interpretador extends InterpretadorBase {
 
     /**
      * Casos que ocorrem aqui:
-     * 
+     *
      * - Quando o método ou propriedade é ou 'qualquer', ou vetor
-     *   de 'qualquer' ('qualquer[]'), e uma primitiva é usada. 
+     *   de 'qualquer' ('qualquer[]'), e uma primitiva é usada.
      * - Quando o objeto é uma classe definida em código.
      * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso a método ou propriedade.
      * @returns A primitiva encontrada.
      */
     override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
-        
+
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
@@ -136,7 +144,7 @@ export class Interpretador extends InterpretadorBase {
         if (variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
-        
+
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
         if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
@@ -146,7 +154,8 @@ export class Interpretador extends InterpretadorBase {
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaDicionario: Function =
+                    primitivasDicionario[expressao.simbolo.lexema].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
@@ -208,7 +217,7 @@ export class Interpretador extends InterpretadorBase {
 
     override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
-        
+
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
@@ -216,19 +225,20 @@ export class Interpretador extends InterpretadorBase {
         if (variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
-        
+
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
-        
+
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
-        
+
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomePropriedade in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.nomePropriedade].implementacao;
+                const metodoDePrimitivaDicionario: Function =
+                    primitivasDicionario[expressao.nomePropriedade].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
@@ -316,9 +326,9 @@ export class Interpretador extends InterpretadorBase {
                 const acessoPropriedade = valorTipoDe as AcessoPropriedade;
                 return acessoPropriedade.tipoRetornoPropriedade;
             case 'AcessoMetodoOuPropriedade':
-                // TODO: Deve ser removido mais futuramente. 
+                // TODO: Deve ser removido mais futuramente.
                 // Apenas `AcessoMetodo` e `AcessoPropriedade` devem funcionar aqui.
-                throw new ErroEmTempoDeExecucao(expressao.simbolo, "Não deveria cair aqui.");
+                throw new ErroEmTempoDeExecucao(expressao.simbolo, 'Não deveria cair aqui.');
             case 'Escreva':
                 return 'função<vazio>';
             case 'Leia':

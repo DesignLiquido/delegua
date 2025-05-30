@@ -69,9 +69,7 @@ function inferirVetor(vetor: Array<any>): TipoInferencia {
     }
 }
 
-export function inferirTipoVariavel(
-    variavel: any
-): TipoInferencia | TipoNativoSimbolo {
+export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoSimbolo {
     if (variavel === null) {
         return 'nulo';
     }

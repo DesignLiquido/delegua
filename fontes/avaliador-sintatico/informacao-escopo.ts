@@ -1,4 +1,4 @@
-import { FuncaoDeclaracao } from "../declaracoes";
+import { FuncaoDeclaracao } from '../declaracoes';
 
 export class InformacaoEscopo {
     variaveisEConstantes: { [nome: string]: string };

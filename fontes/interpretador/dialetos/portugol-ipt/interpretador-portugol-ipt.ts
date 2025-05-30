@@ -193,8 +193,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-            ? 'número'
-            : String(NaN);
+              ? 'número'
+              : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
         if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase()))
             return;
@@ -325,7 +325,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             })
         );
     }
-    
+
     visitarExpressaoLogica(expressao: any): never {
         throw new Error('Método não implementado');
     }

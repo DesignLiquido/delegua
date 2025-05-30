@@ -261,8 +261,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
-            ? 'número'
-            : String(NaN);
+              ? 'número'
+              : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
         if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase()))
             return;
@@ -614,7 +614,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             {
                 lexema: declaracao.caminho.valor,
                 linha: declaracao.linha,
-                hashArquivo: declaracao.caminho.hashArquivo
+                hashArquivo: declaracao.caminho.hashArquivo,
             } as SimboloInterface,
             'Importação não suportada em núcleo da linguagem puro. Favor executar a aplicação usando o pacote NPM `delegua-node`.',
             declaracao.linha

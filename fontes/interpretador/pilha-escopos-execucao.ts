@@ -154,9 +154,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     );
                 }
 
-                const tipoInferido = variavel && variavel.hasOwnProperty('tipo') && variavel.tipo ? 
-                    variavel.tipo : 
-                    inferirTipoVariavel(valor);
+                const tipoInferido =
+                    variavel && variavel.hasOwnProperty('tipo') && variavel.tipo
+                        ? variavel.tipo
+                        : inferirTipoVariavel(valor);
                 const tipo = tipoInferido.toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
@@ -164,8 +165,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 if (indice !== undefined && indice !== null) {
                     if (variavel.valor instanceof Array || variavel.valor instanceof Object) {
                         variavel.valor[indice] = valorResolvido;
-                    }
-                    else {
+                    } else {
                         throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor ou dicionário.');
                     }
                 } else {

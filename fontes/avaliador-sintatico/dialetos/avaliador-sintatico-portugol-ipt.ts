@@ -9,17 +9,7 @@ import {
     Literal,
     Variavel,
 } from '../../construtos';
-import {
-    Escreva,
-    Declaracao,
-    Se,
-    Enquanto,
-    Para,
-    Escolha,
-    Fazer,
-    EscrevaMesmaLinha,
-    Var
-} from '../../declaracoes';
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Var } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
@@ -57,8 +47,8 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
             if (expressao instanceof Variavel) {
                 return new Atribuir(this.hashArquivo, expressao, valor);
-            } 
-            
+            }
+
             if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
@@ -165,12 +155,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
             inicializacoes.push(
                 new Var(
-                    identificador, 
-                    new Literal(this.hashArquivo, Number(simboloInteiro.linha), 
-                    valorInicializacao, 
-                    'inteiro'
+                    identificador,
+                    new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao, 'inteiro')
                 )
-            ));
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializacoes;

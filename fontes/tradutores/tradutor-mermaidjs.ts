@@ -1,5 +1,35 @@
-import { AcessoIndiceVariavel, AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, Agrupamento, Atribuir, Binario, Chamada, DefinirValor, Dicionario, FuncaoConstruto, Leia, Literal, Unario, Variavel, Vetor } from '../construtos';
-import { Bloco, Const, Declaracao, Enquanto, Escolha, Escreva, Expressao, Fazer, Para, ParaCada, Se, Var } from '../declaracoes';
+import {
+    AcessoIndiceVariavel,
+    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
+    Agrupamento,
+    Atribuir,
+    Binario,
+    Chamada,
+    DefinirValor,
+    Dicionario,
+    FuncaoConstruto,
+    Leia,
+    Literal,
+    Unario,
+    Variavel,
+    Vetor,
+} from '../construtos';
+import {
+    Bloco,
+    Const,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    Expressao,
+    Fazer,
+    Para,
+    ParaCada,
+    Se,
+    Var,
+} from '../declaracoes';
 import { CaminhoEscolha, TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -32,15 +62,15 @@ class VerticeFluxograma {
 }
 
 /**
- * [MermaidJs](https://mermaid.js.org/) é uma especificação que nos permite 
+ * [MermaidJs](https://mermaid.js.org/) é uma especificação que nos permite
  * criar fluxogramas através de uma notação por texto.
- * 
+ *
  * Este tradutor converte estruturas da avaliação sintática em um fluxograma
  * compatível com o MermaidJs.
- * 
- * Diferentemente de outros tradutores, este não trabalha diretamente com `string`s. 
- * Construtos sim devolvem `string`s, mas declarações devolvem um vetor de 
- * `VerticeFluxograma`. 
+ *
+ * Diferentemente de outros tradutores, este não trabalha diretamente com `string`s.
+ * Construtos sim devolvem `string`s, mas declarações devolvem um vetor de
+ * `VerticeFluxograma`.
  * @see VerticeFluxograma
  */
 export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
@@ -49,7 +79,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     ultimaDicaVertice: string | undefined;
 
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
-        const textoIndice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice);
+        const textoIndice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
+            acessoIndiceVariavel.indice
+        );
         return `no índice ${textoIndice}`;
     }
 
@@ -84,12 +116,14 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             case tiposDeSimbolos.MENOR:
                 return `${operandoEsquerdo} for menor que ${operandoDireito}`;
         }
-        
-        return "";
+
+        return '';
     }
 
     traduzirConstrutoChamada(chamada: Chamada): string {
-        const textoEntidadeChamada = this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada);
+        const textoEntidadeChamada = this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
+            chamada.entidadeChamada
+        );
         let texto = `chamada a ${textoEntidadeChamada}`;
 
         if (chamada.argumentos.length > 0) {
@@ -132,10 +166,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoLeia(leia: Leia): string {
-        let texto = "leia da entrada";
+        let texto = 'leia da entrada';
         if (leia.argumentos && leia.argumentos.length > 0) {
             const textoArgumento = this.dicionarioConstrutos[leia.argumentos[0].constructor.name](leia.argumentos[0]);
-            texto += `, imprimindo antes: \\'${textoArgumento}\\'`
+            texto += `, imprimindo antes: \\'${textoArgumento}\\'`;
         }
 
         return texto;
@@ -154,7 +188,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoUnario(unario: Unario): string {
         const textoOperando = this.dicionarioConstrutos[unario.operando.constructor.name](unario.operando);
-        let textoOperador = "";
+        let textoOperador = '';
         switch (unario.operador.tipo) {
             case tiposDeSimbolos.INCREMENTAR:
                 textoOperador = `incrementar ${textoOperando} em 1`;
@@ -165,9 +199,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         }
 
         switch (unario.incidenciaOperador) {
-            case "ANTES":
+            case 'ANTES':
                 return `${textoOperador}, devolver valor de ${textoOperando}`;
-            case "DEPOIS":
+            case 'DEPOIS':
                 return `devolver valor de ${textoOperando}, ${textoOperador}`;
         }
     }
@@ -218,7 +252,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     traduzirDeclaracaoConst(declaracaoConst: Const): VerticeFluxograma[] {
         let texto = `Linha${declaracaoConst.linha}(variável: ${declaracaoConst.simbolo.lexema}`;
         texto += this.logicaComumTraducaoVarEConst(declaracaoConst, texto);
-        
+
         const aresta = new ArestaFluxograma(declaracaoConst, texto);
         const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
 
@@ -228,7 +262,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): VerticeFluxograma[] {
         let texto = `Linha${declaracaoEnquanto.linha}(enquanto `;
-        const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao);
+        const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](
+            declaracaoEnquanto.condicao
+        );
 
         texto += condicao + ')';
         const aresta = new ArestaFluxograma(declaracaoEnquanto, texto);
@@ -237,7 +273,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.anteriores.push(aresta);
 
         // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
+        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
+            declaracaoEnquanto.corpo.constructor.name
+        ](declaracaoEnquanto.corpo);
         vertices = vertices.concat(verticesCorpo);
 
         const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
@@ -248,14 +286,14 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     protected logicaComumCaminhoEscolha(
-        declaracaoEscolha: Escolha, 
-        caminhoEscolha: CaminhoEscolha, 
-        linha: number, 
-        textoIdentificadorOuLiteral: string, 
+        declaracaoEscolha: Escolha,
+        caminhoEscolha: CaminhoEscolha,
+        linha: number,
+        textoIdentificadorOuLiteral: string,
         caminhoPadrao: boolean
     ): {
-        caminho: ArestaFluxograma,
-        declaracoesCaminho: VerticeFluxograma[] 
+        caminho: ArestaFluxograma;
+        declaracoesCaminho: VerticeFluxograma[];
     } {
         let textoCaso: string = '';
         if (!caminhoPadrao) {
@@ -264,13 +302,13 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
                 const textoCondicao = this.dicionarioConstrutos[condicao.constructor.name](condicao);
                 textoCaso += `${textoCondicao} ou `;
             }
-    
+
             textoCaso = textoCaso.slice(0, -4);
             textoCaso += ':';
         } else {
             textoCaso = `caso ${textoIdentificadorOuLiteral} tenha qualquer outro valor:`;
         }
-        
+
         let textoCaminho = `Linha${linha}(${textoCaso})`;
 
         const arestaCondicaoCaminho = new ArestaFluxograma(declaracaoEscolha, textoCaminho);
@@ -278,7 +316,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         let verticesResolvidos: VerticeFluxograma[] = [];
 
         for (const declaracaoCaminho of caminhoEscolha.declaracoes) {
-            const verticesDeclaracoes: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoCaminho.constructor.name](declaracaoCaminho);
+            const verticesDeclaracoes: VerticeFluxograma[] =
+                this.dicionarioDeclaracoes[declaracaoCaminho.constructor.name](declaracaoCaminho);
             verticesResolvidos = verticesResolvidos.concat(verticesDeclaracoes);
             this.anteriores.pop();
             this.anteriores.push(verticesDeclaracoes[verticesDeclaracoes.length - 1].destino);
@@ -286,41 +325,47 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
         this.anteriores.pop();
 
-        return { 
-            caminho: arestaCondicaoCaminho, 
-            declaracoesCaminho: verticesResolvidos
+        return {
+            caminho: arestaCondicaoCaminho,
+            declaracoesCaminho: verticesResolvidos,
         };
     }
 
     traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): VerticeFluxograma[] {
         let texto = `Linha${declaracaoEscolha.linha}(escolha um caminho pelo valor de `;
-        const textoIdentificadorOuLiteral = this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](declaracaoEscolha.identificadorOuLiteral);
+        const textoIdentificadorOuLiteral = this.dicionarioConstrutos[
+            declaracaoEscolha.identificadorOuLiteral.constructor.name
+        ](declaracaoEscolha.identificadorOuLiteral);
         texto += textoIdentificadorOuLiteral + ')';
         const aresta = new ArestaFluxograma(declaracaoEscolha, texto);
         let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
 
         const arestasCaminho: {
-            caminho: ArestaFluxograma,
-            declaracoesCaminho: VerticeFluxograma[] 
+            caminho: ArestaFluxograma;
+            declaracoesCaminho: VerticeFluxograma[];
         }[] = [];
 
         for (const caminho of declaracaoEscolha.caminhos) {
-            arestasCaminho.push(this.logicaComumCaminhoEscolha(
-                declaracaoEscolha, 
-                caminho, 
-                caminho.condicoes[0].linha,
-                textoIdentificadorOuLiteral, 
-                false)
+            arestasCaminho.push(
+                this.logicaComumCaminhoEscolha(
+                    declaracaoEscolha,
+                    caminho,
+                    caminho.condicoes[0].linha,
+                    textoIdentificadorOuLiteral,
+                    false
+                )
             );
         }
 
         if (declaracaoEscolha.caminhoPadrao) {
-            arestasCaminho.push(this.logicaComumCaminhoEscolha(
-                declaracaoEscolha, 
-                declaracaoEscolha.caminhoPadrao, 
-                declaracaoEscolha.caminhoPadrao.declaracoes[0].linha - 1,
-                textoIdentificadorOuLiteral,
-                true)
+            arestasCaminho.push(
+                this.logicaComumCaminhoEscolha(
+                    declaracaoEscolha,
+                    declaracaoEscolha.caminhoPadrao,
+                    declaracaoEscolha.caminhoPadrao.declaracoes[0].linha - 1,
+                    textoIdentificadorOuLiteral,
+                    true
+                )
             );
         }
 
@@ -352,9 +397,11 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): VerticeFluxograma[] {
         let texto = `Linha${declaracaoExpressao.linha}(`;
-        const textoConstruto = this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+        const textoConstruto = this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](
+            declaracaoExpressao.expressao
+        );
         texto += textoConstruto + ')';
-        
+
         const aresta = new ArestaFluxograma(declaracaoExpressao, texto);
         const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
 
@@ -370,11 +417,15 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.anteriores.push(aresta);
 
         // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoFazerEnquanto.caminhoFazer.constructor.name](declaracaoFazerEnquanto.caminhoFazer);
+        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
+            declaracaoFazerEnquanto.caminhoFazer.constructor.name
+        ](declaracaoFazerEnquanto.caminhoFazer);
         vertices = vertices.concat(verticesCorpo);
 
         const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
-        const condicao: string = this.dicionarioConstrutos[declaracaoFazerEnquanto.condicaoEnquanto.constructor.name](declaracaoFazerEnquanto.condicaoEnquanto);
+        const condicao: string = this.dicionarioConstrutos[declaracaoFazerEnquanto.condicaoEnquanto.constructor.name](
+            declaracaoFazerEnquanto.condicaoEnquanto
+        );
         let textoEnquanto = `Linha${declaracaoFazerEnquanto.condicaoEnquanto.linha}(enquanto ${condicao})`;
 
         const arestaEnquanto = new ArestaFluxograma(declaracaoFazerEnquanto, textoEnquanto);
@@ -395,7 +446,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             for (const declaracaoInicializadora of declaracaoPara.inicializador as Declaracao[]) {
                 // Normalmente é `Var`.
                 const declaracaoVar = declaracaoInicializadora as Var;
-                const valorInicializacao = this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
+                const valorInicializacao = this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
                 texto += `uma variável ${declaracaoVar.simbolo.lexema} inicializada com ${valorInicializacao}, `;
             }
 
@@ -409,7 +462,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.anteriores.push(aresta);
 
         // Condição
-        const textoCondicao = this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao);
+        const textoCondicao = this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](
+            declaracaoPara.condicao
+        );
         const textoArestaCondicao = `Linha${declaracaoPara.linha}Condicao{se ${textoCondicao}}`;
         const arestaCondicao = new ArestaFluxograma(declaracaoPara, textoArestaCondicao);
         vertices = vertices.concat(this.logicaComumConexaoArestas(arestaCondicao));
@@ -418,13 +473,20 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.ultimaDicaVertice = 'Sim';
 
         // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](declaracaoPara.corpo);
+        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](
+            declaracaoPara.corpo
+        );
         vertices = vertices.concat(verticesCorpo);
 
         // Incremento
         const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
-        const textoIncremento = this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar);
-        const arestaIncremento = new ArestaFluxograma(declaracaoPara, `Linha${declaracaoPara.linha}Incremento(${textoIncremento})`);
+        const textoIncremento = this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](
+            declaracaoPara.incrementar
+        );
+        const arestaIncremento = new ArestaFluxograma(
+            declaracaoPara,
+            `Linha${declaracaoPara.linha}Incremento(${textoIncremento})`
+        );
         const verticeIncremento = new VerticeFluxograma(ultimaArestaCorpo, arestaIncremento);
         vertices.push(verticeIncremento);
 
@@ -440,7 +502,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): VerticeFluxograma[] {
         let texto = `Linha${declaracaoParaCada.linha}(para cada ${declaracaoParaCada.nomeVariavelIteracao} em `;
-        const textoVariavelIterada = this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor);
+        const textoVariavelIterada = this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
+            declaracaoParaCada.vetor
+        );
         texto += textoVariavelIterada + ')';
         const aresta = new ArestaFluxograma(declaracaoParaCada, texto);
         let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
@@ -448,7 +512,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.anteriores.push(aresta);
 
         // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
+        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
+            declaracaoParaCada.corpo.constructor.name
+        ](declaracaoParaCada.corpo);
         vertices = vertices.concat(verticesCorpo);
 
         const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
@@ -470,7 +536,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.ultimaDicaVertice = 'Sim';
 
         // Caminho então, normalmente um `Bloco`.
-        const verticesEntao: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+        const verticesEntao: VerticeFluxograma[] = this.dicionarioDeclaracoes[
+            declaracaoSe.caminhoEntao.constructor.name
+        ](declaracaoSe.caminhoEntao);
         vertices = vertices.concat(verticesEntao);
 
         const ultimaArestaEntao = verticesEntao[verticesEntao.length - 1].destino;
@@ -481,8 +549,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             vertices.push(new VerticeFluxograma(aresta, arestaSenao, 'Não'));
             this.anteriores.push(arestaSenao);
 
-            const verticesSenao: VerticeFluxograma[] = this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](declaracaoSe.caminhoSenao);
-            vertices = vertices.concat(verticesSenao); 
+            const verticesSenao: VerticeFluxograma[] = this.dicionarioDeclaracoes[
+                declaracaoSe.caminhoSenao.constructor.name
+            ](declaracaoSe.caminhoSenao);
+            vertices = vertices.concat(verticesSenao);
         }
 
         this.anteriores.push(ultimaArestaEntao);
@@ -501,7 +571,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     traduzirDeclaracaoVar(declaracaoVar: Var): VerticeFluxograma[] {
         let texto = `Linha${declaracaoVar.linha}(variável: ${declaracaoVar.simbolo.lexema}`;
         texto += this.logicaComumTraducaoVarEConst(declaracaoVar, texto);
-        
+
         const aresta = new ArestaFluxograma(declaracaoVar, texto);
         const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
 
@@ -527,7 +597,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
-        Vetor: this.traduzirConstrutoVetor.bind(this)
+        Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes = {
@@ -541,7 +611,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
-        Var: this.traduzirDeclaracaoVar.bind(this)
+        Var: this.traduzirDeclaracaoVar.bind(this),
     };
 
     traduzir(declaracoes: Declaracao[]): string {
@@ -554,7 +624,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         }
 
         if (this.vertices.length === 0 && this.anteriores.length === 0) {
-            resultado += `    Vazio;\n`;            
+            resultado += `    Vazio;\n`;
         }
 
         if (this.vertices.length > 0) {

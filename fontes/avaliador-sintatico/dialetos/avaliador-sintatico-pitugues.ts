@@ -146,7 +146,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                 new Const(
                     identificador,
                     inicializadores[indice],
-                    tipo as TipoDadosElementar,
+                    tipo as TipoDadosElementar
                     // TODO: Discutir decoradores com comunidade.
                     // Array.from(this.pilhaDecoradores)
                 )
@@ -322,7 +322,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             case tiposDeSimbolos.FALSO:
             case tiposDeSimbolos.VERDADEIRO:
                 const simboloLogico = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, simboloAtual.linha, simboloLogico.tipo === tiposDeSimbolos.VERDADEIRO, 'lógico');
+                return new Literal(
+                    this.hashArquivo,
+                    simboloAtual.linha,
+                    simboloLogico.tipo === tiposDeSimbolos.VERDADEIRO,
+                    'lógico'
+                );
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
@@ -335,12 +340,17 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             case tiposDeSimbolos.ISTO:
                 const simboloIsto = this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, simboloAtual.linha, simboloIsto);
-            case tiposDeSimbolos.NUMERO: 
+            case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloLiteral.literal);
                 const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(tipoInferido as TipoInferencia);
-                return new Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal, tipoDadosElementar);
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloLiteral.linha),
+                    simboloLiteral.literal,
+                    tipoDadosElementar
+                );
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador = this.avancarEDevolverAnterior();
                 return new Variavel(this.hashArquivo, simboloIdentificador);
@@ -574,12 +584,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
             if (expressao instanceof Variavel) {
                 return new Atribuir(this.hashArquivo, expressao, valor);
-            } 
-            
+            }
+
             if (expressao instanceof AcessoMetodoOuPropriedade) {
                 return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
-            } 
-            
+            }
+
             if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }

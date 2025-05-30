@@ -101,7 +101,7 @@ export class AvaliadorSintatico
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [key: string]: { [key: string]: string } };
     // TODO: Transformar em dicionário (delegua-node).
-    primitivasConhecidas: {[key: string]: string };
+    primitivasConhecidas: { [key: string]: string };
 
     hashArquivo: number;
     atual: number;

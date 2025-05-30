@@ -5,12 +5,12 @@ export default {
         tipoRetorno: 'texto[]',
         implementacao: (interpretador: InterpretadorInterface, valor: Object): Promise<any> => {
             return Promise.resolve(Object.keys(valor));
-        }
+        },
     },
     valores: {
         tipoRetorno: 'qualquer[]',
         implementacao: (interpretador: InterpretadorInterface, valor: Object): Promise<any> => {
             return Promise.resolve(Object.values(valor));
-        }
+        },
     },
-} as {[key: string]: PrimitivaInterface };
+} as { [key: string]: PrimitivaInterface };
