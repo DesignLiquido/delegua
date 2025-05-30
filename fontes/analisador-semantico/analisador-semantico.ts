@@ -118,7 +118,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo texto. Atual: ${literal.tipo}.`
                     );
                 }
-                if (['inteiro', 'número', 'real'].includes(declaracao.tipo) && !['inteiro', 'número', 'real'].includes(literal.tipo)) {
+                if (
+                    ['inteiro', 'número', 'real'].includes(declaracao.tipo) &&
+                    !['inteiro', 'número', 'real'].includes(literal.tipo)
+                ) {
                     this.erro(
                         declaracao.simbolo,
                         `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo número. Atual: ${literal.tipo}.`
@@ -155,7 +158,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 const valorVariavel = valor as Variavel;
                 return this.verificarVariavel(valorVariavel);
         }
-        
+
         return Promise.resolve();
     }
 
@@ -178,8 +181,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     comparacaoArgumentosContraParametrosFuncao(
-        simboloFuncao: SimboloInterface, 
-        parametros: ParametroInterface[], 
+        simboloFuncao: SimboloInterface,
+        parametros: ParametroInterface[],
         argumentos: Construto[]
     ) {
         if (parametros.length !== argumentos.length) {
@@ -217,7 +220,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
         argumentos: Construto[]
     ) {
-        const variavelCorrespondente: FuncaoConstruto = this.variaveis[argumentoReferenciaFuncao.simboloFuncao.lexema].valor;
+        const variavelCorrespondente: FuncaoConstruto =
+            this.variaveis[argumentoReferenciaFuncao.simboloFuncao.lexema].valor;
         if (!variavelCorrespondente) {
             return;
         }
@@ -229,10 +233,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarChamadaPorReferenciaFuncao(
-        referenciaFuncao: ReferenciaFuncao,
-        argumentos: Construto[]
-    ) {
+    visitarChamadaPorReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: Construto[]) {
         const funcaoCorrespondente: FuncaoHipoteticaInterface = this.funcoes[referenciaFuncao.simboloFuncao.lexema];
         if (!funcaoCorrespondente) {
             return;
@@ -257,18 +258,17 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         const funcao = funcaoChamada.valor as FuncaoConstruto;
-        this.comparacaoArgumentosContraParametrosFuncao(
-            entidadeChamadaVariavel.simbolo,
-            funcao.parametros,
-            argumentos
-        );
+        this.comparacaoArgumentosContraParametrosFuncao(entidadeChamadaVariavel.simbolo, funcao.parametros, argumentos);
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
         switch (expressao.entidadeChamada.constructor.name) {
             case 'ArgumentoReferenciaFuncao':
                 const entidadeChamadaArgumentoReferenciaFuncao = expressao.entidadeChamada as ArgumentoReferenciaFuncao;
-                this.visitarChamadaPorArgumentoReferenciaFuncao(entidadeChamadaArgumentoReferenciaFuncao, expressao.argumentos);
+                this.visitarChamadaPorArgumentoReferenciaFuncao(
+                    entidadeChamadaArgumentoReferenciaFuncao,
+                    expressao.argumentos
+                );
                 break;
             case 'ReferenciaFuncao':
                 const entidadeChamadaReferenciaFuncao = expressao.entidadeChamada as ReferenciaFuncao;
@@ -298,10 +298,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         let valor = this.variaveis[simboloAlvo.lexema];
         if (!valor) {
-            this.erro(
-                simboloAlvo,
-                `Variável ${simboloAlvo.lexema} ainda não foi declarada até este ponto.`
-            );
+            this.erro(simboloAlvo, `Variável ${simboloAlvo.lexema} ainda não foi declarada até este ponto.`);
             return Promise.resolve();
         }
 
@@ -481,7 +478,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             case 'Variavel':
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
                 if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
-                    this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`);
+                    this.erro(
+                        entidadeChamadaVariavel.simbolo,
+                        `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`
+                    );
                 }
                 break;
         }
@@ -568,10 +568,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     break;
             }
         }
-        
-        const valorInicializador = declaracao.inicializador && declaracao.inicializador.valor ? 
-            declaracao.inicializador.valor : 
-            declaracao.inicializador;
+
+        const valorInicializador =
+            declaracao.inicializador && declaracao.inicializador.valor
+                ? declaracao.inicializador.valor
+                : declaracao.inicializador;
 
         this.variaveis[declaracao.simbolo.lexema] = {
             imutavel: false,

@@ -32,7 +32,12 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
     direita: Construto;
     tipo: string = 'qualquer';
 
-    constructor(hashArquivo: number, esquerda: Construto, operador: SimboloInterface<TTipoSimbolo>, direita: Construto) {
+    constructor(
+        hashArquivo: number,
+        esquerda: Construto,
+        operador: SimboloInterface<TTipoSimbolo>,
+        direita: Construto
+    ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
 
@@ -55,7 +60,7 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
             return 'inteiro';
         }
 
-        if (['numero', 'número'].includes(this.esquerda.tipo)  || ['numero', 'número'].includes(this.direita.tipo)) {
+        if (['numero', 'número'].includes(this.esquerda.tipo) || ['numero', 'número'].includes(this.direita.tipo)) {
             return 'número';
         }
 

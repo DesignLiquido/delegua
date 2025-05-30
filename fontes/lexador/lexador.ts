@@ -476,7 +476,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         if (codigo.length === 0) {
             this.codigo = [''];
         }
-        
+
         this.hashArquivo = hashArquivo;
 
         for (let iterador = 0; iterador < this.codigo.length; iterador++) {

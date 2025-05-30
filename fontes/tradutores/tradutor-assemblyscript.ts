@@ -465,21 +465,20 @@ export class TradutorAssemblyScript {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        
+
         for (let condicao of caminho.condicoes) {
             resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
             resultado += ' '.repeat(this.indentacao);
         }
-        
 
-        
         for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
             switch (declaracao.constructor.name) {
                 case 'Retorna':
                     const declaracaoRetorna = declaracao as Retorna;
                     resultado +=
-                    'return ' + this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
+                        'return ' +
+                        this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
                     break;
                 default:
                     resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';

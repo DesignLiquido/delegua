@@ -1,5 +1,5 @@
-import { VisitanteComumInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { VisitanteComumInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class AcessoMetodo implements Construto {
     linha: number;

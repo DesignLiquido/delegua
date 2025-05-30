@@ -92,9 +92,7 @@ export class DeleguaFuncao extends Chamavel {
         return argumentosResolvidos;
     }
 
-    protected resolverAmbiente(
-        argumentos: Array<ArgumentoInterface>
-    ): EspacoVariaveis {
+    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoVariaveis {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros || [];
 
@@ -115,7 +113,7 @@ export class DeleguaFuncao extends Chamavel {
 
                 ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
 
-                // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_, 
+                // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_,
                 // copiamos seu valor para o escopo atual. Nem sempre podemos contar com a tipagem explícita aqui.
                 if (argumento.valor && ['funcao', 'função'].includes(argumento.valor.tipo)) {
                     parametro.referencia = true;
@@ -170,10 +168,7 @@ export class DeleguaFuncao extends Chamavel {
         for (let referencia of referencias) {
             let argumentoReferencia = ambiente.valores[referencia.parametro.nome.lexema];
 
-            pilha.definirVariavel(
-                referencia.parametro.nome.lexema,
-                argumentoReferencia.valor
-            );
+            pilha.definirVariavel(referencia.parametro.nome.lexema, argumentoReferencia.valor);
         }
 
         if (retornoBloco instanceof RetornoQuebra) {

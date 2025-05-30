@@ -2,24 +2,25 @@ import { InterpretadorInterface, VisitanteComumInterface } from '../interfaces';
 import { PrimitivaInterface } from '../interfaces/primitiva-interface';
 
 export default {
-    aparar: { 
-        tipoRetorno: 'texto',
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> => Promise.resolve(texto.trim())
-    },
-    apararFim: { 
+    aparar: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.trimEnd())
+            Promise.resolve(texto.trim()),
+    },
+    apararFim: {
+        tipoRetorno: 'texto',
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimEnd()),
     },
     apararInicio: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.trimStart())
+            Promise.resolve(texto.trimStart()),
     },
     concatenar: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, ...texto: string[]): Promise<string> =>
-            Promise.resolve(''.concat(...texto))
+            Promise.resolve(''.concat(...texto)),
     },
     dividir: {
         tipoRetorno: 'texto[]',
@@ -33,32 +34,36 @@ export default {
                 return Promise.resolve(texto.split(divisor, limite));
             }
             return Promise.resolve(texto.split(divisor));
-        }
+        },
     },
     fatiar: {
         tipoRetorno: 'texto',
-        implementacao: (interpretador: InterpretadorInterface, texto: string, inicio: number, fim: number): Promise<string> =>
-            Promise.resolve(texto.slice(inicio, fim))
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string,
+            inicio: number,
+            fim: number
+        ): Promise<string> => Promise.resolve(texto.slice(inicio, fim)),
     },
     inclui: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, texto: string, elemento: any): Promise<boolean> =>
-            Promise.resolve(texto.includes(elemento))
+            Promise.resolve(texto.includes(elemento)),
     },
     inverter: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), ''))
+            Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
     },
     maiusculo: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.toUpperCase())
+            Promise.resolve(texto.toUpperCase()),
     },
     minusculo: {
         tipoRetorno: 'texto',
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.toLowerCase())
+            Promise.resolve(texto.toLowerCase()),
     },
     substituir: {
         tipoRetorno: 'texto',
@@ -67,15 +72,20 @@ export default {
             texto: string,
             elemento: string,
             substituto: string
-        ): Promise<string> => Promise.resolve(texto.replace(elemento, substituto))
+        ): Promise<string> => Promise.resolve(texto.replace(elemento, substituto)),
     },
     subtexto: {
         tipoRetorno: 'texto',
-        implementacao: (interpretador: InterpretadorInterface, texto: string, inicio: number, fim: number): Promise<string> =>
-            Promise.resolve(texto.slice(inicio, fim))
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string,
+            inicio: number,
+            fim: number
+        ): Promise<string> => Promise.resolve(texto.slice(inicio, fim)),
     },
     tamanho: {
         tipoRetorno: 'número',
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> => Promise.resolve(texto.length)
-    }
-} as {[key: string]: PrimitivaInterface };
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
+            Promise.resolve(texto.length),
+    },
+} as { [key: string]: PrimitivaInterface };

@@ -31,7 +31,7 @@ export class Var extends Declaracao {
             this.tipo = inicializador?.tipo || tipo;
             this.tipoExplicito = false;
         }
-        
+
         this.referencia = false;
         this.desestruturacao = false;
     }

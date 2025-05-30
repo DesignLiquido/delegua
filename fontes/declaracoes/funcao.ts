@@ -4,7 +4,7 @@ import { Decorador, FuncaoConstruto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
 
 /**
- * Uma declaração de função. 
+ * Uma declaração de função.
  */
 export class FuncaoDeclaracao extends Declaracao {
     simbolo: SimboloInterface;

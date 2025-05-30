@@ -15,7 +15,12 @@ export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> imp
     simbolo: SimboloInterface<TTipoSimbolo>;
     tipo?: string;
 
-    constructor(hashArquivo: number, objeto: Construto, simbolo: SimboloInterface<TTipoSimbolo>, tipo: string = 'qualquer') {
+    constructor(
+        hashArquivo: number,
+        objeto: Construto,
+        simbolo: SimboloInterface<TTipoSimbolo>,
+        tipo: string = 'qualquer'
+    ) {
         this.linha = objeto.linha;
         this.hashArquivo = hashArquivo;
 

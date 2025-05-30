@@ -1,8 +1,8 @@
-import { SimboloInterface, VisitanteComumInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { Construto } from './construto';
 
 /**
- * Construto especial utilizado para especificar o tipo de 
+ * Construto especial utilizado para especificar o tipo de
  * estruturas reservadas da linguagem.
  */
 export class ComponenteLinguagem implements Construto {
@@ -18,6 +18,6 @@ export class ComponenteLinguagem implements Construto {
     }
 
     aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        throw new Error("Um componente de linguagem não tem método de visita.");
+        throw new Error('Um componente de linguagem não tem método de visita.');
     }
 }

@@ -108,12 +108,12 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             argumentosResolvidos.push(argumentoResolvido);
         }
 
-        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
         textoArgumentos = textoArgumentos.slice(0, -2);
 
         switch (nomeMetodo) {
             case 'adicionar':
-            case 'empilhar':        
+            case 'empilhar':
                 return `${objetoResolvido}.push(${textoArgumentos})`;
             case 'fatiar':
                 return `${objetoResolvido}.slice(${argumentos[0]}, ${argumentos[1]})`;
@@ -187,7 +187,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let resultado = '';
 
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
-            chamada.entidadeChamada, chamada.argumentos
+            chamada.entidadeChamada,
+            chamada.argumentos
         )}`;
 
         resultado += retorno;
@@ -224,7 +225,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
         for (let i = 0; i < dicionario.chaves.length; i++) {
             resultado += this.dicionarioConstrutos[dicionario.chaves[i].constructor.name](dicionario.chaves[i]);
-            resultado += ":"
+            resultado += ':';
             resultado += this.dicionarioConstrutos[dicionario.valores[i].constructor.name](dicionario.valores[i]) + ',';
         }
         resultado += '}';
@@ -235,19 +236,23 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') {
             const possuiInterpolacao = /\$\{(verdadeiro|falso|nulo)\}/.test(literal.valor);
-    
+
             const valor = literal.valor.replace(/\$\{(verdadeiro|falso|nulo)\}/g, (_, match) => {
                 switch (match) {
-                    case 'verdadeiro': return '${true}';
-                    case 'falso': return '${false}';
-                    case 'nulo': return '${null}';
-                    default: return match;
+                    case 'verdadeiro':
+                        return '${true}';
+                    case 'falso':
+                        return '${false}';
+                    case 'nulo':
+                        return '${null}';
+                    default:
+                        return match;
                 }
             });
 
             return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
         }
-        
+
         return literal.valor;
     }
 
@@ -259,21 +264,23 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             argumentosResolvidos.push(argumentoResolvido);
         }
 
-        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
         textoArgumentos = textoArgumentos.slice(0, -2);
 
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `String(${textoArgumentos})`;
             default:
-                const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(d => d.simbolo.lexema === variavel.simbolo.lexema);
-                
+                const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(
+                    (d) => d.simbolo.lexema === variavel.simbolo.lexema
+                );
+
                 if (buscaClasseCorrespondente.length === 0 && argumentosValidados.length === 0) {
                     return `${variavel.simbolo.lexema}`;
                 }
-                
+
                 if (buscaClasseCorrespondente.length > 0) {
-                    return `new ${variavel.simbolo.lexema}(${textoArgumentos})`;    
+                    return `new ${variavel.simbolo.lexema}(${textoArgumentos})`;
                 }
 
                 return `${variavel.simbolo.lexema}(${textoArgumentos})`;
@@ -354,7 +361,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        
+
         if (caminho.condicoes && caminho.condicoes.length > 0) {
             for (let condicao of caminho.condicoes) {
                 resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
@@ -364,7 +371,6 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             resultado += 'default:\n';
             resultado += ' '.repeat(this.indentacao);
         }
-        
 
         for (let declaracao of caminho.declaracoes) {
             resultado += ' '.repeat(this.indentacao + 4);
@@ -372,7 +378,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
                 case 'Retorna':
                     const declaracaoRetorna = declaracao as Retorna;
                     resultado +=
-                    'return ' + this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
+                        'return ' +
+                        this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
                     break;
                 default:
                     resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
@@ -382,7 +389,6 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
         resultado += ' '.repeat(this.indentacao + 4);
         resultado += 'break' + '\n';
-        
 
         this.indentacao -= 4;
         return resultado;
@@ -622,7 +628,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     // TODO: Talvez terminar (ou remover, sei lá).
     traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
-        return "";
+        return '';
     }
 
     traduzirAcessoMetodoVetor(objeto: Construto, nomeMetodo: string, argumentos: Construto[]): string {
@@ -637,7 +643,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         switch (nomeMetodo) {
             case 'adicionar':
             case 'empilhar':
-                let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+                let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
                 textoArgumentos = textoArgumentos.slice(0, -2);
                 return `${objetoResolvido}.push(${textoArgumentos})`;
             case 'fatiar':
@@ -675,12 +681,17 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             case 'Vetor':
                 return this.traduzirAcessoMetodoVetor(acessoMetodo.objeto, acessoMetodo.nomeMetodo, argumentos);
             default:
-                const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](acessoMetodo.objeto);
+                const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](
+                    acessoMetodo.objeto
+                );
                 return `${objetoResolvido}.${acessoMetodo.nomeMetodo}`;
         }
     }
 
-    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo: AcessoMetodoOuPropriedade, argumentos: Construto[]): string {
+    traduzirConstrutoAcessoMetodoOuPropriedade(
+        acessoMetodo: AcessoMetodoOuPropriedade,
+        argumentos: Construto[]
+    ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos)}`;
@@ -765,23 +776,20 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             argumentosResolvidos.push(argumentoResolvido);
         }
 
-        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
         textoArgumentos = textoArgumentos.slice(0, -2);
 
         return `${argumentoReferenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
     }
 
-    traduzirConstrutoReferenciaFuncao(
-        referenciaFuncao: ReferenciaFuncao,
-        argumentos: Construto[]
-    ): string {
+    traduzirConstrutoReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: Construto[]): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
             const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
             argumentosResolvidos.push(argumentoResolvido);
         }
 
-        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
         textoArgumentos = textoArgumentos.slice(0, -2);
 
         return `${referenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
@@ -790,7 +798,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
         let resultado = 'typeof ';
 
-        if (!tipoDe.valor) resultado += tipoDe.valor; // Qual o sentido disso?
+        if (!tipoDe.valor)
+            resultado += tipoDe.valor; // Qual o sentido disso?
         else if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
         else if (typeof tipoDe.valor === 'number') resultado += tipoDe.valor;
         else {
