@@ -727,13 +727,19 @@ describe('Interpretador', () => {
                 });
 
                 it('Operações lógicas - nulo e verdadeiro', async () => {
-                    const retornoLexador = lexador.mapear(['nulo == verdadeiro'], -1);
+                    const _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(['escreva(nulo == verdadeiro)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(retornoInterpretador.resultado[0]).toBe('falso');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('falso');
                 });
 
                 it('Operações lógicas - negação', async () => {
