@@ -1,7 +1,7 @@
 import { DeleguaModulo, FuncaoPadrao } from '../../../interpretador/estruturas';
 
 const carregarModulo = function (nomeModulo: string, caminhoModulo: string) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     let dadosDoModulo = require(caminhoModulo);
     let novoModulo = new DeleguaModulo(nomeModulo);
 

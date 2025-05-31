@@ -27,7 +27,7 @@ export async function aleatorioEntre(
     minimo: VariavelInterface | number,
     maximo: VariavelInterface | number
 ): Promise<number> {
-    // eslint-disable-next-line prefer-rest-params
+     
     if (arguments.length <= 0) {
         return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.'));
     }
