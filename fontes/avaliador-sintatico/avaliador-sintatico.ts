@@ -137,6 +137,8 @@ export class AvaliadorSintatico
         }
 
         this.primitivasConhecidas['inteiro'] = 'inteiro';
+        this.primitivasConhecidas['numero'] = 'número';
+        this.primitivasConhecidas['número'] = 'número';
         this.primitivasConhecidas['texto'] = 'texto';
 
         this.pilhaEscopos = new PilhaEscopos();
@@ -287,6 +289,24 @@ export class AvaliadorSintatico
                 const tipoVetor = inferirTipoVariavel(valores);
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores, valores.length, tipoVetor);
 
+            case tiposDeSimbolos.EXPRESSAO_REGULAR:
+                let valor: string = '';
+                let linhaAtual = this.simbolos[this.atual].linha;
+                let eParExpressaoRegular =
+                    this.simbolos.filter((l) => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
+                        .length %
+                        2 ===
+                    0;
+                if (eParExpressaoRegular) {
+                    this.avancarEDevolverAnterior();
+                    while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
+                        valor += this.simbolos[this.atual].lexema || '';
+                        this.avancarEDevolverAnterior();
+                    }
+                    this.avancarEDevolverAnterior();
+                    return new ExpressaoRegular(this.hashArquivo, simboloAtual, valor);
+                }
+
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
@@ -338,6 +358,7 @@ export class AvaliadorSintatico
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), null, 'nulo');
 
             case tiposDeSimbolos.NUMERO:
+            case tiposDeSimbolos.NÚMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
@@ -505,24 +526,6 @@ export class AvaliadorSintatico
                 }
 
                 return new TipoDe(this.hashArquivo, simboloAtual, construto);
-
-            case tiposDeSimbolos.EXPRESSAO_REGULAR:
-                let valor: string = '';
-                let linhaAtual = this.simbolos[this.atual].linha;
-                let eParExpressaoRegular =
-                    this.simbolos.filter((l) => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
-                        .length %
-                        2 ===
-                    0;
-                if (eParExpressaoRegular) {
-                    this.avancarEDevolverAnterior();
-                    while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.EXPRESSAO_REGULAR)) {
-                        valor += this.simbolos[this.atual].lexema || '';
-                        this.avancarEDevolverAnterior();
-                    }
-                    this.avancarEDevolverAnterior();
-                    return new ExpressaoRegular(this.hashArquivo, simboloAtual, valor);
-                }
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -2068,6 +2071,8 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirTipoVariavel('filtrarPor', 'qualquer[]');
         this.pilhaEscopos.definirTipoVariavel('inteiro', 'inteiro');
         this.pilhaEscopos.definirTipoVariavel('mapear', 'qualquer[]');
+        this.pilhaEscopos.definirTipoVariavel('numero', 'número');
+        this.pilhaEscopos.definirTipoVariavel('número', 'número');
         this.pilhaEscopos.definirTipoVariavel('paraCada', 'qualquer[]');
         this.pilhaEscopos.definirTipoVariavel('primeiroEmCondicao', 'qualquer');
         this.pilhaEscopos.definirTipoVariavel('real', 'número');
