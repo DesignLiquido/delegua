@@ -31,5 +31,17 @@ describe('Avaliador sintático (Pituguês)', () => {
 
             expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
         });
+
+        it('Sucesso - Olá Mundo (Imprima)', () => {
+            const retornoLexador = lexador.mapear(
+                ["imprima('Olá mundo')"],
+                -1
+            );
+            const retornoAvaliadorSintatico =
+                avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
     });
 });

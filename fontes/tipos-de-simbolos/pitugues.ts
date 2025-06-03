@@ -27,6 +27,7 @@ export default {
     FALHAR: 'FALHAR',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
+    IMPRIMA: 'IMPRIMA',
     FALSO: 'FALSO',
     FAZER: 'FAZER',
     FINALMENTE: 'FINALMENTE',

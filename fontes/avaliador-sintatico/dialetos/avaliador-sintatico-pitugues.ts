@@ -921,6 +921,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             case tiposDeSimbolos.ESCOLHA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscolha();
+            case tiposDeSimbolos.IMPRIMA:
             case tiposDeSimbolos.ESCREVA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
