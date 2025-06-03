@@ -1,4 +1,4 @@
-import { MicroLexador } from './../fontes/lexador/micro-lexador';
+import { MicroLexador } from '../../fontes/lexador/micro-lexador';
 
 describe('Lexador', () => {
     describe('mapear()', () => {

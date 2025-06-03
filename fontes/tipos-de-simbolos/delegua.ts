@@ -63,6 +63,7 @@ export default {
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',
     NUMERO: 'NUMERO',
+    NÚMERO: 'NÚMERO',
     OU: 'OU',
     PADRAO: 'PADRAO',
     PADRÃO: 'PADRÃO',

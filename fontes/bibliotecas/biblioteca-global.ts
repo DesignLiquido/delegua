@@ -27,7 +27,7 @@ export async function aleatorioEntre(
     minimo: VariavelInterface | number,
     maximo: VariavelInterface | number
 ): Promise<number> {
-    // eslint-disable-next-line prefer-rest-params
+     
     if (arguments.length <= 0) {
         return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.'));
     }
@@ -360,18 +360,8 @@ export async function incluido(
     return false;
 }
 
-/**
- *
- * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param numero
- * @returns
- */
-export async function inteiro(interpretador: InterpretadorInterface, numero: VariavelInterface | any) {
-    if (numero === null || numero === undefined) return Promise.resolve(0);
-
-    const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
-
-    if (isNaN(valor)) {
+function validacaoComumNumeros(valorParaConverter: any): Promise<never> | null {
+    if (isNaN(valorParaConverter)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 this.simbolo,
@@ -380,7 +370,7 @@ export async function inteiro(interpretador: InterpretadorInterface, numero: Var
         );
     }
 
-    if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
+    if (!/^(-)?\d+(\.\d+)?$/.test(valorParaConverter)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 this.simbolo,
@@ -389,7 +379,22 @@ export async function inteiro(interpretador: InterpretadorInterface, numero: Var
         );
     }
 
-    return Promise.resolve(parseInt(valor));
+    return null;
+}
+
+/**
+ * Converte um valor em um número inteiro.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
+ * @returns {Promise<any>} Uma Promise com o resultado da conversão.
+ */
+export async function inteiro(interpretador: InterpretadorInterface, valorParaConverter: VariavelInterface | any): Promise<any> {
+    if (valorParaConverter === null || valorParaConverter === undefined) return Promise.resolve(0);
+
+    const valor = valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter;
+    const resultadoValidacao = validacaoComumNumeros(valor);
+
+    return resultadoValidacao || Promise.resolve(parseInt(valor));
 }
 
 /**
@@ -440,6 +445,21 @@ export async function mapear(
     }
 
     return resultados;
+}
+
+/**
+ * Converte um valor em um número, com parte decimal ou não.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
+ * @returns {Promise<any>} Uma Promise com o resultado da conversão.
+ */
+export async function numero(interpretador: InterpretadorInterface, valorParaConverter: VariavelInterface | any): Promise<any> {
+    if (valorParaConverter === null || valorParaConverter === undefined) return Promise.resolve(0);
+
+    const valor = valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter;
+    const resultadoValidacao = validacaoComumNumeros(valor);
+
+    return resultadoValidacao || Promise.resolve(Number(valor));
 }
 
 /**

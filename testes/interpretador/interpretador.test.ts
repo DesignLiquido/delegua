@@ -453,6 +453,70 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Conversões entre tipos', () => {
+                it('Texto para inteiro', async () => {
+                    let _saida: string = '';
+                    // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                    const respostas = ['5', '8'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = inteiro(leia("Digite a: "))',
+                            'var b = inteiro(leia("Digite b: "))',
+                            'var prod = a * b',
+                            'escreva("PROD = ${prod}")'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('PROD = 40');
+                });
+
+                it('Texto para número', async () => {
+                    let _saida: string = '';
+                    // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                    const respostas = ['5', '8'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = numero(leia("Digite a: "))',
+                            'var b = numero(leia("Digite b: "))',
+                            'var media = (a * 3.5 + b * 7.5) / 11',
+                            'escreva("MEDIA = ${media}")'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('MEDIA = 7.045454545454546');
+                });
+            });
+
             describe('Descrever objetos - paraTexto()', () => {
                 it('Descrever função com parametros e tipos - DeleguaFuncao', async () => {
                     let _saida: string = '';
@@ -727,13 +791,19 @@ describe('Interpretador', () => {
                 });
 
                 it('Operações lógicas - nulo e verdadeiro', async () => {
-                    const retornoLexador = lexador.mapear(['nulo == verdadeiro'], -1);
+                    const _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(['escreva(nulo == verdadeiro)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(retornoInterpretador.resultado[0]).toBe('falso');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('falso');
                 });
 
                 it('Operações lógicas - negação', async () => {
@@ -842,7 +912,7 @@ describe('Interpretador', () => {
             });
 
             describe('Operações matemáticas', () => {
-                it('Operações matemáticas - Trivial', async () => {
+                it('Trivial', async () => {
                     const retornoLexador = lexador.mapear(['escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -855,7 +925,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Operações matemáticas - Subtração', async () => {
+                it('Subtração unária', async () => {
                     const retornoLexador = lexador.mapear(['-1'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -864,7 +934,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Operações matemáticas - Subtração de número e texto', async () => {
+                it('Subtração de número e texto', async () => {
                     const codigo = ["var a = 1 - '2'"];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -876,7 +946,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operadores precisam ser números.');
                 });
 
-                it('Operações matemáticas - Divisão de inteiro', async () => {
+                it('Divisão de inteiro', async () => {
                     const codigo = ['var a = 10 \\ 2', 'escreva(a)'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -978,7 +1048,7 @@ describe('Interpretador', () => {
             });
 
             describe('Condicionais', () => {
-                it('Condicionais - condição verdadeira', async () => {
+                it('condição verdadeira', async () => {
                     const retornoLexador = lexador.mapear(
                         ["se (1 < 2) { escreva('Um menor que dois') } senão { escreva('Nunca será executado') }"],
                         -1
@@ -994,7 +1064,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Condicionais - condição falsa', async () => {
+                it('condição falsa', async () => {
                     const retornoLexador = lexador.mapear(
                         ["se (1 > 2) { escreva('Nunca acontece') } senão { escreva('Um não é maior que dois') }"],
                         -1
@@ -1010,7 +1080,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Condicionais - condição menor igual', async () => {
+                it('condição menor igual', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             "se (1 <= 2) { escreva('Um é menor e igual a dois') } senão { escreva('Nunca será executado') }",
@@ -1028,7 +1098,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Condicionais - condição maior igual', async () => {
+                it('condição maior igual', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             "se (2 >= 1) { escreva('Dois é maior ou igual a um') } senão { escreva('Nunca será executado') }",
@@ -1046,7 +1116,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Condicionais - condição diferente', async () => {
+                it('condição diferente', async () => {
                     const retornoLexador = lexador.mapear(
                         ["se (2 != 1) { escreva('Dois é diferente de um') } senão { escreva('Nunca será executado') }"],
                         -1
@@ -1722,7 +1792,7 @@ describe('Interpretador', () => {
                 });
             });
 
-            describe('Métodos de primitivas com dependência no Interpretador', () => {
+            describe('Métodos de primitivas com dependência no interpretador', () => {
                 describe('Dicionários', () => {
                     it('chaves() e valores()', async () => {
                         const retornoLexador = lexador.mapear(
