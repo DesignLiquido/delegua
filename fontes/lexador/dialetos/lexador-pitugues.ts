@@ -1,12 +1,13 @@
 import hrtime from 'browser-process-hrtime';
 
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
-import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 import { Simbolo } from '../simbolo';
-import { palavrasReservadas } from '../palavras-reservadas';
+import { palavrasReservadas } from './palavras-reservadas/pitugues';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { Pragma } from './pragma';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.

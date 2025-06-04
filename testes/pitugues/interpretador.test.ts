@@ -104,6 +104,26 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('imprima()', () => {
+                it('Olá Mundo (imprima() e literal)', async () => {
+                    const retornoLexador = lexador.mapear(["imprima('Olá mundo')"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('nulo', async () => {
+                    const retornoLexador = lexador.mapear(["imprima(nulo)"], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            });
+
             describe('Operações matemáticas', () => {
                 it('Operações matemáticas - Trivial', async () => {
                     const retornoLexador = lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
