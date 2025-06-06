@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2023 Design Líquido por Leonel Sanches da Silva
+ * Copyright (c) 2023-2025 Design Líquido por Leonel Sanches da Silva
  *
  * Permissão concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia
  * deste software e arquivos de documentação associados (o "Software"), para lidar
@@ -54,19 +54,19 @@ ExpressaoRegularLiteral:           '/' ExpressaoRegularPrimeiroChar ExpressaoReg
 
 AbreColchete:                      '[';
 FechaColchete:                     ']';
-AbreParen:                         '(';
-FechaParen:                        ')';
+AbreParentese:                     '(';
+FechaParentese:                    ')';
 AbreChave:                         '{' {this.ProcessoAbreChave();};
 TemplateFechaChave:                {this.EstaEmTemplateTexto()}? '}' -> popMode;
 FechaChave:                        '}' {this.ProcessoFechaChave();};
 PontoEVirgula:                     ';';
-Comma:                             ',';
+Virgula:                           ',';
 Atribuicao:                        '=';
-QuestionMark:                      '?';
-QuestionMarkDot:                   '?.';
-Colon:                             ':';
+Interrogacao:                      '?';
+InterrogacaoPonto:                 '?.';
+DoisPontos:                        ':';
 TresPontos:                        '...';
-Dot:                               '.';
+Ponto:                             '.';
 MaisMais:                          '++';
 MenosMenos:                        '--';
 Mais:                              '+';
@@ -87,7 +87,7 @@ MaiorQue:                          '>';
 MenosQueIgual:                     '<=';
 MaiorQueIgual:                     '>=';
 Igual_:                            '==';
-NotIgual:                          '!=';
+NaoIgual:                          '!=';
 IdentityIgual:                     '===';
 IdentityNotIgual:                  '!==';
 BitAnd:                            '&';
@@ -111,12 +111,12 @@ ARROW:                             '=>';
 
 /// Nulo Literals
 
-LiteralNulo:                       'null';
+LiteralNulo:                       'nulo';
 
 /// Logico Literals
 
-LiteralLogico:                     'true'
-             |                     'false';
+LiteralLogico:                     'verdadeiro'
+             |                     'falso';
 
 /// Numeric Literals
 
@@ -139,48 +139,44 @@ BigDecimalInteiroLiteral:       DecimalInteiroLiteral 'n';
 
 /// Keywords
 
-Sustar:                          'break';
-Do:                              'do';
+Sustar:                          'sustar';
+Do:                              'faca' | 'faça';
 InstanciaDe:                     'instanceof';
 TipoDe:                          'typeof';
-Caso:                            'case';
-Senao:                           'else';
-Novo:                            'new';
+Caso:                            'caso';
+Senao:                           'senao' | 'senão';
+Novo:                            'novo';
 Var:                             'var';
-Pegue:                           'catch';
-Finalmente:                      'finally';
-Retorna:                         'return';
-Vazio:                           'void';
-Continua:                        'continue';
-Para:                            'for';
-Escolha:                         'switch';
-Enquanto:                        'while';
+Pegue:                           'pegue';
+Finalmente:                      'finalmente';
+Retorna:                         'retorna' | 'retorne';
+Vazio:                           'vazio';
+Continue:                        'continue';
+Para:                            'para';
+Escolha:                         'escolha';
+Enquanto:                        'enquanto';
 Debugger:                        'debugger';
-Funcao_:                         'function';
-Isto:                            'this';
-Com:                             'with';
-Padrao:                          'default';
-Se:                              'if';
-Falhar:                          'throw';
-Excluir:                         'delete';
-Em:                              'in';
-Tente:                           'try';
-Como:                            'as';
-De:                              'from';
+Funcao_:                         'funcao' | 'função';
+Isto:                            'isto';
+Com:                             'com';
+Padrao:                          'padrao' | 'padrão';
+Se:                              'se';
+Falhar:                          'falhar';
+Excluir:                         'excluir';
+Em:                              'em';
+Tente:                           'tente';
+Como:                            'como';
+De:                              'de';
 
 /// Future Reserved Words
 
-Classe:                         'class';
+Classe:                         'classe';
 Enum:                           'enum';
-Extende:                        'extends';
+Extende:                        'estende';
 Super:                          'super';
 Const:                          'const';
-Exportar:                       'export';
-Importar:                       'import';
-
-Assincrono:                     'async';
-Aguardar:                       'await';
-Acumular:                       'yield';
+Exportar:                       'exportar';
+Importar:                       'importar';
 
 /// The following tokens are also considered to be FutureReservedWords
 /// when parsing strict mode

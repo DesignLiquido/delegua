@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2023 Design Líquido por Leonel Sanches da Silva
+ * Copyright (c) 2023-2025 Design Líquido por Leonel Sanches da Silva
  *
  * Permissão concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia
  * deste software e arquivos de documentação associados (o "Software"), para lidar
@@ -70,7 +70,7 @@ comando
     | expressaoComando
     | comandoSe
     | comandoIteracao
-    | comandoContinua
+    | comandoContinue
     | comandoSustar
     | comandoRetorna
 //    | comandoAcumular
@@ -175,8 +175,8 @@ varModificador  // let, const - ECMAScript 6
     | Const
     ;
 
-comandoContinua
-    : Continua ({this.notLinhaTerminador()}? identificador)? fimDoComando
+comandoContinue
+    : Continue ({this.notLinhaTerminador()}? identificador)? fimDoComando
     ;
 
 comandoSustar
@@ -186,14 +186,6 @@ comandoSustar
 comandoRetorna
     : Retorna ({this.notLinhaTerminador()}? expressaoSequencia)? fimDoComando
     ;
-
-/* comandoAcumular
-    : Acumular ({this.notLinhaTerminador()}? expressaoSequencia)? fimDoComando
-    ; */
-
-/* comandoCom
-    : Com '(' expressaoSequencia ')' comando
-    ; */
 
 comandoEscolha
     : Escolha '(' expressaoSequencia ')' blocoDeCaso
@@ -235,10 +227,6 @@ blocoFinalmente
     : Finalmente bloco
     ;
 
-/* comandoDebugger
-    : Debugger fimDoComando
-    ; */
-
 declaracaoFuncao
     : Assincrono? Funcao_ '*'? identificador '(' listaFormalParametros? ')' corpoFuncao
     ;
@@ -272,7 +260,7 @@ parametroArgumentoFormal
     : designavel ('=' expressaoUnica)?      // ECMAScript 6: Emitialization
     ;
 
-ultimoArgumentoParametroFormal                        // ECMAScript 6: Rest Parameter
+ultimoArgumentoParametroFormal              // ECMAScript 6: Rest Parameter
     : TresPontos expressaoUnica
     ;
 
@@ -322,34 +310,34 @@ expressaoSequencia
 
 expressaoUnica
     : funcaoAnonima                                                     # FunctionExpressao
-    | Classe identificador? fimDaClasse                                           # ClasseExpressao
+    | Classe identificador? fimDaClasse                                 # ClasseExpressao
     | expressaoUnica '?.' expressaoUnica                                # OptionalChainExpressao
-    | expressaoUnica '?.'? '[' expressaoSequencia ']'                     # MemberEmdexExpressao
-    | expressaoUnica '?'? '.' '#'? identificadorNome                         # MemberDotExpressao
+    | expressaoUnica '?.'? '[' expressaoSequencia ']'                   # MemberEmdexExpressao
+    | expressaoUnica '?'? '.' '#'? identificadorNome                    # MemberDotExpressao
     // Split to try `new Date()` first, then `new Date`.
-    | Novo expressaoUnica argumentos                                        # NovoExpressao
-    | Novo expressaoUnica                                                  # NovoExpressao
-    | expressaoUnica argumentos                                            # ArgumentsExpressao
-    | Novo '.' identificador                                                    # MetaExpressao // new.target
-    | expressaoUnica {this.notLinhaTerminador()}? '++'                     # PostEmcrementExpressao
-    | expressaoUnica {this.notLinhaTerminador()}? '--'                     # PostDecreaseExpressao
-    | Excluir expressaoUnica                                               # ExcluirExpressao
-    | Vazio expressaoUnica                                                 # VazioExpressao
-    | TipoDe expressaoUnica                                               # TipoDeExpressao
-    | '++' expressaoUnica                                                 # PreEmcrementExpressao
-    | '--' expressaoUnica                                                 # PreDecreaseExpressao
-    | '+' expressaoUnica                                                  # UnaryMaisExpressao
-    | '-' expressaoUnica                                                  # UnaryMenosExpressao
-    | '~' expressaoUnica                                                  # BitNotExpressao
-    | '!' expressaoUnica                                                  # NotExpressao
-    | Aguardar expressaoUnica                                                # AguardarExpressao
+    | Novo expressaoUnica argumentos                                    # NovoExpressao
+    | Novo expressaoUnica                                               # NovoExpressao
+    | expressaoUnica argumentos                                         # ArgumentsExpressao
+    | Novo '.' identificador                                            # MetaExpressao // new.target
+    | expressaoUnica {this.notLinhaTerminador()}? '++'                  # PostEmcrementExpressao
+    | expressaoUnica {this.notLinhaTerminador()}? '--'                  # PostDecreaseExpressao
+    | Excluir expressaoUnica                                            # ExcluirExpressao
+    | Vazio expressaoUnica                                              # VazioExpressao
+    | TipoDe expressaoUnica                                             # TipoDeExpressao
+    | '++' expressaoUnica                                               # PreEmcrementExpressao
+    | '--' expressaoUnica                                               # PreDecreaseExpressao
+    | '+' expressaoUnica                                                # UnaryMaisExpressao
+    | '-' expressaoUnica                                                # UnaryMenosExpressao
+    | '~' expressaoUnica                                                # BitNotExpressao
+    | '!' expressaoUnica                                                # NotExpressao
+    | Aguardar expressaoUnica                                           # AguardarExpressao
     | <assoc=right> expressaoUnica '**' expressaoUnica                  # PotenciaExpressao
     | expressaoUnica ('*' | '/' | '%') expressaoUnica                   # MultiplicativeExpressao
     | expressaoUnica ('+' | '-') expressaoUnica                         # AdditiveExpressao
     | expressaoUnica '??' expressaoUnica                                # CoalesceExpressao
     | expressaoUnica ('<<' | '>>' | '>>>') expressaoUnica               # BitShiftExpressao
     | expressaoUnica ('<' | '>' | '<=' | '>=') expressaoUnica           # RelationalExpressao
-    | expressaoUnica InstanciaDe expressaoUnica                          # InstanciaDeExpressao
+    | expressaoUnica InstanciaDe expressaoUnica                         # InstanciaDeExpressao
     | expressaoUnica Em expressaoUnica                                  # EmExpressao
     | expressaoUnica ('==' | '!=' | '===' | '!==') expressaoUnica       # EqualityExpressao
     | expressaoUnica '&' expressaoUnica                                 # BitAndExpressao
@@ -357,19 +345,18 @@ expressaoUnica
     | expressaoUnica '|' expressaoUnica                                 # BitOrExpressao
     | expressaoUnica '&&' expressaoUnica                                # LogicalAndExpressao
     | expressaoUnica '||' expressaoUnica                                # LogicalOrExpressao
-    | expressaoUnica '?' expressaoUnica ':' expressaoUnica            # TernaryExpressao
+    | expressaoUnica '?' expressaoUnica ':' expressaoUnica              # TernaryExpressao
     | <assoc=right> expressaoUnica '=' expressaoUnica                   # AtribuicaoExpressao
     | <assoc=right> expressaoUnica operadorAtribuicao expressaoUnica    # AtribuicaoOperadorExpressao
-    | Importar '(' expressaoUnica ')'                                       # ImportarExpressao
-    | expressaoUnica templateLiteralTexto                                # TemplateStringExpressao  // ECMAScript 6
-//    | comandoAcumular                                                        # AcumularExpressao // ECMAScript 6
-    | Isto                                                                  # IstoExpressao
-    | identificador                                                            # IdentificadorExpressao
-    | Super                                                                 # SuperExpressao
-    | literal                                                               # LiteralExpressao
-    | vetorLiteral                                                          # ArrayLiteralExpressao
-    | objetoLiteral                                                         # ObjectLiteralExpressao
-    | '(' expressaoSequencia ')'                                            # ParenthesizedExpressao
+    | Importar '(' expressaoUnica ')'                                   # ImportarExpressao
+    | expressaoUnica templateLiteralTexto                               # TemplateStringExpressao  // ECMAScript 6
+    | Isto                                                              # IstoExpressao
+    | identificador                                                     # IdentificadorExpressao
+    | Super                                                             # SuperExpressao
+    | literal                                                           # LiteralExpressao
+    | vetorLiteral                                                      # ArrayLiteralExpressao
+    | objetoLiteral                                                     # ObjectLiteralExpressao
+    | '(' expressaoSequencia ')'                                        # ParenthesizedExpressao
     ;
 
 designavel
@@ -385,7 +372,7 @@ objetoLiteral
 funcaoAnonima
     : declaracaoFuncao                                                       # FunctionDecl
     | Assincrono? Funcao_ '*'? '(' listaFormalParametros? ')' corpoFuncao    # AnonymousFunctionDecl
-    | Assincrono? arrowFunctionParameters '=>' arrowFunctionCorpo                     # ArrowFunction
+    | Assincrono? arrowFunctionParameters '=>' arrowFunctionCorpo            # ArrowFunction
     ;
 
 arrowFunctionParameters
@@ -486,7 +473,7 @@ palavraChave
     | Finalmente
     | Retorna
     | Vazio
-    | Continua
+    | Continue
     | Para
     | Escolha
     | Enquanto
