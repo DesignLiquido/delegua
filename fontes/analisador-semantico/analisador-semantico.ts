@@ -362,19 +362,39 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
-        const identificadorOuLiteral = declaracao.identificadorOuLiteral as any;
-        const valor = this.variaveis[identificadorOuLiteral.simbolo?.lexema]?.valor;
-        const tipo = typeof valor;
+        const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
+        const tipo = identificadorOuLiteral.tipo;
+
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
-                // TODO: Reimplementar considerando que `condicao` é um construto.
-                /* if (valor instanceof Leia && typeof condicao?.valor !== 'string') {
-                    this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
-                    continue;
+                switch (condicao.constructor.name) {
+                    case 'Literal':
+                        const condicaoLiteral = condicao as Literal;
+
+                        if (condicaoLiteral.tipo !== tipo) {
+                            this.erro(
+                                {
+                                    lexema: condicaoLiteral.valor,
+                                    tipo: condicaoLiteral.tipo,
+                                    linha: condicaoLiteral.linha,
+                                    hashArquivo: condicaoLiteral.hashArquivo,
+                                } as SimboloInterface,
+                                `'caso ${condicaoLiteral.valor}:' não é do mesmo tipo esperado em 'escolha' (esperado: ${tipo}, atual: ${condicaoLiteral.tipo}).`
+                            );
+                        }
+                        break;
+                    case 'Variavel':
+                        const condicaoVariavel = condicao as Variavel;
+                        this.verificarVariavel(condicaoVariavel);
+                        const variavelHipotetica = this.variaveis[condicaoVariavel.simbolo.lexema];
+                        if (variavelHipotetica && typeof variavelHipotetica.valor !== tipo) {
+                            this.erro(
+                                condicaoVariavel.simbolo,
+                                `'caso ${condicaoVariavel.simbolo.lexema}:' não é do mesmo tipo esperado em 'escolha'`
+                            );
+                        }
+                        break;
                 }
-                if (!(valor instanceof Leia) && typeof condicao?.valor !== tipo) {
-                    this.erro(condicao, `'caso ${condicao.valor}:' não é do mesmo tipo esperado em 'escolha'`);
-                } */
             }
         }
 
