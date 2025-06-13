@@ -1,6 +1,7 @@
 import { FuncaoDeclaracao } from '../declaracoes';
 import { PilhaInterface, VariavelInterface } from '../interfaces';
 import { InformacaoEscopo } from './informacao-escopo';
+import { InformacaoVariavelOuConstante } from './informacao-variavel-ou-constante';
 
 export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     pilha: InformacaoEscopo[];
@@ -31,16 +32,16 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
         for (let i = 1; i <= this.pilha.length; i++) {
             const informacaoEscopo = this.pilha[this.pilha.length - i];
             if (informacaoEscopo.variaveisEConstantes[nome] !== undefined) {
-                return informacaoEscopo.variaveisEConstantes[nome];
+                return informacaoEscopo.variaveisEConstantes[nome].tipo;
             }
         }
 
         throw new Error("Variável não definida: '" + nome + "'.");
     }
 
-    definirTipoVariavel(nomeVariavel: string, tipo: string) {
+    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoVariavelOuConstante) {
         const topoDaPilha = this.topoDaPilha();
-        topoDaPilha.variaveisEConstantes[nomeVariavel] = tipo;
+        topoDaPilha.variaveisEConstantes[nomeVariavel] = informacoes;
     }
 
     registrarReferenciaFuncao(nome: string, definicao: FuncaoDeclaracao) {

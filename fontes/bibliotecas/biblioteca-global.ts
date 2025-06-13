@@ -194,13 +194,13 @@ export async function encontrarIndice(
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
  * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
- * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
+ * @returns {Promise<any>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
  */
 export async function encontrarUltimo(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
-): Promise<number> {
+): Promise<any> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
     const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
@@ -623,18 +623,18 @@ export async function real(interpretador: InterpretadorInterface, numero: Variav
  * @param interpretador
  * @param vetor
  * @param funcaoReducao
- * @param padrao
+ * @param valorInicial
  * @returns
  */
 export async function reduzir(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoReducao: VariavelInterface | any,
-    padrao: VariavelInterface | any = null
+    valorInicial: VariavelInterface | any = null
 ) {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
     const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor') ? funcaoReducao.valor : funcaoReducao;
-    const valorPadrao = padrao.hasOwnProperty('valor') ? padrao.valor : padrao;
+    const valorPadrao = valorInicial.hasOwnProperty('valor') ? valorInicial.valor : valorInicial;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
@@ -714,14 +714,14 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
 /**
  * Transforma o valor ou variável em texto.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} valorOuVariavel O valor ou variável.
+ * @param {VariavelInterface | any} valorParaConverter O valor ou variável.
  * @returns {Promise<string>} O valor resolvido em texto.
  */
 export async function texto(
     interpretador: InterpretadorInterface,
-    valorOuVariavel: VariavelInterface | any
+    valorParaConverter: VariavelInterface | any
 ): Promise<string> {
-    return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
+    return Promise.resolve(`${valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter}`);
 }
 
 /**
