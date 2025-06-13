@@ -67,6 +67,7 @@ import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../in
 import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -75,7 +76,6 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import { InformacaoVariavelOuConstante } from './informacao-variavel-ou-constante';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -101,8 +101,7 @@ export class AvaliadorSintatico
     tiposDefinidosEmCodigo: { [key: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [key: string]: { [key: string]: string } };
-    // TODO: Transformar em dicionário (delegua-node).
-    primitivasConhecidas: { [key: string]: string };
+    primitivasConhecidas: { [key: string]: InformacaoVariavelOuConstante };
 
     hashArquivo: number;
     atual: number;
@@ -122,25 +121,25 @@ export class AvaliadorSintatico
         this.primitivasConhecidas = {};
 
         for (const nomePrimitivaDicionario of Object.keys(primitivasDicionario)) {
-            this.primitivasConhecidas[nomePrimitivaDicionario] = 'dicionário';
+            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(nomePrimitivaDicionario, 'dicionário');
         }
 
         for (const nomePrimitivaNumero of Object.keys(primitivasNumero)) {
-            this.primitivasConhecidas[nomePrimitivaNumero] = 'número';
+            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoVariavelOuConstante(nomePrimitivaNumero, 'número');
         }
 
         for (const nomePrimitivaTexto of Object.keys(primitivasTexto)) {
-            this.primitivasConhecidas[nomePrimitivaTexto] = 'texto';
+            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoVariavelOuConstante(nomePrimitivaTexto, 'texto');
         }
 
         for (const nomePrimitivaVetor of Object.keys(primitivasVetor)) {
-            this.primitivasConhecidas[nomePrimitivaVetor] = 'vetor';
+            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoVariavelOuConstante(nomePrimitivaVetor, 'vetor');
         }
 
-        this.primitivasConhecidas['inteiro'] = 'inteiro';
-        this.primitivasConhecidas['numero'] = 'número';
-        this.primitivasConhecidas['número'] = 'número';
-        this.primitivasConhecidas['texto'] = 'texto';
+        this.primitivasConhecidas['inteiro'] = new InformacaoVariavelOuConstante('inteiro', 'inteiro');
+        this.primitivasConhecidas['numero'] = new InformacaoVariavelOuConstante('numero', 'número');
+        this.primitivasConhecidas['número'] = new InformacaoVariavelOuConstante('número', 'número');
+        this.primitivasConhecidas['texto'] = new InformacaoVariavelOuConstante('texto', 'texto');
 
         this.pilhaEscopos = new PilhaEscopos();
     }
@@ -678,6 +677,7 @@ export class AvaliadorSintatico
             const possivelReferencia = this.pilhaEscopos.obterReferenciaFuncao(
                 entidadeChamadaResolvidaVariavel.simbolo.lexema
             );
+
             if (possivelReferencia !== null) {
                 return new ReferenciaFuncao(
                     entidadeChamada.hashArquivo,

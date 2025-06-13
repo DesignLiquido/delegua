@@ -1,7 +1,7 @@
 import { FuncaoDeclaracao } from '../declaracoes';
 import { PilhaInterface, VariavelInterface } from '../interfaces';
 import { InformacaoEscopo } from './informacao-escopo';
-import { InformacaoVariavelOuConstante } from './informacao-variavel-ou-constante';
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
 export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     pilha: InformacaoEscopo[];

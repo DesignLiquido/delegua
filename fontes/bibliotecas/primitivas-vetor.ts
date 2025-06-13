@@ -1,9 +1,13 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
 export default {
     adicionar: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('elemento', 'qualquer')
+        ],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
@@ -11,6 +15,9 @@ export default {
     },
     concatenar: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('outroVetor', 'qualquer[]')
+        ],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -21,6 +28,9 @@ export default {
     },
     empilhar: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('elemento', 'qualquer')
+        ],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
@@ -28,27 +38,36 @@ export default {
     },
     encaixar: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('inicio', 'qualquer'),
+            new InformacaoVariavelOuConstante('excluirQuantidade', 'número'),
+            new InformacaoVariavelOuConstante('itens', 'qualquer[]')
+        ],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
             inicio: number,
             excluirQuantidade?: number,
-            ...items: any[]
+            ...itens: any[]
         ): Promise<any> => {
             let elementos = [];
 
             if (excluirQuantidade || excluirQuantidade === 0) {
-                elementos = !items.length
+                elementos = !itens.length
                     ? vetor.splice(inicio, excluirQuantidade)
-                    : vetor.splice(inicio, excluirQuantidade, ...items);
+                    : vetor.splice(inicio, excluirQuantidade, ...itens);
             } else {
-                elementos = !items.length ? vetor.splice(inicio) : vetor.splice(inicio, ...items);
+                elementos = !itens.length ? vetor.splice(inicio) : vetor.splice(inicio, ...itens);
             }
             return Promise.resolve(elementos);
         },
     },
     fatiar: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('inicio', 'número'),
+            new InformacaoVariavelOuConstante('fim', 'número')
+        ],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -58,6 +77,9 @@ export default {
     },
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('funcao', 'função')
+        ],
         implementacao: async (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -79,21 +101,31 @@ export default {
     },
     inclui: {
         tipoRetorno: 'lógico',
+        argumentos: [
+            new InformacaoVariavelOuConstante('elemento', 'qualquer')
+        ],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> =>
             Promise.resolve(vetor.includes(elemento)),
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.reverse()),
     },
     juntar: {
         tipoRetorno: 'texto',
+        argumentos: [
+            new InformacaoVariavelOuConstante('separador', 'texto')
+        ],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, separador: string): Promise<any> =>
             Promise.resolve(vetor.join(separador)),
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('funcao', 'função')
+        ],
         implementacao: async (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -114,6 +146,9 @@ export default {
     },
     ordenar: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('funcaoOrdenacao', 'função')
+        ],
         implementacao: async (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -142,6 +177,9 @@ export default {
     },
     remover: {
         tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoVariavelOuConstante('elemento', 'qualquer')
+        ],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
             const index = vetor.indexOf(elemento);
             if (index !== -1) vetor.splice(index, 1);
@@ -150,6 +188,7 @@ export default {
     },
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
+        argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
@@ -157,6 +196,7 @@ export default {
     },
     removerUltimo: {
         tipoRetorno: 'qualquer',
+        argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
@@ -164,6 +204,7 @@ export default {
     },
     somar: {
         tipoRetorno: 'qualquer',
+        argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<number | { valor: number }>
@@ -175,6 +216,7 @@ export default {
     },
     tamanho: {
         tipoRetorno: 'número',
+        argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.length),
     },
