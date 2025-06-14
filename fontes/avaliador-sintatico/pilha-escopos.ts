@@ -28,6 +28,10 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
         return this.pilha.pop();
     }
 
+    obterBibliotecaGlobal(nome: string) {
+        return this.pilha[0].variaveisEConstantes[nome];
+    }
+
     obterTipoVariavelPorNome(nome: string): string {
         for (let i = 1; i <= this.pilha.length; i++) {
             const informacaoEscopo = this.pilha[this.pilha.length - i];

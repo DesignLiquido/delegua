@@ -959,8 +959,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
             });
 
-            // TODO: Checar tipo em função.
-            it.skip('filtrarPor - Função de mapeamento inválida', async () => {
+            it('filtrarPor - Função de mapeamento inválida', async () => {
                 const codigo = [
                     "var f = 'Sou uma função'",
                     "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
@@ -972,8 +971,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
             });
 
-            // TODO: Checar tipo em função.
-            it.skip('todosEmCondicao - Função de mapeamento inválida', async () => {
+            it('todosEmCondicao - Função de mapeamento inválida', async () => {
                 const codigo = [
                     "var f = 'Sou uma função'",
                     "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"

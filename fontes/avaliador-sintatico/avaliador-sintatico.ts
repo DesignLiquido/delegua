@@ -120,22 +120,39 @@ export class AvaliadorSintatico
         this.tiposDeFerramentasExternas = {};
         this.primitivasConhecidas = {};
 
-        for (const nomePrimitivaDicionario of Object.keys(primitivasDicionario)) {
-            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(nomePrimitivaDicionario, 'dicionário');
+        for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(primitivasDicionario)) {
+            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
+                nomePrimitivaDicionario, 
+                'dicionário',
+                dadosPrimitiva.argumentos
+            );
         }
 
-        for (const nomePrimitivaNumero of Object.keys(primitivasNumero)) {
-            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoVariavelOuConstante(nomePrimitivaNumero, 'número');
+        for (const [nomePrimitivaNumero, dadosPrimitiva] of Object.entries(primitivasNumero)) {
+            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoVariavelOuConstante(
+                nomePrimitivaNumero, 
+                'número',
+                dadosPrimitiva.argumentos
+            );
         }
 
-        for (const nomePrimitivaTexto of Object.keys(primitivasTexto)) {
-            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoVariavelOuConstante(nomePrimitivaTexto, 'texto');
+        for (const [nomePrimitivaTexto, dadosPrimitiva] of Object.entries(primitivasTexto)) {
+            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoVariavelOuConstante(
+                nomePrimitivaTexto, 
+                'texto',
+                dadosPrimitiva.argumentos
+            );
         }
 
-        for (const nomePrimitivaVetor of Object.keys(primitivasVetor)) {
-            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoVariavelOuConstante(nomePrimitivaVetor, 'vetor');
+        for (const [nomePrimitivaVetor, dadosPrimitiva] of Object.entries(primitivasVetor)) {
+            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoVariavelOuConstante(
+                nomePrimitivaVetor, 
+                'vetor',
+                dadosPrimitiva.argumentos
+            );
         }
 
+        // TODO: Por enquanto não há necessidade de validar argumentos aqui, mas isso pode mudar no futuro.
         this.primitivasConhecidas['inteiro'] = new InformacaoVariavelOuConstante('inteiro', 'inteiro');
         this.primitivasConhecidas['numero'] = new InformacaoVariavelOuConstante('numero', 'número');
         this.primitivasConhecidas['número'] = new InformacaoVariavelOuConstante('número', 'número');
@@ -537,13 +554,16 @@ export class AvaliadorSintatico
         let expressao = this.primario();
 
         while (true) {
+            let tipoPrimitiva: string = undefined;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
+                expressao = this.finalizarChamada(expressao, tipoPrimitiva);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome de método ou propriedade após '.'."
                 );
+
+                tipoPrimitiva = expressao.tipo;
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
@@ -662,11 +682,75 @@ export class AvaliadorSintatico
         return entidadeChamadaResolvida;
     }
 
-    protected resolverEntidadeChamada(entidadeChamada: Construto): Construto {
+    protected validarArgumentosEntidadeChamada(
+        argumentosEntidadeChamada: InformacaoVariavelOuConstante[], 
+        argumentosUtilizados: Construto[]
+    ): string[] {
+        if (argumentosEntidadeChamada.length === 0) {
+            return [];
+        }
+
+        const possiveisErros = [];
+        for (const [indice, argumentoEntidadeChamada] of argumentosEntidadeChamada.entries()) {
+            const argumentoEntidadeChamadaVetor = argumentoEntidadeChamada.tipo.endsWith('[]');
+            const argumentoUtilizado = argumentosUtilizados[indice];
+            const argumentoUtilizadoVetor = argumentoUtilizado.tipo.endsWith('[]');
+
+            if (argumentoEntidadeChamadaVetor !== argumentoUtilizadoVetor) {
+                possiveisErros.push(`Argumento: ${argumentoEntidadeChamada.nome}. Tipo esperado: ${argumentoEntidadeChamada.tipo}; Tipo utilizado: ${argumentoUtilizado.tipo}`);
+                continue;
+            }
+
+            const argumentoEntidadeChamadaQualquer = argumentoEntidadeChamada.tipo.startsWith('qualquer');
+            if (argumentoEntidadeChamadaQualquer) {
+                continue;
+            }
+
+            if (argumentoUtilizado.tipo !== argumentoEntidadeChamada.tipo) {
+                possiveisErros.push(`Argumento: ${argumentoEntidadeChamada.nome}. Tipo esperado: ${argumentoEntidadeChamada.tipo}; Tipo utilizado: ${argumentoUtilizado.tipo}`);
+            }
+        }
+        
+        return possiveisErros;
+    }
+
+    /**
+     * Diversas verificações de resolução de entidade chamada, como resolver chamada da pilha ou usar referência, argumentos, etc.
+     * @param entidadeChamada O construto da entidade chamada.
+     * @param argumentos Os argumentos utilizados na chamada.
+     * @param tipoPrimitiva Se for uma primitiva, o tipo dela. Senão, `undefined`.
+     * @returns A entidade chamada resolvida, se as validações passarem.
+     */
+    protected resolverEntidadeChamada(entidadeChamada: Construto, argumentos: Construto[], tipoPrimitiva: string | undefined = undefined): Construto {
         if (entidadeChamada.constructor.name === 'Variavel') {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
-            if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
+            if (tipoPrimitiva === undefined) {
+                // Provavelmente uma chamada a alguma função da biblioteca global.
+                const informacoesPossivelFuncaoBibliotecaGlobal = this.pilhaEscopos.obterBibliotecaGlobal(entidadeChamadaResolvidaVariavel.simbolo.lexema);
+                if (informacoesPossivelFuncaoBibliotecaGlobal !== undefined) {
+                    const erros = this.validarArgumentosEntidadeChamada(informacoesPossivelFuncaoBibliotecaGlobal.argumentos, argumentos);
+                    if (erros.length > 0) {
+                        throw new ErroAvaliadorSintatico(
+                            entidadeChamadaResolvidaVariavel.simbolo, 
+                            `Erros ao resolver argumentos de chamada a ${entidadeChamadaResolvidaVariavel.simbolo.lexema}: \n${erros.reduce((mensagem, erro) => mensagem += `${erro}\n`, '')}`
+                        );
+                    }
+
+                    return entidadeChamadaResolvidaVariavel;
+                }
+            }
+
+            if (tipoPrimitiva !== undefined && this.primitivasConhecidas.hasOwnProperty(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
+                var informacoesPrimitiva = this.primitivasConhecidas[entidadeChamadaResolvidaVariavel.simbolo.lexema];
+                const erros = this.validarArgumentosEntidadeChamada(informacoesPrimitiva.argumentos, argumentos);
+                if (erros.length > 0) {
+                    throw new ErroAvaliadorSintatico(
+                        entidadeChamadaResolvidaVariavel.simbolo, 
+                        `Erros ao resolver argumentos de chamada a ${entidadeChamadaResolvidaVariavel.simbolo.lexema}: \n${erros.reduce((mensagem, erro) => mensagem += `${erro}\n`, '')}`
+                    );
+                }
+
                 return entidadeChamadaResolvidaVariavel;
             }
 
@@ -702,7 +786,7 @@ export class AvaliadorSintatico
         return entidadeChamada;
     }
 
-    override finalizarChamada(entidadeChamada: Construto): Chamada {
+    override finalizarChamada(entidadeChamada: Construto, tipoPrimitiva: string | undefined = undefined): Chamada {
         const argumentos: Array<Construto> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -718,7 +802,7 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
 
         // Toda chamada precisa saber de antemão qual o tipo resolvido.
-        const entidadeChamadaResolvida = this.resolverEntidadeChamada(entidadeChamada);
+        const entidadeChamadaResolvida = this.resolverEntidadeChamada(entidadeChamada, argumentos, tipoPrimitiva);
 
         // TODO: Criar forma de validar tipos dos argumentos da entidade chamada.
         const construtoChamada = new Chamada(this.hashArquivo, entidadeChamadaResolvida, argumentos);
@@ -2099,6 +2183,10 @@ export class AvaliadorSintatico
         }
     }
 
+    /**
+     * Inicializa o primeiro nível da pilha de escopos, normalmente com ítens da biblioteca global.
+     * TODO: Esta abordagem deve ser depreciada, em favor do novo suporte a referências de funções.
+     */
     protected inicializarPilhaEscopos() {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
