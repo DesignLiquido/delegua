@@ -527,11 +527,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         const variaveis = declaracao.argumentos.filter((arg) => arg instanceof Variavel);
 
         for (let variavel of variaveis as Variavel[]) {
-            if (!this.variaveis[variavel.simbolo.lexema]) {
-                this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não existe.`);
+            // TODO: Funções também são consideradas "variáveis" até aqui, mas isso deve mudar futuramente.
+            const possivelVariavel = this.variaveis[variavel.simbolo.lexema];
+            const possivelFuncao = this.funcoes[variavel.simbolo.lexema];
+
+            if (!possivelVariavel && !possivelFuncao) {
+                this.erro(variavel.simbolo, `Variável ou função '${variavel.simbolo.lexema}' não existe.`);
+                continue;
             }
 
-            if (this.variaveis[variavel.simbolo.lexema]?.valor === undefined) {
+            if (possivelVariavel && possivelVariavel.valor === undefined) {
                 this.aviso(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' não foi inicializada.`);
             }
         }

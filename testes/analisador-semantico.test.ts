@@ -91,6 +91,18 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+
+            it('Função sem corpo', () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao minhaFuncao() {}",
+                    "escreva(minhaFuncao)"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);  
+            })
         });
 
         describe('Cenários de falha', () => {
