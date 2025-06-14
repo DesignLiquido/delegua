@@ -418,9 +418,10 @@ export async function mapear(
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-
     const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor') ? funcaoMapeamento.valor : funcaoMapeamento;
 
+    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
+    // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -522,6 +523,9 @@ export async function paraCada(
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
     const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+
+    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
+    // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -781,11 +785,13 @@ export async function todosEmCondicao(
  * largura do vetor.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | any[]} vetor O vetor.
- * @returns
+ * @returns A tupla resolvida.
  */
 export async function tupla(interpretador: InterpretadorInterface, vetor: VariavelInterface | any[]): Promise<Tupla> {
     const valorVetor: any[] = !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
+    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
+    // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(this.simbolo, 'Argumento de função nativa `tupla` não parece ser um vetor.')

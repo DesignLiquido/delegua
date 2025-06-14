@@ -692,8 +692,12 @@ export class AvaliadorSintatico
 
         const possiveisErros = [];
         for (const [indice, argumentoEntidadeChamada] of argumentosEntidadeChamada.entries()) {
-            const argumentoEntidadeChamadaVetor = argumentoEntidadeChamada.tipo.endsWith('[]');
             const argumentoUtilizado = argumentosUtilizados[indice];
+            if (argumentoUtilizado.tipo === null || argumentoUtilizado.tipo === undefined) {
+                continue;
+            }
+
+            const argumentoEntidadeChamadaVetor = argumentoEntidadeChamada.tipo.endsWith('[]');
             const argumentoUtilizadoVetor = argumentoUtilizado.tipo.endsWith('[]');
 
             if (argumentoEntidadeChamadaVetor !== argumentoUtilizadoVetor) {
