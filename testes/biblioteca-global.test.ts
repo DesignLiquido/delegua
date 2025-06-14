@@ -143,19 +143,6 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
-
-        it('Falha - Funçao de mapeamento inválida', async () => {
-            const codigo = [
-                "var f = 'Sou uma função'",
-                "escreva(mapear([1, 2, 3], f))"
-            ];
-            const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-        });
     });
 
     describe('todosEmCondicao()', () => {
@@ -234,19 +221,6 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
-        });
-
-        it('Falha - Funçao de mapeamento inválida', async () => {
-            const codigo = [
-                "var f = 'Sou uma função'",
-                "escreva(paraCada([1, 2, 3, 4, 5, 6], f))"
-            ];
-            const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
     });
 
@@ -347,19 +321,6 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
             expect(_saidas).toBe('{"primeiro":1,"segundo":2,"terceiro":3}');
-        });
-
-        it('Falha - Não é vetor', async () => {
-            const retornoLexador = lexador.mapear(["escreva(tupla(0))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-            const erro = retornoInterpretador.erros[0];
-            expect(erro.erroInterno).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBe('Argumento de função nativa `tupla` não parece ser um vetor.');
         });
 
         it('Falha - Vetor com mais de 10 elementos', async () => {

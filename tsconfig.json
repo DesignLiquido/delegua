@@ -16,6 +16,7 @@
         "coverage",
         "docs",
         "dist/**/*",
+        "eslint.config.mjs",
         "jest.config.ts",
         "node_modules",
         "rollup.config.ts",

@@ -184,7 +184,7 @@ describe('Analisador semântico', () => {
             it('Função sem retorno de valor', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao executar(valor1, valor2): texto {",
-                    "   var resultado = valor1 + valor2",
+                    "    var resultado = valor1 + valor2",
                     "}",
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -194,8 +194,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
             });
 
-            // TODO: Reabilitar ao verificar `condicao` como um construto.
-            it.skip('Escolha com tipos diferentes em \'caso\'', () => {
+            it('Escolha com tipos diferentes em \'caso\'', () => {
                 const retornoLexador = lexador.mapear([
                     'funcao facaAlgumaCoisa() { escreva(123) }',
                     'var opcao = leia(\'Digite a opção desejada: \')',
@@ -213,11 +212,11 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\'');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: número).');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: número).');
             });
 
-            it('Leia só pode receber texto', () => {
+            it('Leia por padrão retorna texto', () => {
                 const retornoLexador = lexador.mapear([
                     'var opcao: inteiro = leia(\'Digite a opção desejada: \')',
                 ], -1);
