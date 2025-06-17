@@ -1,7 +1,8 @@
 import { FuncaoDeclaracao } from '../declaracoes';
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
 export class InformacaoEscopo {
-    variaveisEConstantes: { [nome: string]: string };
+    variaveisEConstantes: { [nome: string]: InformacaoVariavelOuConstante };
     referenciasFuncoes: { [nome: string]: FuncaoDeclaracao };
 
     constructor() {
