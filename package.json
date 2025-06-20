@@ -73,7 +73,7 @@
         "@types/estree": "^1.0.7",
         "@types/jest": "^29.5.14",
         "@types/lodash": "^4.17.16",
-        "@types/node": "^22.13.13",
+        "@types/node": "^24.0.3",
         "@typescript-eslint/eslint-plugin": "^8.28.0",
         "@typescript-eslint/parser": "^8.28.0",
         "antlr4": "^4.13.2",
