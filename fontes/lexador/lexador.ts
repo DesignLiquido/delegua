@@ -164,21 +164,43 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
     }
 
     analisarTexto(delimitador = '"'): void {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
+        let textoCompleto = '';
+
+        this.avancar();
+
+        while (!this.eFinalDoCodigo()) {
+            const caractere = this.simboloAtual();
+
+            if (caractere === delimitador) {
+                this.avancar();
+                this.adicionarSimbolo(tiposDeSimbolos.TEXTO, textoCompleto);
+                return;
+            }
+
+            if (caractere === '\0' && this.eUltimaLinha()) {
+                this.erros.push({
+                    linha: this.linha + 1,
+                    caractere: this.simboloAnterior(),
+                    mensagem: 'Texto não finalizado.',
+                } as ErroLexador);
+                return;
+            }
+
+            if (caractere === '\0') {
+                textoCompleto += '\n';
+                this.avancar();
+                continue;
+            }
+
+            textoCompleto += caractere;
             this.avancar();
         }
 
-        if (this.eFinalDoCodigo()) {
-            this.erros.push({
-                linha: this.linha + 1,
-                caractere: this.simboloAnterior(),
-                mensagem: 'Texto não finalizado.',
-            } as ErroLexador);
-            return;
-        }
-
-        const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
+        this.erros.push({
+            linha: this.linha + 1,
+            caractere: this.simboloAnterior(),
+            mensagem: 'Texto não finalizado.',
+        } as ErroLexador);
     }
 
     analisarNumero(): void {
@@ -439,15 +461,11 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '"':
-                this.avancar();
                 this.analisarTexto('"');
-                this.avancar();
                 break;
 
             case "'":
-                this.avancar();
                 this.analisarTexto("'");
-                this.avancar();
                 break;
 
             default:
