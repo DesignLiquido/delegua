@@ -199,6 +199,31 @@ describe('Lexador', () => {
 
                 expect(resultado).toBeTruthy();
             });
+
+            it('Sucesso - Suporte a strings multilinha', () => {
+                const resultado = lexador.mapear(
+                    [
+                        'escreva("a',
+                        'b")'
+                    ],
+                    -1
+                );
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(4);
+
+                expect(resultado.simbolos).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ tipo: tiposDeSimbolos.ESCREVA }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.PARENTESE_ESQUERDO }),
+                        expect.objectContaining({
+                            tipo: tiposDeSimbolos.TEXTO,
+                            literal: 'a\nb'
+                        }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.PARENTESE_DIREITO })
+                    ])
+                );
+            });
         });
 
         describe('Cenários de falha', () => {
