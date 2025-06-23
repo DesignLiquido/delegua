@@ -372,6 +372,9 @@ export class AvaliadorSintatico
                 this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, Number(simboloAtual.linha), simboloAtual);
 
+            case tiposDeSimbolos.LEIA:
+                return this.expressaoLeia();
+
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), null, 'nulo');
@@ -1046,7 +1049,7 @@ export class AvaliadorSintatico
      * @returns Um objeto da classe `Leia`.
      */
     override expressaoLeia(): Leia {
-        const simboloLeia = this.simbolos[this.atual];
+        const simboloLeia = this.avancarEDevolverAnterior();
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos argumentos em instrução `leia`.");
 
@@ -1063,8 +1066,8 @@ export class AvaliadorSintatico
         return new Leia(simboloLeia, argumentos);
     }
 
+    // TODO: Depreciar.
     override expressao(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.expressaoLeia();
         return this.atribuir();
     }
 
@@ -1679,6 +1682,19 @@ export class AvaliadorSintatico
                     case 'AcessoMetodo':
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
                         return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                    case 'AcessoMetodoOuPropriedade':
+                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer', 
+                        // e a chamada normalmente é feita para uma primitiva. 
+                        // A inferência, portanto, ocorre pelo uso da primitiva.
+                        const entidadeChamadaAcessoMetodoOuPropriedade = entidadeChamadaChamada as AcessoMetodoOuPropriedade;
+                        if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema)) {
+                            return this.primitivasConhecidas[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                        }
+
+                        throw new ErroAvaliadorSintatico(
+                            entidadeChamadaAcessoMetodoOuPropriedade.simbolo, 
+                            `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`
+                        );
                     case 'AcessoPropriedade':
                         const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
@@ -1709,6 +1725,9 @@ export class AvaliadorSintatico
             case 'Noneto':
             case 'Deceto':
                 return tipoDeDadosDelegua.TUPLA;
+            case "ImportarBiblioteca":
+            case "ModuloDeclaracoes":
+                return "módulo";
             default:
                 return inicializador.tipo;
         }

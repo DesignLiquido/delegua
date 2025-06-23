@@ -1718,6 +1718,34 @@ describe('Interpretador', () => {
             });
 
             describe('Entrada e saída', () => {
+                it('escreva e leia na mesma linha', async () => {
+                    let _saida: string = '';
+                    // Aqui vamos simular a resposta para uma variável de `leia()`.
+                    const respostas = ['5'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva("Você digitou " + leia("Digite alguma coisa: "))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe("Você digitou 5");
+                });
+
                 it('Enquanto (verdadeiro) e Sustar', async () => {
                     const saidasMensagens = ['opção invalida', 'opção invalida', 'resultado 4'];
                     // Aqui vamos simular a resposta para cinco variáveis de `leia()`.
