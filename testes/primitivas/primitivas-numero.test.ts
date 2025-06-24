@@ -24,4 +24,11 @@ describe('Primitivas de número', () => {
             expect(resultado).toStrictEqual(3);
         });
     });
+
+    describe('absoluto()', () => {
+        it('Trivial', async () => {
+            const resultado = await primitivasNumero.absoluto.implementacao(interpretador, -5);
+            expect(resultado).toStrictEqual(5);
+        });
+    });
 });

@@ -15,4 +15,11 @@ export default {
             return Promise.resolve(Math.ceil(valor));
         },
     },
+    absoluto: {
+        tipoRetorno: 'número',
+        argumentos: [],
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
+            return Promise.resolve(Math.abs(valor));
+        },
+    },
 } as { [key: string]: PrimitivaInterface };
