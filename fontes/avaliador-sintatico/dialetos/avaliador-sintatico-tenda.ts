@@ -1379,12 +1379,16 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     override declaracaoSe(): Se {
         const condicao = this.expressao();
 
+        this.consumir(tiposDeSimbolos.ENTÃO, "Esperado 'então' após a condição.");
+
         const caminhoEntao: Declaracao = this.resolverDeclaracao() as Declaracao;
 
         let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
+        if (this.verificarSeSimboloAtualEIgualA(/*tiposDeSimbolos.SENAO,*/ tiposDeSimbolos.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
         }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' para concluir condição Se.");
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }

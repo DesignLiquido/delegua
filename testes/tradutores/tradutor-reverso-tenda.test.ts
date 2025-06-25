@@ -20,7 +20,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/escreva\('Oi'\)/i);
+            expect(resultado).toMatch(/escreva\("Oi"\)/i);
         });
 
         it('leia -> leia', () => {
@@ -43,9 +43,29 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/var nome = \'Tenda\'/i);
+            expect(resultado).toMatch(/var nome = \"Tenda\"/i);
             expect(resultado).toMatch(/var idade = 10/i);
             expect(resultado).toMatch(/var lista = \[1, 2, 3, 4, 5\]/i);
+        });
+
+        it('se senão', () => {
+            const codigo = `seja idade = 18
+            se idade >= 18 então
+                exiba("Você é maior de idade.")
+            senão
+                exiba("Você é menor de idade.")
+            fim
+            `;
+
+            const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var idade = 18/i);
+            expect(resultado).toMatch(/se idade >= 18/i);
+            expect(resultado).toMatch(/escreva\(\"Você é maior de idade.\"\)/i);
+            expect(resultado).toMatch(/senão/i);
+            expect(resultado).toMatch(/escreva\(\"Você é menor de idade.\"\)/i);
         });
     });
 });

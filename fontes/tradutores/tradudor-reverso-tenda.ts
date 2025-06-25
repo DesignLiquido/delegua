@@ -164,16 +164,18 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoBinario(binario: Binario): string {
         let resultado = '';
-        if (binario.esquerda.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
-        else resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+        // if (binario.esquerda.constructor.name === 'Agrupamento')
+        //     resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
+        // else 
+        resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
 
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
 
-        if (binario.direita.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
-        else resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+        // if (binario.direita.constructor.name === 'Agrupamento')
+            // resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
+        // else 
+        resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
 
         return resultado;
     }
@@ -245,7 +247,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
                 }
             });
 
-            return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
+            return possuiInterpolacao ? `\`${valor}\`` : `"${literal.valor}"`;
         }
 
         return literal.valor;
@@ -262,10 +264,12 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
         textoArgumentos = textoArgumentos.slice(0, -2);
 
-        switch (variavel.simbolo.lexema) {
-            case 'texto':
-                return `String(${textoArgumentos})`;
-            default:
+        return `${variavel.simbolo.lexema}`;
+
+        // switch (variavel.simbolo.lexema) {
+        //     case 'texto':
+        //         return `String(${textoArgumentos})`;
+        //     default:
                 // const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(
                 //     (d) => d.simbolo.lexema === variavel.simbolo.lexema
                 // );
@@ -278,8 +282,8 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
                 //     return `new ${variavel.simbolo.lexema}(${textoArgumentos})`;
                 // }
 
-                return `${variavel.simbolo.lexema}(${textoArgumentos})`;
-        }
+                // return `${variavel.simbolo.lexema}(${textoArgumentos})`;
+        // }
     }
 
     protected logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
@@ -507,31 +511,30 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoSe(declaracaoSe: Se): string {
-        let resultado = 'if (';
+        let resultado = 'se ';
 
         const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
 
         resultado += condicao;
 
-        resultado += ')';
-        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+        resultado += ' ' + this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
 
         if (declaracaoSe.caminhoSenao !== null) {
             resultado += ' '.repeat(this.indentacao);
-            resultado += 'else ';
-            const se = declaracaoSe?.caminhoSenao as Se;
-            if (se?.caminhoEntao) {
-                resultado += 'if (';
-                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
-                resultado += ')';
-                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-                resultado += ' '.repeat(this.indentacao);
-                if (se?.caminhoSenao) {
-                    resultado += 'else ';
-                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
-                    return resultado;
-                }
-            }
+            resultado += ' senão ';
+            // const se = declaracaoSe?.caminhoSenao as Se;
+            // if (se?.caminhoEntao) {
+            //     resultado += 'se (';
+            //     resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+            //     resultado += ')';
+            //     resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+            //     resultado += ' '.repeat(this.indentacao);
+            //     if (se?.caminhoSenao) {
+            //         resultado += 'else ';
+            //         resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
+            //         return resultado;
+            //     }
+            // }
 
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
                 declaracaoSe.caminhoSenao
