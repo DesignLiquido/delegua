@@ -1302,7 +1302,7 @@ export class AvaliadorSintatico
         }
 
         const tipoVetor = (vetor as any).tipo as string;
-        if (!tipoVetor.endsWith('[]')) {
+        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
             throw this.erro(
                 simboloPara,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
