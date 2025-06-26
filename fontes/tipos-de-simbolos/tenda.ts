@@ -1,3 +1,4 @@
+// Em Tenda, isto é implementado em https://github.com/gabrielbrunop/tenda/blob/main/crates/scanner/src/token.rs#L42.
 export default {
     ARROBA: 'ARROBA',
     ADICAO: 'ADICAO',
@@ -31,7 +32,6 @@ export default {
     ENQUANTO: 'ENQUANTO',
     EOF: 'EOF',
     ESCOLHA: 'ESCOLHA',
-    // ESCREVA: 'ESCREVA',
     EXIBA: 'EXIBA',
     EXPONENCIACAO: 'EXPONENCIACAO',
     EXPRESSAO_REGULAR: 'EXPRESSAO_REGULAR',
@@ -80,6 +80,7 @@ export default {
     RETORNA: 'RETORNA',
     SUBTRACAO: 'SUBTRACAO',
     SE: 'SE',
+    SEJA: 'SEJA',
     SENAO: 'SENAO',
     SENÃO: 'SENÃO',
     SUPER: 'SUPER',

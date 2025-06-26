@@ -80,6 +80,13 @@ import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
 
+/**
+ * Este avaliador sintático emite todos os símbolos de Tenda. No entanto, nem todo
+ * símbolo emitido aqui pode ser interpretado por este núcleo, já que Tenda tem 
+ * Rust como base, e várias de suas funções requerem interface com um sistema operacional.
+ * Outros pacotes do ecossistema de Delégua, como `delegua-node` poderão lidar com
+ * todas as funcionalidades de Tenda.
+ */
 export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
@@ -1313,8 +1320,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             inicializador = null;
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
             inicializador = this.declaracaoDeVariaveis();
-        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
-            inicializador = this.declaracaoDeConstantes();
         } else {
             inicializador = this.declaracaoExpressao();
         }
@@ -1498,14 +1503,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      */
     protected resolverDeclaracao(): Declaracao | Declaracao[] {
         switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.CHAVE_ESQUERDA:
-                const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
-            case tiposDeSimbolos.CONSTANTE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeConstantes();
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
@@ -1821,66 +1820,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return retornos;
     }
 
-    /**
-     * Caso símbolo atual seja `const, constante ou fixo`, devolve uma declaração de const.
-     * @returns Um Construto do tipo Const.
-     */
-    declaracaoDeConstantes(): Const[] {
-        const identificadores: SimboloInterface[] = [];
-        let tipo: string = 'qualquer';
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoDesestruturacaoConstante();
-        }
-
-        do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            tipo = this.verificarDefinicaoTipoAtual();
-            this.avancarEDevolverAnterior();
-        }
-
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
-
-        const inicializadores = [];
-        do {
-            inicializadores.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-            );
-        }
-
-        let retorno: Const[] = [];
-        for (let [indice, identificador] of identificadores.entries()) {
-            // Se tipo ainda não foi definido, infere.
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
-
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema, 
-                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
-            );
-
-            retorno.push(
-                new Const(
-                    identificador,
-                    inicializadores[indice],
-                    tipo as TipoDadosElementar,
-                    Array.from(this.pilhaDecoradores)
-                )
-            );
-        }
-
-        this.pilhaDecoradores = [];
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-
-        return retorno;
-    }
+    
 
     protected funcao(tipo: string): FuncaoDeclaracao {
         let simbolo: SimboloInterface;
@@ -2391,7 +2331,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         if (this.performance) {
             const deltaAnalise: [number, number] = hrtime(inicioAnalise);
             // eslint-disable-next-line no-undef
-            console.log(`[Avaliador Sintático] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`);
+            console.log(`[Avaliador Sintático Tenda] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`);
         }
 
         return {
