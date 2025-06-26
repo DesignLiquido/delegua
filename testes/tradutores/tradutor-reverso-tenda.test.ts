@@ -81,7 +81,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('operações de concatenação', () => {
+        it('operações de concatenação', () => {
             const codigo = [
                 'seja texto1 = "Olá"',
                 'seja texto2 = "Mundo"',
@@ -95,6 +95,12 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var texto1 = \"Olá\"/i);
+            expect(resultado).toMatch(/var texto2 = \"Mundo\"/i);
+            expect(resultado).toMatch(/var texto_concatenado = texto1 \+ \" \" \+ texto2/i);
+            expect(resultado).toMatch(/var lista1 = \[1, 2, 3\]/i);
+            expect(resultado).toMatch(/var lista2 = \[4, 5, 6\]/i);
+            expect(resultado).toMatch(/var lista_concatenada = lista1 \+ lista2/i);
         });
 
         it('operações matemáticas', () => {
