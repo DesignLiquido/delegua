@@ -1068,7 +1068,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
         let declaracoes: Array<Declaracao> = [];
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
@@ -1077,10 +1077,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             }
         }
 
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
-
         this.pilhaEscopos.removerUltimo();
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
         return declaracoes;
     }
@@ -1113,13 +1110,18 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
     override declaracaoEnquanto(): Enquanto {
         try {
+            const simboloEnquanto = this.simbolos[this.atual - 1];
             this.blocos += 1;
 
             const condicao = this.expressao();
-            // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
-            return new Enquanto(condicao, corpo);
+            this.consumir(tiposDeSimbolos.FAÇA, "Esperado 'faça' depois da condição.")
+
+            const blocoCorpo = this.blocoEscopo();
+
+            this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' para concluir condição Enquanto.");
+
+            return new Enquanto(condicao, new Bloco(simboloEnquanto.linha, simboloEnquanto.hashArquivo, blocoCorpo));
         } finally {
             this.blocos -= 1;
         }
@@ -1212,7 +1214,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
 
         // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        // this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }

@@ -37,7 +37,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('enquanto', () => {
+        it('enquanto', () => {
             const codigo = [
                 'seja contador = 1',
                 'enquanto contador <= 5 faça',
@@ -50,6 +50,11 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var contador = 1/i);
+            expect(resultado).toMatch(/enquanto \(contador <= 5\) {/i);
+            expect(resultado).toMatch(/escreva\("Contador: " \+ contador\)/i);
+            expect(resultado).toMatch(/contador = contador \+ 1/i);
+            expect(resultado).toMatch(/}/i);
         });
 
         it('leia -> leia', () => {

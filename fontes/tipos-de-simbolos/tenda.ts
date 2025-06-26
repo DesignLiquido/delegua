@@ -37,6 +37,7 @@ export default {
     EXPRESSAO_REGULAR: 'EXPRESSAO_REGULAR',
     FALHAR: 'FALHAR',
     FALSO: 'FALSO',
+    FAÇA: 'FAÇA',
     FAZER: 'FAZER',
     FIM: 'FIM',
     FINALMENTE: 'FINALMENTE',

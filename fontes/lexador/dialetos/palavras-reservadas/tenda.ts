@@ -16,6 +16,7 @@ export const palavrasReservadas = {
     exiba: tiposDeSimbolos.EXIBA,
     falhar: tiposDeSimbolos.FALHAR,
     falso: tiposDeSimbolos.FALSO,
+    faça: tiposDeSimbolos.FAÇA,
     fazer: tiposDeSimbolos.FAZER,
     fim: tiposDeSimbolos.FIM,
     finalmente: tiposDeSimbolos.FINALMENTE,

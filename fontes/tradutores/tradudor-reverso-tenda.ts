@@ -349,7 +349,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
-        let resultado = 'while (';
+        let resultado = 'enquanto (';
         resultado +=
             this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao) + ') ';
         resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
