@@ -1302,7 +1302,7 @@ export class AvaliadorSintatico
         }
 
         const tipoVetor = (vetor as any).tipo as string;
-        if (!tipoVetor.endsWith('[]')) {
+        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
             throw this.erro(
                 simboloPara,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
@@ -1675,7 +1675,18 @@ export class AvaliadorSintatico
         switch (inicializador.constructor.name) {
             case 'AcessoIndiceVariavel':
                 const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel).entidadeChamada;
-                return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+
+                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
+                if (entidadeChamadaAcessoIndiceVariavel.constructor.name === 'AcessoIndiceVariavel') {
+                    return this.logicaComumInferenciaTiposVariaveisEConstantes(entidadeChamadaAcessoIndiceVariavel, tipo);
+                }
+
+                if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
+                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+                }
+
+                // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
+                return 'qualquer';
             case 'Chamada':
                 const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;
                 switch (entidadeChamadaChamada.constructor.name) {

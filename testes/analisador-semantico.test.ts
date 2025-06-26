@@ -25,7 +25,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
-            it('Sucesso - Definição Tipo Variável', () => {
+            it('Definição Tipo Variável', () => {
                 const retornoLexador = lexador.mapear([
                     "var t: texto = \"Variável com tipo\"",
                     "const n: inteiro = 10",
@@ -73,7 +73,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
-            it('Sucesso - Função com definição de tipos', () => {
+            it('Função com definição de tipos', () => {
                 const retornoLexador = lexador.mapear([
                     // "var a = funcao (valor1: inteiro, valor2: qualquer, valor3: texto): texto {",
                     // "   retorna \"a\"",
@@ -102,7 +102,7 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);  
-            })
+            });
         });
 
         describe('Cenários de falha', () => {
