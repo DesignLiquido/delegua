@@ -1455,43 +1455,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         );
     }
 
-    protected resolverDecorador(): void {
-        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
-            let nomeDecorador: string = '';
-            let linha: number;
-            let parametros: ParametroInterface[] = [];
-            let parenteseEsquerdo = false;
-            linha = this.simbolos[this.atual].linha;
-            let simbolosLinhaAtual = this.simbolos.filter((l) => l.linha === linha);
-
-            for (let simbolo of simbolosLinhaAtual) {
-                parenteseEsquerdo = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
-                if (parenteseEsquerdo) {
-                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                        parametros = this.logicaComumParametros();
-                    }
-                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-                    break;
-                }
-                this.avancarEDevolverAnterior();
-                nomeDecorador += simbolo.lexema || '.';
-            }
-
-            const atributos: { [key: string]: any } = {};
-            for (const parametro of parametros) {
-                if (parametro.nome.lexema in atributos) {
-                    throw this.erro(
-                        parametro.nome,
-                        `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`
-                    );
-                }
-
-                atributos[parametro.nome.lexema] = parametro.valorPadrao;
-            }
-
-            this.pilhaDecoradores.push(new Decorador(this.hashArquivo, linha, nomeDecorador, atributos));
-        }
-    }
 
     /**
      * Todas as resoluções triviais da linguagem, ou seja, todas as
@@ -1544,7 +1507,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
-            case tiposDeSimbolos.VARIAVEL:
+            case tiposDeSimbolos.SEJA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoDeVariaveis();
         }
@@ -2007,68 +1970,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
     }
 
-    override declaracaoDeClasse(): Classe {
-        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da classe.');
-        const pilhaDecoradoresClasse = Array.from(this.pilhaDecoradores);
-
-        let superClasse = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            const simboloSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
-            // TODO: Validar classes existentes?
-            this.superclasseAtual = simboloSuperclasse.lexema;
-            // TODO: Colocar tipo aqui?
-            superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1], simboloSuperclasse.lexema);
-        }
-
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
-
-        this.pilhaDecoradores = [];
-        const metodos = [];
-        const propriedades = [];
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            // Se o símbolo atual é arroba, é um decorador.
-            // Caso contrário, verificamos o próximo símbolo.
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
-                this.resolverDecorador();
-                continue;
-            }
-
-            // Se o próximo símbolo ao atual for um parênteses, é um método.
-            // Caso contrário, é uma propriedade.
-            const proximoSimbolo = this.simbolos[this.atual + 1];
-            switch (proximoSimbolo.tipo) {
-                case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                    metodos.push(this.funcao('método'));
-                    break;
-                case tiposDeSimbolos.DOIS_PONTOS:
-                    const nomePropriedade = this.consumir(
-                        tiposDeSimbolos.IDENTIFICADOR,
-                        'Esperado identificador para nome de propriedade.'
-                    );
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
-                    const tipoPropriedade = this.avancarEDevolverAnterior();
-                    this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-                    propriedades.push(
-                        new PropriedadeClasse(
-                            nomePropriedade,
-                            tipoPropriedade.lexema,
-                            Array.from(this.pilhaDecoradores)
-                        )
-                    );
-                    this.pilhaDecoradores = [];
-                    break;
-                default:
-                    throw this.erro(this.simbolos[this.atual], 'Esperado definição de método ou propriedade.');
-            }
-        }
-
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
-        const definicaoClasse = new Classe(simbolo, superClasse, metodos, propriedades, pilhaDecoradoresClasse);
-        this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
-        this.superclasseAtual = undefined;
-        return definicaoClasse;
-    }
-
     /**
      * Declarações fora de bloco precisam ser verificadas primeiro por
      * uma série de motivos, como, por exemplo:
@@ -2083,9 +1984,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      */
     override resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] {
         try {
-            while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
-                this.resolverDecorador();
-            }
 
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
@@ -2319,7 +2217,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            this.resolverDecorador();
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
