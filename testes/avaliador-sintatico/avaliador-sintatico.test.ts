@@ -316,6 +316,37 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
+
+                it('Para cada com para tradicional aninhado', () => {
+                    const retornoLexador = lexador.mapear([
+                        'var mochila = [',
+                        '    "fruta",',
+                        '    "ovo de Icelope", ',
+                        '    "amêndua",',
+                        '    "cristal", ',
+                        '    "pirita", ',
+                        '    "bastão laser quebrado", ',
+                        '    "fóssil de urso anão",',
+                        '    "meteorito congelado",',
+                        '    [9, 4, 20, 37, 12, 1, 2, 1]',
+                        ']',
+                        'var ovos = []',
+                        'para cada item em mochila {',
+                        '    se (item == "ovo de Icelope") {',
+                        '        var quantidadeDeOvos = mochila[-1][1];',
+                        '        para (var i = 0; i < quantidadeDeOvos; i++) {',
+                        '            ovos.adicionar(item);',
+                        '        }',
+                        '    }',
+                        '}',
+                        'escreva(ovos)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
             });            
 
             it('Para/sustar', async () => {
