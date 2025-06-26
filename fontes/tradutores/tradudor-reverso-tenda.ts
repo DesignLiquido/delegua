@@ -97,6 +97,10 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirFuncaoOuMetodo(nomeMetodo: string, objetoResolvido: string, argumentos: Construto[]): string {
+        if (argumentos === undefined) {
+            return `${objetoResolvido}.${nomeMetodo}`;
+        }
+
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
             const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);

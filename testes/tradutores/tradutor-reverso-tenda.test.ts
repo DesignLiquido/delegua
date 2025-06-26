@@ -23,7 +23,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toMatch(/escreva\("Oi"\)/i);
         });
 
-        it.skip('dicionário', () => {
+        it('dicionário', () => {
             const codigo = [
                 'seja dicionário = { "nome": "Tenda", "versão": 1.0 }',
                 'seja nome = dicionário["nome"]',
@@ -35,6 +35,10 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var dicionário = {"nome":"Tenda","versão":1,}/i);
+            expect(resultado).toMatch(/var nome = dicionário\["nome"\]/i);
+            expect(resultado).toMatch(/var versão = dicionário.versão/i);
+            expect(resultado).toMatch(/escreva\("Nome: " \+ nome \+ ", Versão: " \+ versão\)/i);
         });
 
         it('enquanto', () => {
