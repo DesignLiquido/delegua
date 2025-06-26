@@ -97,7 +97,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('operações matemáticas', () => {
+        it('operações matemáticas', () => {
             const codigo = [
                 "seja a = 10",
                 "seja b = 5",
@@ -114,6 +114,15 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var a = 10/i);
+            expect(resultado).toMatch(/var b = 5/i);
+            expect(resultado).toMatch(/var soma = a \+ b/i);
+            expect(resultado).toMatch(/var subtração = a - b/i);
+            expect(resultado).toMatch(/var multiplicação = a \* b/i);
+            expect(resultado).toMatch(/var divisão = a \/ b/i);
+            expect(resultado).toMatch(/var resto = a % b/i);
+            expect(resultado).toMatch(/var potência = a \^ b/i);
+            expect(resultado).toMatch(/var negativo = -a/i);
         });
 
         it('seja -> var', () => {
