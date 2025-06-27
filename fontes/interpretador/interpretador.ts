@@ -300,7 +300,8 @@ export class Interpretador extends InterpretadorBase {
         // Se o retorno for uma função anônima, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
         // para a finalização para copiar as variáveis para o escopo de baixo.
-        if (retornoQuebra.valor.constructor.name === 'DeleguaFuncao') {
+        const construtorRetorno = retornoQuebra.valor.constructor.name.replaceAll("_", "");
+        if (construtorRetorno === 'DeleguaFuncao') {
             retornoQuebra.preservarEscopo = true;
         }
 

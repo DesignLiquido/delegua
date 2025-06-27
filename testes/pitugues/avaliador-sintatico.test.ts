@@ -69,8 +69,8 @@ describe('Avaliador sintático (Pituguês)', () => {
         });
         
         describe('Casos de falha', () => {
-            it('Falha - Identação', () => {
-                const codigo = ['classe Cachorro:', 'latir():', "escreva('Erro')"];
+            it('Falha - Indentação', () => {
+                const codigo = ['classe Cachorro:', 'funcao latir():', "escreva('Erro')"];
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico =
                     avaliadorSintatico.analisar(retornoLexador, -1);
