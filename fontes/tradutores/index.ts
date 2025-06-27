@@ -5,4 +5,4 @@ export * from './tradutor-portugol-ipt';
 export * from './tradutor-python';
 export * from './tradutor-reverso-javascript';
 export * from './tradutor-reverso-python';
-export * from './tradudor-reverso-tenda';
+export * from './tradutor-reverso-tenda';

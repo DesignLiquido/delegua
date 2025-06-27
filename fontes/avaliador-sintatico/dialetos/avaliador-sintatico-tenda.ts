@@ -11,7 +11,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    ComponenteLinguagem,
     Construto,
     Decorador,
     DefinirValor,
@@ -24,7 +23,6 @@ import {
     Logico,
     ReferenciaFuncao,
     Super,
-    TipoDe,
     Unario,
     Variavel,
     Vetor,
@@ -36,7 +34,6 @@ import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
 import { SeletorTuplas, Tupla } from '../../construtos/tuplas';
 import {
     Bloco,
-    Classe,
     Comentario,
     Const,
     Continua,
@@ -51,7 +48,6 @@ import {
     Importar,
     Para,
     ParaCada,
-    PropriedadeClasse,
     Retorna,
     Se,
     Sustar,
@@ -406,141 +402,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), true, 'lógico');
-
-            case tiposDeSimbolos.TIPO:
-                this.avancarEDevolverAnterior();
-                this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
-                let construto: Construto;
-                if (
-                    this.verificarSeSimboloAtualEIgualA(
-                        tiposDeSimbolos.EXIBA,
-                        tiposDeSimbolos.LEIA,
-                        tiposDeSimbolos.FUNCAO,
-                        tiposDeSimbolos.FUNÇÃO,
-                        tiposDeSimbolos.SE,
-                        tiposDeSimbolos.ENQUANTO,
-                        tiposDeSimbolos.PARA,
-                        tiposDeSimbolos.RETORNA,
-                        tipoDeDadosDelegua.INTEIRO,
-                        tipoDeDadosDelegua.TEXTO,
-                        tipoDeDadosDelegua.VETOR,
-                        tipoDeDadosDelegua.LOGICO,
-                        tipoDeDadosDelegua.LÓGICO,
-                        tipoDeDadosDelegua.VAZIO
-                    )
-                ) {
-                    construto = new ComponenteLinguagem(this.hashArquivo, this.simboloAnterior());
-                } else {
-                    construto = this.expressao();
-                }
-
-                if (construto.constructor.name === 'AcessoMetodoOuPropriedade') {
-                    const construtoTipado = construto as AcessoMetodoOuPropriedade;
-                    switch (construtoTipado.tipo) {
-                        case tipoDeDadosDelegua.DICIONARIO:
-                        case tipoDeDadosDelegua.DICIONÁRIO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasDicionario)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de dicionário.`
-                                );
-                            }
-
-                            const primitivaDicionarioSelecionada = primitivasDicionario[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaDicionarioSelecionada.tipoRetorno
-                            );
-                            break;
-                        case tipoDeDadosDelegua.INTEIRO:
-                        case tipoDeDadosDelegua.NUMERO:
-                        case tipoDeDadosDelegua.NÚMERO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasNumero)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de número.`
-                                );
-                            }
-
-                            const primitivaNumeroSelecionada = primitivasNumero[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaNumeroSelecionada.tipoRetorno
-                            );
-                            break;
-                        case tipoDeDadosDelegua.TEXTO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`
-                                );
-                            }
-
-                            const primitivaTextoSelecionada = primitivasTexto[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaTextoSelecionada.tipoRetorno
-                            );
-                            break;
-                        case tipoDeDadosDelegua.VETOR:
-                        case tipoDeDadosDelegua.VETOR_NUMERO:
-                        case tipoDeDadosDelegua.VETOR_NÚMERO:
-                        case tipoDeDadosDelegua.VETOR_TEXTO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasVetor)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de vetor.`
-                                );
-                            }
-
-                            const primitivaVetorSelecionada = primitivasVetor[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaVetorSelecionada.tipoRetorno
-                            );
-                            break;
-                        default:
-                            if (construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
-                                const tipoCorrespondente = this.tiposDefinidosEmCodigo[construtoTipado.tipo] as Classe;
-
-                                const possivelMetodo = tipoCorrespondente.metodos.filter(
-                                    (m) => m.simbolo.lexema === construtoTipado.simbolo.lexema
-                                );
-                                if (possivelMetodo.length > 0) {
-                                    construto = new AcessoMetodo(
-                                        construtoTipado.hashArquivo,
-                                        construtoTipado.objeto,
-                                        construtoTipado.simbolo.lexema,
-                                        possivelMetodo[0].tipo
-                                    );
-                                    break;
-                                }
-
-                                const possivelPropriedade = tipoCorrespondente.propriedades.filter(
-                                    (p) => p.nome.lexema === construtoTipado.simbolo.lexema
-                                );
-                                if (possivelPropriedade.length > 0) {
-                                    construto = new AcessoPropriedade(
-                                        construtoTipado.hashArquivo,
-                                        construtoTipado.objeto,
-                                        construtoTipado.simbolo.lexema,
-                                        possivelPropriedade[0].tipo
-                                    );
-                                    break;
-                                }
-                            }
-                    }
-                }
-
-                return new TipoDe(this.hashArquivo, simboloAtual, construto);
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -813,7 +674,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     override unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.NÃO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT,
                 tiposDeSimbolos.INCREMENTAR,
@@ -941,8 +802,15 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     override comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NÃO, tiposDeSimbolos.É)) {
             const operador = this.simbolos[this.atual - 1];
+            if (operador.tipo === tiposDeSimbolos.NÃO) {
+                this.consumir(tiposDeSimbolos.É, `Esperado 'é' após 'não'.`);
+                operador.tipo = tiposDeSimbolos.DIFERENTE;
+                operador.lexema = "não é";
+                operador.literal = "não é";
+            }
+
             const direito = this.comparar();
             expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
@@ -953,7 +821,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     override em(): Construto {
         let expressao = this.comparacaoIgualdade();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TEM)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparacaoIgualdade();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
@@ -1284,10 +1152,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             "Esperado identificador de variável de iteração para instrução 'para cada'."
         );
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
             throw this.erro(
                 this.simbolos[this.atual],
-                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
+                "Esperado palavra reservada 'de' após variável de iteração em instrução 'para cada'."
             );
         }
 
@@ -1366,7 +1234,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
-                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.NÃO,
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.NULO,
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
@@ -1391,7 +1259,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         const caminhoEntao: Declaracao = this.resolverDeclaracao() as Declaracao;
 
         let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(/*tiposDeSimbolos.SENAO,*/ tiposDeSimbolos.SENÃO)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
         }
 

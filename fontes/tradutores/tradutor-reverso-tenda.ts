@@ -47,11 +47,10 @@ import {
 import { SimboloInterface, TradutorInterface } from '../interfaces';
 import { CaminhoEscolha } from '../interfaces/construtos';
 
-import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
+import tiposDeSimbolos from '../tipos-de-simbolos/tenda';
 
 export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
-    // declaracoesDeClasses: Classe[];
 
     traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
@@ -66,17 +65,17 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
             case tiposDeSimbolos.BIT_NOT:
                 return '~';
             case tiposDeSimbolos.DIFERENTE:
-                return '!==';
+                return '!=';
             case tiposDeSimbolos.DIVISAO:
                 return '/';
             case tiposDeSimbolos.E:
-                return '&&';
+                return 'e';
             case tiposDeSimbolos.EXPONENCIACAO:
                 return '**';
             case tiposDeSimbolos.IGUAL:
                 return '=';
-            case tiposDeSimbolos.IGUAL_IGUAL:
-                return '===';
+            case tiposDeSimbolos.É:
+                return '==';
             case tiposDeSimbolos.MAIOR:
                 return '>';
             case tiposDeSimbolos.MAIOR_IGUAL:
@@ -89,8 +88,10 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
                 return '%';
             case tiposDeSimbolos.MULTIPLICACAO:
                 return '*';
+            case tiposDeSimbolos.NÃO:
+                return '!';
             case tiposDeSimbolos.OU:
-                return '||';
+                return 'ou';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
         }
