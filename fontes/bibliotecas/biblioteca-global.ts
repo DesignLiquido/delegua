@@ -398,11 +398,12 @@ export async function inteiro(interpretador: InterpretadorInterface, valorParaCo
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoMapeamento
- * @returns
+ * Dado um vetor e uma função de mapeamento, executa a função de mapeamento
+ * passando como argumento cada elemento do vetor.
+ * @param interpretador A instância do interpretador.
+ * @param vetor O vetor
+ * @param funcaoMapeamento A função de mapeamento.
+ * @returns O resultado acumulado da execução da função de mapeamento.
  */
 export async function mapear(
     interpretador: InterpretadorInterface,
@@ -431,7 +432,8 @@ export async function mapear(
         );
     }
 
-    if (valorFuncaoMapeamento.constructor.name !== 'DeleguaFuncao') {
+    const nomeConstrutorFuncaoMapeamento = valorFuncaoMapeamento.constructor.name.replaceAll("_", "");
+    if (nomeConstrutorFuncaoMapeamento !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 this.simbolo,

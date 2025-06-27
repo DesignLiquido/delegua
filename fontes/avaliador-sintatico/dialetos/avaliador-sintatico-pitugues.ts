@@ -20,6 +20,9 @@ import {
     Variavel,
     Vetor,
     Leia,
+    AcessoMetodo,
+    AcessoPropriedade,
+    ReferenciaFuncao,
 } from '../../construtos';
 import {
     Escreva,
@@ -41,6 +44,7 @@ import {
     Sustar,
     Const,
     Falhar,
+    ParaCada,
 } from '../../declaracoes';
 
 import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
@@ -53,6 +57,10 @@ import { RetornoPrimario } from '../retornos';
 import { Simbolo } from '../../lexador';
 import { inferirTipoVariavel, TipoInferencia, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
 import { TipoDadosElementar } from '../../tipo-dados-elementar';
+
+import { PilhaEscopos } from '../pilha-escopos';
+import { InformacaoEscopo } from '../informacao-escopo';
+import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
@@ -69,6 +77,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
 
+    tiposDefinidosEmCodigo: { [key: string]: Declaracao };
+    pilhaEscopos: PilhaEscopos;
+    primitivasConhecidas: { [key: string]: InformacaoVariavelOuConstante };
+
     hashArquivo: number;
     atual: number;
     blocos: number;
@@ -81,6 +93,86 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         this.blocos = 0;
         this.performance = performance;
         this.escopos = [];
+        this.pilhaEscopos = new PilhaEscopos();
+        this.primitivasConhecidas = {};
+        this.tiposDefinidosEmCodigo = {};
+    }
+
+    protected logicaComumInferenciaTiposVariaveisEConstantes(inicializador: Construto, tipo: string): string {
+        if (tipo !== 'qualquer') {
+            return tipo;
+        }
+
+        switch (inicializador.constructor.name) {
+            case 'AcessoIndiceVariavel':
+                const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel).entidadeChamada;
+
+                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
+                if (entidadeChamadaAcessoIndiceVariavel.constructor.name === 'AcessoIndiceVariavel') {
+                    return this.logicaComumInferenciaTiposVariaveisEConstantes(entidadeChamadaAcessoIndiceVariavel, tipo);
+                }
+
+                if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
+                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+                }
+
+                // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
+                return 'qualquer';
+            case 'Chamada':
+                const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;
+                switch (entidadeChamadaChamada.constructor.name) {
+                    case 'AcessoMetodo':
+                        const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
+                        return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                    case 'AcessoMetodoOuPropriedade':
+                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer', 
+                        // e a chamada normalmente é feita para uma primitiva. 
+                        // A inferência, portanto, ocorre pelo uso da primitiva.
+                        const entidadeChamadaAcessoMetodoOuPropriedade = entidadeChamadaChamada as AcessoMetodoOuPropriedade;
+                        if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema)) {
+                            return this.primitivasConhecidas[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                        }
+
+                        throw new ErroAvaliadorSintatico(
+                            entidadeChamadaAcessoMetodoOuPropriedade.simbolo, 
+                            `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`
+                        );
+                    case 'AcessoPropriedade':
+                        const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada as AcessoPropriedade;
+                        return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
+                    case 'ArgumentoReferenciaFuncao':
+                        // TODO: Voltar aqui se necessário.
+                        return 'qualquer';
+                    case 'ReferenciaFuncao':
+                        const entidadeChamadaReferenciaFuncao = entidadeChamadaChamada as ReferenciaFuncao;
+                        return entidadeChamadaReferenciaFuncao.tipo;
+                    case 'Variavel':
+                        const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
+                        return entidadeChamadaVariavel.tipo;
+                }
+
+                break;
+            case 'FuncaoConstruto':
+                const funcaoConstruto = inicializador as FuncaoConstruto;
+                return `função<${funcaoConstruto.tipo}>`;
+            case 'Leia':
+                return 'texto';
+            case 'Dupla':
+            case 'Trio':
+            case 'Quarteto':
+            case 'Quinteto':
+            case 'Sexteto':
+            case 'Septeto':
+            case 'Octeto':
+            case 'Noneto':
+            case 'Deceto':
+                return 'tupla';
+            case "ImportarBiblioteca":
+            case "ModuloDeclaracoes":
+                return "módulo";
+            default:
+                return inicializador.tipo;
+        }
     }
 
     expressaoLeia(): Leia {
@@ -140,9 +232,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
             // Se tipo ainda não foi definido, infere.
-            // tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
-            // this.pilhaEscopos.definirTipoVariavel(identificador.lexema, tipo);
+            this.pilhaEscopos.definirInformacoesVariavel(
+                identificador.lexema, 
+                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
+            );
             retorno.push(
                 new Const(
                     identificador,
@@ -166,12 +261,14 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     declaracaoDeVariaveis(): any {
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
+        let tipo: string = 'qualquer';
 
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            // Inicialização de variáveis sem valor.
             for (let [indice, identificador] of identificadores.entries()) {
                 retorno.push(new Var(identificador, null));
             }
@@ -192,10 +289,14 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Var(identificador, inicializadores[indice]));
+            const inicializador = inicializadores[indice];
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
+            this.pilhaEscopos.definirInformacoesVariavel(
+                identificador.lexema, 
+                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
+            );
+            retorno.push(new Var(identificador, inicializador, tipo));
         }
-
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
         return retorno;
     }
@@ -275,13 +376,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         return false;
     }
 
-    primario(): RetornoPrimario {
+    primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
-            case tiposDeSimbolos.SUPER:
-                const simboloSuper = this.avancarEDevolverAnterior();
-                return new Super(this.hashArquivo, simboloSuper, this.superclasseAtual);
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
@@ -335,12 +433,16 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                 const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
                 // this.pilhaEscopos.definirTipoVariavel(simboloFuncao.lexema, 'função');
                 return corpoDaFuncao;
+            case tiposDeSimbolos.IMPORTAR:
+                return this.declaracaoImportar();
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, simboloAtual.linha, null);
             case tiposDeSimbolos.ISTO:
                 const simboloIsto = this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, simboloAtual.linha, simboloIsto);
+            case tiposDeSimbolos.LEIA:
+                return this.expressaoLeia();
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
@@ -354,15 +456,22 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
                 );
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador = this.avancarEDevolverAnterior();
-                return new Variavel(this.hashArquivo, simboloIdentificador);
+                let tipoOperando: string;
+                if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
+                    tipoOperando = simboloIdentificador.lexema;
+                } else {
+                    tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(simboloIdentificador.lexema);
+                }
+                return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
                 return new Agrupamento(this.hashArquivo, simboloAtual.linha, expressao);
-            case tiposDeSimbolos.IMPORTAR:
-                return this.declaracaoImportar();
+            case tiposDeSimbolos.SUPER:
+                const simboloSuper = this.avancarEDevolverAnterior();
+                return new Super(this.hashArquivo, simboloSuper, this.superclasseAtual);
         }
 
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
@@ -600,8 +709,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         return expressao;
     }
 
+    // TODO: Depreciar.
     expressao(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.expressaoLeia();
         return this.atribuir();
     }
 
@@ -627,6 +736,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
     }
 
     blocoEscopo(): any[] {
+        this.pilhaEscopos.empilhar(new InformacaoEscopo());
         let declaracoes: Array<Declaracao> = [];
         let simboloAtual = this.simboloAtual();
         const simboloAnterior = this.simboloAnterior();
@@ -675,6 +785,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             }
         }
 
+        this.pilhaEscopos.removerUltimo();
         return declaracoes;
     }
 
@@ -758,33 +869,77 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         }
     }
 
-    declaracaoPara(): Para {
+    protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
+        const nomeVariavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável de iteração para instrução 'para cada'."
+        );
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
+            );
+        }
+
+        const vetor = this.expressao();
+        if (!vetor.hasOwnProperty('tipo')) {
+            throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
+        }
+
+        const tipoVetor = (vetor as any).tipo as string;
+        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+            );
+        }
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            nomeVariavelIteracao.lexema, 
+            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+        );
+        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return new ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, corpo);
+    }
+
+    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
+        let inicializador: Var | Expressao;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+            inicializador = null;
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
+            inicializador = this.declaracaoDeVariaveis();
+        } else {
+            inicializador = this.declaracaoExpressao();
+        }
+
+        let condicao = null;
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+            condicao = this.expressao();
+        }
+
+        let incrementar = null;
+        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
+            incrementar = this.expressao();
+        }
+
+        const corpo = this.resolverDeclaracao();
+
+        return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+    }
+
+    declaracaoPara(): Para | ParaCada {
         try {
             const simboloPara: SimboloInterface = this.simboloAnterior();
             this.blocos += 1;
 
-            let inicializador: Var | Expressao;
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                inicializador = null;
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
-                inicializador = this.declaracaoDeVariaveis();
-            } else {
-                inicializador = this.declaracaoExpressao();
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
+                return this.declaracaoParaCada(simboloPara);
             }
 
-            let condicao = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                condicao = this.expressao();
-            }
-
-            let incrementar = null;
-            if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
-                incrementar = this.expressao();
-            }
-
-            const corpo = this.resolverDeclaracao();
-
-            return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+            return this.declaracaoParaTradicional(simboloPara);
         } catch (erro) {
             throw erro;
         } finally {
@@ -1077,6 +1232,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
         this.atual = 0;
         this.blocos = 0;
         this.escopos = [];
+        this.pilhaEscopos = new PilhaEscopos();
+        this.pilhaEscopos.empilhar(new InformacaoEscopo());
+        this.tiposDefinidosEmCodigo = {};
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];

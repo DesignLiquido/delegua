@@ -1794,7 +1794,6 @@ export class AvaliadorSintatico
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-            // Se tipo ainda não foi definido, infere.
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
             this.pilhaEscopos.definirInformacoesVariavel(

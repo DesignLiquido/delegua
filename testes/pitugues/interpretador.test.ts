@@ -84,7 +84,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            describe('escreva()', () => {
+            describe('escreva() e imprima()', () => {
                 it('Olá Mundo (escreva() e literal)', async () => {
                     const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -102,9 +102,7 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
-            });
 
-            describe('imprima()', () => {
                 it('Olá Mundo (imprima() e literal)', async () => {
                     const retornoLexador = lexador.mapear(["imprima('Olá mundo')"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -194,8 +192,6 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
-
-
             });
 
             describe('Laços de repetição', () => {
@@ -220,7 +216,9 @@ describe('Interpretador (Pituguês)', () => {
                 it('Laços de repetição - para', async () => {
                     const codigo = [
                         "para var i = 0; i < 10; i = i + 1:",
-                        "   escreva(i)",
+                        "    se i == 3:",
+                        "        continua",
+                        "    escreva(i)",
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -228,6 +226,27 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(9);
+                });
+
+                it('Para cada', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var vetor = [1, 2, 3]',
+                            'para cada elemento de vetor:',
+                            '    escreva(elemento)'
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico =
+                        avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(3);
+                    expect(_saidas[0]).toBe('1');
+                    expect(_saidas[1]).toBe('2');
+                    expect(_saidas[2]).toBe('3');
                 });
             });
 
@@ -287,6 +306,23 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Uso de funções de ordem superior', async () => {
+                    const codigo = [
+                        "var vetor = [1, 2, 3]",
+                        "var fn = funcao(valor):",
+                        "    retorna valor * 2",
+                        "escreva(mapear(vetor, fn))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[2, 4, 6]');
                 });
             });
 
