@@ -1794,7 +1794,6 @@ export class AvaliadorSintatico
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
-            // Se tipo ainda não foi definido, infere.
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
 
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -2219,7 +2218,6 @@ export class AvaliadorSintatico
 
     /**
      * Inicializa o primeiro nível da pilha de escopos, normalmente com ítens da biblioteca global.
-     * TODO: Esta abordagem deve ser depreciada, em favor do novo suporte a referências de funções.
      */
     protected inicializarPilhaEscopos() {
         this.pilhaEscopos = new PilhaEscopos();
