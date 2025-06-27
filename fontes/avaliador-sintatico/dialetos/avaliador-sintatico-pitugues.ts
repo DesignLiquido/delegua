@@ -50,10 +50,11 @@ import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoPrimario } from '../retornos';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 import { Simbolo } from '../../lexador';
 import { inferirTipoVariavel, TipoInferencia, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
 import { TipoDadosElementar } from '../../tipo-dados-elementar';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -934,7 +935,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
-            case tiposDeSimbolos.PAUSA:
             case tiposDeSimbolos.SUSTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSustar();
@@ -1094,6 +1094,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
         if (this.performance) {
             const deltaAnalise: [number, number] = hrtime(inicioAnalise);
+            // eslint-disable-next-line no-undef
             console.log(`[Avaliador Sintático] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`);
         }
 
