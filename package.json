@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.42.3",
+    "version": "0.43.0",
     "description": "Linguagem de programação simples e moderna usando português estruturado.",
     "main": "index.js",
     "types": "index.d.ts",
