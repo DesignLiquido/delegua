@@ -133,7 +133,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         if (ambienteAncestral.valores[simbolo.lexema].imutavel) {
-            throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
+            throw new ErroEmTempoDeExecucao(
+                simbolo,
+                `Constante '${simbolo.lexema}' não pode receber novos valores.`
+            );
         }
         ambienteAncestral.valores[simbolo.lexema] = {
             valor,
@@ -166,7 +169,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     if (variavel.valor instanceof Array || variavel.valor instanceof Object) {
                         variavel.valor[indice] = valorResolvido;
                     } else {
-                        throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor ou dicionário.');
+                        throw new ErroEmTempoDeExecucao(
+                            simbolo,
+                            'Variável não é um vetor ou dicionário.'
+                        );
                     }
                 } else {
                     ambiente.valores[simbolo.lexema] = {
@@ -207,7 +213,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida: '" + simbolo.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            "Variável não definida: '" + simbolo.lexema + "'."
+        );
     }
 
     obterVariavelPorNome(nome: string): VariavelInterface {
@@ -231,12 +240,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         for (let i = 1; i <= this.pilha.length - 1; i++) {
             const valoresAmbiente = this.pilha[this.pilha.length - i].ambiente.valores;
 
-            const vetorObjeto: VariavelInterface[] = Object.entries(valoresAmbiente).map((chaveEValor, indice) => ({
-                nome: chaveEValor[0],
-                valor: chaveEValor[1].valor,
-                tipo: chaveEValor[1].tipo,
-                imutavel: chaveEValor[1].imutavel,
-            }));
+            const vetorObjeto: VariavelInterface[] = Object.entries(valoresAmbiente).map(
+                (chaveEValor, indice) => ({
+                    nome: chaveEValor[0],
+                    valor: chaveEValor[1].valor,
+                    tipo: chaveEValor[1].tipo,
+                    imutavel: chaveEValor[1].imutavel,
+                })
+            );
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }
 

@@ -117,7 +117,9 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
 
     adicionarSimbolo(tipo: any, literal?: any): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+        );
     }
 
     simboloAtual(): string {

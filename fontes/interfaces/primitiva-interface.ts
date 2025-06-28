@@ -1,4 +1,4 @@
-import { InformacaoVariavelOuConstante } from "../informacao-variavel-ou-constante";
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
 export interface PrimitivaInterface {
     tipoRetorno: string;

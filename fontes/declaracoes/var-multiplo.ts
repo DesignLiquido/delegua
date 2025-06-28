@@ -12,7 +12,11 @@ export class VarMultiplo extends Declaracao {
     tipo: TipoDadosElementar;
     referencia: boolean;
 
-    constructor(simbolos: SimboloInterface[], inicializador: Construto, tipo: TipoDadosElementar = undefined) {
+    constructor(
+        simbolos: SimboloInterface[],
+        inicializador: Construto,
+        tipo: TipoDadosElementar = undefined
+    ) {
         super(Number(simbolos[0].linha), simbolos[0].hashArquivo);
         this.simbolos = simbolos;
         this.inicializador = inicializador;

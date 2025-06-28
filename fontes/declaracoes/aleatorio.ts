@@ -6,7 +6,12 @@ export class Aleatorio extends Declaracao {
     corpo: Bloco;
     argumentos: { min: number; max: number } | null;
 
-    constructor(linha: number, hashArquivo: number, corpo: Bloco, argumentos: { min: number; max: number } | null) {
+    constructor(
+        linha: number,
+        hashArquivo: number,
+        corpo: Bloco,
+        argumentos: { min: number; max: number } | null
+    ) {
         super(linha, hashArquivo);
 
         this.corpo = corpo;

@@ -31,7 +31,10 @@ import { Interpretador } from './interpretador';
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-export class InterpretadorComDepuracao extends Interpretador implements InterpretadorComDepuracaoInterface {
+export class InterpretadorComDepuracao
+    extends Interpretador
+    implements InterpretadorComDepuracaoInterface
+{
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
@@ -46,7 +49,11 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
 
     aoEncerrarEscopo: Function;
 
-    constructor(diretorioBase: string, funcaoDeRetorno: Function, funcaoDeRetornoMesmaLinha: Function) {
+    constructor(
+        diretorioBase: string,
+        funcaoDeRetorno: Function,
+        funcaoDeRetornoMesmaLinha: Function
+    ) {
         super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
 
         this.pontosParada = [];
@@ -171,7 +178,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                ? resultadoAvaliacao.valor
+                : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
@@ -305,7 +314,10 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    override async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    override async executarBloco(
+        declaracoes: Declaracao[],
+        ambiente?: EspacoVariaveis
+    ): Promise<any> {
         // Se o escopo atual não é o último.
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
@@ -313,7 +325,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
             let retornoExecucao: any;
 
             // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
-            retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+            retornoExecucao = await this.executar(
+                proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
+            );
             proximoEscopo.declaracaoAtual++;
 
             for (
@@ -331,7 +345,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
                     break;
                 }
 
-                retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+                retornoExecucao = await this.executar(
+                    proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
+                );
 
                 // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
                 // Por isso verificamos outra parada aqui para evitar que
@@ -367,7 +383,8 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
      */
     private verificarPontoParada(declaracao: Declaracao): boolean {
         const buscaPontoParada: PontoParada[] = this.pontosParada.filter(
-            (p: PontoParada) => p.hashArquivo === declaracao.hashArquivo && p.linha === declaracao.linha
+            (p: PontoParada) =>
+                p.hashArquivo === declaracao.hashArquivo && p.linha === declaracao.linha
         );
 
         if (buscaPontoParada.length > 0) {
@@ -390,17 +407,26 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
      *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
      * @returns O retorno da execução.
      */
-    override async executarUltimoEscopo(manterAmbiente = false, naoVerificarPrimeiraExecucao = false): Promise<any> {
+    override async executarUltimoEscopo(
+        manterAmbiente = false,
+        naoVerificarPrimeiraExecucao = false
+    ): Promise<any> {
         switch (this.comando) {
             case 'adentrarEscopo':
             case 'proximo':
                 if (!this.executandoChamada) {
                     return this.executarUmPassoNoEscopo();
                 } else {
-                    return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
+                    return this.executarUltimoEscopoComandoContinuar(
+                        manterAmbiente,
+                        naoVerificarPrimeiraExecucao
+                    );
                 }
             default:
-                return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
+                return this.executarUltimoEscopoComandoContinuar(
+                    manterAmbiente,
+                    naoVerificarPrimeiraExecucao
+                );
         }
     }
 
@@ -408,7 +434,10 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         let i = this.pilhaEscoposExecucao.pilha.length - 1;
         while (i > 0) {
             let ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
+            if (
+                ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length ||
+                ultimoEscopo.finalizado
+            ) {
                 this.pilhaEscoposExecucao.removerUltimo();
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
                 escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
@@ -450,13 +479,18 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         let retornoExecucao: any;
         if (this.passos > 0) {
             this.passos--;
-            retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            retornoExecucao = await this.executar(
+                ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+            );
 
             if (!this.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao) {
                 ultimoEscopo.declaracaoAtual++;
             }
 
-            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
+            if (
+                ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length ||
+                ultimoEscopo.finalizado
+            ) {
                 if (retornoExecucao instanceof RetornoQuebra) {
                     this.descartarEscopoPorRetornoFuncao();
                 } else {
@@ -493,7 +527,8 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
                 if (naoVerificarPrimeiraExecucao) {
@@ -509,7 +544,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
                     }
                 }
 
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                retornoExecucao = await this.executar(
+                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                );
 
                 // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
                 // Por isso verificamos outra parada aqui para evitar que
@@ -590,7 +627,10 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         if (escopo < this.escopoAtual) {
             await this.instrucaoPasso(escopo + 1);
         } else {
-            if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
+            if (
+                escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length ||
+                escopoVisitado.finalizado
+            ) {
                 this.pilhaEscoposExecucao.removerUltimo();
             }
 
@@ -656,7 +696,10 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
      * @param declaracoes Um vetor de declarações.
      * @returns Um objeto de retorno, com erros encontrados se houverem.
      */
-    override async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
+    override async interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente = false
+    ): Promise<RetornoInterpretador> {
         this.erros = [];
         this.declaracoes = declaracoes;
 
@@ -685,7 +728,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
      * @param nome O nome da variável.
      */
     obterVariavel(nome: string): any {
-        const valorOuVariavel = this.pilhaEscoposExecucao.obterValorVariavel({ lexema: nome } as any) as any;
+        const valorOuVariavel = this.pilhaEscoposExecucao.obterValorVariavel({
+            lexema: nome,
+        } as any) as any;
         return valorOuVariavel.hasOwnProperty('valor')
             ? valorOuVariavel
             : {

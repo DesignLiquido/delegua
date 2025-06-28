@@ -9,7 +9,17 @@ import {
     Literal,
     Variavel,
 } from '../../construtos';
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, EscrevaMesmaLinha, Var } from '../../declaracoes';
+import {
+    Escreva,
+    Declaracao,
+    Se,
+    Enquanto,
+    Para,
+    Escolha,
+    Fazer,
+    EscrevaMesmaLinha,
+    Var,
+} from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
@@ -26,7 +36,11 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.TEXTO:
                 const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloAnterior.linha),
+                    simboloAnterior.literal
+                );
         }
     }
 
@@ -76,7 +90,9 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         do {
             const valor = this.resolverDeclaracaoForaDeBloco();
 
-            argumentos.push(new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor));
+            argumentos.push(
+                new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
@@ -112,7 +128,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             tiposDeSimbolos.QUEBRA_LINHA,
             "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se."
         );
-        this.consumir(tiposDeSimbolos.FIMSE, "Esperado 'fimse' para finalização de uma instrução se.");
+        this.consumir(
+            tiposDeSimbolos.FIMSE,
+            "Esperado 'fimse' para finalização de uma instrução se."
+        );
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
@@ -156,7 +175,12 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             inicializacoes.push(
                 new Var(
                     identificador,
-                    new Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao, 'inteiro')
+                    new Literal(
+                        this.hashArquivo,
+                        Number(simboloInteiro.linha),
+                        valorInicializacao,
+                        'inteiro'
+                    )
                 )
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -203,7 +227,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     }
 
     private validarSegmentoInicio(): void {
-        this.consumir(tiposDeSimbolos.INICIO, `Esperada expressão 'inicio' para marcar escopo do algoritmo.`);
+        this.consumir(
+            tiposDeSimbolos.INICIO,
+            `Esperada expressão 'inicio' para marcar escopo do algoritmo.`
+        );
     }
 
     analisar(

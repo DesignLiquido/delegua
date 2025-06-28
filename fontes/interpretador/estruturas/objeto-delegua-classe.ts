@@ -33,7 +33,10 @@ export class ObjetoDeleguaClasse {
         const metodo = this.classe.encontrarMetodo(simbolo.lexema);
         if (metodo) return metodo.funcaoPorMetodoDeClasse(this);
 
-        throw new ErroEmTempoDeExecucao(simbolo, `Método ou propriedade "${simbolo.lexema}" não existe neste objeto.`);
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            `Método ou propriedade "${simbolo.lexema}" não existe neste objeto.`
+        );
     }
 
     obterMetodo(nomeMetodo: string): any {
@@ -48,11 +51,17 @@ export class ObjetoDeleguaClasse {
             return this.propriedades[nomePropriedade];
         }
 
-        throw new ErroEmTempoDeExecucao(null, `Propriedade "${nomePropriedade}" não existe neste objeto.`);
+        throw new ErroEmTempoDeExecucao(
+            null,
+            `Propriedade "${nomePropriedade}" não existe neste objeto.`
+        );
     }
 
     definir(simbolo: SimboloInterface, valor: any): void {
-        if (this.classe.dialetoRequerDeclaracaoPropriedades && !this.propriedades.hasOwnProperty(simbolo.lexema)) {
+        if (
+            this.classe.dialetoRequerDeclaracaoPropriedades &&
+            !this.propriedades.hasOwnProperty(simbolo.lexema)
+        ) {
             throw new ErroEmTempoDeExecucao(
                 simbolo,
                 `Propriedade "${simbolo.lexema}" não foi definida na declaração da classe ${this.classe.simboloOriginal.lexema}.`

@@ -10,7 +10,12 @@ export class Literal implements Construto {
     valor: ValorLiteral;
     tipo: TipoDadosElementar;
 
-    constructor(hashArquivo: number, linha: number, valor: ValorLiteral, tipo: TipoDadosElementar = 'qualquer') {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        valor: ValorLiteral,
+        tipo: TipoDadosElementar = 'qualquer'
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.valor = valor;

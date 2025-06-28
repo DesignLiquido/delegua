@@ -531,7 +531,10 @@ export class Python3Parser extends Parser {
         return Python3Parser._serializedATN;
     }
 
-    protected createFailedPredicateException(predicate?: string, message?: string): FailedPredicateException {
+    protected createFailedPredicateException(
+        predicate?: string,
+        message?: string
+    ): FailedPredicateException {
         return new FailedPredicateException(this, predicate, message);
     }
 
@@ -1153,8 +1156,15 @@ export class Python3Parser extends Parser {
 
                                                 this.state = 269;
                                                 this._errHandler.sync(this);
-                                                _alt = this.interpreter.adaptivePredict(this._input, 15, this._ctx);
-                                                while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
+                                                _alt = this.interpreter.adaptivePredict(
+                                                    this._input,
+                                                    15,
+                                                    this._ctx
+                                                );
+                                                while (
+                                                    _alt !== 2 &&
+                                                    _alt !== ATN.INVALID_ALT_NUMBER
+                                                ) {
                                                     if (_alt === 1) {
                                                         {
                                                             {
@@ -1168,7 +1178,9 @@ export class Python3Parser extends Parser {
                                                                 if (_la === Python3Parser.ASSIGN) {
                                                                     {
                                                                         this.state = 263;
-                                                                        this.match(Python3Parser.ASSIGN);
+                                                                        this.match(
+                                                                            Python3Parser.ASSIGN
+                                                                        );
                                                                         this.state = 264;
                                                                         this.test();
                                                                     }
@@ -1178,7 +1190,11 @@ export class Python3Parser extends Parser {
                                                     }
                                                     this.state = 271;
                                                     this._errHandler.sync(this);
-                                                    _alt = this.interpreter.adaptivePredict(this._input, 15, this._ctx);
+                                                    _alt = this.interpreter.adaptivePredict(
+                                                        this._input,
+                                                        15,
+                                                        this._ctx
+                                                    );
                                                 }
                                                 this.state = 280;
                                                 this._errHandler.sync(this);
@@ -1202,7 +1218,9 @@ export class Python3Parser extends Parser {
                                                                 if (_la === Python3Parser.COMMA) {
                                                                     {
                                                                         this.state = 275;
-                                                                        this.match(Python3Parser.COMMA);
+                                                                        this.match(
+                                                                            Python3Parser.COMMA
+                                                                        );
                                                                     }
                                                                 }
                                                             }
@@ -1463,8 +1481,15 @@ export class Python3Parser extends Parser {
 
                                                 this.state = 357;
                                                 this._errHandler.sync(this);
-                                                _alt = this.interpreter.adaptivePredict(this._input, 36, this._ctx);
-                                                while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
+                                                _alt = this.interpreter.adaptivePredict(
+                                                    this._input,
+                                                    36,
+                                                    this._ctx
+                                                );
+                                                while (
+                                                    _alt !== 2 &&
+                                                    _alt !== ATN.INVALID_ALT_NUMBER
+                                                ) {
                                                     if (_alt === 1) {
                                                         {
                                                             {
@@ -1478,7 +1503,9 @@ export class Python3Parser extends Parser {
                                                                 if (_la === Python3Parser.ASSIGN) {
                                                                     {
                                                                         this.state = 351;
-                                                                        this.match(Python3Parser.ASSIGN);
+                                                                        this.match(
+                                                                            Python3Parser.ASSIGN
+                                                                        );
                                                                         this.state = 352;
                                                                         this.test();
                                                                     }
@@ -1488,7 +1515,11 @@ export class Python3Parser extends Parser {
                                                     }
                                                     this.state = 359;
                                                     this._errHandler.sync(this);
-                                                    _alt = this.interpreter.adaptivePredict(this._input, 36, this._ctx);
+                                                    _alt = this.interpreter.adaptivePredict(
+                                                        this._input,
+                                                        36,
+                                                        this._ctx
+                                                    );
                                                 }
                                                 this.state = 368;
                                                 this._errHandler.sync(this);
@@ -1512,7 +1543,9 @@ export class Python3Parser extends Parser {
                                                                 if (_la === Python3Parser.COMMA) {
                                                                     {
                                                                         this.state = 363;
-                                                                        this.match(Python3Parser.COMMA);
+                                                                        this.match(
+                                                                            Python3Parser.COMMA
+                                                                        );
                                                                     }
                                                                 }
                                                             }
@@ -2106,7 +2139,10 @@ export class Python3Parser extends Parser {
     }
     // @RuleVersion(0)
     public testlist_star_expr(): Testlist_star_exprContext {
-        let _localctx: Testlist_star_exprContext = new Testlist_star_exprContext(this._ctx, this.state);
+        let _localctx: Testlist_star_exprContext = new Testlist_star_exprContext(
+            this._ctx,
+            this.state
+        );
         this.enterRule(_localctx, 38, Python3Parser.RULE_testlist_star_expr);
         let _la: number;
         try {
@@ -2652,12 +2688,20 @@ export class Python3Parser extends Parser {
                                 this.state = 526;
                                 this._errHandler.sync(this);
                                 _la = this._input.LA(1);
-                                while (_la === Python3Parser.DOT || _la === Python3Parser.ELLIPSIS) {
+                                while (
+                                    _la === Python3Parser.DOT ||
+                                    _la === Python3Parser.ELLIPSIS
+                                ) {
                                     {
                                         {
                                             this.state = 523;
                                             _la = this._input.LA(1);
-                                            if (!(_la === Python3Parser.DOT || _la === Python3Parser.ELLIPSIS)) {
+                                            if (
+                                                !(
+                                                    _la === Python3Parser.DOT ||
+                                                    _la === Python3Parser.ELLIPSIS
+                                                )
+                                            ) {
                                                 this._errHandler.recoverInline(this);
                                             } else {
                                                 if (this._input.LA(1) === Token.EOF) {
@@ -2688,7 +2732,12 @@ export class Python3Parser extends Parser {
                                         {
                                             this.state = 530;
                                             _la = this._input.LA(1);
-                                            if (!(_la === Python3Parser.DOT || _la === Python3Parser.ELLIPSIS)) {
+                                            if (
+                                                !(
+                                                    _la === Python3Parser.DOT ||
+                                                    _la === Python3Parser.ELLIPSIS
+                                                )
+                                            ) {
                                                 this._errHandler.recoverInline(this);
                                             } else {
                                                 if (this._input.LA(1) === Token.EOF) {
@@ -2703,7 +2752,10 @@ export class Python3Parser extends Parser {
                                     this.state = 533;
                                     this._errHandler.sync(this);
                                     _la = this._input.LA(1);
-                                } while (_la === Python3Parser.DOT || _la === Python3Parser.ELLIPSIS);
+                                } while (
+                                    _la === Python3Parser.DOT ||
+                                    _la === Python3Parser.ELLIPSIS
+                                );
                             }
                             break;
                     }
@@ -4097,7 +4149,9 @@ export class Python3Parser extends Parser {
                 while (
                     ((_la & ~0x1f) === 0 &&
                         ((1 << _la) &
-                            ((1 << Python3Parser.IN) | (1 << Python3Parser.NOT) | (1 << Python3Parser.IS))) !==
+                            ((1 << Python3Parser.IN) |
+                                (1 << Python3Parser.NOT) |
+                                (1 << Python3Parser.IS))) !==
                             0) ||
                     (((_la - 74) & ~0x1f) === 0 &&
                         ((1 << (_la - 74)) &
@@ -4412,7 +4466,12 @@ export class Python3Parser extends Parser {
                         {
                             this.state = 828;
                             _la = this._input.LA(1);
-                            if (!(_la === Python3Parser.LEFT_SHIFT || _la === Python3Parser.RIGHT_SHIFT)) {
+                            if (
+                                !(
+                                    _la === Python3Parser.LEFT_SHIFT ||
+                                    _la === Python3Parser.RIGHT_SHIFT
+                                )
+                            ) {
                                 this._errHandler.recoverInline(this);
                             } else {
                                 if (this._input.LA(1) === Token.EOF) {
@@ -5040,7 +5099,11 @@ export class Python3Parser extends Parser {
                                 }
                                 this.state = 914;
                                 this._errHandler.sync(this);
-                                _alt = this.interpreter.adaptivePredict(this._input, 125, this._ctx);
+                                _alt = this.interpreter.adaptivePredict(
+                                    this._input,
+                                    125,
+                                    this._ctx
+                                );
                             }
                             this.state = 916;
                             this._errHandler.sync(this);
@@ -5611,7 +5674,11 @@ export class Python3Parser extends Parser {
                                         {
                                             this.state = 1009;
                                             this._errHandler.sync(this);
-                                            _alt = this.interpreter.adaptivePredict(this._input, 145, this._ctx);
+                                            _alt = this.interpreter.adaptivePredict(
+                                                this._input,
+                                                145,
+                                                this._ctx
+                                            );
                                             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                                                 if (_alt === 1) {
                                                     {
@@ -5641,7 +5708,9 @@ export class Python3Parser extends Parser {
                                                                         this.state = 999;
                                                                         this.test();
                                                                         this.state = 1000;
-                                                                        this.match(Python3Parser.COLON);
+                                                                        this.match(
+                                                                            Python3Parser.COLON
+                                                                        );
                                                                         this.state = 1001;
                                                                         this.test();
                                                                     }
@@ -5649,20 +5718,28 @@ export class Python3Parser extends Parser {
                                                                 case Python3Parser.POWER:
                                                                     {
                                                                         this.state = 1003;
-                                                                        this.match(Python3Parser.POWER);
+                                                                        this.match(
+                                                                            Python3Parser.POWER
+                                                                        );
                                                                         this.state = 1004;
                                                                         this.expr();
                                                                     }
                                                                     break;
                                                                 default:
-                                                                    throw new NoViableAltException(this);
+                                                                    throw new NoViableAltException(
+                                                                        this
+                                                                    );
                                                             }
                                                         }
                                                     }
                                                 }
                                                 this.state = 1011;
                                                 this._errHandler.sync(this);
-                                                _alt = this.interpreter.adaptivePredict(this._input, 145, this._ctx);
+                                                _alt = this.interpreter.adaptivePredict(
+                                                    this._input,
+                                                    145,
+                                                    this._ctx
+                                                );
                                             }
                                             this.state = 1013;
                                             this._errHandler.sync(this);
@@ -5733,7 +5810,11 @@ export class Python3Parser extends Parser {
                                         {
                                             this.state = 1029;
                                             this._errHandler.sync(this);
-                                            _alt = this.interpreter.adaptivePredict(this._input, 150, this._ctx);
+                                            _alt = this.interpreter.adaptivePredict(
+                                                this._input,
+                                                150,
+                                                this._ctx
+                                            );
                                             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                                                 if (_alt === 1) {
                                                     {
@@ -5771,14 +5852,20 @@ export class Python3Parser extends Parser {
                                                                     }
                                                                     break;
                                                                 default:
-                                                                    throw new NoViableAltException(this);
+                                                                    throw new NoViableAltException(
+                                                                        this
+                                                                    );
                                                             }
                                                         }
                                                     }
                                                 }
                                                 this.state = 1031;
                                                 this._errHandler.sync(this);
-                                                _alt = this.interpreter.adaptivePredict(this._input, 150, this._ctx);
+                                                _alt = this.interpreter.adaptivePredict(
+                                                    this._input,
+                                                    150,
+                                                    this._ctx
+                                                );
                                             }
                                             this.state = 1033;
                                             this._errHandler.sync(this);
@@ -6872,7 +6959,9 @@ export class Python3Parser extends Parser {
     public static __ATN: ATN;
     public static get _ATN(): ATN {
         if (!Python3Parser.__ATN) {
-            Python3Parser.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(Python3Parser._serializedATN));
+            Python3Parser.__ATN = new ATNDeserializer().deserialize(
+                Utils.toCharArray(Python3Parser._serializedATN)
+            );
         }
 
         return Python3Parser.__ATN;

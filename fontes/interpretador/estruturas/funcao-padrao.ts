@@ -16,7 +16,11 @@ export class FuncaoPadrao extends Chamavel {
         this.funcao = funcao;
     }
 
-    async chamar(visitante: InterpretadorInterface, argumentos: any[], simbolo: SimboloInterface): Promise<any> {
+    async chamar(
+        visitante: InterpretadorInterface,
+        argumentos: any[],
+        simbolo: SimboloInterface
+    ): Promise<any> {
         this.simbolo = simbolo;
         return await this.funcao.apply(this, [visitante, ...argumentos]);
     }

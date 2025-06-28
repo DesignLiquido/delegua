@@ -4,7 +4,10 @@ import { ErroEmTempoDeExecucao } from '../../../excecoes';
 module.exports.graus = function (angle) {
     const valorAngle = angle.hasOwnProperty('valor') ? angle.valor : angle;
     if (isNaN(valorAngle) || valorAngle === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover um número para mat.graus(ângulo).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover um número para mat.graus(ângulo).'
+        );
 
     return valorAngle * (180 / Math.PI);
 };
@@ -27,7 +30,10 @@ module.exports.mediana = function (a) {
  */
 module.exports.moda = function (numbers) {
     if (!Array.isArray(numbers))
-        throw new ErroEmTempoDeExecucao(this.token, 'Parâmetro `vetor` deve ser um vetor na função moda(vetor).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Parâmetro `vetor` deve ser um vetor na função moda(vetor).'
+        );
 
     if (numbers.some(isNaN))
         throw new ErroEmTempoDeExecucao(
@@ -86,7 +92,9 @@ module.exports.gerarPontosAbscissa = function (distancia, valorPontoCentral, num
     const valorPontoCentralResolvido = valorPontoCentral.hasOwnProperty('valor')
         ? valorPontoCentral.valor
         : valorPontoCentral;
-    let numeroPontosResolvido = numeroPontos.hasOwnProperty('valor') ? numeroPontos.valor : numeroPontos;
+    let numeroPontosResolvido = numeroPontos.hasOwnProperty('valor')
+        ? numeroPontos.valor
+        : numeroPontos;
     if (!Number.isInteger(distanciaResolvido))
         throw new ErroEmTempoDeExecucao(
             this.token,
@@ -103,7 +111,8 @@ module.exports.gerarPontosAbscissa = function (distancia, valorPontoCentral, num
         numeroPontosResolvido = 7;
     }
 
-    const elementoInicial = valorPontoCentralResolvido - ((numeroPontosResolvido / 2) >> 0) * distanciaResolvido;
+    const elementoInicial =
+        valorPontoCentralResolvido - ((numeroPontosResolvido / 2) >> 0) * distanciaResolvido;
     const x = [];
     for (let i = 0; i < numeroPontosResolvido; i++) {
         x.push(elementoInicial + i * distanciaResolvido);
@@ -116,8 +125,16 @@ module.exports.gerarPontosAbscissa = function (distancia, valorPontoCentral, num
 module.exports.fun1R = function (a, b) {
     const valorAResolvido = a.hasOwnProperty('valor') ? a.valor : a;
     const valorBResolvido = b.hasOwnProperty('valor') ? b.valor : b;
-    if (isNaN(valorAResolvido) || valorAResolvido === null || isNaN(valorBResolvido) || valorBResolvido === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para fun1R(valor1,valor2).');
+    if (
+        isNaN(valorAResolvido) ||
+        valorAResolvido === null ||
+        isNaN(valorBResolvido) ||
+        valorBResolvido === null
+    )
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para fun1R(valor1,valor2).'
+        );
     return (-1 * valorBResolvido) / valorAResolvido;
 };
 
@@ -125,7 +142,9 @@ module.exports.fun1R = function (a, b) {
 module.exports.linspace = function (startValue, stopValue, cardinality) {
     const startValueResolvido = startValue.hasOwnProperty('valor') ? startValue.valor : startValue;
     const stopValueResolvido = stopValue.hasOwnProperty('valor') ? stopValue.valor : stopValue;
-    const cardinalityResolvido = cardinality.hasOwnProperty('valor') ? cardinality.valor : cardinality;
+    const cardinalityResolvido = cardinality.hasOwnProperty('valor')
+        ? cardinality.valor
+        : cardinality;
     if (
         isNaN(startValueResolvido) ||
         startValueResolvido === null ||
@@ -134,7 +153,10 @@ module.exports.linspace = function (startValue, stopValue, cardinality) {
         isNaN(cardinalityResolvido) ||
         cardinalityResolvido === null
     )
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para linspace(valor1,valor2,valor3).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para linspace(valor1,valor2,valor3).'
+        );
     const lista = [];
     const step = (stopValueResolvido - startValueResolvido) / (cardinalityResolvido - 1);
     for (let i = 0; i < cardinalityResolvido; i++) {
@@ -260,10 +282,16 @@ module.exports.numeroOcorrencias = function (vetor, valor) {
  */
 module.exports.max = function (vetor) {
     if (!Array.isArray(vetor))
-        throw new ErroEmTempoDeExecucao(this.token, 'Parâmetro `vetor` deve ser um vetor, em max(vetor).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Parâmetro `vetor` deve ser um vetor, em max(vetor).'
+        );
 
     if (vetor.some(isNaN))
-        throw new ErroEmTempoDeExecucao(this.token, 'Todos os elementos de `vetor` deve ser numéricos, em max(vetor).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Todos os elementos de `vetor` deve ser numéricos, em max(vetor).'
+        );
 
     return Math.max.apply(null, vetor);
 };
@@ -275,10 +303,16 @@ module.exports.max = function (vetor) {
  */
 module.exports.min = function (vetor) {
     if (!Array.isArray(vetor))
-        throw new ErroEmTempoDeExecucao(this.token, 'Parâmetro `vetor` deve ser um vetor, em min(vetor).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Parâmetro `vetor` deve ser um vetor, em min(vetor).'
+        );
 
     if (vetor.some(isNaN))
-        throw new ErroEmTempoDeExecucao(this.token, 'Todos os elementos de `vetor` deve ser numéricos, em min(vetor).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Todos os elementos de `vetor` deve ser numéricos, em min(vetor).'
+        );
 
     return Math.min.apply(null, vetor);
 };
@@ -316,7 +350,10 @@ module.exports.media = function () {
     const argumentsLength = Object.keys(arguments).length;
 
     if (argumentsLength <= 0) {
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve fornecer um parâmetro para a função.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve fornecer um parâmetro para a função.'
+        );
     }
 
     if (argumentsLength > 1) {
@@ -327,12 +364,18 @@ module.exports.media = function () {
     const args = arguments['0'];
 
     if (!Array.isArray(args)) {
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve fornecer um parâmetro do tipo vetor.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve fornecer um parâmetro do tipo vetor.'
+        );
     }
 
     // Valida se o array está vazio.
     if (!args.length) {
-        throw new ErroEmTempoDeExecucao(this.token, 'Vetor vazio. Você deve fornecer ao menos um valor ao vetor.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Vetor vazio. Você deve fornecer ao menos um valor ao vetor.'
+        );
     }
 
     // Valida se o array contém apenas valores do tipo número.
@@ -391,7 +434,10 @@ module.exports.sqr = sqr;
 //Variação de uma matriz
 module.exports.variancia = function (array, flag) {
     if (isNaN(array) || array === null || isNaN(flag) || flag === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para variancia(matriz, flag).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para variancia(matriz, flag).'
+        );
 
     if (flag == undefined) {
         flag = 1;
@@ -402,7 +448,10 @@ module.exports.variancia = function (array, flag) {
 //Covariância de duas matrizes
 module.exports.colet = function (array1, array2) {
     if (isNaN(array1) || array1 === null || isNaN(array1) || array2 === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para covar(matriz1, matriz2).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para covar(matriz1, matriz2).'
+        );
 
     let u = ve(array1);
     let v = ve(array2);
@@ -514,7 +563,10 @@ module.exports.velocidadeMedia = function (s, t) {
     const valorS = s.hasOwnProperty('valor') ? s.valor : s;
     const valorT = t.hasOwnProperty('valor') ? t.valor : t;
     if (isNaN(valorS) || valorS === null || isNaN(valorT) || valorT === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para velocidadeMedia(d,t).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para velocidadeMedia(d,t).'
+        );
 
     return valorS / valorT;
 };
@@ -540,20 +592,32 @@ module.exports.deltaT = function (t0, t) {
 };
 
 // Cálculo de aceleração
-module.exports.aceleracao = function (velocidadeFinal, velocidadeInicial, tempoFinal, tempoInicial) {
-    const velocidadeFinalResolvido = velocidadeFinal.hasOwnProperty('valor') ? velocidadeFinal.valor : velocidadeFinal;
+module.exports.aceleracao = function (
+    velocidadeFinal,
+    velocidadeInicial,
+    tempoFinal,
+    tempoInicial
+) {
+    const velocidadeFinalResolvido = velocidadeFinal.hasOwnProperty('valor')
+        ? velocidadeFinal.valor
+        : velocidadeFinal;
     const velocidadeInicialResolvido = velocidadeInicial.hasOwnProperty('valor')
         ? velocidadeInicial.valor
         : velocidadeInicial;
     const tempoFinalResolvido = tempoFinal.hasOwnProperty('valor') ? tempoFinal.valor : tempoFinal;
-    const tempoInicialResolvido = tempoInicial.hasOwnProperty('valor') ? tempoInicial.valor : tempoInicial;
+    const tempoInicialResolvido = tempoInicial.hasOwnProperty('valor')
+        ? tempoInicial.valor
+        : tempoInicial;
     if (
         velocidadeFinalResolvido === null ||
         velocidadeInicialResolvido === null ||
         tempoFinalResolvido === null ||
         tempoInicialResolvido === null
     ) {
-        throw new ErroEmTempoDeExecucao(this.token, 'Devem ser fornecidos quatro parâmetros obrigatórios.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Devem ser fornecidos quatro parâmetros obrigatórios.'
+        );
     }
 
     if (
@@ -562,10 +626,16 @@ module.exports.aceleracao = function (velocidadeFinal, velocidadeInicial, tempoF
         typeof tempoFinalResolvido !== 'number' ||
         typeof tempoInicialResolvido !== 'number'
     ) {
-        throw new ErroEmTempoDeExecucao(this.token, 'Todos os parâmetros devem ser do tipo número.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Todos os parâmetros devem ser do tipo número.'
+        );
     }
 
-    return (velocidadeFinalResolvido - velocidadeInicialResolvido) / (tempoFinalResolvido - tempoInicialResolvido);
+    return (
+        (velocidadeFinalResolvido - velocidadeInicialResolvido) /
+        (tempoFinalResolvido - tempoInicialResolvido)
+    );
 };
 
 //Função Horária da Posição (M.R.U)
@@ -591,8 +661,18 @@ module.exports.mruv = function (s0, s, a) {
     const valorS0 = s0.hasOwnProperty('valor') ? s0.valor : s0;
     const valorS = s.hasOwnProperty('valor') ? s.valor : s;
     const valorA = a.hasOwnProperty('valor') ? a.valor : a;
-    if (isNaN(valorS0) || valorS0 === null || isNaN(valorS) || valorS === null || isNaN(valorA) || valorA === null)
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para mruv(Pi, Vf, A).');
+    if (
+        isNaN(valorS0) ||
+        valorS0 === null ||
+        isNaN(valorS) ||
+        valorS === null ||
+        isNaN(valorA) ||
+        valorA === null
+    )
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para mruv(Pi, Vf, A).'
+        );
     const vf = [];
     const x = [];
     let v: any = [];
@@ -626,12 +706,17 @@ module.exports.pid = function (Mo, t, K, T1, T2) {
         isNaN(valorT2) ||
         valorT2 === null
     ) {
-        throw new ErroEmTempoDeExecucao(this.token, 'Você deve prover valores para pid(Ov, Ts, K, T1, T2).');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'Você deve prover valores para pid(Ov, Ts, K, T1, T2).'
+        );
     }
     let pi = Math.PI; //Pi da bilbioteca Math.js
 
     //AvalorMortecimento Relativo
-    let csi = (-1 * Math.log(valorMo / 100)) / Math.sqrt(Math.pow(pi, 2) + pot(Math.log(valorMo / 100), 2));
+    let csi =
+        (-1 * Math.log(valorMo / 100)) /
+        Math.sqrt(Math.pow(pi, 2) + pot(Math.log(valorMo / 100), 2));
 
     //Frequência Natural
     let Wn = 4 / (t * csi);
@@ -653,7 +738,10 @@ module.exports.pid = function (Mo, t, K, T1, T2) {
 // Retorna o comprimento de um vetor
 module.exports.comp = function (array) {
     if (!Array.isArray(array)) {
-        throw new ErroEmTempoDeExecucao(this.token, 'O valor passado pra função deve ser um vetor.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'O valor passado pra função deve ser um vetor.'
+        );
     }
 
     return array.length;
@@ -663,7 +751,10 @@ module.exports.comp = function (array) {
 module.exports.minaprox = function (value) {
     const valueResolvido = value.hasOwnProperty('valor') ? value.valor : value;
     if (typeof valueResolvido !== 'number') {
-        throw new ErroEmTempoDeExecucao(this.token, 'O valor passado pra função deve ser um número.');
+        throw new ErroEmTempoDeExecucao(
+            this.token,
+            'O valor passado pra função deve ser um número.'
+        );
     }
 
     return Math.floor(valueResolvido);

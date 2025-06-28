@@ -115,7 +115,10 @@ export class MicroLexador {
 
         const codigo: string = this.codigo.substring(this.inicioSimbolo, this.atual);
 
-        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string =
+            codigo in palavrasReservadas
+                ? palavrasReservadas[codigo]
+                : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }

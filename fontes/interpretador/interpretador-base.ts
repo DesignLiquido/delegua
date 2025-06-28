@@ -148,7 +148,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.performance = performance;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
-        this.funcaoDeRetornoMesmaLinha = funcaoDeRetornoMesmaLinha || process.stdout.write.bind(process.stdout);
+        this.funcaoDeRetornoMesmaLinha =
+            funcaoDeRetornoMesmaLinha || process.stdout.write.bind(process.stdout);
 
         this.erros = [];
         this.declaracoes = [];
@@ -176,7 +177,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
@@ -203,7 +206,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
-        this.pilhaEscoposExecucao.definirConstante(declaracao.simboloVariavel.lexema, retornoInicializacao);
+        this.pilhaEscoposExecucao.definirConstante(
+            declaracao.simboloVariavel.lexema,
+            retornoInicializacao
+        );
         await this.executar(declaracao.corpo);
 
         if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
@@ -266,7 +272,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
-        const textoFalha = expressao.explicacao.valor ?? ((await this.avaliar(expressao.explicacao)) as any).valor;
+        const textoFalha =
+            expressao.explicacao.valor ?? ((await this.avaliar(expressao.explicacao)) as any).valor;
         throw new ErroEmTempoDeExecucao(expressao.simbolo, textoFalha, expressao.linha);
     }
 
@@ -292,7 +299,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
+        const mensagem =
+            expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
         return new Promise((resolucao) =>
             this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
                 resolucao(resposta);
@@ -311,10 +319,18 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         variaveis.forEach((elemento) => {
             if (elemento?.valor?.tipo === tipoDeDadosDelegua.LOGICO) {
-                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
+                textoFinal = textoFinal.replace(
+                    '${' + elemento.variavel + '}',
+                    this.paraTexto(elemento?.valor?.valor)
+                );
             } else {
-                const valor = elemento?.valor?.hasOwnProperty('valor') ? elemento?.valor.valor : elemento?.valor;
-                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', `${this.paraTexto(valor)}`);
+                const valor = elemento?.valor?.hasOwnProperty('valor')
+                    ? elemento?.valor.valor
+                    : elemento?.valor;
+                textoFinal = textoFinal.replace(
+                    '${' + elemento.variavel + '}',
+                    `${this.paraTexto(valor)}`
+                );
             }
         });
 
@@ -333,7 +349,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             const nomeVariavel: string = s.replace(/[\$\{\}]*/gm, '');
 
             let microLexador = this.microLexador.mapear(nomeVariavel);
-            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(microLexador, linha);
+            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
+                microLexador,
+                linha
+            );
 
             return {
                 nomeVariavel,
@@ -380,8 +399,16 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     protected verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
-        if (typeof operando === tipoDeDadosPrimitivos.NUMERO || operando.tipo === tipoDeDadosDelegua.NUMERO) return;
-        throw new ErroEmTempoDeExecucao(operador, 'Operando precisa ser um número.', Number(operador.linha));
+        if (
+            typeof operando === tipoDeDadosPrimitivos.NUMERO ||
+            operando.tipo === tipoDeDadosDelegua.NUMERO
+        )
+            return;
+        throw new ErroEmTempoDeExecucao(
+            operador,
+            'Operando precisa ser um número.',
+            Number(operador.linha)
+        );
     }
 
     async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
@@ -404,7 +431,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (expressao.incidenciaOperador === 'ANTES') {
                     valor++;
                     if (expressao.operando instanceof Variavel) {
-                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                        this.pilhaEscoposExecucao.atribuirVariavel(
+                            expressao.operando.simbolo,
+                            valor
+                        );
                     }
 
                     return valor;
@@ -417,7 +447,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (expressao.incidenciaOperador === 'ANTES') {
                     valor--;
                     if (expressao.operando instanceof Variavel) {
-                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, valor);
+                        this.pilhaEscoposExecucao.atribuirVariavel(
+                            expressao.operando.simbolo,
+                            valor
+                        );
                     }
 
                     return valor;
@@ -442,14 +475,18 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const valorConteudo: any = conteudo?.hasOwnProperty('valor') ? conteudo.valor : conteudo;
 
-        const tipoConteudo: string = conteudo.hasOwnProperty('tipo') ? conteudo.tipo : typeof conteudo;
+        const tipoConteudo: string = conteudo.hasOwnProperty('tipo')
+            ? conteudo.tipo
+            : typeof conteudo;
 
         resultado = valorConteudo;
         if (
             [tipoDeDadosDelegua.NUMERO, tipoDeDadosPrimitivos.NUMERO].includes(tipoConteudo) &&
             declaracao.casasDecimais > 0
         ) {
-            resultado = valorConteudo.toLocaleString('pt', { maximumFractionDigits: declaracao.casasDecimais });
+            resultado = valorConteudo.toLocaleString('pt', {
+                maximumFractionDigits: declaracao.casasDecimais,
+            });
         }
 
         if (declaracao.espacos > 0) {
@@ -495,7 +532,8 @@ export class InterpretadorBase implements InterpretadorInterface {
               ? tipoDeDadosDelegua.NUMERO
               : String(NaN);
 
-        if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda)) return;
+        if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda))
+            return;
         if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'qualquer') return;
         if (this.tiposNumericos.includes(tipoDireita) && tipoEsquerda === 'qualquer') return;
 
@@ -507,7 +545,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
+        throw new ErroEmTempoDeExecucao(
+            operador,
+            'Operadores precisam ser números.',
+            operador.linha
+        );
     }
 
     async visitarExpressaoBinaria(expressao: any): Promise<any> {
@@ -515,8 +557,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
         const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
         const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
-        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
-        const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
+            ? esquerda.tipo
+            : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita?.hasOwnProperty('tipo')
+            ? direita.tipo
+            : inferirTipoVariavel(direita);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
@@ -524,7 +570,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Math.pow(valorEsquerdo, valorDireito);
 
             case tiposDeSimbolos.MAIOR:
-                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+                if (
+                    this.tiposNumericos.includes(tipoEsquerdo) &&
+                    this.tiposNumericos.includes(tipoDireito)
+                ) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
 
@@ -535,7 +584,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
-                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+                if (
+                    this.tiposNumericos.includes(tipoEsquerdo) &&
+                    this.tiposNumericos.includes(tipoDireito)
+                ) {
                     return Number(valorEsquerdo) < Number(valorDireito);
                 }
 
@@ -552,7 +604,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
-                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+                if (
+                    this.tiposNumericos.includes(tipoEsquerdo) &&
+                    this.tiposNumericos.includes(tipoDireito)
+                ) {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 }
 
@@ -576,11 +631,17 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MULTIPLICACAO:
             case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
-                if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO || tipoDireito === tipoDeDadosDelegua.TEXTO) {
+                if (
+                    tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
+                    tipoDireito === tipoDeDadosDelegua.TEXTO
+                ) {
                     // Sem ambos os valores resolvem como texto, multiplica normal.
                     // Se apenas um resolve como texto, o outro repete o
                     // texto n vezes, sendo n o valor do outro.
-                    if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO && tipoDireito === tipoDeDadosDelegua.TEXTO) {
+                    if (
+                        tipoEsquerdo === tipoDeDadosDelegua.TEXTO &&
+                        tipoDireito === tipoDeDadosDelegua.TEXTO
+                    ) {
                         return Number(valorEsquerdo) * Number(valorDireito);
                     }
 
@@ -633,12 +694,17 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {MetodoPrimitiva} entidadeChamada O método da primitiva chamado.
      * @returns O resultado da chamada do método da primitiva.
      */
-    protected async chamarMetodoPrimitiva(expressao: Chamada, entidadeChamada: MetodoPrimitiva): Promise<any> {
+    protected async chamarMetodoPrimitiva(
+        expressao: Chamada,
+        entidadeChamada: MetodoPrimitiva
+    ): Promise<any> {
         const argumentosResolvidos: any[] = [];
 
         for (const argumento of expressao.argumentos) {
             const valorResolvido: any = await this.avaliar(argumento);
-            argumentosResolvidos.push(valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido);
+            argumentosResolvidos.push(
+                valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
+            );
         }
 
         return await entidadeChamada.chamar(this, argumentosResolvidos);
@@ -668,13 +734,16 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarExpressaoDeChamada(expressao: Chamada | any): Promise<any> {
         try {
-            const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(expressao.entidadeChamada);
+            const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
+                expressao.entidadeChamada
+            );
 
             if (variavelEntidadeChamada === null) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         expressao.parentese,
-                        'Chamada de função ou método inexistente: ' + String(expressao.entidadeChamada),
+                        'Chamada de função ou método inexistente: ' +
+                            String(expressao.entidadeChamada),
                         expressao.linha
                     )
                 );
@@ -698,8 +767,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return await this.chamarMetodoPrimitiva(expressao, entidadeChamada);
             }
 
-            const argumentos: ArgumentoInterface[] = await this.resolverArgumentosChamada(expressao);
-            const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
+            const argumentos: ArgumentoInterface[] =
+                await this.resolverArgumentosChamada(expressao);
+            const aridade = entidadeChamada.aridade
+                ? entidadeChamada.aridade()
+                : entidadeChamada.length;
 
             // Completar os argumentos não preenchidos com valores indefinidos.
             if (argumentos.length < aridade) {
@@ -717,7 +789,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return entidadeChamada.chamar(
                         this,
                         argumentos.map((a) =>
-                            a && a.valor && a.valor.hasOwnProperty('valor') ? a.valor.valor : a?.valor
+                            a && a.valor && a.valor.hasOwnProperty('valor')
+                                ? a.valor.valor
+                                : a?.valor
                         ),
                         expressao.entidadeChamada.simbolo
                     );
@@ -733,7 +807,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Por algum motivo misterioso, `entidadeChamada instanceof Chamavel` dá `false` em Liquido,
             // mesmo que esteja tudo certo com `DeleguaFuncao`,
             // então precisamos testar o nome do construtor também.
-            if (entidadeChamada instanceof Chamavel || entidadeChamada.constructor.name === 'DeleguaFuncao') {
+            if (
+                entidadeChamada instanceof Chamavel ||
+                entidadeChamada.constructor.name === 'DeleguaFuncao'
+            ) {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
             }
@@ -741,7 +818,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Chamadas a `super()`.
             // Basicamente, chamar o construtor da superclasse.
             if (expressao.entidadeChamada instanceof Super) {
-                const descritorSuperclasse: DescritorTipoClasse = variavelEntidadeChamada.classe.superClasse;
+                const descritorSuperclasse: DescritorTipoClasse =
+                    variavelEntidadeChamada.classe.superClasse;
                 const metodoConstrutor = descritorSuperclasse.encontrarMetodo('construtor');
                 await metodoConstrutor.chamar(this, argumentos);
                 return null;
@@ -755,11 +833,18 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (expressao.entidadeChamada.objeto) {
                     objeto = await this.avaliar(expressao.entidadeChamada.objeto);
                 }
-                return entidadeChamada.apply(objeto.hasOwnProperty('valor') ? objeto.valor : objeto, argumentos);
+                return entidadeChamada.apply(
+                    objeto.hasOwnProperty('valor') ? objeto.valor : objeto,
+                    argumentos
+                );
             }
 
             return Promise.reject(
-                new ErroEmTempoDeExecucao(expressao.parentese, 'Só pode chamar função ou classe.', expressao.linha)
+                new ErroEmTempoDeExecucao(
+                    expressao.parentese,
+                    'Só pode chamar função ou classe.',
+                    expressao.linha
+                )
             );
         } catch (erro: any) {
             this.erros.push({
@@ -777,7 +862,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
-        const valorResolvido = valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
+        const valorResolvido =
+            valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
         let indice: any = null;
 
         if (expressao.indice) {
@@ -787,13 +873,19 @@ export class InterpretadorBase implements InterpretadorInterface {
         switch (expressao.alvo.constructor.name) {
             case 'Variavel':
                 const alvoVariavel = expressao.alvo as Variavel;
-                this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+                this.pilhaEscoposExecucao.atribuirVariavel(
+                    alvoVariavel.simbolo,
+                    valorResolvido,
+                    indice
+                );
                 break;
             case 'AcessoMetodoOuPropriedade':
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
-                const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+                const objeto = variavelObjeto.hasOwnProperty('valor')
+                    ? variavelObjeto.valor
+                    : variavelObjeto;
 
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
@@ -832,10 +924,17 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (Array.isArray(direita) || typeof direita === tipoDeDadosPrimitivos.TEXTO) {
                 return direita.includes(esquerda);
             } else if (direita !== null && typeof direita === 'object') {
-                return esquerda in direita || (direita.valor !== undefined && esquerda in direita.valor);
+                return (
+                    esquerda in direita ||
+                    (direita.valor !== undefined && esquerda in direita.valor)
+                );
             }
 
-            throw new ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
+            throw new ErroEmTempoDeExecucao(
+                esquerda,
+                "Tipo de chamada inválida com 'em'.",
+                expressao.linha
+            );
         }
 
         // se um estado for verdadeiro, retorna verdadeiro
@@ -862,7 +961,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         let retornoExecucao: any;
         while (!(retornoExecucao instanceof Quebra)) {
-            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            if (
+                declaracao.condicao !== null &&
+                !this.eVerdadeiro(await this.avaliar(declaracao.condicao))
+            ) {
                 break;
             }
 
@@ -898,13 +1000,20 @@ export class InterpretadorBase implements InterpretadorInterface {
         // laço de repetição.
         declaracao.posicaoAtual = 0;
         const vetorResolvido = await this.avaliar(declaracao.vetor);
-        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor') ? vetorResolvido.valor : vetorResolvido;
+        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor')
+            ? vetorResolvido.valor
+            : vetorResolvido;
 
         if (!Array.isArray(valorVetorResolvido)) {
-            return Promise.reject("Variável ou literal provida em instrução 'para cada' não é um vetor.");
+            return Promise.reject(
+                "Variável ou literal provida em instrução 'para cada' não é um vetor."
+            );
         }
 
-        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < valorVetorResolvido.length) {
+        while (
+            !(retornoExecucao instanceof Quebra) &&
+            declaracao.posicaoAtual < valorVetorResolvido.length
+        ) {
             try {
                 this.pilhaEscoposExecucao.definirVariavel(
                     declaracao.nomeVariavelIteracao,
@@ -962,7 +1071,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+        while (
+            !(retornoExecucao instanceof Quebra) &&
+            this.eVerdadeiro(await this.avaliar(declaracao.condicao))
+        ) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao instanceof SustarQuebra) {
@@ -987,7 +1099,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor') ? condicaoEscolha.valor : condicaoEscolha;
+        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor')
+            ? condicaoEscolha.valor
+            : condicaoEscolha;
 
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
@@ -1078,9 +1192,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                             Number(declaracao.linha),
                             erro.mensagem
                         );
-                        const chamadaPegue = new Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, [
-                            literalErro,
-                        ]);
+                        const chamadaPegue = new Chamada(
+                            declaracao.caminhoPegue.hashArquivo,
+                            declaracao.caminhoPegue,
+                            [literalErro]
+                        );
                         valorRetorno = await chamadaPegue.aceitar(this);
                     }
                 }
@@ -1103,7 +1219,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                ? resultadoAvaliacao.valor
+                : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
@@ -1180,7 +1298,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.executarBloco(declaracao.declaracoes);
     }
 
-    async avaliacaoDeclaracaoVarOuConst(declaracao: Const | ConstMultiplo | Var | VarMultiplo): Promise<any> {
+    async avaliacaoDeclaracaoVarOuConst(
+        declaracao: Const | ConstMultiplo | Var | VarMultiplo
+    ): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
@@ -1204,7 +1324,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
+        this.pilhaEscoposExecucao.definirConstante(
+            declaracao.simbolo.lexema,
+            valorFinal,
+            declaracao.tipo
+        );
 
         return null;
     }
@@ -1218,7 +1342,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
         const tipoIndividual = declaracao.tipo.replace('[]', '');
         for (let [indice, valor] of valoresFinais.entries()) {
-            this.pilhaEscoposExecucao.definirConstante(declaracao.simbolos[indice].lexema, valor, tipoIndividual);
+            this.pilhaEscoposExecucao.definirConstante(
+                declaracao.simbolos[indice].lexema,
+                valor,
+                tipoIndividual
+            );
         }
 
         return null;
@@ -1239,7 +1367,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         return new RetornoQuebra(valor);
     }
 
-    async visitarExpressaoFuncaoConstruto(funcaoConstruto: FuncaoConstruto): Promise<DeleguaFuncao> {
+    async visitarExpressaoFuncaoConstruto(
+        funcaoConstruto: FuncaoConstruto
+    ): Promise<DeleguaFuncao> {
         return new DeleguaFuncao(null, funcaoConstruto);
     }
 
@@ -1298,13 +1428,20 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
-    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
-        const promises = await Promise.all([this.avaliar(expressao.entidadeChamada), this.avaliar(expressao.indice)]);
+    async visitarExpressaoAcessoIndiceVariavel(
+        expressao: AcessoIndiceVariavel | any
+    ): Promise<any> {
+        const promises = await Promise.all([
+            this.avaliar(expressao.entidadeChamada),
+            this.avaliar(expressao.indice),
+        ]);
 
         const variavelObjeto: VariavelInterface = promises[0];
         const indice = promises[1];
 
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
 
         if (Array.isArray(objeto)) {
@@ -1371,7 +1508,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             if (valorIndice >= objeto.length) {
                 return Promise.reject(
-                    new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do tamanho.', expressao.linha)
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Índice fora do tamanho.',
+                        expressao.linha
+                    )
                 );
             }
 
@@ -1389,7 +1530,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(
@@ -1426,7 +1569,9 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
         let superClasse = null;
         if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            const variavelSuperClasse: VariavelInterface = await this.avaliar(declaracao.superClasse);
+            const variavelSuperClasse: VariavelInterface = await this.avaliar(
+                declaracao.superClasse
+            );
             superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
@@ -1449,7 +1594,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
             const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
-            const funcao = new DeleguaFuncao(metodoAtual.simbolo.lexema, metodoAtual.funcao, undefined, eInicializador);
+            const funcao = new DeleguaFuncao(
+                metodoAtual.simbolo.lexema,
+                metodoAtual.funcao,
+                undefined,
+                eInicializador
+            );
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
@@ -1474,7 +1624,9 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso.
      * @returns O resultado da execução.
      */
-    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
@@ -1485,11 +1637,16 @@ export class InterpretadorBase implements InterpretadorInterface {
             variavelObjeto = variavelObjeto.valor;
         }
 
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
-        if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto.constructor.name === 'ObjetoDeleguaClasse'
+        ) {
             const valor = objeto.obter(expressao.simbolo);
             if (valor === 0) return 0;
             return valor || null;
@@ -1551,7 +1708,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            const promises = await Promise.all([this.avaliar(expressao.chaves[i]), this.avaliar(expressao.valores[i])]);
+            const promises = await Promise.all([
+                this.avaliar(expressao.chaves[i]),
+                this.avaliar(expressao.valores[i]),
+            ]);
 
             if (typeof promises[0] === 'boolean') {
                 const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
@@ -1559,7 +1719,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 continue;
             }
 
-            dicionario[promises[0]] = promises[1].hasOwnProperty('valor') ? promises[1].valor : promises[1];
+            dicionario[promises[0]] = promises[1].hasOwnProperty('valor')
+                ? promises[1].valor
+                : promises[1];
         }
 
         return dicionario;
@@ -1586,7 +1748,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            valorFinal,
+            declaracao.tipo
+        );
 
         return null;
     }
@@ -1600,7 +1766,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
         const tipoIndividual = declaracao.tipo.replace('[]', '');
         for (let [indice, valor] of valoresFinais.entries()) {
-            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolos[indice].lexema, valor, tipoIndividual);
+            this.pilhaEscoposExecucao.definirVariavel(
+                declaracao.simbolos[indice].lexema,
+                valor,
+                tipoIndividual
+            );
         }
 
         return null;
@@ -1631,7 +1801,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoVetor += `${JSON.stringify(elemento)}, `;
                     continue;
                 }
-                retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
+                retornoVetor +=
+                    typeof elemento === 'string'
+                        ? `'${elemento}', `
+                        : `${this.paraTexto(elemento)}, `;
             }
 
             if (retornoVetor.length > 1) {
@@ -1643,7 +1816,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao) return objeto.paraTexto();
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
+            return objeto.paraTexto();
         switch (objeto.constructor.name) {
             case 'Object':
                 if ('tipo' in objeto) {
@@ -1701,10 +1875,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                retornoExecucao = await this.executar(
+                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                );
             }
 
             return retornoExecucao;
@@ -1740,7 +1917,10 @@ export class InterpretadorBase implements InterpretadorInterface {
      *                       pelo modo REPL (LAIR).
      * @returns Um objeto com o resultado da interpretação.
      */
-    async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
+    async interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente = false
+    ): Promise<RetornoInterpretador> {
         this.erros = [];
         this.emDeclaracaoTente = false;
 
