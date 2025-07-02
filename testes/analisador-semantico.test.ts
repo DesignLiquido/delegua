@@ -103,6 +103,25 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);  
             });
+
+            it('Absoluto', () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao maior(x: inteiro, y: inteiro): inteiro {',
+                    '    retorna (x + y + (x - y).absoluto()) \ 2',
+                    '}',
+                    'var x = inteiro(leia("Digite o primeiro número: "))',
+                    'var y = inteiro(leia("Digite o segundo número: "))',
+                    'var z = inteiro(leia("Digite o terceiro número: "))',
+                    'var maior_numero = maior(x, maior(y, z))',
+                    'escreva "${maior_numero} eh o maior"',
+                ], -1);
+                
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
         });
 
         describe('Cenários de falha', () => {

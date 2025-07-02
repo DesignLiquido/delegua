@@ -122,6 +122,34 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('leia', () => {
+                it('Trivial', async () => {
+                    let _saida: string = '';
+                    // Aqui vamos simular a resposta para uma variável de `leia()`.
+                    const respostas = ['5'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const retornoLexador = lexador.mapear([
+                        'var teste = leia("Insira algo:")',
+                        "imprima(teste)",
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe("5");
+                });
+            });
+
             describe('Operações matemáticas', () => {
                 it('Operações matemáticas - Trivial', async () => {
                     const retornoLexador = lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);

@@ -204,7 +204,7 @@ export class AvaliadorSintaticoPitugues
     }
 
     expressaoLeia(): Leia {
-        const simboloLeia = this.simbolos[this.atual];
+        const simboloLeia = this.avancarEDevolverAnterior();
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
