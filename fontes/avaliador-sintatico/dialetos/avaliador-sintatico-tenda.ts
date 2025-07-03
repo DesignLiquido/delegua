@@ -16,6 +16,7 @@ import {
     DefinirValor,
     Dicionario,
     ExpressaoRegular,
+    FimPara,
     FuncaoConstruto,
     Isto,
     Leia,
@@ -72,6 +73,7 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import { Simbolo } from '../../lexador/simbolo';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -932,7 +934,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return this.atribuir();
     }
 
-    override blocoEscopo(): Array<Declaracao> {
+    override blocoEscopo(tipo?: string): Array<Declaracao> {
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
         let declaracoes: Array<Declaracao> = [];
 
@@ -945,6 +947,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             }
         }
 
+        this.consumir(tiposDeSimbolos.FIM, `Esperado 'fim' para concluir bloco de escopo ${tipo ? "de " + tipo : ''}.`);
         this.pilhaEscopos.removerUltimo();
 
         return declaracoes;
@@ -985,9 +988,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             this.consumir(tiposDeSimbolos.FAÇA, "Esperado 'faça' depois da condição.")
 
-            const blocoCorpo = this.blocoEscopo();
-
-            this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' para concluir condição Enquanto.");
+            const blocoCorpo = this.blocoEscopo('enquanto');
 
             return new Enquanto(condicao, new Bloco(simboloEnquanto.linha, simboloEnquanto.hashArquivo, blocoCorpo));
         } finally {
@@ -1132,35 +1133,35 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     override declaracaoPara(): Para | ParaCada {
-        try {
-            const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
-            this.blocos += 1;
-
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
-                return this.declaracaoParaCada(simboloPara);
-            }
-
-            return this.declaracaoParaTradicional(simboloPara);
-        } finally {
-            this.blocos -= 1;
-        }
-    }
-
-    protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
-        const simboloParaCada = this.simbolos[this.atual - 1];
+        const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
+        const simboloCada = this.consumir(tiposDeSimbolos.CADA, `Esperado palavra reservada 'cada' após 'para'.`);
+        this.blocos += 1;
 
         const nomeVariavelIteracao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado identificador de variável de iteração para instrução 'para cada'."
         );
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                "Esperado palavra reservada 'de' após variável de iteração em instrução 'para cada'."
-            );
-        }
+        this.consumir(tiposDeSimbolos.EM, "Esperado palavra reservada 'em' após variável de iteração em instrução 'para cada'.");
 
+        // Se for um literal ou identificador numérico, segue um `para` 
+        // tradicional de Delégua, com variável de controle e passo positivo, incrementado em 1.
+        // const simboloInicioIteracoes = this.avancarEDevolverAnterior();
+        const literalOuVariavelInicio = this.adicaoOuSubtracao();
+        this.blocos -= 1;
+        switch (literalOuVariavelInicio.constructor.name) {
+            case 'Literal':
+                return this.declaracaoParaTradicional(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
+            // TODO: Terminar
+            default:
+                return this.declaracaoParaCada(simboloPara, nomeVariavelIteracao);
+        }
+    }
+
+    protected declaracaoParaCada(
+        simboloParaCada: SimboloInterface,
+        simboloVariavelIteracao: SimboloInterface
+    ): ParaCada {
         const vetor = this.expressao();
         // if (!vetor.hasOwnProperty('tipo')) {
         //     throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
@@ -1175,60 +1176,102 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // }
 
         this.pilhaEscopos.definirInformacoesVariavel(
-            nomeVariavelIteracao.lexema, 
-            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipo)
+            simboloVariavelIteracao.lexema, 
+            new InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, tipo)
         );
 
-        this.consumir(tiposDeSimbolos.ATÉ, "");
-
-        const expressao = this.expressao();
-
-        this.consumir(tiposDeSimbolos.FAÇA, "");
+        this.consumir(tiposDeSimbolos.FAÇA, "Esperado palavra reservada 'faça' após literal ou variável de iteração em declaração 'para cada'.");
 
         const corpo: Array<Declaracao> = this.blocoEscopo();
 
-        this.consumir(tiposDeSimbolos.FIM, "");
-
-        return new ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, new Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo));
+        return new ParaCada(
+            this.hashArquivo, 
+            Number(simboloParaCada.linha), 
+            simboloVariavelIteracao.lexema, 
+            vetor, 
+            new Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo)
+        );
     }
 
-    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
-        const comParenteses = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
+    protected declaracaoParaTradicional(
+        simboloPara: SimboloInterface, 
+        simboloVariavelIteracao: SimboloInterface,
+        literalOuVariavelInicio: Construto
+    ): Para {
+        this.consumir(tiposDeSimbolos.ATÉ, "Esperado palavra reservada 'até' após literal ou identificador de início de declaração 'para cada'.");
 
-        let inicializador: Var | Expressao | Const[];
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            inicializador = null;
-        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
-            inicializador = this.declaracaoDeVariaveis();
-        } else {
-            inicializador = this.declaracaoExpressao();
-        }
+        const literalOuVariavelFim = this.adicaoOuSubtracao();
 
-        let condicao = null;
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            condicao = this.expressao();
-        }
+        this.consumir(tiposDeSimbolos.FAÇA, "Esperado palavra reservada 'faça' após literal ou variável de passo final em declaração 'para cada'.");
 
-        // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        // A variável de iteração precisa ser definida aqui, para que o corpo de `para cada` (um escopo)
+        // seja capaz de reconhecer a variável e seu tipo.
+        this.pilhaEscopos.definirInformacoesVariavel(
+            simboloVariavelIteracao.lexema, 
+            new InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, 'inteiro')
+        );
 
-        let incrementar = null;
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            incrementar = this.expressao();
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR);
-        }
+        const corpo: Array<Declaracao> = this.blocoEscopo();
 
-        if (comParenteses) {
-            this.consumir(
-                tiposDeSimbolos.PARENTESE_DIREITO,
-                "Esperado ')' após cláusulas de inicialização, condição e incremento."
-            );
-        }
+        // `variavelIteracao <= valorFinal`
+        let operadorCondicao = new Simbolo(
+            tiposDeSimbolos.MENOR_IGUAL,
+            '<=',
+            null,
+            Number(simboloPara.linha),
+            this.hashArquivo
+        );
+        let operadorCondicaoIncremento = new Simbolo(
+            tiposDeSimbolos.MENOR,
+            '<',
+            null,
+            Number(simboloPara.linha),
+            this.hashArquivo
+        );
 
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
-
-        return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+        return new Para(
+            this.hashArquivo, 
+            Number(simboloPara.linha), 
+            // Inicialização.
+            new Expressao(
+                new Atribuir(
+                    this.hashArquivo,
+                    new Variavel(this.hashArquivo, simboloVariavelIteracao, 'inteiro'),
+                    literalOuVariavelInicio
+                )
+            ),
+            // Condição.
+            new Binario(
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, simboloVariavelIteracao, 'inteiro'),
+                operadorCondicao,
+                literalOuVariavelFim
+            ),
+            // Incremento, feito em construto especial `FimPara`.
+            new FimPara(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                new Binario(
+                    this.hashArquivo,
+                    new Variavel(this.hashArquivo, simboloVariavelIteracao, 'inteiro'),
+                    operadorCondicaoIncremento,
+                    literalOuVariavelFim
+                ),
+                new Expressao(
+                    new Atribuir(
+                        this.hashArquivo,
+                        new Variavel(this.hashArquivo, simboloVariavelIteracao, 'inteiro'),
+                        new Binario(
+                            this.hashArquivo,
+                            new Variavel(this.hashArquivo, simboloVariavelIteracao, 'inteiro'),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', null, Number(simboloPara.linha), this.hashArquivo),
+                            new Literal(this.hashArquivo, Number(simboloPara.linha), 1)
+                        )
+                    )
+                )
+            ),
+            new Bloco(simboloPara.hashArquivo, simboloPara.linha, corpo)
+        );
     }
 
     override declaracaoRetorna(): Retorna {
@@ -1272,8 +1315,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
         }
-
-        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' para concluir condição Se.");
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
