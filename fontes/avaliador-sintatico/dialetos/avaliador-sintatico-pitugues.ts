@@ -1253,7 +1253,22 @@ export class AvaliadorSintaticoPitugues
         const simbolo: SimboloInterface = !construtor
             ? this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`)
             : new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
-        return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
+        
+        // Se houver chamadas recursivas à função, precisamos definir um tipo
+        // para ela. Vai ser atualizado após avaliação do corpo da função.
+        this.pilhaEscopos.definirInformacoesVariavel(
+            simbolo.lexema,
+            new InformacaoVariavelOuConstante(simbolo.lexema, 'qualquer')
+        );
+
+        const corpoDaFuncao = this.corpoDaFuncao(tipo);
+        this.pilhaEscopos.definirInformacoesVariavel(
+            simbolo.lexema,
+            new InformacaoVariavelOuConstante(simbolo.lexema, corpoDaFuncao.tipo)
+        );
+        const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipo);
+        this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
+        return funcaoDeclaracao;
     }
 
     logicaComumParametros(): Array<object> {

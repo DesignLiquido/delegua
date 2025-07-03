@@ -303,6 +303,22 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Trivial', async () => {
+                    const codigo = [
+                        'funcao teste():',
+                        '    imprima("Teste")',
+                        'teste()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Teste');
+                });
+
                 it('Fibonacci', async () => {
                     const codigo = [
                         "função fibonacci(n):",
@@ -334,6 +350,13 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(6);
+                    expect(_saidas[0]).toBe('0');
+                    expect(_saidas[1]).toBe('1');
+                    expect(_saidas[2]).toBe('1');
+                    expect(_saidas[3]).toBe('2');
+                    expect(_saidas[4]).toBe('3');
+                    expect(_saidas[5]).toBe('5');
                 });
 
                 it('Uso de funções de ordem superior', async () => {
