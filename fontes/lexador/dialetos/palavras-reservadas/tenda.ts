@@ -1,6 +1,7 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/tenda';
 
 export const palavrasReservadas = {
+    até: tiposDeSimbolos.ATÉ,
     cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,

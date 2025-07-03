@@ -1,7 +1,8 @@
 // Em Tenda, isto é implementado em https://github.com/gabrielbrunop/tenda/blob/main/crates/scanner/src/token.rs#L42.
 export default {
-    ARROBA: 'ARROBA',
     ADICAO: 'ADICAO',
+    ARROBA: 'ARROBA',
+    ATÉ: 'ATÉ',
     BIT_AND: 'BIT_AND',
     BIT_OR: 'BIT_OR',
     BIT_XOR: 'BIT_XOR',

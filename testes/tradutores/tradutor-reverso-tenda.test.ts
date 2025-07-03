@@ -163,7 +163,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/var lista = \[1, 2, 3, 4, 5\]/i);
     });
 
-    it.skip('para cada', () => {
+    it.only('para cada', () => {
         const codigo = [
             "seja total = 0",
             "para cada i em 1 até 10 faça",

@@ -1147,6 +1147,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
+        const simboloParaCada = this.simbolos[this.atual - 1];
+
         const nomeVariavelIteracao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado identificador de variável de iteração para instrução 'para cada'."
@@ -1160,26 +1162,34 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         const vetor = this.expressao();
-        if (!vetor.hasOwnProperty('tipo')) {
-            throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
-        }
+        // if (!vetor.hasOwnProperty('tipo')) {
+        //     throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
+        // }
 
-        const tipoVetor = (vetor as any).tipo as string;
-        if (!tipoVetor.endsWith('[]')) {
-            throw this.erro(
-                simboloPara,
-                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
-            );
-        }
+        const tipo = (vetor as any).tipo as string;
+        // if (!tipoVetor.endsWith('[]')) {
+        //     throw this.erro(
+        //         simboloPara,
+        //         `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+        //     );
+        // }
 
         this.pilhaEscopos.definirInformacoesVariavel(
             nomeVariavelIteracao.lexema, 
-            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipo)
         );
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
-        return new ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, corpo);
+        this.consumir(tiposDeSimbolos.ATÉ, "");
+
+        const expressao = this.expressao();
+
+        this.consumir(tiposDeSimbolos.FAÇA, "");
+
+        const corpo: Array<Declaracao> = this.blocoEscopo();
+
+        this.consumir(tiposDeSimbolos.FIM, "");
+
+        return new ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, new Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo));
     }
 
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
