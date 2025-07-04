@@ -369,12 +369,13 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE, '!=');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
                 }
 
+                break;
             case '&':
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
                 this.avancar();

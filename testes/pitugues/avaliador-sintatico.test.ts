@@ -52,6 +52,20 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
 
+            it('Operações lógicas', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'imprima(1 != 1)'
+                    ], -1
+                );
+                const retornoAvaliadorSintatico =
+                    avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
             it('Para cada', () => {
                 const retornoLexador = lexador.mapear(
                     [

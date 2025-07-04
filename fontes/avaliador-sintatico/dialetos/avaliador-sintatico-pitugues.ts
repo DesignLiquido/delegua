@@ -72,6 +72,11 @@ import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-cons
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
+import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../../bibliotecas/primitivas-numero';
+import primitivasTexto from '../../bibliotecas/primitivas-texto';
+import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -106,6 +111,49 @@ export class AvaliadorSintaticoPitugues
         this.pilhaEscopos = new PilhaEscopos();
         this.primitivasConhecidas = {};
         this.tiposDefinidosEmCodigo = {};
+
+        for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(
+            primitivasDicionario
+        )) {
+            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
+                nomePrimitivaDicionario,
+                'dicionário',
+                dadosPrimitiva.argumentos
+            );
+        }
+
+        for (const [nomePrimitivaNumero, dadosPrimitiva] of Object.entries(primitivasNumero)) {
+            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoVariavelOuConstante(
+                nomePrimitivaNumero,
+                'número',
+                dadosPrimitiva.argumentos
+            );
+        }
+
+        for (const [nomePrimitivaTexto, dadosPrimitiva] of Object.entries(primitivasTexto)) {
+            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoVariavelOuConstante(
+                nomePrimitivaTexto,
+                'texto',
+                dadosPrimitiva.argumentos
+            );
+        }
+
+        for (const [nomePrimitivaVetor, dadosPrimitiva] of Object.entries(primitivasVetor)) {
+            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoVariavelOuConstante(
+                nomePrimitivaVetor,
+                'vetor',
+                dadosPrimitiva.argumentos
+            );
+        }
+
+        // TODO: Por enquanto não há necessidade de validar argumentos aqui, mas isso pode mudar no futuro.
+        this.primitivasConhecidas['inteiro'] = new InformacaoVariavelOuConstante(
+            'inteiro',
+            'inteiro'
+        );
+        this.primitivasConhecidas['numero'] = new InformacaoVariavelOuConstante('numero', 'número');
+        this.primitivasConhecidas['número'] = new InformacaoVariavelOuConstante('número', 'número');
+        this.primitivasConhecidas['texto'] = new InformacaoVariavelOuConstante('texto', 'texto');
     }
 
     protected logicaComumInferenciaTiposVariaveisEConstantes(
