@@ -226,6 +226,20 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/escreva\(total\)/i);
     });
 
+    it.skip('para cada, iterando lista de elementos', () => {
+        const codigo = [
+            'seja total = 0',
+            'para cada i em [1, 2, 3, 4, 5] faça',
+            '    total = total + i',
+            'fim',
+            'exiba(total)'
+        ];
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        expect(resultado).toBeTruthy();
+    });
+
     it('se senão', () => {
         const codigo = `seja idade = 18
         se idade >= 18 então
