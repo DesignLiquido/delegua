@@ -60,6 +60,51 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/}/i);
     });
 
+    describe('Funções', () => {
+        it.skip('Função implícita, com parênteses e retorno na mesma linha', () => {
+            const codigo = [
+                'seja soma(a, b) = a + b'
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
+        it.skip('Função estruturada, com bloco', () => {
+            const codigo = [
+                'seja soma(lista) =',
+                '  faça',
+                '    seja total = 0',
+                '    para cada i em lista faça',
+                '      total = total + i',
+                '    fim',
+                '    retorna total',
+                '  fim',
+                'exiba(soma([1, 3, 5, 7, 9]))'
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
+        it.skip('Função anônima, usando palavra reservada `função`', () => {
+            const codigo = [
+                'seja soma = função(a, b) -> a + b',
+                'seja resultado = soma(10, 5)',
+                'exiba("A soma é: " + resultado)'
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+    });
+
     it('leia -> leia', () => {
         const codigo = `leia("Digite sua idade: ")`;
 
