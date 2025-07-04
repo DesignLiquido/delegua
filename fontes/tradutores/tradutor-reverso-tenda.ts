@@ -12,6 +12,7 @@ import {
     Construto,
     DefinirValor,
     Dicionario,
+    FimPara,
     FuncaoConstruto,
     Isto,
     Leia,
@@ -233,6 +234,11 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         resultado += '}';
 
         return resultado;
+    }
+
+    traduzirConstrutoFimPara(fimPara: FimPara): string {
+        const traducaoIncremento = this.dicionarioDeclaracoes[fimPara.incremento.constructor.name](fimPara.incremento);
+        return traducaoIncremento;
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
@@ -486,7 +492,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
-        let resultado = 'for (';
+        let resultado = 'para ';
         if (declaracaoPara.inicializador.constructor.name === 'Array') {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
@@ -504,7 +510,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
         resultado +=
-            this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ') ';
+            this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ' ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](declaracaoPara.corpo);
         return resultado;
@@ -869,6 +875,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         Chamada: this.traduzirConstrutoChamada.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
+        FimPara: this.traduzirConstrutoFimPara.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Leia: this.traduzirConstrutoLeia.bind(this),
