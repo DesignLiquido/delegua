@@ -29,7 +29,9 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
+export abstract class AvaliadorSintaticoBase
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
+{
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -119,7 +121,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             do {
                 // `apply()` em JavaScript aceita até 255 parâmetros.
                 if (argumentos.length >= 255) {
-                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        'Não pode haver mais de 255 argumentos.'
+                    );
                 }
                 argumentos.push(this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -130,7 +135,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     protected unario(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new Unario(this.hashArquivo, operador, direito, 'ANTES');
@@ -173,7 +180,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -258,7 +267,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected funcao(tipo: string): FuncaoDeclaracao {
         const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
 
-        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+        const nomeFuncao: SimboloInterface = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            `Esperado nome ${tipo}.`
+        );
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
@@ -267,7 +279,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
         do {
             if (parametros.length >= 255) {
-                throw this.erro(this.simbolos[this.atual], 'Função não pode ter mais de 255 parâmetros.');
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Função não pode ter mais de 255 parâmetros.'
+                );
             }
 
             const parametro: Partial<ParametroInterface> = {};
@@ -279,7 +294,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
                 parametro.abrangencia = 'padrao';
             }
 
-            parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+            parametro.nome = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome do parâmetro.'
+            );
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 parametro.valorPadrao = this.primario();

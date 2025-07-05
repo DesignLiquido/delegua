@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.42.2",
+    "version": "0.43.3",
     "description": "Linguagem de programação simples e moderna usando português estruturado.",
     "main": "index.js",
     "types": "index.d.ts",
@@ -87,7 +87,7 @@
         "jest": "^30.0.2",
         "jest-coverage-badges": "^1.1.2",
         "prettier": "^3.5.3",
-        "release-it": "^18.1.2",
+        "release-it": "^19.0.3",
         "rimraf": "^6.0.1",
         "rollup": "^4.37.0",
         "rollup-plugin-polyfill-node": "^0.13.0",

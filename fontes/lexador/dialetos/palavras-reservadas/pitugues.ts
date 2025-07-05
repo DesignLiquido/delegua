@@ -31,7 +31,6 @@ export const palavrasReservadas = {
     ou: tiposDeSimbolos.OU,
     padrao: tiposDeSimbolos.PADRAO,
     para: tiposDeSimbolos.PARA,
-    pausa: tiposDeSimbolos.PAUSA,
     pegue: tiposDeSimbolos.PEGUE,
     retorna: tiposDeSimbolos.RETORNA,
     se: tiposDeSimbolos.SE,

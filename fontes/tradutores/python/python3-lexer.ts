@@ -540,7 +540,14 @@ export class Python3Lexer extends Lexer {
     private commonToken(type: number, text: string): CommonToken {
         let stop: number = this.charIndex - 1;
         let start: number = text.length ? stop - text.length + 1 : stop;
-        return new CommonToken(type, text, this._tokenFactorySourcePair, Lexer.DEFAULT_TOKEN_CHANNEL, start, stop);
+        return new CommonToken(
+            type,
+            text,
+            this._tokenFactorySourcePair,
+            Lexer.DEFAULT_TOKEN_CHANNEL,
+            start,
+            stop
+        );
     }
 
     // Calculates the indentation of the provided spaces, taking the
@@ -661,7 +668,10 @@ export class Python3Lexer extends Lexer {
                         this.emit(this.commonToken(Python3Parser.INDENT, spaces));
                     } else {
                         // Possibly emit more than 1 DEDENT token.
-                        while (this.indents.length && this.indents[this.indents.length - 1] > indent) {
+                        while (
+                            this.indents.length &&
+                            this.indents[this.indents.length - 1] > indent
+                        ) {
                             this.emit(this.createDedent());
                             this.indents.pop();
                         }
@@ -1237,7 +1247,9 @@ export class Python3Lexer extends Lexer {
     public static __ATN: ATN;
     public static get _ATN(): ATN {
         if (!Python3Lexer.__ATN) {
-            Python3Lexer.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(Python3Lexer._serializedATN));
+            Python3Lexer.__ATN = new ATNDeserializer().deserialize(
+                Utils.toCharArray(Python3Lexer._serializedATN)
+            );
         }
 
         return Python3Lexer.__ATN;

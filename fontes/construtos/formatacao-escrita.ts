@@ -13,7 +13,13 @@ export class FormatacaoEscrita implements Construto {
     espacos: number;
     casasDecimais: number;
 
-    constructor(hashArquivo: number, linha: number, expressao: Construto, espacos?: number, casasDecimais?: number) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        expressao: Construto,
+        espacos?: number,
+        casasDecimais?: number
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.expressao = expressao;

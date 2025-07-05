@@ -19,7 +19,12 @@ export class FimPara implements Construto {
     condicaoPara: Binario;
     incremento?: Declaracao;
 
-    constructor(hashArquivo: number, linha: number, condicaoPara: Binario, blocoIncremento?: Declaracao) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        condicaoPara: Binario,
+        blocoIncremento?: Declaracao
+    ) {
         this.hashArquivo = hashArquivo;
         this.linha = linha;
         this.condicaoPara = condicaoPara;

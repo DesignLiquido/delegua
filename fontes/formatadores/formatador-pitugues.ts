@@ -63,7 +63,9 @@ import { VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 export class FormatadorPitugues implements VisitanteComumInterface {
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
@@ -147,7 +149,9 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> | void {
+    visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
@@ -159,7 +163,9 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> | void {
+    visitarExpressaoAtribuicaoPorIndicesMatriz(
+        expressao: AtribuicaoPorIndicesMatriz
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoBinaria(expressao: Binario): Promise<any> | void {

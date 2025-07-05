@@ -138,7 +138,9 @@ _start:`;
 
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
-        this.declaracoesDeClasses = declaracoes.filter((declaracao) => declaracao instanceof Classe) as Classe[];
+        this.declaracoesDeClasses = declaracoes.filter(
+            (declaracao) => declaracao instanceof Classe
+        ) as Classe[];
 
         for (const declaracao of declaracoes) {
             `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

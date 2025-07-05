@@ -8,7 +8,13 @@ export class ReferenciaFuncao implements Construto {
     tipo: string;
     idFuncao: string;
 
-    constructor(hashArquivo: number, linha: number, simboloFuncao: SimboloInterface, tipo: string, idfuncao: string) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        simboloFuncao: SimboloInterface,
+        tipo: string,
+        idfuncao: string
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.simboloFuncao = simboloFuncao;

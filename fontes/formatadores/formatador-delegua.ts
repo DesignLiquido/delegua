@@ -731,19 +731,27 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
         switch (declaracaoOuConstruto.constructor.name) {
             case 'AcessoIndiceVariavel':
-                this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
+                this.visitarExpressaoAcessoIndiceVariavel(
+                    declaracaoOuConstruto as AcessoIndiceVariavel
+                );
                 break;
             case 'AcessoMetodoOuPropriedade':
-                this.visitarExpressaoAcessoMetodoOuPropriedade(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                this.visitarExpressaoAcessoMetodoOuPropriedade(
+                    declaracaoOuConstruto as AcessoMetodoOuPropriedade
+                );
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
                 break;
             case 'ArgumentoReferenciaFuncao':
-                this.visitarExpressaoArgumentoReferenciaFuncao(declaracaoOuConstruto as ArgumentoReferenciaFuncao);
+                this.visitarExpressaoArgumentoReferenciaFuncao(
+                    declaracaoOuConstruto as ArgumentoReferenciaFuncao
+                );
                 break;
             case 'AtribuicaoPorIndice':
-                this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
+                this.visitarExpressaoAtribuicaoPorIndice(
+                    declaracaoOuConstruto as AtribuicaoPorIndice
+                );
                 break;
             case 'Atribuir':
                 this.visitarExpressaoDeAtribuicao(declaracaoOuConstruto as Atribuir);

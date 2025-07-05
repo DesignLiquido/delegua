@@ -46,7 +46,9 @@ export class Interpretador extends InterpretadorBase {
             variavelObjeto = variavelObjeto.valor;
         }
 
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
@@ -55,7 +57,8 @@ export class Interpretador extends InterpretadorBase {
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomeMetodo in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function = primitivasDicionario[expressao.nomeMetodo].implementacao;
+                const metodoDePrimitivaDicionario: Function =
+                    primitivasDicionario[expressao.nomeMetodo].implementacao;
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
@@ -94,13 +97,15 @@ export class Interpretador extends InterpretadorBase {
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
-                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.nomeMetodo].implementacao;
+                const metodoDePrimitivaNumero: Function =
+                    primitivasNumero[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaNumero) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
-                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.nomeMetodo].implementacao;
+                const metodoDePrimitivaTexto: Function =
+                    primitivasTexto[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
                 }
@@ -109,7 +114,8 @@ export class Interpretador extends InterpretadorBase {
             case tipoDeDadosDelegua.VETOR_NUMERO:
             case tipoDeDadosDelegua.VETOR_NÚMERO:
             case tipoDeDadosDelegua.VETOR_TEXTO:
-                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.nomeMetodo].implementacao;
+                const metodoDePrimitivaVetor: Function =
+                    primitivasVetor[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
                 }
@@ -134,7 +140,9 @@ export class Interpretador extends InterpretadorBase {
      * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso a método ou propriedade.
      * @returns A primitiva encontrada.
      */
-    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    override async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
@@ -145,7 +153,9 @@ export class Interpretador extends InterpretadorBase {
             variavelObjeto = variavelObjeto.valor;
         }
 
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
@@ -174,13 +184,15 @@ export class Interpretador extends InterpretadorBase {
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
-                const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaNumero: Function =
+                    primitivasNumero[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
-                const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaTexto: Function =
+                    primitivasTexto[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
                 }
@@ -193,7 +205,8 @@ export class Interpretador extends InterpretadorBase {
             case tipoDeDadosDelegua.VETOR_NÚMERO:
             case tipoDeDadosDelegua.VETOR_QUALQUER:
             case tipoDeDadosDelegua.VETOR_TEXTO:
-                const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaVetor: Function =
+                    primitivasVetor[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
                 }
@@ -226,11 +239,16 @@ export class Interpretador extends InterpretadorBase {
             variavelObjeto = variavelObjeto.valor;
         }
 
-        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor')
+            ? variavelObjeto.valor
+            : variavelObjeto;
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
-        if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto.constructor.name === 'ObjetoDeleguaClasse'
+        ) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
 
@@ -279,8 +297,12 @@ export class Interpretador extends InterpretadorBase {
         );
     }
 
-    override async visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> {
-        const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(expressao.simboloFuncao.lexema);
+    override async visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(
+            expressao.simboloFuncao.lexema
+        );
         return deleguaFuncao;
     }
 
@@ -300,7 +322,8 @@ export class Interpretador extends InterpretadorBase {
         // Se o retorno for uma função anônima, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
         // para a finalização para copiar as variáveis para o escopo de baixo.
-        if (retornoQuebra.valor.constructor.name === 'DeleguaFuncao') {
+        const construtorRetorno = retornoQuebra.valor.constructor.name.replaceAll('_', '');
+        if (construtorRetorno === 'DeleguaFuncao') {
             retornoQuebra.preservarEscopo = true;
         }
 

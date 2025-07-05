@@ -95,7 +95,10 @@ export class DescritorTipoClasse extends Chamavel {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    async chamar(visitante: InterpretadorInterface, argumentos: any[]): Promise<ObjetoDeleguaClasse> {
+    async chamar(
+        visitante: InterpretadorInterface,
+        argumentos: any[]
+    ): Promise<ObjetoDeleguaClasse> {
         const instancia = new ObjetoDeleguaClasse(this);
 
         const inicializador = this.encontrarMetodo('construtor');

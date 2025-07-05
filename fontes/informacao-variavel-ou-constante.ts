@@ -10,6 +10,6 @@ export class InformacaoVariavelOuConstante {
     }
 
     toString(): string {
-        return `InformacaoVariavelOuConstante(nome=${this.nome}, tipo=${this.tipo}, argumentos=${this.argumentos.map(arg => arg.toString()).join(', ')})`;
+        return `InformacaoVariavelOuConstante(nome=${this.nome}, tipo=${this.tipo}, argumentos=${this.argumentos.map((arg) => arg.toString()).join(', ')})`;
     }
 }

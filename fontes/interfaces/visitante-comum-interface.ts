@@ -89,12 +89,18 @@ export interface VisitanteComumInterface {
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void;
     visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void;
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void;
-    visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> | void;
+    visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> | void;
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void;
     visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> | void;
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void;
+    visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void;
     visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> | void;
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> | void;
+    visitarExpressaoAtribuicaoPorIndicesMatriz(
+        expressao: AtribuicaoPorIndicesMatriz
+    ): Promise<any> | void;
     visitarExpressaoBinaria(expressao: Binario): Promise<any> | void;
     visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;

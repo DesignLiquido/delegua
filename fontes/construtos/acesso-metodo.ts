@@ -9,7 +9,12 @@ export class AcessoMetodo implements Construto {
     nomeMetodo: string;
     tipoRetornoMetodo: string = 'qualquer';
 
-    constructor(hashArquivo: number, objeto: Construto, nomeMetodo: string, tipoRetornoMetodo: string = 'qualquer') {
+    constructor(
+        hashArquivo: number,
+        objeto: Construto,
+        nomeMetodo: string,
+        tipoRetornoMetodo: string = 'qualquer'
+    ) {
         this.linha = objeto.linha;
         this.hashArquivo = hashArquivo;
 

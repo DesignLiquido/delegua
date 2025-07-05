@@ -24,14 +24,16 @@ export default {
     concatenar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, ...texto: string[]): Promise<string> =>
-            Promise.resolve(''.concat(...texto)),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            ...texto: string[]
+        ): Promise<string> => Promise.resolve(''.concat(...texto)),
     },
     dividir: {
         tipoRetorno: 'texto[]',
         argumentos: [
             new InformacaoVariavelOuConstante('divisor', 'texto'),
-            new InformacaoVariavelOuConstante('limite', 'número')
+            new InformacaoVariavelOuConstante('limite', 'número'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -50,7 +52,7 @@ export default {
         tipoRetorno: 'texto',
         argumentos: [
             new InformacaoVariavelOuConstante('inicio', 'número'),
-            new InformacaoVariavelOuConstante('fim', 'número')
+            new InformacaoVariavelOuConstante('fim', 'número'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -61,17 +63,20 @@ export default {
     },
     inclui: {
         tipoRetorno: 'texto',
-        argumentos: [
-            new InformacaoVariavelOuConstante('elemento', 'texto')
-        ],
-        implementacao: (interpretador: InterpretadorInterface, texto: string, elemento: string): Promise<boolean> =>
-            Promise.resolve(texto.includes(elemento)),
+        argumentos: [new InformacaoVariavelOuConstante('elemento', 'texto')],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string,
+            elemento: string
+        ): Promise<boolean> => Promise.resolve(texto.includes(elemento)),
     },
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
+            Promise.resolve(
+                texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')
+            ),
     },
     maiusculo: {
         tipoRetorno: 'texto',
@@ -89,7 +94,7 @@ export default {
         tipoRetorno: 'texto',
         argumentos: [
             new InformacaoVariavelOuConstante('elemento', 'texto'),
-            new InformacaoVariavelOuConstante('substituto', 'texto')
+            new InformacaoVariavelOuConstante('substituto', 'texto'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -102,7 +107,7 @@ export default {
         tipoRetorno: 'texto',
         argumentos: [
             new InformacaoVariavelOuConstante('inicio', 'número'),
-            new InformacaoVariavelOuConstante('fim', 'número')
+            new InformacaoVariavelOuConstante('fim', 'número'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,

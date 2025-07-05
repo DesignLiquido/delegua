@@ -58,7 +58,11 @@ import {
     Sustar,
     Comentario,
 } from '../declaracoes';
-import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade, SimboloInterface } from '../interfaces';
+import {
+    DiagnosticoAnalisadorSemantico,
+    DiagnosticoSeveridade,
+    SimboloInterface,
+} from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -87,7 +91,9 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         });
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void {
         return Promise.resolve();
     }
 
@@ -211,7 +217,9 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndicesMatriz(
+        expressao: AtribuicaoPorIndicesMatriz
+    ): Promise<any> {
         return Promise.resolve();
     }
 

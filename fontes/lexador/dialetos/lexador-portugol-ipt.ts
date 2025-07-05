@@ -62,7 +62,10 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
     eFinalDoCodigo(): boolean {
         if (this.linha > this.codigo.length - 1) return true;
 
-        return this.linha == this.codigo.length - 1 && this.codigo[this.codigo.length - 1].length <= this.atual;
+        return (
+            this.linha == this.codigo.length - 1 &&
+            this.codigo[this.codigo.length - 1].length <= this.atual
+        );
     }
 
     /**
@@ -85,7 +88,9 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
 
     adicionarSimbolo(tipo: any, literal?: any): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+        );
     }
 
     private eFinalDaLinha(): boolean {
@@ -170,14 +175,20 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
 
     identificarPalavraChave(): void {
         const linhaPrimeiroCaracter: number = this.linha;
-        while (this.eAlfabetoOuDigito(this.simboloAtual()) && this.linha === linhaPrimeiroCaracter) {
+        while (
+            this.eAlfabetoOuDigito(this.simboloAtual()) &&
+            this.linha === linhaPrimeiroCaracter
+        ) {
             this.avancar();
         }
 
         let textoPalavraChave: string;
         if (linhaPrimeiroCaracter < this.linha) {
             const linhaPalavraChave: string = this.codigo[linhaPrimeiroCaracter];
-            textoPalavraChave = linhaPalavraChave.substring(this.inicioSimbolo, linhaPalavraChave.length);
+            textoPalavraChave = linhaPalavraChave.substring(
+                this.inicioSimbolo,
+                linhaPalavraChave.length
+            );
         } else {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
@@ -187,7 +198,9 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
                 ? palavrasReservadas[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
-        this.simbolos.push(new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo)
+        );
     }
 
     analisarToken(): void {

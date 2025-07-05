@@ -132,24 +132,35 @@ export class TradutorAssemblyScript {
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
-            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            const argumentoResolvido =
+                this.dicionarioConstrutos[argumento.constructor.name](argumento);
             argumentosResolvidos.push(argumentoResolvido);
         }
 
-        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
+        let textoArgumentos = argumentosResolvidos.reduce(
+            (atual, proximo) => (atual += proximo + ', '),
+            ''
+        );
         textoArgumentos = textoArgumentos.slice(0, -2);
 
         return `${argumentoReferenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
     }
 
-    traduzirConstrutoReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: Construto[]): string {
+    traduzirConstrutoReferenciaFuncao(
+        referenciaFuncao: ReferenciaFuncao,
+        argumentos: Construto[]
+    ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
-            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            const argumentoResolvido =
+                this.dicionarioConstrutos[argumento.constructor.name](argumento);
             argumentosResolvidos.push(argumentoResolvido);
         }
 
-        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
+        let textoArgumentos = argumentosResolvidos.reduce(
+            (atual, proximo) => (atual += proximo + ', '),
+            ''
+        );
         textoArgumentos = textoArgumentos.slice(0, -2);
 
         return `${referenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
@@ -207,13 +218,13 @@ export class TradutorAssemblyScript {
         else {
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
-                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                    declaracaoVar.inicializador
-                );
+                resultado += this.dicionarioConstrutos[
+                    declaracaoVar.inicializador.constructor.name
+                ](declaracaoVar.inicializador);
             } else {
-                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
-                    declaracaoVar.inicializador
-                );
+                resultado += this.dicionarioDeclaracoes[
+                    declaracaoVar.inicializador.constructor.name
+                ](declaracaoVar.inicializador);
             }
             resultado += ';';
         }
@@ -228,13 +239,13 @@ export class TradutorAssemblyScript {
         else {
             resultado += ' = ';
             if (this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name]) {
-                resultado += this.dicionarioConstrutos[declaracaoConst.inicializador.constructor.name](
-                    declaracaoConst.inicializador
-                );
+                resultado += this.dicionarioConstrutos[
+                    declaracaoConst.inicializador.constructor.name
+                ](declaracaoConst.inicializador);
             } else {
-                resultado += this.dicionarioDeclaracoes[declaracaoConst.inicializador.constructor.name](
-                    declaracaoConst.inicializador
-                );
+                resultado += this.dicionarioDeclaracoes[
+                    declaracaoConst.inicializador.constructor.name
+                ](declaracaoConst.inicializador);
             }
             resultado += ';';
         }
@@ -257,7 +268,8 @@ export class TradutorAssemblyScript {
             resultado += ' '.repeat(this.indentacao);
             if (Array.isArray(declaracaoTente.caminhoPegue)) {
                 for (let declaracao of declaracaoTente.caminhoPegue) {
-                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                    resultado +=
+                        this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
                 }
             } else {
                 for (let corpo of declaracaoTente.caminhoPegue.corpo) {
@@ -271,7 +283,8 @@ export class TradutorAssemblyScript {
         if (declaracaoTente.caminhoFinalmente !== null) {
             resultado += '\nfinally {\n';
             for (let finalmente of declaracaoTente.caminhoFinalmente) {
-                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
+                resultado +=
+                    this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
             }
             resultado += ' '.repeat(this.indentacao);
             resultado += '}';
@@ -306,7 +319,10 @@ export class TradutorAssemblyScript {
     logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
         this.indentacao += 4;
         let resultado = ' '.repeat(this.indentacao);
-        resultado += metodoClasse.simbolo.lexema === 'construtor' ? 'constructor(' : metodoClasse.simbolo.lexema + '(';
+        resultado +=
+            metodoClasse.simbolo.lexema === 'construtor'
+                ? 'constructor('
+                : metodoClasse.simbolo.lexema + '(';
 
         for (let parametro of metodoClasse.funcao.parametros) {
             resultado += parametro.nome.lexema + ', ';
@@ -341,12 +357,16 @@ export class TradutorAssemblyScript {
     traduzirDeclaracaoSe(declaracaoSe: Se): string {
         let resultado = 'if (';
 
-        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
+        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](
+            declaracaoSe.condicao
+        );
 
         resultado += condicao;
 
         resultado += ')';
-        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
+        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](
+            declaracaoSe.caminhoEntao
+        );
 
         if (declaracaoSe.caminhoSenao !== null) {
             resultado += ' '.repeat(this.indentacao);
@@ -356,11 +376,15 @@ export class TradutorAssemblyScript {
                 resultado += 'if (';
                 resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
                 resultado += ')';
-                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](
+                    se.caminhoEntao
+                );
                 resultado += ' '.repeat(this.indentacao);
                 if (se?.caminhoSenao) {
                     resultado += 'else ';
-                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
+                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](
+                        se.caminhoSenao
+                    );
                     return resultado;
                 }
             }
@@ -382,9 +406,13 @@ export class TradutorAssemblyScript {
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
         let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ') ';
+            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
+                declaracaoParaCada.vetor
+            ) + ') ';
 
-        resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
+        resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](
+            declaracaoParaCada.corpo
+        );
         return resultado;
     }
 
@@ -405,11 +433,17 @@ export class TradutorAssemblyScript {
         resultado += !resultado.includes(';') ? ';' : '';
 
         resultado +=
-            this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
+            this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](
+                declaracaoPara.condicao
+            ) + '; ';
         resultado +=
-            this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ') ';
+            this.dicionarioConstrutos[declaracaoPara.incrementar.constructor.name](
+                declaracaoPara.incrementar
+            ) + ') ';
 
-        resultado += this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](declaracaoPara.corpo);
+        resultado += this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](
+            declaracaoPara.corpo
+        );
         return resultado;
     }
 
@@ -458,7 +492,9 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
-        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](
+            declaracaoExpressao.expressao
+        );
     }
 
     logicaComumCaminhosEscolha(caminho: CaminhoEscolha): string {
@@ -467,7 +503,8 @@ export class TradutorAssemblyScript {
         resultado += ' '.repeat(this.indentacao);
 
         for (let condicao of caminho.condicoes) {
-            resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
+            resultado +=
+                'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
             resultado += ' '.repeat(this.indentacao);
         }
 
@@ -478,10 +515,13 @@ export class TradutorAssemblyScript {
                     const declaracaoRetorna = declaracao as Retorna;
                     resultado +=
                         'return ' +
-                        this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
+                        this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](
+                            declaracaoRetorna.valor
+                        );
                     break;
                 default:
-                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                    resultado +=
+                        this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
                     break;
             }
 
@@ -517,8 +557,12 @@ export class TradutorAssemblyScript {
     traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
         let resultado = 'while (';
         resultado +=
-            this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao) + ') ';
-        resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
+            this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](
+                declaracaoEnquanto.condicao
+            ) + ') ';
+        resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](
+            declaracaoEnquanto.corpo
+        );
         return resultado;
     }
 
@@ -551,7 +595,11 @@ export class TradutorAssemblyScript {
 
     traduzirConstrutoUnario(unario: Unario): string {
         let resultado = '';
-        if ([tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(unario.operador.tipo)) {
+        if (
+            [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(
+                unario.operador.tipo
+            )
+        ) {
             resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
             resultado += unario.operador.tipo === tiposDeSimbolos.INCREMENTAR ? '++' : '--';
         } else {
@@ -565,7 +613,8 @@ export class TradutorAssemblyScript {
         let resultado = 'typeof ';
 
         if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
-        else if (tipoDe.valor instanceof Vetor) resultado += this.traduzirConstrutoVetor(tipoDe.valor);
+        else if (tipoDe.valor instanceof Vetor)
+            resultado += this.traduzirConstrutoVetor(tipoDe.valor);
         else resultado += this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor);
 
         return resultado;
@@ -614,9 +663,13 @@ export class TradutorAssemblyScript {
             chamada.argumentos
         )}`;
 
-        const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => declaracao?.simbolo?.lexema === retorno);
+        const instanciaClasse = this.declaracoesDeClasses.some(
+            (declaracao) => declaracao?.simbolo?.lexema === retorno
+        );
         if (instanciaClasse) {
-            const classe = this.declaracoesDeClasses.find((declaracao) => declaracao?.simbolo?.lexema === retorno);
+            const classe = this.declaracoesDeClasses.find(
+                (declaracao) => declaracao?.simbolo?.lexema === retorno
+            );
             if (classe.simbolo.lexema === retorno) resultado += `new ${retorno}`;
         } else {
             resultado += retorno;
@@ -650,22 +703,35 @@ export class TradutorAssemblyScript {
     traduzirConstrutoBinario(binario: Binario): string {
         let resultado = '';
         if (binario.esquerda.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
-        else resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+            resultado +=
+                '(' +
+                this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
+                ')';
+        else
+            resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](
+                binario.esquerda
+            );
 
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
 
         if (binario.direita.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
-        else resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+            resultado +=
+                '(' +
+                this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) +
+                ')';
+        else
+            resultado += this.dicionarioConstrutos[binario.direita.constructor.name](
+                binario.direita
+            );
 
         return resultado;
     }
 
     traduzirConstrutoAtribuir(atribuir: Atribuir): string {
         let resultado = this.dicionarioConstrutos[atribuir.alvo.constructor.name](atribuir.alvo);
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        resultado +=
+            ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }
 
@@ -675,7 +741,9 @@ export class TradutorAssemblyScript {
 
         resultado += (AtribuicaoPorIndice.objeto as any).simbolo.lexema + '[';
         resultado +=
-            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) + ']';
+            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](
+                AtribuicaoPorIndice.indice
+            ) + ']';
         resultado += ' = ';
 
         if ((AtribuicaoPorIndice?.valor as any).simbolo?.lexema) {
@@ -700,9 +768,9 @@ export class TradutorAssemblyScript {
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
         let resultado = '';
 
-        resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](
-            acessoIndiceVariavel.entidadeChamada
-        );
+        resultado += this.dicionarioConstrutos[
+            acessoIndiceVariavel.entidadeChamada.constructor.name
+        ](acessoIndiceVariavel.entidadeChamada);
         resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
             acessoIndiceVariavel.indice
         )}]`;
@@ -711,7 +779,9 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
+        return this.dicionarioConstrutos[agrupamento.constructor.name](
+            agrupamento.expressao || agrupamento
+        );
     }
 
     dicionarioConstrutos = {
@@ -763,7 +833,9 @@ export class TradutorAssemblyScript {
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
-        this.declaracoesDeClasses = declaracoes.filter((declaracao) => declaracao instanceof Classe) as Classe[];
+        this.declaracoesDeClasses = declaracoes.filter(
+            (declaracao) => declaracao instanceof Classe
+        ) as Classe[];
 
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

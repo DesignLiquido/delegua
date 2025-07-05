@@ -9,7 +9,13 @@ export class ParaCada extends Declaracao {
     corpo: Bloco;
     posicaoAtual: number;
 
-    constructor(hashArquivo: number, linha: number, nomeVariavelIteracao: string, vetor: Construto, corpo: Bloco) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        nomeVariavelIteracao: string,
+        vetor: Construto,
+        corpo: Bloco
+    ) {
         super(linha, hashArquivo);
         this.nomeVariavelIteracao = nomeVariavelIteracao;
         this.vetor = vetor;
