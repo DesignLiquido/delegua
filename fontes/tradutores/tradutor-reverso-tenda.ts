@@ -482,10 +482,9 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
-
-        let resultado = `para cada ${declaracaoParaCada.nomeVariavelIteracao} em ${declaracaoParaCada.vetor.valor}`;
+        let resultado = `para cada ${declaracaoParaCada.nomeVariavelIteracao} em `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ') ';
+            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ' ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
         return resultado;
@@ -913,8 +912,6 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
-
-        // this.declaracoesDeClasses = declaracoes.filter((declaracao) => declaracao instanceof Classe) as Classe[];
 
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

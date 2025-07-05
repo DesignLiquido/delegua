@@ -226,7 +226,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/escreva\(total\)/i);
     });
 
-    it.skip('para cada, iterando lista de elementos', () => {
+    it('para cada, iterando lista de elementos', () => {
         const codigo = [
             'seja total = 0',
             'para cada i em [1, 2, 3, 4, 5] faça',
@@ -238,6 +238,10 @@ describe('Tradutor Tenda -> Delégua', () => {
         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
+        expect(resultado).toMatch(/var total = 0/i);
+        expect(resultado).toMatch(/para cada i em \[1, 2, 3, 4, 5\] \{/i);
+        expect(resultado).toMatch(/total = total \+ i/i);
+        expect(resultado).toMatch(/escreva\(total\)/i);
     });
 
     it('se senão', () => {

@@ -65,6 +65,7 @@ import { TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from './../pilha-escopos';
 import { InformacaoEscopo } from './../informacao-escopo';
 import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { Simbolo } from '../../lexador/simbolo';
 
 import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../../tipos-de-simbolos/tenda';
@@ -73,7 +74,6 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
-import { Simbolo } from '../../lexador/simbolo';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -1146,38 +1146,39 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         // Se for um literal ou identificador numérico, segue um `para` 
         // tradicional de Delégua, com variável de controle e passo positivo, incrementado em 1.
-        // const simboloInicioIteracoes = this.avancarEDevolverAnterior();
         const literalOuVariavelInicio = this.adicaoOuSubtracao();
         this.blocos -= 1;
         switch (literalOuVariavelInicio.constructor.name) {
             case 'Literal':
                 return this.declaracaoParaTradicional(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
             // TODO: Terminar
+            case 'Vetor':
             default:
-                return this.declaracaoParaCada(simboloPara, nomeVariavelIteracao);
+                return this.declaracaoParaCada(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
         }
     }
 
     protected declaracaoParaCada(
         simboloParaCada: SimboloInterface,
-        simboloVariavelIteracao: SimboloInterface
+        simboloVariavelIteracao: SimboloInterface,
+        literalOuVariavelIteravel: Construto
     ): ParaCada {
-        const vetor = this.expressao();
-        // if (!vetor.hasOwnProperty('tipo')) {
-        //     throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
-        // }
+        const tipoVetor = (literalOuVariavelIteravel as any).tipo as string;
+        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
+            throw this.erro(
+                simboloParaCada,
+                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+            );
+        }
 
-        const tipo = (vetor as any).tipo as string;
-        // if (!tipoVetor.endsWith('[]')) {
-        //     throw this.erro(
-        //         simboloPara,
-        //         `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
-        //     );
-        // }
+        let tipoVariavelIteracao = 'qualquer';
+        if (tipoVetor.endsWith('[]')) {
+            tipoVariavelIteracao = tipoVetor.slice(0, -2);
+        }
 
         this.pilhaEscopos.definirInformacoesVariavel(
             simboloVariavelIteracao.lexema, 
-            new InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, tipo)
+            new InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, tipoVariavelIteracao)
         );
 
         this.consumir(tiposDeSimbolos.FAÇA, "Esperado palavra reservada 'faça' após literal ou variável de iteração em declaração 'para cada'.");
@@ -1188,7 +1189,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             this.hashArquivo, 
             Number(simboloParaCada.linha), 
             simboloVariavelIteracao.lexema, 
-            vetor, 
+            literalOuVariavelIteravel, 
             new Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo)
         );
     }

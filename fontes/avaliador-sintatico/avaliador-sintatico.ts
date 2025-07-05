@@ -1309,9 +1309,14 @@ export class AvaliadorSintatico
             );
         }
 
+        let tipoVariavelIteracao = 'qualquer';
+        if (tipoVetor.endsWith('[]')) {
+            tipoVariavelIteracao = tipoVetor.slice(0, -2);
+        }
+
         this.pilhaEscopos.definirInformacoesVariavel(
             nomeVariavelIteracao.lexema, 
-            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
