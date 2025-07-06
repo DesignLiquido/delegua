@@ -99,7 +99,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toMatch(/escreva\(soma\(\[1, 3, 5, 7, 9\]\)\)/i);
         });
 
-        it.skip('Função anônima, usando palavra reservada `função`', () => {
+        it('Função anônima, usando palavra reservada `função`', () => {
             const codigo = [
                 'seja soma = função(a, b) -> a + b',
                 'seja resultado = soma(10, 5)',
@@ -110,6 +110,9 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var soma = função\(a, b\) \{/i);
+            expect(resultado).toMatch(/retorna a \+ b/i);
+            expect(resultado).toMatch(/escreva\("A soma é: " \+ resultado\)/i);
         });
     });
 

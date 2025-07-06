@@ -320,7 +320,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
-                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
+                // Avançamos o parêntese esquerdo aqui, porque `corpoDaFuncao`
+                // espera que esse parêntese esquerdo já foi consumido.
+                this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado parêntese esquerdo após palavra reservada 'função'.");
+                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema as any);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema, 
                     new InformacaoVariavelOuConstante(simboloFuncao.lexema, 'função'));
@@ -655,7 +658,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             new InformacaoVariavelOuConstante(identificador.lexema, 'qualquer')
         );
 
-        const corpoDaFuncao = this.corpoDaFuncao('função');
+        const corpoDaFuncao = this.corpoDaFuncao('implícita');
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema, 
             new InformacaoVariavelOuConstante(identificador.lexema, corpoDaFuncao.tipo)
@@ -1347,51 +1350,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return new Sustar(this.simbolos[this.atual - 1]);
     }
 
-    override declaracaoTente(): Tente {
-        const simboloTente: SimboloInterface = this.simbolos[this.atual - 1];
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'tente'.");
-
-        const blocoTente: any[] = this.blocoEscopo();
-
-        let blocoPegue: FuncaoConstruto | Declaracao[] = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                // Caso 1: com parâmetro de erro.
-                // `pegue` recebe um `FuncaoConstruto`.
-                blocoPegue = this.corpoDaFuncao('bloco `pegue`');
-            } else {
-                // Caso 2: sem parâmetro de erro.
-                // `pegue` recebe um bloco.
-                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
-                blocoPegue = this.blocoEscopo();
-            }
-        }
-
-        let blocoSenao: any[] = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'senão'.");
-
-            blocoSenao = this.blocoEscopo();
-        }
-
-        let blocoFinalmente: any[] = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'finalmente'.");
-
-            blocoFinalmente = this.blocoEscopo();
-        }
-
-        return new Tente(
-            simboloTente.hashArquivo,
-            Number(simboloTente.linha),
-            blocoTente,
-            blocoPegue,
-            blocoSenao,
-            blocoFinalmente
-        );
-    }
-
-
     /**
      * Todas as resoluções triviais da linguagem, ou seja, todas as
      * resoluções que podem ocorrer dentro ou fora de um bloco.
@@ -1563,13 +1521,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         do {
             const parametro: Partial<ParametroInterface> = {};
 
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
-                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro.abrangencia = 'multiplo';
-            } else {
-                parametro.abrangencia = 'padrao';
-            }
-
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
@@ -1594,7 +1545,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return parametros;
     }
 
-    override corpoDaFuncao(tipo: string): FuncaoConstruto {
+    override corpoDaFuncao(tipo: 'função' | 'implícita'): FuncaoConstruto {
         // O parêntese esquerdo aqui é o símbolo atual.
         // Ele já foi lido neste ponto.
         const parenteseEsquerdo = this.simbolos[this.atual];
@@ -1605,7 +1556,15 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado sinal de igual após fechamento de parênteses para declaração de função.");
+        switch (tipo) {
+            case 'função':
+                this.consumir(tiposDeSimbolos.SUBTRACAO, "Esperado seta após fechamento de parênteses para declaração de função.");
+                this.consumir(tiposDeSimbolos.MAIOR, "Esperado seta após fechamento de parênteses para declaração de função.");
+                break;
+            case 'implícita':
+                this.consumir(tiposDeSimbolos.IGUAL, "Esperado sinal de igual após fechamento de parênteses para declaração de função.");
+                break;
+        }
 
         const corpo = this.resolverDeclaracao() as Declaracao;
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
