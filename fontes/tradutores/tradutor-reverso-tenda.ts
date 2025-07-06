@@ -275,26 +275,11 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
         textoArgumentos = textoArgumentos.slice(0, -2);
 
+        if (argumentosValidados.length > 0) {
+            return `${variavel.simbolo.lexema}(${textoArgumentos})`;
+        }
+        
         return `${variavel.simbolo.lexema}`;
-
-        // switch (variavel.simbolo.lexema) {
-        //     case 'texto':
-        //         return `String(${textoArgumentos})`;
-        //     default:
-                // const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(
-                //     (d) => d.simbolo.lexema === variavel.simbolo.lexema
-                // );
-
-                // if (buscaClasseCorrespondente.length === 0 && argumentosValidados.length === 0) {
-                //     return `${variavel.simbolo.lexema}`;
-                // }
-
-                // if (buscaClasseCorrespondente.length > 0) {
-                //     return `new ${variavel.simbolo.lexema}(${textoArgumentos})`;
-                // }
-
-                // return `${variavel.simbolo.lexema}(${textoArgumentos})`;
-        // }
     }
 
     protected logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {

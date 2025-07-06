@@ -74,7 +74,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toMatch(/retorna a \+ b/i);
         });
 
-        it.skip('Função estruturada, com bloco', () => {
+        it('Função estruturada, com bloco', () => {
             const codigo = [
                 'seja soma(lista) =',
                 '  faça',
@@ -91,6 +91,12 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/função soma\(lista\) \{/i);
+            expect(resultado).toMatch(/var total = 0/i);
+            expect(resultado).toMatch(/para cada i em lista {/i);
+            expect(resultado).toMatch(/total = total \+ i/i);
+            expect(resultado).toMatch(/retorna total/i);
+            expect(resultado).toMatch(/escreva\(soma\(\[1, 3, 5, 7, 9\]\)\)/i);
         });
 
         it.skip('Função anônima, usando palavra reservada `função`', () => {

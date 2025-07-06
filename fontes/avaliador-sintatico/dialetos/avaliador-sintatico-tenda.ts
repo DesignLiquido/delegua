@@ -1145,7 +1145,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
     override declaracaoPara(): Para | ParaCada {
         const simboloPara: SimboloInterface = this.simbolos[this.atual - 1];
-        const simboloCada = this.consumir(tiposDeSimbolos.CADA, `Esperado palavra reservada 'cada' após 'para'.`);
+        this.consumir(tiposDeSimbolos.CADA, `Esperado palavra reservada 'cada' após 'para'.`);
         this.blocos += 1;
 
         const nomeVariavelIteracao = this.consumir(
@@ -1163,6 +1163,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case 'Literal':
                 return this.declaracaoParaTradicional(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
             // TODO: Terminar
+            case 'Variavel':
             case 'Vetor':
             default:
                 return this.declaracaoParaCada(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
@@ -1175,7 +1176,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         literalOuVariavelIteravel: Construto
     ): ParaCada {
         const tipoVetor = (literalOuVariavelIteravel as any).tipo as string;
-        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
+        // TODO: Permitir 'qualquer' aqui é bastante frágil. Criar uma forma de validar o tipo
+        // antes dessa avaliação.
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
                 simboloParaCada,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
@@ -1413,9 +1416,13 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.EXIBA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.FAÇA:
+                this.avancarEDevolverAnterior();
+                return this.blocoEscopo();
             case tiposDeSimbolos.FALHAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFalhar();
+            // TODO: Estudar remoção de `fazer`. Aparentemente, `faça` é a notação de bloco de escopo em Tenda.
             case tiposDeSimbolos.FAZER:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFazer();
@@ -1434,9 +1441,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.RETORNA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoRetorna();
-            case tiposDeSimbolos.TENDO:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoTendoComo();
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
@@ -1465,90 +1469,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         return this.declaracaoExpressao();
-    }
-
-    protected declaracaoTendoComo(): TendoComo {
-        const simboloTendo = this.simbolos[this.atual - 1];
-        const expressaoInicializacao = this.expressao();
-        this.consumir(
-            tiposDeSimbolos.COMO,
-            "Esperado palavra reservada 'como' após expressão de inicialização de variável, em declaração 'tendo'."
-        );
-        const simboloNomeVariavel = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado nome do identificador em declaração 'tendo'."
-        );
-        this.consumir(
-            tiposDeSimbolos.CHAVE_ESQUERDA,
-            "Esperado chave esquerda para abertura de bloco em declaração 'tendo'."
-        );
-
-        let tipoInicializacao: string = 'qualquer';
-        switch (expressaoInicializacao.constructor.name) {
-            case 'Chamada':
-                const construtoChamada = expressaoInicializacao as Chamada;
-                switch (construtoChamada.entidadeChamada.constructor.name) {
-                    case 'Variavel':
-                        const entidadeChamadaVariavel = construtoChamada.entidadeChamada as Variavel;
-                        tipoInicializacao = entidadeChamadaVariavel.tipo;
-                        break;
-                    // TODO: Demais casos
-                    default:
-                        break;
-                }
-                break;
-            // TODO: Demais casos
-            default:
-                break;
-        }
-
-        this.pilhaEscopos.definirInformacoesVariavel(
-            simboloNomeVariavel.lexema, 
-            new InformacaoVariavelOuConstante(simboloNomeVariavel.lexema, tipoInicializacao)
-        );
-
-        const blocoCorpo = this.blocoEscopo();
-        return new TendoComo(
-            simboloTendo.linha,
-            simboloTendo.hashArquivo,
-            simboloNomeVariavel,
-            expressaoInicializacao,
-            new Bloco(simboloTendo.linha, simboloTendo.hashArquivo, blocoCorpo)
-        );
-    }
-
-    protected declaracaoDesestruturacaoVariavel(): Var[] {
-        const identificadores: SimboloInterface[] = [];
-
-        do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        this.consumir(
-            tiposDeSimbolos.CHAVE_DIREITA,
-            'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
-        );
-        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado igual após relação de propriedades da desestruturação.');
-
-        const inicializador = this.expressao();
-        const retornos = [];
-        for (let identificador of identificadores) {
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema,
-                new InformacaoVariavelOuConstante(
-                    identificador.lexema,
-                    this.logicaComumInferenciaTiposVariaveis(inicializador)
-                )
-            );
-            const declaracaoVar = new Var(
-                identificador,
-                new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
-            );
-
-            retornos.push(declaracaoVar);
-        }
-
-        return retornos;
     }
 
     protected logicaComumInferenciaTiposVariaveis(inicializador: Construto): string {
@@ -1619,50 +1539,22 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      *          declaração de função.
      */
     protected declaracaoDeVariaveisOuFuncoes(): Var | FuncaoDeclaracao {
-        const identificadores: SimboloInterface[] = [];
-        const retorno: Var[] = [];
-
         const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável ou função.');
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             return this.declaracaoDeFuncao(identificador);
         }
 
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado símbolo de igual após nome de identificador em declaração 'seja'.");
+
         const inicializador = this.expressao();
         const tipo = this.logicaComumInferenciaTiposVariaveis(inicializador);
-        return new Var(identificador, inicializador, tipo);
-    }
-
-    protected declaracaoDesestruturacaoConstante(): Const[] {
-        const identificadores: SimboloInterface[] = [];
-
-        do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        this.consumir(
-            tiposDeSimbolos.CHAVE_DIREITA,
-            'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
+        this.pilhaEscopos.definirInformacoesVariavel(
+            identificador.lexema, 
+            new InformacaoVariavelOuConstante(identificador.lexema, tipo)
         );
-        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado igual após relação de propriedades da desestruturação.');
 
-        const inicializador = this.expressao();
-        const retornos: Const[] = [];
-        for (let identificador of identificadores) {
-            // TODO: Melhorar dicionário para intuir o tipo de cada propriedade.
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema, 
-                new InformacaoVariavelOuConstante(identificador.lexema, 'qualquer')
-            );
-            const declaracaoConst = new Const(
-                identificador,
-                new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
-            );
-
-            retornos.push(declaracaoConst);
-        }
-
-        return retornos;
+        return new Var(identificador, inicializador, tipo);
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -1702,49 +1594,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return parametros;
     }
 
-    protected *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
-        for (const declaracao of construtoBloco.declaracoes) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
-            }
-        }
-    }
-
-    protected *buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
-        const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
-        for (const declaracao of this.buscarRetornosEmBloco(blocoEntao)) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
-            }
-        }
-
-        const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
-        if (!blocoSenao) return;
-        for (const declaracao of blocoSenao.declaracoes) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
-            }
-        }
-    }
-
-    protected buscarRetornos(declaracao: Declaracao): Retorna[] {
-        let retornasEncontrados: Retorna[] = [];
-        switch (declaracao.constructor.name) {
-            case 'Retorna':
-                retornasEncontrados.push(declaracao as Retorna);
-                break;
-            case 'Se':
-                for (const retorna of this.buscarRetornosEmSe(declaracao as Se)) {
-                    retornasEncontrados.push(retorna);
-                }
-                break;
-            default:
-                break;
-        }
-
-        return retornasEncontrados;
-    }
-
     override corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo aqui é o símbolo atual.
         // Ele já foi lido neste ponto.
@@ -1758,18 +1607,23 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         this.consumir(tiposDeSimbolos.IGUAL, "Esperado sinal de igual após fechamento de parênteses para declaração de função.");
 
-        let corpo = this.resolverDeclaracao() as Declaracao;
+        const corpo = this.resolverDeclaracao() as Declaracao;
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
         // Tenda trabalha com retornos implícitos.
+        let corpoResolvido = [];
         if (corpo.constructor.name === 'Expressao') {
-            corpo = new Retorna(
+            const expressaoComoRetorna = new Retorna(
                 new Simbolo(tiposDeSimbolos.RETORNA, 'retorna', 'retorna', parenteseEsquerdo.linha, this.hashArquivo),
                 (corpo as Expressao).expressao
             );
+            corpoResolvido.push(expressaoComoRetorna);
+        } else {
+            // TODO: Verificar se `corpo` é sempre um Array aqui.
+            corpoResolvido = corpo as unknown as Declaracao[];
         }
 
         // TODO: Inferir o tipo de retorno corretamente.
-        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, [corpo], 'qualquer');
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpoResolvido, 'qualquer');
     }
 
     /**
