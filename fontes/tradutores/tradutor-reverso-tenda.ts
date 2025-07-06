@@ -2,7 +2,6 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
-    AcessoPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
@@ -31,13 +30,9 @@ import {
     Const,
     Declaracao,
     Enquanto,
-    Escolha,
     Escreva,
     Expressao,
-    Falhar,
-    Fazer,
     FuncaoDeclaracao,
-    Importar,
     Para,
     ParaCada,
     Retorna,
@@ -46,7 +41,6 @@ import {
     Var,
 } from '../declaracoes';
 import { SimboloInterface, TradutorInterface } from '../interfaces';
-import { CaminhoEscolha } from '../interfaces/construtos';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/tenda';
 
@@ -352,64 +346,6 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    logicaComumCaminhosEscolha(caminho: CaminhoEscolha): string {
-        let resultado = '';
-        this.indentacao += 4;
-        resultado += ' '.repeat(this.indentacao);
-
-        if (caminho.condicoes && caminho.condicoes.length > 0) {
-            for (let condicao of caminho.condicoes) {
-                resultado += 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-                resultado += ' '.repeat(this.indentacao);
-            }
-        } else {
-            resultado += 'default:\n';
-            resultado += ' '.repeat(this.indentacao);
-        }
-
-        for (let declaracao of caminho.declaracoes) {
-            resultado += ' '.repeat(this.indentacao + 4);
-            switch (declaracao.constructor.name) {
-                case 'Retorna':
-                    const declaracaoRetorna = declaracao as Retorna;
-                    resultado +=
-                        'return ' +
-                        this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor);
-                    break;
-                default:
-                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                    break;
-            }
-        }
-
-        resultado += ' '.repeat(this.indentacao + 4);
-        resultado += 'break' + '\n';
-
-        this.indentacao -= 4;
-        return resultado;
-    }
-
-    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
-        let resultado = 'switch (';
-        resultado +=
-            this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](
-                declaracaoEscolha.identificadorOuLiteral
-            ) + ') {\n';
-
-        for (let caminho of declaracaoEscolha.caminhos) {
-            resultado += this.logicaComumCaminhosEscolha(caminho);
-        }
-
-        if (declaracaoEscolha.caminhoPadrao) {
-            resultado += ' '.repeat(4);
-            resultado += 'default:\n';
-            resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
-        }
-
-        resultado += '}\n';
-        return resultado;
-    }
-
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
@@ -424,20 +360,6 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
         return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
-    }
-
-    traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {
-        let resultado = 'do ';
-        resultado += this.dicionarioDeclaracoes[declaracaoFazer.caminhoFazer.constructor.name](
-            declaracaoFazer.caminhoFazer
-        );
-        resultado +=
-            'while (' +
-            this.dicionarioConstrutos[declaracaoFazer.condicaoEnquanto.constructor.name](
-                declaracaoFazer.condicaoEnquanto
-            ) +
-            ') ';
-        return resultado;
     }
 
     traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
@@ -456,10 +378,6 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
         return resultado;
-    }
-
-    traduzirDeclaracaoImportar(declaracaoImportar: Importar) {
-        return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
     traduzirConstrutoLeia(declaracaoLeia: Leia) {
@@ -518,19 +436,6 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         if (declaracaoSe.caminhoSenao !== null) {
             resultado += ' '.repeat(this.indentacao);
             resultado += ' senão ';
-            // const se = declaracaoSe?.caminhoSenao as Se;
-            // if (se?.caminhoEntao) {
-            //     resultado += 'se (';
-            //     resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
-            //     resultado += ')';
-            //     resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
-            //     resultado += ' '.repeat(this.indentacao);
-            //     if (se?.caminhoSenao) {
-            //         resultado += 'else ';
-            //         resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
-            //         return resultado;
-            //     }
-            // }
 
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
                 declaracaoSe.caminhoSenao
@@ -625,55 +530,11 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         return '';
     }
 
-    traduzirAcessoMetodoVetor(objeto: Construto, nomeMetodo: string, argumentos: Construto[]): string {
-        const objetoResolvido = this.dicionarioConstrutos[objeto.constructor.name](objeto);
-
-        const argumentosResolvidos: string[] = [];
-        for (const argumento of argumentos) {
-            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            argumentosResolvidos.push(argumentoResolvido);
-        }
-
-        switch (nomeMetodo) {
-            case 'adicionar':
-            case 'empilhar':
-                let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => (atual += proximo + ', '), '');
-                textoArgumentos = textoArgumentos.slice(0, -2);
-                return `${objetoResolvido}.push(${textoArgumentos})`;
-            case 'fatiar':
-                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
-            case 'inclui':
-                return `${argumentos[0]} in ${objetoResolvido}`;
-            case 'inverter':
-                return `reversed(${objetoResolvido})`;
-            case 'juntar':
-                return `${argumentos[0]}.join(${objetoResolvido})`;
-            case 'mapear':
-                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
-            case 'ordenar':
-                return `${objetoResolvido}.sort()`;
-            case 'remover':
-                return `del ${objetoResolvido}[${argumentos[0]}]`;
-            case 'removerPrimeiro':
-                return `del ${objetoResolvido}[0]`;
-            case 'removerUltimo':
-                return `del ${objetoResolvido}[-1]`;
-            case 'somar':
-                return `sum(${objetoResolvido})`;
-            case 'tamanho':
-                return `len(${objetoResolvido})`;
-        }
-    }
-
     traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: Construto[]): string {
         switch (acessoMetodo.objeto.constructor.name) {
-            case 'Isto':
-                return `this.${acessoMetodo.nomeMetodo}`;
             case 'Variavel':
                 let objetoVariavel = acessoMetodo.objeto as Variavel;
                 return this.traduzirFuncaoOuMetodo(acessoMetodo.nomeMetodo, objetoVariavel.simbolo.lexema, argumentos);
-            case 'Vetor':
-                return this.traduzirAcessoMetodoVetor(acessoMetodo.objeto, acessoMetodo.nomeMetodo, argumentos);
             default:
                 const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](
                     acessoMetodo.objeto
@@ -692,15 +553,6 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         }
 
         return `this.${acessoMetodo.simbolo.lexema}`;
-    }
-
-    traduzirConstrutoAcessoPropriedade(acessoMetodo: AcessoPropriedade, argumentos: Construto[]): string {
-        if (acessoMetodo.objeto instanceof Variavel) {
-            let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${this.traduzirFuncaoOuMetodo(objetoVariavel.simbolo.lexema, acessoMetodo.nomePropriedade, argumentos)}`;
-        }
-
-        return `this.${acessoMetodo.nomePropriedade}`;
     }
 
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
@@ -841,16 +693,10 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirDeclaracaoFalhar(falhar: Falhar) {
-        const explicacao = this.dicionarioConstrutos[falhar.explicacao.constructor.name](falhar.explicacao);
-        return `throw ${explicacao}`;
-    }
-
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
         AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
         AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
-        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
@@ -879,13 +725,9 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         Comentario: this.traduzirDeclaracaoComentario.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
-        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
-        Fazer: this.traduzirDeclaracaoFazer.bind(this),
-        Falhar: this.traduzirDeclaracaoFalhar.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
-        Importar: this.traduzirDeclaracaoImportar.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),

@@ -105,9 +105,7 @@ export abstract class AvaliadorSintaticoBase
     protected abstract chamar(): Construto;
     protected abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
     protected abstract declaracaoEnquanto(): Enquanto;
-    protected abstract declaracaoEscolha(): Escolha;
     protected abstract declaracaoEscreva(): Escreva;
-    protected abstract declaracaoFazer(): Fazer;
     protected abstract declaracaoPara(): Para | ParaCada;
     protected abstract declaracaoSe(): Se;
     protected abstract expressaoLeia(): Leia;

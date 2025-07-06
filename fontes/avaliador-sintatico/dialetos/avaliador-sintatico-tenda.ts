@@ -17,7 +17,6 @@ import {
     ExpressaoRegular,
     FimPara,
     FuncaoConstruto,
-    Isto,
     Leia,
     Literal,
     Logico,
@@ -35,24 +34,17 @@ import { SeletorTuplas, Tupla } from '../../construtos/tuplas';
 import {
     Bloco,
     Comentario,
-    Const,
     Continua,
     Declaracao,
     Enquanto,
-    Escolha,
     Escreva,
     Expressao,
-    Falhar,
-    Fazer,
     FuncaoDeclaracao,
-    Importar,
     Para,
     ParaCada,
     Retorna,
     Se,
     Sustar,
-    TendoComo,
-    Tente,
     Var,
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
@@ -356,18 +348,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
                 return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando || 'qualquer');
 
-            case tiposDeSimbolos.IMPORTAR:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoImportar();
-
-            case tiposDeSimbolos.ISTO:
-                this.avancarEDevolverAnterior();
-                return new Isto(this.hashArquivo, Number(simboloAtual.linha), simboloAtual);
-
             case tiposDeSimbolos.LEIA:
                 return this.expressaoLeia();
 
-            case tiposDeSimbolos.NULO:
+            case tiposDeSimbolos.NADA:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), null, 'nulo');
 
@@ -972,17 +956,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return declaracoes;
     }
 
-    protected declaracaoComentarioMultilinha(): Comentario {
-        let simboloComentario: SimboloInterface;
-        const conteudos: string[] = [];
-        do {
-            simboloComentario = this.avancarEDevolverAnterior();
-            conteudos.push(simboloComentario.literal);
-        } while (this.verificarTipoSimboloAtual(tiposDeSimbolos.LINHA_COMENTARIO));
-
-        return new Comentario(simboloComentario.hashArquivo, simboloComentario.linha, conteudos, true);
-    }
-
     protected declaracaoComentarioUmaLinha(): Comentario {
         const simboloComentario = this.avancarEDevolverAnterior();
         return new Comentario(simboloComentario.hashArquivo, simboloComentario.linha, simboloComentario.literal, false);
@@ -1015,77 +988,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
     }
 
-    override declaracaoEscolha(): Escolha {
-        try {
-            this.blocos += 1;
-
-            const condicao = this.expressao();
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do 'escolha'.");
-
-            const caminhos = [];
-            let caminhoPadrao = null;
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    const caminhoCondicoes = [this.expressao()];
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
-
-                    while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
-                        this.consumir(tiposDeSimbolos.CASO, null);
-                        caminhoCondicoes.push(this.expressao());
-                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
-                    }
-
-                    let declaracoes = [];
-                    do {
-                        const retornoDeclaracao = this.resolverDeclaracao();
-                        if (Array.isArray(retornoDeclaracao)) {
-                            declaracoes = declaracoes.concat(retornoDeclaracao);
-                        } else {
-                            declaracoes.push(retornoDeclaracao as Declaracao);
-                        }
-                    } while (
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
-                    );
-
-                    caminhos.push({
-                        condicoes: caminhoCondicoes,
-                        declaracoes,
-                    });
-                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)) {
-                    if (caminhoPadrao !== null) {
-                        const excecao = new ErroAvaliadorSintatico(
-                            this.simbolos[this.atual],
-                            "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
-                        );
-                        this.erros.push(excecao);
-                        throw excecao;
-                    }
-
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'padrao'.");
-
-                    const declaracoes = [];
-                    do {
-                        declaracoes.push(this.resolverDeclaracao());
-                    } while (
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
-                    );
-
-                    caminhoPadrao = {
-                        declaracoes,
-                    };
-                }
-            }
-
-            return new Escolha(condicao, caminhos, caminhoPadrao);
-        } finally {
-            this.blocos -= 1;
-        }
-    }
-
     override declaracaoEscreva(): Escreva {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -1112,38 +1014,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         return new Expressao(expressao);
-    }
-
-    protected declaracaoFalhar(): Falhar {
-        const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
-        return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
-    }
-
-    override declaracaoFazer(): Fazer {
-        const simboloFazer: SimboloInterface = this.simbolos[this.atual - 1];
-        try {
-            this.blocos += 1;
-
-            const caminhoFazer = this.resolverDeclaracao();
-            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
-            const condicaoEnquanto = this.expressao();
-            return new Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), caminhoFazer, condicaoEnquanto);
-        } finally {
-            this.blocos -= 1;
-        }
-    }
-
-    /**
-     * O símbolo é emitido aqui para fins de formatação, mas este método é
-     * sobrescrito em `delegua-node`.
-     * @returns {Importar} Uma declaração `Importar`.
-     */
-    override declaracaoImportar(): Importar {
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-        const caminho = this.expressao();
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
-
-        return new Importar(caminho as Literal);
     }
 
     override declaracaoPara(): Para | ParaCada {
@@ -1307,7 +1177,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.ISTO,
                 tiposDeSimbolos.NÃO,
                 tiposDeSimbolos.NUMERO,
-                tiposDeSimbolos.NULO,
+                tiposDeSimbolos.NADA,
                 tiposDeSimbolos.PARENTESE_ESQUERDO,
                 tiposDeSimbolos.SUPER,
                 tiposDeSimbolos.TEXTO,
@@ -1368,24 +1238,12 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEnquanto();
-            case tiposDeSimbolos.ESCOLHA:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoEscolha();
             case tiposDeSimbolos.EXIBA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FAÇA:
                 this.avancarEDevolverAnterior();
                 return this.blocoEscopo();
-            case tiposDeSimbolos.FALHAR:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoFalhar();
-            // TODO: Estudar remoção de `fazer`. Aparentemente, `faça` é a notação de bloco de escopo em Tenda.
-            case tiposDeSimbolos.FAZER:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoFazer();
-            case tiposDeSimbolos.LINHA_COMENTARIO:
-                return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();

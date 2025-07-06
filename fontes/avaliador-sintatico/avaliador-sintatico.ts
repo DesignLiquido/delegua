@@ -1320,7 +1320,7 @@ export class AvaliadorSintatico
         }
     }
 
-    override declaracaoEscolha(): Escolha {
+    protected declaracaoEscolha(): Escolha {
         try {
             this.blocos += 1;
 
@@ -1447,7 +1447,7 @@ export class AvaliadorSintatico
         return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
     }
 
-    override declaracaoFazer(): Fazer {
+    protected declaracaoFazer(): Fazer {
         const simboloFazer: SimboloInterface = this.simbolos[this.atual - 1];
         try {
             this.blocos += 1;
