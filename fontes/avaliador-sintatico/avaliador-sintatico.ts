@@ -1320,7 +1320,7 @@ export class AvaliadorSintatico
         }
     }
 
-    override declaracaoEscolha(): Escolha {
+    protected declaracaoEscolha(): Escolha {
         try {
             this.blocos += 1;
 
@@ -1447,7 +1447,7 @@ export class AvaliadorSintatico
         return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
     }
 
-    override declaracaoFazer(): Fazer {
+    protected declaracaoFazer(): Fazer {
         const simboloFazer: SimboloInterface = this.simbolos[this.atual - 1];
         try {
             this.blocos += 1;
@@ -1526,9 +1526,14 @@ export class AvaliadorSintatico
             );
         }
 
+        let tipoVariavelIteracao = 'qualquer';
+        if (tipoVetor.endsWith('[]')) {
+            tipoVariavelIteracao = tipoVetor.slice(0, -2);
+        }
+
         this.pilhaEscopos.definirInformacoesVariavel(
-            nomeVariavelIteracao.lexema,
-            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+            nomeVariavelIteracao.lexema, 
+            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
