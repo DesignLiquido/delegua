@@ -12,7 +12,6 @@ import {
     Binario,
     Chamada,
     Construto,
-    Decorador,
     DefinirValor,
     Dicionario,
     ExpressaoRegular,
@@ -86,7 +85,6 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  * todas as funcionalidades de Tenda.
  */
 export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
-    pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     tiposDefinidosEmCodigo: { [key: string]: Declaracao };
@@ -649,6 +647,24 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return entidadeChamada;
     }
 
+    protected declaracaoDeFuncao(identificador: SimboloInterface<string>): FuncaoDeclaracao {
+        // Se houver chamadas recursivas à função, precisamos definir um tipo
+        // para ela. Vai ser atualizado após avaliação do corpo da função.
+        this.pilhaEscopos.definirInformacoesVariavel(
+            identificador.lexema, 
+            new InformacaoVariavelOuConstante(identificador.lexema, 'qualquer')
+        );
+
+        const corpoDaFuncao = this.corpoDaFuncao('função');
+        this.pilhaEscopos.definirInformacoesVariavel(
+            identificador.lexema, 
+            new InformacaoVariavelOuConstante(identificador.lexema, corpoDaFuncao.tipo)
+        );
+        const funcaoDeclaracao = new FuncaoDeclaracao(identificador, corpoDaFuncao, corpoDaFuncao.tipo);
+        this.pilhaEscopos.registrarReferenciaFuncao(identificador.lexema, funcaoDeclaracao);
+        return funcaoDeclaracao;
+    }
+
     override finalizarChamada(entidadeChamada: Construto, tipoPrimitiva: string | undefined = undefined): Chamada {
         const argumentos: Array<Construto> = [];
 
@@ -1089,15 +1105,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     protected declaracaoExpressao(): Expressao {
-        // Se há decoradores a serem adicionados aqui, obtemo-los agora,
-        // para evitar que outros passos recursivos peguem-los antes.
-        const decoradores = Array.from(this.pilhaDecoradores);
-        this.pilhaDecoradores = [];
-
         const expressao = this.expressao();
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Expressao(expressao, decoradores);
+        return new Expressao(expressao);
     }
 
     protected declaracaoFalhar(): Falhar {
@@ -1431,7 +1442,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 return this.declaracaoTente();
             case tiposDeSimbolos.SEJA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoDeVariaveis();
+                return this.declaracaoDeVariaveisOuFuncoes();
         }
 
         const simboloAtual = this.simbolos[this.atual];
@@ -1526,26 +1537,21 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 identificador.lexema,
                 new InformacaoVariavelOuConstante(
                     identificador.lexema,
-                    this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, 'qualquer')
+                    this.logicaComumInferenciaTiposVariaveis(inicializador)
                 )
             );
             const declaracaoVar = new Var(
                 identificador,
                 new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
             );
-            declaracaoVar.decoradores = Array.from(this.pilhaDecoradores);
+
             retornos.push(declaracaoVar);
         }
 
-        this.pilhaDecoradores = [];
         return retornos;
     }
 
-    protected logicaComumInferenciaTiposVariaveisEConstantes(inicializador: Construto, tipo: string): string {
-        if (tipo !== 'qualquer') {
-            return tipo;
-        }
-
+    protected logicaComumInferenciaTiposVariaveis(inicializador: Construto): string {
         switch (inicializador.constructor.name) {
             case 'AcessoIndiceVariavel':
                 const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel).entidadeChamada;
@@ -1608,68 +1614,23 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Caso símbolo atual seja `var`, devolve uma declaração de variável.
-     * @returns Um Construto do tipo Var.
+     * Após palavra reservada `seja`, é esperado ou uma variável, ou uma função.
+     * @returns Um Construto, ou do tipo `Var` para variável, ou do tipo `FuncaoDeclaracao` se for
+     *          declaração de função.
      */
-    protected declaracaoDeVariaveis(): Var[] {
+    protected declaracaoDeVariaveisOuFuncoes(): Var | FuncaoDeclaracao {
         const identificadores: SimboloInterface[] = [];
         const retorno: Var[] = [];
-        let tipo: string = 'qualquer';
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoDesestruturacaoVariavel();
+        const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável ou função.');
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            return this.declaracaoDeFuncao(identificador);
         }
 
-        do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.'));
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            tipo = this.verificarDefinicaoTipoAtual();
-            this.avancarEDevolverAnterior();
-        }
-
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            // Inicialização de variáveis sem valor.
-            for (let identificador of identificadores.values()) {
-                this.pilhaEscopos.definirInformacoesVariavel(
-                    identificador.lexema, 
-                    new InformacaoVariavelOuConstante(identificador.lexema, tipo)
-                );
-                retorno.push(new Var(identificador, null, tipo, Array.from(this.pilhaDecoradores)));
-            }
-
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-            this.pilhaDecoradores = [];
-            return retorno;
-        }
-
-        const inicializadores = [];
-        do {
-            inicializadores.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-            );
-        }
-
-        for (let [indice, identificador] of identificadores.entries()) {
-            // Se tipo ainda não foi definido, infere.
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
-
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema, 
-                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
-            );
-            retorno.push(new Var(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
-        }
-
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        this.pilhaDecoradores = [];
-        return retorno;
+        const inicializador = this.expressao();
+        const tipo = this.logicaComumInferenciaTiposVariaveis(inicializador);
+        return new Var(identificador, inicializador, tipo);
     }
 
     protected declaracaoDesestruturacaoConstante(): Const[] {
@@ -1698,44 +1659,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
             );
 
-            declaracaoConst.decoradores = Array.from(this.pilhaDecoradores);
             retornos.push(declaracaoConst);
         }
 
         return retornos;
-    }
-
-    
-
-    protected funcao(tipo: string): FuncaoDeclaracao {
-        let simbolo: SimboloInterface;
-        switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.CONSTRUTOR:
-                simbolo = this.avancarEDevolverAnterior();
-                break;
-            default:
-                simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome de ${tipo}.`);
-                break;
-        }
-
-        const decoradores = Array.from(this.pilhaDecoradores);
-        this.pilhaDecoradores = [];
-
-        // Se houver chamadas recursivas à função, precisamos definir um tipo
-        // para ela. Vai ser atualizado após avaliação do corpo da função.
-        this.pilhaEscopos.definirInformacoesVariavel(
-            simbolo.lexema, 
-            new InformacaoVariavelOuConstante(simbolo.lexema, 'qualquer')
-        );
-
-        const corpoDaFuncao = this.corpoDaFuncao(tipo);
-        this.pilhaEscopos.definirInformacoesVariavel(
-            simbolo.lexema, 
-            new InformacaoVariavelOuConstante(simbolo.lexema, corpoDaFuncao.tipo)
-        );
-        const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipo, decoradores);
-        this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
-        return funcaoDeclaracao;
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -1819,12 +1746,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     override corpoDaFuncao(tipo: string): FuncaoConstruto {
-        // O parêntese esquerdo é considerado o símbolo inicial para
-        // fins de pragma.
-        const parenteseEsquerdo = this.consumir(
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            `Esperado '(' após o nome ${tipo}.`
-        );
+        // O parêntese esquerdo aqui é o símbolo atual.
+        // Ele já foi lido neste ponto.
+        const parenteseEsquerdo = this.simbolos[this.atual];
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -1832,94 +1756,30 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado sinal de igual após fechamento de parênteses para declaração de função.");
 
-        let tipoRetorno: string = 'qualquer';
-        let definicaoExplicitaDeTipo: boolean = false;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            tipoRetorno = this.verificarDefinicaoTipoAtual();
-            this.avancarEDevolverAnterior();
-            definicaoExplicitaDeTipo = true;
-        }
-
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
-
-        const corpo = this.blocoEscopo();
-        let expressoesRetorna: Retorna[] = [];
-        for (const declaracao of corpo) {
-            expressoesRetorna = expressoesRetorna.concat(this.buscarRetornos(declaracao));
-        }
-
-        if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
-            const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio');
-            if (retornosNaoVazios.length > 0) {
-                throw this.erro(
-                    retornosNaoVazios[0].simboloChave,
-                    `Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.`
-                );
-            }
-        }
-
-        const tiposRetornos = new Set(expressoesRetorna.map((e) => e.tipo));
-        let retornaChamadoExplicitamente = tiposRetornos.size > 0;
-        if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
-            let tiposEncontrados = Array.from(tiposRetornos).reduce(
-                (acumulador, valor) => (acumulador += valor + ', '),
-                ''
-            );
-            tiposEncontrados = tiposEncontrados.slice(0, -2);
-            throw this.erro(
-                parenteseEsquerdo,
-                `Função retorna valores com mais de um tipo. Tipo esperado: ${tipoRetorno}. Tipos encontrados: ${tiposEncontrados}.`
+        let corpo = this.resolverDeclaracao() as Declaracao;
+        // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
+        // Tenda trabalha com retornos implícitos.
+        if (corpo.constructor.name === 'Expressao') {
+            corpo = new Retorna(
+                new Simbolo(tiposDeSimbolos.RETORNA, 'retorna', 'retorna', parenteseEsquerdo.linha, this.hashArquivo),
+                (corpo as Expressao).expressao
             );
         }
 
-        tiposRetornos.delete('qualquer');
-
-        if (tipoRetorno === 'qualquer') {
-            if (tiposRetornos.size > 0) {
-                // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
-                // este avaliador sintático pode restringir o tipo baseado nos construtos
-                // de retornos encontrados nos blocos internos da função.
-                const tipoRetornoDeduzido = tiposRetornos.values().next().value;
-                tipoRetorno = tipoRetornoDeduzido;
-            } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
-                // Ou, se esses retornos sequer existem, e o tipo explícito não é
-                // 'qualquer', o tipo inferido é 'vazio'.
-                tipoRetorno = 'vazio';
-            }
-        }
-
-        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
+        // TODO: Inferir o tipo de retorno corretamente.
+        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, [corpo], 'qualquer');
     }
 
     /**
-     * Declarações fora de bloco precisam ser verificadas primeiro por
-     * uma série de motivos, como, por exemplo:
-     *
-     * - Não é possível declarar uma classe/função dentro de um bloco `enquanto`,
-     *   `fazer ... enquanto`, `para`, `escolha`, etc;
-     * - Qualquer declaração pode ter um decorador.
-     * @returns Uma função ou classe se o símbolo atual resolver aqui.
-     *          O retorno de `resolverDeclaracao()` em caso contrário.
+     * Até então, Tenda não tem casos de declarações fora de blocos.
+     * Isso pode mudar futuramente. Portanto, esta seção será mantida.
+     * @returns Uma `Declaracao` ou várias, dependendo do retorno de `resolverDeclaracao`.
      * @see resolverDeclaracao
-     * @see resolverDecorador
      */
     override resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] {
         try {
-
-            if (
-                (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
-                    this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
-                this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
-            ) {
-                this.avancarEDevolverAnterior();
-                return this.funcao('funcao');
-            }
-
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) {
-                return this.declaracaoDeClasse();
-            }
-
             return this.resolverDeclaracao();
         } catch (erro: any) {
             this.sincronizar();
@@ -2133,7 +1993,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
-        this.pilhaDecoradores = [];
         this.tiposDefinidosEmCodigo = {};
         this.inicializarPilhaEscopos();
 

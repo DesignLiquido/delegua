@@ -61,7 +61,7 @@ describe('Tradutor Tenda -> Delégua', () => {
     });
 
     describe('Funções', () => {
-        it.skip('Função implícita, com parênteses e retorno na mesma linha', () => {
+        it('Função implícita, com parênteses e retorno na mesma linha', () => {
             const codigo = [
                 'seja soma(a, b) = a + b'
             ];
@@ -70,6 +70,8 @@ describe('Tradutor Tenda -> Delégua', () => {
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/função soma\(a, b\) \{/i);
+            expect(resultado).toMatch(/retorna a \+ b/i);
         });
 
         it.skip('Função estruturada, com bloco', () => {

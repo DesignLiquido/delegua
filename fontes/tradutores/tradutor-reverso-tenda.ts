@@ -456,8 +456,8 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
-        let resultado = 'function ';
-        resultado += declaracaoFuncao.simbolo.lexema + ' (';
+        let resultado = 'função ';
+        resultado += declaracaoFuncao.simbolo.lexema + '(';
 
         for (const parametro of declaracaoFuncao.funcao.parametros) {
             resultado += parametro.nome.lexema + ', ';
@@ -516,7 +516,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
-        let resultado = 'return ';
+        let resultado = 'retorna ';
         const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
         return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
     }
@@ -719,7 +719,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
-        let resultado = 'function(';
+        let resultado = 'função(';
         for (const parametro of funcaoConstruto.parametros) {
             resultado += parametro.nome.lexema + ', ';
         }
