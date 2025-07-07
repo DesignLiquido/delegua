@@ -309,7 +309,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
 
-            case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
                 // Avançamos o parêntese esquerdo aqui, porque `corpoDaFuncao`
@@ -700,13 +699,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         while (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.DIVISAO,
-                tiposDeSimbolos.DIVISAO_IGUAL,
                 tiposDeSimbolos.DIVISAO_INTEIRA,
-                tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL,
                 tiposDeSimbolos.MODULO,
-                tiposDeSimbolos.MODULO_IGUAL,
-                tiposDeSimbolos.MULTIPLICACAO,
-                tiposDeSimbolos.MULTIPLICACAO_IGUAL
+                tiposDeSimbolos.MULTIPLICACAO
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
@@ -728,21 +723,12 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         while (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.ADICAO,
-                tiposDeSimbolos.MENOS_IGUAL
+                tiposDeSimbolos.ADICAO
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
 
             const direito = this.multiplicar();
-            // const tipoInferido = inferirTipoParaBinario(expressao, operador, direito);
-            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
-        }
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-
-            const direito = this.atribuir();
             expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -854,30 +840,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     override atribuir(): Construto {
         const expressao = this.ou();
 
-        if (
-            expressao instanceof Binario &&
-            [
-                tiposDeSimbolos.MAIS_IGUAL,
-                tiposDeSimbolos.MENOS_IGUAL,
-                tiposDeSimbolos.MULTIPLICACAO_IGUAL,
-                tiposDeSimbolos.DIVISAO_IGUAL,
-                tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL,
-                tiposDeSimbolos.MODULO_IGUAL,
-            ].includes(expressao.operador.tipo)
-        ) {
-            if (expressao.esquerda instanceof AcessoIndiceVariavel) {
-                const entidade = expressao.esquerda as AcessoIndiceVariavel;
-                return new Atribuir(
-                    this.hashArquivo,
-                    entidade.entidadeChamada,
-                    expressao,
-                    entidade.indice,
-                    expressao.operador
-                );
-            }
-
-            return new Atribuir(this.hashArquivo, expressao.esquerda, expressao, undefined, expressao.operador);
-        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
 
@@ -1171,7 +1134,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.CHAVE_ESQUERDA,
                 tiposDeSimbolos.COLCHETE_ESQUERDO,
                 tiposDeSimbolos.FALSO,
-                tiposDeSimbolos.FUNCAO,
                 tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
@@ -1471,8 +1433,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             const tipoSimboloAtual: string = this.simbolos[this.atual - 1].tipo;
 
             switch (tipoSimboloAtual) {
-                case tiposDeSimbolos.CLASSE:
-                case tiposDeSimbolos.FUNCAO:
                 case tiposDeSimbolos.FUNÇÃO:
                 case tiposDeSimbolos.VARIAVEL:
                 case tiposDeSimbolos.PARA:

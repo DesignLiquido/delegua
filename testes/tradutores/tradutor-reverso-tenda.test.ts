@@ -22,6 +22,64 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/escreva\("Oi"\)/i);
     });
 
+    describe('Bibliotecas globais', () => {
+        it.skip('Data', () => {
+            const codigo = [
+                'exiba(Data.agora())',
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
+        it.skip('Lista', () => {
+            const codigo = [
+                'seja listaQualquer = [2, 4, 6, 8, 10]',
+                'exiba(Lista.tamanho(listaQualquer))',
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
+        it.skip('Matemática', () => {
+            const codigo = [
+                'exiba(Matemática.aleatório(1, 100))'
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
+        it.skip('Saída', () => {
+            const codigo = [
+                'exiba(Saída.exiba("Olá mundo!"))'
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
+        it.skip('Texto', () => {
+            const codigo = [
+                'exiba(Texto.tamanho("Olá mundo!"))'
+            ];
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+    });
+
     it('dicionário', () => {
         const codigo = [
             'seja dicionário = { "nome": "Tenda", "versão": 1.0 }',
