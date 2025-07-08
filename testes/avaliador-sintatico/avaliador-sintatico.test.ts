@@ -896,7 +896,10 @@ describe('Avaliador sintático', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             });
@@ -906,7 +909,10 @@ describe('Avaliador sintático', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             });
@@ -974,7 +980,10 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                    const erro = retornoAvaliadorSintatico.erros[0];
+                    expect(erro.hashArquivo).toBeDefined();
+                    expect(erro.linha).toBeDefined();
+                    expect(erro.message).toBe(
                         "'continua' precisa estar em um laço de repetição."
                     );
                 });
