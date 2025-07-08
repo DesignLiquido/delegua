@@ -2033,6 +2033,7 @@ export class AvaliadorSintatico
      * @returns Um Construto do tipo Var.
      */
     protected declaracaoDeVariaveis(): Var[] {
+        const simboloVariavel = this.simboloAnterior();
         const identificadores: SimboloInterface[] = [];
         const retorno: Var[] = [];
         let tipo: string = 'qualquer';
@@ -2074,7 +2075,7 @@ export class AvaliadorSintatico
 
         if (identificadores.length !== inicializadores.length) {
             throw this.erro(
-                this.simbolos[this.atual],
+                simboloVariavel,
                 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
             );
         }
@@ -2147,6 +2148,7 @@ export class AvaliadorSintatico
      * @returns Um Construto do tipo Const.
      */
     declaracaoDeConstantes(): Const[] {
+        const simboloConstante = this.simboloAnterior();
         const identificadores: SimboloInterface[] = [];
         let tipo: string = 'qualquer';
 
@@ -2177,7 +2179,7 @@ export class AvaliadorSintatico
 
         if (identificadores.length !== inicializadores.length) {
             throw this.erro(
-                this.simbolos[this.atual],
+                simboloConstante,
                 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
             );
         }
