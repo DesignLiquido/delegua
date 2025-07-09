@@ -383,9 +383,13 @@ export class AvaliadorSintatico
                 if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
                 } else {
-                    tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
-                        simboloIdentificador.lexema
-                    );
+                    try {
+                        tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
+                            simboloIdentificador.lexema
+                        );
+                    } catch (erro: any) {
+                        throw this.erro(simboloIdentificador, erro.message);
+                    }
                 }
 
                 // Se o próximo símbolo é um incremento ou um decremento,

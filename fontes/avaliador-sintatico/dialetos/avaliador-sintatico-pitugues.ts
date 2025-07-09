@@ -569,9 +569,13 @@ export class AvaliadorSintaticoPitugues
                 if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
                 } else {
-                    tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
-                        simboloIdentificador.lexema
-                    );
+                    try {
+                        tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
+                            simboloIdentificador.lexema
+                        );
+                    } catch (erro: any) {
+                        throw this.erro(simboloIdentificador, erro.message);
+                    }
                 }
                 return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:

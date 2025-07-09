@@ -889,6 +889,12 @@ describe('Avaliador sintático', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
+                    "Variável não definida: 'oi'."
+                );
             });
 
             it('Declaração de variáveis com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
