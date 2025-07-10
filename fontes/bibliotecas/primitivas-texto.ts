@@ -122,4 +122,4 @@ export default {
         implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
             Promise.resolve(texto.length),
     },
-} as { [key: string]: PrimitivaInterface };
+} as { [nome: string]: PrimitivaInterface };

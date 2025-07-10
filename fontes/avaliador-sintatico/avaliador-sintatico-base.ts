@@ -42,7 +42,12 @@ export abstract class AvaliadorSintaticoBase
     protected consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
         let simboloErro: SimboloInterface = this.simbolos[this.atual];
-        if (this.atual >= this.simbolos.length) {
+        if (this.simbolos.length === 0) {
+            simboloErro = {
+                hashArquivo: this.hashArquivo,
+                linha: 1
+            } as SimboloInterface;
+        } else if (this.atual >= this.simbolos.length) {
             simboloErro = this.simbolos[this.simbolos.length - 1];
         }
 
