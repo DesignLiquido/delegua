@@ -41,7 +41,12 @@ export abstract class AvaliadorSintaticoBase
 
     protected consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
-        throw this.erro(this.simbolos[this.atual], mensagemDeErro);
+        let simboloErro: SimboloInterface = this.simbolos[this.atual];
+        if (this.atual >= this.simbolos.length) {
+            simboloErro = this.simbolos[this.simbolos.length - 1];
+        }
+
+        throw this.erro(simboloErro, mensagemDeErro);
     }
 
     protected erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
@@ -50,6 +55,10 @@ export abstract class AvaliadorSintaticoBase
     }
 
     protected simboloAnterior(): SimboloInterface {
+        if (this.atual === 0) {
+            throw new Error('Este é o primeiro símbolo da sequência vinda do Lexador.');
+        }
+
         return this.simbolos[this.atual - 1];
     }
 
