@@ -228,4 +228,4 @@ export default {
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.length),
     },
-} as { [key: string]: PrimitivaInterface };
+} as { [nome: string]: PrimitivaInterface };

@@ -22,4 +22,4 @@ export default {
             return Promise.resolve(Math.abs(valor));
         },
     },
-} as { [key: string]: PrimitivaInterface };
+} as { [nome: string]: PrimitivaInterface };

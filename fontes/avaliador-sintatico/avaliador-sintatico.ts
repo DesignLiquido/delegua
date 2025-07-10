@@ -77,6 +77,8 @@ import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
+import { registrarPrimitiva } from './comum';
+
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
 
@@ -101,7 +103,7 @@ export class AvaliadorSintatico
     tiposDefinidosEmCodigo: { [key: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [key: string]: { [key: string]: string } };
-    primitivasConhecidas: { [key: string]: InformacaoVariavelOuConstante };
+    primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }};
 
     hashArquivo: number;
     atual: number;
@@ -120,48 +122,10 @@ export class AvaliadorSintatico
         this.tiposDeFerramentasExternas = {};
         this.primitivasConhecidas = {};
 
-        for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(
-            primitivasDicionario
-        )) {
-            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
-                nomePrimitivaDicionario,
-                'dicionário',
-                dadosPrimitiva.argumentos
-            );
-        }
-
-        for (const [nomePrimitivaNumero, dadosPrimitiva] of Object.entries(primitivasNumero)) {
-            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoVariavelOuConstante(
-                nomePrimitivaNumero,
-                'número',
-                dadosPrimitiva.argumentos
-            );
-        }
-
-        for (const [nomePrimitivaTexto, dadosPrimitiva] of Object.entries(primitivasTexto)) {
-            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoVariavelOuConstante(
-                nomePrimitivaTexto,
-                'texto',
-                dadosPrimitiva.argumentos
-            );
-        }
-
-        for (const [nomePrimitivaVetor, dadosPrimitiva] of Object.entries(primitivasVetor)) {
-            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoVariavelOuConstante(
-                nomePrimitivaVetor,
-                'vetor',
-                dadosPrimitiva.argumentos
-            );
-        }
-
-        // TODO: Por enquanto não há necessidade de validar argumentos aqui, mas isso pode mudar no futuro.
-        this.primitivasConhecidas['inteiro'] = new InformacaoVariavelOuConstante(
-            'inteiro',
-            'inteiro'
-        );
-        this.primitivasConhecidas['numero'] = new InformacaoVariavelOuConstante('numero', 'número');
-        this.primitivasConhecidas['número'] = new InformacaoVariavelOuConstante('número', 'número');
-        this.primitivasConhecidas['texto'] = new InformacaoVariavelOuConstante('texto', 'texto');
+        registrarPrimitiva(this.primitivasConhecidas, 'dicionário', primitivasDicionario);
+        registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
+        registrarPrimitiva(this.primitivasConhecidas, 'texto', primitivasTexto);
+        registrarPrimitiva(this.primitivasConhecidas, 'vetor', primitivasVetor);
 
         this.pilhaEscopos = new PilhaEscopos();
     }
@@ -836,12 +800,12 @@ export class AvaliadorSintatico
 
             if (
                 tipoPrimitiva !== undefined &&
-                this.primitivasConhecidas.hasOwnProperty(
+                this.primitivasConhecidas[tipoPrimitiva].hasOwnProperty(
                     entidadeChamadaResolvidaVariavel.simbolo.lexema
                 )
             ) {
                 var informacoesPrimitiva =
-                    this.primitivasConhecidas[entidadeChamadaResolvidaVariavel.simbolo.lexema];
+                    this.primitivasConhecidas[tipoPrimitiva][entidadeChamadaResolvidaVariavel.simbolo.lexema];
                 const erros = this.validarArgumentosEntidadeChamada(
                     informacoesPrimitiva.argumentos,
                     argumentos
@@ -1978,14 +1942,17 @@ export class AvaliadorSintatico
                         // A inferência, portanto, ocorre pelo uso da primitiva.
                         const entidadeChamadaAcessoMetodoOuPropriedade =
                             entidadeChamadaChamada as AcessoMetodoOuPropriedade;
-                        if (
-                            this.primitivasConhecidas.hasOwnProperty(
-                                entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                            )
-                        ) {
-                            return this.primitivasConhecidas[
-                                entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                            ].tipo;
+                        
+                        for (const primitiva in this.primitivasConhecidas) {
+                            if (
+                                this.primitivasConhecidas[primitiva].hasOwnProperty(
+                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
+                                )
+                            ) {
+                                return this.primitivasConhecidas[primitiva][
+                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
+                                ].tipo;
+                            }
                         }
 
                         throw new ErroAvaliadorSintatico(

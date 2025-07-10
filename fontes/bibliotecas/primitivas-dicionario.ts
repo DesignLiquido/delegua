@@ -15,4 +15,4 @@ export default {
             return Promise.resolve(Object.values(valor));
         },
     },
-} as { [key: string]: PrimitivaInterface };
+} as { [nome: string]: PrimitivaInterface };
