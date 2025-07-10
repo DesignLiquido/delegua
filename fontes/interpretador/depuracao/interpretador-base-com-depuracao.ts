@@ -55,7 +55,7 @@ export class InterpretadorBaseComDepuracao
     override async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
         return await comum.visitarExpressaoDeChamada(
             this, 
-            super.visitarExpressaoDeChamada, 
+            super.visitarExpressaoDeChamada.bind(this), 
             expressao
         );
     }
@@ -100,7 +100,7 @@ export class InterpretadorBaseComDepuracao
      * @returns O resultado da execução da visita.
      */
     override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        return await comum.visitarExpressaoRetornar(this, super.visitarExpressaoRetornar, declaracao);
+        return await comum.visitarExpressaoRetornar(this, super.visitarExpressaoRetornar.bind(this), declaracao);
     }
 
     /**
