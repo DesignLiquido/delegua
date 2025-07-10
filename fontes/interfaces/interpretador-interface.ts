@@ -18,6 +18,6 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     avaliar(expressao: Construto | Declaracao): any;
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any>;
     paraTexto(objeto: any): any;
-    executar(declaracao: Declaracao, mostrarResultado: boolean): any;
+    executar(declaracao: Declaracao, mostrarResultado?: boolean): any;
     interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador>;
 }

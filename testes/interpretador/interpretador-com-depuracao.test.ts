@@ -1,5 +1,5 @@
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
-import { InterpretadorComDepuracao } from "../../fontes/interpretador";
+import { InterpretadorComDepuracao } from "../../fontes/interpretador/depuracao";
 import { Lexador } from "../../fontes/lexador";
 
 describe('Interpretador com Depuração', () => {
