@@ -172,6 +172,12 @@ export class Interpretador extends InterpretadorBase {
             return objeto[expressao.simbolo.lexema] || null;
         }
 
+        // A partir daqui, presume-se que o objeto é uma das estruturas
+        // de Delégua.
+        if (objeto instanceof DeleguaModulo) {
+            return objeto.componentes[expressao.simbolo.lexema] || null;
+        }
+
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
