@@ -30,7 +30,7 @@ export class FuncaoPadrao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        return `<função padrão nome=${this.simbolo.lexema}>`;
+        return `<função-padrão nome=${this.simbolo.lexema}>`;
     }
 
     /**

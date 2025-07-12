@@ -76,7 +76,7 @@ export class ObjetoDeleguaClasse {
      * @returns {string} A representação do objeto como texto.
      */
     paraTexto(): string {
-        return '<Objeto ' + this.classe.simboloOriginal.lexema + '>';
+        return '<objeto ' + this.classe.simboloOriginal.lexema + '>';
     }
 
     /**
