@@ -1776,11 +1776,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
-    paraTexto(objeto: any): any {
+    paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
             return objeto ? 'verdadeiro' : 'falso';
         }
+
+        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao || typeof objeto.paraTexto === 'function')
+            return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
             if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
@@ -1815,9 +1819,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             return retornoVetor;
         }
 
-        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
-            return objeto.paraTexto();
         switch (objeto.constructor.name) {
             case 'Object':
                 if ('tipo' in objeto) {
