@@ -648,6 +648,29 @@ describe('Avaliador sintático', () => {
                 });
             });
 
+            describe('Declaração se ... senão se ... senão', () => {
+                it('Caso com os três blocos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao achePlaneta(coordenadas) {',
+                            '    se (coordenadas == "x:20;y:10") {',
+                            '        retorna "Planeta Xalax"',
+                            '    } senao se (coordenadas == "x:42;y:84") {',
+                            '        retorna "Planeta Haskell"',
+                            '    } senao {',
+                            '        retorna "Planeta Kyron"',
+                            '    }',
+                            '}',
+                            "escreva('O ${achePlaneta(\"x:42;y:84\")} é para onde temos que ir!')"
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                });
+            });
+
             describe('Declaração `tendo ... como`', () => {
                 it('Trivial', () => {
                     const retornoLexador = lexador.mapear(

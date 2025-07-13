@@ -2279,12 +2279,25 @@ export class AvaliadorSintatico
             }
         }
 
-        const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
-        if (!blocoSenao) return;
-        for (const declaracao of blocoSenao.declaracoes) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
-            }
+        if (!construtoSe.caminhoSenao) return;
+        switch (construtoSe.caminhoSenao.constructor.name) {
+            case 'Bloco':
+                const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
+                
+                for (const declaracao of blocoSenao.declaracoes) {
+                    if (declaracao.constructor.name === 'Retorna') {
+                        yield declaracao;
+                    }
+                }
+                break;
+            case 'Se':
+                const senaoSe: Se = construtoSe.caminhoSenao as Se;
+                for (const declaracao of this.buscarRetornosEmSe(senaoSe)) {
+                    if (declaracao.constructor.name === 'Retorna') {
+                        yield declaracao;
+                    }
+                }
+                break;
         }
     }
 
