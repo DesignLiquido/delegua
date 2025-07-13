@@ -692,7 +692,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     }
                 }
             } else {
-                if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
+                if (declaracao.funcao.tipoExplicito && !['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
                     this.erro(
                         declaracao.simbolo,
                         `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`

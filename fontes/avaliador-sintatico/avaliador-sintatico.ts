@@ -2395,7 +2395,8 @@ export class AvaliadorSintatico
             Number(parenteseEsquerdo.linha),
             parametros,
             corpo,
-            tipoRetorno
+            tipoRetorno,
+            definicaoExplicitaDeTipo
         );
     }
 

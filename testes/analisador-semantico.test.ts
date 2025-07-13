@@ -122,6 +122,30 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+
+            describe('Declaração se ... senão se ... senão', () => {
+                it('Caso com os três blocos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao achePlaneta(coordenadas) {',
+                            '    se (coordenadas == "x:20;y:10") {',
+                            '        retorna "Planeta Xalax"',
+                            '    } senao se (coordenadas == "x:42;y:84") {',
+                            '        retorna "Planeta Haskell"',
+                            '    } senao {',
+                            '        retorna "Planeta Kyron"',
+                            '    }',
+                            '}',
+                            "escreva('O ${achePlaneta(\"x:42;y:84\")} é para onde temos que ir!')"
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
@@ -222,7 +246,9 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                const diagnostico = retornoAnalisadorSemantico.diagnosticos[0];
+                expect(diagnostico.mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
             });
 
             it('Escolha com tipos diferentes em \'caso\'', () => {
