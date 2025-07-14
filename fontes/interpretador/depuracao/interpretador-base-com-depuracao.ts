@@ -39,6 +39,10 @@ export class InterpretadorBaseComDepuracao
         this.executandoChamada = false;
         this.passos = 0;
     }
+
+    obterVariavel(nome: string): any {
+        return comum.obterVariavel(this, nome);
+    }
     
     /**
      * Quando um construto ou declaração possui id, significa que o interpretador

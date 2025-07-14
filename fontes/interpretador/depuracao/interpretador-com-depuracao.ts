@@ -65,6 +65,10 @@ export class InterpretadorComDepuracao
         this.passos = 0;
     }
 
+    obterVariavel(nome: string): any {
+        return comum.obterVariavel(this, nome);
+    }
+
     /**
      * Quando um construto ou declaração possui id, significa que o interpretador
      * deve resolver a avaliação e guardar seu valor até o final do escopo.

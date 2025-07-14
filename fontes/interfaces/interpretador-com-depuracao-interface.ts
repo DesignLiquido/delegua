@@ -22,4 +22,5 @@ export interface InterpretadorComDepuracaoInterface extends InterpretadorInterfa
     instrucaoContinuarInterpretacao(): Promise<any>;
     instrucaoProximoESair(): Promise<any>;
     prepararParaDepuracao(declaracoes: Declaracao[]): void;
+    obterVariavel(nome: string): any;
 }

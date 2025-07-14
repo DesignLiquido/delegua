@@ -67,29 +67,6 @@ async function gerarIdResolucaoChamada(
 }
 
 /**
- * Obtém o valor de uma variável por nome.
- * Em versões anteriores, o mecanismo de avaliação fazia toda a avaliação tradicional,
- * passando por Lexador, Avaliador Sintático e Interpretador.
- * Isso tem sua cota de problemas, sobretudo porque a avaliação insere e descarta escopos,
- * entrando em condição de corrida com a interpretação com depuração.
- * @param nome O nome da variável.
- */
-function obterVariavel(
-    interpretador: InterpretadorComDepuracaoInterface,
-    nome: string
-): any {
-    const valorOuVariavel = interpretador.pilhaEscoposExecucao.obterValorVariavel({
-        lexema: nome,
-    } as any) as any;
-    return valorOuVariavel.hasOwnProperty('valor')
-        ? valorOuVariavel
-        : {
-                valor: valorOuVariavel,
-                tipo: inferirTipoVariavel(valorOuVariavel),
-            };
-}
-
-/**
  * Para fins de depuração, verifica se há ponto de parada no mesmo pragma da declaração.
  * @param declaracao A declaração a ser executada.
  * @returns `true` quando execução deve parar. `false` caso contrário.
@@ -669,4 +646,32 @@ export async function executarUltimoEscopo(
                 naoVerificarPrimeiraExecucao
             );
     }
+}
+
+/**
+ * Obtém o valor de uma variável por nome.
+ * Em versões anteriores, o mecanismo de avaliação fazia toda a avaliação tradicional,
+ * passando por Lexador, Avaliador Sintático e Interpretador.
+ * Isso tem sua cota de problemas, sobretudo porque a avaliação insere e descarta escopos,
+ * entrando em condição de corrida com a interpretação com depuração.
+ * Método usado principalmente pela [extensão do Visual Studio Code](https://github.com/DesignLiquido/vscode)
+ * e pelo mecanismo de depuração remota, implementado em [`delegua-node`](https://github.com/DesignLiquido/delegua-node).
+ * @param nome O nome da variável.
+ */
+export function obterVariavel(
+    interpretador: InterpretadorComDepuracaoInterface,
+    nome: string
+): any {
+    const valorOuVariavel = interpretador.pilhaEscoposExecucao.obterValorVariavel({
+        lexema: nome,
+    } as any) as any;
+
+    if (valorOuVariavel.hasOwnProperty('valor')) {
+        return valorOuVariavel;
+    }
+    
+    return {
+        valor: valorOuVariavel,
+        tipo: inferirTipoVariavel(valorOuVariavel)
+    };
 }
