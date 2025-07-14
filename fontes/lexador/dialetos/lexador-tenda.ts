@@ -303,24 +303,14 @@ export class LexadorTenda implements LexadorInterface<SimboloInterface> {
                 break;
             case '-':
                 this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
-                }
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
 
                 break;
             case '+':
                 this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
-                    this.avancar();
-                } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
-                }
-                break;
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
 
+                break;
             case '/':
                 this.avancar();
                 switch (this.simboloAtual()) {
@@ -458,6 +448,7 @@ export class LexadorTenda implements LexadorInterface<SimboloInterface> {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
+            // eslint-disable-next-line no-undef
             console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
 
