@@ -90,8 +90,13 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  * Construtos não existem por si só: cada construto precisa estar dentro de uma declaração para ser
  * aceito pela próxima etapa, como tradução, interpretação, análise semântica, etc.
  *
- * Diferentemente de outros dialetos, em Delégua um construto normalmente retorna um tipo.
- * Por isso a separação deste avaliador sintático do avaliador sintático base.
+ * Este é o avaliador sintático de Delégua que, assim como todos os demais dialetos baseados
+ * neste núcleo, são uma derivação do avaliador sintático base. Aqui estão implementadas várias mecânicas 
+ * a mais relacionadas a tipagem e registros de bibliotecas externas. Por exemplo, `tiposDeFerramentasExternas`
+ * é utilizada em [Liquido](https://github.com/DesignLiquido/liquido) para registro de tipos exclusivos
+ * de Liquido, como classes de requisição e resposta. `primitivasConhecidas` é utilizada aqui para
+ * registro de métodos relacionados a tipos, e também para as bibliotecas externas de Delégua registrarem
+ * suas respectivas resoluções de tipos.
  */
 export class AvaliadorSintatico
     extends AvaliadorSintaticoBase
@@ -100,9 +105,9 @@ export class AvaliadorSintatico
     pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
-    tiposDefinidosEmCodigo: { [key: string]: Declaracao };
+    tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
-    tiposDeFerramentasExternas: { [key: string]: { [key: string]: string } };
+    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
     primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }};
 
     hashArquivo: number;

@@ -94,7 +94,7 @@ export class AvaliadorSintaticoPitugues
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
 
-    tiposDefinidosEmCodigo: { [key: string]: Declaracao };
+    tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }};
 
