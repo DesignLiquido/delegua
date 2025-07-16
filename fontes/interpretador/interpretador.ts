@@ -319,7 +319,7 @@ export class Interpretador extends InterpretadorBase {
 
     override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         let valor = null;
-        if (declaracao.valor !== null) {
+        if (declaracao.valor !== null && declaracao.valor !== undefined) {
             valor = await this.avaliar(declaracao.valor);
         }
 
@@ -328,9 +328,11 @@ export class Interpretador extends InterpretadorBase {
         // Se o retorno for uma função anônima, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
         // para a finalização para copiar as variáveis para o escopo de baixo.
-        const construtorRetorno = retornoQuebra.valor.constructor.name.replaceAll('_', '');
-        if (construtorRetorno === 'DeleguaFuncao') {
-            retornoQuebra.preservarEscopo = true;
+        if (retornoQuebra.valor) {
+            const construtorRetorno = retornoQuebra.valor.constructor.name.replaceAll('_', '');
+            if (construtorRetorno === 'DeleguaFuncao') {
+                retornoQuebra.preservarEscopo = true;
+            }
         }
 
         return retornoQuebra;

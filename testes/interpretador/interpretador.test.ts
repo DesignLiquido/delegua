@@ -1562,6 +1562,23 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Chamada de função com retorna vazio e comandos após retorna', async () => {
+                    const codigo = [
+                        'funcao mostreAlgo() {',
+                        '    retorna',
+                        '    escreva("Escrevendo algo.")',
+                        '}',
+                        'mostreAlgo()'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Chamada de função primitiva com parâmetro nulo', async () => {
                     const codigo = [
                         'var frutas = ["maçã", "banana", "morango", "laranja", "uva"]',
