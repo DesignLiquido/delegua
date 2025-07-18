@@ -146,21 +146,6 @@ export class DeleguaFuncao extends Chamavel {
                 tipo: 'objeto',
                 imutavel: false,
             };
-
-            // TODO: Apenass Potigol usa isso até então.
-            // Estudar mover isso para o dialeto.
-            if (
-                this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis &&
-                this.nome !== 'construtor'
-            ) {
-                for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.propriedades)) {
-                    ambiente.valores[nomeCampo] = {
-                        valor: valorCampo,
-                        tipo: inferirTipoVariavel(valorCampo as any),
-                        imutavel: false,
-                    };
-                }
-            }
         }
 
         // TODO: Repensar essa dinâmica para análise semântica (levar toda a lógica abaixo para

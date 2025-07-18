@@ -816,6 +816,21 @@ describe('Avaliador sintático', () => {
         
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
+
+                it('Chamada a funcao nativa mapear com função anônima', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var funcaoParaMapear = função(a) {',
+                            '    retorna a * 2;',
+                            '};',
+                            'escreva(mapear([5, 3], funcaoParaMapear));',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             })
 
             describe('Declarações de tuplas', () => {

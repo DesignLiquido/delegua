@@ -756,10 +756,12 @@ export class AvaliadorSintatico
                 continue;
             }
 
-            if (argumentoUtilizado.tipo !== argumentoEntidadeChamada.tipo) {
-                possiveisErros.push(
-                    `Argumento: ${argumentoEntidadeChamada.nome}. Tipo esperado: ${argumentoEntidadeChamada.tipo}; Tipo utilizado: ${argumentoUtilizado.tipo}`
-                );
+            if (argumentoUtilizado.tipo.startsWith('função') && !argumentoEntidadeChamada.tipo.startsWith('função') && !argumentoUtilizado.tipo.startsWith('funcao') && !argumentoEntidadeChamada.tipo.startsWith('função')) {
+                if (argumentoUtilizado.tipo !== argumentoEntidadeChamada.tipo) {
+                    possiveisErros.push(
+                        `Argumento: ${argumentoEntidadeChamada.nome}. Tipo esperado: ${argumentoEntidadeChamada.tipo}; Tipo utilizado: ${argumentoUtilizado.tipo}`
+                    );
+                }
             }
         }
 

@@ -121,7 +121,7 @@ export class InterpretadorBaseComDepuracao
         declaracoes: Declaracao[],
         ambiente?: EspacoVariaveis
     ): Promise<any> {
-        return await comum.executarBloco(this, declaracoes);
+        return await comum.executarBloco(this, declaracoes, ambiente);
     }
 
     /**
