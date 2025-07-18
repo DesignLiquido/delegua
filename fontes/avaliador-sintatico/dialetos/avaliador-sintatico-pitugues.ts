@@ -1422,7 +1422,12 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    protected registrarTiposBibliotecasEPrimitivas() {
+    /**
+     * Inicializa o primeiro nível da pilha de escopos, normalmente com ítens da biblioteca global.
+     * É separada da inicialização do avaliador sintático, pois é necessário manipular essa
+     * inicialização de outra forma em `delegua-node`.
+     */
+    protected inicializarPilhaEscopos() {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
@@ -1585,7 +1590,7 @@ export class AvaliadorSintaticoPitugues
         this.atual = 0;
         this.blocos = 0;
         this.escopos = [];
-        this.registrarTiposBibliotecasEPrimitivas();
+        this.inicializarPilhaEscopos();
         this.tiposDefinidosEmCodigo = {};
 
         this.hashArquivo = hashArquivo || 0;

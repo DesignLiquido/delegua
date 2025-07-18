@@ -2561,6 +2561,8 @@ export class AvaliadorSintatico
 
     /**
      * Inicializa o primeiro nível da pilha de escopos, normalmente com ítens da biblioteca global.
+     * É separada da inicialização do avaliador sintático, pois é necessário manipular essa
+     * inicialização de outra forma em `delegua-node`.
      */
     protected inicializarPilhaEscopos() {
         this.pilhaEscopos = new PilhaEscopos();
