@@ -589,9 +589,9 @@ export class AvaliadorSintatico
 
     override chamar(): Construto {
         let expressao = this.primario();
+        let tipoPrimitiva: string = undefined;
 
         while (true) {
-            let tipoPrimitiva: string = undefined;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao, tipoPrimitiva);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
