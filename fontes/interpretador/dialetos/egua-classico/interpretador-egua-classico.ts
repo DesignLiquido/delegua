@@ -971,6 +971,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);
+        // TODO: Depreciar na próxima versão.
         deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = false;
         deleguaClasse.dialetoRequerDeclaracaoPropriedades = false;
 

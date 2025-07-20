@@ -15,8 +15,8 @@ describe('Analisador semântico', () => {
             analisadorSemantico = new AnalisadorSemantico();
         });
 
-        describe('Cenários de sucesso', () => {
-            it('Sucesso - Olá Mundo', () => {
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Olá Mundo', () => {
                 const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
@@ -75,9 +75,6 @@ describe('Analisador semântico', () => {
 
             it('Função com definição de tipos', () => {
                 const retornoLexador = lexador.mapear([
-                    // "var a = funcao (valor1: inteiro, valor2: qualquer, valor3: texto): texto {",
-                    // "   retorna \"a\"",
-                    // "}",
                     "funcao aa (valor1: texto, valor2: real, valor3: qualquer): real {",
                     "   retorna 10",
                     "}",
@@ -148,7 +145,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Cenários de falha', () => {
+        describe('Cenários de diagnósticos detectados', () => {
             it('Atribuição de constante + reatribuição de constante', () => {
                 const retornoLexador = lexador.mapear([
                     "const a = 1",
@@ -281,7 +278,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'opcao\', Leia só pode receber tipo \'texto\'.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'opcao\', Função \'leia()\' sempre retorna \'texto\'.');
             });
 
             it('Atribuição de função', () => {
@@ -355,7 +352,7 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários enquanto', () => {
-            describe('Cenários de sucesso', () => {
+            describe('Cenários de diagnósiticos zerados', () => {
                 it('com condicional verdadeiro', () => {
                     const retornoLexador = lexador.mapear([
                         "enquanto verdadeiro {  ",
@@ -475,7 +472,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
             });
-            describe('Cenários de falha', () => {
+            describe('Cenários de diagnósticos detectados', () => {
 
                 it('com variavel definida com valor inválido', () => {
                     const retornoLexador = lexador.mapear([
@@ -493,7 +490,7 @@ describe('Analisador semântico', () => {
                 });
 
                 // TODO: Mudar este teste ao reimplementar operações bit a bit com números.
-                it('falha - verificar valores lógicos nas operações binárias e agrupamento', () => {
+                it('verificar valores lógicos nas operações binárias e agrupamento', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 5;                         ",
                         "var y = 10;                        ",
@@ -509,7 +506,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
                 });
 
-                it('falha - verificar valores lógicos nas operações binárias sem agrupamento', () => {
+                it('verificar valores lógicos nas operações binárias sem agrupamento', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 5;                         ",
                         "var y = 10;                        ",
@@ -525,7 +522,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
                 });
 
-                it('falha - verificar operações aritméticas', () => {
+                it('verificar operações aritméticas', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 'texto';                   ",
                         "var y = 2;                         ",
@@ -540,7 +537,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(4);
                 });
 
-                it('falha - verificar operação divisão por zero', () => {
+                it('verificar operação divisão por zero', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 3;                        ",
                         "var y = 0;                         ",
@@ -557,7 +554,7 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários tipo de', () => {
-            describe('Cenários de sucesso', () => {
+            describe('Cenários de diagnósticos zerados', () => {
                 it('com variável definida com valor válido', () => {
                     const retornoLexador = lexador.mapear([
                         "const condicional = verdadeiro     ",
@@ -584,7 +581,7 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários falhar', () => {
-            describe('Cenários de sucesso', () => {
+            describe('Cenários de diagnósticos zerados', () => {
                 it('Sucesso - falhar com variável definida com valor válido', () => {
                     const retornoLexador = lexador.mapear([
                         "const valor = 'teste'      ",
@@ -611,7 +608,7 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários conversão implicita', () => {
-            describe('Cenários de sucesso', () => {
+            describe('Cenários de diagnósticos zerados', () => {
                 it('Sucesso - conversão implicita com variável definida com valor válido', () => {
                     const retornoLexador = lexador.mapear([
                         "const valor = 2 + 2",
@@ -637,7 +634,7 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários variáveis não inicializada', () => {
-            describe('Cenários de sucesso', () => {
+            describe('Cenários de diagnósticos zerados', () => {
                 it('Sucesso - variável de classe inicializada na declaração', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",
@@ -689,7 +686,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
             });
-            describe('Cenários de falha', () => {
+            describe('Cenários de diagnósticos detectados', () => {
                 it('Aviso - variável tipo texto não inicializada', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",
@@ -704,7 +701,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
                 });
 
-                it('Erro - escreva sem parametro', () => {
+                it('Erro - escreva sem parâmetro', () => {
                     const retornoLexador = lexador.mapear([
                         "escreva(); ",
                     ], -1);

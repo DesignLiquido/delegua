@@ -128,12 +128,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     );
                 }
             }
-            // TODO: Estudar remoção.
+
             if (declaracao.inicializador instanceof Leia) {
                 if (!['qualquer', 'texto'].includes(declaracao.tipo)) {
                     this.erro(
                         declaracao.simbolo,
-                        `Atribuição inválida para '${declaracao.simbolo.lexema}', Leia só pode receber tipo 'texto'.`
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}', Função 'leia()' sempre retorna 'texto'.`
                     );
                 }
             }

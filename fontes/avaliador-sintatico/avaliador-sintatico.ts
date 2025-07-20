@@ -740,6 +740,16 @@ export class AvaliadorSintatico
                 continue;
             }
 
+            const argumentoEntidadeChamadaQualquer =
+                argumentoEntidadeChamada.tipo.startsWith('qualquer');
+            const argumentoUtilizadoQualquer =
+                argumentoUtilizado.tipo.startsWith('qualquer');
+
+            // Este caso é tarefa do anasalidor semântico apontar.
+            if (argumentoEntidadeChamadaQualquer || argumentoUtilizadoQualquer) {
+                continue;
+            }
+
             const argumentoEntidadeChamadaVetor = argumentoEntidadeChamada.tipo.endsWith('[]');
             const argumentoUtilizadoVetor = argumentoUtilizado.tipo.endsWith('[]');
 
@@ -747,12 +757,6 @@ export class AvaliadorSintatico
                 possiveisErros.push(
                     `Argumento: ${argumentoEntidadeChamada.nome}. Tipo esperado: ${argumentoEntidadeChamada.tipo}; Tipo utilizado: ${argumentoUtilizado.tipo}`
                 );
-                continue;
-            }
-
-            const argumentoEntidadeChamadaQualquer =
-                argumentoEntidadeChamada.tipo.startsWith('qualquer');
-            if (argumentoEntidadeChamadaQualquer) {
                 continue;
             }
 

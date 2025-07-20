@@ -1610,7 +1610,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.propriedades
         );
 
-        // TODO: Mover para Potigol, que é o único dialeto que realmente usa isso.
+        // TODO: Depreciar na próxima versão.
         descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
         descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
