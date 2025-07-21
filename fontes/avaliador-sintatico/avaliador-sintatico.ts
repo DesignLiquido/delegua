@@ -672,6 +672,11 @@ export class AvaliadorSintatico
 
             case tipoDeDadosDelegua.MODULO:
             case tipoDeDadosDelegua.MÓDULO:
+                // Há dois casos para resolução de módulo: 
+                // Um quando o módulo é definido no próprio código (por exemplo, em um outro arquivo `.delegua`). 
+                // Outro quando é importado de uma biblioteca externa. 
+
+                // Este é o caso quando o módulo vem de outro arquivo `.delegua`.
                 if (construtoTipado.simbolo.lexema in this.tiposDefinidosEmCodigo) {
                     // Construtor de classe.
                     return new Variavel(
@@ -897,12 +902,15 @@ export class AvaliadorSintatico
             tipoPrimitiva
         );
 
-        // TODO: Criar forma de validar tipos dos argumentos da entidade chamada.
         const construtoChamada = new Chamada(
             this.hashArquivo,
             entidadeChamadaResolvida,
             argumentos
         );
+
+        // A validação de tipos dos argumentos da entidade chamada existe em 
+        // avaliadores sintáticos derivados deste, como em `delegua-node`.
+        // Pode ser que esta lógica seja trazida para cá no futuro.
         construtoChamada.tipo = 'qualquer';
         return construtoChamada;
     }
@@ -1502,7 +1510,7 @@ export class AvaliadorSintatico
         }
 
         const tipoVetor = (vetor as any).tipo as string;
-        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
                 simboloPara,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
