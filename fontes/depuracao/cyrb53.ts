@@ -1,12 +1,12 @@
 /**
  * Função de geração de hashes copiada de https://stackoverflow.com/a/52171480/1314276.
- * A ideia é gerar hashes únicos para nomes de arquivos importados e usar o hash para os
+ * A ideia é gerar _hashes_ únicos para nomes de arquivos importados e usar o _hash_ para os
  * pragmas de elementos catalogados pelo lexador e usados pelo interpretador.
- * @param nomeArquivo Nome do arquivo
- * @param semente Uma semente de dispersão, padrão: 0
- * @returns Texto com o hash correspondente ao nome do arquivo
+ * @param {string} nomeArquivo Nome do arquivo
+ * @param {number} semente Uma semente de dispersão, padrão: 0
+ * @returns {number} Número inteiro com o hash correspondente ao nome do arquivo
  */
-export default function cyrb53(nomeArquivo: string, semente = 0) {
+export default function cyrb53(nomeArquivo: string, semente = 0): number {
     let h1 = 0xdeadbeef ^ semente,
         h2 = 0x41c6ce57 ^ semente;
     for (let i = 0, ch: number; i < nomeArquivo.length; i++) {

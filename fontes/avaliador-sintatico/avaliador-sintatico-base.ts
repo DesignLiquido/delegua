@@ -4,10 +4,8 @@ import {
     Continua,
     Declaracao,
     Enquanto,
-    Escolha,
     Escreva,
     Expressao,
-    Fazer,
     FuncaoDeclaracao,
     Importar,
     Para,
@@ -83,13 +81,6 @@ export abstract class AvaliadorSintaticoBase
     protected avancarEDevolverAnterior(): SimboloInterface {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simbolos[this.atual - 1];
-    }
-
-    // TODO: Verificar possibilidade de remoção.
-    // Regressão de símbolo é uma roubada por N razões.
-    protected regredirEDevolverAtual(): SimboloInterface {
-        if (this.atual > 0) this.atual -= 1;
-        return this.simbolos[this.atual];
     }
 
     protected verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
@@ -277,7 +268,8 @@ export abstract class AvaliadorSintaticoBase
     }
 
     protected funcao(tipo: string): FuncaoDeclaracao {
-        const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
+        // Avançar `função` ou `funcao`.
+        this.avancarEDevolverAnterior();
 
         const nomeFuncao: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -386,6 +378,7 @@ export abstract class AvaliadorSintaticoBase
      * avaliador sintático deve implementar o seu método.
      * @param retornoLexador O retorno do Lexador.
      * @param hashArquivo O hash do arquivo, gerado pela função `cyrb53`.
+     * @see cyrb53
      */
     abstract analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,

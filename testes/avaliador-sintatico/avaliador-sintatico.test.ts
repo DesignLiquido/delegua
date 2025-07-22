@@ -850,6 +850,22 @@ describe('Avaliador sintático', () => {
         
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
+
+                it('Chamada a funcao nativa filtrarPor com função nomeada', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var listaDeIdades = [91, 32, 15, 44, 12, 18, 101]',
+                            'funcao checarIdade(idade) {',
+                            '    retorna(idade >= 18)',
+                            '}',
+                            'escreva(filtrarPor(listaDeIdades, checarIdade))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             })
 
             describe('Declarações de tuplas', () => {

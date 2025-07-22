@@ -750,7 +750,7 @@ export class AvaliadorSintatico
             const argumentoUtilizadoQualquer =
                 argumentoUtilizado.tipo.startsWith('qualquer');
 
-            // Este caso é tarefa do anasalidor semântico apontar.
+            // Este caso é tarefa do analisador semântico apontar.
             if (argumentoEntidadeChamadaQualquer || argumentoUtilizadoQualquer) {
                 continue;
             }
@@ -802,7 +802,7 @@ export class AvaliadorSintatico
                     this.pilhaEscopos.obterBibliotecaGlobal(
                         entidadeChamadaResolvidaVariavel.simbolo.lexema
                     );
-                if (informacoesPossivelFuncaoBibliotecaGlobal !== undefined) {
+                if (informacoesPossivelFuncaoBibliotecaGlobal) {
                     const erros = this.validarArgumentosEntidadeChamada(
                         informacoesPossivelFuncaoBibliotecaGlobal.argumentos,
                         argumentos
@@ -2229,14 +2229,15 @@ export class AvaliadorSintatico
         );
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
+        const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
-            new InformacaoVariavelOuConstante(simbolo.lexema, corpoDaFuncao.tipo)
+            new InformacaoVariavelOuConstante(simbolo.lexema, tipoDaFuncao)
         );
         const funcaoDeclaracao = new FuncaoDeclaracao(
             simbolo,
             corpoDaFuncao,
-            corpoDaFuncao.tipo,
+            tipoDaFuncao,
             decoradores
         );
         this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);

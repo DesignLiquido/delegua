@@ -1023,7 +1023,7 @@ export class AvaliadorSintaticoPitugues
         }
 
         const tipoVetor = (vetor as any).tipo as string;
-        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
                 simboloPara,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
@@ -1281,11 +1281,12 @@ export class AvaliadorSintaticoPitugues
         );
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
+        const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
-            new InformacaoVariavelOuConstante(simbolo.lexema, corpoDaFuncao.tipo)
+            new InformacaoVariavelOuConstante(simbolo.lexema, tipoDaFuncao)
         );
-        const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipo);
+        const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao);
         this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
         return funcaoDeclaracao;
     }
@@ -1431,7 +1432,7 @@ export class AvaliadorSintaticoPitugues
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        // Funções nativas de Delégua
+        // Funções nativas de Delégua (e de Pituguês também, por enquanto)
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio',
             new InformacaoVariavelOuConstante('aleatorio', 'inteiro', [

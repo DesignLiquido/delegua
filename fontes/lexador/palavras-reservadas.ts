@@ -29,6 +29,7 @@ export const palavrasReservadas = {
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
     padrao: tiposDeSimbolos.PADRAO,
+    padrão: tiposDeSimbolos.PADRAO,
     para: tiposDeSimbolos.PARA,
     pausa: tiposDeSimbolos.PAUSA,
     pegue: tiposDeSimbolos.PEGUE,

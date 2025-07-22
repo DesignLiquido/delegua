@@ -1,4 +1,3 @@
-import { parseScript } from 'esprima';
 import {
     ArrayExpression,
     BinaryExpression,
