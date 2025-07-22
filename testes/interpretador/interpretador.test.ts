@@ -2177,7 +2177,7 @@ describe('Interpretador', () => {
                     expect(_saidas).toHaveLength(3);
                     expect(_saidas[0]).toBe('método<qualquer[]>');
                     expect(_saidas[1]).toBe('método<qualquer[]>');
-                    expect(_saidas[2]).toBe('método<vazio>');
+                    expect(_saidas[2]).toBe('método<função<vazio>>');
                 });
             });
 
