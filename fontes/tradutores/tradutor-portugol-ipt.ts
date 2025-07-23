@@ -8,7 +8,6 @@ export class TradutorPortugolIpt {
     avaliadorSintatico: AvaliadorSintaticoPortugolIpt;
 
     dicionarioConstrutos = {
-        FormatacaoEscrita: this.traduzirConstrutoFormatacaoEscrita.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
     };
 
@@ -20,12 +19,6 @@ export class TradutorPortugolIpt {
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
         return literal.valor;
-    }
-
-    traduzirConstrutoFormatacaoEscrita(formatacaoEscrita: FormatacaoEscrita) {
-        let resultado = '';
-        resultado += String(formatacaoEscrita.expressao.valor);
-        return resultado;
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
