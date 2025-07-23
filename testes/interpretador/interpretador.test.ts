@@ -473,7 +473,7 @@ describe('Interpretador', () => {
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(_saida).toBeTruthy();
-                    // expect(_saida).toBe('[91, 32, 44, 18, 101]');
+                    expect(_saida).toContain('0.');
                 });
 
                 it('Chamada a função nativa filtrarPor com função nomeada', async () => {

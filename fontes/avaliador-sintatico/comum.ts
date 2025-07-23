@@ -13,6 +13,7 @@ export function registrarPrimitiva(
         primitivasConhecidas[tipo][nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
             nomePrimitivaDicionario,
             tipo,
+            true,
             dadosPrimitiva.argumentos
         );
     }

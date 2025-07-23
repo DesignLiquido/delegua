@@ -7,6 +7,11 @@ describe('Interpretador com Depuração', () => {
     let avaliadorSintatico: AvaliadorSintatico;
     let interpretador: InterpretadorComDepuracao;
 
+    let _saidas: string[] = [];
+    const funcaoSaida = (texto: string) => {
+        _saidas.push(texto);
+    }
+
     describe('interpretar()', () => {
         beforeEach(() => {
             lexador = new Lexador();
@@ -15,10 +20,11 @@ describe('Interpretador com Depuração', () => {
 
         describe('Sem pontos de parada', () => {
             beforeEach(() => {
+                _saidas = [];
                 interpretador = new InterpretadorComDepuracao(
                     process.cwd(),
-                    console.log,
-                    process.stdout.write.bind(process.stdout)
+                    funcaoSaida,
+                    funcaoSaida
                 );
             });
 
@@ -46,10 +52,11 @@ describe('Interpretador com Depuração', () => {
 
         describe('Com pontos de parada', () => {
             beforeEach(() => {
+                _saidas = [];
                 interpretador = new InterpretadorComDepuracao(
                     process.cwd(),
-                    console.log,
-                    process.stdout.write.bind(process.stdout)
+                    funcaoSaida,
+                    funcaoSaida
                 );
             });
 
