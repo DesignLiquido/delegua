@@ -1,10 +1,10 @@
 import { AvaliadorSintaticoPortugolIpt } from '../avaliador-sintatico/dialetos';
 import { FormatacaoEscrita, Literal } from '../construtos';
-import { LexadorPortugolIpt } from '../lexador/dialetos';
+import { LexadorCalango } from '../lexador/dialetos';
 
-export class TradutorPortugolIpt {
+export class TradutorCalango {
     indentacao: number = 0;
-    lexador: LexadorPortugolIpt;
+    lexador: LexadorCalango;
     avaliadorSintatico: AvaliadorSintaticoPortugolIpt;
 
     dicionarioConstrutos = {
@@ -31,9 +31,7 @@ export class TradutorPortugolIpt {
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
-                argumento.expressao
-            );
+            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
             resultado += valor + ', ';
         }
 
@@ -45,9 +43,7 @@ export class TradutorPortugolIpt {
     traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
-                argumento.expressao
-            );
+            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
             resultado += valor + ', ';
         }
 
@@ -59,15 +55,16 @@ export class TradutorPortugolIpt {
     traduzir(codigo: string): string {
         let resultado = '';
 
-        this.lexador = new LexadorPortugolIpt();
-        this.avaliadorSintatico = new AvaliadorSintaticoPortugolIpt();
-
-        const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
-
-        for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
-            resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
-        }
+        this.lexador = new LexadorCalango();
+        // TODO: Implementar quando houver avaliador sintático pronto.
+        // this.avaliadorSintatico = new AvaliadorSintaticoCalango();
+ 
+        // const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
+        // const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
+ 
+        // for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
+        //     resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
+        // }
 
         return resultado;
     }

@@ -1,10 +1,10 @@
-import { TradutorPitugues } from '../../fontes/tradutores';
+import { TradutorCalango } from '../../fontes/tradutores';
 
-describe('Tradutor Pitugues -> Delégua', () => {
-    const tradutor: TradutorPitugues = new TradutorPitugues();
+describe('Tradutor Calango -> Delégua', () => {
+    const tradutor: TradutorCalango = new TradutorCalango();
 
      describe('Código', () => {
-        it('escreva -> escreva', () => {
+        it.skip('escreva -> escreva', () => {
             const codigo = `escreva('Olá Mundo')`;
 
             const resultado = tradutor.traduzir(codigo);
