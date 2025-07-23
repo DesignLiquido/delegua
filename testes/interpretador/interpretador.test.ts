@@ -454,7 +454,29 @@ describe('Interpretador', () => {
             });
 
             describe('Chamada de funções da biblioteca global', () => {
-                it('Chamada a funcao nativa filtrarPor com função nomeada', async () => {
+                it('Chamada a função nativa aleatorio', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeroAleatorio = aleatorio()',
+                            'escreva(numeroAleatorio)'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    // expect(_saida).toBe('[91, 32, 44, 18, 101]');
+                });
+
+                it('Chamada a função nativa filtrarPor com função nomeada', async () => {
                     let _saida: string = '';
 
                     const retornoLexador = lexador.mapear(
