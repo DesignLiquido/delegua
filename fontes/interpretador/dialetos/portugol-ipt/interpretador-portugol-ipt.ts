@@ -1,6 +1,7 @@
 import {
     AcessoMetodo,
     AcessoPropriedade,
+    Agrupamento,
     ArgumentoReferenciaFuncao,
     Atribuir,
     Construto,
@@ -175,8 +176,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return await expressao.aceitar(this);
     }
 
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        throw new Error('Método não implementado');
+    async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
+        return await this.avaliar(expressao.expressao);
     }
 
     visitarExpressaoUnaria(expressao: any): never {

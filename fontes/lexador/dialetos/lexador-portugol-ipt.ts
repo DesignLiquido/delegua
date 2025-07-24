@@ -264,6 +264,14 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
                 }
 
                 break;
+            case '(':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.avancar();
+                break;
+            case ')':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
+                break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
@@ -288,6 +296,10 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
 
         this.codigo = codigo || [''];
         this.hashArquivo = hashArquivo;
+
+        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
+            this.codigo[iterador] += '\n';
+        }
 
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;

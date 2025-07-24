@@ -1,5 +1,6 @@
 import {
     AcessoIndiceVariavel,
+    Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
     Construto,
@@ -41,6 +42,12 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                     Number(simboloAnterior.linha),
                     simboloAnterior.literal
                 );
+            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const expressao = this.expressao();
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+
+                return new Agrupamento(this.hashArquivo, Number(this.simbolos[this.atual].linha), expressao);
         }
     }
 
