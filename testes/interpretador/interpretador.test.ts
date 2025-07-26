@@ -1888,12 +1888,14 @@ describe('Interpretador', () => {
 
             describe('Métodos de primitivas com dependência no interpretador', () => {
                 describe('Dicionários', () => {
-                    it('chaves() e valores()', async () => {
+                    it('Todas as primitivas de dicionário', async () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 `var meuDicionario = {"a": 1, "b": 2, "c": 3}`,
                                 `escreva(meuDicionario.chaves())`,
                                 `escreva(meuDicionario.valores())`,
+                                `escreva(meuDicionario.contém("f"))`,
+                                `escreva(meuDicionario.remover("c"))`,
                             ],
                             -1
                         );
@@ -1910,9 +1912,11 @@ describe('Interpretador', () => {
                         );
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas).toHaveLength(4);
                         expect(_saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
                         expect(_saidas[1]).toEqual('[1, 2, 3]');
+                        expect(_saidas[2]).toEqual('falso');
+                        expect(_saidas[3]).toEqual('verdadeiro');
                     });
 
                     it('Obter valores do dicionário dentro de outro dicionário', async () => {
