@@ -3,6 +3,7 @@ export class InformacaoVariavelOuConstante {
     tipo: string;
     obrigatorio: boolean;
     argumentos: InformacaoVariavelOuConstante[] = [];
+    documentacao?: string;
 
     constructor(nome: string, tipo: string, obrigatorio: boolean = true, argumentos: InformacaoVariavelOuConstante[] = []) {
         this.nome = nome;

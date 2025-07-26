@@ -1610,6 +1610,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.propriedades
         );
 
+        // TODO: Até então, a única exceção a isso é Égua Clássico.
+        // Por enquanto, tudo bem deixar isso aqui.
+        descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
+
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return null;
     }

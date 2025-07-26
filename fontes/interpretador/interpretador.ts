@@ -8,12 +8,12 @@ import {
     TipoDe,
     Vetor,
 } from '../construtos';
-import { DeleguaFuncao, DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from './estruturas';
+import { DeleguaFuncao, DeleguaModulo, DescritorTipoClasse, MetodoPrimitiva, ObjetoDeleguaClasse } from './estruturas';
 import { VariavelInterface } from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { FuncaoDeclaracao, Retorna } from '../declaracoes';
+import { Classe, FuncaoDeclaracao, Retorna } from '../declaracoes';
 import { RetornoQuebra } from '../quebras';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
