@@ -1,6 +1,13 @@
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
 export default {
+    absoluto: {
+        tipoRetorno: 'número',
+        argumentos: [],
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
+            return Promise.resolve(Math.abs(valor));
+        },
+    },
     arredondarParaBaixo: {
         tipoRetorno: 'número',
         argumentos: [],
@@ -13,13 +20,6 @@ export default {
         argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.ceil(valor));
-        },
-    },
-    absoluto: {
-        tipoRetorno: 'número',
-        argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
-            return Promise.resolve(Math.abs(valor));
         },
     },
 } as { [nome: string]: PrimitivaInterface };

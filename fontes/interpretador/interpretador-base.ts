@@ -1610,11 +1610,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.propriedades
         );
 
-        // TODO: Depreciar na próxima versão.
-        descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
-            this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
-        descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
-
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return null;
     }
@@ -1719,7 +1714,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 continue;
             }
 
-            dicionario[promises[0]] = promises[1].hasOwnProperty('valor')
+            dicionario[promises[0]] = promises[1] && promises[1].hasOwnProperty('valor')
                 ? promises[1].valor
                 : promises[1];
         }
