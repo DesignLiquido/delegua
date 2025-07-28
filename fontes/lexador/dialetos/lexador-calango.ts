@@ -10,7 +10,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
     erros: ErroLexador[];
     hashArquivo: number;
 
-    codigo: string[];
+    codigo: string[]; // Para código multilinha
     inicioSimbolo: number;
     atual: number;
     linha: number;
@@ -81,8 +81,9 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
             // this.logicaEmLinhaIniciada = false;
         }
     }
-    adicionarSimbolo(tipo: any, literal: any): void {
-        throw new Error("Método não implementado");
+    adicionarSimbolo(tipo: any, literal?: any): void {
+        const texto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha, -1));
     }
 
     simboloAtual(): string {
@@ -182,6 +183,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         this.simbolos.push(new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
 
     }
+    
     analisarToken(): void {
         const caractere = this.simboloAtual();
 
@@ -189,14 +191,15 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
             case ' ':
                 case '\t':
                     this.avancar();
-    
                     break;
                 case '\r':
                 case '\n':
                 case '\0':
-                case ';':
                     this.avancar();
                     break;
+            case ';': // Calango exige o ponto e vírgula para indicar final do código
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA)
+                this.avancar();
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
