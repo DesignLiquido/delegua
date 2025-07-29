@@ -4,10 +4,10 @@ import { Chamada, Construto, Leia } from "../../construtos";
 import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from "../../declaracoes";
 import { InterpretadorComDepuracaoInterface } from "../../interfaces";
 import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from "../../quebras";
-import { EspacoVariaveis } from '../../espaco-variaveis';
 import { PontoParada } from '../../depuracao';
 import { EscopoExecucao, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { EspacoMemoria } from '../espaco-memoria';
 
 async function avaliarArgumentosEscreva(
     interpretador: InterpretadorComDepuracaoInterface,
@@ -103,8 +103,8 @@ export async function avaliar(
     if (expressao.hasOwnProperty('id')) {
         const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
         const idChamadaComArgumentos = await gerarIdResolucaoChamada(interpretador, expressao as Chamada);
-        if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
-            return escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+        if (escopoAtual.espacoMemoria.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+            return escopoAtual.espacoMemoria.resolucoesChamadas[idChamadaComArgumentos];
         }
     }
 
@@ -125,7 +125,7 @@ export async function visitarExpressaoDeChamada(
     const retorno = await visitarExpressaoDeChamadaAncestral(expressao);
     interpretador.executandoChamada = false;
     const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
-    escopoAtual.ambiente.resolucoesChamadas[_idChamadaComArgumentos] = retorno;
+    escopoAtual.espacoMemoria.resolucoesChamadas[_idChamadaComArgumentos] = retorno;
     return retorno;
 }
 
@@ -290,7 +290,7 @@ export async function visitarExpressaoRetornar(
     }
 
     if (escopoFuncao.idChamada !== undefined) {
-        escopoAtual.ambiente.resolucoesChamadas[escopoFuncao.idChamada] =
+        escopoAtual.espacoMemoria.resolucoesChamadas[escopoFuncao.idChamada] =
             retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
     }
 
@@ -301,16 +301,16 @@ export async function visitarExpressaoRetornar(
  * Se bloco de execução já foi instanciado antes (por exemplo, quando há um ponto de parada e a
  * execução do código é retomada pelo depurador), retoma a execução do bloco do ponto em que havia parado.
  * Se bloco de execução ainda não foi instanciado, empilha declarações na pilha de escopos de execução,
- * cria um novo ambiente e executa as declarações empilhadas.
+ * cria um novo espacoMemoria e executa as declarações empilhadas.
  * Se depurador comandou uma instrução 'adentrar-escopo', execução do bloco não ocorre, mas
  * ponteiros de escopo e execução são atualizados.
  * @param declaracoes Um vetor de declaracoes a ser executado.
- * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+ * @param espacoMemoria O espacoMemoria de execução quando houver, como parâmetros, argumentos, etc.
  */
 export async function executarBloco(
     interpretador: InterpretadorComDepuracaoInterface,
     declaracoes: Declaracao[],
-    ambiente?: EspacoVariaveis
+    espacoMemoria?: EspacoMemoria
 ): Promise<any> {
     // Se o escopo atual não é o último.
     if (interpretador.escopoAtual < interpretador.pilhaEscoposExecucao.elementos() - 1) {
@@ -357,7 +357,7 @@ export async function executarBloco(
         interpretador.escopoAtual--;
         return retornoExecucao;
     } else {
-        abrirNovoBlocoEscopo(interpretador, declaracoes, ambiente, interpretador.proximoEscopo || 'outro');
+        abrirNovoBlocoEscopo(interpretador, declaracoes, espacoMemoria, interpretador.proximoEscopo || 'outro');
         const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
         if (interpretador.idChamadaAtual) {
             ultimoEscopo.idChamada = interpretador.idChamadaAtual;
@@ -376,9 +376,9 @@ function descartarEscopoPorRetornoFuncao(interpretador: InterpretadorComDepuraca
     while (ultimoEscopo.tipo !== 'funcao') {
         interpretador.pilhaEscoposExecucao.removerUltimo();
         const escopoAnterior = interpretador.pilhaEscoposExecucao.topoDaPilha();
-        escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-            escopoAnterior.ambiente.resolucoesChamadas,
-            ultimoEscopo.ambiente.resolucoesChamadas
+        escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+            escopoAnterior.espacoMemoria.resolucoesChamadas,
+            ultimoEscopo.espacoMemoria.resolucoesChamadas
         );
         interpretador.escopoAtual--;
         ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
@@ -386,9 +386,9 @@ function descartarEscopoPorRetornoFuncao(interpretador: InterpretadorComDepuraca
 
     interpretador.pilhaEscoposExecucao.removerUltimo();
     const escopoAnterior = interpretador.pilhaEscoposExecucao.topoDaPilha();
-    escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-        escopoAnterior.ambiente.resolucoesChamadas,
-        ultimoEscopo.ambiente.resolucoesChamadas
+    escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+        escopoAnterior.espacoMemoria.resolucoesChamadas,
+        ultimoEscopo.espacoMemoria.resolucoesChamadas
     );
     interpretador.escopoAtual--;
 }
@@ -403,9 +403,9 @@ function descartarTodosEscoposFinalizados(interpretador: InterpretadorComDepurac
         ) {
             interpretador.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = interpretador.pilhaEscoposExecucao.topoDaPilha();
-            escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                escopoAnterior.ambiente.resolucoesChamadas,
-                ultimoEscopo.ambiente.resolucoesChamadas
+            escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+                escopoAnterior.espacoMemoria.resolucoesChamadas,
+                ultimoEscopo.espacoMemoria.resolucoesChamadas
             );
             interpretador.escopoAtual--;
         } else {
@@ -451,7 +451,7 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
  * Continua a interpretação parcial do último ponto em que parou.
  * Pode ser tanto o começo da execução inteira, ou pós comando do depurador
  * quando há um ponto de parada.
- * @param manterAmbiente Se verdadeiro, junta elementos do último escopo com o escopo
+ * @param manterespacoMemoria Se verdadeiro, junta elementos do último escopo com o escopo
  *                       imediatamente abaixo.
  * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
  *                                     verificar o ponto de parada na primeira execução.
@@ -460,7 +460,7 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
  */
 export async function executarUltimoEscopoComandoContinuar(
     interpretador: InterpretadorComDepuracaoInterface,
-    manterAmbiente = false,
+    manterespacoMemoria = false,
     naoVerificarPrimeiraExecucao = false
 ): Promise<any> {
     const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
@@ -507,15 +507,15 @@ export async function executarUltimoEscopoComandoContinuar(
         if (!interpretador.pontoDeParadaAtivo && interpretador.comando !== 'adentrarEscopo') {
             interpretador.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = interpretador.pilhaEscoposExecucao.topoDaPilha();
-            escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                escopoAnterior.ambiente.resolucoesChamadas,
-                ultimoEscopo.ambiente.resolucoesChamadas
+            escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+                escopoAnterior.espacoMemoria.resolucoesChamadas,
+                ultimoEscopo.espacoMemoria.resolucoesChamadas
             );
 
-            if (manterAmbiente) {
-                escopoAnterior.ambiente.valores = Object.assign(
-                    escopoAnterior.ambiente.valores,
-                    ultimoEscopo.ambiente.valores
+            if (manterespacoMemoria) {
+                escopoAnterior.espacoMemoria.valores = Object.assign(
+                    escopoAnterior.espacoMemoria.valores,
+                    ultimoEscopo.espacoMemoria.valores
                 );
             }
             interpretador.escopoAtual--;
@@ -595,13 +595,13 @@ async function instrucaoProximoESair(interpretador: InterpretadorComDepuracaoInt
 export function abrirNovoBlocoEscopo(
     interpretador: InterpretadorComDepuracaoInterface,
     declaracoes: Declaracao[],
-    ambiente?: EspacoVariaveis,
+    espacoMemoria?: EspacoMemoria,
     tipoEscopo: TipoEscopoExecucao = 'outro'
 ) {
     const escopoExecucao: EscopoExecucao = {
         declaracoes: declaracoes,
         declaracaoAtual: 0,
-        ambiente: ambiente || new EspacoVariaveis(),
+        espacoMemoria: espacoMemoria || new EspacoMemoria(),
         finalizado: false,
         tipo: tipoEscopo,
         emLacoRepeticao: false,
@@ -615,7 +615,7 @@ export function abrirNovoBlocoEscopo(
  * - `executarUmPassoNoEscopo`, que executa apenas uma instrução e nada mais;
  * - `executarUltimoEscopoComandoContinuar`, que é a execução trivial de um escopo inteiro,
  *      ou com todas as instruções, ou até encontrar um ponto de parada.
- * @param manterAmbiente Se verdadeiro, junta elementos do último escopo com o escopo
+ * @param manterespacoMemoria Se verdadeiro, junta elementos do último escopo com o escopo
  *                       imediatamente abaixo.
  * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
  *                                     verificar o ponto de parada na primeira execução.
@@ -624,7 +624,7 @@ export function abrirNovoBlocoEscopo(
  */
 export async function executarUltimoEscopo(
     interpretador: InterpretadorComDepuracaoInterface,
-    manterAmbiente = false,
+    manterespacoMemoria = false,
     naoVerificarPrimeiraExecucao = false
 ): Promise<any> {
     switch (interpretador.comando) {
@@ -635,14 +635,14 @@ export async function executarUltimoEscopo(
             } else {
                 return executarUltimoEscopoComandoContinuar(
                     interpretador,
-                    manterAmbiente,
+                    manterespacoMemoria,
                     naoVerificarPrimeiraExecucao
                 );
             }
         default:
             return executarUltimoEscopoComandoContinuar(
                 interpretador,
-                manterAmbiente,
+                manterespacoMemoria,
                 naoVerificarPrimeiraExecucao
             );
     }

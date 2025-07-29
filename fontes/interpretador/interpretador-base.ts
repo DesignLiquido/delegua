@@ -112,7 +112,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     // não precisa da palavra `isto` para ser acessada, ou seja,
     // `minhaPropriedade` e `isto.minhaPropriedade` são a mesma coisa.
     // Potigol, por exemplo, é um dialeto que tem essa característica.
-    expandirPropriedadesDeObjetosEmEspacoVariaveis: boolean;
+    expandirPropriedadesDeObjetosEmEspacoMemoria: boolean;
 
     // Esta variável indica que propriedades de classes precisam ser
     // declaradas para serem válidas.
@@ -159,7 +159,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Isso existe por causa de Potigol.
         // Para acessar uma variável de classe, não é preciso a palavra `isto`.
-        this.expandirPropriedadesDeObjetosEmEspacoVariaveis = false;
+        this.expandirPropriedadesDeObjetosEmEspacoMemoria = false;
 
         // Por padrão é verdadeiro porque Delégua e Pituguês usam
         // o interpretador base como implementação padrão.

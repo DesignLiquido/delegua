@@ -1,10 +1,10 @@
 import { Chamada, Construto } from "../../construtos";
 import { Declaracao, Enquanto, Escreva, Para, Retorna } from "../../declaracoes";
 import { PontoParada } from "../../depuracao";
-import { EspacoVariaveis } from "../../espaco-variaveis";
 import { ComandoDepurador, InterpretadorComDepuracaoInterface, RetornoInterpretador } from "../../interfaces";
 import { TipoEscopoExecucao } from "../../interfaces/escopo-execucao";
 import { RetornoQuebra } from "../../quebras";
+import { EspacoMemoria } from "../espaco-memoria";
 import { InterpretadorBase } from "../interpretador-base";
 
 import * as comum from './comum';
@@ -119,7 +119,7 @@ export class InterpretadorBaseComDepuracao
      */
     override async executarBloco(
         declaracoes: Declaracao[],
-        ambiente?: EspacoVariaveis
+        ambiente?: EspacoMemoria
     ): Promise<any> {
         return await comum.executarBloco(this, declaracoes, ambiente);
     }
