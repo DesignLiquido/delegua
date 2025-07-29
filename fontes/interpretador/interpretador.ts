@@ -25,7 +25,7 @@ import { RetornoInterpretador, SimboloInterface, VariavelInterface } from '../in
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { Declaracao, FuncaoDeclaracao, Retorna } from '../declaracoes';
+import { Const, ConstMultiplo, Declaracao, FuncaoDeclaracao, Retorna, Var, VarMultiplo } from '../declaracoes';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { Montao } from './montao';
 
@@ -81,6 +81,22 @@ export class Interpretador extends InterpretadorBase {
         }
 
         return objeto;
+    }
+
+    override async avaliacaoDeclaracaoVarOuConst(
+        declaracao: Const | ConstMultiplo | Var | VarMultiplo
+    ): Promise<any> {
+        let valorOuOutraVariavel = null;
+        if (declaracao.inicializador !== null) {
+            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
+        }
+
+        let valorFinal = null;
+        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+            valorFinal = this.resolverValor(valorOuOutraVariavel);
+        }
+
+        return valorFinal;
     }
 
     override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {

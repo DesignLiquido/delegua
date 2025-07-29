@@ -221,6 +221,27 @@ describe('Interpretador', () => {
                     expect(_saidas[0]).toBe("{\"verdadeiro\":\"valor\",\"falso\":\"valor2\"}");
                 });
 
+                it('Dicionários e referências do montão', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var meuDicionario = {',
+                        '    "um": "dois",',
+                        '    "tres": {',
+                        '        "quatro": 5',
+                        '    }',
+                        '}',
+                        'var meuSegundoDicionario = meuDicionario["tres"]',
+                        'meuSegundoDicionario["quatro"] = 7',
+                        'escreva(meuDicionario["tres"])',
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("{\"quatro\":7}");
+                });
+
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {
                     const retornoLexador = lexador.mapear(["var a = 1 + '1'"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
