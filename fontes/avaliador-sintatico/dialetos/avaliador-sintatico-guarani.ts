@@ -20,7 +20,11 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         const simboloAtual = this.simbolos[this.atual];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+            return new Literal(
+                this.hashArquivo,
+                Number(simboloAnterior.linha),
+                simboloAnterior.literal
+            );
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -94,7 +98,10 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.consumir(tiposDeSimbolos.HAI, '');
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Oñeha'arõ '(' valores mboyve jehaipyrépe.");
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Oñeha'arõ '(' valores mboyve jehaipyrépe."
+        );
 
         const argumentos: Construto[] = [];
 
@@ -149,7 +156,12 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
 
         const corpo = this.blocoEscopo();
 
-        return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+        return new FuncaoConstruto(
+            this.hashArquivo,
+            Number(parenteseEsquerdo.linha),
+            parametros,
+            corpo
+        );
     }
 
     expressao(): Construto {

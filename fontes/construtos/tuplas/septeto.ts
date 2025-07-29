@@ -9,7 +9,15 @@ export class Septeto extends Tupla {
     sexto: any;
     setimo: any;
 
-    constructor(primeiro: any, segundo: any, terceiro: any, quarto: any, quinto: any, sexto: any, setimo: any) {
+    constructor(
+        primeiro: any,
+        segundo: any,
+        terceiro: any,
+        quarto: any,
+        quinto: any,
+        sexto: any,
+        setimo: any
+    ) {
         super();
         this.primeiro = primeiro;
         this.segundo = segundo;

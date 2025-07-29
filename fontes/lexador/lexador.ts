@@ -110,7 +110,9 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+        );
     }
 
     simboloAtual(): string {
@@ -228,7 +230,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
         const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
-        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string =
+            codigo in palavrasReservadas
+                ? palavrasReservadas[codigo]
+                : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
@@ -508,7 +513,10 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
+            // eslint-disable-next-line no-undef
+            console.log(
+                `[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`
+            );
         }
 
         return {

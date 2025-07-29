@@ -1,6 +1,7 @@
 import {
     AcessoMetodo,
     AcessoPropriedade,
+    Agrupamento,
     ArgumentoReferenciaFuncao,
     Atribuir,
     Construto,
@@ -72,11 +73,16 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
     resultadoInterpretador: Array<string> = [];
 
-    constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
+    constructor(
+        diretorioBase: string,
+        funcaoDeRetorno: Function = null,
+        funcaoDeRetornoMesmaLinha: Function = null
+    ) {
         this.diretorioBase = diretorioBase;
 
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
-        this.funcaoDeRetornoMesmaLinha = funcaoDeRetornoMesmaLinha || process.stdout.write.bind(process.stdout);
+        this.funcaoDeRetornoMesmaLinha =
+            funcaoDeRetornoMesmaLinha || process.stdout.write.bind(process.stdout);
 
         this.erros = [];
         this.declaracoes = [];
@@ -93,7 +99,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
@@ -168,8 +176,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return await expressao.aceitar(this);
     }
 
-    visitarExpressaoAgrupamento(expressao: any): Promise<any> {
-        throw new Error('Método não implementado');
+    async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
+        return await this.avaliar(expressao.expressao);
     }
 
     visitarExpressaoUnaria(expressao: any): never {
@@ -189,16 +197,27 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
-        const tipoDireita: string = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
+        const tipoDireita: string = direita.tipo
+            ? direita.tipo
+            : typeof direita === 'number'
+              ? 'número'
+              : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
               ? 'número'
               : String(NaN);
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
-        if (tiposNumericos.includes(tipoDireita.toLowerCase()) && tiposNumericos.includes(tipoEsquerda.toLowerCase()))
+        if (
+            tiposNumericos.includes(tipoDireita.toLowerCase()) &&
+            tiposNumericos.includes(tipoEsquerda.toLowerCase())
+        )
             return;
-        throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
+        throw new ErroEmTempoDeExecucao(
+            operador,
+            'Operadores precisam ser números.',
+            operador.linha
+        );
     }
 
     protected eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
@@ -211,12 +230,16 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         try {
             const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
             const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
-            const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+            const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
+                ? esquerda.valor
+                : esquerda;
             const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
             const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
                 ? esquerda.tipo
                 : inferirTipoVariavel(esquerda);
-            const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+            const tipoDireito: string = direita?.hasOwnProperty('tipo')
+                ? direita.tipo
+                : inferirTipoVariavel(direita);
 
             switch (expressao.operador.tipo) {
                 case tiposDeSimbolos.EXPONENCIACAO:
@@ -318,7 +341,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
      * @returns Promise com o resultado da leitura.
      */
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
+        const mensagem =
+            expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
         return new Promise((resolucao) =>
             this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
                 resolucao(resposta);
@@ -376,11 +400,15 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
         const valorConteudo: any = conteudo?.hasOwnProperty('valor') ? conteudo.valor : conteudo;
 
-        const tipoConteudo: string = conteudo.hasOwnProperty('tipo') ? conteudo.tipo : typeof conteudo;
+        const tipoConteudo: string = conteudo.hasOwnProperty('tipo')
+            ? conteudo.tipo
+            : typeof conteudo;
 
         resultado = valorConteudo;
         if (['número', 'number'].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
-            resultado = valorConteudo.toLocaleString('pt', { maximumFractionDigits: declaracao.casasDecimais });
+            resultado = valorConteudo.toLocaleString('pt', {
+                maximumFractionDigits: declaracao.casasDecimais,
+            });
         }
 
         if (declaracao.espacos > 0) {
@@ -411,7 +439,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
+                ? resultadoAvaliacao.valor
+                : resultadoAvaliacao;
 
             formatoTexto += `${this.paraTexto(valor)} `;
         }
@@ -484,7 +514,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
 
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            valorFinal,
+            declaracao.tipo
+        );
 
         return null;
     }
@@ -613,10 +647,13 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             let retornoExecucao: any;
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                retornoExecucao = await this.executar(
+                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                );
             }
 
             return retornoExecucao;
@@ -634,7 +671,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
-    async interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador> {
+    async interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente?: boolean
+    ): Promise<RetornoInterpretador> {
         this.erros = [];
 
         const escopoExecucao: EscopoExecucao = {

@@ -52,7 +52,9 @@ aplicações por linha de comando. Em outras palavras, todo programa escrito em 
 
 - Atualmente, há 300 milhões de falantes de português no mundo, seja como primeira ou segunda língua;
 - A língua materna é substancialmente mais eficiente para expressão em passos lógicos do que uma segunda língua, com conjunto de evidências farto e [largamente documentado no meio acadêmico](https://www.researchgate.net/publication/382758173_The_Influence_of_Mother_Tongue_Thinking_on_Second_Language_Writing);
+    - [A Importância da Linguagem Nativa para a Aprendizagem Significativa em Lógica de Programação](https://sol.sbc.org.br/index.php/sbie/article/view/12936)
 - Como carreira, a programação é uma das formas mais eficazes de geração de emprego e renda com a aplicação de poucos recursos, especialmente quando em código aberto e acessível a todos. 
+    - [Rendimentos 200% acima da média: por que o setor de tecnologia é o que mais paga no Brasil?](https://exame.com/carreira/com-rendimentos-200-acima-da-media-brasileira-estudo-revela-qual-o-setor-mais-bem-pago-do-mercado/)
 
 ### Cenário brasileiro
 
@@ -61,6 +63,7 @@ aplicações por linha de comando. Em outras palavras, todo programa escrito em 
     - [Cabo Verde, na 89a posição, nível "baixo"](https://www.ef.com/wwen/epi/regions/africa/cabo-verde/).
 - [Menos de 1 milhão de pessoas trabalha com programação](https://www.jetbrains.com/pt-br/lp/devecosystem-data-playground/);
 - [Taxas de evasão em universidades para cursos de Ciência da Computação são alarmantes](https://carreiraemti.com.br/blog/mapa-do-ensino-superior-revela-385-de-evasao-em-cursos-de-ti/).
+    - [Reprovações e trancamentos nas disciplinas de introdução à programação da Universidade de São Paulo: um estudo preliminar (2015)](https://repositorio.usp.br/item/002855292)
 
 
 ## Vantagens de programar em português

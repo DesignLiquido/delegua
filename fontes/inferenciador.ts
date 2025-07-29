@@ -135,7 +135,9 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
     }
 }
 
-export function tipoInferenciaParaTipoDadosElementar(tipoInferencia: TipoInferencia): TipoDadosElementar {
+export function tipoInferenciaParaTipoDadosElementar(
+    tipoInferencia: TipoInferencia
+): TipoDadosElementar {
     switch (tipoInferencia) {
         // TODO: Colocar exceções aqui.
         default:

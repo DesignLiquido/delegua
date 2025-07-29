@@ -445,6 +445,55 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Chamada de funções da biblioteca global', () => {
+                it('Chamada a função nativa aleatorio', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeroAleatorio = aleatorio()',
+                            'escreva(numeroAleatorio)'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toContain('0.');
+                });
+
+                it('Chamada a função nativa filtrarPor com função nomeada', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var listaDeIdades = [91, 32, 15, 44, 12, 18, 101]',
+                            'funcao checarIdade(idade) {',
+                            '    retorna(idade >= 18)',
+                            '}',
+                            'escreva(filtrarPor(listaDeIdades, checarIdade))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[91, 32, 44, 18, 101]');
+                });
+            });
+
             describe('Conversões entre tipos', () => {
                 it('Texto para inteiro', async () => {
                     let _saida: string = '';
@@ -1554,6 +1603,23 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Chamada de função com retorna vazio e comandos após retorna', async () => {
+                    const codigo = [
+                        'funcao mostreAlgo() {',
+                        '    retorna',
+                        '    escreva("Escrevendo algo.")',
+                        '}',
+                        'mostreAlgo()'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Chamada de função primitiva com parâmetro nulo', async () => {
                     const codigo = [
                         'var frutas = ["maçã", "banana", "morango", "laranja", "uva"]',
@@ -1814,12 +1880,14 @@ describe('Interpretador', () => {
 
             describe('Métodos de primitivas com dependência no interpretador', () => {
                 describe('Dicionários', () => {
-                    it('chaves() e valores()', async () => {
+                    it('Todas as primitivas de dicionário', async () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 `var meuDicionario = {"a": 1, "b": 2, "c": 3}`,
                                 `escreva(meuDicionario.chaves())`,
                                 `escreva(meuDicionario.valores())`,
+                                `escreva(meuDicionario.contém("f"))`,
+                                `escreva(meuDicionario.remover("c"))`,
                             ],
                             -1
                         );
@@ -1836,9 +1904,11 @@ describe('Interpretador', () => {
                         );
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas).toHaveLength(4);
                         expect(_saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
                         expect(_saidas[1]).toEqual('[1, 2, 3]');
+                        expect(_saidas[2]).toEqual('falso');
+                        expect(_saidas[3]).toEqual('verdadeiro');
                     });
 
                     it('Obter valores do dicionário dentro de outro dicionário', async () => {
@@ -2152,7 +2222,7 @@ describe('Interpretador', () => {
                     expect(_saidas).toHaveLength(3);
                     expect(_saidas[0]).toBe('método<qualquer[]>');
                     expect(_saidas[1]).toBe('método<qualquer[]>');
-                    expect(_saidas[2]).toBe('método<vazio>');
+                    expect(_saidas[2]).toBe('método<função<vazio>>');
                 });
             });
 

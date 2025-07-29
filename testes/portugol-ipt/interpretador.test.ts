@@ -1,5 +1,4 @@
 import { AvaliadorSintaticoPortugolIpt } from "../../fontes/avaliador-sintatico/dialetos";
-// import { InterpretadorBase } from "../../fontes/interpretador";
 import { InterpretadorPortugolIpt } from "../../fontes/interpretador/dialetos";
 import { LexadorPortugolIpt } from "../../fontes/lexador/dialetos";
 
@@ -45,15 +44,15 @@ describe('Interpretador', () => {
                 };
 
                 const retornoLexador = lexador.mapear([
-                    'inicio\n',
-                    '    inteiro idade\n',
-                    '    escrever "Qual é a sua idade?"\n',
-                    '    ler idade\n',
-                    '    se (idade >= 18) então\n',
-                    '        escrever "Você é maior de idade"\n',
-                    '    senão\n',
-                    '        escrever "Você é menor de idade"\n',
-                    '    fimse\n',
+                    'inicio',
+                    '    inteiro idade',
+                    '    escrever "Qual é a sua idade?"',
+                    '    ler idade',
+                    '    se (idade >= 18) então',
+                    '        escrever "Você é maior de idade"',
+                    '    senão',
+                    '        escrever "Você é menor de idade"',
+                    '    fimse',
                     'fim'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

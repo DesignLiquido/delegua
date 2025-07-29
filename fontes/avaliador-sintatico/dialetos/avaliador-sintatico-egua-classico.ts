@@ -55,7 +55,9 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
  *
  * Esta implementação tenta seguir à risca o que está atualmente em https://github.com/eguatech/egua/blob/master/src/parser.js.
  */
-export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
+export class AvaliadorSintaticoEguaClassico
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
+{
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -177,7 +179,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 const valor = this.atribuir();
                 valores.push(valor);
                 if (this.simboloAtual().tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                    this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                    this.consumir(
+                        tiposDeSimbolos.VIRGULA,
+                        'Esperado vírgula antes da próxima expressão.'
+                    );
                 }
             }
             return new Vetor(this.hashArquivo, 0, valores);
@@ -197,16 +202,22 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 valores.push(valor);
 
                 if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
-                    this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                    this.consumir(
+                        tiposDeSimbolos.VIRGULA,
+                        'Esperado vírgula antes da próxima expressão.'
+                    );
                 }
             }
             return new Dicionario(this.hashArquivo, 0, chaves, valores);
         }
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO)) return this.corpoDaFuncao('função');
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO)) return new Literal(this.hashArquivo, 0, false);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO))
+            return this.corpoDaFuncao('função');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO))
+            return new Literal(this.hashArquivo, 0, false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VERDADEIRO))
             return new Literal(this.hashArquivo, 0, true);
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NULO)) return new Literal(this.hashArquivo, 0, null);
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NULO))
+            return new Literal(this.hashArquivo, 0, null);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
             return new Isto(this.hashArquivo, Number(this.simboloAnterior()));
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
@@ -221,7 +232,8 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
             return new Agrupamento(this.hashArquivo, 0, expressao);
         }
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR)) return this.declaracaoImportar();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
+            return this.declaracaoImportar();
 
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
@@ -249,7 +261,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                const nome = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome do método após '.'."
+                );
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
@@ -257,7 +272,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
+                expressao = new AcessoIndiceVariavel(
+                    this.hashArquivo,
+                    expressao,
+                    indice,
+                    simboloFechamento
+                );
             } else {
                 break;
             }
@@ -315,7 +335,9 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     adicionar(): Construto {
         let expressao = this.multiplicar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)
+        ) {
             const operador = this.simboloAnterior();
             const direito = this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -327,7 +349,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     bitShift(): Construto {
         let expressao = this.adicionar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.MENOR_MENOR,
+                tiposDeSimbolos.MAIOR_MAIOR
+            )
+        ) {
             const operador = this.simboloAnterior();
             const direito = this.adicionar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -351,7 +378,9 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     bitOu(): Construto {
         let expressao = this.bitE();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)
+        ) {
             const operador = this.simboloAnterior();
             const direito = this.bitE();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -382,7 +411,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIFERENTE,
+                tiposDeSimbolos.IGUAL_IGUAL
+            )
+        ) {
             const operador = this.simboloAnterior();
             const direito = this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -440,7 +474,13 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             } else if (expressao instanceof AcessoIndiceVariavel) {
-                return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
+                return new AtribuicaoPorIndice(
+                    this.hashArquivo,
+                    0,
+                    expressao.entidadeChamada,
+                    expressao.indice,
+                    valor
+                );
             }
             throw this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -455,11 +495,17 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.simboloAtual();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' antes dos valores em escreva."
+        );
 
         const valor = this.expressao();
 
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após os valores em escreva."
+        );
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após o valor.");
 
@@ -475,7 +521,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     blocoEscopo(): Declaracao[] {
         const declaracoes: Array<Declaracao> = [];
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+            !this.estaNoFinal()
+        ) {
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
@@ -494,7 +543,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃOSE)) {
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senãose'.");
             const condicaoSeSenao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' apóes codição do 'senãose.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' apóes codição do 'senãose."
+            );
 
             const caminho = this.resolverDeclaracao();
 
@@ -548,7 +600,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 condicao = this.expressao();
             }
 
-            this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após valores da condicional");
+            this.consumir(
+                tiposDeSimbolos.PONTO_E_VIRGULA,
+                "Esperado ';' após valores da condicional"
+            );
 
             let incrementar = null;
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -559,7 +614,14 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
             const corpo = this.resolverDeclaracao();
 
-            return new Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+            return new Para(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                inicializador,
+                condicao,
+                incrementar,
+                corpo
+            );
         } finally {
             this.blocos -= 1;
         }
@@ -576,7 +638,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
-            throw this.erro(this.simboloAnterior(), "'continua' precisa estar em um laço de repetição.");
+            throw this.erro(
+                this.simboloAnterior(),
+                "'continua' precisa estar em um laço de repetição."
+            );
         }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'continua'.");
@@ -603,12 +668,21 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
             const condicao = this.expressao();
 
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado '}' após a condição de 'escolha'.");
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do 'escolha'.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado '}' após a condição de 'escolha'."
+            );
+            this.consumir(
+                tiposDeSimbolos.CHAVE_ESQUERDA,
+                "Esperado '{' antes do escopo do 'escolha'."
+            );
 
             const caminhos = [];
             let caminhoPadrao = null;
-            while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+            while (
+                !this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) &&
+                !this.estaNoFinal()
+            ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
                     const caminhoCondicoes = [this.expressao()];
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
@@ -616,7 +690,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
                         caminhoCondicoes.push(this.expressao());
-                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
+                        this.consumir(
+                            tiposDeSimbolos.DOIS_PONTOS,
+                            "Esperado ':' após declaração do 'caso'."
+                        );
                     }
 
                     const declaracoes = [];
@@ -642,7 +719,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                         throw excecao;
                     }
 
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após declaração do 'padrao'.");
+                    this.consumir(
+                        tiposDeSimbolos.DOIS_PONTOS,
+                        "Esperado ':' após declaração do 'padrao'."
+                    );
 
                     const declaracoes = [];
                     do {
@@ -680,21 +760,30 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         let catchBlock = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            this.consumir(
+                tiposDeSimbolos.CHAVE_ESQUERDA,
+                "Esperado '{' após a declaração 'pegue'."
+            );
 
             catchBlock = this.blocoEscopo();
         }
 
         let elseBlock = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            this.consumir(
+                tiposDeSimbolos.CHAVE_ESQUERDA,
+                "Esperado '{' após a declaração 'pegue'."
+            );
 
             elseBlock = this.blocoEscopo();
         }
 
         let finallyBlock = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
-            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            this.consumir(
+                tiposDeSimbolos.CHAVE_ESQUERDA,
+                "Esperado '{' após a declaração 'pegue'."
+            );
 
             finallyBlock = this.blocoEscopo();
         }
@@ -708,12 +797,21 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
             const caminhoFazer = this.resolverDeclaracao();
 
-            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
+            this.consumir(
+                tiposDeSimbolos.ENQUANTO,
+                "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
+            );
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_ESQUERDO,
+                "Esperado '(' após declaração 'enquanto'."
+            );
 
             const condicaoEnquanto = this.expressao();
 
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração do 'enquanto'.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após declaração do 'enquanto'."
+            );
 
             return new Fazer(0, 0, caminhoFazer, condicaoEnquanto);
         } finally {
@@ -722,16 +820,24 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     }
 
     resolverDeclaracao(): any {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE)) return this.declaracaoTente();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)) return this.declaracaoSustar();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER))
+            return this.declaracaoFazer();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE))
+            return this.declaracaoTente();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA))
+            return this.declaracaoEscolha();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA))
+            return this.declaracaoRetorna();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA))
+            return this.declaracaoContinua();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA))
+            return this.declaracaoSustar();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO))
+            return this.declaracaoEnquanto();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA)) return this.declaracaoEscreva();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA))
+            return this.declaracaoEscreva();
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA))
             return new Bloco(0, 0, this.blocoEscopo());
 
@@ -745,7 +851,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             inicializador = this.expressao();
         }
 
-        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após a declaração da variável.");
+        this.consumir(
+            tiposDeSimbolos.PONTO_E_VIRGULA,
+            "Esperado ';' após a declaração da variável."
+        );
 
         return new Var(nome, inicializador);
     }
@@ -762,7 +871,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (parametros.length >= 255) {
-                    throw this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
+                    throw this.erro(
+                        this.simboloAtual(),
+                        'Função não pode ter mais de 255 parâmetros.'
+                    );
                 }
 
                 const parametro = {};
@@ -774,7 +886,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                     parametro['tipo'] = 'padrao';
                 }
 
-                parametro['nome'] = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+                parametro['nome'] = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    'Esperado nome do parâmetro.'
+                );
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                     parametro['padrao'] = this.primario();
@@ -799,7 +914,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            const simboloSuperclasse = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
+            const simboloSuperclasse = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome da Superclasse.'
+            );
             this.superclasseAtual = simboloSuperclasse.lexema;
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
         }
@@ -807,7 +925,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
 
         const metodos = [];
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+            !this.estaNoFinal()
+        ) {
             metodos.push(this.funcao('método'));
         }
 
@@ -825,8 +946,10 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                 this.consumir(tiposDeSimbolos.FUNCAO, null);
                 return this.funcao('função');
             }
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) return this.declaracaoDeVariavel();
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) return this.declaracaoDeClasse();
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL))
+                return this.declaracaoDeVariavel();
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE))
+                return this.declaracaoDeClasse();
 
             return this.resolverDeclaracao();
         } catch (erro) {

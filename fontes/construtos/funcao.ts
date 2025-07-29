@@ -7,22 +7,25 @@ export class FuncaoConstruto implements Construto {
     hashArquivo: number;
 
     parametros: ParametroInterface[];
-    tipo?: string;
     corpo: Declaracao[];
+    tipo?: string;
+    tipoExplicito: boolean;
 
     constructor(
         hashArquivo: number,
         linha: number,
         parametros: ParametroInterface[],
         corpo: Declaracao[],
-        tipoRetorno?: string
+        tipoRetorno?: string,
+        tipoExplicito?: boolean
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 
         this.parametros = parametros;
-        this.tipo = tipoRetorno;
         this.corpo = corpo;
+        this.tipo = tipoRetorno;
+        this.tipoExplicito = tipoExplicito || false;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

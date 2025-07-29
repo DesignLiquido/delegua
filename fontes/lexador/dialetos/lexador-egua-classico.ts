@@ -163,7 +163,10 @@ export class LexadorEguaClassico implements LexadorInterface<SimboloInterface> {
         }
 
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo =
+            codigo in palavrasReservadas
+                ? palavrasReservadas[codigo]
+                : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
@@ -220,10 +223,14 @@ export class LexadorEguaClassico implements LexadorInterface<SimboloInterface> {
                 this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 break;
             case '!':
-                this.adicionarSimbolo(this.proximoIgualA('=') ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO);
+                this.adicionarSimbolo(
+                    this.proximoIgualA('=') ? tiposDeSimbolos.DIFERENTE : tiposDeSimbolos.NEGACAO
+                );
                 break;
             case '=':
-                this.adicionarSimbolo(this.proximoIgualA('=') ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL);
+                this.adicionarSimbolo(
+                    this.proximoIgualA('=') ? tiposDeSimbolos.IGUAL_IGUAL : tiposDeSimbolos.IGUAL
+                );
                 break;
 
             case '&':

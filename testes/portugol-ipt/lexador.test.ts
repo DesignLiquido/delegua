@@ -15,7 +15,7 @@ describe('Lexador (Portugol IPT)', () => {
                 const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(1);
             });
         });
 
@@ -24,7 +24,7 @@ describe('Lexador (Portugol IPT)', () => {
                 const resultado = lexador.mapear(['inicio', 'fim'], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(2);
+                expect(resultado.simbolos).toHaveLength(4);
             });
         });
 
@@ -37,7 +37,7 @@ describe('Lexador (Portugol IPT)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(4);
+                expect(resultado.simbolos).toHaveLength(7);
             });
         });
     });

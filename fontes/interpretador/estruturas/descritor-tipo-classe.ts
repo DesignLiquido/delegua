@@ -68,7 +68,7 @@ export class DescritorTipoClasse extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     paraTexto(): string {
-        let texto = `<DescritorTipoClasse ${this.simboloOriginal.lexema}`;
+        let texto = `<descritor-tipo-classe ${this.simboloOriginal.lexema}`;
         for (let propriedade of this.propriedades) {
             texto += ` ${propriedade.nome.lexema}`;
             if (propriedade.tipo) {
@@ -95,7 +95,10 @@ export class DescritorTipoClasse extends Chamavel {
         return inicializador ? inicializador.aridade() : 0;
     }
 
-    async chamar(visitante: InterpretadorInterface, argumentos: any[]): Promise<ObjetoDeleguaClasse> {
+    async chamar(
+        visitante: InterpretadorInterface,
+        argumentos: any[]
+    ): Promise<ObjetoDeleguaClasse> {
         const instancia = new ObjetoDeleguaClasse(this);
 
         const inicializador = this.encontrarMetodo('construtor');

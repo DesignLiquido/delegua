@@ -10,7 +10,12 @@ export class Comentario extends Declaracao {
     conteudo: string | string[];
     multilinha: boolean;
 
-    constructor(hashArquivo: number, linha: number, conteudo: string | string[], multilinha: boolean) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        conteudo: string | string[],
+        multilinha: boolean
+    ) {
         super(linha, hashArquivo);
         this.conteudo = conteudo;
         this.multilinha = multilinha;

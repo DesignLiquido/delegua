@@ -9,6 +9,10 @@ export class FuncaoPadrao extends Chamavel {
     valorAridade: number;
     funcao: Function;
     simbolo: SimboloInterface;
+    argumentos?: { nome: string, tipo: string }[];
+    tipoRetorno?: string;
+    documentacao?: string;
+    descartarPrimeiroArgumento: boolean = true;
 
     constructor(valorAridade: number, funcao: Function) {
         super();
@@ -16,7 +20,11 @@ export class FuncaoPadrao extends Chamavel {
         this.funcao = funcao;
     }
 
-    async chamar(visitante: InterpretadorInterface, argumentos: any[], simbolo: SimboloInterface): Promise<any> {
+    async chamar(
+        visitante: InterpretadorInterface,
+        argumentos: any[],
+        simbolo: SimboloInterface
+    ): Promise<any> {
         this.simbolo = simbolo;
         return await this.funcao.apply(this, [visitante, ...argumentos]);
     }
@@ -26,7 +34,7 @@ export class FuncaoPadrao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        return `<função padrão nome=${this.simbolo.lexema}>`;
+        return `<função-padrão nome=${this.simbolo.lexema}>`;
     }
 
     /**

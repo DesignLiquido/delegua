@@ -48,7 +48,9 @@ export abstract class MicroAvaliadorSintaticoBase {
     abstract chamar(): Construto;
 
     unario(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new Unario(-1, operador, direito, 'ANTES');
@@ -91,7 +93,9 @@ export abstract class MicroAvaliadorSintaticoBase {
     adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -122,7 +126,12 @@ export abstract class MicroAvaliadorSintaticoBase {
     comparacaoIgualdade(): Construto {
         let expressao = this.comparar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIFERENTE,
+                tiposDeSimbolos.IGUAL_IGUAL
+            )
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(-1, expressao, operador, direito);

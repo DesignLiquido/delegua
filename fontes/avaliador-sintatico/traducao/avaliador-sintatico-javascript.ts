@@ -40,7 +40,10 @@ export class AvaliadorSintaticoJavaScript
         throw new Error('Método não implementado.');
     }
 
-    erro(simbolo: Statement | Directive | ModuleDeclaration, mensagemDeErro: string): ErroAvaliadorSintatico {
+    erro(
+        simbolo: Statement | Directive | ModuleDeclaration,
+        mensagemDeErro: string
+    ): ErroAvaliadorSintatico {
         throw new Error('Método não implementado.');
     }
 

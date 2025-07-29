@@ -5,19 +5,19 @@ import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constan
 export default {
     adicionar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('elemento', 'qualquer')
-        ],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
+        argumentos: [new InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         },
     },
     concatenar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('outroVetor', 'qualquer[]')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('outroVetor', 'qualquer[]')],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -28,10 +28,12 @@ export default {
     },
     empilhar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('elemento', 'qualquer')
-        ],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
+        argumentos: [new InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         },
@@ -41,7 +43,7 @@ export default {
         argumentos: [
             new InformacaoVariavelOuConstante('inicio', 'qualquer'),
             new InformacaoVariavelOuConstante('excluirQuantidade', 'número'),
-            new InformacaoVariavelOuConstante('itens', 'qualquer[]')
+            new InformacaoVariavelOuConstante('itens', 'qualquer[]'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -66,7 +68,7 @@ export default {
         tipoRetorno: 'qualquer[]',
         argumentos: [
             new InformacaoVariavelOuConstante('inicio', 'número'),
-            new InformacaoVariavelOuConstante('fim', 'número')
+            new InformacaoVariavelOuConstante('fim', 'número'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -77,9 +79,7 @@ export default {
     },
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('funcao', 'função')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('funcao', 'função')],
         implementacao: async (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -101,11 +101,12 @@ export default {
     },
     inclui: {
         tipoRetorno: 'lógico',
-        argumentos: [
-            new InformacaoVariavelOuConstante('elemento', 'qualquer')
-        ],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> =>
-            Promise.resolve(vetor.includes(elemento)),
+        argumentos: [new InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => Promise.resolve(vetor.includes(elemento)),
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
@@ -115,17 +116,16 @@ export default {
     },
     juntar: {
         tipoRetorno: 'texto',
-        argumentos: [
-            new InformacaoVariavelOuConstante('separador', 'texto')
-        ],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, separador: string): Promise<any> =>
-            Promise.resolve(vetor.join(separador)),
+        argumentos: [new InformacaoVariavelOuConstante('separador', 'texto')],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            separador: string
+        ): Promise<any> => Promise.resolve(vetor.join(separador)),
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('funcao', 'função')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('funcao', 'função')],
         implementacao: async (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -146,9 +146,7 @@ export default {
     },
     ordenar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('funcaoOrdenacao', 'função')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('funcaoOrdenacao', 'função')],
         implementacao: async (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
@@ -157,7 +155,12 @@ export default {
             if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
                 for (let i = 0; i < vetor.length - 1; i++) {
                     for (let j = 1; j < vetor.length; j++) {
-                        if ((await funcaoOrdenacao.chamar(interpretador, [vetor[j - 1], vetor[j]])) > 0) {
+                        if (
+                            (await funcaoOrdenacao.chamar(interpretador, [
+                                vetor[j - 1],
+                                vetor[j],
+                            ])) > 0
+                        ) {
                             const aux = vetor[j];
                             vetor[j] = vetor[j - 1];
                             vetor[j - 1] = aux;
@@ -177,10 +180,12 @@ export default {
     },
     remover: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante('elemento', 'qualquer')
-        ],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>, elemento: any): Promise<any> => {
+        argumentos: [new InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => {
             const index = vetor.indexOf(elemento);
             if (index !== -1) vetor.splice(index, 1);
             return Promise.resolve(vetor);
@@ -210,7 +215,10 @@ export default {
             vetor: Array<number | { valor: number }>
         ): Promise<number | { valor: number }> => {
             return Promise.resolve(
-                vetor.reduce((acc: number, item) => acc + (typeof item === 'number' ? item : item.valor), 0)
+                vetor.reduce(
+                    (acc: number, item) => acc + (typeof item === 'number' ? item : item.valor),
+                    0
+                )
             );
         },
     },
@@ -220,4 +228,4 @@ export default {
         implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.length),
     },
-} as { [key: string]: PrimitivaInterface };
+} as { [nome: string]: PrimitivaInterface };

@@ -1,4 +1,3 @@
-import { parseScript } from 'esprima';
 import {
     ArrayExpression,
     BinaryExpression,
@@ -29,7 +28,9 @@ import { TradutorInterface } from '../interfaces';
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
  */
-export class TradutorReversoJavaScript implements TradutorInterface<Statement | Directive | ModuleDeclaration> {
+export class TradutorReversoJavaScript
+    implements TradutorInterface<Statement | Directive | ModuleDeclaration>
+{
     indentacao: number = 0;
 
     constructor() {
@@ -114,7 +115,9 @@ export class TradutorReversoJavaScript implements TradutorInterface<Statement | 
 
     traduzirAtualizacaoVariavel(atualizarVariavel: UpdateExpression): string {
         let resultado = '';
-        resultado += this.dicionarioConstrutos[atualizarVariavel.argument.constructor.name](atualizarVariavel.argument);
+        resultado += this.dicionarioConstrutos[atualizarVariavel.argument.constructor.name](
+            atualizarVariavel.argument
+        );
         resultado += this.traduzirSimboloOperador(atualizarVariavel.operator);
         return resultado;
     }
@@ -261,7 +264,8 @@ export class TradutorReversoJavaScript implements TradutorInterface<Statement | 
         let resultado = '';
         let emOuDe = declaracao.type === 'ForInStatement' ? 'em' : 'de';
         resultado += `para (${this.traduzirDeclaracao(declaracao.left)} ${emOuDe} `;
-        resultado += this.dicionarioConstrutos[declaracao.right.constructor.name](declaracao.right) + ') ';
+        resultado +=
+            this.dicionarioConstrutos[declaracao.right.constructor.name](declaracao.right) + ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao.body);
 
         return resultado;

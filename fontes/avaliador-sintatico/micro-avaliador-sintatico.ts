@@ -81,9 +81,12 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                 // Caso contrário, apenas retornar um construto de variável.
                 if (
                     this.simbolos[this.atual] &&
-                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(this.simbolos[this.atual].tipo)
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(
+                        this.simbolos[this.atual].tipo
+                    )
                 ) {
-                    const simboloIncrementoDecremento: SimboloInterface = this.avancarEDevolverAnterior();
+                    const simboloIncrementoDecremento: SimboloInterface =
+                        this.avancarEDevolverAnterior();
                     return new Unario(
                         -1,
                         simboloIncrementoDecremento,
@@ -124,7 +127,10 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
-                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        'Não pode haver mais de 255 argumentos.'
+                    );
                 }
                 argumentos.push(this.ou());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -142,7 +148,10 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                const nome = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome do método após '.'."
+                );
                 expressao = new AcessoMetodoOuPropriedade(-1, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.ou();
@@ -180,7 +189,12 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
     protected bitShift(): Construto {
         let expressao = this.adicaoOuSubtracao();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.MENOR_MENOR,
+                tiposDeSimbolos.MAIOR_MAIOR
+            )
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.adicaoOuSubtracao();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -204,7 +218,9 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
     protected bitOu(): Construto {
         let expressao = this.bitE();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.bitE();
             expressao = new Binario(-1, expressao, operador, direito);
@@ -256,7 +272,10 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(
+        retornoLexador: RetornoLexador<SimboloInterface>,
+        linha: number
+    ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;

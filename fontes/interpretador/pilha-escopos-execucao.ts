@@ -167,7 +167,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     if (variavelValor instanceof Array || variavelValor instanceof Object) {
                         variavelValor[indice] = valorResolvido;
                     } else {
-                        throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor ou dicionário.');
+                        throw new ErroEmTempoDeExecucao(
+                            simbolo,
+                            'Variável não é um vetor ou dicionário.'
+                        );
                     }
                 } else {
                     espacoMemoria.valores[simbolo.lexema] = {
@@ -208,7 +211,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             }
         }
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida: '" + simbolo.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            "Variável não definida: '" + simbolo.lexema + "'."
+        );
     }
 
     obterVariavelPorNome(nome: string): VariavelInterface {
