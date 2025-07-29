@@ -3,7 +3,7 @@ import { VariavelInterface } from '../interfaces';
 
 /**
  * Um espaço de memória é ligado a um `EscopoExecucao`.
- * Contém valores de variáveis, endereços utilizados no montão, 
+ * Contém valores de variáveis, endereços utilizados no montão,
  * referências a funções (Delégua e Pituguês) e resoluções de chamadas.
  *
  * As resoluções de chamadas são utilizadas pelo depurador quando

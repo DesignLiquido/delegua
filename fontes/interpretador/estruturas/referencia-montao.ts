@@ -4,7 +4,7 @@ export class ReferenciaMontao {
     constructor(endereco: string) {
         this.endereco = endereco;
     }
-    
+
     /**
      * Método utilizado por Delégua para inspecionar este objeto em depuração.
      * @returns {string} A representação da referência como texto.

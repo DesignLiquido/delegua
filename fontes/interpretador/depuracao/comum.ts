@@ -1,9 +1,9 @@
 import _ from 'lodash';
 
-import { Chamada, Construto, Leia } from "../../construtos";
-import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from "../../declaracoes";
-import { InterpretadorComDepuracaoInterface } from "../../interfaces";
-import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from "../../quebras";
+import { Chamada, Construto, Leia } from '../../construtos';
+import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
+import { InterpretadorComDepuracaoInterface } from '../../interfaces';
+import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from '../../quebras';
 import { PontoParada } from '../../depuracao';
 import { EscopoExecucao, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { inferirTipoVariavel } from '../../inferenciador';
@@ -76,8 +76,7 @@ function verificarPontoParada(
     declaracao: Declaracao
 ): boolean {
     const buscaPontoParada: PontoParada[] = interpretador.pontosParada.filter(
-        (p: PontoParada) =>
-            p.hashArquivo === declaracao.hashArquivo && p.linha === declaracao.linha
+        (p: PontoParada) => p.hashArquivo === declaracao.hashArquivo && p.linha === declaracao.linha
     );
 
     if (buscaPontoParada.length > 0) {
@@ -102,7 +101,10 @@ export async function avaliar(
 ): Promise<any> {
     if (expressao.hasOwnProperty('id')) {
         const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
-        const idChamadaComArgumentos = await gerarIdResolucaoChamada(interpretador, expressao as Chamada);
+        const idChamadaComArgumentos = await gerarIdResolucaoChamada(
+            interpretador,
+            expressao as Chamada
+        );
         if (escopoAtual.espacoMemoria.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
             return escopoAtual.espacoMemoria.resolucoesChamadas[idChamadaComArgumentos];
         }
@@ -182,7 +184,10 @@ export async function visitarDeclaracaoEscreva(
     declaracao: Escreva
 ): Promise<any> {
     try {
-        const formatoTexto: string = await avaliarArgumentosEscreva(interpretador, declaracao.argumentos);
+        const formatoTexto: string = await avaliarArgumentosEscreva(
+            interpretador,
+            declaracao.argumentos
+        );
         if (interpretador.pontoDeParadaAtivo) {
             return null;
         }
@@ -242,7 +247,9 @@ export async function visitarDeclaracaoPara(
             while (!(retornoExecucao instanceof Quebra) && !interpretador.pontoDeParadaAtivo) {
                 if (
                     cloneDeclaracao.condicao !== null &&
-                    !interpretador.eVerdadeiro(await interpretador.avaliar(cloneDeclaracao.condicao))
+                    !interpretador.eVerdadeiro(
+                        await interpretador.avaliar(cloneDeclaracao.condicao)
+                    )
                 ) {
                     break;
                 }
@@ -315,7 +322,9 @@ export async function executarBloco(
     // Se o escopo atual não é o último.
     if (interpretador.escopoAtual < interpretador.pilhaEscoposExecucao.elementos() - 1) {
         interpretador.escopoAtual++;
-        const proximoEscopo = interpretador.pilhaEscoposExecucao.naPosicao(interpretador.escopoAtual);
+        const proximoEscopo = interpretador.pilhaEscoposExecucao.naPosicao(
+            interpretador.escopoAtual
+        );
         let retornoExecucao: any;
 
         // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
@@ -357,7 +366,12 @@ export async function executarBloco(
         interpretador.escopoAtual--;
         return retornoExecucao;
     } else {
-        abrirNovoBlocoEscopo(interpretador, declaracoes, espacoMemoria, interpretador.proximoEscopo || 'outro');
+        abrirNovoBlocoEscopo(
+            interpretador,
+            declaracoes,
+            espacoMemoria,
+            interpretador.proximoEscopo || 'outro'
+        );
         const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
         if (interpretador.idChamadaAtual) {
             ultimoEscopo.idChamada = interpretador.idChamadaAtual;
@@ -451,7 +465,7 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
  * Continua a interpretação parcial do último ponto em que parou.
  * Pode ser tanto o começo da execução inteira, ou pós comando do depurador
  * quando há um ponto de parada.
- * @param manterespacoMemoria Se verdadeiro, junta elementos do último escopo com o escopo
+ * @param manterEspacoMemoria Se verdadeiro, junta elementos do último escopo com o escopo
  *                       imediatamente abaixo.
  * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
  *                                     verificar o ponto de parada na primeira execução.
@@ -460,7 +474,7 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
  */
 export async function executarUltimoEscopoComandoContinuar(
     interpretador: InterpretadorComDepuracaoInterface,
-    manterespacoMemoria = false,
+    manterEspacoMemoria = false,
     naoVerificarPrimeiraExecucao = false
 ): Promise<any> {
     const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
@@ -512,7 +526,7 @@ export async function executarUltimoEscopoComandoContinuar(
                 ultimoEscopo.espacoMemoria.resolucoesChamadas
             );
 
-            if (manterespacoMemoria) {
+            if (manterEspacoMemoria) {
                 escopoAnterior.espacoMemoria.valores = Object.assign(
                     escopoAnterior.espacoMemoria.valores,
                     ultimoEscopo.espacoMemoria.valores
@@ -669,9 +683,9 @@ export function obterVariavel(
     if (valorOuVariavel.hasOwnProperty('valor')) {
         return valorOuVariavel;
     }
-    
+
     return {
         valor: valorOuVariavel,
-        tipo: inferirTipoVariavel(valorOuVariavel)
+        tipo: inferirTipoVariavel(valorOuVariavel),
     };
 }

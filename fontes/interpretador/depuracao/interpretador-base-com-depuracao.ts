@@ -1,11 +1,15 @@
-import { Chamada, Construto } from "../../construtos";
-import { Declaracao, Enquanto, Escreva, Para, Retorna } from "../../declaracoes";
-import { PontoParada } from "../../depuracao";
-import { ComandoDepurador, InterpretadorComDepuracaoInterface, RetornoInterpretador } from "../../interfaces";
-import { TipoEscopoExecucao } from "../../interfaces/escopo-execucao";
-import { RetornoQuebra } from "../../quebras";
-import { EspacoMemoria } from "../espaco-memoria";
-import { InterpretadorBase } from "../interpretador-base";
+import { Chamada, Construto } from '../../construtos';
+import { Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
+import { PontoParada } from '../../depuracao';
+import {
+    ComandoDepurador,
+    InterpretadorComDepuracaoInterface,
+    RetornoInterpretador,
+} from '../../interfaces';
+import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
+import { RetornoQuebra } from '../../quebras';
+import { EspacoMemoria } from '../espaco-memoria';
+import { InterpretadorBase } from '../interpretador-base';
 
 import * as comum from './comum';
 
@@ -43,7 +47,7 @@ export class InterpretadorBaseComDepuracao
     obterVariavel(nome: string): any {
         return comum.obterVariavel(this, nome);
     }
-    
+
     /**
      * Quando um construto ou declaração possui id, significa que o interpretador
      * deve resolver a avaliação e guardar seu valor até o final do escopo.
@@ -58,8 +62,8 @@ export class InterpretadorBaseComDepuracao
 
     override async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
         return await comum.visitarExpressaoDeChamada(
-            this, 
-            super.visitarExpressaoDeChamada.bind(this), 
+            this,
+            super.visitarExpressaoDeChamada.bind(this),
             expressao
         );
     }
@@ -104,7 +108,11 @@ export class InterpretadorBaseComDepuracao
      * @returns O resultado da execução da visita.
      */
     override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        return await comum.visitarExpressaoRetornar(this, super.visitarExpressaoRetornar.bind(this), declaracao);
+        return await comum.visitarExpressaoRetornar(
+            this,
+            super.visitarExpressaoRetornar.bind(this),
+            declaracao
+        );
     }
 
     /**
@@ -140,7 +148,7 @@ export class InterpretadorBaseComDepuracao
         manterAmbiente = false,
         naoVerificarPrimeiraExecucao = false
     ): Promise<any> {
-        return await comum.executarUltimoEscopo(this, manterAmbiente, naoVerificarPrimeiraExecucao)
+        return await comum.executarUltimoEscopo(this, manterAmbiente, naoVerificarPrimeiraExecucao);
     }
 
     /**

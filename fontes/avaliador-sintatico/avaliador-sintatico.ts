@@ -91,7 +91,7 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  * aceito pela próxima etapa, como tradução, interpretação, análise semântica, etc.
  *
  * Este é o avaliador sintático de Delégua que, assim como todos os demais dialetos baseados
- * neste núcleo, são uma derivação do avaliador sintático base. Aqui estão implementadas várias mecânicas 
+ * neste núcleo, são uma derivação do avaliador sintático base. Aqui estão implementadas várias mecânicas
  * a mais relacionadas a tipagem e registros de bibliotecas externas. Por exemplo, `tiposDeFerramentasExternas`
  * é utilizada em [Liquido](https://github.com/DesignLiquido/liquido) para registro de tipos exclusivos
  * de Liquido, como classes de requisição e resposta. `primitivasConhecidas` é utilizada aqui para
@@ -108,7 +108,9 @@ export class AvaliadorSintatico
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
-    primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }};
+    primitivasConhecidas: {
+        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoVariavelOuConstante };
+    };
 
     hashArquivo: number;
     atual: number;
@@ -672,9 +674,9 @@ export class AvaliadorSintatico
 
             case tipoDeDadosDelegua.MODULO:
             case tipoDeDadosDelegua.MÓDULO:
-                // Há dois casos para resolução de módulo: 
-                // Um quando o módulo é definido no próprio código (por exemplo, em um outro arquivo `.delegua`). 
-                // Outro quando é importado de uma biblioteca externa. 
+                // Há dois casos para resolução de módulo:
+                // Um quando o módulo é definido no próprio código (por exemplo, em um outro arquivo `.delegua`).
+                // Outro quando é importado de uma biblioteca externa.
 
                 // Este é o caso quando o módulo vem de outro arquivo `.delegua`.
                 if (construtoTipado.simbolo.lexema in this.tiposDefinidosEmCodigo) {
@@ -744,7 +746,9 @@ export class AvaliadorSintatico
 
             if (!argumentoUtilizado) {
                 if (argumentoEntidadeChamada.obrigatorio) {
-                    possiveisErros.push(`Argumento ${argumentoEntidadeChamada.nome} é obrigatório, mas não foi fornecido.`);
+                    possiveisErros.push(
+                        `Argumento ${argumentoEntidadeChamada.nome} é obrigatório, mas não foi fornecido.`
+                    );
                 }
                 continue;
             }
@@ -755,8 +759,7 @@ export class AvaliadorSintatico
 
             const argumentoEntidadeChamadaQualquer =
                 argumentoEntidadeChamada.tipo.startsWith('qualquer');
-            const argumentoUtilizadoQualquer =
-                argumentoUtilizado.tipo.startsWith('qualquer');
+            const argumentoUtilizadoQualquer = argumentoUtilizado.tipo.startsWith('qualquer');
 
             // Este caso é tarefa do analisador semântico apontar.
             if (argumentoEntidadeChamadaQualquer || argumentoUtilizadoQualquer) {
@@ -773,17 +776,22 @@ export class AvaliadorSintatico
                 continue;
             }
 
-            const tipoArgumentoUtilizado = argumentoUtilizado.tipo.startsWith('funcao') || argumentoUtilizado.tipo.startsWith('função') ?
-                'função' : argumentoUtilizado.tipo;
-            const tipoArgumentoEntidadeChamada = argumentoEntidadeChamada.tipo.startsWith('funcao') || argumentoEntidadeChamada.tipo.startsWith('função') ?
-                'função' : argumentoEntidadeChamada.tipo;
+            const tipoArgumentoUtilizado =
+                argumentoUtilizado.tipo.startsWith('funcao') ||
+                argumentoUtilizado.tipo.startsWith('função')
+                    ? 'função'
+                    : argumentoUtilizado.tipo;
+            const tipoArgumentoEntidadeChamada =
+                argumentoEntidadeChamada.tipo.startsWith('funcao') ||
+                argumentoEntidadeChamada.tipo.startsWith('função')
+                    ? 'função'
+                    : argumentoEntidadeChamada.tipo;
 
             if (tipoArgumentoUtilizado !== tipoArgumentoEntidadeChamada) {
                 possiveisErros.push(
                     `Argumento: ${argumentoEntidadeChamada.nome}. Tipo esperado: ${argumentoEntidadeChamada.tipo}; Tipo utilizado: ${argumentoUtilizado.tipo}`
                 );
             }
-            
         }
 
         return possiveisErros;
@@ -833,7 +841,9 @@ export class AvaliadorSintatico
                 )
             ) {
                 var informacoesPrimitiva =
-                    this.primitivasConhecidas[tipoPrimitiva][entidadeChamadaResolvidaVariavel.simbolo.lexema];
+                    this.primitivasConhecidas[tipoPrimitiva][
+                        entidadeChamadaResolvidaVariavel.simbolo.lexema
+                    ];
                 const erros = this.validarArgumentosEntidadeChamada(
                     informacoesPrimitiva.argumentos,
                     argumentos
@@ -916,7 +926,7 @@ export class AvaliadorSintatico
             argumentos
         );
 
-        // A validação de tipos dos argumentos da entidade chamada existe em 
+        // A validação de tipos dos argumentos da entidade chamada existe em
         // avaliadores sintáticos derivados deste, como em `delegua-node`.
         // Pode ser que esta lógica seja trazida para cá no futuro.
         construtoChamada.tipo = 'qualquer';
@@ -1531,7 +1541,7 @@ export class AvaliadorSintatico
         }
 
         this.pilhaEscopos.definirInformacoesVariavel(
-            nomeVariavelIteracao.lexema, 
+            nomeVariavelIteracao.lexema,
             new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
@@ -1973,7 +1983,7 @@ export class AvaliadorSintatico
                         // A inferência, portanto, ocorre pelo uso da primitiva.
                         const entidadeChamadaAcessoMetodoOuPropriedade =
                             entidadeChamadaChamada as AcessoMetodoOuPropriedade;
-                        
+
                         for (const primitiva in this.primitivasConhecidas) {
                             if (
                                 this.primitivasConhecidas[primitiva].hasOwnProperty(
@@ -2315,7 +2325,7 @@ export class AvaliadorSintatico
         switch (construtoSe.caminhoSenao.constructor.name) {
             case 'Bloco':
                 const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
-                
+
                 for (const declaracao of blocoSenao.declaracoes) {
                     if (declaracao.constructor.name === 'Retorna') {
                         yield declaracao;

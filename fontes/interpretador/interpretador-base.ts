@@ -1432,8 +1432,8 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
         const promises = await Promise.all([
-            this.avaliar(expressao.entidadeChamada), 
-            this.avaliar(expressao.indice)
+            this.avaliar(expressao.entidadeChamada),
+            this.avaliar(expressao.indice),
         ]);
 
         const variavelObjeto: VariavelInterface = promises[0];
@@ -1521,9 +1521,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                { 
-                    hashArquivo: this.hashArquivoDeclaracaoAtual, 
-                    linha: this.linhaDeclaracaoAtual
+                {
+                    hashArquivo: this.hashArquivoDeclaracaoAtual,
+                    linha: this.linhaDeclaracaoAtual,
                 } as SimboloInterface,
                 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
                 expressao.linha
@@ -1711,8 +1711,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             const promises = await Promise.all([
-                this.avaliar(expressao.chaves[i]), 
-                this.avaliar(expressao.valores[i])
+                this.avaliar(expressao.chaves[i]),
+                this.avaliar(expressao.valores[i]),
             ]);
 
             if (typeof promises[0] === 'boolean') {
@@ -1721,9 +1721,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 continue;
             }
 
-            dicionario[promises[0]] = promises[1] && promises[1].hasOwnProperty('valor')
-                ? promises[1].valor
-                : promises[1];
+            dicionario[promises[0]] =
+                promises[1] && promises[1].hasOwnProperty('valor')
+                    ? promises[1].valor
+                    : promises[1];
         }
 
         return dicionario;
@@ -1785,7 +1786,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao || typeof objeto.paraTexto === 'function')
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            typeof objeto.paraTexto === 'function'
+        )
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {

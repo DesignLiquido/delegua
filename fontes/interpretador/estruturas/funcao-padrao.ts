@@ -9,7 +9,7 @@ export class FuncaoPadrao extends Chamavel {
     valorAridade: number;
     funcao: Function;
     simbolo: SimboloInterface;
-    argumentos?: { nome: string, tipo: string }[];
+    argumentos?: { nome: string; tipo: string }[];
     tipoRetorno?: string;
     documentacao?: string;
     descartarPrimeiroArgumento: boolean = true;

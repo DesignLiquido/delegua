@@ -47,7 +47,11 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 const expressao = this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
-                return new Agrupamento(this.hashArquivo, Number(this.simbolos[this.atual].linha), expressao);
+                return new Agrupamento(
+                    this.hashArquivo,
+                    Number(this.simbolos[this.atual].linha),
+                    expressao
+                );
         }
     }
 

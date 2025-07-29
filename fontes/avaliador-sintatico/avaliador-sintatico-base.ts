@@ -43,7 +43,7 @@ export abstract class AvaliadorSintaticoBase
         if (this.simbolos.length === 0) {
             simboloErro = {
                 hashArquivo: this.hashArquivo,
-                linha: 1
+                linha: 1,
             } as SimboloInterface;
         } else if (this.atual >= this.simbolos.length) {
             simboloErro = this.simbolos[this.simbolos.length - 1];

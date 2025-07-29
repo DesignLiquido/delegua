@@ -1,20 +1,20 @@
-import { ErroEmTempoDeExecucao } from "../excecoes";
-import { uuidv4 } from "../geracao-identificadores";
-import { SimboloInterface } from "../interfaces";
+import { ErroEmTempoDeExecucao } from '../excecoes';
+import { uuidv4 } from '../geracao-identificadores';
+import { SimboloInterface } from '../interfaces';
 
 /**
- * O montão, conhecido em inglês, como _heap_, guarda todas as estruturas de dados 
+ * O montão, conhecido em inglês, como _heap_, guarda todas as estruturas de dados
  * não primitivas durante a execução.
  * Inicialmente trabalha apenas com dicionários, mas a ideia mais futuramente é
  * trabalhar com toda e qualquer estrutura de dados mais complexa.
- * 
+ *
  * Diferentemente da pilha de escopos de execução, o montão trabalha entre escopos.
  * Por exemplo, se quisermos ter uma funcionalidade do interpretador em que uma
  * referência é preservada entre escopos, podemos apagar o escopo e transferir facilmente
  * a referência do montão para outro escopo.
  */
 export class Montao {
-    referencias: {[endereco: string]: any}
+    referencias: { [endereco: string]: any };
 
     constructor() {
         this.referencias = {};
@@ -32,9 +32,9 @@ export class Montao {
     }
 
     /**
-     * Exclui referências do montão, normalmente por finalização de um 
+     * Exclui referências do montão, normalmente por finalização de um
      * escopo de execução.
-     * @param enderecos 
+     * @param enderecos
      */
     excluirReferencias(...enderecos: string[]): void {
         for (const endereco of enderecos) {
@@ -52,7 +52,7 @@ export class Montao {
     obterReferencia(hashArquivo: number, linha: number, endereco: string): any {
         if (!(endereco in this.referencias)) {
             throw new ErroEmTempoDeExecucao(
-                { hashArquivo, linha } as SimboloInterface, 
+                { hashArquivo, linha } as SimboloInterface,
                 `Referência para montão com endereco ${endereco} não existe.`
             );
         }

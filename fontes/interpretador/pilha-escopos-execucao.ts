@@ -133,7 +133,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const espacoMemoriaAncestral = this.pilha[this.pilha.length - distancia].espacoMemoria;
         if (espacoMemoriaAncestral.valores[simbolo.lexema].imutavel) {
-            throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
+            throw new ErroEmTempoDeExecucao(
+                simbolo,
+                `Constante '${simbolo.lexema}' não pode receber novos valores.`
+            );
         }
         espacoMemoriaAncestral.valores[simbolo.lexema] = {
             valor,
@@ -161,7 +164,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 const tipo = tipoInferido.toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
-                
+
                 if (indice !== undefined && indice !== null) {
                     let variavelValor = variavel.valor;
                     if (variavelValor instanceof Array || variavelValor instanceof Object) {
@@ -238,12 +241,14 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         for (let i = 1; i <= this.pilha.length - 1; i++) {
             const valoresEspacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria.valores;
 
-            const vetorObjeto: VariavelInterface[] = Object.entries(valoresEspacoMemoria).map((chaveEValor, indice) => ({
-                nome: chaveEValor[0],
-                valor: chaveEValor[1].valor,
-                tipo: chaveEValor[1].tipo,
-                imutavel: chaveEValor[1].imutavel,
-            }));
+            const vetorObjeto: VariavelInterface[] = Object.entries(valoresEspacoMemoria).map(
+                (chaveEValor, indice) => ({
+                    nome: chaveEValor[0],
+                    valor: chaveEValor[1].valor,
+                    tipo: chaveEValor[1].tipo,
+                    imutavel: chaveEValor[1].imutavel,
+                })
+            );
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }
 

@@ -341,10 +341,7 @@ export async function filtrarPor(
         );
     }
 
-    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll(
-        '_',
-        ''
-    );
+    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll('_', '');
     if (construtorResolvido !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(

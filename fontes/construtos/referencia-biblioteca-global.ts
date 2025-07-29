@@ -10,11 +10,7 @@ export class ReferenciaBibliotecaGlobal implements Construto {
     hashArquivo: number;
     nome: string;
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        nome: string
-    ) {
+    constructor(hashArquivo: number, linha: number, nome: string) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.nome = nome;

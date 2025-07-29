@@ -13,7 +13,14 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
-import { DeleguaFuncao, DeleguaModulo, DescritorTipoClasse, MetodoPrimitiva, ObjetoDeleguaClasse, ReferenciaMontao } from './estruturas';
+import {
+    DeleguaFuncao,
+    DeleguaModulo,
+    DescritorTipoClasse,
+    MetodoPrimitiva,
+    ObjetoDeleguaClasse,
+    ReferenciaMontao,
+} from './estruturas';
 import { RetornoInterpretador, SimboloInterface, VariavelInterface } from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
@@ -36,7 +43,8 @@ import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 export class Interpretador extends InterpretadorBase {
     montao: Montao;
 
-    constructor(diretorioBase: string,
+    constructor(
+        diretorioBase: string,
         performance = false,
         funcaoDeRetorno: Function = null,
         funcaoDeRetornoMesmaLinha: Function = null
@@ -47,8 +55,8 @@ export class Interpretador extends InterpretadorBase {
 
     protected resolverReferenciaMontao(referenciaMontao: ReferenciaMontao) {
         const valorMontao = this.montao.obterReferencia(
-            this.hashArquivoDeclaracaoAtual, 
-            this.linhaDeclaracaoAtual, 
+            this.hashArquivoDeclaracaoAtual,
+            this.linhaDeclaracaoAtual,
             referenciaMontao.endereco
         );
 
@@ -94,10 +102,12 @@ export class Interpretador extends InterpretadorBase {
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
     }
 
-    override async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+    override async visitarExpressaoAcessoIndiceVariavel(
+        expressao: AcessoIndiceVariavel
+    ): Promise<any> {
         const promises = await Promise.all([
-            this.avaliar(expressao.entidadeChamada), 
-            this.avaliar(expressao.indice)
+            this.avaliar(expressao.entidadeChamada),
+            this.avaliar(expressao.indice),
         ]);
 
         const variavelObjeto: VariavelInterface = promises[0];
@@ -170,7 +180,11 @@ export class Interpretador extends InterpretadorBase {
 
             if (valorIndice >= objeto.length) {
                 return Promise.reject(
-                    new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do tamanho.', expressao.linha)
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Índice fora do tamanho.',
+                        expressao.linha
+                    )
                 );
             }
 
@@ -179,9 +193,9 @@ export class Interpretador extends InterpretadorBase {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                { 
-                    hashArquivo: this.hashArquivoDeclaracaoAtual, 
-                    linha: this.linhaDeclaracaoAtual
+                {
+                    hashArquivo: this.hashArquivoDeclaracaoAtual,
+                    linha: this.linhaDeclaracaoAtual,
                 } as SimboloInterface,
                 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
                 expressao.linha
@@ -276,9 +290,9 @@ export class Interpretador extends InterpretadorBase {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                { 
+                {
                     hashArquivo: this.hashArquivoDeclaracaoAtual,
-                    linha: this.linhaDeclaracaoAtual
+                    linha: this.linhaDeclaracaoAtual,
                 } as SimboloInterface,
                 `Método para objeto ou primitiva não encontrado: ${expressao.nomeMetodo}.`,
                 expressao.linha
@@ -374,7 +388,10 @@ export class Interpretador extends InterpretadorBase {
 
         // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
         // Exemplos: classes de LinConEs, como `RetornoComando, ou bibliotecas globais com objetos próprios`.
-        if (objeto.hasOwnProperty(expressao.simbolo.lexema) || typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
+        if (
+            objeto.hasOwnProperty(expressao.simbolo.lexema) ||
+            typeof objeto[expressao.simbolo.lexema] !== 'undefined'
+        ) {
             return objeto[expressao.simbolo.lexema];
         }
 
@@ -482,7 +499,9 @@ export class Interpretador extends InterpretadorBase {
         switch (expressao.alvo.constructor.name) {
             case 'Variavel':
                 const alvoVariavel = expressao.alvo as Variavel;
-                const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
+                const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(
+                    alvoVariavel.simbolo
+                );
                 if (variavelResolvida.valor instanceof ReferenciaMontao) {
                     const referenciaMontao = this.montao.obterReferencia(
                         this.hashArquivoDeclaracaoAtual,
@@ -492,9 +511,13 @@ export class Interpretador extends InterpretadorBase {
 
                     referenciaMontao[indice] = valorResolvido;
                 } else {
-                    this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+                    this.pilhaEscoposExecucao.atribuirVariavel(
+                        alvoVariavel.simbolo,
+                        valorResolvido,
+                        indice
+                    );
                 }
-                
+
                 break;
             case 'AcessoMetodoOuPropriedade':
                 // Nunca será método aqui: apenas propriedade.
@@ -526,8 +549,8 @@ export class Interpretador extends InterpretadorBase {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             const promises = await Promise.all([
-                this.avaliar(expressao.chaves[i]), 
-                this.avaliar(expressao.valores[i])
+                this.avaliar(expressao.chaves[i]),
+                this.avaliar(expressao.valores[i]),
             ]);
 
             if (typeof promises[0] === 'boolean') {
@@ -536,7 +559,9 @@ export class Interpretador extends InterpretadorBase {
                 continue;
             }
 
-            dicionario[promises[0]] = promises[1].hasOwnProperty('valor') ? promises[1].valor : promises[1];
+            dicionario[promises[0]] = promises[1].hasOwnProperty('valor')
+                ? promises[1].valor
+                : promises[1];
         }
 
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);
@@ -635,13 +660,14 @@ export class Interpretador extends InterpretadorBase {
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
+                !(retornoExecucao instanceof Quebra) &&
+                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
                 const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
                 this.linhaDeclaracaoAtual = declaracaoAtual.linha;
                 this.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
-                retornoExecucao = await this.executar(declaracaoAtual);                
+                retornoExecucao = await this.executar(declaracaoAtual);
             }
 
             return retornoExecucao;
@@ -678,7 +704,10 @@ export class Interpretador extends InterpretadorBase {
      *                       pelo modo REPL (LAIR).
      * @returns Um objeto com o resultado da interpretação.
      */
-    override async interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador> {
+    override async interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente?: boolean
+    ): Promise<RetornoInterpretador> {
         this.montao = new Montao();
         return super.interpretar(declaracoes, manterAmbiente);
     }
