@@ -1,4 +1,4 @@
-import { EspacoVariaveis } from '../../../espaco-variaveis';
+import { EspacoMemoria } from '../../espaco-memoria';
 
 import { Chamavel } from '../../estruturas/chamavel';
 import { DescritorTipoClasse } from '../../estruturas/descritor-tipo-classe';
@@ -97,7 +97,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -691,11 +691,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new EspacoVariaveis(),
+            espacoMemoria: ambiente || new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -1039,7 +1039,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,

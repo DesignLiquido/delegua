@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { EspacoVariaveis } from '../espaco-variaveis';
+import { EspacoMemoria } from './espaco-memoria';
 import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
@@ -69,8 +69,8 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         if (expressao.hasOwnProperty('id')) {
             const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
             const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao);
-            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
-                return escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+            if (escopoAtual.espacoMemoria.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+                return escopoAtual.espacoMemoria.resolucoesChamadas[idChamadaComArgumentos];
             }
         }
 
@@ -124,7 +124,7 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         const retorno = await super.visitarExpressaoDeChamada(expressao);
         this.executandoChamada = false;
         const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
-        escopoAtual.ambiente.resolucoesChamadas[_idChamadaComArgumentos] = retorno;
+        escopoAtual.espacoMemoria.resolucoesChamadas[_idChamadaComArgumentos] = retorno;
         return retorno;
     }
 
@@ -288,7 +288,7 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         }
 
         if (escopoFuncao.idChamada !== undefined) {
-            escopoAtual.ambiente.resolucoesChamadas[escopoFuncao.idChamada] =
+            escopoAtual.espacoMemoria.resolucoesChamadas[escopoFuncao.idChamada] =
                 retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
         }
 
@@ -305,7 +305,7 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    override async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    override async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         // Se o escopo atual não é o último.
         if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
             this.escopoAtual++;
@@ -411,9 +411,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
             if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
                 this.pilhaEscoposExecucao.removerUltimo();
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                    escopoAnterior.ambiente.resolucoesChamadas,
-                    ultimoEscopo.ambiente.resolucoesChamadas
+                escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+                    escopoAnterior.espacoMemoria.resolucoesChamadas,
+                    ultimoEscopo.espacoMemoria.resolucoesChamadas
                 );
                 this.escopoAtual--;
             } else {
@@ -428,9 +428,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
         while (ultimoEscopo.tipo !== 'funcao') {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-            escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                escopoAnterior.ambiente.resolucoesChamadas,
-                ultimoEscopo.ambiente.resolucoesChamadas
+            escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+                escopoAnterior.espacoMemoria.resolucoesChamadas,
+                ultimoEscopo.espacoMemoria.resolucoesChamadas
             );
             this.escopoAtual--;
             ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
@@ -438,9 +438,9 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
 
         this.pilhaEscoposExecucao.removerUltimo();
         const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-        escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-            escopoAnterior.ambiente.resolucoesChamadas,
-            ultimoEscopo.ambiente.resolucoesChamadas
+        escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+            escopoAnterior.espacoMemoria.resolucoesChamadas,
+            ultimoEscopo.espacoMemoria.resolucoesChamadas
         );
         this.escopoAtual--;
     }
@@ -509,7 +509,10 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
                     }
                 }
 
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+                this.linhaDeclaracaoAtual = declaracaoAtual.linha;
+                this.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
+                retornoExecucao = await this.executar(declaracaoAtual);
 
                 // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
                 // Por isso verificamos outra parada aqui para evitar que
@@ -525,17 +528,20 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
             this.erros.push(erro);
         } finally {
             if (!this.pontoDeParadaAtivo && this.comando !== 'adentrarEscopo') {
-                this.pilhaEscoposExecucao.removerUltimo();
+                const escopoFinalizado = this.pilhaEscoposExecucao.removerUltimo();
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(
-                    escopoAnterior.ambiente.resolucoesChamadas,
-                    ultimoEscopo.ambiente.resolucoesChamadas
+
+                escopoAnterior.espacoMemoria.resolucoesChamadas = Object.assign(
+                    escopoAnterior.espacoMemoria.resolucoesChamadas,
+                    ultimoEscopo.espacoMemoria.resolucoesChamadas
                 );
 
+                this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
+
                 if (manterAmbiente) {
-                    escopoAnterior.ambiente.valores = Object.assign(
-                        escopoAnterior.ambiente.valores,
-                        ultimoEscopo.ambiente.valores
+                    escopoAnterior.espacoMemoria.valores = Object.assign(
+                        escopoAnterior.espacoMemoria.valores,
+                        ultimoEscopo.espacoMemoria.valores
                     );
                 }
                 this.escopoAtual--;
@@ -623,13 +629,13 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
 
     private abrirNovoBlocoEscopo(
         declaracoes: Declaracao[],
-        ambiente?: EspacoVariaveis,
+        ambiente?: EspacoMemoria,
         tipoEscopo: TipoEscopoExecucao = 'outro'
     ) {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new EspacoVariaveis(),
+            espacoMemoria: ambiente || new EspacoMemoria(),
             finalizado: false,
             tipo: tipoEscopo,
             emLacoRepeticao: false,
@@ -659,6 +665,8 @@ export class InterpretadorComDepuracao extends Interpretador implements Interpre
     override async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
         this.erros = [];
         this.declaracoes = declaracoes;
+        this.linhaDeclaracaoAtual = -1;
+        this.hashArquivoDeclaracaoAtual = -1;
 
         this.abrirNovoBlocoEscopo(declaracoes);
         const resultado = await super.executarUltimoEscopo(manterAmbiente);

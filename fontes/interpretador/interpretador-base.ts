@@ -80,7 +80,7 @@ import { MicroLexador } from '../lexador';
 import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
 import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
-import { EspacoVariaveis } from '../espaco-variaveis';
+import { EspacoMemoria } from './espaco-memoria';
 import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
@@ -105,6 +105,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     erros: ErroInterpretador[];
     declaracoes: Declaracao[];
     resultadoInterpretador: Array<string> = [];
+    linhaDeclaracaoAtual: number;
+    hashArquivoDeclaracaoAtual: number;
 
     // Esta variável indica que uma propriedade de um objeto
     // não precisa da palavra `isto` para ser acessada, ou seja,
@@ -166,7 +168,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -1159,11 +1161,11 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new EspacoVariaveis(),
+            espacoMemoria: ambiente || new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -1298,8 +1300,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
-    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any): Promise<any> {
-        const promises = await Promise.all([this.avaliar(expressao.entidadeChamada), this.avaliar(expressao.indice)]);
+    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+        const promises = await Promise.all([
+            this.avaliar(expressao.entidadeChamada), 
+            this.avaliar(expressao.indice)
+        ]);
 
         const variavelObjeto: VariavelInterface = promises[0];
         const indice = promises[1];
@@ -1380,7 +1385,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                expressao.entidadeChamada.nome,
+                { 
+                    hashArquivo: this.hashArquivoDeclaracaoAtual, 
+                    linha: this.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
                 expressao.linha
             )
@@ -1551,7 +1559,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            const promises = await Promise.all([this.avaliar(expressao.chaves[i]), this.avaliar(expressao.valores[i])]);
+            const promises = await Promise.all([
+                this.avaliar(expressao.chaves[i]), 
+                this.avaliar(expressao.valores[i])
+            ]);
 
             if (typeof promises[0] === 'boolean') {
                 const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
@@ -1704,7 +1715,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 !(retornoExecucao instanceof Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+                this.linhaDeclaracaoAtual = declaracaoAtual.linha;
+                this.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
+                retornoExecucao = await this.executar(declaracaoAtual);
             }
 
             return retornoExecucao;
@@ -1724,9 +1738,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
             if (manterAmbiente || (retornoExecucao && retornoExecucao.preservarEscopo === true)) {
-                escopoAnterior.ambiente.valores = Object.assign(
-                    escopoAnterior.ambiente.valores,
-                    ultimoEscopo.ambiente.valores
+                escopoAnterior.espacoMemoria.valores = Object.assign(
+                    escopoAnterior.espacoMemoria.valores,
+                    ultimoEscopo.espacoMemoria.valores
                 );
             }
         }
@@ -1743,11 +1757,13 @@ export class InterpretadorBase implements InterpretadorInterface {
     async interpretar(declaracoes: Declaracao[], manterAmbiente = false): Promise<RetornoInterpretador> {
         this.erros = [];
         this.emDeclaracaoTente = false;
+        this.linhaDeclaracaoAtual = -1;
+        this.hashArquivoDeclaracaoAtual = -1;
 
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,

@@ -20,4 +20,5 @@ export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExec
     obterVariavelEm(distancia: number, nome: string): VariavelInterface;
     obterVariavelPorNome(nome: string): VariavelInterface;
     registrarReferenciaFuncao(idFuncao: string, funcao: DeleguaFuncao): void;
+    registrarReferenciaMontao(endereco: string): void;
 }

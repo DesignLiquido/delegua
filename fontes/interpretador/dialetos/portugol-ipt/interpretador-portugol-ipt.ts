@@ -43,7 +43,7 @@ import {
     Var,
     VarMultiplo,
 } from '../../../declaracoes';
-import { EspacoVariaveis } from '../../../espaco-variaveis';
+import { EspacoMemoria } from '../../espaco-memoria';
 import { ObjetoPadrao } from '../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
@@ -85,7 +85,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -453,7 +453,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         throw new Error('Método não implementado');
     }
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
@@ -626,9 +626,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {
                 const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.valores = Object.assign(
-                    escopoAnterior.ambiente.valores,
-                    ultimoEscopo.ambiente.valores
+                escopoAnterior.espacoMemoria.valores = Object.assign(
+                    escopoAnterior.espacoMemoria.valores,
+                    ultimoEscopo.espacoMemoria.valores
                 );
             }
         }
@@ -640,7 +640,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,

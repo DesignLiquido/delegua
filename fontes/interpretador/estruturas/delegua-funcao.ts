@@ -1,5 +1,5 @@
 import { Chamavel } from './chamavel';
-import { EspacoVariaveis } from '../../espaco-variaveis';
+import { EspacoMemoria } from '../espaco-memoria';
 
 import { InterpretadorInterface } from '../../interfaces';
 import { RetornoQuebra } from '../../quebras';
@@ -92,8 +92,8 @@ export class DeleguaFuncao extends Chamavel {
         return argumentosResolvidos;
     }
 
-    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoVariaveis {
-        const ambiente = new EspacoVariaveis();
+    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoMemoria {
+        const ambiente = new EspacoMemoria();
         const parametros = this.declaracao.parametros || [];
 
         for (let i = 0; i < parametros.length; i++) {
