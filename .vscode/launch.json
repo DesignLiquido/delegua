@@ -34,23 +34,6 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Testes unitários - Calango",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "calango",
-                "--runInBand"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
             "name": "Testes unitários - Delégua",
             "type": "node",
             "request": "launch",
@@ -258,19 +241,6 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "tradutores/tradutor-assembly-x64.test.ts",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "name": "Tradutor > Pituguês para Delégua",
-            "type": "node",
-            "request": "launch",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                "tradutores/tradutor-pitugues.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",

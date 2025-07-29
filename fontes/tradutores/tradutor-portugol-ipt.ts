@@ -28,6 +28,12 @@ export class TradutorPortugolIpt {
         return literal.valor;
     }
 
+    traduzirConstrutoFormatacaoEscrita(formatacaoEscrita: FormatacaoEscrita) {
+        let resultado = '';
+        resultado += String(formatacaoEscrita.expressao.valor);
+        return resultado;
+    }
+
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
