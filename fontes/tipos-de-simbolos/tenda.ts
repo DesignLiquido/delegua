@@ -88,4 +88,4 @@ export default {
     VARIAVEL: 'VARIAVEL',
     VERDADEIRO: 'VERDADEIRO',
     VIRGULA: 'VIRGULA',
-}
+};

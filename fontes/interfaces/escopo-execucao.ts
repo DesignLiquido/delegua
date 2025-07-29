@@ -1,4 +1,4 @@
-import { EspacoVariaveis } from '../espaco-variaveis';
+import { EspacoMemoria } from '../interpretador/espaco-memoria';
 import { Declaracao } from '../declaracoes';
 
 export type TipoEscopoExecucao = 'funcao' | 'repeticao' | 'outro';
@@ -6,7 +6,7 @@ export type TipoEscopoExecucao = 'funcao' | 'repeticao' | 'outro';
 export interface EscopoExecucao {
     declaracoes: Declaracao[];
     declaracaoAtual: number;
-    ambiente: EspacoVariaveis;
+    espacoMemoria: EspacoMemoria;
     finalizado: boolean;
     tipo: TipoEscopoExecucao;
     idChamada?: string;

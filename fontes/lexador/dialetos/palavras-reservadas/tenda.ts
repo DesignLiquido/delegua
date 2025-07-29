@@ -48,5 +48,5 @@ export const palavrasReservadas = {
     Matemática: tiposDeSimbolos.BIBLIOTECA_GLOBAL,
     NaN: tiposDeSimbolos.NAN,
     Saída: tiposDeSimbolos.BIBLIOTECA_GLOBAL,
-    Texto: tiposDeSimbolos.BIBLIOTECA_GLOBAL
+    Texto: tiposDeSimbolos.BIBLIOTECA_GLOBAL,
 };

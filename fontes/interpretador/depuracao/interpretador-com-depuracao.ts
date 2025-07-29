@@ -1,6 +1,5 @@
 import _ from 'lodash';
 
-import { EspacoVariaveis } from '../../espaco-variaveis';
 import { Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
@@ -11,6 +10,7 @@ import { Chamada, Construto } from '../../construtos';
 import { Interpretador } from '../interpretador';
 
 import * as comum from './comum';
+import { EspacoMemoria } from '../espaco-memoria';
 
 /**
  * Implementação do Interpretador com suporte a depuração.
@@ -83,8 +83,8 @@ export class InterpretadorComDepuracao
 
     override async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
         return await comum.visitarExpressaoDeChamada(
-            this, 
-            super.visitarExpressaoDeChamada.bind(this), 
+            this,
+            super.visitarExpressaoDeChamada.bind(this),
             expressao
         );
     }
@@ -129,7 +129,11 @@ export class InterpretadorComDepuracao
      * @returns O resultado da execução da visita.
      */
     override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        return await comum.visitarExpressaoRetornar(this, super.visitarExpressaoRetornar.bind(this), declaracao);
+        return await comum.visitarExpressaoRetornar(
+            this,
+            super.visitarExpressaoRetornar.bind(this),
+            declaracao
+        );
     }
 
     /**
@@ -140,13 +144,13 @@ export class InterpretadorComDepuracao
      * Se depurador comandou uma instrução 'adentrar-escopo', execução do bloco não ocorre, mas
      * ponteiros de escopo e execução são atualizados.
      * @param declaracoes Um vetor de declaracoes a ser executado.
-     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     * @param espacoMemoria O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
     override async executarBloco(
         declaracoes: Declaracao[],
-        ambiente?: EspacoVariaveis
+        espacoMemoria?: EspacoMemoria
     ): Promise<any> {
-        return await comum.executarBloco(this, declaracoes, ambiente);
+        return await comum.executarBloco(this, declaracoes, espacoMemoria);
     }
 
     /**
@@ -165,7 +169,7 @@ export class InterpretadorComDepuracao
         manterAmbiente = false,
         naoVerificarPrimeiraExecucao = false
     ): Promise<any> {
-        return await comum.executarUltimoEscopo(this, manterAmbiente, naoVerificarPrimeiraExecucao)
+        return await comum.executarUltimoEscopo(this, manterAmbiente, naoVerificarPrimeiraExecucao);
     }
 
     /**

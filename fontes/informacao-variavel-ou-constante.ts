@@ -5,7 +5,12 @@ export class InformacaoVariavelOuConstante {
     argumentos: InformacaoVariavelOuConstante[] = [];
     documentacao?: string;
 
-    constructor(nome: string, tipo: string, obrigatorio: boolean = true, argumentos: InformacaoVariavelOuConstante[] = []) {
+    constructor(
+        nome: string,
+        tipo: string,
+        obrigatorio: boolean = true,
+        argumentos: InformacaoVariavelOuConstante[] = []
+    ) {
         this.nome = nome;
         this.tipo = tipo;
         this.obrigatorio = obrigatorio;

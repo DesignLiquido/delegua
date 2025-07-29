@@ -11,36 +11,30 @@ export default {
     },
     contem: {
         tipoRetorno: 'lógico',
-        argumentos: [
-            new InformacaoVariavelOuConstante('chave', 'texto')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('chave', 'texto')],
         implementacao: (
-            interpretador: InterpretadorInterface, 
-            valor: object, 
+            interpretador: InterpretadorInterface,
+            valor: object,
             chave: string
-        ): Promise<boolean> => Promise.resolve(chave in valor)
+        ): Promise<boolean> => Promise.resolve(chave in valor),
     },
     contém: {
         tipoRetorno: 'lógico',
-        argumentos: [
-            new InformacaoVariavelOuConstante('chave', 'texto')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('chave', 'texto')],
         implementacao: (
-            interpretador: InterpretadorInterface, 
-            valor: object, 
+            interpretador: InterpretadorInterface,
+            valor: object,
             chave: string
-        ): Promise<boolean> => Promise.resolve(chave in valor)
+        ): Promise<boolean> => Promise.resolve(chave in valor),
     },
     remover: {
         tipoRetorno: 'lógico',
-        argumentos: [
-            new InformacaoVariavelOuConstante('chave', 'texto')
-        ],
+        argumentos: [new InformacaoVariavelOuConstante('chave', 'texto')],
         implementacao: (
-            interpretador: InterpretadorInterface, 
-            valor: object, 
+            interpretador: InterpretadorInterface,
+            valor: object,
             chave: string
-        ): Promise<boolean> => Promise.resolve(delete valor[chave])
+        ): Promise<boolean> => Promise.resolve(delete valor[chave]),
     },
     valores: {
         tipoRetorno: 'qualquer[]',

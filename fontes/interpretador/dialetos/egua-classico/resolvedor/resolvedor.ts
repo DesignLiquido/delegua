@@ -31,7 +31,7 @@ import {
     VarMultiplo,
 } from '../../../../declaracoes';
 import { InicioAlgoritmo } from '../../../../declaracoes/inicio-algoritmo';
-import { EspacoVariaveis } from '../../../../espaco-variaveis';
+import { EspacoMemoria } from '../../../espaco-memoria';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
 import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
@@ -208,7 +208,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

@@ -17,15 +17,15 @@ export class TradutorPortugolIpt {
         EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
     };
 
-    traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
-        return literal.valor;
-    }
-
     traduzirConstrutoFormatacaoEscrita(formatacaoEscrita: FormatacaoEscrita) {
         let resultado = '';
         resultado += String(formatacaoEscrita.expressao.valor);
         return resultado;
+    }
+
+    traduzirConstrutoLiteral(literal: Literal): string {
+        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        return literal.valor;
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {

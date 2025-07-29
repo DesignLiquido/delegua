@@ -206,10 +206,6 @@ describe('Interpretador', () => {
                 });
 
                 it('Dicionário com chave lógica', async () => {
-                    const saidasMensagens = [,
-                        '{"verdadeiro":"valor","falso":"valor2"}'
-                    ];
-
                     const retornoLexador = lexador.mapear([
                         'escreva({',
                         'verdadeiro: \'valor\',',
@@ -218,13 +214,32 @@ describe('Interpretador', () => {
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("{\"verdadeiro\":\"valor\",\"falso\":\"valor2\"}");
+                });
+
+                it('Dicionários e referências do montão', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var meuDicionario = {',
+                        '    "um": "dois",',
+                        '    "tres": {',
+                        '        "quatro": 5',
+                        '    }',
+                        '}',
+                        'var meuSegundoDicionario = meuDicionario["tres"]',
+                        'meuSegundoDicionario["quatro"] = 7',
+                        'escreva(meuDicionario["tres"])',
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("{\"quatro\":7}");
                 });
 
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {
@@ -325,10 +340,6 @@ describe('Interpretador', () => {
                 });
 
                 it('Incremento e decremento em propriedades de dicionário', async () => {
-                    const saidasMensagens = [
-                        '4',
-                        '-2'
-                    ];
                     const retornoLexador = lexador.mapear(
                         [
                             'var macacos = {',
@@ -346,12 +357,14 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        _saidas.push(saida);
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('4');
+                    expect(_saidas[1]).toBe('-2');
                 });
 
                 it('Incremento e decremento após variável ou literal', async () => {

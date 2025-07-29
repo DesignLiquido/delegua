@@ -15,7 +15,7 @@ export class DescritorTipoClasse extends Chamavel {
     superClasse: DescritorTipoClasse;
     metodos: { [nome: string]: DeleguaFuncao };
     propriedades: PropriedadeClasse[];
-    dialetoRequerExpansaoPropriedadesEspacoVariaveis: boolean;
+    dialetoRequerExpansaoPropriedadesEspacoMemoria: boolean;
     dialetoRequerDeclaracaoPropriedades: boolean;
 
     constructor(

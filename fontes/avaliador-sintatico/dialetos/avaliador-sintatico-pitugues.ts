@@ -96,7 +96,9 @@ export class AvaliadorSintaticoPitugues
 
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
-    primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }};
+    primitivasConhecidas: {
+        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoVariavelOuConstante };
+    };
 
     hashArquivo: number;
     atual: number;
@@ -1272,7 +1274,7 @@ export class AvaliadorSintaticoPitugues
         const simbolo: SimboloInterface = !construtor
             ? this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`)
             : new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
-        
+
         // Se houver chamadas recursivas à função, precisamos definir um tipo
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(

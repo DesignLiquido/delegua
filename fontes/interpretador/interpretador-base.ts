@@ -80,7 +80,7 @@ import { MicroLexador } from '../lexador';
 import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
 import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
-import { EspacoVariaveis } from '../espaco-variaveis';
+import { EspacoMemoria } from './espaco-memoria';
 import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
@@ -105,12 +105,14 @@ export class InterpretadorBase implements InterpretadorInterface {
     erros: ErroInterpretador[];
     declaracoes: Declaracao[];
     resultadoInterpretador: Array<string> = [];
+    linhaDeclaracaoAtual: number;
+    hashArquivoDeclaracaoAtual: number;
 
     // Esta variável indica que uma propriedade de um objeto
     // não precisa da palavra `isto` para ser acessada, ou seja,
     // `minhaPropriedade` e `isto.minhaPropriedade` são a mesma coisa.
     // Potigol, por exemplo, é um dialeto que tem essa característica.
-    expandirPropriedadesDeObjetosEmEspacoVariaveis: boolean;
+    expandirPropriedadesDeObjetosEmEspacoMemoria: boolean;
 
     // Esta variável indica que propriedades de classes precisam ser
     // declaradas para serem válidas.
@@ -157,7 +159,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Isso existe por causa de Potigol.
         // Para acessar uma variável de classe, não é preciso a palavra `isto`.
-        this.expandirPropriedadesDeObjetosEmEspacoVariaveis = false;
+        this.expandirPropriedadesDeObjetosEmEspacoMemoria = false;
 
         // Por padrão é verdadeiro porque Delégua e Pituguês usam
         // o interpretador base como implementação padrão.
@@ -167,7 +169,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -1277,11 +1279,11 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoVariaveis): Promise<any> {
+    async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: ambiente || new EspacoVariaveis(),
+            espacoMemoria: ambiente || new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
@@ -1428,9 +1430,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
-    async visitarExpressaoAcessoIndiceVariavel(
-        expressao: AcessoIndiceVariavel | any
-    ): Promise<any> {
+    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
         const promises = await Promise.all([
             this.avaliar(expressao.entidadeChamada),
             this.avaliar(expressao.indice),
@@ -1521,7 +1521,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                expressao.entidadeChamada.nome,
+                {
+                    hashArquivo: this.hashArquivoDeclaracaoAtual,
+                    linha: this.linhaDeclaracaoAtual,
+                } as SimboloInterface,
                 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
                 expressao.linha
             )
@@ -1718,9 +1721,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 continue;
             }
 
-            dicionario[promises[0]] = promises[1] && promises[1].hasOwnProperty('valor')
-                ? promises[1].valor
-                : promises[1];
+            dicionario[promises[0]] =
+                promises[1] && promises[1].hasOwnProperty('valor')
+                    ? promises[1].valor
+                    : promises[1];
         }
 
         return dicionario;
@@ -1782,7 +1786,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao || typeof objeto.paraTexto === 'function')
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            typeof objeto.paraTexto === 'function'
+        )
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -1879,9 +1887,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
-                retornoExecucao = await this.executar(
-                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
-                );
+                const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+                this.linhaDeclaracaoAtual = declaracaoAtual.linha;
+                this.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
+                retornoExecucao = await this.executar(declaracaoAtual);
             }
 
             return retornoExecucao;
@@ -1901,9 +1910,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
             if (manterAmbiente || (retornoExecucao && retornoExecucao.preservarEscopo === true)) {
-                escopoAnterior.ambiente.valores = Object.assign(
-                    escopoAnterior.ambiente.valores,
-                    ultimoEscopo.ambiente.valores
+                escopoAnterior.espacoMemoria.valores = Object.assign(
+                    escopoAnterior.espacoMemoria.valores,
+                    ultimoEscopo.espacoMemoria.valores
                 );
             }
         }
@@ -1923,11 +1932,13 @@ export class InterpretadorBase implements InterpretadorInterface {
     ): Promise<RetornoInterpretador> {
         this.erros = [];
         this.emDeclaracaoTente = false;
+        this.linhaDeclaracaoAtual = -1;
+        this.hashArquivoDeclaracaoAtual = -1;
 
         const escopoExecucao: EscopoExecucao = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
-            ambiente: new EspacoVariaveis(),
+            espacoMemoria: new EspacoMemoria(),
             finalizado: false,
             tipo: 'outro',
             emLacoRepeticao: false,
