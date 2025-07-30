@@ -112,6 +112,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
+    protected resolverValor(objeto: any) {
+        if (objeto === null || objeto === undefined) {
+            return objeto;
+        }
+
+        if (objeto.hasOwnProperty('valor')) {
+            return objeto.valor;
+        }
+
+        return objeto;
+    }
+
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
@@ -235,7 +247,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarExpressaoUnaria(expr: any) {
         const direita = await this.avaliar(expr.direita);
-        const valor: any = direita.hasOwnProperty('valor') ? direita.valor : direita;
+        const valor: any = this.resolverValor(direita);
 
         switch (expr.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
@@ -296,9 +308,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
             const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
             const valorEsquerdo: any =
-                esquerda && esquerda.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+                this.resolverValor(esquerda);
             const valorDireito: any =
-                direita && direita.hasOwnProperty('valor') ? direita.valor : direita;
+                this.resolverValor(direita);
             const tipoEsquerdo: string =
                 esquerda && esquerda.hasOwnProperty('tipo')
                     ? esquerda.tipo
@@ -405,16 +417,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             );
         }
 
-        const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
-            ? variavelEntidadeChamada.valor
-            : variavelEntidadeChamada;
+        const entidadeChamada = this.resolverValor(variavelEntidadeChamada);
 
         let argumentos: ArgumentoInterface[] = [];
         for (let i = 0; i < expressao.argumentos.length; i++) {
             const variavelArgumento = expressao.argumentos[i];
-            const nomeArgumento = variavelArgumento.hasOwnProperty('simbolo')
-                ? variavelArgumento.simbolo.lexema
-                : undefined;
 
             argumentos.push({
                 nome: variavelArgumento,
@@ -464,7 +471,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
                 undefined,
-                argumentos.map((a) => (a !== null && a.hasOwnProperty('valor') ? a.valor : a)),
+                argumentos.map((a) => (this.resolverValor(a))),
                 expressao.entidadeChamada.simbolo
             );
         }
@@ -665,59 +672,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             'Importação não suportada em núcleo da linguagem puro. Favor executar a aplicação usando o pacote NPM `delegua-node`.',
             declaracao.linha
         );
-        /* const caminhoRelativo = await this.avaliar(declaracao.caminho);
-        const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-        // const nomeArquivo = caminho.basename(caminhoTotal);
-
-        let dados: any = carregarModuloPorNome(caminhoRelativo);
-        if (dados) return dados;
-
-        try {
-            if (!sistemaArquivos.existsSync(caminhoTotal)) {
-                throw new ErroEmTempoDeExecucao(
-                    declaracao.simboloFechamento,
-                    'Não foi possível encontrar arquivo importado.',
-                    declaracao.linha
-                );
-            }
-        } catch (erro) {
-            throw new ErroEmTempoDeExecucao(
-                declaracao.simboloFechamento,
-                'Não foi possível ler o arquivo.',
-                declaracao.linha
-            );
-        }
-
-        dados = sistemaArquivos.readFileSync(caminhoTotal).toString();
-
-        const delegua = new Delegua(this.Delegua.dialeto, false);
-
-        delegua.executar(dados);
-
-        const exportar = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
-
-        const eDicionario = (objeto: any) => objeto.constructor === Object;
-
-        if (eDicionario(exportar)) {
-            const novoModulo = new DeleguaModulo();
-
-            const chaves = Object.keys(exportar);
-            for (let i = 0; i < chaves.length; i++) {
-                novoModulo[chaves[i]] = exportar[chaves[i]];
-            }
-
-            return novoModulo;
-        }
-
-        return exportar; */
     }
 
     async visitarDeclaracaoEscreva(declaracao: Escreva) {
         try {
             const resultadoAvaliacao = await this.avaliar(declaracao.argumentos[0]);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
+            let valor = this.resolverValor(resultadoAvaliacao);
+            // eslint-disable-next-line no-undef
             console.log(this.paraTexto(valor));
             return null;
         } catch (erro: any) {
@@ -773,10 +734,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
-            valorOuOutraVariavel && valorOuOutraVariavel.hasOwnProperty('valor')
-                ? valorOuOutraVariavel.valor
-                : valorOuOutraVariavel
+            this.resolverValor(valorOuOutraVariavel)
         );
+
         return null;
     }
 
@@ -839,12 +799,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel | any) {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
 
         let indice = await this.avaliar(expressao.indice);
-        const valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        const valorIndice = this.resolverValor(indice);
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(

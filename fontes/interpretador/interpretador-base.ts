@@ -179,6 +179,18 @@ export class InterpretadorBase implements InterpretadorInterface {
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
+    protected resolverValor(objeto: any) {
+        if (objeto === null || objeto === undefined) {
+            return objeto;
+        }
+
+        if (objeto.hasOwnProperty('valor')) {
+            return objeto.valor;
+        }
+
+        return objeto;
+    }
+
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
@@ -326,9 +338,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     this.paraTexto(elemento?.valor?.valor)
                 );
             } else {
-                const valor = elemento?.valor?.hasOwnProperty('valor')
-                    ? elemento?.valor.valor
-                    : elemento?.valor;
+                const valor = this.resolverValor(elemento.valor);
                 textoFinal = textoFinal.replace(
                     '${' + elemento.variavel + '}',
                     `${this.paraTexto(valor)}`
@@ -415,7 +425,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
         const operando = await this.avaliar(expressao.operando);
-        let valor: any = operando.hasOwnProperty('valor') ? operando.valor : operando;
+        let valor: any = this.resolverValor(operando);
 
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO:
@@ -475,7 +485,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let resultado = '';
         const conteudo: VariavelInterface | any = await this.avaliar(declaracao.expressao);
 
-        const valorConteudo: any = conteudo?.hasOwnProperty('valor') ? conteudo.valor : conteudo;
+        const valorConteudo: any = this.resolverValor(conteudo);
 
         const tipoConteudo: string = conteudo.hasOwnProperty('tipo')
             ? conteudo.tipo
@@ -557,8 +567,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoBinaria(expressao: any): Promise<any> {
         const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
-        const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
-        const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
+        const valorEsquerdo: any = this.resolverValor(esquerda);
+        const valorDireito: any = this.resolverValor(direita);
         const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
             ? esquerda.tipo
             : inferirTipoVariavel(esquerda);
@@ -705,7 +715,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (const argumento of expressao.argumentos) {
             const valorResolvido: any = await this.avaliar(argumento);
             argumentosResolvidos.push(
-                valorResolvido?.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido
+                this.resolverValor(valorResolvido)
             );
         }
 
@@ -751,9 +761,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             }
 
-            const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
-                ? variavelEntidadeChamada.valor
-                : variavelEntidadeChamada;
+            const entidadeChamada = this.resolverValor(variavelEntidadeChamada);
 
             if (entidadeChamada instanceof DeleguaModulo) {
                 return Promise.reject(
@@ -791,9 +799,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return entidadeChamada.chamar(
                         this,
                         argumentos.map((a) =>
-                            a && a.valor && a.valor.hasOwnProperty('valor')
-                                ? a.valor.valor
-                                : a?.valor
+                            a && a.valor && this.resolverValor(a.valor)
                         ),
                         expressao.entidadeChamada.simbolo
                     );
@@ -836,7 +842,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     objeto = await this.avaliar(expressao.entidadeChamada.objeto);
                 }
                 return entidadeChamada.apply(
-                    objeto.hasOwnProperty('valor') ? objeto.valor : objeto,
+                    this.resolverValor(objeto),
                     argumentos
                 );
             }
@@ -865,7 +871,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido =
-            valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
+            this.resolverValor(valor);
         let indice: any = null;
 
         if (expressao.indice) {
@@ -885,9 +891,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
-                const objeto = variavelObjeto.hasOwnProperty('valor')
-                    ? variavelObjeto.valor
-                    : variavelObjeto;
+                const objeto = this.resolverValor(variavelObjeto);
 
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
@@ -1002,9 +1006,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         // laço de repetição.
         declaracao.posicaoAtual = 0;
         const vetorResolvido = await this.avaliar(declaracao.vetor);
-        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor')
-            ? vetorResolvido.valor
-            : vetorResolvido;
+        const valorVetorResolvido = this.resolverValor(vetorResolvido);
 
         if (!Array.isArray(valorVetorResolvido)) {
             return Promise.reject(
@@ -1101,9 +1103,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor')
-            ? condicaoEscolha.valor
-            : condicaoEscolha;
+        const valorCondicaoEscolha = this.resolverValor(condicaoEscolha);
 
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
@@ -1221,9 +1221,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
+            let valor = this.resolverValor(resultadoAvaliacao);
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
@@ -1310,9 +1308,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         let valorFinal = null;
         if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
-            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
-                ? valorOuOutraVariavel.valor
-                : valorOuOutraVariavel;
+            valorFinal = this.resolverValor(valorOuOutraVariavel);
         }
 
         return valorFinal;
@@ -1396,8 +1392,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             );
         }
 
-        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
-        indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        objeto = this.resolverValor(objeto);
+        indice = this.resolverValor(indice);
 
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
@@ -1439,10 +1435,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         const variavelObjeto: VariavelInterface = promises[0];
         const indice = promises[1];
 
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
-        let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        const objeto = this.resolverValor(variavelObjeto);
+        let valorIndice = this.resolverValor(indice);
 
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
@@ -1533,9 +1527,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
 
         if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(
@@ -1639,9 +1631,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             variavelObjeto = variavelObjeto.valor;
         }
 
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
@@ -1722,9 +1712,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             dicionario[promises[0]] =
-                promises[1] && promises[1].hasOwnProperty('valor')
-                    ? promises[1].valor
-                    : promises[1];
+                this.resolverValor(promises[1]);
         }
 
         return dicionario;

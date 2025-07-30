@@ -63,7 +63,7 @@ export class Interpretador extends InterpretadorBase {
         return valorMontao;
     }
 
-    protected resolverValor(objeto: any) {
+    override resolverValor(objeto: any) {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
@@ -403,7 +403,7 @@ export class Interpretador extends InterpretadorBase {
         }
 
         // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
-        // Exemplos: classes de LinConEs, como `RetornoComando, ou bibliotecas globais com objetos próprios`.
+        // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
         if (
             objeto.hasOwnProperty(expressao.simbolo.lexema) ||
             typeof objeto[expressao.simbolo.lexema] !== 'undefined'
@@ -431,9 +431,7 @@ export class Interpretador extends InterpretadorBase {
             variavelObjeto = variavelObjeto.valor;
         }
 
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
@@ -575,9 +573,7 @@ export class Interpretador extends InterpretadorBase {
                 continue;
             }
 
-            dicionario[promises[0]] = promises[1].hasOwnProperty('valor')
-                ? promises[1].valor
-                : promises[1];
+            dicionario[promises[0]] = this.resolverValor(promises[1]);
         }
 
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);

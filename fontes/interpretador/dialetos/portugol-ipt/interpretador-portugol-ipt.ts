@@ -99,6 +99,18 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
 
+    protected resolverValor(objeto: any) {
+        if (objeto === null || objeto === undefined) {
+            return objeto;
+        }
+
+        if (objeto.hasOwnProperty('valor')) {
+            return objeto.valor;
+        }
+
+        return objeto;
+    }
+
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
@@ -230,10 +242,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         try {
             const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
             const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
-            const valorEsquerdo: any = esquerda?.hasOwnProperty('valor')
-                ? esquerda.valor
-                : esquerda;
-            const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
+            const valorEsquerdo: any = this.resolverValor(esquerda);
+            const valorDireito: any = this.resolverValor(direita);
             const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
                 ? esquerda.tipo
                 : inferirTipoVariavel(esquerda);
@@ -398,7 +408,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         let resultado = '';
         const conteudo: VariavelInterface | any = await this.avaliar(declaracao.expressao);
 
-        const valorConteudo: any = conteudo?.hasOwnProperty('valor') ? conteudo.valor : conteudo;
+        const valorConteudo: any = this.resolverValor(conteudo);
 
         const tipoConteudo: string = conteudo.hasOwnProperty('tipo')
             ? conteudo.tipo
@@ -439,9 +449,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
+            let valor = this.resolverValor(resultadoAvaliacao);
 
             formatoTexto += `${this.paraTexto(valor)} `;
         }
@@ -498,9 +506,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
         let valorFinal = null;
         if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
-            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
-                ? valorOuOutraVariavel.valor
-                : valorOuOutraVariavel;
+            valorFinal = this.resolverValor(valorOuOutraVariavel);
         }
 
         return valorFinal;
