@@ -435,7 +435,7 @@ export class Interpretador extends InterpretadorBase {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
-            return objeto[expressao.simbolo.lexema] || null;
+            return objeto[expressao.simbolo.lexema];
         }
 
         // A partir daqui, presume-se que o objeto é uma das estruturas
@@ -693,7 +693,11 @@ export class Interpretador extends InterpretadorBase {
                 if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                } else {
+                    // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
+                    objeto[alvoPropriedade.simbolo.lexema] = valor;
                 }
+                
                 break;
             default:
                 throw new ErroEmTempoDeExecucao(

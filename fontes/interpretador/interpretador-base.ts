@@ -1652,7 +1652,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
 
-            return objeto[expressao.simbolo.lexema] || null;
+            return objeto[expressao.simbolo.lexema];
         }
 
         // Casos em que o objeto possui algum outro tipo que não o de objeto simples.
