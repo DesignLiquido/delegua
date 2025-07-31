@@ -119,10 +119,20 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
    
 
-    private validarSegmentoAlgoritmo(algoritmoOuFuncao: string): void {
+    private validarSegmentoAlgoritmo(): void {
         this.consumir(
             tiposDeSimbolos.ALGORITMO,
             `Expressão 'algoritmo' não declarada`
+        );
+
+        this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            `Esperado identificador após 'algoritmo'.`
+        );
+
+        this.consumir(
+            tiposDeSimbolos.PONTO_E_VIRGULA,
+            `Esperado ponto e vírgula após identificador do algoritmo.`
         );
     }
 
@@ -149,7 +159,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         
         /* No lexador, o ponto e vírgula é consumido, o que pode gerar algum
          problema já que a expressão "principal" não exige ponto e vírgula */
-        this.validarSegmentoAlgoritmo('algoritmo'); 
+        this.validarSegmentoAlgoritmo(); 
         this.validarSegmentoPrincipal('principal'); 
 
         while(!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL) {
