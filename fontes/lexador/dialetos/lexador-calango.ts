@@ -89,7 +89,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
     }
 
     simboloAtual(): string {
-        if (this.eFinalDaLinha) return '\0';
+        if (this.eFinalDaLinha()) return '\0';
         if (this.linha > this.codigo.length - 1) return '\0';
         return this.codigo[this.linha].charAt(this.atual);
     }
@@ -130,6 +130,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
             )
         );
     }
+
     analisarNumero(): void {
         const linhaPrimeiroDigito: number = this.linha;
         while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
@@ -183,7 +184,6 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 : tiposDeSimbolos.IDENTIFICADOR;
 
         this.simbolos.push(new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
-
     }
     
     analisarToken(): void {
@@ -191,29 +191,36 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
 
         switch (caractere) {
             case ' ':
-                case '\t':
-                case '\0':
-                    this.avancar();
-                    break;
-                case '\r':
-                case '\n':
-                    this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA); // Quebra de linha adicionada para identificar o início do código
-                    this.avancar();
-                    break;
+            case '\t':
+            case '\0':
+                this.avancar();
+                break;
+            case '\r':
+            case '\n':
+                this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA); // Quebra de linha adicionada para identificar o início do código
+                this.avancar();
+                break;
             case ';': // Calango exige o ponto e vírgula para indicar final do código
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA)
                 this.avancar();
+                break;
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
                 this.avancar();
                 break;
+            case '(':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.avancar();
+                break;
+            case ')':
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
+                break;
             case '=':
                 this.adicionarSimbolo(tiposDeSimbolos.IGUAL_ATRIBUICAO);
                 this.avancar();
-            case 'algoritmo':
-                this.adicionarSimbolo(tiposDeSimbolos.ALGORITMO);
-                this.avancar();
+                break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
