@@ -3,18 +3,20 @@ export class InformacaoVariavelOuConstante {
     tipo: string;
     obrigatorio: boolean;
     argumentos: InformacaoVariavelOuConstante[] = [];
-    documentacao?: string;
+    documentacao: string;
 
     constructor(
         nome: string,
         tipo: string,
         obrigatorio: boolean = true,
-        argumentos: InformacaoVariavelOuConstante[] = []
+        argumentos: InformacaoVariavelOuConstante[] = [],
+        documentacao: string = ""
     ) {
         this.nome = nome;
         this.tipo = tipo;
         this.obrigatorio = obrigatorio;
         this.argumentos = argumentos;
+        this.documentacao = documentacao;
     }
 
     toString(): string {
