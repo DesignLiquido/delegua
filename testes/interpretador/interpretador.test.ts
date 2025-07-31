@@ -1234,92 +1234,113 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('para cada - trivial', async () => {
-                    const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'para cada elemento em [1, 2, 3] {',
-                            "   escreva('Valor: ', elemento)", '}'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                describe('Para cada', () => {
+                    it('para cada - trivial', async () => {
+                        const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'para cada elemento em [1, 2, 3] {',
+                                "   escreva('Valor: ', elemento)", '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        };
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
 
-                it('para cada - vetor variável', async () => {
-                    const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'var v = [1, 2, 3]',
-                            'para cada elemento em v {',
-                            "   escreva('Valor: ', elemento)", '}'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    it('para cada - dicionário', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'para cada elemento em {"a": 1, "b": 2, "c": 3} {',
+                                "   escreva('Valor: ', elemento)", '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(3);
+                        expect(_saidas[0]).toContain('{\"primeiro\":\"a\",\"segundo\":1}');
+                        expect(_saidas[1]).toContain('{\"primeiro\":\"b\",\"segundo\":2}');
+                        expect(_saidas[2]).toContain('{\"primeiro\":\"c\",\"segundo\":3}');
+                    });
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
+                    it('para cada - vetor variável', async () => {
+                        const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var v = [1, 2, 3]',
+                                'para cada elemento em v {',
+                                "   escreva('Valor: ', elemento)", '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                it('para cada - aninhado', async () => {
-                    let _saidas: string[] = [];
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'var numeros = [1, 2, 3, 4]',
-                            'para cada numero de numeros {',
-                            '    para cada numero de numeros {',
-                            '        escreva(numero)',
-                            '    }',
-                            '}'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        };
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saidas.push(saida);
-                    };
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(16);
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
 
-                it('para cada - vetor gerado por método de primitiva', async () => {
-                    let _saidas: string[] = [];
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'var frase = "oi cara de boi"',
-                            'var palavras = frase.dividir(" ") // ["oi", "cara", "de", "boi"]',
-                            'para cada palavra de palavras {',
-                            '    escreva(palavra)',
-                            '}'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    it('para cada - aninhado', async () => {
+                        let _saidas: string[] = [];
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var numeros = [1, 2, 3, 4]',
+                                'para cada numero de numeros {',
+                                '    para cada numero de numeros {',
+                                '        escreva(numero)',
+                                '    }',
+                                '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saidas.push(saida);
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saidas.push(saida);
+                        };
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(4);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(16);
+                    });
+
+                    it('para cada - vetor gerado por método de primitiva', async () => {
+                        let _saidas: string[] = [];
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var frase = "oi cara de boi"',
+                                'var palavras = frase.dividir(" ") // ["oi", "cara", "de", "boi"]',
+                                'para cada palavra de palavras {',
+                                '    escreva(palavra)',
+                                '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saidas.push(saida);
+                        };
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(4);
+                    });
                 });
 
                 it('para', async () => {

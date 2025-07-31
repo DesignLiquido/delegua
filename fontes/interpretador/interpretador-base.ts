@@ -51,6 +51,7 @@ import {
     Construto,
     DefinirValor,
     Dicionario,
+    Dupla,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
@@ -1000,13 +1001,20 @@ export class InterpretadorBase implements InterpretadorInterface {
         return retornoExecucao;
     }
 
+    // TODO: Descobrir se mais algum dialeto, fora Delégua e Pituguês, usam isso.
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         let retornoExecucao: any;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
         // laço de repetição.
         declaracao.posicaoAtual = 0;
         const vetorResolvido = await this.avaliar(declaracao.vetor);
-        const valorVetorResolvido = this.resolverValor(vetorResolvido);
+        let valorVetorResolvido: any = this.resolverValor(vetorResolvido);
+
+        // Se até aqui vetor resolvido é um dicionário, converte dicionário
+        // para vetor de duplas.
+        if (declaracao.vetor.tipo === 'dicionário') {
+            valorVetorResolvido = Object.entries(valorVetorResolvido).map(v => new Dupla(v[0], v[1]));
+        }
 
         if (!Array.isArray(valorVetorResolvido)) {
             return Promise.reject(
