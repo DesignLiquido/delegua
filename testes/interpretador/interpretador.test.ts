@@ -120,126 +120,146 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Dicionário, atribuição simples', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var a = {'a': 1, 'b': 2}",
-                        "escreva(a['b'])"
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                describe('Dicionários', () => {
+                    it('Dicionário, atribuição simples', async () => {
+                        const retornoLexador = lexador.mapear([
+                            "var a = {'a': 1, 'b': 2}",
+                            "escreva(a['b'])"
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
 
-                it('Dicionário, atribuição e soma vetor', async () => {
-                    const saidasMensagens = [
-                        '3350'
-                    ];
+                    it('Dicionário, atribuição e soma vetor', async () => {
+                        const saidasMensagens = [
+                            '3350'
+                        ];
 
-                    const retornoLexador = lexador.mapear([
-                        'var { estacaoTerraAteColoniaSolis, vilaOmegaAteCidadeNova, luaZetAteBaseDelta } = {',
-                        '  "estacaoTerraAteColoniaSolis": 2000,',
-                        '  "vilaOmegaAteCidadeNova": 500,',
-                        '  "luaZetAteBaseDelta": 850,',
-                        '}',
-                        'var distanciaTotal = [',
-                        '  estacaoTerraAteColoniaSolis,',
-                        '  vilaOmegaAteCidadeNova,',
-                        '  luaZetAteBaseDelta',
-                        '].somar()',
-                        'escreva(distanciaTotal)'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoLexador = lexador.mapear([
+                            'var { estacaoTerraAteColoniaSolis, vilaOmegaAteCidadeNova, luaZetAteBaseDelta } = {',
+                            '  "estacaoTerraAteColoniaSolis": 2000,',
+                            '  "vilaOmegaAteCidadeNova": 500,',
+                            '  "luaZetAteBaseDelta": 850,',
+                            '}',
+                            'var distanciaTotal = [',
+                            '  estacaoTerraAteColoniaSolis,',
+                            '  vilaOmegaAteCidadeNova,',
+                            '  luaZetAteBaseDelta',
+                            '].somar()',
+                            'escreva(distanciaTotal)'
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        };
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
 
-                it('Dicionário com valor zero', async () => {
-                    const saidasMensagens = [
-                        '0'
-                    ];
+                    it('Dicionário com valor zero', async () => {
+                        const saidasMensagens = [
+                            '0'
+                        ];
 
-                    const retornoLexador = lexador.mapear([
-                        'var macacos = {',
-                        '"Joe": 0,',
-                        '"Milo": 0,',
-                        '"Kiko": 0',
-                        '}',
-                        'escreva(macacos[\'Joe\'])',
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoLexador = lexador.mapear([
+                            'var macacos = {',
+                            '"Joe": 0,',
+                            '"Milo": 0,',
+                            '"Kiko": 0',
+                            '}',
+                            'escreva(macacos[\'Joe\'])',
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        };
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
 
-                it('Dicionário com definição de variável externa', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'var frase = "opa"',
-                        'var dicionario = {',
-                        '"resposta": frase,',
-                        '2: frase',
-                        '}',
-                        'escreva(dicionario)'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    it('Dicionário com definição de variável externa', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'var frase = "opa"',
+                            'var dicionario = {',
+                            '"resposta": frase,',
+                            '2: frase',
+                            '}',
+                            'escreva(dicionario)'
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toBe('{"2":"opa","resposta":"opa"}');
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            expect(saida).toBe('{"2":"opa","resposta":"opa"}');
+                        };
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
 
-                it('Dicionário com chave lógica', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'escreva({',
-                        'verdadeiro: \'valor\',',
-                        'falso: \'valor2\'',
-                        '})',
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    it('Dicionário com chave lógica', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'escreva({',
+                            'verdadeiro: \'valor\',',
+                            'falso: \'valor2\'',
+                            '})',
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe("{\"verdadeiro\":\"valor\",\"falso\":\"valor2\"}");
-                });
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("{\"verdadeiro\":\"valor\",\"falso\":\"valor2\"}");
+                    });
 
-                it('Dicionários e referências do montão', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'var meuDicionario = {',
-                        '    "um": "dois",',
-                        '    "tres": {',
-                        '        "quatro": 5',
-                        '    }',
-                        '}',
-                        'var meuSegundoDicionario = meuDicionario["tres"]',
-                        'meuSegundoDicionario["quatro"] = 7',
-                        'escreva(meuDicionario["tres"])',
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    it('Dicionários e referências do montão', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'var meuDicionario = {',
+                            '    "um": "dois",',
+                            '    "tres": {',
+                            '        "quatro": 5',
+                            '    }',
+                            '}',
+                            'var meuSegundoDicionario = meuDicionario["tres"]',
+                            'meuSegundoDicionario["quatro"] = 7',
+                            'escreva(meuDicionario["tres"])',
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe("{\"quatro\":7}");
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("{\"quatro\":7}");
+                    });
+
+                    it('Dicionários cuja referência ao montão migra para o escopo superior', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'var listaIndices = ["um", "dois", "tres"]',
+                            'var dicionarioEscopoSuperior = {}',
+                            'para cada indice em listaIndices {',
+                            '    dicionarioEscopoSuperior[indice] = {1: 2, 3: 4}',
+                            '}',
+                            'escreva(dicionarioEscopoSuperior)',
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("{\"um\":{\"1\":2,\"3\":4},\"dois\":{\"1\":2,\"3\":4},\"tres\":{\"1\":2,\"3\":4}}");
+                    });
                 });
 
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {

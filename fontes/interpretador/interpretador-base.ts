@@ -1419,7 +1419,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     (expressao.objeto as any).nome,
-                    'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
+                    'Somente listas, dicionários, classes e objetos podem ser mudados por índice.',
                     expressao.linha
                 )
             );

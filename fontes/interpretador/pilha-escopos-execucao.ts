@@ -312,4 +312,21 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         const espacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
         espacoMemoria.enderecosMontao.add(endereco);
     }
+
+    migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel: string, enderecoMontao: string) {
+        // TODO: Normalmente uma referência a ser migrada está sempre no último escopo.
+        // Conferir se é sempre este o caso.
+        const ultimoEspacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
+        ultimoEspacoMemoria.enderecosMontao.delete(enderecoMontao);
+
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const espacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria;
+            if (espacoMemoria.valores[nomeVariavel] !== undefined) {
+                espacoMemoria.enderecosMontao.add(enderecoMontao);
+                break;
+            }
+        }
+
+        // TODO: Devemos emitir erro em algum momento?
+    }
 }

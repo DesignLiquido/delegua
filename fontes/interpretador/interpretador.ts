@@ -4,6 +4,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
+    AtribuicaoPorIndice,
     Atribuir,
     Construto,
     Dicionario,
@@ -19,6 +20,7 @@ import {
     DescritorTipoClasse,
     MetodoPrimitiva,
     ObjetoDeleguaClasse,
+    ObjetoPadrao,
     ReferenciaMontao,
 } from './estruturas';
 import { RetornoInterpretador, SimboloInterface, VariavelInterface } from '../interfaces';
@@ -81,6 +83,86 @@ export class Interpretador extends InterpretadorBase {
         }
 
         return objeto;
+    }
+
+    override paraTexto(objeto: any): string {
+        if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
+        if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
+            return objeto ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            typeof objeto.paraTexto === 'function'
+        )
+            return objeto.paraTexto();
+
+        if (objeto instanceof RetornoQuebra) {
+            if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto instanceof Date) {
+            const formato = Intl.DateTimeFormat('pt', {
+                dateStyle: 'full',
+                timeStyle: 'full',
+            });
+            return formato.format(objeto);
+        }
+
+        if (Array.isArray(objeto)) {
+            let retornoVetor: string = '[';
+            for (let elemento of objeto) {
+                if (typeof elemento === 'object') {
+                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    continue;
+                }
+                retornoVetor +=
+                    typeof elemento === 'string'
+                        ? `'${elemento}', `
+                        : `${this.paraTexto(elemento)}, `;
+            }
+
+            if (retornoVetor.length > 1) {
+                retornoVetor = retornoVetor.slice(0, -2);
+            }
+            retornoVetor += ']';
+
+            return retornoVetor;
+        }
+
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor;
+                    }
+                }
+        }
+
+        if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
+            const objetoEscrita = {};
+            for (const propriedade in objeto) {
+                let valor = objeto[propriedade];
+                if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {
+                    valor = valor ? 'verdadeiro' : 'falso';
+                }
+
+                if (valor instanceof ReferenciaMontao) {
+                    valor = this.resolverValor(valor);
+                }
+
+                objetoEscrita[propriedade] = valor;
+            }
+
+            return JSON.stringify(objetoEscrita);
+        }
+
+        return objeto.toString();
     }
 
     override async avaliacaoDeclaracaoVarOuConst(
@@ -493,7 +575,74 @@ export class Interpretador extends InterpretadorBase {
         const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(
             expressao.simboloFuncao.lexema
         );
+
         return deleguaFuncao;
+    }
+
+    override async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+        const promises = await Promise.all([
+            this.avaliar(expressao.objeto),
+            this.avaliar(expressao.indice),
+            this.avaliar(expressao.valor),
+        ]);
+
+        let objeto = promises[0];
+        let indice = promises[1];
+        const valor = promises[2];
+
+        if (objeto.tipo === tipoDeDadosDelegua.TUPLA) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    (expressao.objeto as any).simbolo.lexema,
+                    'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
+                    expressao.linha
+                )
+            );
+        }
+
+        objeto = this.resolverValor(objeto);
+        indice = this.resolverValor(indice);
+
+        // Se o valor é uma referência ao montão, e o índice que a recebe é
+        // de uma variável/constante que vive num escopo superior, a referência
+        // precisa ser transferida para o escopo correspondente.
+        if (valor instanceof ReferenciaMontao) {
+            // TODO: Terminar
+            const nomeVariavel = (expressao.objeto as any).simbolo.lexema;
+            if (this.pilhaEscoposExecucao.obterVariavelEm(1, nomeVariavel) === undefined) {
+                this.pilhaEscoposExecucao.migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel, valor.endereco);
+            }
+        }
+
+        if (Array.isArray(objeto)) {
+            if (indice < 0 && objeto.length !== 0) {
+                while (indice < 0) {
+                    indice += objeto.length;
+                }
+            }
+
+            while (objeto.length < indice) {
+                objeto.push(null);
+            }
+
+            objeto[indice] = valor;
+        } else if (
+            objeto.constructor === Object ||
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            objeto instanceof DescritorTipoClasse ||
+            objeto instanceof DeleguaModulo
+        ) {
+            objeto[indice] = valor;
+        } else {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    (expressao.objeto as any).nome,
+                    'Somente listas, dicionários, classes e objetos podem ser mudados por índice.',
+                    expressao.linha
+                )
+            );
+        }
     }
 
     /**
