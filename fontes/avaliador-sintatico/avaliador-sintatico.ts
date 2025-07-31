@@ -33,7 +33,7 @@ import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } fro
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import { SeletorTuplas, Tupla } from '../construtos/tuplas';
+import { Dupla, SeletorTuplas, Tupla } from '../construtos/tuplas';
 import {
     Bloco,
     Classe,
@@ -1506,11 +1506,62 @@ export class AvaliadorSintatico
         }
     }
 
-    protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
-        const nomeVariavelIteracao = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado identificador de variável de iteração para instrução 'para cada'."
+    protected declaracaoParaCadaDicionario(simboloPara: SimboloInterface) {
+        this.avancarEDevolverAnterior(); // chave esquerda
+        const nomeVariavelChave = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado identificador de variável para chave de iteração, em instrução 'para cada'.");
+        this.consumir(tiposDeSimbolos.VIRGULA, "Esperado vírgula após nome de variável para chave de iteração, em instrução 'para cada'.");
+        const nomeVariavelValor = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado identificador de variável para valor de iteração, em instrução 'para cada'.");
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado chave direita após nome de variável para valor de iteração, em instrução 'para cada'.");
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
+            );
+        }
+
+        const dicionario = this.expressao();
+        if (!dicionario.hasOwnProperty('tipo')) {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não parece ser um dicionário.`
+            );
+        }
+
+        const tipoDicionario = (dicionario as any).tipo as string;
+        if (tipoDicionario !== 'dicionário') {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não é um dicionário. Tipo resolvido: ${tipoDicionario}.`
+            );
+        }
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            nomeVariavelChave.lexema,
+            new InformacaoVariavelOuConstante(nomeVariavelChave.lexema, 'qualquer')
         );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            nomeVariavelValor.lexema,
+            new InformacaoVariavelOuConstante(nomeVariavelValor.lexema, 'qualquer')
+        );
+        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return new ParaCada(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Dupla(
+                new Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelChave.lexema),
+                new Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelValor.lexema)
+            ),
+            dicionario,
+            corpo
+        );
+    }
+
+    protected declaracaoParaCadaVetor(simboloPara: SimboloInterface) {
+        const nomeVariavelIteracao = this.avancarEDevolverAnterior();
+        const variavelIteracao = new Variavel(this.hashArquivo, nomeVariavelIteracao);
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
             throw this.erro(
@@ -1551,10 +1602,22 @@ export class AvaliadorSintatico
         return new ParaCada(
             this.hashArquivo,
             Number(simboloPara.linha),
-            nomeVariavelIteracao.lexema,
+            variavelIteracao,
             vetor,
             corpo
         );
+    }
+
+    protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+            return this.declaracaoParaCadaVetor(simboloPara);
+        }
+
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            return this.declaracaoParaCadaDicionario(simboloPara)
+        }
+
+        throw this.erro(simboloPara, 'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.');
     }
 
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {

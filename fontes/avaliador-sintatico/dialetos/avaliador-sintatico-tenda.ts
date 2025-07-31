@@ -1230,7 +1230,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return new ParaCada(
             this.hashArquivo,
             Number(simboloParaCada.linha),
-            simboloVariavelIteracao.lexema,
+            new Variavel(this.hashArquivo, simboloVariavelIteracao),
             literalOuVariavelIteravel,
             new Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo)
         );

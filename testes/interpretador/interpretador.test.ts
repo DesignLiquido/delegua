@@ -1259,7 +1259,8 @@ describe('Interpretador', () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 'para cada elemento em {"a": 1, "b": 2, "c": 3} {',
-                                "   escreva('Valor: ', elemento)", '}'
+                                "   escreva('Valor: ', elemento)", 
+                                '}'
                             ],
                             -1
                         );
@@ -1272,6 +1273,26 @@ describe('Interpretador', () => {
                         expect(_saidas[0]).toContain('{\"primeiro\":\"a\",\"segundo\":1}');
                         expect(_saidas[1]).toContain('{\"primeiro\":\"b\",\"segundo\":2}');
                         expect(_saidas[2]).toContain('{\"primeiro\":\"c\",\"segundo\":3}');
+                    });
+
+                    it('dicionário com desestruturação', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'para cada {chave, valor} em {"a": 1, "b": 2, "c": 3} {',
+                                "   escreva('${chave}: ${valor}')", 
+                                '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(3);
+                        expect(_saidas[0]).toContain('a: 1');
+                        expect(_saidas[1]).toContain('b: 2');
+                        expect(_saidas[2]).toContain('c: 3');
                     });
 
                     it('para cada - vetor variável', async () => {
@@ -1320,7 +1341,6 @@ describe('Interpretador', () => {
                     });
 
                     it('para cada - vetor gerado por método de primitiva', async () => {
-                        let _saidas: string[] = [];
                         const retornoLexador = lexador.mapear(
                             [
                                 'var frase = "oi cara de boi"',
@@ -1332,10 +1352,6 @@ describe('Interpretador', () => {
                             -1
                         );
                         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                        interpretador.funcaoDeRetorno = (saida: any) => {
-                            _saidas.push(saida);
-                        };
 
                         const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                         expect(retornoInterpretador.erros).toHaveLength(0);

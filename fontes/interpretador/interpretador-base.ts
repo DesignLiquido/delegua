@@ -1027,10 +1027,25 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.posicaoAtual < valorVetorResolvido.length
         ) {
             try {
-                this.pilhaEscoposExecucao.definirVariavel(
-                    declaracao.nomeVariavelIteracao,
-                    valorVetorResolvido[declaracao.posicaoAtual]
-                );
+                if (declaracao.variavelIteracao instanceof Variavel) {
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        declaracao.variavelIteracao.simbolo.lexema,
+                        valorVetorResolvido[declaracao.posicaoAtual]
+                    );
+                }
+                
+                if (declaracao.variavelIteracao instanceof Dupla) {
+                    const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (declaracao.variavelIteracao.primeiro as Literal).valor,
+                        valorComoDupla.primeiro
+                    );
+
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (declaracao.variavelIteracao.segundo as Literal).valor,
+                        valorComoDupla.segundo
+                    );
+                }
 
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao instanceof SustarQuebra) {

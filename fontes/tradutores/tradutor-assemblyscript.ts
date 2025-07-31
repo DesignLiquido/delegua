@@ -404,7 +404,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
-        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
+        let resultado = `for (let ${declaracaoParaCada.variavelIteracao} of `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
                 declaracaoParaCada.vetor

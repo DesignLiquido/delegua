@@ -524,7 +524,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoParaCada.linha}(para cada ${declaracaoParaCada.nomeVariavelIteracao} em `;
+        const textoVariavelIteracao = this.dicionarioConstrutos[
+            declaracaoParaCada.variavelIteracao.constructor.name
+        ](declaracaoParaCada.variavelIteracao);
+        let texto = `Linha${declaracaoParaCada.linha}(para cada ${textoVariavelIteracao} em `;
         const textoVariavelIterada = this.dicionarioConstrutos[
             declaracaoParaCada.vetor.constructor.name
         ](declaracaoParaCada.vetor);

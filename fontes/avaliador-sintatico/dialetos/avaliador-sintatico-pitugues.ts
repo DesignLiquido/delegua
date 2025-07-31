@@ -1042,7 +1042,7 @@ export class AvaliadorSintaticoPitugues
         return new ParaCada(
             this.hashArquivo,
             Number(simboloPara.linha),
-            nomeVariavelIteracao.lexema,
+            new Variavel(this.hashArquivo, nomeVariavelIteracao),
             vetor,
             corpo
         );

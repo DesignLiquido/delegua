@@ -319,7 +319,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.variavelIteracao} de `;
         this.formatarDeclaracaoOuConstruto(declaracao.vetor);
         this.visitarExpressaoBloco(declaracao.corpo);
     }
