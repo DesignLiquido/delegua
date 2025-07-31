@@ -22,7 +22,11 @@ describe('Lexador (Calango)', () => {
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Código vazio com símbolos algoritmo, principal e fimPrincipal', () => {
-                const resultado = lexador.mapear(['algoritmo', 'principal', 'fimPrincipal'], -1);
+                const resultado = lexador.mapear([
+                    'algoritmo tituloDoAlgoritmo;', 
+                    'principal', 
+                    'fimPrincipal'
+                ], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
@@ -33,7 +37,7 @@ describe('Lexador (Calango)', () => {
         describe('Cenários de sucesso', () => {
             it('Sucesso - Método "escreva"', () => {
                 const resultado = lexador.mapear([
-                    'algoritmo', 
+                    'algoritmo tituloDoAlgoritmo;', 
                     'principal', 
                     'escreva("Ola Mundo");',
                     'fimPrincipal'

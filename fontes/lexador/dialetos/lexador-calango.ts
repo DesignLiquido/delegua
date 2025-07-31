@@ -1,4 +1,5 @@
-import { LexadorInterface, RetornoLexador, SimboloInterface } from "../../interfaces";
+import { LexadorInterface, SimboloInterface } from "../../interfaces";
+import { RetornoLexador } from '../../interfaces/retornos';
 import { ErroLexador } from "../erro-lexador";
 import { Simbolo } from "../simbolo";
 
@@ -17,6 +18,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
 
     eDigito(caractere: string): boolean {
         return caractere >= '0' && caractere <= '9';
+
     }
     eAlfabeto(caractere: string): boolean {
         const acentuacoes = [
@@ -190,11 +192,12 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         switch (caractere) {
             case ' ':
                 case '\t':
+                case '\0':
                     this.avancar();
                     break;
                 case '\r':
                 case '\n':
-                case '\0':
+                    this.adicionarSimbolo(tiposDeSimbolos.QUEBRA_LINHA); // Quebra de linha adicionada para identificar o início do código
                     this.avancar();
                     break;
             case ';': // Calango exige o ponto e vírgula para indicar final do código
@@ -205,6 +208,12 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 this.analisarTexto('"');
                 this.avancar();
                 break;
+            case '=':
+                this.adicionarSimbolo(tiposDeSimbolos.IGUAL_ATRIBUICAO);
+                this.avancar();
+            case 'algoritmo':
+                this.adicionarSimbolo(tiposDeSimbolos.ALGORITMO);
+                this.avancar();
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();
