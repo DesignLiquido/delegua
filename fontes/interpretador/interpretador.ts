@@ -7,6 +7,7 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Construto,
+    DefinirValor,
     Dicionario,
     Literal,
     ReferenciaFuncao,
@@ -702,6 +703,32 @@ export class Interpretador extends InterpretadorBase {
         }
 
         return valorResolvido;
+    }
+
+    async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(variavelObjeto);
+
+        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    expressao.nome,
+                    'Somente instâncias e dicionários podem possuir campos.',
+                    expressao.linha
+                )
+            );
+        }
+
+        const valor = await this.avaliar(expressao.valor);
+        const valorResolvido = this.resolverValor(valor);
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+            objeto.definir(expressao.nome, valorResolvido);
+            return valorResolvido;
+        }
+
+        if (objeto.constructor === Object) {
+            objeto[expressao.nome.lexema] = valorResolvido;
+        }
     }
 
     /**
