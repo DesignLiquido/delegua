@@ -260,6 +260,27 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe("{\"um\":{\"1\":2,\"3\":4},\"dois\":{\"1\":2,\"3\":4},\"tres\":{\"1\":2,\"3\":4}}");
                     });
+
+                    it('Vetores de dicionários', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'var meuVetor = [{',
+                            '    "um": "dois",',
+                            '    "tres": {',
+                            '        "quatro": 5',
+                            '    }',
+                            '}, {"seis": 7}]',
+                            'var meuSegundoVetor = meuVetor',
+                            'meuSegundoVetor[1]["oito"] = 9',
+                            'escreva(meuVetor)',
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[{"um":"dois","tres":{"quatro":5}}, {"seis":7,"oito":9}]');
+                    });
                 });
 
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {

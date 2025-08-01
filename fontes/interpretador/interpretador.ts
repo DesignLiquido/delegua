@@ -71,6 +71,15 @@ export class Interpretador extends InterpretadorBase {
             return objeto;
         }
 
+        if (Array.isArray(objeto)) {
+            const vetorResolvido: any[] = [];
+            for (const elemento of objeto) {
+                vetorResolvido.push(this.resolverValor(elemento));
+            }
+
+            return vetorResolvido;
+        }
+
         if (objeto instanceof ReferenciaMontao) {
             return this.resolverReferenciaMontao(objeto);
         }
