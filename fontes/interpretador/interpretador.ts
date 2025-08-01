@@ -85,6 +85,10 @@ export class Interpretador extends InterpretadorBase {
         }
 
         if (objeto.hasOwnProperty('valor')) {
+            if (Array.isArray(objeto.valor)) {
+                return this.resolverValor(objeto.valor);
+            }
+
             if (objeto.valor instanceof ReferenciaMontao) {
                 return this.resolverReferenciaMontao(objeto.valor);
             }
