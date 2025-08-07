@@ -2044,8 +2044,7 @@ describe('Interpretador', () => {
                 });
 
                 describe('Vetores', () => {
-                    // TODO: Verificar por que `ordenar()` não mais modifica o vetor original.
-                    it.skip('ordenar() de vetor com parâmetro função', async () => {
+                    it('ordenar() de vetor com parâmetro função', async () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 'var numeros = [4, 2, 12, 8];',

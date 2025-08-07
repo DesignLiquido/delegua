@@ -48,6 +48,7 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Chamada,
+    Constante,
     Construto,
     DefinirValor,
     Dicionario,
@@ -178,6 +179,26 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
+    }
+
+    /**
+     * Usado para chamadas de métodos de primitiva.
+     * Sendo uma variável ou constante, a primitiva precisa atualizar a referência
+     * para o objeto que está sendo acessado.
+     * @param {Construto} objetoAcessado O objeto que está sendo acessado.
+     * @returns O nome desse objeto, se ele for uma variável ou constante.
+     * @see resolverValor
+     */
+    protected resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
+        if (objetoAcessado instanceof Variavel) {
+            return objetoAcessado.simbolo.lexema;
+        } 
+        
+        if (objetoAcessado instanceof Constante) {
+            return objetoAcessado.simbolo.lexema;
+        }
+
+        return '';
     }
 
     protected resolverValor(objeto: any) {
@@ -1672,7 +1693,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva("", objeto, metodoDePrimitivaDicionario);
             }
 
             return objeto[expressao.simbolo.lexema];

@@ -6,7 +6,7 @@ export default {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<string> =>
             Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
         documentacao: '# `texto.aparar()` \n \n' +
@@ -20,7 +20,7 @@ export default {
     apararFim: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<string> =>
             Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.apararFim()',
         documentacao: '# `texto.apararFim()` \n \n' +
@@ -34,7 +34,7 @@ export default {
     apararInicio: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<string> =>
             Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.apararInicio()',
         documentacao: '# `texto.apararInicio()` \n \n' +
@@ -58,6 +58,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             ...texto: string[]
         ): Promise<string> => Promise.resolve(''.concat(...texto)),
         assinaturaFormato: 'texto.concatenar(...outroTexto: texto)',
@@ -90,6 +91,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             texto: string,
             divisor: string,
             limite?: number
@@ -129,6 +131,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             texto: string,
             inicio: number,
             fim: number
@@ -159,6 +162,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             texto: string,
             elemento: string
         ): Promise<boolean> => Promise.resolve(texto.includes(elemento)),
@@ -175,7 +179,7 @@ export default {
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<string> =>
             Promise.resolve(
                 texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')
             ),
@@ -191,7 +195,7 @@ export default {
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<string> =>
             Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
         documentacao: '# `texto.maiusculo()` \n \n' +
@@ -205,7 +209,7 @@ export default {
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<string> =>
             Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
         documentacao: '# `texto.minusculo()` \n \n' +
@@ -236,6 +240,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             texto: string,
             elemento: string,
             substituto: string
@@ -269,6 +274,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             texto: string,
             inicio: number,
             fim: number
@@ -285,7 +291,7 @@ export default {
     tamanho: {
         tipoRetorno: 'inteiro',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, texto: string): Promise<number> =>
             Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
         documentacao: '# `texto.tamanho()` \n\n' +

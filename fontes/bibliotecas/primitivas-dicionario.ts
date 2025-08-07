@@ -15,6 +15,7 @@ const contemComum = (nome: string) => {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             valor: object,
             chave: any
         ): Promise<boolean> => Promise.resolve(chave in valor),
@@ -35,7 +36,7 @@ export default {
     chaves: {
         tipoRetorno: 'texto[]',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, valor: object): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, valor: object): Promise<any> => {
             return Promise.resolve(Object.keys(valor));
         },
         assinaturaFormato: 'dicionário.chaves()',
@@ -55,6 +56,7 @@ export default {
         argumentos: [new InformacaoVariavelOuConstante('chave', 'texto')],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             valor: object,
             chave: string
         ): Promise<boolean> => Promise.resolve(delete valor[chave]),
@@ -64,7 +66,7 @@ export default {
     valores: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, valor: object): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, valor: object): Promise<any> => {
             return Promise.resolve(Object.values(valor));
         },
     },

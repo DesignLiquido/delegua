@@ -1,5 +1,5 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
-import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
+import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
 import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
 export default {
@@ -16,6 +16,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -46,6 +47,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             outroVetor: Array<any>
         ): Promise<any> => {
@@ -73,6 +75,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -109,6 +112,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             inicio: number,
             excluirQuantidade?: number,
@@ -146,6 +150,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             inicio: number,
             fim: number
@@ -176,6 +181,7 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -216,6 +222,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => Promise.resolve(vetor.includes(elemento)),
@@ -233,7 +240,7 @@ export default {
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
         documentacao: '# `vetor.inverter()` \n \n' +
@@ -257,6 +264,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             separador: string
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
@@ -282,6 +290,7 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -321,6 +330,7 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             funcaoOrdenacao: DeleguaFuncao
         ): Promise<any> => {
@@ -338,6 +348,15 @@ export default {
                             vetor[j - 1] = aux;
                         }
                     }
+                }
+
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                        { 
+                            lexema: nomePrimitiva,
+                        } as SimboloInterface, 
+                        vetor
+                    );
                 }
 
                 return vetor;
@@ -375,6 +394,7 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -395,7 +415,7 @@ export default {
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
@@ -413,7 +433,7 @@ export default {
     removerUltimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -433,6 +453,7 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
             vetor: Array<number | { valor: number }>
         ): Promise<number | { valor: number }> => {
             return Promise.resolve(
@@ -454,7 +475,7 @@ export default {
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> =>
             Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
         documentacao: '# `vetor.tamanho()` \n \n' +

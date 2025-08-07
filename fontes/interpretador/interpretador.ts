@@ -6,6 +6,7 @@ import {
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
+    Constante,
     Construto,
     DefinirValor,
     Dicionario,
@@ -316,6 +317,8 @@ export class Interpretador extends InterpretadorBase {
     }
 
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
+
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
@@ -337,7 +340,7 @@ export class Interpretador extends InterpretadorBase {
             if (expressao.nomeMetodo in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.nomeMetodo].implementacao;
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
 
             return objeto[expressao.nomeMetodo] || null;
@@ -378,14 +381,14 @@ export class Interpretador extends InterpretadorBase {
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
@@ -395,7 +398,7 @@ export class Interpretador extends InterpretadorBase {
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
                 }
                 break;
         }
@@ -424,6 +427,7 @@ export class Interpretador extends InterpretadorBase {
     override async visitarExpressaoAcessoMetodoOuPropriedade(
         expressao: AcessoMetodoOuPropriedade
     ): Promise<any> {
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
@@ -445,7 +449,7 @@ export class Interpretador extends InterpretadorBase {
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
 
             return objeto[expressao.simbolo.lexema];
@@ -472,14 +476,14 @@ export class Interpretador extends InterpretadorBase {
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
@@ -493,7 +497,7 @@ export class Interpretador extends InterpretadorBase {
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
                 }
                 break;
         }
@@ -517,6 +521,7 @@ export class Interpretador extends InterpretadorBase {
     }
 
     override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
@@ -543,7 +548,7 @@ export class Interpretador extends InterpretadorBase {
             if (expressao.nomePropriedade in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.nomePropriedade].implementacao;
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
 
             return objeto[expressao.nomePropriedade] || null;
