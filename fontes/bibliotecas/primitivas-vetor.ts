@@ -363,10 +363,21 @@ export default {
             }
 
             if (!vetor.every((v) => typeof v === 'number')) {
-                return vetor.sort();
+                vetor.sort();
+            } else {
+                vetor.sort((a, b) => a - b);
             }
 
-            return vetor.sort((a, b) => a - b);
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                    { 
+                        lexema: nomePrimitiva,
+                    } as SimboloInterface, 
+                    vetor
+                );
+            }
+
+            return vetor;
         },
         assinaturaFormato: 'vetor.ordenar()',
         documentacao: '# `vetor.ordenar()` \n \n' +
