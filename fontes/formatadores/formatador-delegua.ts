@@ -607,7 +607,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
 
-        this.codigoFormatado += `) `;
+        this.codigoFormatado += `)`;
+        if (expressao.tipoExplicito && expressao.tipo) {
+            this.codigoFormatado += `: ${expressao.tipo}`;
+        }
+
+        this.codigoFormatado += ' ';
         this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
     }
 
