@@ -696,6 +696,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.DECREMENTAR:
                 operador = `--`;
                 break;
+            case tiposDeSimbolos.NEGACAO:
+                operador = `!`;
+                break;
+            case tiposDeSimbolos.SUBTRACAO:
+                operador = `-`;
+                break;
         }
 
         switch (expressao.incidenciaOperador) {

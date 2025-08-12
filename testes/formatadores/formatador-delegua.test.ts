@@ -9,6 +9,22 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
+    it('Unários', () => {
+        const resultadoLexador = lexador.mapear(
+            ["3 ** 4 - 9 (10 * -1 - -2)"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+        expect(linhasResultado).toHaveLength(3);
+        expect(linhasResultado[0]).toBe("3 ** 4 - 9(10 * -1");
+        expect(linhasResultado[1]).toBe(" - -2");
+        expect(linhasResultado[2]).toBe(")");
+    })
+
     it('Atribuição por índice', () => {
         const resultadoLexador = lexador.mapear(
             ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
