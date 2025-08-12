@@ -407,7 +407,47 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
+    });
+
+    describe("Exemplos", () => {
+        it('Fibonacci', async () => {
+            const codigo = [
+                "função fibonacci(n) {",
+                "    se (n == 0) {",
+                "      retorna(0);",
+                "    }",
+                "    se (n == 1) {",
+                "      retorna(1);",
+                "    }",
+                "    var n1 = n - 1;",
+                "    var n2 = n - 2;",
+                "    var f1 = fibonacci(n1);",
+                "    var f2 = fibonacci(n2);",
+                "    retorna(f1 + f2);",
+                "}",
+                "var a = fibonacci(0);",
+                "escreva(a);",
+                "a = fibonacci(1);",
+                "escreva(a);",
+                "a = fibonacci(2);",
+                "escreva(a);",
+                "a = fibonacci(3);",
+                "escreva(a);",
+                "a = fibonacci(4);",
+                "escreva(a);",
+                "a = fibonacci(5);",
+                "escreva(a);"
+            ];
+            
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            // console.log(resultado);
+            expect(linhasResultado).toHaveLength(26);
+        });
     });
 });
