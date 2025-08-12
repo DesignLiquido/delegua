@@ -51,6 +51,22 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(7);
     });
 
+    it('Funções', () => {
+        const resultadoLexador = lexador.mapear([
+            "funcao teste(a: inteiro, b: inteiro): inteiro {",
+            "    retorna a + b",
+            "}",
+            "var resultado = teste(1, 2)",
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        expect(linhasResultado).toHaveLength(5);
+        expect(linhasResultado[0]).toBe("função teste(a: inteiro, b: inteiro): inteiro {");
+    });
+
     it('Classes', () => {
         const resultadoLexador = lexador.mapear([
             `classe Teste {propriedade1: numero propriedade2: texto construtor(){isto.propriedade1=0 isto.propriedade2="123"}testeMetodo(argumento1: numero){isto.propriedade1=argumento1}}`,
