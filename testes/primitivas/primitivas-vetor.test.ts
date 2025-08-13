@@ -19,7 +19,8 @@ describe('Primitivas de vetor', () => {
 
     describe('adicionar()', () => {
         it('Trivial', async () => {
-            const resultado = await primitivasVetor.adicionar.implementacao(interpretador, '', [1, 2, 3], 4);
+            interpretador.pilhaEscoposExecucao.definirVariavel('meuVetor', [1, 2, 3]);
+            const resultado = await primitivasVetor.adicionar.implementacao(interpretador, 'meuVetor', [1, 2, 3], 4);
             expect(resultado).toStrictEqual([1, 2, 3, 4]);
         });
     });

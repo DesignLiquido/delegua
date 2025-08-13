@@ -2467,7 +2467,7 @@ export class AvaliadorSintatico
             }
         }
 
-        const tiposRetornos = new Set(expressoesRetorna.map((e) => e.tipo));
+        const tiposRetornos = new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
         let retornaChamadoExplicitamente = tiposRetornos.size > 0;
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce(

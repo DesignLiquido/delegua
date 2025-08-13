@@ -79,6 +79,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     classeAtual: any;
     cicloAtual: any;
     interfaceEntradaSaida: any = null;
+    hashArquivoDeclaracaoAtual: number;
+    linhaDeclaracaoAtual: number;
 
     diretorioBase: any;
     funcaoDeRetorno: Function;
