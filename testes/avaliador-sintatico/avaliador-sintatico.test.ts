@@ -866,6 +866,22 @@ describe('Avaliador sintático', () => {
         
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
+
+                it('Chamada a funcao nativa filtrarPor com função anônima', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeros = [5, 10, 15, 20]',
+                            'var numerosFiltrados = filtrarPor(numeros, funcao(numero) {',
+                            '    retorna numero > 10',
+                            '})',
+                            'escreva(numerosFiltrados)'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             })
 
             describe('Declarações de tuplas', () => {

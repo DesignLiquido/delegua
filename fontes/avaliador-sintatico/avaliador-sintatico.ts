@@ -778,7 +778,8 @@ export class AvaliadorSintatico
 
             const tipoArgumentoUtilizado =
                 argumentoUtilizado.tipo.startsWith('funcao') ||
-                argumentoUtilizado.tipo.startsWith('função')
+                argumentoUtilizado.tipo.startsWith('função') || 
+                argumentoUtilizado instanceof FuncaoConstruto
                     ? 'função'
                     : argumentoUtilizado.tipo;
             const tipoArgumentoEntidadeChamada =
