@@ -4,10 +4,8 @@ import {
     Continua,
     Declaracao,
     Enquanto,
-    Escolha,
     Escreva,
     Expressao,
-    Fazer,
     FuncaoDeclaracao,
     Importar,
     Para,
@@ -29,7 +27,9 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
+export abstract class AvaliadorSintaticoBase
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
+{
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -39,7 +39,17 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     protected consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
-        throw this.erro(this.simbolos[this.atual], mensagemDeErro);
+        let simboloErro: SimboloInterface = this.simbolos[this.atual];
+        if (this.simbolos.length === 0) {
+            simboloErro = {
+                hashArquivo: this.hashArquivo,
+                linha: 1,
+            } as SimboloInterface;
+        } else if (this.atual >= this.simbolos.length) {
+            simboloErro = this.simbolos[this.simbolos.length - 1];
+        }
+
+        throw this.erro(simboloErro, mensagemDeErro);
     }
 
     protected erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
@@ -48,6 +58,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     protected simboloAnterior(): SimboloInterface {
+        if (this.atual === 0) {
+            throw new Error('Este é o primeiro símbolo da sequência vinda do Lexador.');
+        }
+
         return this.simbolos[this.atual - 1];
     }
 
@@ -67,13 +81,6 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected avancarEDevolverAnterior(): SimboloInterface {
         if (!this.estaNoFinal()) this.atual += 1;
         return this.simbolos[this.atual - 1];
-    }
-
-    // TODO: Verificar possibilidade de remoção.
-    // Regressão de símbolo é uma roubada por N razões.
-    protected regredirEDevolverAtual(): SimboloInterface {
-        if (this.atual > 0) this.atual -= 1;
-        return this.simbolos[this.atual];
     }
 
     protected verificarSeSimboloAtualEIgualA(...argumentos: string[]): boolean {
@@ -103,9 +110,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected abstract chamar(): Construto;
     protected abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
     protected abstract declaracaoEnquanto(): Enquanto;
-    protected abstract declaracaoEscolha(): Escolha;
     protected abstract declaracaoEscreva(): Escreva;
-    protected abstract declaracaoFazer(): Fazer;
     protected abstract declaracaoPara(): Para | ParaCada;
     protected abstract declaracaoSe(): Se;
     protected abstract expressaoLeia(): Leia;
@@ -119,7 +124,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             do {
                 // `apply()` em JavaScript aceita até 255 parâmetros.
                 if (argumentos.length >= 255) {
-                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        'Não pode haver mais de 255 argumentos.'
+                    );
                 }
                 argumentos.push(this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -130,7 +138,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     protected unario(): Construto {
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new Unario(this.hashArquivo, operador, direito, 'ANTES');
@@ -173,7 +183,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected adicaoOuSubtracao(): Construto {
         let expressao = this.multiplicar();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)
+        ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -256,9 +268,13 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     protected funcao(tipo: string): FuncaoDeclaracao {
-        const simboloFuncao: SimboloInterface = this.avancarEDevolverAnterior();
+        // Avançar `função` ou `funcao`.
+        this.avancarEDevolverAnterior();
 
-        const nomeFuncao: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+        const nomeFuncao: SimboloInterface = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            `Esperado nome ${tipo}.`
+        );
         return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
 
@@ -267,7 +283,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
         do {
             if (parametros.length >= 255) {
-                throw this.erro(this.simbolos[this.atual], 'Função não pode ter mais de 255 parâmetros.');
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Função não pode ter mais de 255 parâmetros.'
+                );
             }
 
             const parametro: Partial<ParametroInterface> = {};
@@ -279,7 +298,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
                 parametro.abrangencia = 'padrao';
             }
 
-            parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+            parametro.nome = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome do parâmetro.'
+            );
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 parametro.valorPadrao = this.primario();
@@ -356,6 +378,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
      * avaliador sintático deve implementar o seu método.
      * @param retornoLexador O retorno do Lexador.
      * @param hashArquivo O hash do arquivo, gerado pela função `cyrb53`.
+     * @see cyrb53
      */
     abstract analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,

@@ -8,7 +8,9 @@ import { Directive, ModuleDeclaration, Statement } from 'estree';
  * Este lexador existe apenas para abstrair o Esprima em
  * outras dependências, como `delegua-node`.
  */
-export class LexadorJavaScript implements LexadorInterface<Statement | Directive | ModuleDeclaration> {
+export class LexadorJavaScript
+    implements LexadorInterface<Statement | Directive | ModuleDeclaration>
+{
     simbolos: SimboloInterface[];
     codigo: string | string[];
     inicioSimbolo: number;
@@ -67,7 +69,10 @@ export class LexadorJavaScript implements LexadorInterface<Statement | Directive
         throw new Error('Método não implementado.');
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador<Statement | Directive | ModuleDeclaration> {
+    mapear(
+        codigo: string[],
+        hashArquivo: number
+    ): RetornoLexador<Statement | Directive | ModuleDeclaration> {
         const programaEsprima = parseScript(codigo.join('\n'));
         return {
             simbolos: programaEsprima.body,

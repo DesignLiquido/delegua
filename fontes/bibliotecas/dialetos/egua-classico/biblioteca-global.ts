@@ -19,26 +19,46 @@ export default function (interpreter, globals) {
             const valorMinimoResolvido = min.hasOwnProperty('valor') ? min.valor : min;
             const valorMaximoResolvido = max.hasOwnProperty('valor') ? max.valor : max;
             if (!arguments[0]) {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'A função recebe ao menos um parâmetro'
+                );
             }
 
             if (arguments.length === 1) {
                 if (typeof valorMinimoResolvido !== 'number') {
-                    throw new ErroEmTempoDeExecucao(this.simbolo, 'O parâmetro deve ser do tipo número');
+                    throw new ErroEmTempoDeExecucao(
+                        this.simbolo,
+                        'O parâmetro deve ser do tipo número'
+                    );
                 }
 
-                return Math.floor(Math.random() * (0 - valorMinimoResolvido)) + valorMinimoResolvido;
+                return (
+                    Math.floor(Math.random() * (0 - valorMinimoResolvido)) + valorMinimoResolvido
+                );
             }
 
             if (arguments.length > 2) {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'A quantidade de argumentos máxima é 2');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'A quantidade de argumentos máxima é 2'
+                );
             }
 
-            if (typeof valorMinimoResolvido !== 'number' || typeof valorMaximoResolvido !== 'number') {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.');
+            if (
+                typeof valorMinimoResolvido !== 'number' ||
+                typeof valorMaximoResolvido !== 'number'
+            ) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Os dois parâmetros devem ser do tipo número.'
+                );
             }
 
-            return Math.floor(Math.random() * (valorMaximoResolvido - valorMinimoResolvido)) + valorMinimoResolvido;
+            return (
+                Math.floor(Math.random() * (valorMaximoResolvido - valorMinimoResolvido)) +
+                valorMinimoResolvido
+            );
         })
     );
 
@@ -47,11 +67,17 @@ export default function (interpreter, globals) {
         new FuncaoPadrao(1, function (value) {
             const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
             if (valorResolvido === undefined || valorResolvido === null) {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para inteiro.');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Somente números podem passar para inteiro.'
+                );
             }
 
             if (!/^-{0,1}\d+$/.test(valorResolvido) && !/^\d+\.\d+$/.test(valorResolvido)) {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para inteiro.');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Somente números podem passar para inteiro.'
+                );
             }
 
             return parseInt(valorResolvido);
@@ -351,7 +377,10 @@ export default function (interpreter, globals) {
         'ordenar',
         new FuncaoPadrao(1, function (obj) {
             if (Array.isArray(obj) == false) {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'Valor Inválido. Objeto inserido não é um vetor.');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Valor Inválido. Objeto inserido não é um vetor.'
+                );
             }
 
             let trocado;
@@ -374,7 +403,10 @@ export default function (interpreter, globals) {
         new FuncaoPadrao(1, function (value) {
             const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
             if (!/^-{0,1}\d+$/.test(valorResolvido) && !/^\d+\.\d+$/.test(valorResolvido))
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'Somente números podem passar para real.');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Somente números podem passar para real.'
+                );
             return parseFloat(valorResolvido);
         })
     );
@@ -383,7 +415,10 @@ export default function (interpreter, globals) {
         'tamanho',
         new FuncaoPadrao(1, function (obj) {
             if (!isNaN(obj)) {
-                throw new ErroEmTempoDeExecucao(this.simbolo, 'Não é possível encontrar o tamanho de um número.');
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Não é possível encontrar o tamanho de um número.'
+                );
             }
 
             if (obj instanceof DeleguaFuncao) {

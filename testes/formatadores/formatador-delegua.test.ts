@@ -9,6 +9,22 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
+    it('Unários', () => {
+        const resultadoLexador = lexador.mapear(
+            ["3 ** 4 - 9 (10 * -1 - -2)"], 
+            -1
+        );
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+        expect(linhasResultado).toHaveLength(3);
+        expect(linhasResultado[0]).toBe("3 ** 4 - 9(10 * -1");
+        expect(linhasResultado[1]).toBe(" - -2");
+        expect(linhasResultado[2]).toBe(")");
+    })
+
     it('Atribuição por índice', () => {
         const resultadoLexador = lexador.mapear(
             ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
@@ -33,6 +49,22 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(7);
+    });
+
+    it('Funções', () => {
+        const resultadoLexador = lexador.mapear([
+            "funcao teste(a: inteiro, b: inteiro): inteiro {",
+            "    retorna a + b",
+            "}",
+            "var resultado = teste(1, 2)",
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(sistemaOperacional.EOL);
+        
+        expect(linhasResultado).toHaveLength(5);
+        expect(linhasResultado[0]).toBe("função teste(a: inteiro, b: inteiro): inteiro {");
     });
 
     it('Classes', () => {
@@ -375,7 +407,47 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        console.log(resultado);
+        // console.log(resultado);
         expect(linhasResultado).toHaveLength(4);
+    });
+
+    describe("Exemplos", () => {
+        it('Fibonacci', async () => {
+            const codigo = [
+                "função fibonacci(n) {",
+                "    se (n == 0) {",
+                "      retorna(0);",
+                "    }",
+                "    se (n == 1) {",
+                "      retorna(1);",
+                "    }",
+                "    var n1 = n - 1;",
+                "    var n2 = n - 2;",
+                "    var f1 = fibonacci(n1);",
+                "    var f2 = fibonacci(n2);",
+                "    retorna(f1 + f2);",
+                "}",
+                "var a = fibonacci(0);",
+                "escreva(a);",
+                "a = fibonacci(1);",
+                "escreva(a);",
+                "a = fibonacci(2);",
+                "escreva(a);",
+                "a = fibonacci(3);",
+                "escreva(a);",
+                "a = fibonacci(4);",
+                "escreva(a);",
+                "a = fibonacci(5);",
+                "escreva(a);"
+            ];
+            
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            // console.log(resultado);
+            expect(linhasResultado).toHaveLength(26);
+        });
     });
 });

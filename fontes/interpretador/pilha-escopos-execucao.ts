@@ -1,4 +1,4 @@
-import { DescritorTipoClasse, DeleguaFuncao } from './estruturas';
+import { DescritorTipoClasse, DeleguaFuncao, ReferenciaMontao } from './estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
@@ -59,7 +59,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     definirConstante(nomeConstante: string, valor: any, tipo?: string): void {
-        const constante = this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante];
+        const constante = this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeConstante];
 
         let tipoConstante;
         if (constante && constante.hasOwnProperty('tipo')) {
@@ -90,11 +90,11 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             (elementoAlvo.subtipo as any) = subtipo;
         }
 
-        this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante] = elementoAlvo;
+        this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeConstante] = elementoAlvo;
     }
 
     definirVariavel(nomeVariavel: string, valor: any, tipo?: string) {
-        const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
+        const variavel = this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeVariavel];
 
         let tipoVariavel;
         if (variavel && variavel.hasOwnProperty('tipo')) {
@@ -127,15 +127,18 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             (elementoAlvo.subtipo as any) = subtipo;
         }
 
-        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = elementoAlvo;
+        this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeVariavel] = elementoAlvo;
     }
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
-        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
-        if (ambienteAncestral.valores[simbolo.lexema].imutavel) {
-            throw new ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
+        const espacoMemoriaAncestral = this.pilha[this.pilha.length - distancia].espacoMemoria;
+        if (espacoMemoriaAncestral.valores[simbolo.lexema].imutavel) {
+            throw new ErroEmTempoDeExecucao(
+                simbolo,
+                `Constante '${simbolo.lexema}' não pode receber novos valores.`
+            );
         }
-        ambienteAncestral.valores[simbolo.lexema] = {
+        espacoMemoriaAncestral.valores[simbolo.lexema] = {
             valor,
             tipo: inferirTipoVariavel(valor),
             imutavel: false,
@@ -144,9 +147,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     atribuirVariavel(simbolo: SimboloInterface, valor: any, indice?: number) {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
-            if (ambiente.valores[simbolo.lexema] !== undefined) {
-                const variavel = ambiente.valores[simbolo.lexema];
+            const espacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria;
+            if (espacoMemoria.valores[simbolo.lexema] !== undefined) {
+                const variavel = espacoMemoria.valores[simbolo.lexema];
                 if (variavel.imutavel) {
                     throw new ErroEmTempoDeExecucao(
                         simbolo,
@@ -163,13 +166,17 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 const valorResolvido = this.converterValor(tipo, valor);
 
                 if (indice !== undefined && indice !== null) {
-                    if (variavel.valor instanceof Array || variavel.valor instanceof Object) {
-                        variavel.valor[indice] = valorResolvido;
+                    let variavelValor = variavel.valor;
+                    if (variavelValor instanceof Array || variavelValor instanceof Object) {
+                        variavelValor[indice] = valorResolvido;
                     } else {
-                        throw new ErroEmTempoDeExecucao(simbolo, 'Variável não é um vetor ou dicionário.');
+                        throw new ErroEmTempoDeExecucao(
+                            simbolo,
+                            'Variável não é um vetor ou dicionário.'
+                        );
                     }
                 } else {
-                    ambiente.valores[simbolo.lexema] = {
+                    espacoMemoria.valores[simbolo.lexema] = {
                         valor: valorResolvido,
                         tipo,
                         imutavel: false,
@@ -195,24 +202,27 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     obterVariavelEm(distancia: number, nome: string): VariavelInterface {
-        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
+        const ambienteAncestral = this.pilha[this.pilha.length - distancia].espacoMemoria;
         return ambienteAncestral.valores[nome];
     }
 
     obterValorVariavel(simbolo: SimboloInterface): VariavelInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+            const ambiente = this.pilha[this.pilha.length - i].espacoMemoria;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 return ambiente.valores[simbolo.lexema];
             }
         }
 
-        throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida: '" + simbolo.lexema + "'.");
+        throw new ErroEmTempoDeExecucao(
+            simbolo,
+            "Variável não definida: '" + simbolo.lexema + "'."
+        );
     }
 
     obterVariavelPorNome(nome: string): VariavelInterface {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+            const ambiente = this.pilha[this.pilha.length - i].espacoMemoria;
             if (ambiente.valores[nome] !== undefined) {
                 return ambiente.valores[nome];
             }
@@ -229,14 +239,16 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      */
     obterTodasVariaveis(todasVariaveis: VariavelInterface[] = []): any[] {
         for (let i = 1; i <= this.pilha.length - 1; i++) {
-            const valoresAmbiente = this.pilha[this.pilha.length - i].ambiente.valores;
+            const valoresEspacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria.valores;
 
-            const vetorObjeto: VariavelInterface[] = Object.entries(valoresAmbiente).map((chaveEValor, indice) => ({
-                nome: chaveEValor[0],
-                valor: chaveEValor[1].valor,
-                tipo: chaveEValor[1].tipo,
-                imutavel: chaveEValor[1].imutavel,
-            }));
+            const vetorObjeto: VariavelInterface[] = Object.entries(valoresEspacoMemoria).map(
+                (chaveEValor, indice) => ({
+                    nome: chaveEValor[0],
+                    valor: chaveEValor[1].valor,
+                    tipo: chaveEValor[1].tipo,
+                    imutavel: chaveEValor[1].imutavel,
+                })
+            );
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }
 
@@ -249,8 +261,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      */
     obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao } {
         const retorno = {};
-        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
-        for (const [nome, corpo] of Object.entries(ambiente.valores)) {
+        const espacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
+        for (const [nome, corpo] of Object.entries(espacoMemoria.valores)) {
             const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
             if (corpoValor instanceof DeleguaFuncao) {
                 retorno[nome] = corpoValor;
@@ -266,7 +278,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
      */
     obterTodasDeclaracoesClasse(): any {
         const retorno = {};
-        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
+        const ambiente = this.pilha[this.pilha.length - 1].espacoMemoria;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
             const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
             if (corpoValor instanceof DescritorTipoClasse) {
@@ -278,15 +290,15 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     registrarReferenciaFuncao(idFuncao: string, funcao: DeleguaFuncao): void {
-        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
-        ambiente.referencias[idFuncao] = funcao;
+        const espacoMemoriaAtual = this.pilha[this.pilha.length - 1].espacoMemoria;
+        espacoMemoriaAtual.referenciasFuncoes[idFuncao] = funcao;
     }
 
     obterReferenciaFuncao(idFuncao: string): DeleguaFuncao {
         for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
-            if (ambiente.referencias[idFuncao] !== undefined) {
-                return ambiente.referencias[idFuncao];
+            const espacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria;
+            if (espacoMemoria.referenciasFuncoes[idFuncao] !== undefined) {
+                return espacoMemoria.referenciasFuncoes[idFuncao];
             }
         }
 
@@ -294,5 +306,27 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             new Simbolo('especial', idFuncao, idFuncao, -1, -1),
             "Referência para função não encontrada: '" + idFuncao + "'."
         );
+    }
+
+    registrarReferenciaMontao(endereco: string) {
+        const espacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
+        espacoMemoria.enderecosMontao.add(endereco);
+    }
+
+    migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel: string, enderecoMontao: string) {
+        // TODO: Normalmente uma referência a ser migrada está sempre no último escopo.
+        // Conferir se é sempre este o caso.
+        const ultimoEspacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
+        ultimoEspacoMemoria.enderecosMontao.delete(enderecoMontao);
+
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const espacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria;
+            if (espacoMemoria.valores[nomeVariavel] !== undefined) {
+                espacoMemoria.enderecosMontao.add(enderecoMontao);
+                break;
+            }
+        }
+
+        // TODO: Devemos emitir erro em algum momento?
     }
 }

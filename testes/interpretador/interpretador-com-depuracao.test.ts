@@ -1,11 +1,16 @@
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
-import { InterpretadorComDepuracao } from "../../fontes/interpretador";
+import { InterpretadorComDepuracao } from "../../fontes/interpretador/depuracao";
 import { Lexador } from "../../fontes/lexador";
 
 describe('Interpretador com Depuração', () => {
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
     let interpretador: InterpretadorComDepuracao;
+
+    let _saidas: string[] = [];
+    const funcaoSaida = (texto: string) => {
+        _saidas.push(texto);
+    }
 
     describe('interpretar()', () => {
         beforeEach(() => {
@@ -15,10 +20,11 @@ describe('Interpretador com Depuração', () => {
 
         describe('Sem pontos de parada', () => {
             beforeEach(() => {
+                _saidas = [];
                 interpretador = new InterpretadorComDepuracao(
                     process.cwd(),
-                    console.log,
-                    process.stdout.write.bind(process.stdout)
+                    funcaoSaida,
+                    funcaoSaida
                 );
             });
 
@@ -46,10 +52,11 @@ describe('Interpretador com Depuração', () => {
 
         describe('Com pontos de parada', () => {
             beforeEach(() => {
+                _saidas = [];
                 interpretador = new InterpretadorComDepuracao(
                     process.cwd(),
-                    console.log,
-                    process.stdout.write.bind(process.stdout)
+                    funcaoSaida,
+                    funcaoSaida
                 );
             });
 

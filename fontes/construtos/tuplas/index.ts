@@ -37,7 +37,13 @@ export class SeletorTuplas {
             case 4:
                 return new Quarteto(argumentos[0], argumentos[1], argumentos[2], argumentos[3]);
             case 5:
-                return new Quinteto(argumentos[0], argumentos[1], argumentos[2], argumentos[3], argumentos[4]);
+                return new Quinteto(
+                    argumentos[0],
+                    argumentos[1],
+                    argumentos[2],
+                    argumentos[3],
+                    argumentos[4]
+                );
             case 6:
                 return new Sexteto(
                     argumentos[0],

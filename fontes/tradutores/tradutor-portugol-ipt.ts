@@ -31,7 +31,9 @@ export class TradutorPortugolIpt {
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
+            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
+                argumento.expressao
+            );
             resultado += valor + ', ';
         }
 
@@ -43,7 +45,9 @@ export class TradutorPortugolIpt {
     traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
+            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
+                argumento.expressao
+            );
             resultado += valor + ', ';
         }
 

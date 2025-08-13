@@ -1,5 +1,5 @@
 import { Chamavel } from './chamavel';
-import { EspacoVariaveis } from '../../espaco-variaveis';
+import { EspacoMemoria } from '../espaco-memoria';
 
 import { InterpretadorInterface } from '../../interfaces';
 import { RetornoQuebra } from '../../quebras';
@@ -80,20 +80,25 @@ export class DeleguaFuncao extends Chamavel {
         return this.paraTexto();
     }
 
-    private resolverParametrosEspalhados(argumentos: Array<ArgumentoInterface>, indiceArgumentoAtual: number) {
+    private resolverParametrosEspalhados(
+        argumentos: Array<ArgumentoInterface>,
+        indiceArgumentoAtual: number
+    ) {
         const argumentosResolvidos = [];
         for (let i = indiceArgumentoAtual; i < argumentos.length; i++) {
             const argumentoAtual = argumentos[i];
             argumentosResolvidos.push(
-                argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual
+                argumentoAtual && argumentoAtual.hasOwnProperty('valor')
+                    ? argumentoAtual.valor
+                    : argumentoAtual
             );
         }
 
         return argumentosResolvidos;
     }
 
-    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoVariaveis {
-        const ambiente = new EspacoVariaveis();
+    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoMemoria {
+        const ambiente = new EspacoMemoria();
         const parametros = this.declaracao.parametros || [];
 
         for (let i = 0; i < parametros.length; i++) {
@@ -104,14 +109,19 @@ export class DeleguaFuncao extends Chamavel {
                 const argumentosResolvidos = this.resolverParametrosEspalhados(argumentos, i);
 
                 // TODO: Verificar se `imutavel` é `true` aqui mesmo.
-                ambiente.valores[nome] = { tipo: 'vetor', valor: argumentosResolvidos, imutavel: true };
+                ambiente.valores[nome] = {
+                    tipo: 'vetor',
+                    valor: argumentosResolvidos,
+                    imutavel: true,
+                };
             } else {
                 let argumento = argumentos[i];
                 if (argumento.valor === null) {
                     argumentos[i].valor = parametro['padrao'] ? parametro['padrao'].valor : null;
                 }
 
-                ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+                ambiente.valores[nome] =
+                    argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
 
                 // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_,
                 // copiamos seu valor para o escopo atual. Nem sempre podemos contar com a tipagem explícita aqui.
@@ -124,7 +134,10 @@ export class DeleguaFuncao extends Chamavel {
         return ambiente;
     }
 
-    async chamar(visitante: InterpretadorInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
+    async chamar(
+        visitante: InterpretadorInterface,
+        argumentos: Array<ArgumentoInterface>
+    ): Promise<any> {
         const ambiente = this.resolverAmbiente(argumentos);
 
         if (this.instancia !== undefined) {
@@ -133,25 +146,16 @@ export class DeleguaFuncao extends Chamavel {
                 tipo: 'objeto',
                 imutavel: false,
             };
-
-            // TODO: Apenass Potigol usa isso até então.
-            // Estudar mover isso para o dialeto.
-            if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis && this.nome !== 'construtor') {
-                for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.propriedades)) {
-                    ambiente.valores[nomeCampo] = {
-                        valor: valorCampo,
-                        tipo: inferirTipoVariavel(valorCampo as any),
-                        imutavel: false,
-                    };
-                }
-            }
         }
 
         // TODO: Repensar essa dinâmica para análise semântica (levar toda a lógica abaixo para
         // o interpretador).
         const interpretador = visitante as any;
         interpretador.proximoEscopo = 'funcao';
-        const retornoBloco: any = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
+        const retornoBloco: any = await interpretador.executarBloco(
+            this.declaracao.corpo,
+            ambiente
+        );
 
         const referencias = this.declaracao.parametros
             .map((p, indice) => {

@@ -13,15 +13,22 @@ describe('Primitivas de número', () => {
 
     describe('arredondarParaBaixo()', () => {
         it('Trivial', async () => {
-            const resultado = await primitivasNumero.arredondarParaBaixo.implementacao(interpretador, 5.7);
+            const resultado = await primitivasNumero.arredondarParaBaixo.implementacao(interpretador, '', 5.7);
             expect(resultado).toStrictEqual(5);
         });
     });
 
     describe('arredondarParaCima()', () => {
         it('Trivial', async () => {
-            const resultado = await primitivasNumero.arredondarParaCima.implementacao(interpretador, 2.5);
+            const resultado = await primitivasNumero.arredondarParaCima.implementacao(interpretador, '', 2.5);
             expect(resultado).toStrictEqual(3);
+        });
+    });
+
+    describe('absoluto()', () => {
+        it('Trivial', async () => {
+            const resultado = await primitivasNumero.absoluto.implementacao(interpretador, '', -5);
+            expect(resultado).toStrictEqual(5);
         });
     });
 });

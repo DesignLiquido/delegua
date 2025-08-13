@@ -198,7 +198,8 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         ) {
             this.visitarExpressaoBinaria(expressao.valor);
         } else {
-            this.codigoFormatado += `${this.formatarDeclaracaoOuConstruto(expressao.alvo)} = `;
+            this.formatarDeclaracaoOuConstruto(expressao.alvo);
+            this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(expressao.valor);
         }
 
@@ -319,7 +320,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.variavelIteracao} de `;
         this.formatarDeclaracaoOuConstruto(declaracao.vetor);
         this.visitarExpressaoBloco(declaracao.corpo);
     }
@@ -607,7 +608,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
 
-        this.codigoFormatado += `) `;
+        this.codigoFormatado += `)`;
+        if (expressao.tipoExplicito && expressao.tipo) {
+            this.codigoFormatado += `: ${expressao.tipo}`;
+        }
+
+        this.codigoFormatado += ' ';
         this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
     }
 
@@ -696,6 +702,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case tiposDeSimbolos.DECREMENTAR:
                 operador = `--`;
                 break;
+            case tiposDeSimbolos.NEGACAO:
+                operador = `!`;
+                break;
+            case tiposDeSimbolos.SUBTRACAO:
+                operador = `-`;
+                break;
         }
 
         switch (expressao.incidenciaOperador) {
@@ -731,19 +743,27 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
         switch (declaracaoOuConstruto.constructor.name) {
             case 'AcessoIndiceVariavel':
-                this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
+                this.visitarExpressaoAcessoIndiceVariavel(
+                    declaracaoOuConstruto as AcessoIndiceVariavel
+                );
                 break;
             case 'AcessoMetodoOuPropriedade':
-                this.visitarExpressaoAcessoMetodoOuPropriedade(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                this.visitarExpressaoAcessoMetodoOuPropriedade(
+                    declaracaoOuConstruto as AcessoMetodoOuPropriedade
+                );
                 break;
             case 'Agrupamento':
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
                 break;
             case 'ArgumentoReferenciaFuncao':
-                this.visitarExpressaoArgumentoReferenciaFuncao(declaracaoOuConstruto as ArgumentoReferenciaFuncao);
+                this.visitarExpressaoArgumentoReferenciaFuncao(
+                    declaracaoOuConstruto as ArgumentoReferenciaFuncao
+                );
                 break;
             case 'AtribuicaoPorIndice':
-                this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
+                this.visitarExpressaoAtribuicaoPorIndice(
+                    declaracaoOuConstruto as AtribuicaoPorIndice
+                );
                 break;
             case 'Atribuir':
                 this.visitarExpressaoDeAtribuicao(declaracaoOuConstruto as Atribuir);

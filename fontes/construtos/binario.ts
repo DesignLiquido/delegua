@@ -48,7 +48,10 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
     }
 
     protected deduzirTipo(): string {
-        if (['logico', 'lógico'].includes(this.esquerda.tipo) || ['logico', 'lógico'].includes(this.direita.tipo)) {
+        if (
+            ['logico', 'lógico'].includes(this.esquerda.tipo) ||
+            ['logico', 'lógico'].includes(this.direita.tipo)
+        ) {
             return 'lógico';
         }
 
@@ -60,7 +63,10 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
             return 'inteiro';
         }
 
-        if (['numero', 'número'].includes(this.esquerda.tipo) || ['numero', 'número'].includes(this.direita.tipo)) {
+        if (
+            ['numero', 'número'].includes(this.esquerda.tipo) ||
+            ['numero', 'número'].includes(this.direita.tipo)
+        ) {
             return 'número';
         }
 

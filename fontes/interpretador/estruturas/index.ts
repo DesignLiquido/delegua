@@ -7,3 +7,4 @@ export * from './metodo-primitiva';
 export * from './modulo';
 export * from './objeto-delegua-classe';
 export * from './objeto-padrao';
+export * from './referencia-montao';

@@ -290,6 +290,63 @@ describe('Avaliador sintático', () => {
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
                     expect(declaracao.constructor.name).toBe('ParaCada');
                 });
+
+                it('Para cada com vetor variável', () => {
+                    const retornoLexador = lexador.mapear([
+                        'var mochila = [',
+                        '    "fruta",',
+                        '    "ovo de Icelope", ',
+                        '    "amêndua",',
+                        '    "cristal", ',
+                        '    "pirita", ',
+                        '    "bastão laser quebrado", ',
+                        '    "fóssil de urso anão",',
+                        '    "meteorito congelado",',
+                        '    [9, 4, 20, 37, 12, 1, 2, 1]',
+                        ']',
+                        'para cada item em mochila {',
+                        '    se (item == "ovo de Icelope") {',
+                        '        escreva(item)',
+                        '    }',
+                        '}'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Para cada com para tradicional aninhado', () => {
+                    const retornoLexador = lexador.mapear([
+                        'var mochila = [',
+                        '    "fruta",',
+                        '    "ovo de Icelope", ',
+                        '    "amêndua",',
+                        '    "cristal", ',
+                        '    "pirita", ',
+                        '    "bastão laser quebrado", ',
+                        '    "fóssil de urso anão",',
+                        '    "meteorito congelado",',
+                        '    [9, 4, 20, 37, 12, 1, 2, 1]',
+                        ']',
+                        'var ovos = []',
+                        'para cada item em mochila {',
+                        '    se (item == "ovo de Icelope") {',
+                        '        var quantidadeDeOvos = mochila[-1][1];',
+                        '        para (var i = 0; i < quantidadeDeOvos; i++) {',
+                        '            ovos.adicionar(item);',
+                        '        }',
+                        '    }',
+                        '}',
+                        'escreva(ovos)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
             });            
 
             it('Para/sustar', async () => {
@@ -591,6 +648,29 @@ describe('Avaliador sintático', () => {
                 });
             });
 
+            describe('Declaração se ... senão se ... senão', () => {
+                it('Caso com os três blocos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao achePlaneta(coordenadas) {',
+                            '    se (coordenadas == "x:20;y:10") {',
+                            '        retorna "Planeta Xalax"',
+                            '    } senao se (coordenadas == "x:42;y:84") {',
+                            '        retorna "Planeta Haskell"',
+                            '    } senao {',
+                            '        retorna "Planeta Kyron"',
+                            '    }',
+                            '}',
+                            "escreva('O ${achePlaneta(\"x:42;y:84\")} é para onde temos que ir!')"
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                });
+            });
+
             describe('Declaração `tendo ... como`', () => {
                 it('Trivial', () => {
                     const retornoLexador = lexador.mapear(
@@ -736,6 +816,72 @@ describe('Avaliador sintático', () => {
         
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
+
+                it('Chamada a funcao nativa mapear com função anônima, tipagem implícita', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var funcaoParaMapear = função(a) {',
+                            '    retorna a * 2;',
+                            '};',
+                            'escreva(mapear([5, 3], funcaoParaMapear));',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Chamada a funcao nativa mapear com função anônima, parâmetros do tipo qualquer', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao funcaoTestaMap(lista) {',
+                            '    retorna mapear(',
+                            '        lista,',
+                            '        funcao(valor) {',
+                            '            retorna valor',
+                            '        })',
+                            '}',
+                            'escreva(funcaoTestaMap([1, 2, 3, 4]))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Chamada a funcao nativa filtrarPor com função nomeada', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var listaDeIdades = [91, 32, 15, 44, 12, 18, 101]',
+                            'funcao checarIdade(idade) {',
+                            '    retorna(idade >= 18)',
+                            '}',
+                            'escreva(filtrarPor(listaDeIdades, checarIdade))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Chamada a funcao nativa filtrarPor com função anônima', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeros = [5, 10, 15, 20]',
+                            'var numerosFiltrados = filtrarPor(numeros, funcao(numero) {',
+                            '    retorna numero > 10',
+                            '})',
+                            'escreva(numerosFiltrados)'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             })
 
             describe('Declarações de tuplas', () => {
@@ -832,6 +978,12 @@ describe('Avaliador sintático', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
+                    "Variável não definida: 'oi'."
+                );
             });
 
             it('Declaração de variáveis com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
@@ -839,7 +991,10 @@ describe('Avaliador sintático', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             });
@@ -849,7 +1004,10 @@ describe('Avaliador sintático', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             });
@@ -917,7 +1075,10 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                    const erro = retornoAvaliadorSintatico.erros[0];
+                    expect(erro.hashArquivo).toBeDefined();
+                    expect(erro.linha).toBeDefined();
+                    expect(erro.message).toBe(
                         "'continua' precisa estar em um laço de repetição."
                     );
                 });

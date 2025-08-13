@@ -102,7 +102,10 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
     eFinalDoCodigo(): boolean {
         if (this.linha > this.codigo.length - 1) return true;
-        return this.linha == this.codigo.length - 1 && this.codigo[this.codigo.length - 1].length <= this.atual;
+        return (
+            this.linha == this.codigo.length - 1 &&
+            this.codigo[this.codigo.length - 1].length <= this.atual
+        );
     }
 
     avancar(): void {
@@ -111,7 +114,6 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
-            // this.logicaEmLinhaIniciada = false;
             this.analisarIndentacao();
         }
     }
@@ -199,14 +201,20 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
     identificarPalavraChave(): void {
         const linhaPrimeiroCaracter: number = this.linha;
-        while (this.eAlfabetoOuDigito(this.simboloAtual()) && this.linha === linhaPrimeiroCaracter) {
+        while (
+            this.eAlfabetoOuDigito(this.simboloAtual()) &&
+            this.linha === linhaPrimeiroCaracter
+        ) {
             this.avancar();
         }
 
         let textoPalavraChave: string;
         if (linhaPrimeiroCaracter < this.linha) {
             const linhaPalavraChave: string = this.codigo[linhaPrimeiroCaracter];
-            textoPalavraChave = linhaPalavraChave.substring(this.inicioSimbolo, linhaPalavraChave.length);
+            textoPalavraChave = linhaPalavraChave.substring(
+                this.inicioSimbolo,
+                linhaPalavraChave.length
+            );
         } else {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
@@ -216,7 +224,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 ? palavrasReservadas[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
-        this.simbolos.push(new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo)
+        );
     }
 
     analisarIndentacao(): void {
@@ -358,12 +368,13 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE, '!=');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
                 }
 
+                break;
             case '&':
                 this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
                 this.avancar();
@@ -458,7 +469,10 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
+            // eslint-disable-next-line no-undef
+            console.log(
+                `[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`
+            );
         }
 
         return {

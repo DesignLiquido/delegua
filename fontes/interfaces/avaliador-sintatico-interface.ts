@@ -9,5 +9,8 @@ export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
     atual: number;
     blocos: number;
 
-    analisar(retornoLexador: RetornoLexador<TSimbolo>, hashArquivo: number): RetornoAvaliadorSintatico<TDeclaracao>;
+    analisar(
+        retornoLexador: RetornoLexador<TSimbolo>,
+        hashArquivo: number
+    ): RetornoAvaliadorSintatico<TDeclaracao>;
 }

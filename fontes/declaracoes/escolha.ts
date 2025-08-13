@@ -11,7 +11,11 @@ export class Escolha extends Declaracao {
     caminhos: CaminhoEscolha[];
     caminhoPadrao: CaminhoEscolha;
 
-    constructor(identificadorOuLiteral: Construto, caminhos: CaminhoEscolha[], caminhoPadrao: CaminhoEscolha) {
+    constructor(
+        identificadorOuLiteral: Construto,
+        caminhos: CaminhoEscolha[],
+        caminhoPadrao: CaminhoEscolha
+    ) {
         super(identificadorOuLiteral.linha, identificadorOuLiteral.hashArquivo);
         this.identificadorOuLiteral = identificadorOuLiteral;
         this.caminhos = caminhos;

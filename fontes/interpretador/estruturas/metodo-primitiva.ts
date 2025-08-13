@@ -12,18 +12,20 @@ import { Chamavel } from './chamavel';
  * primeiro parâmetro é sempre a referência para a primitiva.
  */
 export class MetodoPrimitiva extends Chamavel {
+    nome: string;
     primitiva: any;
     metodo: Function;
 
-    constructor(primitiva: any, metodo: Function) {
+    constructor(nome: string, primitiva: any, metodo: Function) {
         super();
+        this.nome = nome;
         this.primitiva = primitiva;
         this.metodo = metodo;
         this.valorAridade = metodo.length - 1;
     }
 
     async chamar(interpretador: InterpretadorInterface, argumentos: any[] = []): Promise<any> {
-        return await this.metodo(interpretador, this.primitiva, ...argumentos);
+        return await this.metodo(interpretador, this.nome, this.primitiva, ...argumentos);
     }
 
     /**

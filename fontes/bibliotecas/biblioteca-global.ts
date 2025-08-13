@@ -2,10 +2,22 @@ import { ErroEmTempoDeExecucao } from '../excecoes';
 import { ObjetoDeleguaClasse } from '../interpretador/estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../interpretador/estruturas/funcao-padrao';
 import { DescritorTipoClasse } from '../interpretador/estruturas/descritor-tipo-classe';
-import { VariavelInterface } from '../interfaces';
+import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { InterpretadorInterface } from '../interfaces';
 import { DeleguaFuncao } from '../interpretador/estruturas';
-import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, Septeto, Sexteto, Trio, Tupla } from '../construtos';
+import {
+    Deceto,
+    Dupla,
+    Noneto,
+    Octeto,
+    Quarteto,
+    Quinteto,
+    Septeto,
+    Sexteto,
+    Trio,
+    Tupla,
+} from '../construtos';
+import { Simbolo } from '../lexador';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -27,16 +39,27 @@ export async function aleatorioEntre(
     minimo: VariavelInterface | number,
     maximo: VariavelInterface | number
 ): Promise<number> {
-     
     if (arguments.length <= 0) {
-        return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.'));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao({ 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface, 'A função recebe ao menos um parâmetro.')
+        );
     }
 
-    const valorMinimo = minimo.hasOwnProperty('valor') ? (minimo as VariavelInterface).valor : minimo;
+    const valorMinimo = minimo.hasOwnProperty('valor')
+        ? (minimo as VariavelInterface).valor
+        : minimo;
 
     if (arguments.length === 2) {
         if (typeof valorMinimo !== 'number') {
-            return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'O parâmetro deve ser um número.'));
+            return Promise.reject(
+                new ErroEmTempoDeExecucao({ 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface, 'O parâmetro deve ser um número.')
+            );
         }
 
         return Math.floor(Math.random() * (0 - valorMinimo)) + valorMinimo;
@@ -44,14 +67,27 @@ export async function aleatorioEntre(
 
     if (arguments.length > 3) {
         return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'A quantidade de parâmetros máxima para esta função é 2.')
+            new ErroEmTempoDeExecucao(
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
+                'A quantidade de parâmetros máxima para esta função é 2.'
+            )
         );
     }
 
-    const valorMaximo = maximo.hasOwnProperty('valor') ? (maximo as VariavelInterface).valor : maximo;
+    const valorMaximo = maximo.hasOwnProperty('valor')
+        ? (maximo as VariavelInterface).valor
+        : maximo;
 
     if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
-        return Promise.reject(new ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.'));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao({ 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface, 'Os dois parâmetros devem ser do tipo número.')
+        );
     }
 
     return Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) + valorMinimo);
@@ -71,12 +107,17 @@ export async function algum(
 ): Promise<boolean> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
+    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
+        ? funcaoPesquisa.valor
+        : funcaoPesquisa;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -85,7 +126,10 @@ export async function algum(
     if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
             )
         );
@@ -115,12 +159,17 @@ export async function encontrar(
 ): Promise<any> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
+    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
+        ? funcaoPesquisa.valor
+        : funcaoPesquisa;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -129,7 +178,10 @@ export async function encontrar(
     if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
             )
         );
@@ -159,12 +211,17 @@ export async function encontrarIndice(
 ): Promise<number> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
+    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
+        ? funcaoPesquisa.valor
+        : funcaoPesquisa;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -173,7 +230,10 @@ export async function encontrarIndice(
     if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
             )
         );
@@ -203,12 +263,17 @@ export async function encontrarUltimo(
 ): Promise<any> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
+    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
+        ? funcaoPesquisa.valor
+        : funcaoPesquisa;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -217,7 +282,10 @@ export async function encontrarUltimo(
     if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
             )
         );
@@ -246,12 +314,17 @@ export async function encontrarUltimoIndice(
 ): Promise<number> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
+    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
+        ? funcaoPesquisa.valor
+        : funcaoPesquisa;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -260,7 +333,10 @@ export async function encontrarUltimoIndice(
     if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
             )
         );
@@ -290,26 +366,38 @@ export async function filtrarPor(
     if (vetor === null || vetor === undefined)
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() não pode ser nulo.'
             )
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
+        ? funcaoFiltragem.valor
+        : funcaoFiltragem;
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'
             )
         );
     }
 
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll('_', '');
+    if (construtorResolvido !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função.'
             )
         );
@@ -317,7 +405,9 @@ export async function filtrarPor(
 
     const resultados = [];
     for (let indice = 0; indice < valorVetor.length; ++indice) {
-        const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
+        const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [
+            valorVetor[indice],
+        ]);
         if (deveRetornarValor === false) continue;
 
         resultados.push(valorVetor[indice]);
@@ -339,13 +429,15 @@ export async function incluido(
     valor: VariavelInterface | any
 ): Promise<boolean> {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-
     const valorValor = valor.hasOwnProperty('valor') ? valor.valor : valor;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -360,11 +452,17 @@ export async function incluido(
     return false;
 }
 
-function validacaoComumNumeros(valorParaConverter: any): Promise<never> | null {
+function validacaoComumNumeros(
+    interpretador: InterpretadorInterface,
+    valorParaConverter: any
+): Promise<never> | null {
     if (isNaN(valorParaConverter)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'
             )
         );
@@ -373,7 +471,10 @@ function validacaoComumNumeros(valorParaConverter: any): Promise<never> | null {
     if (!/^(-)?\d+(\.\d+)?$/.test(valorParaConverter)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.'
             )
         );
@@ -388,21 +489,27 @@ function validacaoComumNumeros(valorParaConverter: any): Promise<never> | null {
  * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
  * @returns {Promise<any>} Uma Promise com o resultado da conversão.
  */
-export async function inteiro(interpretador: InterpretadorInterface, valorParaConverter: VariavelInterface | any): Promise<any> {
+export async function inteiro(
+    interpretador: InterpretadorInterface,
+    valorParaConverter: VariavelInterface | any
+): Promise<any> {
     if (valorParaConverter === null || valorParaConverter === undefined) return Promise.resolve(0);
 
-    const valor = valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter;
-    const resultadoValidacao = validacaoComumNumeros(valor);
+    const valor = valorParaConverter.hasOwnProperty('valor')
+        ? valorParaConverter.valor
+        : valorParaConverter;
+    const resultadoValidacao = validacaoComumNumeros(interpretador, valor);
 
     return resultadoValidacao || Promise.resolve(parseInt(valor));
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoMapeamento
- * @returns
+ * Dado um vetor e uma função de mapeamento, executa a função de mapeamento
+ * passando como argumento cada elemento do vetor.
+ * @param interpretador A instância do interpretador.
+ * @param vetor O vetor
+ * @param funcaoMapeamento A função de mapeamento.
+ * @returns O resultado acumulado da execução da função de mapeamento.
  */
 export async function mapear(
     interpretador: InterpretadorInterface,
@@ -412,29 +519,44 @@ export async function mapear(
     if (vetor === null || vetor === undefined)
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'
             )
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor') ? funcaoMapeamento.valor : funcaoMapeamento;
+    const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor')
+        ? funcaoMapeamento.valor
+        : funcaoMapeamento;
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'
             )
         );
     }
 
-    if (valorFuncaoMapeamento.constructor.name !== 'DeleguaFuncao') {
+    const nomeConstrutorFuncaoMapeamento = valorFuncaoMapeamento.constructor.name.replaceAll(
+        '_',
+        ''
+    );
+    if (nomeConstrutorFuncaoMapeamento !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'
             )
         );
@@ -454,11 +576,16 @@ export async function mapear(
  * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
  * @returns {Promise<any>} Uma Promise com o resultado da conversão.
  */
-export async function numero(interpretador: InterpretadorInterface, valorParaConverter: VariavelInterface | any): Promise<any> {
+export async function numero(
+    interpretador: InterpretadorInterface,
+    valorParaConverter: VariavelInterface | any
+): Promise<any> {
     if (valorParaConverter === null || valorParaConverter === undefined) return Promise.resolve(0);
 
-    const valor = valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter;
-    const resultadoValidacao = validacaoComumNumeros(valor);
+    const valor = valorParaConverter.hasOwnProperty('valor')
+        ? valorParaConverter.valor
+        : valorParaConverter;
+    const resultadoValidacao = validacaoComumNumeros(interpretador, valor);
 
     return resultadoValidacao || Promise.resolve(Number(valor));
 }
@@ -474,7 +601,10 @@ export async function ordenar(
 ): Promise<any[]> {
     if (vetor === null || vetor === undefined)
         throw new ErroEmTempoDeExecucao(
-            this.simbolo,
+            { 
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                linha: interpretador.linhaDeclaracaoAtual
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro da função ordenar() não pode ser nulo.'
         );
 
@@ -482,7 +612,13 @@ export async function ordenar(
 
     if (!Array.isArray(objeto)) {
         return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'Valor inválido. Objeto inserido não é um vetor.')
+            new ErroEmTempoDeExecucao(
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
+                'Valor inválido. Objeto inserido não é um vetor.'
+            )
         );
     }
 
@@ -516,20 +652,28 @@ export async function paraCada(
     if (vetor === null || vetor === undefined)
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função paraCada() não pode ser nulo.'
             )
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
+        ? funcaoFiltragem.valor
+        : funcaoFiltragem;
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'
             )
         );
@@ -538,7 +682,10 @@ export async function paraCada(
     if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'
             )
         );
@@ -564,18 +711,26 @@ export async function primeiroEmCondicao(
     if (vetor === null || vetor === undefined)
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.'
             )
         );
 
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor') ? funcaoFiltragem.valor : funcaoFiltragem;
+    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
+        ? funcaoFiltragem.valor
+        : funcaoFiltragem;
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.'
             )
         );
@@ -584,14 +739,19 @@ export async function primeiroEmCondicao(
     if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função.'
             )
         );
     }
 
     for (let indice = 0; indice < valorVetor.length; ++indice) {
-        const valorResolvido = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
+        const valorResolvido = await valorFuncaoFiltragem.chamar(interpretador, [
+            valorVetor[indice],
+        ]);
         if (valorResolvido !== null) {
             return valorResolvido;
         }
@@ -606,14 +766,20 @@ export async function primeiroEmCondicao(
  * @param numero
  * @returns
  */
-export async function real(interpretador: InterpretadorInterface, numero: VariavelInterface | any): Promise<number> {
+export async function real(
+    interpretador: InterpretadorInterface,
+    numero: VariavelInterface | any
+): Promise<number> {
     if (numero === null || numero === undefined) return Promise.resolve(parseFloat('0'));
 
     const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
     if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real.'
             )
         );
@@ -637,13 +803,18 @@ export async function reduzir(
     valorInicial: VariavelInterface | any = null
 ) {
     const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor') ? funcaoReducao.valor : funcaoReducao;
+    const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor')
+        ? funcaoReducao.valor
+        : funcaoReducao;
     const valorPadrao = valorInicial.hasOwnProperty('valor') ? valorInicial.valor : valorInicial;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
             )
         );
@@ -652,7 +823,10 @@ export async function reduzir(
     if (valorFuncaoReducao.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
             )
         );
@@ -683,13 +857,25 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
 
     if (typeof valorObjeto === 'number') {
         return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'Função global tamanho() não funciona com números.')
+            new ErroEmTempoDeExecucao(
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
+                'Função global tamanho() não funciona com números.'
+            )
         );
     }
 
     if (valorObjeto instanceof ObjetoDeleguaClasse) {
         return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'Função global tamanho não funciona com objetos complexos.')
+            new ErroEmTempoDeExecucao(
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
+                'Função global tamanho não funciona com objetos complexos.'
+            )
         );
     }
 
@@ -725,7 +911,9 @@ export async function texto(
     interpretador: InterpretadorInterface,
     valorParaConverter: VariavelInterface | any
 ): Promise<string> {
-    return Promise.resolve(`${valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter}`);
+    return Promise.resolve(
+        `${valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter}`
+    );
 }
 
 /**
@@ -746,7 +934,10 @@ export async function todosEmCondicao(
     if (vetor === null || vetor === undefined)
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
             )
         );
@@ -758,7 +949,10 @@ export async function todosEmCondicao(
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor.'
             )
         );
@@ -767,14 +961,18 @@ export async function todosEmCondicao(
     if (valorFuncaoCondicional.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                this.simbolo,
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                 'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.'
             )
         );
     }
 
     for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (!(await valorFuncaoCondicional.chamar(interpretador, [valorVetor[indice]]))) return false;
+        if (!(await valorFuncaoCondicional.chamar(interpretador, [valorVetor[indice]])))
+            return false;
     }
 
     return true;
@@ -787,14 +985,24 @@ export async function todosEmCondicao(
  * @param {VariavelInterface | any[]} vetor O vetor.
  * @returns A tupla resolvida.
  */
-export async function tupla(interpretador: InterpretadorInterface, vetor: VariavelInterface | any[]): Promise<Tupla> {
-    const valorVetor: any[] = !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+export async function tupla(
+    interpretador: InterpretadorInterface,
+    vetor: VariavelInterface | any[]
+): Promise<Tupla> {
+    const valorVetor: any[] =
+        !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
-            new ErroEmTempoDeExecucao(this.simbolo, 'Argumento de função nativa `tupla` não parece ser um vetor.')
+            new ErroEmTempoDeExecucao(
+                { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
+                'Argumento de função nativa `tupla` não parece ser um vetor.'
+            )
         );
     }
 
@@ -804,14 +1012,29 @@ export async function tupla(interpretador: InterpretadorInterface, vetor: Variav
         case 3:
             return Promise.resolve(new Trio(valorVetor[0], valorVetor[1], valorVetor[2]));
         case 4:
-            return Promise.resolve(new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3]));
+            return Promise.resolve(
+                new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3])
+            );
         case 5:
             return Promise.resolve(
-                new Quinteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4])
+                new Quinteto(
+                    valorVetor[0],
+                    valorVetor[1],
+                    valorVetor[2],
+                    valorVetor[3],
+                    valorVetor[4]
+                )
             );
         case 6:
             return Promise.resolve(
-                new Sexteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3], valorVetor[4], valorVetor[5])
+                new Sexteto(
+                    valorVetor[0],
+                    valorVetor[1],
+                    valorVetor[2],
+                    valorVetor[3],
+                    valorVetor[4],
+                    valorVetor[5]
+                )
             );
         case 7:
             return Promise.resolve(
@@ -871,7 +1094,10 @@ export async function tupla(interpretador: InterpretadorInterface, vetor: Variav
         default:
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    this.simbolo,
+                    { 
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual
+                } as SimboloInterface,
                     'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.'
                 )
             );

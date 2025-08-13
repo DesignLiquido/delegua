@@ -9,7 +9,13 @@ export class AtribuicaoPorIndice implements Construto {
     valor: Construto;
     indice: Construto;
 
-    constructor(hashArquivo: number, linha: number, objeto: Construto, indice: Construto, valor: Construto) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        objeto: Construto,
+        indice: Construto,
+        valor: Construto
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

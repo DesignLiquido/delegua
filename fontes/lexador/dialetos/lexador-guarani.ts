@@ -49,9 +49,14 @@ export class LexadorGuarani extends LexadorBase {
             this.avancar();
         }
 
-        const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual).toLowerCase();
+        const codigo: string = this.codigo[this.linha]
+            .substring(this.inicioSimbolo, this.atual)
+            .toLowerCase();
 
-        const tipo: string = codigo in palavrasReservadas ? palavrasReservadas[codigo] : tiposDeSimbolos.IDENTIFICADOR;
+        const tipo: string =
+            codigo in palavrasReservadas
+                ? palavrasReservadas[codigo]
+                : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);
     }
