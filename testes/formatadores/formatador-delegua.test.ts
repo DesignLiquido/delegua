@@ -449,5 +449,25 @@ describe('Formatadores > Delégua', () => {
             // console.log(resultado);
             expect(linhasResultado).toHaveLength(26);
         });
+
+        it('Fibonacci simplificado', async () => {
+            const codigo = [
+                "função fibonacci(n: inteiro): inteiro {",
+                "    se (n <= 1) {",
+                "        retorna 1",
+                "    }",
+                "    retorna fibonacci(n-1) + fibonacci(n-2)",
+                "}",
+                "var resultado = fibonacci(10)"
+            ];
+            
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            // console.log(resultado);
+            expect(linhasResultado).toHaveLength(8);
+        });
     });
 });

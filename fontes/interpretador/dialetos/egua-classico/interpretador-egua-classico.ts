@@ -90,6 +90,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     erros: ErroInterpretador[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
     interfaceEntradaSaida: any = null;
+    hashArquivoDeclaracaoAtual: number;
+    linhaDeclaracaoAtual: number;
 
     constructor(diretorioBase: string) {
         this.resolvedor = new ResolvedorEguaClassico();
