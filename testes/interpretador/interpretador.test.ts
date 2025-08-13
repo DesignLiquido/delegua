@@ -1393,6 +1393,27 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('para, com vetor declarado em escopo anterior', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeros = [1, 2, 3, 4]',
+                            'var novaLista = []',
+                            'para (var i = 0; i < numeros.tamanho(); i++) {',
+                            '    var novoNumero = numeros[i] * 2',
+                            '    novaLista.adicionar(novoNumero)',
+                            '}',
+                            'escreva(novaLista)',
+                        ], -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[2, 4, 6, 8]');
+                });
             });
 
             describe('Classes', () => {
