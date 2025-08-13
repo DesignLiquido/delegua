@@ -6,7 +6,6 @@ import {
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
-    Constante,
     Construto,
     DefinirValor,
     Dicionario,

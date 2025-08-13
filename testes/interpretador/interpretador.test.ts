@@ -2488,6 +2488,20 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Conversões de tipos', () => {
+                it('Conversão de texto para número', async () => {
+                    const retornoLexador = lexador.mapear(['escreva(inteiro("fff"))'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        "Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro."
+                    );
+                });
+            });
+
             describe('Mutabilidade', () => {
                 it('const', async () => {
                     const retornoLexador = lexador.mapear(['const a = 1', 'a = 2'], -1);

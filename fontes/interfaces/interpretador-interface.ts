@@ -13,6 +13,8 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     funcaoDeRetorno: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any;
+    hashArquivoDeclaracaoAtual: number;
+    linhaDeclaracaoAtual: number;
 
     eVerdadeiro(objeto: any): boolean;
     avaliar(expressao: Construto | Declaracao): any;
