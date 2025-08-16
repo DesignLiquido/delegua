@@ -18,6 +18,7 @@ export class Var extends Declaracao {
         simbolo: SimboloInterface,
         inicializador: Construto,
         tipo: string = 'qualquer',
+        tipoExplicito: boolean = false,
         decoradores: Decorador[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
@@ -26,12 +27,11 @@ export class Var extends Declaracao {
 
         if (tipo !== 'qualquer') {
             this.tipo = tipo;
-            this.tipoExplicito = true;
         } else {
             this.tipo = inicializador?.tipo || tipo;
-            this.tipoExplicito = false;
         }
 
+        this.tipoExplicito = tipoExplicito;
         this.referencia = false;
         this.desestruturacao = false;
     }

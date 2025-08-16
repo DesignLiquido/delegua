@@ -203,7 +203,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             this.formatarDeclaracaoOuConstruto(expressao.valor);
         }
 
-        this.codigoFormatado += `${this.quebraLinha}`;
+        if (this.devePularLinha) {
+            this.codigoFormatado += `${this.quebraLinha}`;
+        }
     }
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
@@ -262,8 +264,13 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escreva(`;
         for (let argumento of declaracao.argumentos) {
             this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += ', ';
         }
 
+        if (declaracao.argumentos.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+        }
+        
         this.codigoFormatado += `)${this.quebraLinha}`;
     }
 
@@ -387,6 +394,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
 
         this.codigoFormatado += `var ${declaracao.simbolo.lexema}`;
+
+        if (declaracao.tipoExplicito && declaracao.tipo) {
+            this.codigoFormatado += `: ${declaracao.tipo}`;
+        }
+
         if (declaracao.inicializador) {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
