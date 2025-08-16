@@ -2392,6 +2392,70 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas.length).toBeGreaterThan(0);
                 });
+
+                it('Fila estática', async () => {
+                    const retornoLexador = lexador.mapear([
+                        `var maximoDeElementos = 4;`,
+                        `var indexInicial = 0;`,
+                        `var indexFinal = 0;`,
+                        `var i = 0;`,
+                        `var filaEstatica = [];`,
+                        `funcao enfileirar (valorEntrada) {`,
+                        `    se (indexFinal == maximoDeElementos) {`,
+                        `        escreva("Fila Cheia");`,
+                        `    } senao {`,
+                        `        filaEstatica[indexFinal] = valorEntrada;`,
+                        `        escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));`,
+                        `        indexFinal = indexFinal + 1;`,
+                        `    }`,
+                        `}`,
+                        `função desenfileirar() {`,
+                        `    se (indexInicial == indexFinal) {`,
+                        `        escreva("Fila Vazia");`,
+                        `    } senao {`,
+                        `        para (i = 0; i <= indexFinal; i = i + 1){`,
+                        `            se (i + 1 == indexFinal) {`,
+                        `                indexFinal = indexFinal - 1;`,
+                        `                escreva("Valor retirado com sucesso.");`,
+                        `            } senao {`,
+                        `                filaEstatica[i] = filaEstatica[i+1];`,
+                        `            }`,
+                        `        }`,
+                        `    }`,
+                        `}`,
+                        `função mostrar_fila() {`,
+                        `    se (indexInicial == indexFinal) {`,
+                        `        escreva("Fila Vazia");`,
+                        `    } senao {`,
+                        `        para (var i = 0; i < indexFinal; i = i + 1) {`,
+                        `        escreva("index " + texto(i)); `,
+                        `        escreva(texto(filaEstatica[i]));`,
+                        `        }`,
+                        `    }`,
+                        `}`,
+                        `mostrar_fila();`,
+                        `var valorEntrada = 2;`,
+                        `enfileirar(valorEntrada);`,
+                        `var valorEntrada = 8;`,
+                        `enfileirar(valorEntrada);`,
+                        `var valorEntrada = 23;`,
+                        `enfileirar(valorEntrada);`,
+                        `var valorEntrada = 7;`,
+                        `enfileirar(valorEntrada);`,
+                        `mostrar_fila();`,
+                        `desenfileirar();`,
+                        `mostrar_fila();`,
+                        `var valorEntrada = 24;`,
+                        `enfileirar(valorEntrada);`,
+                        `mostrar_fila();`
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBe(29);
+                });
             });
         });
 
