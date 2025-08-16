@@ -644,6 +644,10 @@ export class Interpretador extends InterpretadorBase {
             }
 
             objeto[indice] = valor;
+            this.pilhaEscoposExecucao.atribuirVariavel(
+                (expressao.objeto as any).simbolo,
+                objeto
+            );
         } else if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
