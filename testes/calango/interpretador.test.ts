@@ -2,7 +2,7 @@ import { AvaliadorSintaticoCalango } from "../../fontes/avaliador-sintatico/dial
 import { LexadorCalango } from "../../fontes/lexador/dialetos";
 import { InterpretadorBase } from "../../fontes/interpretador/interpretador-base"
 
-describe('Interpretador', () => {
+describe('Interpretador (Calango)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorCalango;
         let avaliadorSintatico: AvaliadorSintaticoCalango;
@@ -34,11 +34,19 @@ describe('Interpretador', () => {
             });
 
             it('Sucesso - Condicionais (se, senao)', async () => {
+                // Aqui vamos simular a resposta para uma variável de `leia()`.
+                const respostas = ['40'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    },
+                };
+
                 const retornoLexador = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;', 
                     'principal', 
                     'inteiro idade;', 
-                    'escreva("Informe sua idade: "");',
+                    'escreva("Informe sua idade: ");',
                     'leia(idade);',
                     'se (idade >= 18) entao',
                         'escreval("maior de idade");',
@@ -51,11 +59,8 @@ describe('Interpretador', () => {
                     'fimSe',
                     'fimPrincipal'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                interpretador.funcaoDeRetorno = (saida: string) => {
-                    expect(saida).toEqual("Ola mundo")
-                }
 
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);

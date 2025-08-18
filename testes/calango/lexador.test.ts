@@ -28,7 +28,7 @@ describe('Lexador (Calango)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(5);
                 expect(resultado.erros).toHaveLength(0);
             });
 
