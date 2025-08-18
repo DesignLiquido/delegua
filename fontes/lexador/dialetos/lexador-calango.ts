@@ -221,6 +221,24 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 this.adicionarSimbolo(tiposDeSimbolos.IGUAL_ATRIBUICAO);
                 this.avancar();
                 break;
+            case '>':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL, '>=');
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
+                }
+                break;
+            case '<':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL, '<=');
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+                break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
                 else if (this.eAlfabeto(caractere)) this.identificarPalavraChave();

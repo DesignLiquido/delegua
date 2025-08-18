@@ -1,7 +1,5 @@
 import { LexadorCalango } from '../../fontes/lexador/dialetos/lexador-calango';
 
-import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/calango';
-
 describe('Lexador (Calango)', () => {
     describe('mapear()', () => {
         let lexador: LexadorCalango;
@@ -18,9 +16,7 @@ describe('Lexador (Calango)', () => {
                 expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(0);
             });
-        });
-
-        describe('Cenários de sucesso', () => {
+            
             it('Sucesso - Código vazio com símbolos algoritmo, principal e fimPrincipal', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;', 
@@ -29,12 +25,10 @@ describe('Lexador (Calango)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(5);
                 expect(resultado.erros).toHaveLength(0);
             });
-        });
 
-        describe('Cenários de sucesso', () => {
             it('Sucesso - Método "escreva"', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;', 
@@ -44,7 +38,31 @@ describe('Lexador (Calango)', () => {
                 ], -1);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(10);
+                expect(resultado.erros).toHaveLength(0);
+            });
+
+            it('Sucesso - Condicionais (se, senao)', () => {
+                const resultado = lexador.mapear([
+                    'algoritmo tituloDoAlgoritmo;'+ 
+                    'principal'+
+                    'inteiro idade;'+
+                    'escreva("Informe sua idade: ");'+
+                    'leia(idade);'+
+                    'se (idade >= 18) entao'+
+                        'escreval("maior de idade");'+
+                    'senao'+
+                        'se (idade <= 0) entao'+
+                            'escreval("valor invalido");'+
+                        'senao',
+                            'escreval("menor de idade");'+
+                        'fimSe'+
+                    'fimSe'+
+                    'fimPrincipal'
+                ], -1);
+    
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(45);
                 expect(resultado.erros).toHaveLength(0);
             });
         });

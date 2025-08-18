@@ -108,14 +108,15 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(
-                    tiposDeSimbolos.INTEIRO,
-                    'Esperado literal inteiro após símbolo de igual em declaração de variável.'
-                );
-                valorInicializacao = Number(literalInicializacao.literal);
-            }
+             let valorInicializacao = 0;
+             
+            // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO)) {
+            //     const literalInicializacao = this.consumir(
+            //         tiposDeSimbolos.INTEIRO,
+            //         'Esperado literal inteiro após símbolo de igual em declaração de variável.'
+            //     );
+            //     valorInicializacao = Number(literalInicializacao.literal);
+            // }
 
             inicializacoes.push(
                 new Var(
@@ -125,15 +126,22 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
+        this.consumir(
+            tiposDeSimbolos.PONTO_E_VIRGULA,
+            'Esperado ponto e vírgula após declaração de variáveis.'
+        )
+
         return inicializacoes;
     }
 
     protected declaracaoFazer(): Fazer {
         throw new Error("Método não implementado.");
     }
+    
     protected declaracaoPara(): Para | ParaCada {
         throw new Error("Método não implementado.");
     }
+
     protected declaracaoSe(): Se {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'");
@@ -141,10 +149,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'se'")
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'entao' após condição");
 
-        // this.consumir(
-        //     tiposDeSimbolos.QUEBRA_LINHA,
-        //     "Esperado quebra de linha após palavra reservada 'entao' em condição se."
-        // );
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         const caminhoEntao = this.resolverDeclaracaoForaDeBloco();
 
@@ -152,28 +157,40 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            // this.consumir(
-            //     tiposDeSimbolos.QUEBRA_LINHA,
-            //     "Esperado quebra de linha após palavra reservada 'senao' em instrução se."
-            // );
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
             caminhoSenao = this.resolverDeclaracaoForaDeBloco();
         }
 
-        // this.consumir(
-        //     tiposDeSimbolos.QUEBRA_LINHA,
-        //     "Esperado quebra de linha após palavra reservada 'entao' em condição se."
-        // );
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
         this.consumir(tiposDeSimbolos.FIM_SE, "Esperado 'fimSe' para finalização de uma instrução se.");
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
+    
     protected expressaoLeia(): Leia {
         const simboloAtual = this.avancarEDevolverAnterior();
 
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' depois da declaração 'leia'"
+        )
+
         const argumentos = [];
+
         do {
             argumentos.push(this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após declaração 'leia'"
+        )
+
+        this.consumir(
+            tiposDeSimbolos.PONTO_E_VIRGULA,
+            'Esperado ponto e vírgula após declaração leia'
+        )
 
         return new Leia(simboloAtual, argumentos);
     }
@@ -185,6 +202,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
                 return new Variavel(this.hashArquivo, simboloIdentificador);
             case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
@@ -192,7 +210,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
-        const simboloAtual = this.simbolos[this.atual];
+        const simboloAtual = this.  simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscrevaMesmaLinha();
@@ -256,12 +274,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         let declaracoes = [];
         
         /* No lexador, o ponto e vírgula é consumido, o que pode gerar algum
-         problema já que a expressão "principal" não exige ponto e vírgula */
+         problema já que a expressão "principal" não exige ponto e vírgula(?) */
         this.validarSegmentoAlgoritmo(); 
         this.validarSegmentoPrincipal('principal'); 
 
         while(!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL) {
-            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const resolucaoDeclaracao = this. resolverDeclaracaoForaDeBloco();
 
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);
