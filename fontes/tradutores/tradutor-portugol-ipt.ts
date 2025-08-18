@@ -8,7 +8,6 @@ export class TradutorPortugolIpt {
     avaliadorSintatico: AvaliadorSintaticoPortugolIpt;
 
     dicionarioConstrutos = {
-        FormatacaoEscrita: this.traduzirConstrutoFormatacaoEscrita.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
     };
 
