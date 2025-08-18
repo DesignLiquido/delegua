@@ -2125,8 +2125,10 @@ export class AvaliadorSintatico
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
+        let tipoExplicito: boolean = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
             this.avancarEDevolverAnterior();
         }
 
@@ -2137,7 +2139,7 @@ export class AvaliadorSintatico
                     identificador.lexema,
                     new InformacaoVariavelOuConstante(identificador.lexema, tipo)
                 );
-                retorno.push(new Var(identificador, null, tipo, Array.from(this.pilhaDecoradores)));
+                retorno.push(new Var(identificador, null, tipo, tipoExplicito, Array.from(this.pilhaDecoradores)));
             }
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -2172,6 +2174,7 @@ export class AvaliadorSintatico
                     identificador,
                     inicializadores[indice],
                     tipo,
+                    tipoExplicito,
                     Array.from(this.pilhaDecoradores)
                 )
             );
@@ -2239,8 +2242,10 @@ export class AvaliadorSintatico
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
+        let tipoExplicito: boolean = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
             this.avancarEDevolverAnterior();
         }
 
@@ -2279,6 +2284,7 @@ export class AvaliadorSintatico
                     identificador,
                     inicializadores[indice],
                     tipo as TipoDadosElementar,
+                    tipoExplicito,
                     Array.from(this.pilhaDecoradores)
                 )
             );
@@ -2467,7 +2473,7 @@ export class AvaliadorSintatico
             }
         }
 
-        const tiposRetornos = new Set(expressoesRetorna.map((e) => e.tipo));
+        const tiposRetornos = new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
         let retornaChamadoExplicitamente = tiposRetornos.size > 0;
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce(

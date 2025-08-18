@@ -71,6 +71,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     declaracoes: Declaracao[];
     erros: ErroInterpretador[];
 
+    hashArquivoDeclaracaoAtual: number;
+    linhaDeclaracaoAtual: number;
+
     resultadoInterpretador: Array<string> = [];
 
     constructor(

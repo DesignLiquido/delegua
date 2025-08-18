@@ -449,5 +449,68 @@ describe('Formatadores > Delégua', () => {
             // console.log(resultado);
             expect(linhasResultado).toHaveLength(26);
         });
+
+        it('Fibonacci simplificado', async () => {
+            const codigo = [
+                "função fibonacci(n: inteiro): inteiro {",
+                "    se (n <= 1) {",
+                "        retorna 1",
+                "    }",
+                "    retorna fibonacci(n-1) + fibonacci(n-2)",
+                "}",
+                "var resultado = fibonacci(10)"
+            ];
+            
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            // console.log(resultado);
+            expect(linhasResultado).toHaveLength(8);
+        });
+
+        it('FizzBuzz', async () => {
+            const codigo = [
+                "var n = 15",
+                "para var i = 1; i <= n; i = i + 1 {",
+                "    var resultado: texto;",
+                "    se (i % 3 == 0) {",
+                "        resultado = resultado + 'Fizz'",
+                "    }",
+                "    se (i % 5 == 0) {",
+                "        resultado = resultado + 'Buzz'",
+                "    }",
+                "    se (resultado == '') {",
+                "        escreva(i, '\\n')",
+                "    } senão {",
+                "        escreva(resultado, '\\n')",
+                "    }",
+                "}"
+            ];
+            
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+            // console.log(resultado);
+            expect(linhasResultado).toHaveLength(16);
+            expect(linhasResultado[0]).toBe("var n = 15");
+            expect(linhasResultado[1]).toContain("para var i = 1; i <= n; i = i + 1 {");
+            expect(linhasResultado[2]).toBe("    var resultado: texto");
+            expect(linhasResultado[3]).toBe("    se (i % 3 == 0) {");
+            expect(linhasResultado[4]).toBe("        resultado = resultado + 'Fizz'");
+            expect(linhasResultado[5]).toBe("    }");
+            expect(linhasResultado[6]).toBe("    se (i % 5 == 0) {");
+            expect(linhasResultado[7]).toBe("        resultado = resultado + 'Buzz'");
+            expect(linhasResultado[8]).toBe("    }");
+            expect(linhasResultado[9]).toBe("    se (resultado == '') {");
+            expect(linhasResultado[10]).toBe("        escreva(i, '\\n')");
+            expect(linhasResultado[11]).toBe("    } senão {");
+            expect(linhasResultado[12]).toBe("        escreva(resultado, '\\n')");
+            expect(linhasResultado[13]).toBe("    }");
+            expect(linhasResultado[14]).toBe("}");
+        });
     });
 });
