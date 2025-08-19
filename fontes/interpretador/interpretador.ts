@@ -324,13 +324,13 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
         }
 
@@ -433,13 +433,13 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
         }
 
@@ -527,7 +527,7 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
 
@@ -537,7 +537,7 @@ export class Interpretador extends InterpretadorBase {
         // então testamos também o nome do construtor.
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto.constructor.name === 'ObjetoDeleguaClasse'
+            objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse'
         ) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
