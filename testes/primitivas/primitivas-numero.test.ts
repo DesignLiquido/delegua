@@ -31,4 +31,26 @@ describe('Primitivas de número', () => {
             expect(resultado).toStrictEqual(5);
         });
     });
+
+    describe('formatar()', () => {
+        it('Trivial', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, '', 1234.56);
+            expect(resultado).toStrictEqual('1.234,56');
+        });
+
+        it('Apenas parte inteira', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, '', 1234);
+            expect(resultado).toStrictEqual('1.234,00');
+        });
+
+        it('Apenas parte decimal', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, '', 0.56);
+            expect(resultado).toStrictEqual('0,56');
+        });
+
+        it('Com casas decimais personalizadas', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, '', 1234.56789, { maximoCasasDecimais: 3 });
+            expect(resultado).toStrictEqual('1.234,568');
+        });
+    });
 });

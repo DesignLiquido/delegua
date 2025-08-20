@@ -1,3 +1,4 @@
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
 export default {
@@ -49,4 +50,42 @@ export default {
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.arredondarParaCima()'
     },
+    formatar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new InformacaoVariavelOuConstante(
+                'opcoesFormatacao',
+                'dicionário',
+                false,
+                [],
+                'Dicionário com opções de formatação, como número de casas decimais.'
+            )
+        ],
+        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, valor: number, opcoes: {[opcao: string]: any}): Promise<string> => {
+            let minimoCasasDecimais = 2;
+            if (opcoes && opcoes.casasDecimais !== undefined) {
+                minimoCasasDecimais = opcoes.casasDecimais;
+            }
+
+            let maximoCasasDecimais = 2;
+            if (opcoes && opcoes.maximoCasasDecimais !== undefined) {
+                maximoCasasDecimais = opcoes.maximoCasasDecimais;
+            }
+
+            return Promise.resolve(valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: minimoCasasDecimais,
+                maximumFractionDigits: maximoCasasDecimais
+            }));
+        },
+        assinaturaFormato: 'número.formatar(opcoesFormatacao)',
+        documentacao: '# `número.formatar(opcoesFormatacao)`\n\n' +
+            'Formata um número para o padrão brasileiro, com separador de milhar e vírgula como separador decimal.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var n = 1234.56\n' +
+            'escreva(n.formatar()) // 1.234,56\n' +
+            'escreva(n.formatar({ minimoCasasDecimais: 2, maximoCasasDecimais: 3 })) // 1.234,568\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.formatar({ maximoCasasDecimais: 2 })'
+    }
 } as { [nome: string]: PrimitivaInterface };
