@@ -145,8 +145,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             );
 
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
-
+             let valorInicializacao = 0;
+             
             // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO)) {
             //     const literalInicializacao = this.consumir(
             //         tiposDeSimbolos.INTEIRO,
@@ -229,7 +229,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração 'leia'");
 
-        this.consumir(
+        this.consumir( 
             tiposDeSimbolos.PONTO_E_VIRGULA,
             'Esperado ponto e vírgula após declaração leia'
         );
@@ -241,8 +241,18 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+                // let tipoOperando: string;
+                
+                // try {
+                //     tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
+                //         simboloIdentificador.lexema
+                //     );
+                // } catch (erro: any) {
+                //     throw this.erro(simboloIdentificador, erro.message);
+                // }
+                
 
-                return new Variavel(this.hashArquivo, simboloIdentificador);
+                return new Variavel(this.hashArquivo, simboloIdentificador, simboloIdentificador.tipo);
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
@@ -310,17 +320,14 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
 
         let declaracoes = [];
-
+        
         /* No lexador, o ponto e vírgula é consumido, o que pode gerar algum
          problema já que a expressão "principal" não exige ponto e vírgula(?) */
-        this.validarSegmentoAlgoritmo();
-        this.validarSegmentoPrincipal('principal');
+        this.validarSegmentoAlgoritmo(); 
+        this.validarSegmentoPrincipal('principal'); 
 
-        while (
-            !this.estaNoFinal() &&
-            this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL
-        ) {
-            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+        while(!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL) {
+            const resolucaoDeclaracao = this. resolverDeclaracaoForaDeBloco();
 
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);
