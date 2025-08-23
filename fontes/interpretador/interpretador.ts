@@ -501,12 +501,15 @@ export class Interpretador extends InterpretadorBase {
                 break;
         }
 
-        // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
+        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades) 
+        // que possua a propriedade.
         // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
-        if (
-            objeto.hasOwnProperty(expressao.simbolo.lexema) ||
-            typeof objeto[expressao.simbolo.lexema] !== 'undefined'
-        ) {
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
+            return objeto[expressao.simbolo.lexema];
+        }
+        
+        // Último caso: objeto simples, sem construtor, sem protótipo. Exemplo: {'a': 1, 'b': 2}
+        if (typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
             return objeto[expressao.simbolo.lexema];
         }
 
