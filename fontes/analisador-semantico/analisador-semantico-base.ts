@@ -27,6 +27,8 @@ import {
     Vetor,
     ReferenciaFuncao,
     Leia,
+    ComentarioComoConstruto,
+    Separador,
 } from '../construtos';
 import {
     Declaracao,
@@ -73,6 +75,16 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
+        // Comentários não afetam a análise semântica, então não faz nada.
+        return Promise.resolve();
+    }
+
+    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
+        // Separadores não afetam a análise semântica, então não faz nada.
+        return Promise.resolve();
+    }
+
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;

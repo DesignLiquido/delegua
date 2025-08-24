@@ -7,11 +7,13 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    ComentarioComoConstruto,
     DefinirValor,
     Dicionario,
     FuncaoConstruto,
     Leia,
     Literal,
+    Separador,
     Unario,
     Variavel,
     Vetor,
@@ -203,6 +205,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         }
     }
 
+    traduzirConstrutoSeparador(separador: Separador): string {
+        return `${separador.conteudo} `;
+    }
+
     traduzirConstrutoUnario(unario: Unario): string {
         const textoOperando = this.dicionarioConstrutos[unario.operando.constructor.name](
             unario.operando
@@ -232,12 +238,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     traduzirConstrutoVetor(vetor: Vetor): string {
         let texto = `vetor: `;
         for (const elemento of vetor.valores) {
-            // Na grande maioria dos casos, cada elemento é um construto.
-            const textoValor = this.dicionarioConstrutos[elemento.constructor.name](elemento);
-            texto += `${textoValor}, `;
+            texto += this.dicionarioConstrutos[elemento.constructor.name](elemento);
         }
 
-        texto = texto.slice(0, -2);
         return texto;
     }
 
@@ -622,13 +625,14 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
-        Comentario: () => '',
+        ComentarioComoConstruto: () => '',
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Leia: this.traduzirConstrutoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
+        Separador: this.traduzirConstrutoSeparador.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
@@ -636,6 +640,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
+        Comentario: () => '',
         Const: this.traduzirDeclaracaoConst.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),

@@ -48,6 +48,7 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Chamada,
+    ComentarioComoConstruto,
     Constante,
     Construto,
     DefinirValor,
@@ -61,6 +62,7 @@ import {
     Literal,
     Logico,
     ReferenciaFuncao,
+    Separador,
     Super,
     TipoDe,
     Tupla,
@@ -179,6 +181,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
+    }
+
+    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /**
@@ -1767,7 +1777,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (let i = 0; i < expressao.valores.length; i++) {
             valores.push(await this.avaliar(expressao.valores[i]));
         }
-        return valores;
+        return valores.filter(v => v);
     }
 
     visitarExpressaoSuper(expressao: Super): any {

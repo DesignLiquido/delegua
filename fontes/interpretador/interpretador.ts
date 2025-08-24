@@ -6,11 +6,13 @@ import {
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
+    ComentarioComoConstruto,
     Construto,
     DefinirValor,
     Dicionario,
     Literal,
     ReferenciaFuncao,
+    Separador,
     TipoDe,
     Variavel,
     Vetor,
@@ -671,6 +673,14 @@ export class Interpretador extends InterpretadorBase {
     }
 
     /**
+     * Em Delégua e Pituguês, comentários não são importantes para a interpretação.
+     * @param expressao 
+     */
+    override async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> {
+        return Promise.resolve();
+    }
+
+    /**
      * Execução de uma expressão de atribuição.
      * @param expressao A expressão.
      * @returns O valor atribuído.
@@ -811,6 +821,15 @@ export class Interpretador extends InterpretadorBase {
         return retornoQuebra;
     }
 
+    /**
+     * Para Delégua e Pituguês, o separador é apenas um elemento de sintaxe.
+     * Não há qualquer avaliação a ser feita.
+     * @param expressao 
+     */
+    override async visitarExpressaoSeparador(expressao: Separador): Promise<any> {
+        return Promise.resolve(null);
+    }
+
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let valorTipoDe = expressao.valor;
 
@@ -854,7 +873,9 @@ export class Interpretador extends InterpretadorBase {
             case 'Variavel':
                 return valorTipoDe.tipo;
             case 'Vetor':
-                return inferirTipoVariavel((valorTipoDe as Vetor)?.valores);
+                const vetor = valorTipoDe as Vetor;
+                const apenasValores = vetor.valores.filter(v => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name));
+                return inferirTipoVariavel(apenasValores);
             default:
                 return inferirTipoVariavel(valorTipoDe);
         }

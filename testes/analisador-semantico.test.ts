@@ -177,6 +177,7 @@ describe('Analisador semântico', () => {
                     "var k: texto[] = ['1', '2']",
                     "k = [3, 4]"
                 ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
@@ -198,11 +199,11 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(5);
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'t\', é esperado um valor do tipo texto. Atual: número.');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('Atribuição inválida para \'n\', é esperado um valor do tipo número. Atual: texto.');
-                expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe('Atribuição inválida para \'v1\', é esperado um valor do tipo vetor de texto. Atual: número[].');
-                expect(retornoAnalisadorSemantico.diagnosticos[3].mensagem).toBe('Atribuição inválida para \'v2\', é esperado um valor do tipo vetor de inteiro ou real. Atual: texto[].');
-                expect(retornoAnalisadorSemantico.diagnosticos[4].mensagem).toBe('Atribuição inválida para \'v3\', é esperado um vetor de elementos.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'t\': é esperado um valor do tipo texto. Atual: número.');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('Atribuição inválida para \'n\': é esperado um valor do tipo número. Atual: texto.');
+                expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe('Atribuição inválida para \'v1\': é esperado um valor do tipo vetor de texto. Atual: número[].');
+                expect(retornoAnalisadorSemantico.diagnosticos[3].mensagem).toBe('Atribuição inválida para \'v2\': é esperado um valor do tipo vetor de inteiro ou real. Atual: texto[].');
+                expect(retornoAnalisadorSemantico.diagnosticos[4].mensagem).toBe('Atribuição inválida para \'v3\': é esperado um vetor de elementos.');
             });
 
             it('Não retornando o tipo que a função definiu - texto', () => {

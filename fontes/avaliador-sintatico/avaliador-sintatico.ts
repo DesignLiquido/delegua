@@ -11,6 +11,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    ComentarioComoConstruto,
     ComponenteLinguagem,
     Construto,
     Decorador,
@@ -23,6 +24,7 @@ import {
     Literal,
     Logico,
     ReferenciaFuncao,
+    Separador,
     Super,
     TipoDe,
     Unario,
@@ -290,22 +292,52 @@ export class AvaliadorSintatico
                     );
                 }
 
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                        return this.construtoTupla();
-                    }
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                    return this.construtoTupla();
+                }
 
-                    const valor = this.atribuir();
-                    valores.push(valor);
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    switch (this.simbolos[this.atual].tipo) {
+                        case tiposDeSimbolos.VIRGULA:
+                            const simboloVirgula = this.avancarEDevolverAnterior();
+                            valores.push(new Separador(simboloVirgula));
+                            break;
+                        case tiposDeSimbolos.COMENTARIO:
+                            const simboloComentario = this.avancarEDevolverAnterior();
+                            valores.push(new ComentarioComoConstruto(simboloComentario));
+                            break;
+                        default:
+                            const valor = this.atribuir();
+                            valores.push(valor);
+                            break;
                     }
                 }
 
-                const tipoVetor = inferirTipoVariavel(valores);
+                // Remover comentários, verificar se vírgulas fazem sentido.
+                const valoresSemComentarios: Construto[] = valores.filter(v => v.constructor.name !== 'ComentarioComoConstruto');
+                let elementoSeparador = false; // O primeiro elemento não pode ser separador.
+                for (const elemento of valoresSemComentarios) {
+                    if (elementoSeparador) {
+                        if (elemento.constructor.name !== 'Separador') {
+                            throw this.erro(
+                                (elemento as any).simbolo,
+                                'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
+                            );
+                        }
+                        elementoSeparador = false;
+                    } else {
+                        if (elemento.constructor.name === 'Separador') {
+                            throw this.erro(
+                                (elemento as any).simbolo,
+                                'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
+                            );
+                        }
+                        elementoSeparador = true;
+                    }
+                }
+
+                const valoresSemSeparadores = valoresSemComentarios.filter(v => v.constructor.name !== 'Separador');
+                const tipoVetor = inferirTipoVariavel(valoresSemSeparadores);
                 return new Vetor(
                     this.hashArquivo,
                     Number(simboloAtual.linha),

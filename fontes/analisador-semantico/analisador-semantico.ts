@@ -85,28 +85,30 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
-                    if (declaracao.tipo === 'inteiro[]') {
-                        const v = vetor.valores.find((v) => typeof v?.valor !== 'number');
-                        if (v) {
+                    const vetorSemSeparadores = vetor.valores.filter((v) => v.constructor.name !== 'Separador');
+
+                    if (declaracao.tipo === 'inteiro[]') {    
+                        const apenasValores = vetorSemSeparadores.find((v) => typeof v?.valor !== 'number');
+                        if (apenasValores) {
                             this.erro(
                                 declaracao.simbolo,
-                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo vetor de inteiro ou real. Atual: ${vetor.tipo}.`
+                                `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um valor do tipo vetor de inteiro ou real. Atual: ${vetor.tipo}.`
                             );
                         }
                     }
                     if (declaracao.tipo === 'texto[]') {
-                        const v = vetor.valores.find((v) => typeof v?.valor !== 'string');
-                        if (v) {
+                        const apenasValores = vetorSemSeparadores.find((v) => typeof v?.valor !== 'string');
+                        if (apenasValores) {
                             this.erro(
                                 declaracao.simbolo,
-                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo vetor de texto. Atual: ${vetor.tipo}.`
+                                `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um valor do tipo vetor de texto. Atual: ${vetor.tipo}.`
                             );
                         }
                     }
                 } else {
                     this.erro(
                         declaracao.simbolo,
-                        `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de elementos.`
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um vetor de elementos.`
                     );
                 }
             }
@@ -115,7 +117,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 if (declaracao.tipo === 'texto' && literal.tipo !== 'texto') {
                     this.erro(
                         declaracao.simbolo,
-                        `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo texto. Atual: ${literal.tipo}.`
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um valor do tipo texto. Atual: ${literal.tipo}.`
                     );
                 }
                 if (
@@ -124,7 +126,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 ) {
                     this.erro(
                         declaracao.simbolo,
-                        `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo número. Atual: ${literal.tipo}.`
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um valor do tipo número. Atual: ${literal.tipo}.`
                     );
                 }
             }
@@ -331,6 +333,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 );
                 return Promise.resolve();
             }
+
             if (expressao.valor instanceof Literal) {
                 let valorLiteral = typeof (expressao.valor as Literal).valor;
                 if (!['qualquer'].includes(valor.tipo)) {
@@ -349,16 +352,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 }
             }
             if (expressao.valor instanceof Vetor) {
-                let valores = (expressao.valor as Vetor).valores;
+                let valoresSemSeparador = (expressao.valor as Vetor).valores.filter((v) => v.constructor.name !== 'Separador');
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
-                        if (!valores.every((v) => typeof v.valor === 'string')) {
+                        if (!valoresSemSeparador.every((v) => typeof v.valor === 'string')) {
                             this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
-                        if (!valores.every((v) => typeof v.valor === 'number')) {
+                        if (!valoresSemSeparador.every((v) => typeof v.valor === 'number')) {
                             this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }

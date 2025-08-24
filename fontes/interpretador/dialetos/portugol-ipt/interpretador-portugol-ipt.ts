@@ -4,6 +4,7 @@ import {
     Agrupamento,
     ArgumentoReferenciaFuncao,
     Atribuir,
+    ComentarioComoConstruto,
     Construto,
     ExpressaoRegular,
     FimPara,
@@ -11,6 +12,7 @@ import {
     Leia,
     Literal,
     ReferenciaFuncao,
+    Separador,
     Super,
     TipoDe,
     Tupla,
@@ -100,6 +102,14 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     protected resolverValor(objeto: any) {

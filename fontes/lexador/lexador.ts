@@ -247,35 +247,35 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '[':
-                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO, '[');
                 this.avancar();
                 break;
             case ']':
-                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO, ']');
                 this.avancar();
                 break;
             case '(':
-                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '(');
                 this.avancar();
                 break;
             case ')':
-                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO, ')');
                 this.avancar();
                 break;
             case '{':
-                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA, '{');
                 this.avancar();
                 break;
             case '}':
-                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA, '}');
                 this.avancar();
                 break;
             case ',':
-                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA, ',');
                 this.avancar();
                 break;
             case '.':
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO, '.');
                 this.avancar();
                 break;
             case '-':
