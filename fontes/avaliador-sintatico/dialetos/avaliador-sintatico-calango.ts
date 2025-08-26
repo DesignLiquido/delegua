@@ -250,7 +250,6 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 // } catch (erro: any) {
                 //     throw this.erro(simboloIdentificador, erro.message);
                 // }
-                
 
                 return new Variavel(this.hashArquivo, simboloIdentificador, simboloIdentificador.tipo);
             case tiposDeSimbolos.INTEIRO:
@@ -260,7 +259,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloAnterior.linha),
-                    simboloAnterior.literal
+                    simboloAnterior.literal,
+                    simboloAnterior.tipo == tiposDeSimbolos.TEXTO ? 'texto' : 'inteiro', 
                 );
         }
     }
