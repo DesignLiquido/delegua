@@ -148,18 +148,6 @@ export class Interpretador extends InterpretadorBase {
             return retornoVetor;
         }
 
-        switch (objeto.constructor.name) {
-            case 'Object':
-                if ('tipo' in objeto) {
-                    switch (objeto.tipo) {
-                        case 'dicionário':
-                            return JSON.stringify(objeto.valor);
-                        default:
-                            return objeto.valor;
-                    }
-                }
-        }
-
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
             const objetoEscrita = {};
             for (const propriedade in objeto) {
@@ -177,6 +165,18 @@ export class Interpretador extends InterpretadorBase {
 
             return JSON.stringify(objetoEscrita);
         }
+
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor;
+                    }
+                }
+        }       
 
         return objeto.toString();
     }
