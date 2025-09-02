@@ -11,28 +11,46 @@ describe('Avaliador sintático', () => {
             microAvaliadorSintatico = new MicroAvaliadorSintatico();
         });
 
-        it('Sucesso - Texto Vazio', () => {
-            const retornoLexador = microLexador.mapear("");
-            const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+        describe('Casos de sucesso', () => {
+            it('Código Vazio', () => {
+                const retornoLexador = microLexador.mapear("");
+                const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
-        });
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+            });
 
-        it('Sucesso - Olá Mundo', () => {
-            const retornoLexador = microLexador.mapear("'Olá mundo'");
-            const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+            it('Olá Mundo', () => {
+                const retornoLexador = microLexador.mapear("'Olá mundo'");
+                const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-        });
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
 
-        it('Sucesso - Chamada de função', () => {
-            const retornoLexador = microLexador.mapear("somar(2, 3)");
-            const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+            it('Chamada de função', () => {
+                const retornoLexador = microLexador.mapear("somar(2, 3)");
+                const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
 
-            expect(retornoAvaliadorSintatico).toBeTruthy();
-            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-        });
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Vetor literal', () => {
+                const retornoLexador = microLexador.mapear("[1, 2, 3, 4, 5]");
+                const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Acesso a propriedade por índice numérico', () => {
+                const retornoLexador = microLexador.mapear("a[1]");
+                const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+        });        
     });
 });

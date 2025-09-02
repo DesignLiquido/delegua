@@ -9,6 +9,7 @@ import {
     Logico,
     Unario,
     Variavel,
+    Vetor,
 } from '../construtos';
 import { Declaracao } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
@@ -51,7 +52,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                 return new Dicionario(-1, Number(this.linha), chaves, valores); */
 
             // TODO: Verificar se vamos usar isso.
-            /* case tiposDeSimbolos.COLCHETE_ESQUERDO:
+            case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 valores = [];
 
@@ -60,7 +61,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                    const valor = this.declaracao();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
@@ -68,7 +69,6 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                 }
 
                 return new Vetor(-1, Number(this.linha), valores);
-            */
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();

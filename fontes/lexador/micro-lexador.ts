@@ -135,6 +135,14 @@ export class MicroLexador {
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.atual++;
                 break;
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.atual++;
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.atual++;
+                break;
             case ',':
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.atual++;
