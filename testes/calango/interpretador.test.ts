@@ -1,4 +1,4 @@
-import { AvaliadorSintaticoCalango } from "../../fontes/analisador-semantico/avaliador-sintatico/dialetos/avaliador-sintatico-calango";
+import { AvaliadorSintaticoCalango } from "../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-calango";
 import { LexadorCalango } from "../../fontes/lexador/dialetos";
 import { InterpretadorBase } from "../../fontes/interpretador/interpretador-base"
 

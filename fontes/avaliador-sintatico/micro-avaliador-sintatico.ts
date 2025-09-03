@@ -9,13 +9,13 @@ import {
     Logico,
     Unario,
     Variavel,
-} from '../../construtos';
-import { Declaracao } from '../../declaracoes';
-import { SimboloInterface } from '../../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
+} from '../construtos';
+import { Declaracao } from '../declaracoes';
+import { SimboloInterface } from '../interfaces';
+import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from './micro-avaliador-sintatico-base';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/microgramaticas/delegua';
+import tiposDeSimbolos from '../tipos-de-simbolos/microgramaticas/delegua';
 
 /**
  * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.

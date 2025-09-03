@@ -1,4 +1,4 @@
-import { SimboloInterface } from '../../interfaces';
+import { SimboloInterface } from '../interfaces';
 
 export class ErroAvaliadorSintatico extends Error {
     simbolo: SimboloInterface;

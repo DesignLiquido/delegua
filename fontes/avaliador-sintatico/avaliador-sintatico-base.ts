@@ -1,4 +1,4 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../../construtos';
+import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
 import {
     Classe,
     Continua,
@@ -15,12 +15,12 @@ import {
     Sustar,
     Tente,
     Var,
-} from '../../declaracoes';
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
+} from '../declaracoes';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
+import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/comum';
+import tiposDeSimbolos from '../tipos-de-simbolos/comum';
 
 /**
  * O Avaliador Sintático Base é uma tentativa de mapear métodos em comum

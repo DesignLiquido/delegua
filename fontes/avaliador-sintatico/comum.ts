@@ -1,5 +1,5 @@
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
-import { PrimitivaInterface } from '../../interfaces';
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { PrimitivaInterface } from '../interfaces';
 
 export function registrarPrimitiva(
     primitivasConhecidas: {

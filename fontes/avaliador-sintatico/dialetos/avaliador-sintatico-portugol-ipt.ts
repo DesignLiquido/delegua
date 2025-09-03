@@ -9,7 +9,7 @@ import {
     Leia,
     Literal,
     Variavel,
-} from '../../../construtos';
+} from '../../construtos';
 import {
     Escreva,
     Declaracao,
@@ -20,12 +20,12 @@ import {
     Fazer,
     EscrevaMesmaLinha,
     Var,
-} from '../../../declaracoes';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
+} from '../../declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
-import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
-import { SimboloInterface } from '../../../interfaces';
+import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
+import { SimboloInterface } from '../../interfaces';
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     primario(): Construto {

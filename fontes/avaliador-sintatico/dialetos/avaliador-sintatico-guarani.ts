@@ -1,10 +1,10 @@
-import { Construto, FuncaoConstruto, Leia, Literal } from '../../../construtos';
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from '../../../declaracoes';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
+import { Construto, FuncaoConstruto, Leia, Literal } from '../../construtos';
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from '../../declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
-import tiposDeSimbolos from '../../../tipos-de-simbolos/guarani';
-import { SimboloInterface } from '../../../interfaces';
+import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
+import { SimboloInterface } from '../../interfaces';
 
 /**
  * Este avaliador sintático é produto de uma reunião entre pessoas da

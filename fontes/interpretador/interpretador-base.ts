@@ -79,8 +79,8 @@ import { MetodoPrimitiva } from './estruturas/metodo-primitiva';
 import { ArgumentoInterface } from './argumento-interface';
 
 import { MicroLexador } from '../lexador';
-import { MicroAvaliadorSintatico } from '../analisador-semantico/avaliador-sintatico';
-import { MicroAvaliadorSintaticoBase } from '../analisador-semantico/avaliador-sintatico/micro-avaliador-sintatico-base';
+import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
+import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
 import { EspacoMemoria } from './espaco-memoria';
 import { carregarBibliotecasGlobais } from './comum';

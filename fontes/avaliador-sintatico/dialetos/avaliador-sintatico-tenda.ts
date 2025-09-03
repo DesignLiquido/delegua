@@ -25,12 +25,12 @@ import {
     Unario,
     Variavel,
     Vetor,
-} from '../../../construtos';
-import { ParametroInterface, SimboloInterface } from '../../../interfaces';
+} from '../../construtos';
+import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
-import { SeletorTuplas, Tupla } from '../../../construtos/tuplas';
+import { SeletorTuplas, Tupla } from '../../construtos/tuplas';
 import {
     Bloco,
     Comentario,
@@ -46,25 +46,25 @@ import {
     Se,
     Sustar,
     Var,
-} from '../../../declaracoes';
-import { RetornoAvaliadorSintatico } from '../../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../../../interfaces/retornos/retorno-lexador';
-import { TipoDadosElementar } from '../../../tipo-dados-elementar';
+} from '../../declaracoes';
+import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { TipoDadosElementar } from '../../tipo-dados-elementar';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../../inferenciador';
-import { TipoInferencia } from '../../../inferenciador';
+import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
+import { TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../../informacao-variavel-ou-constante';
-import { Simbolo } from '../../../lexador/simbolo';
+import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { Simbolo } from '../../lexador/simbolo';
 
-import tipoDeDadosDelegua from '../../../tipos-de-dados/delegua';
-import tiposDeSimbolos from '../../../tipos-de-simbolos/tenda';
+import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
+import tiposDeSimbolos from '../../tipos-de-simbolos/tenda';
 
-import primitivasDicionario from '../../../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../../../bibliotecas/primitivas-numero';
-import primitivasTexto from '../../../bibliotecas/primitivas-texto';
-import primitivasVetor from '../../../bibliotecas/primitivas-vetor';
+import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../../bibliotecas/primitivas-numero';
+import primitivasTexto from '../../bibliotecas/primitivas-texto';
+import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];

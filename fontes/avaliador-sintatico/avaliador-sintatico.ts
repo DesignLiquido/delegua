@@ -28,12 +28,12 @@ import {
     Unario,
     Variavel,
     Vetor,
-} from '../../construtos';
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../../interfaces';
+} from '../construtos';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import { Dupla, SeletorTuplas, Tupla } from '../../construtos/tuplas';
+import { Dupla, SeletorTuplas, Tupla } from '../construtos/tuplas';
 import {
     Bloco,
     Classe,
@@ -58,24 +58,24 @@ import {
     TendoComo,
     Tente,
     Var,
-} from '../../declaracoes';
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
+} from '../declaracoes';
+import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
+import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { AvaliadorSintaticoBase } from './avaliador-sintatico-base';
-import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
-import { TipoInferencia } from '../../inferenciador';
+import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../inferenciador';
+import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
 
-import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
-import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
+import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
-import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../../bibliotecas/primitivas-numero';
-import primitivasTexto from '../../bibliotecas/primitivas-texto';
-import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../bibliotecas/primitivas-numero';
+import primitivasTexto from '../bibliotecas/primitivas-texto';
+import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 import { registrarPrimitiva } from './comum';
 
