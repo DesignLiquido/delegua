@@ -1354,7 +1354,7 @@ export class AvaliadorSintatico
 
             const condicao = this.expressao();
             // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
+            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -1393,7 +1393,7 @@ export class AvaliadorSintatico
 
                     let declaracoes = [];
                     do {
-                        const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+                        const retornoDeclaracao = this.resolverDeclaracao();
                         if (Array.isArray(retornoDeclaracao)) {
                             declaracoes = declaracoes.concat(retornoDeclaracao);
                         } else {
@@ -1426,7 +1426,7 @@ export class AvaliadorSintatico
 
                     const declaracoes = [];
                     do {
-                        declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+                        declaracoes.push(this.resolverDeclaracao());
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
@@ -1494,7 +1494,7 @@ export class AvaliadorSintatico
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.resolverDeclaracaoForaDeBloco();
+            const caminhoFazer = this.resolverDeclaracao();
             this.consumir(
                 tiposDeSimbolos.ENQUANTO,
                 "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
@@ -1578,7 +1578,7 @@ export class AvaliadorSintatico
             new InformacaoVariavelOuConstante(nomeVariavelValor.lexema, 'qualquer')
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
         return new ParaCada(
             this.hashArquivo,
@@ -1630,7 +1630,7 @@ export class AvaliadorSintatico
             new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
         return new ParaCada(
             this.hashArquivo,
@@ -1694,7 +1694,7 @@ export class AvaliadorSintatico
         }
 
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
         return new Para(
             this.hashArquivo,
@@ -1739,11 +1739,11 @@ export class AvaliadorSintatico
     override declaracaoSe(): Se {
         const condicao = this.expressao();
 
-        const caminhoEntao: Declaracao = this.resolverDeclaracaoForaDeBloco() as Declaracao;
+        const caminhoEntao: Declaracao = this.resolverDeclaracao() as Declaracao;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
+            caminhoSenao = this.resolverDeclaracao();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -2641,7 +2641,7 @@ export class AvaliadorSintatico
      * - Qualquer declaração pode ter um decorador.
      * @returns Uma função ou classe se o símbolo atual resolver aqui.
      *          O retorno de `resolverDeclaracao()` em caso contrário.
-     * @see resolverDeclaracaoForaDeBloco
+     * @see resolverDeclaracao
      * @see resolverDecorador
      */
     override resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] {
@@ -2663,7 +2663,7 @@ export class AvaliadorSintatico
                 return this.declaracaoDeClasse();
             }
 
-            return this.resolverDeclaracaoForaDeBloco();
+            return this.resolverDeclaracao();
         } catch (erro: any) {
             this.sincronizar();
             this.erros.push(erro);

@@ -368,9 +368,9 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    // protected resolverDeclaracaoForaDeBloco() {
-    //     throw new Error('Método não implementado.');
-    // }
+    protected resolverDeclaracao() {
+        throw new Error('Método não implementado.');
+    }
 
     /**
      * Este é o ponto de entrada de toda a avaliação sintática. É o
