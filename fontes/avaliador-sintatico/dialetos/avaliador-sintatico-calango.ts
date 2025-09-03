@@ -25,15 +25,20 @@ import {
 } from '../../declaracoes';
 import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../../interfaces';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-
-import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
 import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
 
-export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
+import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 
+export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     pilhaEscopos: PilhaEscopos;
+
+    constructor() {
+        super();
+
+        this.pilhaEscopos = new PilhaEscopos();
+    }
 
     protected atribuir(): Construto {
         const expressao = this.ou();
@@ -166,6 +171,11 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                     )
                 )
             );
+
+            this.pilhaEscopos.definirInformacoesVariavel(
+                identificador.lexema,
+                new InformacaoVariavelOuConstante(identificador.lexema, 'inteiro')
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(
@@ -186,15 +196,17 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
     protected resolverBloco(simbolosParada: string[]): Bloco {
         const declararoes = [];
+        this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         while(  
-            ![tiposDeSimbolos.FIM_SE].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal()
+            !simbolosParada.includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal()
         ) {
             declararoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
-        this.avancarEDevolverAnterior()
+        this.avancarEDevolverAnterior();
 
+        this.pilhaEscopos.removerUltimo();
         return new Bloco(
             this.hashArquivo,
             Number(this.simbolos[this.atual]),
@@ -342,6 +354,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     ): RetornoAvaliadorSintatico<Declaracao> {
         this.erros = [];
         ((this.atual = 0), (this.blocos = 0));
+        this.pilhaEscopos = new PilhaEscopos();
+        this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
