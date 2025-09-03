@@ -6,11 +6,13 @@ import {
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
+    ComentarioComoConstruto,
     Construto,
     DefinirValor,
     Dicionario,
     Literal,
     ReferenciaFuncao,
+    Separador,
     TipoDe,
     Variavel,
     Vetor,
@@ -84,7 +86,7 @@ export class Interpretador extends InterpretadorBase {
             return this.resolverReferenciaMontao(objeto);
         }
 
-        if (objeto.hasOwnProperty('valor')) {
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valor')) {
             if (Array.isArray(objeto.valor)) {
                 return this.resolverValor(objeto.valor);
             }
@@ -146,18 +148,6 @@ export class Interpretador extends InterpretadorBase {
             return retornoVetor;
         }
 
-        switch (objeto.constructor.name) {
-            case 'Object':
-                if ('tipo' in objeto) {
-                    switch (objeto.tipo) {
-                        case 'dicionário':
-                            return JSON.stringify(objeto.valor);
-                        default:
-                            return objeto.valor;
-                    }
-                }
-        }
-
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
             const objetoEscrita = {};
             for (const propriedade in objeto) {
@@ -175,6 +165,18 @@ export class Interpretador extends InterpretadorBase {
 
             return JSON.stringify(objetoEscrita);
         }
+
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor;
+                    }
+                }
+        }       
 
         return objeto.toString();
     }
@@ -324,13 +326,13 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
         }
 
@@ -433,13 +435,13 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
         }
 
@@ -501,12 +503,15 @@ export class Interpretador extends InterpretadorBase {
                 break;
         }
 
-        // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
+        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades) 
+        // que possua a propriedade.
         // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
-        if (
-            objeto.hasOwnProperty(expressao.simbolo.lexema) ||
-            typeof objeto[expressao.simbolo.lexema] !== 'undefined'
-        ) {
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
+            return objeto[expressao.simbolo.lexema];
+        }
+        
+        // Último caso: objeto simples, sem construtor, sem protótipo. Exemplo: {'a': 1, 'b': 2}
+        if (typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
             return objeto[expressao.simbolo.lexema];
         }
 
@@ -527,7 +532,7 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
 
@@ -537,7 +542,7 @@ export class Interpretador extends InterpretadorBase {
         // então testamos também o nome do construtor.
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto.constructor.name === 'ObjetoDeleguaClasse'
+            objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse'
         ) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
@@ -665,6 +670,14 @@ export class Interpretador extends InterpretadorBase {
                 )
             );
         }
+    }
+
+    /**
+     * Em Delégua e Pituguês, comentários não são importantes para a interpretação.
+     * @param expressao 
+     */
+    override async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> {
+        return Promise.resolve();
     }
 
     /**
@@ -808,6 +821,15 @@ export class Interpretador extends InterpretadorBase {
         return retornoQuebra;
     }
 
+    /**
+     * Para Delégua e Pituguês, o separador é apenas um elemento de sintaxe.
+     * Não há qualquer avaliação a ser feita.
+     * @param expressao 
+     */
+    override async visitarExpressaoSeparador(expressao: Separador): Promise<any> {
+        return Promise.resolve(null);
+    }
+
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let valorTipoDe = expressao.valor;
 
@@ -851,7 +873,9 @@ export class Interpretador extends InterpretadorBase {
             case 'Variavel':
                 return valorTipoDe.tipo;
             case 'Vetor':
-                return inferirTipoVariavel((valorTipoDe as Vetor)?.valores);
+                const vetor = valorTipoDe as Vetor;
+                const apenasValores = vetor.valores.filter(v => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name));
+                return inferirTipoVariavel(apenasValores);
             default:
                 return inferirTipoVariavel(valorTipoDe);
         }

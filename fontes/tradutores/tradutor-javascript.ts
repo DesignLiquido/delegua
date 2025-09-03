@@ -9,6 +9,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    ComentarioComoConstruto,
     Construto,
     DefinirValor,
     Dicionario,
@@ -18,6 +19,7 @@ import {
     Literal,
     Logico,
     ReferenciaFuncao,
+    Separador,
     TipoDe,
     Unario,
     Variavel,
@@ -898,6 +900,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `${referenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
     }
 
+    traduzirConstrutoSeparador(separador: Separador): string {
+        return `${separador.conteudo} `;
+    }
+
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
         let resultado = 'typeof ';
 
@@ -929,10 +935,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let resultado = '[';
 
         for (let valor of vetor.valores) {
-            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
-        }
-        if (vetor.valores.length > 0) {
-            resultado = resultado.slice(0, -2);
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}`;
         }
 
         resultado += ']';
@@ -973,6 +976,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
+        ComentarioComoConstruto: this.traduzirDeclaracaoComentario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
@@ -982,6 +986,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
+        Separador: this.traduzirConstrutoSeparador.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),

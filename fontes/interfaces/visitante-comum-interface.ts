@@ -11,6 +11,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    ComentarioComoConstruto,
     Constante,
     DefinirValor,
     Dicionario,
@@ -23,6 +24,7 @@ import {
     Literal,
     Logico,
     ReferenciaFuncao,
+    Separador,
     Super,
     TipoDe,
     Tupla,
@@ -103,6 +105,7 @@ export interface VisitanteComumInterface {
     ): Promise<any> | void;
     visitarExpressaoBinaria(expressao: Binario): Promise<any> | void;
     visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
+    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void;
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
     visitarExpressaoDeChamada(expressao: Chamada): Promise<any> | void;
     visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> | void;
@@ -118,7 +121,8 @@ export interface VisitanteComumInterface {
     visitarExpressaoLiteral(expressao: Literal): Promise<any> | void;
     visitarExpressaoLogica(expressao: Logico): Promise<any> | void;
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void;
-    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> | void;
+    visitarExpressaoRetornar(expressao: Retorna): Promise<RetornoQuebra> | void;
+    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void;
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;
     visitarExpressaoTupla(expressao: Tupla): Promise<any> | void;

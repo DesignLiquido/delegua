@@ -1,9 +1,10 @@
 import { Simbolo } from './lexador';
+import { TipoDadosElementar } from './tipo-dados-elementar';
+
 import tipoDeDadosPrimitivos from './tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from './tipos-de-dados/delegua';
 import tiposDeSimbolos from './tipos-de-simbolos/delegua';
-import { TipoDadosElementar } from './tipo-dados-elementar';
-import { Construto } from './construtos';
+
 export type TipoInferencia =
     | 'cadeia'
     | 'caracter'
@@ -74,7 +75,7 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
         return 'nulo';
     }
 
-    const tipo = variavel.constructor.name;
+    const tipo = variavel.constructor ? variavel.constructor.name : typeof variavel;
     switch (tipo) {
         case 'String':
         case 'string':

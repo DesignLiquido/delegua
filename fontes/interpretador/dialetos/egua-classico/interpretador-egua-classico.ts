@@ -13,6 +13,7 @@ import {
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
     Atribuir,
+    ComentarioComoConstruto,
     Construto,
     ExpressaoRegular,
     FimPara,
@@ -21,6 +22,7 @@ import {
     Leia,
     Literal,
     ReferenciaFuncao,
+    Separador,
     Super,
     TipoDe,
     Tupla,
@@ -112,6 +114,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+    
+    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     protected resolverValor(objeto: any) {

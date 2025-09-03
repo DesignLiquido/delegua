@@ -49,8 +49,26 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Comentários', () => {
-                it('Comentários multilinha', async () => {
+                it('Comentários multilinha', () => {
                     const retornoLexador = lexador.mapear(["/*", "comentário", "*/"], -1);
+    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Comentários entre elementos de vetores', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var castelo = [',
+                            '    [0, 0], // Parte do topo do castelo',
+                            '    [0, 0, 0], // Parte do meio castelo',
+                            '    [0, 0, 0], // Parte do meio castelo',
+                            '    [0, 0, 0], // Parte do meio castelo',
+                            '    [0, 0, 0, 0, 0] // Parte de baixo do castelo ',
+                            ']',
+                        ], -1);
     
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
@@ -619,9 +637,10 @@ describe('Avaliador sintático', () => {
                     expect('descricao' in decoradorRestResposta.atributos).toBe(true);
                     expect(decoradorRestResposta.atributos['descricao'].valor).toBe('Devolvido com sucesso');
                     expect('formatos' in decoradorRestResposta.atributos).toBe(true);
-                    expect(decoradorRestResposta.atributos['formatos'].valores).toHaveLength(2);
+                    expect(decoradorRestResposta.atributos['formatos'].valores).toHaveLength(3);
                     expect(decoradorRestResposta.atributos['formatos'].valores[0].valor).toBe('application/json');
-                    expect(decoradorRestResposta.atributos['formatos'].valores[1].valor).toBe('application/xml');
+                    // decoradorRestResposta.atributos['formatos'].valores[0] é um separador (vírgula).
+                    expect(decoradorRestResposta.atributos['formatos'].valores[2].valor).toBe('application/xml');
 
                     // Declaração `liquido.rotaPost` não tem decoradores.
                     const declaracaoPost = retornoAvaliadorSintatico.declaracoes[1];

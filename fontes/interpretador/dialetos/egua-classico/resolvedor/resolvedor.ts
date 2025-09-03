@@ -3,12 +3,14 @@ import {
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
     Atribuir,
+    ComentarioComoConstruto,
     Construto,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
     Leia,
     ReferenciaFuncao,
+    Separador,
     Super,
     TipoDe,
     Tupla,
@@ -94,6 +96,14 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoDeleguaFuncao(declaracao: any) {

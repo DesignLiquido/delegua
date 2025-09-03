@@ -7,12 +7,12 @@ export class Vetor implements Construto {
     tamanho: number;
     tipo?: string;
 
-    valores: any[];
+    valores: Construto[];
 
     constructor(
         hashArquivo: number,
         linha: number,
-        valores: any[],
+        valores: Construto[],
         tamanho?: number,
         tipo?: string
     ) {
