@@ -28,12 +28,12 @@ import {
     Unario,
     Variavel,
     Vetor,
-} from '../construtos';
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
+} from '../../construtos';
+import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import { Dupla, SeletorTuplas, Tupla } from '../construtos/tuplas';
+import { Dupla, SeletorTuplas, Tupla } from '../../construtos/tuplas';
 import {
     Bloco,
     Classe,
@@ -58,24 +58,24 @@ import {
     TendoComo,
     Tente,
     Var,
-} from '../declaracoes';
-import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
-import { TipoDadosElementar } from '../tipo-dados-elementar';
+} from '../../declaracoes';
+import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { TipoDadosElementar } from '../../tipo-dados-elementar';
 import { AvaliadorSintaticoBase } from './avaliador-sintatico-base';
-import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../inferenciador';
-import { TipoInferencia } from '../inferenciador';
+import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
+import { TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
 
-import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
-import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
+import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
+import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 
-import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../bibliotecas/primitivas-numero';
-import primitivasTexto from '../bibliotecas/primitivas-texto';
-import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../../bibliotecas/primitivas-numero';
+import primitivasTexto from '../../bibliotecas/primitivas-texto';
+import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 
 import { registrarPrimitiva } from './comum';
 
@@ -1322,7 +1322,7 @@ export class AvaliadorSintatico
 
             const condicao = this.expressao();
             // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+            const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -1361,7 +1361,7 @@ export class AvaliadorSintatico
 
                     let declaracoes = [];
                     do {
-                        const retornoDeclaracao = this.resolverDeclaracao();
+                        const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
                         if (Array.isArray(retornoDeclaracao)) {
                             declaracoes = declaracoes.concat(retornoDeclaracao);
                         } else {
@@ -1394,7 +1394,7 @@ export class AvaliadorSintatico
 
                     const declaracoes = [];
                     do {
-                        declaracoes.push(this.resolverDeclaracao());
+                        declaracoes.push(this.resolverDeclaracaoForaDeBloco());
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
@@ -1462,7 +1462,7 @@ export class AvaliadorSintatico
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.resolverDeclaracao();
+            const caminhoFazer = this.resolverDeclaracaoForaDeBloco();
             this.consumir(
                 tiposDeSimbolos.ENQUANTO,
                 "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
@@ -1546,7 +1546,7 @@ export class AvaliadorSintatico
             new InformacaoVariavelOuConstante(nomeVariavelValor.lexema, 'qualquer')
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
 
         return new ParaCada(
             this.hashArquivo,
@@ -1598,7 +1598,7 @@ export class AvaliadorSintatico
             new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
 
         return new ParaCada(
             this.hashArquivo,
@@ -1662,7 +1662,7 @@ export class AvaliadorSintatico
         }
 
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = this.resolverDeclaracaoForaDeBloco() as Bloco;
 
         return new Para(
             this.hashArquivo,
@@ -1707,11 +1707,11 @@ export class AvaliadorSintatico
     override declaracaoSe(): Se {
         const condicao = this.expressao();
 
-        const caminhoEntao: Declaracao = this.resolverDeclaracao() as Declaracao;
+        const caminhoEntao: Declaracao = this.resolverDeclaracaoForaDeBloco() as Declaracao;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracao();
+            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -2609,7 +2609,7 @@ export class AvaliadorSintatico
      * - Qualquer declaração pode ter um decorador.
      * @returns Uma função ou classe se o símbolo atual resolver aqui.
      *          O retorno de `resolverDeclaracao()` em caso contrário.
-     * @see resolverDeclaracao
+     * @see resolverDeclaracaoForaDeBloco
      * @see resolverDecorador
      */
     override resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] {
@@ -2631,7 +2631,7 @@ export class AvaliadorSintatico
                 return this.declaracaoDeClasse();
             }
 
-            return this.resolverDeclaracao();
+            return this.resolverDeclaracaoForaDeBloco();
         } catch (erro: any) {
             this.sincronizar();
             this.erros.push(erro);

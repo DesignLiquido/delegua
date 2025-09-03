@@ -23,7 +23,7 @@ import {
     AcessoMetodo,
     AcessoPropriedade,
     ReferenciaFuncao,
-} from '../../construtos';
+} from '../../../construtos';
 import {
     Escreva,
     Se,
@@ -45,37 +45,37 @@ import {
     Const,
     Falhar,
     ParaCada,
-} from '../../declaracoes';
+} from '../../../declaracoes';
 
 import {
     AvaliadorSintaticoInterface,
     ParametroInterface,
     SimboloInterface,
-} from '../../interfaces';
-import { Pragma } from '../../lexador/dialetos/pragma';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+} from '../../../interfaces';
+import { Pragma } from '../../../lexador/dialetos/pragma';
+import { RetornoLexador } from '../../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoAvaliadorSintatico } from '../../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoPrimario } from '../retornos';
 
-import { Simbolo } from '../../lexador';
+import { Simbolo } from '../../../lexador';
 import {
     inferirTipoVariavel,
     TipoInferencia,
     tipoInferenciaParaTipoDadosElementar,
-} from '../../inferenciador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
+} from '../../../inferenciador';
+import { TipoDadosElementar } from '../../../tipo-dados-elementar';
 
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { InformacaoVariavelOuConstante } from '../../../informacao-variavel-ou-constante';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/pitugues';
 
-import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../../bibliotecas/primitivas-numero';
-import primitivasTexto from '../../bibliotecas/primitivas-texto';
-import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import primitivasDicionario from '../../../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../../../bibliotecas/primitivas-numero';
+import primitivasTexto from '../../../bibliotecas/primitivas-texto';
+import primitivasVetor from '../../../bibliotecas/primitivas-vetor';
 
 import { registrarPrimitiva } from '../comum';
 

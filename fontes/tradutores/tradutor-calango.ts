@@ -1,4 +1,4 @@
-import { AvaliadorSintaticoPortugolIpt } from '../avaliador-sintatico/dialetos';
+import { AvaliadorSintaticoPortugolIpt } from '../analisador-semantico/avaliador-sintatico/dialetos';
 import { FormatacaoEscrita, Literal } from '../construtos';
 import { LexadorCalango } from '../lexador/dialetos';
 

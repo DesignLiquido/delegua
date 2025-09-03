@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 import { Directive, ModuleDeclaration, Statement } from 'estree';
-import { Construto, FuncaoConstruto, Leia } from '../../construtos';
+import { Construto, FuncaoConstruto, Leia } from '../../../construtos';
 import {
     Enquanto,
     Escreva,
@@ -19,9 +19,9 @@ import {
     Var,
     FuncaoDeclaracao,
     Classe,
-} from '../../declaracoes';
-import { AvaliadorSintaticoInterface } from '../../interfaces';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
+} from '../../../declaracoes';
+import { AvaliadorSintaticoInterface } from '../../../interfaces';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
 export class AvaliadorSintaticoJavaScript

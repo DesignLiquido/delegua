@@ -1,4 +1,4 @@
-import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
+import { AvaliadorSintaticoInterface, SimboloInterface } from '../../../interfaces';
 import {
     AtribuicaoPorIndice,
     Atribuir,
@@ -19,7 +19,7 @@ import {
     Isto,
     Construto,
     Leia,
-} from '../../construtos';
+} from '../../../construtos';
 
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import {
@@ -41,13 +41,13 @@ import {
     Var,
     Const,
     Declaracao,
-} from '../../declaracoes';
+} from '../../../declaracoes';
 
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoAvaliadorSintatico } from '../../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoLexador } from '../../../interfaces/retornos/retorno-lexador';
 import { RetornoPrimario } from '../retornos';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.

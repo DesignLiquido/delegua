@@ -1,4 +1,4 @@
-import { ErroAvaliadorSintatico } from '../avaliador-sintatico/erro-avaliador-sintatico';
+import { ErroAvaliadorSintatico } from '../analisador-semantico/avaliador-sintatico/erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from './retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from './retornos/retorno-lexador';
 

@@ -25,12 +25,12 @@ import {
     Unario,
     Variavel,
     Vetor,
-} from '../../construtos';
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
+} from '../../../construtos';
+import { ParametroInterface, SimboloInterface } from '../../../interfaces';
 
-import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
+import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
-import { SeletorTuplas, Tupla } from '../../construtos/tuplas';
+import { SeletorTuplas, Tupla } from '../../../construtos/tuplas';
 import {
     Bloco,
     Comentario,
@@ -46,25 +46,25 @@ import {
     Se,
     Sustar,
     Var,
-} from '../../declaracoes';
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
+} from '../../../declaracoes';
+import { RetornoAvaliadorSintatico } from '../../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoLexador } from '../../../interfaces/retornos/retorno-lexador';
+import { TipoDadosElementar } from '../../../tipo-dados-elementar';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
-import { TipoInferencia } from '../../inferenciador';
-import { PilhaEscopos } from './../pilha-escopos';
-import { InformacaoEscopo } from './../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
-import { Simbolo } from '../../lexador/simbolo';
+import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../../inferenciador';
+import { TipoInferencia } from '../../../inferenciador';
+import { PilhaEscopos } from '../pilha-escopos';
+import { InformacaoEscopo } from '../informacao-escopo';
+import { InformacaoVariavelOuConstante } from '../../../informacao-variavel-ou-constante';
+import { Simbolo } from '../../../lexador/simbolo';
 
-import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
-import tiposDeSimbolos from '../../tipos-de-simbolos/tenda';
+import tipoDeDadosDelegua from '../../../tipos-de-dados/delegua';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/tenda';
 
-import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../../bibliotecas/primitivas-numero';
-import primitivasTexto from '../../bibliotecas/primitivas-texto';
-import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import primitivasDicionario from '../../../bibliotecas/primitivas-dicionario';
+import primitivasNumero from '../../../bibliotecas/primitivas-numero';
+import primitivasTexto from '../../../bibliotecas/primitivas-texto';
+import primitivasVetor from '../../../bibliotecas/primitivas-vetor';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -1363,11 +1363,11 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.ENTÃO, "Esperado 'então' após a condição.");
 
-        const caminhoEntao: Declaracao = this.resolverDeclaracao() as Declaracao;
+        const caminhoEntao: Declaracao = this.resolverDeclaracaoForaDeBloco() as Declaracao;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracao();
+            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -1621,7 +1621,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 break;
         }
 
-        const corpo = this.resolverDeclaracao() as Declaracao;
+        const corpo = this.resolverDeclaracaoForaDeBloco() as Declaracao;
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
         // Tenda trabalha com retornos implícitos.
         let corpoResolvido = [];
@@ -1656,11 +1656,11 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      * Até então, Tenda não tem casos de declarações fora de blocos.
      * Isso pode mudar futuramente. Portanto, esta seção será mantida.
      * @returns Uma `Declaracao` ou várias, dependendo do retorno de `resolverDeclaracao`.
-     * @see resolverDeclaracao
+     * @see resolverDeclaracaoForaDeBloco
      */
     override resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] {
         try {
-            return this.resolverDeclaracao();
+            return this.resolverDeclaracaoForaDeBloco();
         } catch (erro: any) {
             this.sincronizar();
             this.erros.push(erro);

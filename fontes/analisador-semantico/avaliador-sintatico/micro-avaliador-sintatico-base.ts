@@ -1,10 +1,10 @@
-import { Construto, Unario, Binario, Logico } from '../construtos';
-import { Declaracao } from '../declaracoes';
-import { SimboloInterface } from '../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
+import { Construto, Unario, Binario, Logico } from '../../construtos';
+import { Declaracao } from '../../declaracoes';
+import { SimboloInterface } from '../../interfaces';
+import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import tiposDeSimbolos from '../tipos-de-simbolos/comum';
+import tiposDeSimbolos from '../../tipos-de-simbolos/comum';
 
 export abstract class MicroAvaliadorSintaticoBase {
     simbolos: SimboloInterface[];
