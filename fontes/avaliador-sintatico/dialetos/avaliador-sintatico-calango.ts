@@ -108,7 +108,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         );
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+        this.                     verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         return new Escreva(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
@@ -195,11 +195,11 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     protected resolverBloco(simbolosParada: string[]): Bloco {
-        const declararoes = [];
+        const declararoes =  [];
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        while(  
-            !simbolosParada.includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal()
+        while(
+            !simbolosParada.includes(this.simbolos[this.atual].lexema) /* && !this.estaNoFinal() */
         ) {
             declararoes.push(this.resolverDeclaracaoForaDeBloco());
         }
@@ -224,8 +224,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         const caminhoEntao = this.resolverBloco([
-            tiposDeSimbolos.SENAO,
-            tiposDeSimbolos.FIM_SE,
+            'senao',
+            'fimSe'
         ]); 
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
@@ -234,8 +234,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
             caminhoSenao = this.resolverBloco([
-                tiposDeSimbolos.SENAO,
-                tiposDeSimbolos.FIM_SE,
+                'senao',
+                'fimSe'
             ]);
         }
 
@@ -366,8 +366,6 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         let declaracoes = [];
         
-        /* No lexador, o ponto e vírgula é consumido, o que pode gerar algum
-         problema já que a expressão "principal" não exige ponto e vírgula(?) */
         this.validarSegmentoAlgoritmo(); 
         this.validarSegmentoPrincipal('principal'); 
 

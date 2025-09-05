@@ -33,7 +33,6 @@ describe('Interpretador (Calango)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            // TODO @Maitê: Corrigir.
             it.skip('Sucesso - Condicionais (se, senao)', async () => {
                 // Aqui vamos simular a resposta para uma variável de `leia()`.
                 const respostas = ['40'];
@@ -65,6 +64,35 @@ describe('Interpretador (Calango)', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+        it('Sucesso - Condicionais (se, senao)', async () => {
+            // Aqui vamos simular a resposta para uma variável de `leia()`.
+            const respostas = ['40'];
+            interpretador.interfaceEntradaSaida = {
+                question: (mensagem: string, callback: Function) => {
+                    callback(respostas.shift());
+                },
+            };
+
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;', 
+                'principal', 
+                'inteiro idade;', 
+                'escreva("Informe sua idade: ");',
+                'leia(idade);',
+                'se (idade >= 18) entao',
+                    'escreval("maior de idade");',
+                'senao',
+                    'escreval("menor de idade");',
+                'fimSe',
+                'fimPrincipal'
+            ], -1);
+
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
             });
         });
     });
