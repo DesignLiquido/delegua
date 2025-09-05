@@ -2157,6 +2157,21 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Retornos externos', () => {
+                it('Literal devolvido em retorno de função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao acheAPrincesa(castelo) { retorna [25] }',
+                        'acheAPrincesa([1])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(retornoInterpretador.resultado.length).toBeGreaterThan(0);
+                });
+            });
+
             describe('Tendo ... Como', () => {
                 it('Trivial, sem finalizar() definido', async () => {
                     let _saida: string = '';

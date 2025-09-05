@@ -21,4 +21,8 @@ export class ComentarioComoConstruto implements Construto {
     aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoComentario(this));
     }
+
+    paraTexto(): string {
+        return `<comentário-como-construto conteúdo=${this.conteudo} />`;
+    }
 }

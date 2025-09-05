@@ -10,7 +10,7 @@ export class ReferenciaMontao {
      * @returns {string} A representação da referência como texto.
      */
     paraTexto(): string {
-        return `<ReferênciaMontão endereco=${this.endereco}>`;
+        return `<referência-montão endereço=${this.endereco} />`;
     }
 
     /**

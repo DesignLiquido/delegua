@@ -34,4 +34,8 @@ export class FimPara implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoFimPara(this);
     }
+
+    paraTexto(): string {
+        return `<fim-para condiçãoPara=${this.condicaoPara.paraTexto()} incremento=${this.incremento.paraTexto()} />`; 
+    }
 }

@@ -30,4 +30,9 @@ export class FuncaoDeclaracao extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarDeclaracaoDefinicaoFuncao(this));
     }
+
+    paraTexto(): string {
+        // TODO: Corpo.
+        return `<declaração-função nome=${this.simbolo.lexema} tipo=${this.tipo} />`; 
+    }
 }

@@ -25,4 +25,9 @@ export class ConstMultiplo extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoConstMultiplo(this);
     }
+
+    paraTexto(): string {
+        // TODO: Terminar
+        return `<const-múltiplo />`;
+    }
 }

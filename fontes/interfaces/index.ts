@@ -7,6 +7,7 @@ export * from './parametro-interface';
 export * from './pilha-interface';
 export * from './primitiva-interface';
 export * from './resolvedor-interface';
+export * from './resultado-parcial-interpretador-interface';
 export * from './retornos/retorno-execucao-interface';
 export * from './simbolo-interface';
 export * from './tradutor-interface';

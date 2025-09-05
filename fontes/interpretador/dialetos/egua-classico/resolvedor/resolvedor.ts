@@ -37,7 +37,7 @@ import { EspacoMemoria } from '../../../espaco-memoria';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
 import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
-import { RetornoInterpretador } from '../../../../interfaces/retornos';
+import { RetornoInterpretadorInterface } from '../../../../interfaces/retornos';
 import { ErroResolvedor } from './erro-resolvedor';
 import { PilhaEscopos } from './pilha-escopos';
 import { RetornoResolvedor } from './retorno-resolvedor';
@@ -235,7 +235,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         throw new Error('Método não implementado.');
     }
 

@@ -25,4 +25,8 @@ export class Literal implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoLiteral(this);
     }
+
+    paraTexto(): string {
+        return `<literal valor=${this.valor} tipo=${this.tipo} />`; 
+    }
 }

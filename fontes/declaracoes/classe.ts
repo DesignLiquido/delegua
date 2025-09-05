@@ -29,4 +29,24 @@ export class Classe extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoClasse(this);
     }
+
+    paraTexto(): string {
+        let resultado = `<classe nome=${this.simbolo.lexema} `;
+        if (this.superClasse) {
+            resultado += `herda=${this.superClasse} `
+        }
+
+        resultado += ">";
+
+        for (const propriedade of this.propriedades) {
+            resultado += `${propriedade.paraTexto()}`;
+        }
+
+        for (const metodo of this.metodos) {
+            resultado += `${metodo.paraTexto()}`;
+        }
+
+        resultado += `</classe>`;
+        return resultado;
+    }
 }

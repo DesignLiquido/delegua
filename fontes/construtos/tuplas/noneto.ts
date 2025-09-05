@@ -1,26 +1,27 @@
-import { Tupla } from './tupla';
+import { Construto } from '../construto';
+import { Tupla } from '../tupla';
 
 export class Noneto extends Tupla {
-    primeiro: any;
-    segundo: any;
-    terceiro: any;
-    quarto: any;
-    quinto: any;
-    sexto: any;
-    setimo: any;
-    oitavo: any;
-    nono: any;
+    primeiro: Construto;
+    segundo: Construto;
+    terceiro: Construto;
+    quarto: Construto;
+    quinto: Construto;
+    sexto: Construto;
+    setimo: Construto;
+    oitavo: Construto;
+    nono: Construto;
 
     constructor(
-        primeiro: any,
-        segundo: any,
-        terceiro: any,
-        quarto: any,
-        quinto: any,
-        sexto: any,
-        setimo: any,
-        oitavo: any,
-        nono: any
+        primeiro: Construto,
+        segundo: Construto,
+        terceiro: Construto,
+        quarto: Construto,
+        quinto: Construto,
+        sexto: Construto,
+        setimo: Construto,
+        oitavo: Construto,
+        nono: Construto
     ) {
         super();
         this.primeiro = primeiro;
@@ -40,5 +41,18 @@ export class Noneto extends Tupla {
 
     set sétimo(valor: any) {
         this.setimo = valor;
+    }
+
+    paraTexto(): string {
+        return `<noneto primeiro=${this.primeiro.paraTexto()} ` +
+            `segundo=${this.segundo.paraTexto()} ` +
+            `terceiro=${this.terceiro.paraTexto()} ` +
+            `quarto=${this.quarto.paraTexto()} ` +
+            `quinto=${this.quinto.paraTexto()} ` +
+            `sexto=${this.sexto.paraTexto()} ` +
+            `sétimo=${this.setimo.paraTexto()} ` +
+            `oitavo=${this.oitavo.paraTexto()} ` +
+            `nono=${this.nono.paraTexto()} ` +
+            ` />`;
     }
 }

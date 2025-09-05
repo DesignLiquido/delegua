@@ -7,14 +7,14 @@ export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implemen
 
     entidadeChamada: Construto;
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
-    indicePrimario: any;
-    indiceSecundario: any;
+    indicePrimario: Construto;
+    indiceSecundario: Construto;
 
     constructor(
         hashArquivo: number,
         entidadeChamada: Construto,
-        indicePrimario: any,
-        indiceSegundario: any,
+        indicePrimario: Construto,
+        indiceSegundario: Construto,
         simboloFechamento: SimboloInterface<TTipoSimbolo>
     ) {
         this.linha = entidadeChamada.linha;
@@ -28,5 +28,12 @@ export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implemen
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAcessoElementoMatriz(this);
+    }
+
+    paraTexto(): string {
+        return `<acesso-elemento-matriz entidadeChamada=${this.entidadeChamada.paraTexto()} ` + 
+            `indicePrimário=${this.indicePrimario.paraTexto()} ` +
+            `indiceSecundário=${this.indiceSecundario.paraTexto()} ` +
+            `/>`;
     }
 }

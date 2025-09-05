@@ -26,4 +26,9 @@ export class Chamada implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoDeChamada(this);
     }
+
+    paraTexto(): string {
+        // TODO: Argumentos
+        return `<chamada entidadeChamada=${this.entidadeChamada.paraTexto()} />`;
+    }
 }

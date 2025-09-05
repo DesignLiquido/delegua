@@ -8,16 +8,16 @@ import { Declaracao } from './declaracao';
 export class Tente extends Declaracao {
     caminhoTente: Declaracao[];
     caminhoPegue: FuncaoConstruto | Declaracao[];
-    caminhoSenao: any[];
+    caminhoSenao: Declaracao[];
     caminhoFinalmente: Declaracao[];
 
     constructor(
         hashArquivo: number,
         linha: number,
-        caminhoTente: any[],
+        caminhoTente: Declaracao[],
         caminhoPegue: FuncaoConstruto | Declaracao[],
-        caminhoSenao: any[],
-        caminhoFinalmente: any[]
+        caminhoSenao: Declaracao[],
+        caminhoFinalmente: Declaracao[]
     ) {
         super(linha, hashArquivo);
         this.caminhoTente = caminhoTente;
@@ -28,5 +28,10 @@ export class Tente extends Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoTente(this);
+    }
+
+    paraTexto(): string {
+        // TODO: Terminar.
+        return `<tente />`;
     }
 }

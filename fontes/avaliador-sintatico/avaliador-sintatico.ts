@@ -27,6 +27,7 @@ import {
     Separador,
     Super,
     TipoDe,
+    Tupla,
     Unario,
     Variavel,
     Vetor,
@@ -35,7 +36,7 @@ import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } fro
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import { Dupla, SeletorTuplas, Tupla } from '../construtos/tuplas';
+import { Dupla, SeletorTuplas } from '../construtos/tuplas';
 import {
     Bloco,
     Classe,
@@ -1503,7 +1504,7 @@ export class AvaliadorSintatico
             return new Fazer(
                 simboloFazer.hashArquivo,
                 Number(simboloFazer.linha),
-                caminhoFazer,
+                caminhoFazer as any, // TODO: Aqui pode ser um `Bloco`?
                 condicaoEnquanto
             );
         } finally {
@@ -2411,7 +2412,7 @@ export class AvaliadorSintatico
     protected *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
         for (const declaracao of construtoBloco.declaracoes) {
             if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
+                yield declaracao as Retorna;
             }
         }
     }
@@ -2431,7 +2432,7 @@ export class AvaliadorSintatico
 
                 for (const declaracao of blocoSenao.declaracoes) {
                     if (declaracao.constructor.name === 'Retorna') {
-                        yield declaracao;
+                        yield declaracao as Retorna;
                     }
                 }
                 break;
@@ -2439,7 +2440,7 @@ export class AvaliadorSintatico
                 const senaoSe: Se = construtoSe.caminhoSenao as Se;
                 for (const declaracao of this.buscarRetornosEmSe(senaoSe)) {
                     if (declaracao.constructor.name === 'Retorna') {
-                        yield declaracao;
+                        yield declaracao as Retorna;
                     }
                 }
                 break;

@@ -26,7 +26,7 @@ import {
     ObjetoPadrao,
     ReferenciaMontao,
 } from './estruturas';
-import { RetornoInterpretador, SimboloInterface, VariavelInterface } from '../interfaces';
+import { ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
@@ -211,9 +211,14 @@ export class Interpretador extends InterpretadorBase {
 
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
-        // TODO: Depreciar essa abordagem a favor do uso por referências.
+        // TODO: Depreciar essa abordagem a favor do uso por referências?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
+
+        return {
+            tipo: `função<${funcao.declaracao.tipo}>`,
+            tipoExplicito: funcao.declaracao.tipoExplicito
+        };
     }
 
     override async visitarExpressaoAcessoIndiceVariavel(
@@ -806,7 +811,7 @@ export class Interpretador extends InterpretadorBase {
             valor = await this.avaliar(declaracao.valor);
         }
 
-        const retornoQuebra = new RetornoQuebra(valor);
+        const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
 
         // Se o retorno for uma função anônima, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
@@ -891,7 +896,7 @@ export class Interpretador extends InterpretadorBase {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    override async executarUltimoEscopo(manterAmbiente = false): Promise<any> {
+    override async executarUltimoEscopo(manterAmbiente = false): Promise<ResultadoParcialInterpretadorInterface> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: any;
         try {
@@ -944,7 +949,7 @@ export class Interpretador extends InterpretadorBase {
     override async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         this.montao = new Montao();
         return super.interpretar(declaracoes, manterAmbiente);
     }

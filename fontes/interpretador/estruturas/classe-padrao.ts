@@ -21,7 +21,7 @@ export class ClassePadrao extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     toString(): string {
-        return `<classe-padrão ${this.nome}>`;
+        return `<classe-padrão nome=${this.nome} />`;
     }
 
     /**
@@ -29,7 +29,7 @@ export class ClassePadrao extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     paraTexto(): string {
-        return `<classe-padrão ${this.nome}>`;
+        return `<classe-padrão nome=${this.nome} />`;
     }
 
     /**

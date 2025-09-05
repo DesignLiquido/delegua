@@ -10,13 +10,13 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
 
     alvo: Construto;
     indice?: Construto;
-    valor: any;
+    valor: Construto;
     simboloOperador?: SimboloInterface<TTipoSimbolo>;
 
     constructor(
         hashArquivo: number,
         alvo: Construto,
-        valor: any,
+        valor: Construto,
         // indice so é usado para variaveis de vetores
         // TODO: criar alguma validaçao para garantir que `indice` só seja passado para variáveis de vetores
         indice?: Construto,
@@ -36,8 +36,17 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
             this.simboloOperador = simboloOperador;
         }
     }
-
+    
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoDeAtribuicao(this);
+    }
+
+    paraTexto(): string {
+        let indiceResolvido = "índice=(não definido)";
+        if (this.indice) {
+            indiceResolvido = `índice=${this.indice.paraTexto()}`;
+        }
+
+        return `<atribuir alvo=${this.alvo.paraTexto()} ${indiceResolvido} valor=${this.valor.paraTexto()} />`;
     }
 }

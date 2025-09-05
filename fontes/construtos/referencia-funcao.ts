@@ -25,4 +25,8 @@ export class ReferenciaFuncao implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return visitante.visitarExpressaoReferenciaFuncao(this);
     }
+
+    paraTexto(): string {
+        return `<referência-função nome=${this.simboloFuncao.lexema} tipo=${this.tipo} />`;
+    }
 }

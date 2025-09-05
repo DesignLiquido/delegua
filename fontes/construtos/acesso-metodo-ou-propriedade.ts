@@ -32,4 +32,10 @@ export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> imp
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAcessoMetodoOuPropriedade(this);
     }
+
+    paraTexto(): string {
+        return `<acesso-método-ou-propriedade objeto=${this.objeto.paraTexto()} ` +
+            `métodoOuPropriedade=${this.simbolo.lexema} ` +
+            `/>`;
+    }
 }

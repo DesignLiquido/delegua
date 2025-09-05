@@ -24,4 +24,8 @@ export class Agrupamento implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAgrupamento(this);
     }
+
+    paraTexto(): string {
+        return `<agrupamento subExpressão=${this.expressao.paraTexto()} tipo=${this.tipo} />`;
+    }
 }

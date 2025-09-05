@@ -19,8 +19,8 @@ export class Para extends Declaracao {
     constructor(
         hashArquivo: number,
         linha: number,
-        inicializador: any,
-        condicao: any,
+        inicializador: Declaracao | Declaracao[],
+        condicao: Construto,
         incrementar: Construto,
         corpo: Bloco
     ) {
@@ -36,5 +36,17 @@ export class Para extends Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoPara(this);
+    }
+
+    paraTexto(): string {
+        let inicializador: string = "";
+        if (Array.isArray(this.inicializador)) {
+            inicializador = this.inicializador.reduce((anterior, atual) => anterior += atual.paraTexto() + ` `, "inicialização=");
+        } else if (this.inicializador) {
+            inicializador = `inicialização=${this.inicializador.paraTexto()} `;
+        }
+
+        // TODO: Bloco.
+        return `<para ${this.inicializador} condição=${this.condicao.paraTexto()} />`;
     }
 }

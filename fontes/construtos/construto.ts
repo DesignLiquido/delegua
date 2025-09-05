@@ -6,4 +6,5 @@ export interface Construto {
     valor?: any;
     tipo?: string;
     aceitar(visitante: VisitanteComumInterface): Promise<any>;
+    paraTexto(): string;
 }

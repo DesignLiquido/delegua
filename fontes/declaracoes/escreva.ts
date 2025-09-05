@@ -13,4 +13,8 @@ export class Escreva extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoEscreva(this);
     }
+
+    paraTexto(): string {
+        return `<escreva argumentos=${this.argumentos.reduce((anterior, atual) => anterior += atual.paraTexto(), "")} />`;
+    }
 }

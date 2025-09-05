@@ -76,4 +76,11 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoBinaria(this);
     }
+
+    paraTexto(): string {
+        return `<binário esquerda=${this.esquerda.paraTexto()} operador=${this.operador.lexema} ` +
+            `direita=${this.direita.paraTexto()} ` +
+            `tipo=${this.tipo} ` +
+            `/>`;
+    }
 }

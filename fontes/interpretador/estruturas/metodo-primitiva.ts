@@ -33,7 +33,7 @@ export class MetodoPrimitiva extends Chamavel {
      * @returns {string} A representação do método como texto.
      */
     paraTexto(): string {
-        return `<método nome=${this.metodo} primitiva=${this.primitiva}>`;
+        return `<método nome=${this.metodo} primitiva=${this.primitiva} />`;
     }
 
     /**

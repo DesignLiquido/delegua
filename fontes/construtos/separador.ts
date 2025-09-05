@@ -15,4 +15,8 @@ export class Separador implements Construto {
     aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoSeparador(this));
     }
+
+    paraTexto(): string {
+        return `<separador símbolo=${this.conteudo} />`;
+    }
 }

@@ -5,7 +5,7 @@ import { PontoParada } from '../../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
 import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { RetornoQuebra } from '../../quebras';
-import { RetornoInterpretador } from '../../interfaces/retornos/retorno-interpretador';
+import { RetornoInterpretadorInterface } from '../../interfaces/retornos/retorno-interpretador-interface';
 import { Chamada, Construto } from '../../construtos';
 import { Interpretador } from '../interpretador';
 
@@ -243,7 +243,7 @@ export class InterpretadorComDepuracao
     override async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente = false
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
         this.declaracoes = declaracoes;
 
@@ -257,7 +257,7 @@ export class InterpretadorComDepuracao
             erros: this.erros,
             // resultado: this.resultadoInterpretador // Removido para simplificar `this.executar()`.
             resultado: [resultado],
-        } as RetornoInterpretador;
+        } as RetornoInterpretadorInterface;
 
         this.resultadoInterpretador = [];
         return retorno;

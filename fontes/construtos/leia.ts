@@ -28,4 +28,8 @@ export class Leia implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoLeia(this);
     }
+
+    paraTexto(): string {
+        return `<leia argumentos=[${this.argumentos.reduce((anterior, atual) => anterior += atual.paraTexto(), "")}] />`;
+    }
 }

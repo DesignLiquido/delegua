@@ -16,4 +16,9 @@ export class Enquanto extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoEnquanto(this);
     }
+
+    paraTexto(): string {
+        // TODO: Bloco.
+        return `<enquanto condição=${this.condicao.paraTexto()} />`;
+    }
 }

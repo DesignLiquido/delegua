@@ -22,6 +22,7 @@ import {
     Logico,
     ReferenciaFuncao,
     Super,
+    Tupla,
     Unario,
     Variavel,
     Vetor,
@@ -30,7 +31,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
 
-import { SeletorTuplas, Tupla } from '../../construtos/tuplas';
+import { SeletorTuplas } from '../../construtos/tuplas';
 import {
     Bloco,
     Comentario,

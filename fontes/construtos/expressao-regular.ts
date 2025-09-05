@@ -18,4 +18,8 @@ export class ExpressaoRegular<TTipoSimbolo extends string = string> implements C
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoExpressaoRegular(this));
     }
+
+    paraTexto(): string {
+        return `<expressão-regular valor=${this.valor} />`;
+    }
 }

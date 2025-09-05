@@ -30,4 +30,8 @@ export class FormatacaoEscrita implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoFormatacaoEscrita(this);
     }
+
+    paraTexto(): string {
+        return `<formatação-escrita expressão=${this.expressao.paraTexto()} espaços=${this.espacos} casasDecimais=${this.casasDecimais} />`;
+    }
 }

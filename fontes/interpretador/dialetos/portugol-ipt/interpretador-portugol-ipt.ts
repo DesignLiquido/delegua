@@ -49,11 +49,11 @@ import {
 import { EspacoMemoria } from '../../espaco-memoria';
 import { ObjetoPadrao } from '../../estruturas';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
-import { RetornoInterpretador } from '../../../interfaces/retornos';
+import { RetornoInterpretadorInterface } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 import { inferirTipoVariavel } from '../../../inferenciador';
@@ -76,7 +76,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
 
-    resultadoInterpretador: Array<string> = [];
+    resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
 
     constructor(
         diretorioBase: string,
@@ -693,7 +693,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
 
         const escopoExecucao: EscopoExecucao = {
@@ -717,7 +717,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             const retorno = {
                 erros: this.erros,
                 resultado: this.resultadoInterpretador,
-            } as RetornoInterpretador;
+            } as RetornoInterpretadorInterface;
 
             this.resultadoInterpretador = [];
             return retorno;

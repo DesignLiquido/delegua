@@ -41,8 +41,8 @@ export class DeleguaFuncao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        if (!this.nome) return '<função>';
-        let resultado = `<função ${this.nome}`;
+        if (!this.nome) return '<função />';
+        let resultado = `<função nome=${this.nome}`;
         let parametros = '';
         let retorno = '';
 
@@ -68,7 +68,7 @@ export class DeleguaFuncao extends Chamavel {
             resultado += ` ${retorno}`;
         }
 
-        resultado += '>';
+        resultado += ' />';
         return resultado;
     }
 

@@ -27,4 +27,11 @@ export class AtribuicaoPorIndice implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAtribuicaoPorIndice(this);
     }
+
+    paraTexto(): string {
+        return `<atribuição-por-índice objeto=${this.objeto.paraTexto()} ` +
+            `índice=${this.indice.paraTexto()} ` +
+            `valor=${this.valor.paraTexto()} ` +
+            `/>`;
+    }
 }

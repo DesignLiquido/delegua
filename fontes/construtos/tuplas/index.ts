@@ -17,7 +17,6 @@ export * from './quinteto';
 export * from './septeto';
 export * from './sexteto';
 export * from './trio';
-export * from './tupla';
 
 export class SeletorTuplas {
     constructor(...argumentos: any[]) {

@@ -21,4 +21,8 @@ export class ArgumentoReferenciaFuncao implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return visitante.visitarExpressaoArgumentoReferenciaFuncao(this);
     }
+
+    paraTexto(): string {
+        return `<argumento-referência-função nomeFunção=${this.simboloFuncao.lexema} />`;
+    }
 }

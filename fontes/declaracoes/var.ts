@@ -1,6 +1,5 @@
 import { Construto, Decorador } from '../construtos';
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { Declaracao } from './declaracao';
 
 /**
@@ -38,5 +37,9 @@ export class Var extends Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoVar(this);
+    }
+
+    paraTexto(): string {
+        return `<var nome=${this.simbolo.lexema} valor=${this.inicializador ? this.inicializador.paraTexto() : 'Nada'} />`;
     }
 }

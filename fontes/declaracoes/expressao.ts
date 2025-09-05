@@ -3,6 +3,10 @@ import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Expressao extends Declaracao {
+    paraTexto(): string {
+        return `<declaração-expressão subExpressao=${this.expressao.paraTexto()} />`;
+    }
+
     expressao: Construto;
 
     constructor(expressao: Construto, decoradores: Decorador[] = []) {

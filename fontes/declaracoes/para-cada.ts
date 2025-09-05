@@ -26,4 +26,9 @@ export class ParaCada extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoParaCada(this);
     }
+
+    paraTexto(): string {
+        // TODO: Corpo.
+        return `<para-cada variávelIteração=${this.variavelIteracao.paraTexto()} />`;
+    }
 }

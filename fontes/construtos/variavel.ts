@@ -23,4 +23,8 @@ export class Variavel<TTipoSimbolo extends string = string> implements Construto
     async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
         return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
     }
+
+    paraTexto(): string {
+        return `<variável nome=${this.simbolo.lexema} tipo=${this.tipo} />`;
+    }
 }

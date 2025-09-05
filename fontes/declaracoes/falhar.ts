@@ -14,4 +14,8 @@ export class Falhar extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoFalhar(this));
     }
+
+    paraTexto(): string {
+        return `<falhar nome=${this.simbolo.lexema} explicação=${this.explicacao} />`;
+    }
 }

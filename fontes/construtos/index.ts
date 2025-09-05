@@ -30,6 +30,7 @@ export * from './referencia-funcao';
 export * from './separador';
 export * from './super';
 export * from './tipo-de';
+export * from './tupla';
 export * from './tuplas';
 export * from './unario';
 export * from './variavel';

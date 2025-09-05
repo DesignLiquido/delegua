@@ -71,7 +71,7 @@ import {
     Vetor,
 } from '../construtos';
 import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
-import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
+import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -87,7 +87,7 @@ import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avalia
 import { EspacoMemoria } from './espaco-memoria';
 import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 
@@ -108,7 +108,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     diretorioBase: string;
     erros: ErroInterpretador[];
     declaracoes: Declaracao[];
-    resultadoInterpretador: Array<string> = [];
+    resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
     linhaDeclaracaoAtual: number;
     hashArquivoDeclaracaoAtual: number;
 
@@ -485,7 +485,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 const valorAnteriorIncremento = valor;
-                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
+                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para 
+                // `Construto` ou para `Simbolo`.
+                this.pilhaEscoposExecucao.atribuirVariavel((expressao.operando as any).simbolo, ++valor);
                 return valorAnteriorIncremento;
             case tiposDeSimbolos.DECREMENTAR:
                 if (expressao.incidenciaOperador === 'ANTES') {
@@ -501,7 +503,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 const valorAnteriorDecremento = valor;
-                this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
+                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para 
+                // `Construto` ou para `Simbolo`.
+                this.pilhaEscoposExecucao.atribuirVariavel((expressao.operando as any).simbolo, --valor);
                 return valorAnteriorDecremento;
         }
 
@@ -1043,8 +1047,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Se até aqui vetor resolvido é um dicionário, converte dicionário
         // para vetor de duplas.
+        // TODO: Converter elementos para `Construto` se necessário.
         if (declaracao.vetor.tipo === 'dicionário') {
-            valorVetorResolvido = Object.entries(valorVetorResolvido).map(v => new Dupla(v[0], v[1]));
+            valorVetorResolvido = Object.entries(valorVetorResolvido)
+                .map(v => new Dupla(v[0] as any, v[1] as any));
         }
 
         if (!Array.isArray(valorVetorResolvido)) {
@@ -1113,7 +1119,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            const atual = declaracao.caminhosSeSenao[i];
+            // TODO: Qual o tipo de `atual`?
+            const atual = declaracao.caminhosSeSenao[i] as any;
 
             if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
                 return await this.executar(atual.caminho);
@@ -1904,10 +1911,20 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
      */
-    async executar(declaracao: Declaracao): Promise<any> {
+    async executar(declaracao: Declaracao): Promise<ResultadoParcialInterpretadorInterface> {
         const resultado: any = await declaracao.aceitar(this);
-        /* console.log("Resultado aceitar: " + resultado, this); */
-        return resultado;
+        
+        let tipoResultado = resultado.tipo;
+        if (!tipoResultado) {
+            tipoResultado = inferirTipoVariavel(resultado);
+        }
+
+        return {
+            hashArquivo: declaracao.hashArquivo,
+            linha: declaracao.linha,
+            valorRetornado: resultado,
+            tipo: tipoResultado
+        } as ResultadoParcialInterpretadorInterface;
     }
 
     /**
@@ -1972,7 +1989,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente = false
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
         this.emDeclaracaoTente = false;
         this.linhaDeclaracaoAtual = -1;
@@ -1994,6 +2011,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
                 this.erros.push(retornoOuErro);
             }
+
+            this.resultadoInterpretador.push(retornoOuErro);
         } catch (erro: any) {
             // TODO: Estudar remoção do `catch`.
             throw new Error(
@@ -2010,7 +2029,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             const retorno = {
                 erros: this.erros,
                 resultado: this.resultadoInterpretador,
-            } as RetornoInterpretador;
+            } as RetornoInterpretadorInterface;
 
             this.resultadoInterpretador = [];
             return retorno;
