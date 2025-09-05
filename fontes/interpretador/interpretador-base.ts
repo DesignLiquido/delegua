@@ -1299,7 +1299,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetornoMesmaLinha(formatoTexto);
-            return null;
+            return {
+                tipo: 'vazio',
+                tipoExplicito: false
+            };
         } catch (erro: any) {
             this.erros.push({
                 erroInterno: erro,
@@ -1319,7 +1322,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);
-            return null;
+            return {
+                tipo: 'vazio',
+                tipoExplicito: false
+            };
         } catch (erro: any) {
             this.erros.push({
                 erroInterno: erro,
@@ -1378,7 +1384,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     /**
      * Executa expressão de definição de constante.
      * @param declaracao A declaração `Const`.
-     * @returns Sempre retorna nulo.
+     * @returns Um descritor de informações importantes para o retorno externo.
      */
     async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
@@ -1389,7 +1395,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.tipo
         );
 
-        return null;
+        return {
+            tipo: declaracao.tipo,
+            tipoExplicito: declaracao.tipoExplicito
+        };
     }
 
     /**
@@ -1671,7 +1680,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
 
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
-        return null;
+        return descritorTipoClasse;
     }
 
     /**
@@ -1796,7 +1805,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     /**
      * Executa expressão de definição de variável.
      * @param declaracao A declaração Var
-     * @returns Sempre retorna nulo.
+     * @returns Um descritor de informações importantes para o retorno externo.
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
@@ -1807,7 +1816,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.tipo
         );
 
-        return null;
+        return {
+            tipo: declaracao.tipo,
+            tipoExplicito: declaracao.tipoExplicito
+        };
     }
 
     /**
@@ -1908,15 +1920,22 @@ export class InterpretadorBase implements InterpretadorInterface {
     /**
      * Efetivamente executa uma declaração.
      * @param declaracao A declaração a ser executada.
-     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
-     *                         pelo modo LAIR.
+     * @returns O resultado parcial da execução, normalmente usado por 
+     *          ferramentas externas.
      */
     async executar(declaracao: Declaracao): Promise<ResultadoParcialInterpretadorInterface> {
         const resultado: any = await declaracao.aceitar(this);
         
         let tipoResultado = resultado.tipo;
-        if (!tipoResultado) {
-            tipoResultado = inferirTipoVariavel(resultado);
+        switch (resultado.constructor) {
+            case DescritorTipoClasse:
+                tipoResultado = resultado.simboloOriginal.lexema;
+                break;
+            default:
+                if (!tipoResultado) {
+                    tipoResultado = inferirTipoVariavel(resultado);
+                }
+                break;
         }
 
         return {
@@ -2008,11 +2027,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         const inicioInterpretacao: [number, number] = hrtime();
         try {
             const retornoOuErro = await this.executarUltimoEscopo(manterAmbiente);
+            // TODO: Esta lógica já ocorre em `executarUltimoEscopo`.
+            // Estudar remoção.
             if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
                 this.erros.push(retornoOuErro);
             }
 
-            this.resultadoInterpretador.push(retornoOuErro);
+            if (retornoOuErro !== undefined) {
+                this.resultadoInterpretador.push(retornoOuErro);
+            }
         } catch (erro: any) {
             // TODO: Estudar remoção do `catch`.
             throw new Error(

@@ -621,7 +621,7 @@ export class Interpretador extends InterpretadorBase {
         if (objeto.tipo === tipoDeDadosDelegua.TUPLA) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    (expressao.objeto as any).simbolo.lexema,
+                    (expressao.objeto as Variavel).simbolo,
                     'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
                     expressao.linha
                 )

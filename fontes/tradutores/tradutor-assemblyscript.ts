@@ -603,11 +603,11 @@ export class TradutorAssemblyScript {
                 unario.operador.tipo
             )
         ) {
-            resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
+            resultado += unario.operando.valor ?? (unario.operando as any).simbolo.lexema;
             resultado += unario.operador.tipo === tiposDeSimbolos.INCREMENTAR ? '++' : '--';
         } else {
             resultado += this.traduzirSimboloOperador(unario.operador);
-            resultado += unario.operando.valor ?? unario.operando.simbolo.lexema;
+            resultado += unario.operando.valor ?? (unario.operando as any).simbolo.lexema;
         }
         return resultado;
     }

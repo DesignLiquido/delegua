@@ -446,8 +446,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.resolver(declaracao.caminhoEntao);
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            this.resolver(declaracao.caminhosSeSenao[i].condicao);
-            this.resolver(declaracao.caminhosSeSenao[i].branch);
+            this.resolver((declaracao.caminhosSeSenao[i] as any).condicao);
+            this.resolver((declaracao.caminhosSeSenao[i] as any).branch);
         }
 
         if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);
