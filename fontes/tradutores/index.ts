@@ -1,4 +1,5 @@
 export * from './tradutor-assemblyscript';
+export * from './tradutor-calango';
 export * from './tradutor-javascript';
 export * from './tradutor-mermaidjs';
 export * from './tradutor-portugol-ipt';
