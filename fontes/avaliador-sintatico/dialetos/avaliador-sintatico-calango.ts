@@ -195,22 +195,23 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     protected resolverBloco(simbolosParada: string[]): Bloco {
-        const declararoes =  [];
+        const declaracoes =  [];
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        while(
-            !simbolosParada.includes(this.simbolos[this.atual].lexema) /* && !this.estaNoFinal() */
-        ) {
-            declararoes.push(this.resolverDeclaracaoForaDeBloco());
-        }
+        const primeiroSimbolo = this.simbolos[this.atual];
 
-        this.avancarEDevolverAnterior();
+        while(
+            !this.estaNoFinal() &&
+            !simbolosParada.includes(this.simbolos[this.atual].lexema)
+        ) {
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+        }
 
         this.pilhaEscopos.removerUltimo();
         return new Bloco(
             this.hashArquivo,
-            Number(this.simbolos[this.atual]),
-            declararoes.filter((d) => d)
+            primeiroSimbolo.linha,
+            declaracoes.filter((d) => d)
         );
     }
 
