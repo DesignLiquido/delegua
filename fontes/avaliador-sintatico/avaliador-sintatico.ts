@@ -80,7 +80,7 @@ import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
-import { registrarPrimitiva } from './comum';
+import { buscarRetornos, registrarPrimitiva } from './comum';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -2409,65 +2409,9 @@ export class AvaliadorSintatico
         return parametros;
     }
 
-    protected *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
-        for (const declaracao of construtoBloco.declaracoes) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao as Retorna;
-            }
-        }
-    }
-
-    protected *buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
-        const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
-        for (const declaracao of this.buscarRetornosEmBloco(blocoEntao)) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
-            }
-        }
-
-        if (!construtoSe.caminhoSenao) return;
-        switch (construtoSe.caminhoSenao.constructor.name) {
-            case 'Bloco':
-                const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
-
-                for (const declaracao of blocoSenao.declaracoes) {
-                    if (declaracao.constructor.name === 'Retorna') {
-                        yield declaracao as Retorna;
-                    }
-                }
-                break;
-            case 'Se':
-                const senaoSe: Se = construtoSe.caminhoSenao as Se;
-                for (const declaracao of this.buscarRetornosEmSe(senaoSe)) {
-                    if (declaracao.constructor.name === 'Retorna') {
-                        yield declaracao as Retorna;
-                    }
-                }
-                break;
-        }
-    }
-
-    protected buscarRetornos(declaracao: Declaracao): Retorna[] {
-        let retornasEncontrados: Retorna[] = [];
-        switch (declaracao.constructor.name) {
-            case 'Retorna':
-                retornasEncontrados.push(declaracao as Retorna);
-                break;
-            case 'Se':
-                for (const retorna of this.buscarRetornosEmSe(declaracao as Se)) {
-                    retornasEncontrados.push(retorna);
-                }
-                break;
-            default:
-                break;
-        }
-
-        return retornasEncontrados;
-    }
-
     override corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
-        // fins de pragma.
+        // fins de localização.
         const parenteseEsquerdo = this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado '(' após o nome ${tipo}.`
@@ -2493,7 +2437,7 @@ export class AvaliadorSintatico
         const corpo = this.blocoEscopo();
         let expressoesRetorna: Retorna[] = [];
         for (const declaracao of corpo) {
-            expressoesRetorna = expressoesRetorna.concat(this.buscarRetornos(declaracao));
+            expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
         }
 
         if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
