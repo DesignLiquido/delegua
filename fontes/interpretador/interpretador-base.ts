@@ -1925,6 +1925,12 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async executar(declaracao: Declaracao): Promise<ResultadoParcialInterpretadorInterface> {
         const resultado: any = await declaracao.aceitar(this);
+
+        // Alguns casos não possuem retorno, como declarações `se`, `enquanto`, etc.,
+        // que não satisfazem suas respectivas condições.
+        if (resultado === null || resultado === undefined) {
+            return null;
+        }
         
         let tipoResultado = resultado.tipo;
         switch (resultado.constructor) {

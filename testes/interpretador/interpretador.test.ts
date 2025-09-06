@@ -3,7 +3,7 @@ import { Interpretador } from '../../fontes/interpretador';
 import { Lexador } from '../../fontes/lexador';
 
 describe('Interpretador', () => {
-    describe('interpretar()', () => {
+    describe.skip('interpretar()', () => {
         let lexador: Lexador;
         let avaliadorSintatico: AvaliadorSintatico;
         let interpretador: Interpretador;

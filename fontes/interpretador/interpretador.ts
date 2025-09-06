@@ -110,8 +110,7 @@ export class Interpretador extends InterpretadorBase {
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao ||
-            typeof objeto.paraTexto === 'function'
+            objeto instanceof DeleguaFuncao
         )
             return objeto.paraTexto();
 

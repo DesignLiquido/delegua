@@ -197,7 +197,8 @@ export default {
 
             const retorno = [];
             for (let elemento of vetor) {
-                if (await funcao.chamar(interpretador, [elemento])) {
+                const resultadoChamada = await funcao.chamar(interpretador, [elemento]);
+                if (resultadoChamada.hasOwnProperty('valorRetornado') && resultadoChamada.valorRetornado.valor === true) {
                     retorno.push(elemento);
                 }
             }

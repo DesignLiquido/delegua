@@ -158,10 +158,12 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
+    });
 
-        it('Sucesso - filtrarPor', async () => {
+    describe('filtrarPor()', () => {
+        it('filtrarPor, função sempre retorna valor', async () => {
             const codigo = [
-                "var valoresLogicos = ['verdadeiro', 'falso', 'falso', verdadeiro, 'falso', 'verdadeiro']",
+                "var valoresLogicos = ['verdadeiro', 'falso', falso, verdadeiro, 'falso', 'verdadeiro']",
                 "var f = funcao(valor) { retorna valor == 'verdadeiro' ou valor == verdadeiro }",
                 "var valoresVerdadeiros = filtrarPor(valoresLogicos, f)",
                 "escreva(valoresVerdadeiros)"
@@ -177,10 +179,8 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
-    });
 
-    describe('filtrarPor()', () => {
-        it('Sucesso', async () => {
+        it('filtrarPor, função retorna valor para alguns casos', async () => {
             const codigo = [
                 "var f = funcao(x) { se(x > 4) { retorna(x) } }",
                 "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
@@ -191,6 +191,7 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(retornoInterpretador.resultado.length).toBeGreaterThan(0);
         });
     });
 

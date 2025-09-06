@@ -405,9 +405,15 @@ export async function filtrarPor(
 
     const resultados = [];
     for (let indice = 0; indice < valorVetor.length; ++indice) {
-        const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [
+        const informacoesValor = await valorFuncaoFiltragem.chamar(interpretador, [
             valorVetor[indice],
         ]);
+        
+        if (informacoesValor === null || informacoesValor === undefined) {
+            continue;
+        }
+
+        const deveRetornarValor = informacoesValor.valorRetornado.valor;
         if (deveRetornarValor === false) continue;
 
         resultados.push(valorVetor[indice]);
