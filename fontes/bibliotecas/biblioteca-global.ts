@@ -18,6 +18,7 @@ import {
     Tupla,
 } from '../construtos';
 import { Simbolo } from '../lexador';
+import { RetornoQuebra } from '../quebras';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -533,10 +534,8 @@ export async function mapear(
             )
         );
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor')
-        ? funcaoMapeamento.valor
-        : funcaoMapeamento;
+    const valorVetor = interpretador.resolverValor(vetor);
+    const valorFuncaoMapeamento = interpretador.resolverValor(funcaoMapeamento);
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
@@ -570,7 +569,18 @@ export async function mapear(
 
     const resultados = [];
     for (let indice = 0; indice < valorVetor.length; ++indice) {
-        resultados.push(await valorFuncaoMapeamento.chamar(interpretador, [valorVetor[indice]]));
+        const informacoesRetorno = await valorFuncaoMapeamento.chamar(interpretador, [valorVetor[indice]]);
+        if (!informacoesRetorno.hasOwnProperty('valorRetornado')) {
+            console.warn(`Retorno inconsistente em mapear(): ${JSON.stringify(informacoesRetorno)}.`);
+            continue;
+        }
+
+        if (!(informacoesRetorno.valorRetornado instanceof RetornoQuebra)) {
+            console.warn(`mapear() finalizado com valor retornado diferente do esperado: ${JSON.stringify(informacoesRetorno)}.`);
+            continue;
+        }
+
+        resultados.push(informacoesRetorno.valorRetornado.valor);
     }
 
     return resultados;

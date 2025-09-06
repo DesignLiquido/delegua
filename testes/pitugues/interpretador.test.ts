@@ -3,7 +3,7 @@ import { Interpretador } from "../../fontes/interpretador";
 import { LexadorPitugues } from "../../fontes/lexador/dialetos";
 
 describe('Interpretador (Pituguês)', () => {
-    describe.skip('interpretar()', () => {
+    describe('interpretar()', () => {
         let lexador: LexadorPitugues;
         let avaliadorSintatico: AvaliadorSintaticoPitugues;
         let interpretador: Interpretador;
@@ -151,7 +151,7 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Operações matemáticas', () => {
-                it('Operações matemáticas - Trivial', async () => {
+                it('Trivial', async () => {
                     const retornoLexador = lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

@@ -189,6 +189,10 @@ export class Interpretador extends InterpretadorBase {
         }
 
         let valorFinal = null;
+        if (valorOuOutraVariavel.hasOwnProperty('valorRetornado')) {
+            valorOuOutraVariavel = valorOuOutraVariavel.valorRetornado;
+        }
+
         if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
             valorFinal = this.resolverValor(valorOuOutraVariavel);
         }
@@ -215,7 +219,7 @@ export class Interpretador extends InterpretadorBase {
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
 
         return {
-            tipo: `função<${funcao.declaracao.tipo}>`,
+            tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
             tipoExplicito: funcao.declaracao.tipoExplicito
         };
     }
@@ -690,7 +694,12 @@ export class Interpretador extends InterpretadorBase {
      * @returns O valor atribuído.
      */
     override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        const valor = await this.avaliar(expressao.valor);
+        let valor = await this.avaliar(expressao.valor);
+
+        if (valor.hasOwnProperty('valorRetornado')) {
+            valor = valor.valorRetornado;
+        }
+
         const valorResolvido = this.resolverValor(valor);
         let indice: any = null;
 
@@ -897,11 +906,11 @@ export class Interpretador extends InterpretadorBase {
      */
     override async executarUltimoEscopo(manterAmbiente = false): Promise<ResultadoParcialInterpretadorInterface> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-        let retornoExecucao: any;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) &&
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
@@ -929,7 +938,7 @@ export class Interpretador extends InterpretadorBase {
 
             this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
 
-            if (manterAmbiente || (retornoExecucao && retornoExecucao.preservarEscopo === true)) {
+            if (manterAmbiente || (retornoExecucao && retornoExecucao.valorRetornado.preservarEscopo === true)) {
                 escopoAnterior.espacoMemoria.valores = Object.assign(
                     escopoAnterior.espacoMemoria.valores,
                     ultimoEscopo.espacoMemoria.valores

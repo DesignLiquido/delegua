@@ -211,7 +211,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return '';
     }
 
-    protected resolverValor(objeto: any) {
+    resolverValor(objeto: any) {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
@@ -327,6 +327,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
+    /**
+     * Chama o método `aceitar` de um construto ou declaração, passando o 
+     * próprio interpretador como parâmetro. 
+     * 
+     * Isto é usado para saber qual método do próprio interpretador chamar
+     * na sequência.
+     * @param expressao A expressão, que pode ser um construto ou declaração.
+     * @returns O retorno da execução do método de visita chamado.
+     */
     async avaliar(expressao: Construto | Declaracao): Promise<any> {
         // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
         // Por algum motivo o depurador do VSCode não funciona direito aqui
@@ -766,9 +775,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 ? (variavelArgumento as Variavel).simbolo.lexema
                 : undefined;
 
+            let valor = await this.avaliar(variavelArgumento);
+
             argumentos.push({
                 nome: nomeArgumento,
-                valor: await this.avaliar(variavelArgumento),
+                valor,
             });
         }
 
@@ -1001,8 +1012,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             await this.avaliar(declaracaoInicializador);
         }
 
-        let retornoExecucao: any;
-        while (!(retornoExecucao instanceof Quebra)) {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        while (!(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
             if (
                 declaracao.condicao !== null &&
                 !this.eVerdadeiro(await this.avaliar(declaracao.condicao))
@@ -1012,11 +1023,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof SustarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
                 }
 
-                if (retornoExecucao instanceof ContinuarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
             } catch (erro: any) {
@@ -1038,7 +1049,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     // TODO: Descobrir se mais algum dialeto, fora Delégua e Pituguês, usam isso.
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        let retornoExecucao: any;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
         // laço de repetição.
         declaracao.posicaoAtual = 0;
@@ -1060,7 +1071,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         while (
-            !(retornoExecucao instanceof Quebra) &&
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < valorVetorResolvido.length
         ) {
             try {
@@ -1085,11 +1096,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof SustarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
                 }
 
-                if (retornoExecucao instanceof ContinuarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
 
@@ -1114,7 +1125,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
      */
     async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
-        if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+        const avaliacaoCondicaoSe = await this.avaliar(declaracao.condicao);
+        if (this.eVerdadeiro(avaliacaoCondicaoSe)) {
             return await this.executar(declaracao.caminhoEntao);
         }
 
@@ -1135,18 +1147,18 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
-        let retornoExecucao: any;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
         while (
-            !(retornoExecucao instanceof Quebra) &&
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof SustarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
                 }
 
-                if (retornoExecucao instanceof ContinuarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
             } catch (erro: any) {
@@ -1207,15 +1219,15 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
-        let retornoExecucao: any;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
         do {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
-                if (retornoExecucao instanceof SustarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
                 }
 
-                if (retornoExecucao instanceof ContinuarQuebra) {
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
                     retornoExecucao = null;
                 }
             } catch (erro: any) {
@@ -1227,7 +1239,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Promise.reject(erro);
             }
         } while (
-            !(retornoExecucao instanceof Quebra) &&
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto))
         );
     }
@@ -1809,17 +1821,24 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+        let tipoResolvido = declaracao.tipo;
+        if (tipoResolvido.startsWith('função<')) {
+            tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
+        }
 
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
             valorFinal,
-            declaracao.tipo
+            tipoResolvido
         );
 
-        return {
+        // TODO: É relevante registrar uma declaração de variável no 
+        // resultado do interpretador? 
+        /* return {
             tipo: declaracao.tipo,
             tipoExplicito: declaracao.tipoExplicito
-        };
+        }; */
+        return null;
     }
 
     /**
@@ -1850,8 +1869,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao ||
-            typeof objeto.paraTexto === 'function'
+            objeto instanceof DeleguaFuncao
         )
             return objeto.paraTexto();
 
@@ -1930,6 +1948,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         // que não satisfazem suas respectivas condições.
         if (resultado === null || resultado === undefined) {
             return null;
+        }
+
+        // Se o retorno já possui um `valorRetornado`, apenas retorna o resultado.
+        if (resultado.hasOwnProperty('valorRetornado')) {
+            return resultado;
         }
         
         let tipoResultado = resultado.tipo;
