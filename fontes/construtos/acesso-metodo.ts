@@ -26,4 +26,8 @@ export class AcessoMetodo implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAcessoMetodo(this);
     }
+
+    paraTexto(): string {
+        return `<acesso-método objeto=${this.objeto.paraTexto()} método=${this.nomeMetodo} />`;
+    }
 }

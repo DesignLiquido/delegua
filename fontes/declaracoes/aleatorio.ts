@@ -2,6 +2,7 @@ import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 import { Bloco } from './bloco';
 
+// TODO: Mover para VisuAlg e depreciar.
 export class Aleatorio extends Declaracao {
     corpo: Bloco;
     argumentos: { min: number; max: number } | null;
@@ -20,5 +21,9 @@ export class Aleatorio extends Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoAleatorio(this);
+    }
+
+    paraTexto(): string {
+        return `<aleatório />`
     }
 }

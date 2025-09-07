@@ -61,7 +61,7 @@ import {
 } from '../../../interfaces';
 import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
-import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
+import { RetornoInterpretadorInterface } from '../../../interfaces/retornos/retorno-interpretador-interface';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
@@ -124,7 +124,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    protected resolverValor(objeto: any) {
+    resolverValor(objeto: any) {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
@@ -551,8 +551,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
-            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
-                return await this.executar(atual.caminho);
+            // TODO: Qual seria o tipo certo aqui? 
+            if (this.eVerdadeiro(await this.avaliar((atual as any).condicao))) {
+                return await this.executar((atual as any).caminho);
             }
         }
 
@@ -1063,7 +1064,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    async interpretar(declaracoes: Declaracao[]): Promise<RetornoInterpretador> {
+    async interpretar(declaracoes: Declaracao[]): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
 
         const retornoResolvedor = await this.resolvedor.resolver(declaracoes);
@@ -1082,7 +1083,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         return {
             erros: this.erros,
-        } as RetornoInterpretador;
+        } as RetornoInterpretadorInterface;
     }
 
     finalizacao(): void {

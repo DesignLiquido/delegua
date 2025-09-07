@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { Chamada, Construto, Leia } from '../../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna } from '../../declaracoes';
 import { InterpretadorComDepuracaoInterface } from '../../interfaces';
 import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from '../../quebras';
 import { PontoParada } from '../../depuracao';
@@ -222,7 +222,7 @@ export async function visitarDeclaracaoPara(
         await interpretador.avaliar(declaracaoInicializador);
         // O incremento vai ao final do bloco de escopo.
         if (cloneDeclaracao.incrementar !== null) {
-            corpoExecucao.declaracoes.push(cloneDeclaracao.incrementar);
+            corpoExecucao.declaracoes.push(new Expressao(cloneDeclaracao.incrementar));
         }
     }
 

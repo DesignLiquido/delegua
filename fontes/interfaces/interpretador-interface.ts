@@ -4,7 +4,7 @@ import { EspacoMemoria } from '../interpretador/espaco-memoria';
 import { ErroInterpretador } from './erros/erro-interpretador';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
-import { RetornoInterpretador } from './retornos/retorno-interpretador';
+import { RetornoInterpretadorInterface } from './retornos/retorno-interpretador-interface';
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface InterpretadorInterface extends VisitanteComumInterface {
@@ -21,5 +21,6 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any>;
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado?: boolean): any;
-    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretador>;
+    resolverValor(objeto: any): any;
+    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretadorInterface>;
 }

@@ -5,18 +5,18 @@ export class AtribuicaoPorIndicesMatriz implements Construto {
     linha: number;
     hashArquivo: number;
 
-    objeto: any;
-    valor: any;
-    indicePrimario: any;
-    indiceSecundario: any;
+    objeto: Construto;
+    valor: Construto;
+    indicePrimario: Construto;
+    indiceSecundario: Construto;
 
     constructor(
         hashArquivo: number,
         linha: number,
-        objeto: any,
-        indicePrimario: any,
-        indiceSecundario: any,
-        valor: any
+        objeto: Construto,
+        indicePrimario: Construto,
+        indiceSecundario: Construto,
+        valor: Construto
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -29,5 +29,13 @@ export class AtribuicaoPorIndicesMatriz implements Construto {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAtribuicaoPorIndicesMatriz(this);
+    }
+
+    paraTexto(): string {
+        return `<atribuição-por-índices-matriz objeto=${this.objeto.paraTexto()} ` +
+            `índice-primário=${this.indicePrimario.paraTexto()} ` +
+            `índice-secundário=${this.indiceSecundario.paraTexto()} ` +
+            `valor=${this.valor.paraTexto()} ` +
+            ` />`;
     }
 }

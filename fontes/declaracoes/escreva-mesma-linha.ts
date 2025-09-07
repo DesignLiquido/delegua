@@ -13,4 +13,8 @@ export class EscrevaMesmaLinha extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoEscrevaMesmaLinha(this);
     }
+
+    paraTexto(): string {
+        return `<escreva-mesma-linha argumentos=${this.argumentos.reduce((anterior, atual) => anterior += atual.paraTexto(), "")} />`;
+    }
 }

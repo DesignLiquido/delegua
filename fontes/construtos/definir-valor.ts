@@ -27,4 +27,8 @@ export class DefinirValor<TTipoSimbolo extends string = string> implements Const
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoDefinirValor(this);
     }
+
+    paraTexto(): string {
+        return `<definir-valor objeto=${this.objeto.paraTexto()} nome=${this.nome.lexema} valor=${this.valor} />`;
+    }
 }

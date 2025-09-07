@@ -1,22 +1,23 @@
-import { Tupla } from './tupla';
+import { Construto } from '../construto';
+import { Tupla } from '../tupla';
 
 export class Septeto extends Tupla {
-    primeiro: any;
-    segundo: any;
-    terceiro: any;
-    quarto: any;
-    quinto: any;
-    sexto: any;
-    setimo: any;
+    primeiro: Construto;
+    segundo: Construto;
+    terceiro: Construto;
+    quarto: Construto;
+    quinto: Construto;
+    sexto: Construto;
+    setimo: Construto;
 
     constructor(
-        primeiro: any,
-        segundo: any,
-        terceiro: any,
-        quarto: any,
-        quinto: any,
-        sexto: any,
-        setimo: any
+        primeiro: Construto,
+        segundo: Construto,
+        terceiro: Construto,
+        quarto: Construto,
+        quinto: Construto,
+        sexto: Construto,
+        setimo: Construto
     ) {
         super();
         this.primeiro = primeiro;
@@ -34,5 +35,16 @@ export class Septeto extends Tupla {
 
     set sétimo(valor: any) {
         this.setimo = valor;
+    }
+
+    paraTexto(): string {
+        return `<septeto primeiro=${this.primeiro.paraTexto()} ` +
+            `segundo=${this.segundo.paraTexto()} ` +
+            `terceiro=${this.terceiro.paraTexto()} ` +
+            `quarto=${this.quarto.paraTexto()} ` +
+            `quinto=${this.quinto.paraTexto()} ` +
+            `sexto=${this.sexto.paraTexto()} ` +
+            `sétimo=${this.setimo.paraTexto()} ` +
+            ` />`;
     }
 }

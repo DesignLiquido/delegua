@@ -9,4 +9,8 @@ export class Sustar extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoSustar(this));
     }
+
+    paraTexto(): string {
+        return `<sustar />`;
+    }
 }

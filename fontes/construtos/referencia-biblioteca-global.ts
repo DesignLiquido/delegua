@@ -15,8 +15,12 @@ export class ReferenciaBibliotecaGlobal implements Construto {
         this.hashArquivo = hashArquivo;
         this.nome = nome;
     }
-
+    
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
+    }
+
+    paraTexto(): string {
+        return `<referência-biblioteca-global nome=${this.nome} />`;
     }
 }

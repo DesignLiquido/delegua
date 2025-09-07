@@ -20,4 +20,8 @@ export class ComponenteLinguagem implements Construto {
     aceitar(visitante: VisitanteComumInterface): Promise<any> {
         throw new Error('Um componente de linguagem não tem método de visita.');
     }
+
+    paraTexto(): string {
+        return `<componente-linguagem valor=${this.valor} />`;
+    }
 }

@@ -14,7 +14,7 @@ export class DeleguaModulo {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        return this.nome ? `<módulo ${this.nome}>` : '<módulo>';
+        return this.nome ? `<módulo nome=${this.nome} />` : '<módulo />';
     }
 
     /**

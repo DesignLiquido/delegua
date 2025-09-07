@@ -21,4 +21,8 @@ export class Retorna extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoRetornar(this);
     }
+
+    paraTexto(): string {
+        return `<retorna valor=${this.valor ? this.valor.paraTexto() : 'Nada'} />`;
+    }
 }

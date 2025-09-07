@@ -22,8 +22,14 @@ export class Logico<TTipoSimbolo extends string = string> implements Construto {
         this.operador = operador;
         this.direita = direita;
     }
-
+    
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoLogica(this);
+    }
+
+    paraTexto(): string {
+        return `<lógico esquerda=${this.esquerda.paraTexto()} operador=${this.operador.lexema} ` +
+            `direita=${this.direita.paraTexto()} ` +
+            `/>`;
     }
 }

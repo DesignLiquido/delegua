@@ -197,7 +197,8 @@ export default {
 
             const retorno = [];
             for (let elemento of vetor) {
-                if (await funcao.chamar(interpretador, [elemento])) {
+                const resultadoChamada = await funcao.chamar(interpretador, [elemento]);
+                if (resultadoChamada.hasOwnProperty('valorRetornado') && resultadoChamada.valorRetornado.valor === true) {
                     retorno.push(elemento);
                 }
             }
@@ -343,12 +344,13 @@ export default {
             if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
                 for (let i = 0; i < vetor.length - 1; i++) {
                     for (let j = 1; j < vetor.length; j++) {
-                        if (
-                            (await funcaoOrdenacao.chamar(interpretador, [
-                                vetor[j - 1],
-                                vetor[j],
-                            ])) > 0
-                        ) {
+                        const valorComparacao = await funcaoOrdenacao.chamar(interpretador, [
+                            vetor[j - 1],
+                            vetor[j],
+                        ]);
+                        const valorComparacaoResolvido = interpretador.resolverValor(valorComparacao);
+
+                        if (valorComparacaoResolvido > 0) {
                             const aux = vetor[j];
                             vetor[j] = vetor[j - 1];
                             vetor[j - 1] = aux;

@@ -1,7 +1,7 @@
 import { Decorador } from '../construtos';
 import { VisitanteComumInterface } from '../interfaces';
 
-export class Declaracao {
+export abstract class Declaracao {
     linha: number;
     hashArquivo: number;
     assinaturaMetodo: string;
@@ -24,5 +24,10 @@ export class Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
+    }
+
+    abstract paraTexto(): string;
+    toString(): string {
+        return this.paraTexto();
     }
 }

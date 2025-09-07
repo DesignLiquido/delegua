@@ -334,9 +334,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         // Em Delégua, atribuições com operações embutidas devolvem um construto `Binario` no valor
         // por várias razões, sendo a mais importante delas a lógica de interpretação.
         let valorResolvido = '';
-        if (atribuir.simboloOperador && atribuir.valor.constructor.name === 'Binario') {
-            valorResolvido = this.dicionarioConstrutos[atribuir.valor.direita.constructor.name](
-                atribuir.valor.direita
+        if (atribuir.simboloOperador && atribuir.valor.constructor === Binario) {
+            valorResolvido = this.dicionarioConstrutos[(atribuir.valor as Binario).direita.constructor.name](
+                (atribuir.valor as Binario).direita
             );
         } else {
             valorResolvido = this.dicionarioConstrutos[atribuir.valor.constructor.name](

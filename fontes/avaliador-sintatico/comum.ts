@@ -1,5 +1,118 @@
+import { FuncaoConstruto } from '../construtos';
+import { Bloco, Declaracao, Retorna, Se } from '../declaracoes';
 import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
-import { PrimitivaInterface } from '../interfaces';
+import { AvaliadorSintaticoInterface, InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
+
+function *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
+    for (const declaracao of construtoBloco.declaracoes) {
+        if (declaracao.constructor.name === 'Retorna') {
+            yield declaracao as Retorna;
+        }
+    }
+}
+
+function *buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
+    const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
+    for (const declaracao of buscarRetornosEmBloco(blocoEntao)) {
+        if (declaracao.constructor.name === 'Retorna') {
+            yield declaracao;
+        }
+    }
+
+    if (!construtoSe.caminhoSenao) return;
+    switch (construtoSe.caminhoSenao.constructor.name) {
+        case 'Bloco':
+            const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
+
+            for (const declaracao of blocoSenao.declaracoes) {
+                if (declaracao.constructor.name === 'Retorna') {
+                    yield declaracao as Retorna;
+                }
+            }
+            break;
+        case 'Se':
+            const senaoSe: Se = construtoSe.caminhoSenao as Se;
+            for (const declaracao of buscarRetornosEmSe(senaoSe)) {
+                if (declaracao.constructor.name === 'Retorna') {
+                    yield declaracao as Retorna;
+                }
+            }
+            break;
+    }
+}
+
+export function buscarRetornos(declaracao: Declaracao): Retorna[] {
+    let retornasEncontrados: Retorna[] = [];
+    switch (declaracao.constructor.name) {
+        case 'Retorna':
+            retornasEncontrados.push(declaracao as Retorna);
+            break;
+        case 'Se':
+            for (const retorna of buscarRetornosEmSe(declaracao as Se)) {
+                retornasEncontrados.push(retorna);
+            }
+            break;
+        default:
+            break;
+    }
+
+    return retornasEncontrados;
+}
+
+export function logicaDescobertaRetornoFuncao(
+    avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>,
+    declaracoesDaFuncao: Declaracao[],
+    tipoRetorno: string,
+    definicaoExplicitaDeTipo: boolean,
+    simboloParaErros: SimboloInterface
+): string {
+    let expressoesRetorna: Retorna[] = [];
+    for (const declaracao of declaracoesDaFuncao) {
+        expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
+    }
+
+    if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
+        const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio');
+        if (retornosNaoVazios.length > 0) {
+            throw avaliadorSintatico.erro(
+                retornosNaoVazios[0].simboloChave,
+                `Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.`
+            );
+        }
+    }
+
+    const tiposRetornos = new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
+    let retornaChamadoExplicitamente = tiposRetornos.size > 0;
+    if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
+        let tiposEncontrados = Array.from(tiposRetornos).reduce(
+            (acumulador, valor) => (acumulador += valor + ', '),
+            ''
+        );
+        tiposEncontrados = tiposEncontrados.slice(0, -2);
+        throw avaliadorSintatico.erro(
+            simboloParaErros,
+            `Função retorna valores com mais de um tipo. Tipo esperado: ${tipoRetorno}. Tipos encontrados: ${tiposEncontrados}.`
+        );
+    }
+
+    tiposRetornos.delete('qualquer');
+
+    if (tipoRetorno === 'qualquer') {
+        if (tiposRetornos.size > 0) {
+            // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
+            // o avaliador sintático pode restringir o tipo baseado nos construtos
+            // de retornos encontrados nos blocos internos da função.
+            const tipoRetornoDeduzido = tiposRetornos.values().next().value;
+            tipoRetorno = tipoRetornoDeduzido;
+        } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
+            // Ou, se esses retornos sequer existem, e não foi definido um tipo
+            // explícito com 'qualquer', o tipo inferido é 'vazio'.
+            tipoRetorno = 'vazio';
+        }
+    }
+
+    return tipoRetorno;
+}
 
 export function registrarPrimitiva(
     primitivasConhecidas: {

@@ -23,4 +23,8 @@ export class Super<TTipoSimbolo extends string = string> implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoSuper(this));
     }
+
+    paraTexto(): string {
+        return `<super superClasse=${this.superclasse} />`;
+    }
 }

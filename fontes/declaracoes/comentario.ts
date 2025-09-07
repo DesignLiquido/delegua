@@ -24,4 +24,8 @@ export class Comentario extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoComentario(this);
     }
+
+    paraTexto(): string {
+        return `<comentário conteúdo=${this.conteudo} multilinha=${this.multilinha ? 'Sim' : 'Não'} />`;
+    }
 }

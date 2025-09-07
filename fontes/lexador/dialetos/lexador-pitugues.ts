@@ -316,6 +316,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
                     this.avancar();
+                } else if (this.simboloAtual() === '>') {
+                    this.adicionarSimbolo(tiposDeSimbolos.SETA);
+                    this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
                 }

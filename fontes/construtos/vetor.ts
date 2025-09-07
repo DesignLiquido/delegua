@@ -31,4 +31,8 @@ export class Vetor implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoVetor(this);
     }
+
+    paraTexto(): string {
+        return `<vetor tipo=${this.tipo} valores=${this.valores.reduce((anterior, atual) => anterior += atual.paraTexto(), "")} />`;
+    }
 }

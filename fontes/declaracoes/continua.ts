@@ -9,4 +9,8 @@ export class Continua extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoContinua(this));
     }
+
+    paraTexto(): string {
+        return `<continua />`;
+    }
 }

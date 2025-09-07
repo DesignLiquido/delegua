@@ -6,7 +6,7 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
     hashArquivo: number;
 
     operador: SimboloInterface<TTipoSimbolo>;
-    operando: any;
+    operando: Construto;
     incidenciaOperador: 'ANTES' | 'DEPOIS';
 
     constructor(
@@ -25,5 +25,9 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoUnaria(this);
+    }
+
+    paraTexto(): string {
+        return `<unário operando=${this.operando.paraTexto()} operador=${this.operador.lexema} incidênciaOperador=${this.incidenciaOperador} />`;
     }
 }

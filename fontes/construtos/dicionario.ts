@@ -21,4 +21,8 @@ export class Dicionario implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoDicionario(this);
     }
+
+    paraTexto(): string {
+        return `<dicionário chaves=${this.chaves} valores=${this.valores} />`;
+    }
 }

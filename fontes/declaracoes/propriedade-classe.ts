@@ -17,4 +17,8 @@ export class PropriedadeClasse extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.reject(new Error('Não utilizado por enquanto.'));
     }
+
+    paraTexto(): string {
+        return `<propriedade-classe nome=${this.nome.lexema} tipo=${this.tipo} />`;
+    }
 }

@@ -18,4 +18,8 @@ export class Importar extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoImportar(this);
     }
+
+    paraTexto(): string {
+        return `<importar caminho=${this.caminho.valor} />`;
+    }
 }

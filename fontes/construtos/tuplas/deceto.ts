@@ -1,28 +1,29 @@
-import { Tupla } from './tupla';
+import { Construto } from '../construto';
+import { Tupla } from '../tupla';
 
 export class Deceto extends Tupla {
-    primeiro: any;
-    segundo: any;
-    terceiro: any;
-    quarto: any;
-    quinto: any;
-    sexto: any;
-    setimo: any;
-    oitavo: any;
-    nono: any;
-    decimo: any;
+    primeiro: Construto;
+    segundo: Construto;
+    terceiro: Construto;
+    quarto: Construto;
+    quinto: Construto;
+    sexto: Construto;
+    setimo: Construto;
+    oitavo: Construto;
+    nono: Construto;
+    decimo: Construto;
 
     constructor(
-        primeiro: any,
-        segundo: any,
-        terceiro: any,
-        quarto: any,
-        quinto: any,
-        sexto: any,
-        setimo: any,
-        oitavo: any,
-        nono: any,
-        decimo: any
+        primeiro: Construto,
+        segundo: Construto,
+        terceiro: Construto,
+        quarto: Construto,
+        quinto: Construto,
+        sexto: Construto,
+        setimo: Construto,
+        oitavo: Construto,
+        nono: Construto,
+        decimo: Construto
     ) {
         super();
         this.primeiro = primeiro;
@@ -37,6 +38,7 @@ export class Deceto extends Tupla {
         this.decimo = decimo;
     }
 
+    // Propriedades extras apenas de formas acentuadas.
     get sétimo() {
         return this.setimo;
     }
@@ -51,5 +53,19 @@ export class Deceto extends Tupla {
 
     set décimo(valor: any) {
         this.decimo = valor;
+    }
+
+    paraTexto(): string {
+        return `<deceto primeiro=${this.primeiro.paraTexto()} ` +
+            `segundo=${this.segundo.paraTexto()} ` +
+            `terceiro=${this.terceiro.paraTexto()} ` +
+            `quarto=${this.quarto.paraTexto()} ` +
+            `quinto=${this.quinto.paraTexto()} ` +
+            `sexto=${this.sexto.paraTexto()} ` +
+            `sétimo=${this.setimo.paraTexto()} ` +
+            `oitavo=${this.oitavo.paraTexto()} ` +
+            `nono=${this.nono.paraTexto()} ` +
+            `décimo=${this.decimo.paraTexto()} ` +
+            ` />`;
     }
 }

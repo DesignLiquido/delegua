@@ -30,4 +30,10 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAcessoIndiceVariavel(this);
     }
+
+    paraTexto(): string {
+        return `<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
+            `índice=${this.indice.paraTexto()} ` +
+            `/>`;
+    }
 }

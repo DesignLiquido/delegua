@@ -151,7 +151,7 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Operações matemáticas', () => {
-                it('Operações matemáticas - Trivial', async () => {
+                it('Trivial', async () => {
                     const retornoLexador = lexador.mapear(["escreva(5 + 4 * 3 - 2 ** 1 / 6 % 10)"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

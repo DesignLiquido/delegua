@@ -25,4 +25,9 @@ export class Escolha extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoEscolha(this);
     }
+
+    paraTexto(): string {
+        // TODO: Caminhos
+        return `<escolha identificadorOuLiteral=${this.identificadorOuLiteral} />`;
+    }
 }

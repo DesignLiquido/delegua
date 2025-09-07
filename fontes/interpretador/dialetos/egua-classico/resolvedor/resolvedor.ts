@@ -37,7 +37,7 @@ import { EspacoMemoria } from '../../../espaco-memoria';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
 import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface';
-import { RetornoInterpretador } from '../../../../interfaces/retornos';
+import { RetornoInterpretadorInterface } from '../../../../interfaces/retornos';
 import { ErroResolvedor } from './erro-resolvedor';
 import { PilhaEscopos } from './pilha-escopos';
 import { RetornoResolvedor } from './retorno-resolvedor';
@@ -96,6 +96,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    resolverValor(objeto: any) {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
@@ -235,7 +239,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         throw new Error('Método não implementado.');
     }
 
@@ -446,8 +450,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.resolver(declaracao.caminhoEntao);
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            this.resolver(declaracao.caminhosSeSenao[i].condicao);
-            this.resolver(declaracao.caminhosSeSenao[i].branch);
+            this.resolver((declaracao.caminhosSeSenao[i] as any).condicao);
+            this.resolver((declaracao.caminhosSeSenao[i] as any).branch);
         }
 
         if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);

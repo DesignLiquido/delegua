@@ -7,7 +7,7 @@ export class Fazer extends Declaracao {
     caminhoFazer: Bloco;
     condicaoEnquanto: Construto;
 
-    constructor(hashArquivo: number, linha: number, caminhoFazer: any, condicaoEnquanto: any) {
+    constructor(hashArquivo: number, linha: number, caminhoFazer: Bloco, condicaoEnquanto: Construto) {
         super(linha, hashArquivo);
         this.caminhoFazer = caminhoFazer;
         this.condicaoEnquanto = condicaoEnquanto;
@@ -15,5 +15,10 @@ export class Fazer extends Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoFazer(this);
+    }
+
+    paraTexto(): string {
+        // TODO: Bloco.
+        return `<fazer condição=${this.condicaoEnquanto.paraTexto()} />`; 
     }
 }

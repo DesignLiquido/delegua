@@ -27,4 +27,9 @@ export class VarMultiplo extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoVarMultiplo(this);
     }
+
+    paraTexto(): string {
+        // TODO: Terminar.
+        return `<var-múltiplo />`;
+    }
 }

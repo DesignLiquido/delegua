@@ -22,4 +22,8 @@ export class TipoDe<TTipoSimbolo extends string = string> implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
         return Promise.resolve(visitante.visitarExpressaoTipoDe(this));
     }
+
+    paraTexto(): string {
+        return `<tipo-de valor=${this.valor.paraTexto()} />`;
+    }
 }

@@ -4,7 +4,7 @@ import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
-import { TipoInferencia, inferirTipoVariavel } from '../inferenciador';
+import { TipoInferencia, TipoNativoSimbolo, inferirTipoVariavel } from '../inferenciador';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
@@ -96,11 +96,16 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     definirVariavel(nomeVariavel: string, valor: any, tipo?: string) {
         const variavel = this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeVariavel];
 
-        let tipoVariavel;
+        let tipoVariavel: string;
+        let subtipo: string = undefined;
         if (variavel && variavel.hasOwnProperty('tipo')) {
             tipoVariavel = variavel.tipo;
-        } else if (valor && valor.constructor.name === 'DeleguaFuncao') {
+        } else if (valor && valor.constructor === DeleguaFuncao) {
             tipoVariavel = 'função';
+            if (tipo !== undefined) {
+                tipoVariavel = `função<${tipo}>`;
+                subtipo = tipo;
+            }
         } else if (tipo) {
             tipoVariavel = tipo;
         } else {
@@ -108,9 +113,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         }
 
         let elementoAlvo: VariavelInterface = {
-            valor: this.converterValor(tipo, valor),
+            valor: this.converterValor(tipoVariavel, valor),
             tipo: tipoVariavel,
-            subtipo: undefined,
+            subtipo: subtipo,
             imutavel: false,
         };
 

@@ -17,4 +17,8 @@ export class Isto implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoIsto(this));
     }
+
+    paraTexto(): string {
+        return `<isto />`;
+    }
 }

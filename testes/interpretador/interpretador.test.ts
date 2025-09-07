@@ -635,7 +635,7 @@ describe('Interpretador', () => {
 
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe('<função retorneAlgo argumentos=<a: inteiro, b: texto>>');
+                    expect(_saida).toBe('<função nome=retorneAlgo argumentos=<a: inteiro, b: texto> />');
                 });
 
                 it('Descrever função com parametros sem tipos - DeleguaFuncao', async () => {
@@ -656,7 +656,7 @@ describe('Interpretador', () => {
 
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe('<função retorneAlgo argumentos=<a: qualquer, b: qualquer>>');
+                    expect(_saida).toBe('<função nome=retorneAlgo argumentos=<a: qualquer, b: qualquer> />');
                 });
 
                 it('Descrever função com retorno - DeleguaFuncao', async () => {
@@ -677,7 +677,7 @@ describe('Interpretador', () => {
 
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe("<função retorneAlgo retorna=<'Algo'>>");
+                    expect(_saida).toBe("<função nome=retorneAlgo retorna=<'Algo'> />");
                 });
 
                 it('Descrever nome função - DeleguaFuncao', async () => {
@@ -691,7 +691,7 @@ describe('Interpretador', () => {
 
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe('<função retorneAlgo>');
+                    expect(_saida).toBe('<função nome=retorneAlgo />');
                 });
 
                 it('Escrita de vetor com outros objetos dentro', async () => {
@@ -1628,7 +1628,7 @@ describe('Interpretador', () => {
                 it("Chamada de função com retorno 'vazio'", async () => {
                     const codigo = [
                         'funcao executar(valor1, valor2): vazio {',
-                        '   var resultado = valor1 + valor2',
+                        '    var resultado = valor1 + valor2',
                         '}',
                         'escreva(executar(1, 2))',
                     ];
@@ -1636,20 +1636,18 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('nulo');
-                    };
-
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('nulo');
                 });
 
                 it("Chamada de função com retorno 'qualquer'", async () => {
                     const codigo = [
                         'funcao executar(valor1, valor2): qualquer {',
-                        '   var resultado = valor1 + valor2',
-                        '   retorna resultado',
+                        '    var resultado = valor1 + valor2',
+                        '    retorna resultado',
                         '}',
                         'escreva(executar(1, 2))',
                     ];
@@ -1657,13 +1655,11 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('3');
-                    };
-
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('3');
                 });
 
                 it('Chamada de função com definição de tipos inteiros e retorno texto', async () => {
@@ -1692,13 +1688,11 @@ describe('Interpretador', () => {
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saida).toEqual('[1, 2, \'3\']');
-                    };
-
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("[1, 2, '3']");
                 });
 
                 it('Chamada de função com inferência de tipos na passagem de parametros', async () => {
@@ -1883,15 +1877,11 @@ describe('Interpretador', () => {
         
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
 
-                    let _saidas = "";
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saidas += saida;
-                    };
-
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toBe('3');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('3');
                 });
             });
 
@@ -2157,13 +2147,23 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Retornos externos', () => {
+                it('Literal devolvido em retorno de função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao acheAPrincesa(castelo) { retorna [25] }',
+                        'acheAPrincesa([1])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(retornoInterpretador.resultado.length).toBeGreaterThan(0);
+                });
+            });
+
             describe('Tendo ... Como', () => {
                 it('Trivial, sem finalizar() definido', async () => {
-                    let _saida: string = '';
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
                     const retornoLexador = lexador.mapear([
                         'funcao teste() { retorna "Ok" }',
                         'tendo teste() como a {',
@@ -2174,7 +2174,8 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saida).toBe('Ok');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Ok');
                 });
 
                 it('Trivial, com finalizar() definido, classe em Delégua', async () => {
@@ -2278,11 +2279,6 @@ describe('Interpretador', () => {
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    let _saidas: string[] = [];
-                    interpretador.funcaoDeRetorno = (saida: string) => {
-                        _saidas.push(saida);
-                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 

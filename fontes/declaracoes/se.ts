@@ -5,13 +5,13 @@ import { Declaracao } from './declaracao';
 export class Se extends Declaracao {
     condicao: Construto;
     caminhoEntao: Declaracao;
-    caminhosSeSenao?: any[] | null;
+    caminhosSeSenao?: Declaracao[] | null;
     caminhoSenao?: Declaracao | null;
 
     constructor(
         condicao: Construto,
         caminhoEntao: Declaracao,
-        caminhosSeSenao?: any[] | null,
+        caminhosSeSenao?: Declaracao[] | null,
         caminhoSenao?: Declaracao | null
     ) {
         super(condicao.linha, condicao.hashArquivo);
@@ -23,5 +23,10 @@ export class Se extends Declaracao {
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoSe(this);
+    }
+
+    paraTexto(): string {
+        // TODO: Bloco então, bloco senão, outros.
+        return `<se condiçao=${this.condicao.paraTexto()} />`;
     }
 }

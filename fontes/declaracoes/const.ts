@@ -34,4 +34,8 @@ export class Const extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoConst(this);
     }
+
+    paraTexto(): string {
+        return `<const nome=${this.simbolo.lexema} inicializador=${this.inicializador.paraTexto()} tipo=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
+    }
 }

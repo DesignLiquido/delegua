@@ -26,7 +26,7 @@ import {
     ObjetoPadrao,
     ReferenciaMontao,
 } from './estruturas';
-import { RetornoInterpretador, SimboloInterface, VariavelInterface } from '../interfaces';
+import { ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
@@ -86,7 +86,15 @@ export class Interpretador extends InterpretadorBase {
             return this.resolverReferenciaMontao(objeto);
         }
 
-        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valor')) {
+        if (objeto instanceof RetornoQuebra) {
+            return this.resolverValor(objeto.valor);
+        }
+
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
+            return this.resolverValor(objeto.valorRetornado);
+        }
+
+        if (objeto.hasOwnProperty('valor')) {
             if (Array.isArray(objeto.valor)) {
                 return this.resolverValor(objeto.valor);
             }
@@ -110,8 +118,7 @@ export class Interpretador extends InterpretadorBase {
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao ||
-            typeof objeto.paraTexto === 'function'
+            objeto instanceof DeleguaFuncao
         )
             return objeto.paraTexto();
 
@@ -197,23 +204,16 @@ export class Interpretador extends InterpretadorBase {
         return valorFinal;
     }
 
-    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-
-        for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = this.resolverValor(resultadoAvaliacao);
-            formatoTexto += `${this.paraTexto(valor)} `;
-        }
-
-        return formatoTexto.trimEnd();
-    }
-
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
-        // TODO: Depreciar essa abordagem a favor do uso por referências.
+        // TODO: Depreciar essa abordagem a favor do uso por referências?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
+
+        return {
+            tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
+            tipoExplicito: funcao.declaracao.tipoExplicito
+        };
     }
 
     override async visitarExpressaoAcessoIndiceVariavel(
@@ -616,7 +616,7 @@ export class Interpretador extends InterpretadorBase {
         if (objeto.tipo === tipoDeDadosDelegua.TUPLA) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    (expressao.objeto as any).simbolo.lexema,
+                    (expressao.objeto as Variavel).simbolo,
                     'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
                     expressao.linha
                 )
@@ -686,7 +686,12 @@ export class Interpretador extends InterpretadorBase {
      * @returns O valor atribuído.
      */
     override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        const valor = await this.avaliar(expressao.valor);
+        let valor = await this.avaliar(expressao.valor);
+
+        if (valor.hasOwnProperty('valorRetornado')) {
+            valor = valor.valorRetornado;
+        }
+
         const valorResolvido = this.resolverValor(valor);
         let indice: any = null;
 
@@ -806,7 +811,7 @@ export class Interpretador extends InterpretadorBase {
             valor = await this.avaliar(declaracao.valor);
         }
 
-        const retornoQuebra = new RetornoQuebra(valor);
+        const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
 
         // Se o retorno for uma função anônima, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
@@ -891,13 +896,13 @@ export class Interpretador extends InterpretadorBase {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    override async executarUltimoEscopo(manterAmbiente = false): Promise<any> {
+    override async executarUltimoEscopo(manterAmbiente = false): Promise<ResultadoParcialInterpretadorInterface> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-        let retornoExecucao: any;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) &&
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
@@ -925,7 +930,7 @@ export class Interpretador extends InterpretadorBase {
 
             this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
 
-            if (manterAmbiente || (retornoExecucao && retornoExecucao.preservarEscopo === true)) {
+            if (manterAmbiente || (retornoExecucao && retornoExecucao.valorRetornado.preservarEscopo === true)) {
                 escopoAnterior.espacoMemoria.valores = Object.assign(
                     escopoAnterior.espacoMemoria.valores,
                     ultimoEscopo.espacoMemoria.valores
@@ -944,7 +949,7 @@ export class Interpretador extends InterpretadorBase {
     override async interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
-    ): Promise<RetornoInterpretador> {
+    ): Promise<RetornoInterpretadorInterface> {
         this.montao = new Montao();
         return super.interpretar(declaracoes, manterAmbiente);
     }

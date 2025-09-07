@@ -31,4 +31,9 @@ export class FuncaoConstruto implements Construto {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoFuncaoConstruto(this));
     }
+
+    paraTexto(): string {
+        // TODO: Corpo.
+        return `<construto-função parâmetros=${this.parametros} tipoRetorno=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
+    }
 }

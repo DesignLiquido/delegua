@@ -29,4 +29,9 @@ export class TendoComo extends Declaracao {
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarDeclaracaoTendoComo(this);
     }
+
+    paraTexto(): string {
+        // TODO: Bloco.
+        return `<tendo variável=${this.simboloVariavel.lexema} como=${this.inicializacaoVariavel.paraTexto()} />`;
+    }
 }

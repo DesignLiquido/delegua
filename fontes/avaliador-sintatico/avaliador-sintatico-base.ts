@@ -1,5 +1,6 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
 import {
+    Bloco,
     Classe,
     Continua,
     Declaracao,
@@ -36,6 +37,11 @@ export abstract class AvaliadorSintaticoBase
     hashArquivo: number;
     atual: number;
     blocos: number;
+    
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
+        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+        return excecao;
+    }
 
     protected consumir(tipo: string, mensagemDeErro: string): SimboloInterface {
         if (this.verificarTipoSimboloAtual(tipo)) return this.avancarEDevolverAnterior();
@@ -50,11 +56,6 @@ export abstract class AvaliadorSintaticoBase
         }
 
         throw this.erro(simboloErro, mensagemDeErro);
-    }
-
-    protected erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
-        return excecao;
     }
 
     protected simboloAnterior(): SimboloInterface {
