@@ -98,6 +98,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
+    resolverValor(objeto: any) {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }

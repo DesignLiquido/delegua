@@ -344,12 +344,13 @@ export default {
             if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
                 for (let i = 0; i < vetor.length - 1; i++) {
                     for (let j = 1; j < vetor.length; j++) {
-                        if (
-                            (await funcaoOrdenacao.chamar(interpretador, [
-                                vetor[j - 1],
-                                vetor[j],
-                            ])) > 0
-                        ) {
+                        const valorComparacao = await funcaoOrdenacao.chamar(interpretador, [
+                            vetor[j - 1],
+                            vetor[j],
+                        ]);
+                        const valorComparacaoResolvido = interpretador.resolverValor(valorComparacao);
+
+                        if (valorComparacaoResolvido > 0) {
                             const aux = vetor[j];
                             vetor[j] = vetor[j - 1];
                             vetor[j - 1] = aux;

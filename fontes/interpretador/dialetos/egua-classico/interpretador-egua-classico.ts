@@ -124,7 +124,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
-    protected resolverValor(objeto: any) {
+    resolverValor(objeto: any) {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }

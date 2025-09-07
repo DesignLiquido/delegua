@@ -252,16 +252,17 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
+        const retornoInicializacaoResolvido = this.resolverValor(retornoInicializacao);
         this.pilhaEscoposExecucao.definirConstante(
             declaracao.simboloVariavel.lexema,
-            retornoInicializacao
+            retornoInicializacaoResolvido
         );
         await this.executar(declaracao.corpo);
 
         if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
-            const metodoFinalizar = retornoInicializacao.classe.metodos['finalizar'];
+            const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
             if (metodoFinalizar) {
-                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(retornoInicializacao);
+                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(retornoInicializacaoResolvido);
                 chamavel.chamar(this, []);
             }
         }
@@ -366,26 +367,35 @@ export class InterpretadorBase implements InterpretadorInterface {
     /**
      * Retira a interpolação de um texto.
      * @param {texto} texto O texto
-     * @param {any[]} variaveis A lista de variaveis interpoladas
-     * @returns O texto com o valor das variaveis.
+     * @param {any[]} interpolacoes A lista de interpolações a serem resolvidas.
+     * @returns O texto com o valor das variáveis.
      */
-    protected retirarInterpolacao(texto: string, variaveis: any[]): string {
+    protected retirarInterpolacao(
+        texto: string, 
+        interpolacoes: { expressaoInterpolacao: string; valor: any }[]
+    ): string {
         let textoFinal = texto;
 
-        variaveis.forEach((elemento) => {
-            if (elemento?.valor?.tipo === tipoDeDadosDelegua.LOGICO) {
+        for (const elemento of interpolacoes) {
+            // TODO: Há alguma chance de `elemento` ser `undefined` aqui?
+            let valor = elemento?.valor;
+            if (valor.hasOwnProperty('valorRetornado')) {
+                valor = valor.valorRetornado;
+            }
+
+            if (valor.tipo === tipoDeDadosDelegua.LOGICO) {
                 textoFinal = textoFinal.replace(
-                    '${' + elemento.variavel + '}',
-                    this.paraTexto(elemento?.valor?.valor)
+                    '${' + elemento.expressaoInterpolacao + '}',
+                    this.paraTexto(valor)
                 );
             } else {
-                const valor = this.resolverValor(elemento.valor);
+                valor = this.resolverValor(valor);
                 textoFinal = textoFinal.replace(
-                    '${' + elemento.variavel + '}',
+                    '${' + elemento.expressaoInterpolacao + '}',
                     `${this.paraTexto(valor)}`
                 );
             }
-        });
+        }
 
         return textoFinal;
     }
@@ -399,16 +409,16 @@ export class InterpretadorBase implements InterpretadorInterface {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
         let resultadosAvaliacaoSintatica = variaveis.map((s) => {
-            const nomeVariavel: string = s.replace(/[\$\{\}]*/gm, '');
+            const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
 
-            let microLexador = this.microLexador.mapear(nomeVariavel);
+            let microLexador = this.microLexador.mapear(expressaoInterpolacao);
             const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
                 microLexador,
                 linha
             );
 
             return {
-                nomeVariavel,
+                expressaoInterpolacao,
                 resultadoMicroAvaliadorSintatico,
             };
         });
@@ -422,16 +432,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
 
         return resolucoesPromises.map((item, indice) => ({
-            variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
+            expressaoInterpolacao: resultadosAvaliacaoSintatica[indice].expressaoInterpolacao,
             valor: item,
         }));
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
         if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = await this.resolverInterpolacoes(expressao.valor, expressao.linha);
-
-            return this.retirarInterpolacao(expressao.valor, variaveis);
+            const interpolacoes = await this.resolverInterpolacoes(expressao.valor, expressao.linha);
+            return this.retirarInterpolacao(expressao.valor, interpolacoes);
         }
 
         return expressao.valor;
@@ -793,7 +802,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarExpressaoDeChamada(expressao: Chamada | any): Promise<any> {
         try {
-            const variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
+            let variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
                 expressao.entidadeChamada
             );
 
@@ -806,6 +815,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                         expressao.linha
                     )
                 );
+            }
+
+            if (variavelEntidadeChamada.hasOwnProperty('valorRetornado')) {
+                variavelEntidadeChamada = variavelEntidadeChamada.valorRetornado;
             }
 
             const entidadeChamada = this.resolverValor(variavelEntidadeChamada);
@@ -1293,7 +1306,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
+            let resultadoAvaliacao = await this.avaliar(argumento);
+            if (resultadoAvaliacao && resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
+                resultadoAvaliacao = resultadoAvaliacao.valorRetornado;
+            }
+
             let valor = this.resolverValor(resultadoAvaliacao);
             formatoTexto += `${this.paraTexto(valor)} `;
         }

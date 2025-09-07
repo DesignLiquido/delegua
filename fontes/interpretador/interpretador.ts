@@ -86,7 +86,15 @@ export class Interpretador extends InterpretadorBase {
             return this.resolverReferenciaMontao(objeto);
         }
 
-        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valor')) {
+        if (objeto instanceof RetornoQuebra) {
+            return this.resolverValor(objeto.valor);
+        }
+
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
+            return this.resolverValor(objeto.valorRetornado);
+        }
+
+        if (objeto.hasOwnProperty('valor')) {
             if (Array.isArray(objeto.valor)) {
                 return this.resolverValor(objeto.valor);
             }
@@ -189,27 +197,11 @@ export class Interpretador extends InterpretadorBase {
         }
 
         let valorFinal = null;
-        if (valorOuOutraVariavel.hasOwnProperty('valorRetornado')) {
-            valorOuOutraVariavel = valorOuOutraVariavel.valorRetornado;
-        }
-
         if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
             valorFinal = this.resolverValor(valorOuOutraVariavel);
         }
 
         return valorFinal;
-    }
-
-    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-
-        for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = this.resolverValor(resultadoAvaliacao);
-            formatoTexto += `${this.paraTexto(valor)} `;
-        }
-
-        return formatoTexto.trimEnd();
     }
 
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
