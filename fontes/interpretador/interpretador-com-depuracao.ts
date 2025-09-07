@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { EspacoMemoria } from './espaco-memoria';
-import { Bloco, Declaracao, Enquanto, Escreva, Para, Retorna } from '../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna } from '../declaracoes';
 import { PontoParada } from '../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../interfaces';
 import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execucao';
@@ -230,7 +230,7 @@ export class InterpretadorComDepuracao
             await this.avaliar(declaracaoInicializador);
             // O incremento vai ao final do bloco de escopo.
             if (cloneDeclaracao.incrementar !== null) {
-                corpoExecucao.declaracoes.push(cloneDeclaracao.incrementar);
+                corpoExecucao.declaracoes.push(new Expressao(cloneDeclaracao.incrementar));
             }
         }
 
