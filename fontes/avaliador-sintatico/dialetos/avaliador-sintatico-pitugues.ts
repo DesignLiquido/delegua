@@ -1441,7 +1441,9 @@ export class AvaliadorSintaticoPitugues
         }
 
         this.superclasseAtual = undefined;
-        return new Classe(simbolo, superClasse, metodos);
+        const definicaoClasse = new Classe(simbolo, superClasse, metodos);
+        this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
+        return definicaoClasse;
     }
 
     declaracaoFalhar(): Falhar {

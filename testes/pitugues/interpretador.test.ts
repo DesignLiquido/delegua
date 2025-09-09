@@ -299,6 +299,10 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(3);
+                    expect(_saidas[0]).toBe('Correndo Loucamente');
+                    expect(_saidas[1]).toBe('Au Au Au Au');
+                    expect(_saidas[2]).toBe('Classe: OK!');
                 });
             });
 
