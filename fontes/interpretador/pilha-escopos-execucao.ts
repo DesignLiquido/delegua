@@ -4,7 +4,7 @@ import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
-import { TipoInferencia, TipoNativoSimbolo, inferirTipoVariavel } from '../inferenciador';
+import { TipoInferencia, inferirTipoVariavel } from '../inferenciador';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
