@@ -2008,7 +2008,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         try {
             for (
                 ;
-                !(retornoExecucao instanceof Quebra) &&
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
                 ultimoEscopo.declaracaoAtual++
             ) {
