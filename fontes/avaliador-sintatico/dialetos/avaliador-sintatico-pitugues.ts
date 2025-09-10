@@ -1335,6 +1335,51 @@ export class AvaliadorSintaticoPitugues
         return parametros;
     }
 
+    /* Função racunho de proposta para resolução de list comprehension */
+    protected resolverListaDeCompreensao(simboloPara: SimboloInterface): Vetor {
+        const nomeVariavel = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável de iteração para instrução 'para cada'."
+        )
+
+        this.consumir(
+            tiposDeSimbolos.PARA && tiposDeSimbolos.CADA,
+            "Esperado instrução 'para cada' na lista de compreensão."
+        )
+
+        const vetor = this.expressao();
+        if (!vetor.hasOwnProperty('tipo')) {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
+            );
+        }
+
+        const tipoVetor = (vetor as any).tipo as string;
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+            );
+        }
+
+        if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.SE)) {
+            this.avancarEDevolverAnterior() // Para avançar o símbolo 'se' e alcançar a condição
+            const condicao = this.expressao();
+        }
+
+        /* 
+            A minha principal dúvida aqui é sobre que objeto ele retornaria, porque a list comprehension mistura um laço
+        com uma condicional parar criar um novo vetor (ou list, em python). Inicialmente, eu pensei que 
+        retornaria o vetor, mas não parece ser o suficiente... 
+            Fiquei pensando se seria possível na função instanciar os objetos de ParaCada e Se para depois criar o Vetor, 
+        mas, no caso da list comprehension, não teríamos todos os atributos para se instanciar um ParaCada e um Se e depois 
+        "unir" os resultados. Então, o caminho seria existir uma declaração e construto próprios para ela?
+        */
+
+        return null;
+    }
+
     protected verificarDefinicaoTipoAtual(): string {
         const tipos = [...Object.values(tiposDeDadosPitugues)];
 
@@ -1352,6 +1397,17 @@ export class AvaliadorSintaticoPitugues
         }
 
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+
+            /* Rascunho de proposta para resolução de list comprehension */
+            if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {  
+                this.avancarEDevolverAnterior();  // Não acho que avancei o suficiente para capturar o símbolo de 'para' na variável 'proximoSimbolo'
+                let proximoSimbolo = this.simbolos[this.atual + 1]           
+                const simboloPara: SimboloInterface = proximoSimbolo;             
+                this.resolverListaDeCompreensao(simboloPara);
+            }
+
+            /* Fim do racunho */
+
             const tiposVetores = [
                 'inteiro[]',
                 'numero[]',
