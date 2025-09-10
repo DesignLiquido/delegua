@@ -279,7 +279,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         if (declaracao.argumentos.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
-        
+
         this.codigoFormatado += `)${this.quebraLinha}`;
     }
 

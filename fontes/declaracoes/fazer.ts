@@ -7,7 +7,12 @@ export class Fazer extends Declaracao {
     caminhoFazer: Bloco;
     condicaoEnquanto: Construto;
 
-    constructor(hashArquivo: number, linha: number, caminhoFazer: Bloco, condicaoEnquanto: Construto) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        caminhoFazer: Bloco,
+        condicaoEnquanto: Construto
+    ) {
         super(linha, hashArquivo);
         this.caminhoFazer = caminhoFazer;
         this.condicaoEnquanto = condicaoEnquanto;
@@ -19,6 +24,6 @@ export class Fazer extends Declaracao {
 
     paraTexto(): string {
         // TODO: Bloco.
-        return `<fazer condição=${this.condicaoEnquanto.paraTexto()} />`; 
+        return `<fazer condição=${this.condicaoEnquanto.paraTexto()} />`;
     }
 }

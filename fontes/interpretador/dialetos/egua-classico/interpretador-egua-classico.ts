@@ -115,7 +115,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
-    
+
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -319,10 +319,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         try {
             const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
             const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
-            const valorEsquerdo: any =
-                this.resolverValor(esquerda);
-            const valorDireito: any =
-                this.resolverValor(direita);
+            const valorEsquerdo: any = this.resolverValor(esquerda);
+            const valorDireito: any = this.resolverValor(direita);
             const tipoEsquerdo: string =
                 esquerda && esquerda.hasOwnProperty('tipo')
                     ? esquerda.tipo
@@ -483,7 +481,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof FuncaoPadrao) {
             return entidadeChamada.chamar(
                 undefined,
-                argumentos.map((a) => (this.resolverValor(a))),
+                argumentos.map((a) => this.resolverValor(a)),
                 expressao.entidadeChamada.simbolo
             );
         }
@@ -551,7 +549,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
-            // TODO: Qual seria o tipo certo aqui? 
+            // TODO: Qual seria o tipo certo aqui?
             if (this.eVerdadeiro(await this.avaliar((atual as any).condicao))) {
                 return await this.executar((atual as any).caminho);
             }

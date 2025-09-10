@@ -41,7 +41,8 @@ export class Octeto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<octeto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<octeto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
@@ -49,6 +50,7 @@ export class Octeto extends Tupla {
             `sexto=${this.sexto.paraTexto()} ` +
             `sétimo=${this.setimo.paraTexto()} ` +
             `oitavo=${this.oitavo.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

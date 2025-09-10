@@ -1,9 +1,4 @@
-import { InterpretadorInterface } from "../../../interfaces";
-import { InterpretadorBase } from "../../interpretador-base";
+import { InterpretadorInterface } from '../../../interfaces';
+import { InterpretadorBase } from '../../interpretador-base';
 
-export class InterpretadorCalango 
-    extends InterpretadorBase
-    implements InterpretadorInterface 
-{
-    
-}
+export class InterpretadorCalango extends InterpretadorBase implements InterpretadorInterface {}

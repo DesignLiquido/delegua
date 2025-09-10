@@ -163,9 +163,9 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         // por várias razões, sendo a mais importante delas a lógica de interpretação.
         let valorResolvido = '';
         if (atribuir.simboloOperador && atribuir.valor.constructor === Binario) {
-            valorResolvido = this.dicionarioConstrutos[(atribuir.valor as Binario).direita.constructor.name](
-                (atribuir.valor as Binario).direita
-            );
+            valorResolvido = this.dicionarioConstrutos[
+                (atribuir.valor as Binario).direita.constructor.name
+            ]((atribuir.valor as Binario).direita);
         } else {
             valorResolvido = this.dicionarioConstrutos[atribuir.valor.constructor.name](
                 atribuir.valor
@@ -419,7 +419,9 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
-        const variavelIteracao = this.dicionarioConstrutos[declaracaoParaCada.variavelIteracao.constructor.name](declaracaoParaCada.variavelIteracao);
+        const variavelIteracao = this.dicionarioConstrutos[
+            declaracaoParaCada.variavelIteracao.constructor.name
+        ](declaracaoParaCada.variavelIteracao);
         let resultado = `para cada ${variavelIteracao} em `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](

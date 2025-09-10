@@ -15,6 +15,6 @@ export class Escreva extends Declaracao {
     }
 
     paraTexto(): string {
-        return `<escreva argumentos=${this.argumentos.reduce((anterior, atual) => anterior += atual.paraTexto(), "")} />`;
+        return `<escreva argumentos=${this.argumentos.reduce((anterior, atual) => (anterior += atual.paraTexto()), '')} />`;
     }
 }

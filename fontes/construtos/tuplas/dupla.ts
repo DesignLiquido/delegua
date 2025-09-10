@@ -12,8 +12,10 @@ export class Dupla extends Tupla {
     }
 
     paraTexto(): string {
-        return `<dupla primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<dupla primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

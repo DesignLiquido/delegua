@@ -315,7 +315,9 @@ export class AvaliadorSintatico
                 }
 
                 // Remover comentários, verificar se vírgulas fazem sentido.
-                const valoresSemComentarios: Construto[] = valores.filter(v => v.constructor.name !== 'ComentarioComoConstruto');
+                const valoresSemComentarios: Construto[] = valores.filter(
+                    (v) => v.constructor.name !== 'ComentarioComoConstruto'
+                );
                 let elementoSeparador = false; // O primeiro elemento não pode ser separador.
                 for (const elemento of valoresSemComentarios) {
                     if (elementoSeparador) {
@@ -337,7 +339,9 @@ export class AvaliadorSintatico
                     }
                 }
 
-                const valoresSemSeparadores = valoresSemComentarios.filter(v => v.constructor.name !== 'Separador');
+                const valoresSemSeparadores = valoresSemComentarios.filter(
+                    (v) => v.constructor.name !== 'Separador'
+                );
                 const tipoVetor = inferirTipoVariavel(valoresSemSeparadores);
                 return new Vetor(
                     this.hashArquivo,
@@ -811,7 +815,7 @@ export class AvaliadorSintatico
 
             const tipoArgumentoUtilizado =
                 argumentoUtilizado.tipo.startsWith('funcao') ||
-                argumentoUtilizado.tipo.startsWith('função') || 
+                argumentoUtilizado.tipo.startsWith('função') ||
                 argumentoUtilizado instanceof FuncaoConstruto
                     ? 'função'
                     : argumentoUtilizado.tipo;
@@ -1542,10 +1546,22 @@ export class AvaliadorSintatico
 
     protected declaracaoParaCadaDicionario(simboloPara: SimboloInterface) {
         this.avancarEDevolverAnterior(); // chave esquerda
-        const nomeVariavelChave = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado identificador de variável para chave de iteração, em instrução 'para cada'.");
-        this.consumir(tiposDeSimbolos.VIRGULA, "Esperado vírgula após nome de variável para chave de iteração, em instrução 'para cada'.");
-        const nomeVariavelValor = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado identificador de variável para valor de iteração, em instrução 'para cada'.");
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado chave direita após nome de variável para valor de iteração, em instrução 'para cada'.");
+        const nomeVariavelChave = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável para chave de iteração, em instrução 'para cada'."
+        );
+        this.consumir(
+            tiposDeSimbolos.VIRGULA,
+            "Esperado vírgula após nome de variável para chave de iteração, em instrução 'para cada'."
+        );
+        const nomeVariavelValor = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável para valor de iteração, em instrução 'para cada'."
+        );
+        this.consumir(
+            tiposDeSimbolos.CHAVE_DIREITA,
+            "Esperado chave direita após nome de variável para valor de iteração, em instrução 'para cada'."
+        );
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
             throw this.erro(
@@ -1648,10 +1664,13 @@ export class AvaliadorSintatico
         }
 
         if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoParaCadaDicionario(simboloPara)
+            return this.declaracaoParaCadaDicionario(simboloPara);
         }
 
-        throw this.erro(simboloPara, 'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.');
+        throw this.erro(
+            simboloPara,
+            'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.'
+        );
     }
 
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
@@ -2172,7 +2191,15 @@ export class AvaliadorSintatico
                     identificador.lexema,
                     new InformacaoVariavelOuConstante(identificador.lexema, tipo)
                 );
-                retorno.push(new Var(identificador, null, tipo, tipoExplicito, Array.from(this.pilhaDecoradores)));
+                retorno.push(
+                    new Var(
+                        identificador,
+                        null,
+                        tipo,
+                        tipoExplicito,
+                        Array.from(this.pilhaDecoradores)
+                    )
+                );
             }
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -2450,7 +2477,9 @@ export class AvaliadorSintatico
             }
         }
 
-        const tiposRetornos = new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
+        const tiposRetornos = new Set(
+            expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+        );
         let retornaChamadoExplicitamente = tiposRetornos.size > 0;
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce(

@@ -1,5 +1,5 @@
-import { SimboloInterface, VisitanteComumInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { Construto } from './construto';
 
 /**
  * Diferentemente da declaração de comentário, este construto ocorre

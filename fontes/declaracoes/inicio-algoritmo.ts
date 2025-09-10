@@ -1,7 +1,7 @@
 import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
-// TODO: Localizar dialeto que usa este construto e mover 
+// TODO: Localizar dialeto que usa este construto e mover
 // esta classe para ele.
 export class InicioAlgoritmo extends Declaracao {
     constructor(linha: number, hashArquivo: number) {

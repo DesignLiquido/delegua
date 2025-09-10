@@ -14,12 +14,12 @@ export class Bloco extends Declaracao {
     }
 
     paraTexto(): string {
-        let resultado = "<bloco>";
+        let resultado = '<bloco>';
         for (const declaracao of this.declaracoes) {
             resultado += `${declaracao.paraTexto()}`;
         }
 
-        resultado += "</bloco>";
+        resultado += '</bloco>';
         return resultado;
     }
 }

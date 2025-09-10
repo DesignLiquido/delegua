@@ -10,7 +10,7 @@ export class RetornoQuebra extends Quebra {
     valor: any;
     tipo: string;
 
-    constructor(valor: any, tipo: string = "qualquer") {
+    constructor(valor: any, tipo: string = 'qualquer') {
         super();
         this.valor = valor;
         this.tipo = tipo;

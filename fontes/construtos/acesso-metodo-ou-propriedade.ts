@@ -34,8 +34,10 @@ export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> imp
     }
 
     paraTexto(): string {
-        return `<acesso-método-ou-propriedade objeto=${this.objeto.paraTexto()} ` +
+        return (
+            `<acesso-método-ou-propriedade objeto=${this.objeto.paraTexto()} ` +
             `métodoOuPropriedade=${this.simbolo.lexema} ` +
-            `/>`;
+            `/>`
+        );
     }
 }

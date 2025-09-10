@@ -78,9 +78,11 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
     }
 
     paraTexto(): string {
-        return `<binário esquerda=${this.esquerda.paraTexto()} operador=${this.operador.lexema} ` +
+        return (
+            `<binário esquerda=${this.esquerda.paraTexto()} operador=${this.operador.lexema} ` +
             `direita=${this.direita.paraTexto()} ` +
             `tipo=${this.tipo} ` +
-            `/>`;
+            `/>`
+        );
     }
 }

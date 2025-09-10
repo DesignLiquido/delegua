@@ -7,12 +7,7 @@ export class Quarteto extends Tupla {
     terceiro: Construto;
     quarto: Construto;
 
-    constructor(
-        primeiro: Construto,
-        segundo: Construto,
-        terceiro: Construto,
-        quarto: Construto
-    ) {
+    constructor(primeiro: Construto, segundo: Construto, terceiro: Construto, quarto: Construto) {
         super();
         this.primeiro = primeiro;
         this.segundo = segundo;
@@ -21,10 +16,12 @@ export class Quarteto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<quarteto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<quarteto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

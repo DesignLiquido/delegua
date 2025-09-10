@@ -6,11 +6,7 @@ export class Trio extends Tupla {
     segundo: Construto;
     terceiro: Construto;
 
-    constructor(
-        primeiro: Construto,
-        segundo: Construto,
-        terceiro: Construto
-    ) {
+    constructor(primeiro: Construto, segundo: Construto, terceiro: Construto) {
         super();
         this.primeiro = primeiro;
         this.segundo = segundo;
@@ -18,9 +14,11 @@ export class Trio extends Tupla {
     }
 
     paraTexto(): string {
-        return `<trio primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<trio primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

@@ -17,7 +17,7 @@ export class Constante<TTipoSimbolo extends string = string> implements Construt
 
         this.simbolo = simbolo;
     }
-    
+
     async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {
         return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
     }

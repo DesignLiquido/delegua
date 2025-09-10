@@ -69,7 +69,10 @@ import { TipoDadosElementar } from '../../tipo-dados-elementar';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
 import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
-import { logicaDescobertaRetornoFuncao as logicaValidacaoRetornoFuncao, registrarPrimitiva } from '../comum';
+import {
+    logicaDescobertaRetornoFuncao as logicaValidacaoRetornoFuncao,
+    registrarPrimitiva,
+} from '../comum';
 
 import tiposDeDadosPitugues from '../../tipos-de-dados/dialetos/pitugues';
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
@@ -78,7 +81,6 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
-
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -1380,7 +1382,10 @@ export class AvaliadorSintaticoPitugues
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de localização.
-        const parenteseEsquerdo = this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${tipo}.`);
+        const parenteseEsquerdo = this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            `Esperado '(' após o nome ${tipo}.`
+        );
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -1400,9 +1405,22 @@ export class AvaliadorSintaticoPitugues
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado ':' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
-        tipoRetorno = logicaValidacaoRetornoFuncao(this, corpo, tipoRetorno, definicaoExplicitaDeTipo, parenteseEsquerdo);
+        tipoRetorno = logicaValidacaoRetornoFuncao(
+            this,
+            corpo,
+            tipoRetorno,
+            definicaoExplicitaDeTipo,
+            parenteseEsquerdo
+        );
 
-        return new FuncaoConstruto(this.hashArquivo, 0, parametros, corpo, tipoRetorno, definicaoExplicitaDeTipo);
+        return new FuncaoConstruto(
+            this.hashArquivo,
+            0,
+            parametros,
+            corpo,
+            tipoRetorno,
+            definicaoExplicitaDeTipo
+        );
     }
 
     declaracaoDeClasse(): Classe {

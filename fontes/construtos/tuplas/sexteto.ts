@@ -27,12 +27,14 @@ export class Sexteto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<sexteto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<sexteto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
             `quinto=${this.quinto.paraTexto()} ` +
             `sexto=${this.sexto.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

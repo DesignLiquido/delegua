@@ -87,7 +87,12 @@ import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avalia
 import { EspacoMemoria } from './espaco-memoria';
 import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import {
+    InterpretadorInterface,
+    ResultadoParcialInterpretadorInterface,
+    SimboloInterface,
+    VariavelInterface,
+} from '../interfaces';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 
@@ -202,8 +207,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     protected resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
         if (objetoAcessado instanceof Variavel) {
             return objetoAcessado.simbolo.lexema;
-        } 
-        
+        }
+
         if (objetoAcessado instanceof Constante) {
             return objetoAcessado.simbolo.lexema;
         }
@@ -262,7 +267,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
             const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
             if (metodoFinalizar) {
-                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(retornoInicializacaoResolvido);
+                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
+                    retornoInicializacaoResolvido
+                );
                 chamavel.chamar(this, []);
             }
         }
@@ -329,9 +336,9 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
-     * Chama o método `aceitar` de um construto ou declaração, passando o 
-     * próprio interpretador como parâmetro. 
-     * 
+     * Chama o método `aceitar` de um construto ou declaração, passando o
+     * próprio interpretador como parâmetro.
+     *
      * Isto é usado para saber qual método do próprio interpretador chamar
      * na sequência.
      * @param expressao A expressão, que pode ser um construto ou declaração.
@@ -371,7 +378,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns O texto com o valor das variáveis.
      */
     protected retirarInterpolacao(
-        texto: string, 
+        texto: string,
         interpolacoes: { expressaoInterpolacao: string; valor: any }[]
     ): string {
         let textoFinal = texto;
@@ -439,7 +446,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
         if (this.regexInterpolacao.test(expressao.valor)) {
-            const interpolacoes = await this.resolverInterpolacoes(expressao.valor, expressao.linha);
+            const interpolacoes = await this.resolverInterpolacoes(
+                expressao.valor,
+                expressao.linha
+            );
             return this.retirarInterpolacao(expressao.valor, interpolacoes);
         }
 
@@ -503,9 +513,12 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 const valorAnteriorIncremento = valor;
-                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para 
+                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para
                 // `Construto` ou para `Simbolo`.
-                this.pilhaEscoposExecucao.atribuirVariavel((expressao.operando as any).simbolo, ++valor);
+                this.pilhaEscoposExecucao.atribuirVariavel(
+                    (expressao.operando as any).simbolo,
+                    ++valor
+                );
                 return valorAnteriorIncremento;
             case tiposDeSimbolos.DECREMENTAR:
                 if (expressao.incidenciaOperador === 'ANTES') {
@@ -521,9 +534,12 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 const valorAnteriorDecremento = valor;
-                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para 
+                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para
                 // `Construto` ou para `Simbolo`.
-                this.pilhaEscoposExecucao.atribuirVariavel((expressao.operando as any).simbolo, --valor);
+                this.pilhaEscoposExecucao.atribuirVariavel(
+                    (expressao.operando as any).simbolo,
+                    --valor
+                );
                 return valorAnteriorDecremento;
         }
 
@@ -768,9 +784,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const argumento of expressao.argumentos) {
             const valorResolvido: any = await this.avaliar(argumento);
-            argumentosResolvidos.push(
-                this.resolverValor(valorResolvido)
-            );
+            argumentosResolvidos.push(this.resolverValor(valorResolvido));
         }
 
         return await entidadeChamada.chamar(this, argumentosResolvidos);
@@ -858,9 +872,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 try {
                     return entidadeChamada.chamar(
                         this,
-                        argumentos.map((a) =>
-                            a && a.valor && this.resolverValor(a.valor)
-                        ),
+                        argumentos.map((a) => a && a.valor && this.resolverValor(a.valor)),
                         expressao.entidadeChamada.simbolo
                     );
                 } catch (erro: any) {
@@ -901,10 +913,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (expressao.entidadeChamada.objeto) {
                     objeto = await this.avaliar(expressao.entidadeChamada.objeto);
                 }
-                return entidadeChamada.apply(
-                    this.resolverValor(objeto),
-                    argumentos
-                );
+                return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
             }
 
             return Promise.reject(
@@ -930,8 +939,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         const valor = await this.avaliar(expressao.valor);
-        const valorResolvido =
-            this.resolverValor(valor);
+        const valorResolvido = this.resolverValor(valor);
         let indice: any = null;
 
         if (expressao.indice) {
@@ -1073,8 +1081,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         // para vetor de duplas.
         // TODO: Converter elementos para `Construto` se necessário.
         if (declaracao.vetor.tipo === 'dicionário') {
-            valorVetorResolvido = Object.entries(valorVetorResolvido)
-                .map(v => new Dupla(v[0] as any, v[1] as any));
+            valorVetorResolvido = Object.entries(valorVetorResolvido).map(
+                (v) => new Dupla(v[0] as any, v[1] as any)
+            );
         }
 
         if (!Array.isArray(valorVetorResolvido)) {
@@ -1094,7 +1103,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         valorVetorResolvido[declaracao.posicaoAtual]
                     );
                 }
-                
+
                 if (declaracao.variavelIteracao instanceof Dupla) {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
                     this.pilhaEscoposExecucao.definirVariavel(
@@ -1330,7 +1339,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.funcaoDeRetornoMesmaLinha(formatoTexto);
             return {
                 tipo: 'vazio',
-                tipoExplicito: false
+                tipoExplicito: false,
             };
         } catch (erro: any) {
             this.erros.push({
@@ -1353,7 +1362,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.funcaoDeRetorno(formatoTexto);
             return {
                 tipo: 'vazio',
-                tipoExplicito: false
+                tipoExplicito: false,
             };
         } catch (erro: any) {
             this.erros.push({
@@ -1426,7 +1435,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         return {
             tipo: declaracao.tipo,
-            tipoExplicito: declaracao.tipoExplicito
+            tipoExplicito: declaracao.tipoExplicito,
         };
     }
 
@@ -1748,7 +1757,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva("", objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva('', objeto, metodoDePrimitivaDicionario);
             }
 
             return objeto[expressao.simbolo.lexema];
@@ -1810,8 +1819,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 continue;
             }
 
-            dicionario[promises[0]] =
-                this.resolverValor(promises[1]);
+            dicionario[promises[0]] = this.resolverValor(promises[1]);
         }
 
         return dicionario;
@@ -1822,8 +1830,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (let i = 0; i < expressao.valores.length; i++) {
             valores.push(await this.avaliar(expressao.valores[i]));
         }
-        
-        return valores.filter(v => v !== null && v !== undefined);
+
+        return valores.filter((v) => v !== null && v !== undefined);
     }
 
     visitarExpressaoSuper(expressao: Super): any {
@@ -1849,8 +1857,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoResolvido
         );
 
-        // TODO: É relevante registrar uma declaração de variável no 
-        // resultado do interpretador? 
+        // TODO: É relevante registrar uma declaração de variável no
+        // resultado do interpretador?
         /* return {
             tipo: declaracao.tipo,
             tipoExplicito: declaracao.tipoExplicito
@@ -1884,10 +1892,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao
-        )
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -1955,7 +1960,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     /**
      * Efetivamente executa uma declaração.
      * @param declaracao A declaração a ser executada.
-     * @returns O resultado parcial da execução, normalmente usado por 
+     * @returns O resultado parcial da execução, normalmente usado por
      *          ferramentas externas.
      */
     async executar(declaracao: Declaracao): Promise<ResultadoParcialInterpretadorInterface> {
@@ -1971,7 +1976,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (resultado.hasOwnProperty('valorRetornado')) {
             return resultado;
         }
-        
+
         let tipoResultado = resultado.tipo;
         switch (resultado.constructor) {
             case DescritorTipoClasse:
@@ -1988,7 +1993,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             hashArquivo: declaracao.hashArquivo,
             linha: declaracao.linha,
             valorRetornado: resultado,
-            tipo: tipoResultado
+            tipo: tipoResultado,
         } as ResultadoParcialInterpretadorInterface;
     }
 

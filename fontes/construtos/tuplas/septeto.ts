@@ -38,13 +38,15 @@ export class Septeto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<septeto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<septeto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
             `quinto=${this.quinto.paraTexto()} ` +
             `sexto=${this.sexto.paraTexto()} ` +
             `sétimo=${this.setimo.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

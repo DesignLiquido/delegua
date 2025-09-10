@@ -22,7 +22,7 @@ export class Decorador implements Construto {
         this.nome = nome;
         this.atributos = atributos;
     }
-    
+
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }

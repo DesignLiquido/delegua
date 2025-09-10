@@ -26,11 +26,24 @@ import {
     ObjetoPadrao,
     ReferenciaMontao,
 } from './estruturas';
-import { ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import {
+    ResultadoParcialInterpretadorInterface,
+    RetornoInterpretadorInterface,
+    SimboloInterface,
+    VariavelInterface,
+} from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { Const, ConstMultiplo, Declaracao, FuncaoDeclaracao, Retorna, Var, VarMultiplo } from '../declaracoes';
+import {
+    Const,
+    ConstMultiplo,
+    Declaracao,
+    FuncaoDeclaracao,
+    Retorna,
+    Var,
+    VarMultiplo,
+} from '../declaracoes';
 import { Quebra, RetornoQuebra } from '../quebras';
 import { Montao } from './montao';
 
@@ -116,10 +129,7 @@ export class Interpretador extends InterpretadorBase {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao
-        )
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -183,7 +193,7 @@ export class Interpretador extends InterpretadorBase {
                             return objeto.valor;
                     }
                 }
-        }       
+        }
 
         return objeto.toString();
     }
@@ -212,7 +222,7 @@ export class Interpretador extends InterpretadorBase {
 
         return {
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
-            tipoExplicito: funcao.declaracao.tipoExplicito
+            tipoExplicito: funcao.declaracao.tipoExplicito,
         };
     }
 
@@ -503,13 +513,13 @@ export class Interpretador extends InterpretadorBase {
                 break;
         }
 
-        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades) 
+        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades)
         // que possua a propriedade.
         // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
         if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
             return objeto[expressao.simbolo.lexema];
         }
-        
+
         // Último caso: objeto simples, sem construtor, sem protótipo. Exemplo: {'a': 1, 'b': 2}
         if (typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
             return objeto[expressao.simbolo.lexema];
@@ -542,7 +552,7 @@ export class Interpretador extends InterpretadorBase {
         // então testamos também o nome do construtor.
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse'
+            (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')
         ) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
@@ -602,7 +612,9 @@ export class Interpretador extends InterpretadorBase {
         return deleguaFuncao;
     }
 
-    override async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+    override async visitarExpressaoAtribuicaoPorIndice(
+        expressao: AtribuicaoPorIndice
+    ): Promise<any> {
         const promises = await Promise.all([
             this.avaliar(expressao.objeto),
             this.avaliar(expressao.indice),
@@ -633,7 +645,10 @@ export class Interpretador extends InterpretadorBase {
             // TODO: Terminar
             const nomeVariavel = (expressao.objeto as any).simbolo.lexema;
             if (this.pilhaEscoposExecucao.obterVariavelEm(1, nomeVariavel) === undefined) {
-                this.pilhaEscoposExecucao.migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel, valor.endereco);
+                this.pilhaEscoposExecucao.migrarReferenciaMontaoParaEscopoDeVariavel(
+                    nomeVariavel,
+                    valor.endereco
+                );
             }
         }
 
@@ -649,10 +664,7 @@ export class Interpretador extends InterpretadorBase {
             }
 
             objeto[indice] = valor;
-            this.pilhaEscoposExecucao.atribuirVariavel(
-                (expressao.objeto as any).simbolo,
-                objeto
-            );
+            this.pilhaEscoposExecucao.atribuirVariavel((expressao.objeto as any).simbolo, objeto);
         } else if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
@@ -674,7 +686,7 @@ export class Interpretador extends InterpretadorBase {
 
     /**
      * Em Delégua e Pituguês, comentários não são importantes para a interpretação.
-     * @param expressao 
+     * @param expressao
      */
     override async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> {
         return Promise.resolve();
@@ -736,7 +748,7 @@ export class Interpretador extends InterpretadorBase {
                     // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
                     objeto[alvoPropriedade.simbolo.lexema] = valor;
                 }
-                
+
                 break;
             default:
                 throw new ErroEmTempoDeExecucao(
@@ -829,7 +841,7 @@ export class Interpretador extends InterpretadorBase {
     /**
      * Para Delégua e Pituguês, o separador é apenas um elemento de sintaxe.
      * Não há qualquer avaliação a ser feita.
-     * @param expressao 
+     * @param expressao
      */
     override async visitarExpressaoSeparador(expressao: Separador): Promise<any> {
         return Promise.resolve(null);
@@ -879,7 +891,9 @@ export class Interpretador extends InterpretadorBase {
                 return valorTipoDe.tipo;
             case 'Vetor':
                 const vetor = valorTipoDe as Vetor;
-                const apenasValores = vetor.valores.filter(v => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name));
+                const apenasValores = vetor.valores.filter(
+                    (v) => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name)
+                );
                 return inferirTipoVariavel(apenasValores);
             default:
                 return inferirTipoVariavel(valorTipoDe);
@@ -896,7 +910,9 @@ export class Interpretador extends InterpretadorBase {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    override async executarUltimoEscopo(manterAmbiente = false): Promise<ResultadoParcialInterpretadorInterface> {
+    override async executarUltimoEscopo(
+        manterAmbiente = false
+    ): Promise<ResultadoParcialInterpretadorInterface> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
         try {
@@ -930,7 +946,10 @@ export class Interpretador extends InterpretadorBase {
 
             this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
 
-            if (manterAmbiente || (retornoExecucao && retornoExecucao.valorRetornado.preservarEscopo === true)) {
+            if (
+                manterAmbiente ||
+                (retornoExecucao && retornoExecucao.valorRetornado.preservarEscopo === true)
+            ) {
                 escopoAnterior.espacoMemoria.valores = Object.assign(
                     escopoAnterior.espacoMemoria.valores,
                     ultimoEscopo.espacoMemoria.valores

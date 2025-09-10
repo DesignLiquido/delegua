@@ -31,9 +31,11 @@ export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implemen
     }
 
     paraTexto(): string {
-        return `<acesso-elemento-matriz entidadeChamada=${this.entidadeChamada.paraTexto()} ` + 
+        return (
+            `<acesso-elemento-matriz entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
             `indicePrimário=${this.indicePrimario.paraTexto()} ` +
             `indiceSecundário=${this.indiceSecundario.paraTexto()} ` +
-            `/>`;
+            `/>`
+        );
     }
 }

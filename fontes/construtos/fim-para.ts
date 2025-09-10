@@ -36,6 +36,6 @@ export class FimPara implements Construto {
     }
 
     paraTexto(): string {
-        return `<fim-para condiçãoPara=${this.condicaoPara.paraTexto()} incremento=${this.incremento.paraTexto()} />`; 
+        return `<fim-para condiçãoPara=${this.condicaoPara.paraTexto()} incremento=${this.incremento.paraTexto()} />`;
     }
 }

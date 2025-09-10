@@ -33,6 +33,6 @@ export class Vetor implements Construto {
     }
 
     paraTexto(): string {
-        return `<vetor tipo=${this.tipo} valores=${this.valores.reduce((anterior, atual) => anterior += atual.paraTexto(), "")} />`;
+        return `<vetor tipo=${this.tipo} valores=${this.valores.reduce((anterior, atual) => (anterior += atual.paraTexto()), '')} />`;
     }
 }

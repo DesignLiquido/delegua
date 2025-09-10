@@ -39,9 +39,12 @@ export class Para extends Declaracao {
     }
 
     paraTexto(): string {
-        let inicializador: string = "";
+        let inicializador: string = '';
         if (Array.isArray(this.inicializador)) {
-            inicializador = this.inicializador.reduce((anterior, atual) => anterior += atual.paraTexto() + ` `, "inicialização=");
+            inicializador = this.inicializador.reduce(
+                (anterior, atual) => (anterior += atual.paraTexto() + ` `),
+                'inicialização='
+            );
         } else if (this.inicializador) {
             inicializador = `inicialização=${this.inicializador.paraTexto()} `;
         }

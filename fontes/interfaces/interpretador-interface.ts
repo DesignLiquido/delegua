@@ -22,5 +22,8 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado?: boolean): any;
     resolverValor(objeto: any): any;
-    interpretar(declaracoes: Declaracao[], manterAmbiente?: boolean): Promise<RetornoInterpretadorInterface>;
+    interpretar(
+        declaracoes: Declaracao[],
+        manterAmbiente?: boolean
+    ): Promise<RetornoInterpretadorInterface>;
 }

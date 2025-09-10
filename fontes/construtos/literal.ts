@@ -27,6 +27,6 @@ export class Literal implements Construto {
     }
 
     paraTexto(): string {
-        return `<literal valor=${this.valor} tipo=${this.tipo} />`; 
+        return `<literal valor=${this.valor} tipo=${this.tipo} />`;
     }
 }

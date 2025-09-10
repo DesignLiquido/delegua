@@ -10,7 +10,7 @@ export class InformacaoVariavelOuConstante {
         tipo: string,
         obrigatorio: boolean = true,
         argumentos: InformacaoVariavelOuConstante[] = [],
-        documentacao: string = ""
+        documentacao: string = ''
     ) {
         this.nome = nome;
         this.tipo = tipo;

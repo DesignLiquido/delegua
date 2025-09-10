@@ -15,6 +15,6 @@ export class EscrevaMesmaLinha extends Declaracao {
     }
 
     paraTexto(): string {
-        return `<escreva-mesma-linha argumentos=${this.argumentos.reduce((anterior, atual) => anterior += atual.paraTexto(), "")} />`;
+        return `<escreva-mesma-linha argumentos=${this.argumentos.reduce((anterior, atual) => (anterior += atual.paraTexto()), '')} />`;
     }
 }
