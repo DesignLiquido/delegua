@@ -78,6 +78,7 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import { ListaCompreensao } from '../../construtos/lista-compreensao';
 
 
 /**
@@ -445,6 +446,13 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+
+                    if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {
+                        /* Na linha abaixo, ainda fico um pouco na dúvida se uso "avancarEDevolverAnterior" ou não */
+                        let simboloVariavelIteravel: SimboloInterface = this.simboloAtual()
+                        let listaCompreensao = this.resolverListaDeCompreensao(simboloVariavelIteravel);
+                    }
+
                     return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
                 }
 
@@ -1336,21 +1344,26 @@ export class AvaliadorSintaticoPitugues
     }
 
     /* Função racunho de proposta para resolução de list comprehension */
-    protected resolverListaDeCompreensao(simboloPara: SimboloInterface): Vetor {
-        const nomeVariavel = this.consumir(
+    protected resolverListaDeCompreensao(simboloVariavelIteracao: SimboloInterface): ListaCompreensao {
+        const variavelIteracao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado identificador de variável de iteração para instrução 'para cada'."
+            "Esperado identificador de variável de iteração antes da instrução 'para cada'."
         )
 
         this.consumir(
-            tiposDeSimbolos.PARA && tiposDeSimbolos.CADA,
-            "Esperado instrução 'para cada' na lista de compreensão."
+            tiposDeSimbolos.PARA,
+            "Esperado instrução 'para' na lista de compreensão."
+        )
+
+        this.consumir(
+            tiposDeSimbolos.CADA,
+            "Esperado instrução 'cada' após instrução 'para' na lista de compreensão."
         )
 
         const vetor = this.expressao();
-        if (!vetor.hasOwnProperty('tipo')) {
+        if (!vetor.hasOwnProperty('qualquer')) {
             throw this.erro(
-                simboloPara,
+                simboloVariavelIteracao,
                 `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
             );
         }
@@ -1358,26 +1371,25 @@ export class AvaliadorSintaticoPitugues
         const tipoVetor = (vetor as any).tipo as string;
         if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
-                simboloPara,
+                simboloVariavelIteracao,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
             );
         }
 
+        let condicao = null;
         if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.SE)) {
             this.avancarEDevolverAnterior() // Para avançar o símbolo 'se' e alcançar a condição
-            const condicao = this.expressao();
+            condicao = this.expressao();
         }
 
-        /* 
-            A minha principal dúvida aqui é sobre que objeto ele retornaria, porque a list comprehension mistura um laço
-        com uma condicional parar criar um novo vetor (ou list, em python). Inicialmente, eu pensei que 
-        retornaria o vetor, mas não parece ser o suficiente... 
-            Fiquei pensando se seria possível na função instanciar os objetos de ParaCada e Se para depois criar o Vetor, 
-        mas, no caso da list comprehension, não teríamos todos os atributos para se instanciar um ParaCada e um Se e depois 
-        "unir" os resultados. Então, o caminho seria existir uma declaração e construto próprios para ela?
-        */
-
-        return null;
+        return new ListaCompreensao(
+            Number(this.simbolos[this.atual]),
+            this.hashArquivo,
+            simboloVariavelIteracao,
+            vetor,
+            condicao,
+            'qualquer[]'
+        );
     }
 
     protected verificarDefinicaoTipoAtual(): string {
@@ -1397,17 +1409,6 @@ export class AvaliadorSintaticoPitugues
         }
 
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-
-            /* Rascunho de proposta para resolução de list comprehension */
-            if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {  
-                this.avancarEDevolverAnterior();  // Não acho que avancei o suficiente para capturar o símbolo de 'para' na variável 'proximoSimbolo'
-                let proximoSimbolo = this.simbolos[this.atual + 1]           
-                const simboloPara: SimboloInterface = proximoSimbolo;             
-                this.resolverListaDeCompreensao(simboloPara);
-            }
-
-            /* Fim do racunho */
-
             const tiposVetores = [
                 'inteiro[]',
                 'numero[]',
