@@ -1,6 +1,6 @@
 # Interpretador
 
-O interpretador é o componente de Delégua que efetivamente executa todo o código fornecido. 
+O interpretador é o componente de Delégua que efetivamente executa o código fornecido. 
 
 Normalmente dialetos derivam do interpretador base, e variações podem ocorrer. Por exemplo, [o interpretador de VisuAlg](https://github.com/DesignLiquido/visualg/blob/principal/fontes/interpretador/interpretador-visualg.ts) herda o interpretador base, mas executa algumas partes de forma diferente, como a instrução `escreva()`.
 
@@ -65,9 +65,9 @@ se a == 1 {
 }
 ```
 
-Neste código temos três aberturas de escopo, sendo uma para a condição da primeira declaração `Se` avaliada como verdadeira, uma para a condição da segunda declaração `Se` avaliada como verdadeira (após o caminho "senão"), e uma terceira abertura de escopo para o caso de as duas condições avaliadas serem falsas.
+Neste código temos três caminhos (ou três aberturas de escopo), sendo um para a variável `a` tendo o valor igual a `1`, um para `a` tendo o valor igual a `2`, e um terceiro, para o caso de as duas condições avaliadas serem falsas.
 
-Na execução da segunda linha (`se a == 1`) temos o resultado `falso`, o que implica na execução da segunda condição, que tem o resultado `verdadeiro`. O interpretador, então, abre um bloco de escopo em memória com apenas uma declaração (`escreva('correspondente 2');`) mas não executa essa instrução. O controle é devolvido ao servidor de depuração para aguardar o próximo comando.
+Na execução da primeira condição (`se a == 1`) temos o resultado `falso`, o que implica na execução da segunda condição, que tem o resultado `verdadeiro`. O interpretador, então, abre um bloco de escopo em memória com apenas uma declaração (`escreva('correspondente 2');`) mas não executa essa instrução. O controle é devolvido ao servidor de depuração para aguardar o próximo comando.
 
 Esta é a parte pouco intuitiva de Delégua sobre adentrar um escopo sem o uso de um comando "adentrar-escopo". Para escopos das instruções a seguir:
 
@@ -133,8 +133,8 @@ Desta vez, mesmo que o desenvolvedor peça para adentrar o escopo, o interpretad
 
 Para que isso seja possível de ser implementado, o interpretador precisa designar identificadores únicos para cada construto de chamada de função ou método de classe. A forma de fazer isso é gerando GUIDs (UUIDs) para cada construto de chamada no momento da criação desses construtos. GUIDs (ou UUIDs) são estruturas de dados cujo valor tem uma chance de colisão tão baixa (ou seja, é praticamente impossível gerar dois valores iguais durante uma execução) que podemos considerar esses valores como únicos. Tendo esses identificadores, podemos guardar os resultados da execução de cada chamada de função no espaço de variáveis de [escopos de execução do interpretador](https://github.com/DesignLiquido/delegua/blob/principal/fontes/interfaces/escopo-execucao.ts).
 
-Por que precisamos manter isso? Porque, tecnicamente, cada execução em passo (comando "próximo", comando "adentrar-escopo") faz com que o interpretador perca boa parte do contexto de execução. Se por exemplo temos um escopo com 10 instruções e paramos a execução na terceira instrução para esperar o próximo comando do desenvolvedor, os valores que não foram definidos em variáveis simplesmente evaporam. Por isso foi criado na estrutura de espaço de variáveis um dicionário chamado `resolucoesChamadas`, em que a chave de cada entrada é o identificador único da chamada, mais os valores resolvidos de cada argumento, e o valor é o retorno já resolvido da chamada. Isso garante ao interpretador recuperar valores de chamadas feitas anteriormente, não importando quantas vezes o código parou e reiniciou. A chave de entrada contém os argumentos para evitar problemas em chamadas recursivas (o que poderia acontecer em neste algoritmo de Fibonacci).
+Por que precisamos manter isso? Porque, tecnicamente, cada execução em passo (comando "próximo", comando "adentrar-escopo") faz com que o interpretador perca boa parte do contexto de execução ao interromper a execução por algum motivo. Se, por exemplo, temos um escopo com 10 instruções e paramos a execução na terceira instrução para esperar o próximo comando do desenvolvedor, os valores que não foram definidos em variáveis simplesmente evaporam. Por isso, foi criado na estrutura de espaço de variáveis um dicionário chamado `resolucoesChamadas`, em que a chave de cada entrada é o identificador único da chamada, mais os valores resolvidos de cada argumento, e o valor é o retorno já resolvido da chamada. Isso garante ao interpretador recuperar valores de chamadas feitas anteriormente, não importando quantas vezes o código parou e reiniciou. A chave de entrada contém os argumentos para evitar problemas em chamadas recursivas (o que poderia acontecer em neste algoritmo de Fibonacci).
 
 ### Particularidades da depuração remota
 
-A forma de manter a aplicação executando indefinidamente, esperando pelos comandos do usuário, é feita através de um _stream_ (fluxo de entrada e saída) aberto na forma de um _Socket_, um canal de comunicação por TCP/IP na porta 7777. [Mais informações podem ser encontradas no README.md correspondente](https://github.com/DesignLiquido/delegua/blob/principal/fontes/depuracao/README.md).
+A forma de manter a aplicação executando indefinidamente, esperando pelos comandos do usuário, é feita através de um _stream_ (fluxo de entrada e saída) aberto na forma de um [_Socket_](https://nodejs.org/api/net.html#class-netsocket), um canal de comunicação por TCP/IP na porta 7777. [Mais informações podem ser encontradas no README.md correspondente](https://github.com/DesignLiquido/delegua/blob/principal/fontes/depuracao/README.md).
