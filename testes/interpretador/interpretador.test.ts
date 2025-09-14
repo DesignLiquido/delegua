@@ -1274,6 +1274,25 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('fazer ... enquanto com retorno pelo escopo', async () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'var teste = fazer {',
+                        '    ++a',
+                        '    retorna a * 6',
+                        '} enquanto a <= 5',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("[12, 18, 24, 30, 36]");
+                });                
+
                 describe('Para cada', () => {
                     it('para cada - trivial', async () => {
                         const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];

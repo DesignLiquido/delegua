@@ -1,9 +1,10 @@
 import { Construto } from '../construtos';
 import { VisitanteComumInterface } from '../interfaces';
+import { FazerInterface } from '../interfaces/delegua';
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
-export class Fazer extends Declaracao {
+export class Fazer extends Declaracao implements FazerInterface {
     caminhoFazer: Bloco;
     condicaoEnquanto: Construto;
 

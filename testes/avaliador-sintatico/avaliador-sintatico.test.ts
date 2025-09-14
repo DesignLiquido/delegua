@@ -282,8 +282,28 @@ describe('Avaliador sintático', () => {
                     [
                         'var a = 1',
                         'var teste = enquanto a <= 5 {',
+                        '    a++',
                         '    retorna a * 6',
                         '}',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            });
+
+            describe('Fazer ... enquanto', () => {
+                it('Fazer com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'var teste = fazer {',
+                        '    ++a',
+                        '    retorna a * 6',
+                        '} enquanto a <= 5',
                         'escreva(teste)'
                     ], -1);
 

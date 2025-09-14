@@ -11,6 +11,7 @@ import {
     Dicionario,
     Dupla,
     EnquantoComoConstruto,
+    FazerComoConstruto,
     Literal,
     ParaCadaComoConstruto,
     ParaComoConstruto,
@@ -44,6 +45,7 @@ import {
     ConstMultiplo,
     Declaracao,
     Enquanto,
+    Fazer,
     FuncaoDeclaracao,
     Para,
     ParaCada,
@@ -53,7 +55,7 @@ import {
 } from '../declaracoes';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Montao } from './montao';
-import { EnquantoInterface, ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
+import { EnquantoInterface, FazerInterface, ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -284,6 +286,55 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     override async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         return this.logicaComumExecucaoEnquanto(declaracao, false);
+    }
+
+    protected async logicaComumExecucaoFazer(fazer: FazerInterface, acumularRetornos: boolean) {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        const retornos = [];
+        do {
+            try {
+                retornoExecucao = await this.executar(fazer.caminhoFazer);
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (acumularRetornos) {
+                        return {
+                            valorRetornado: retornos,
+                            tipo: 'vetor'
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                if (acumularRetornos) {
+                    retornos.push(retornoExecucao);
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: fazer.linha,
+                    hashArquivo: fazer.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        } while (
+            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            this.eVerdadeiro(await this.avaliar(fazer.condicaoEnquanto))
+        );
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+    }
+
+    override async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        return this.logicaComumExecucaoFazer(declaracao, false);
     }
 
     protected async logicaComumExecucaoPara(para: ParaInterface, acumularRetornos: boolean): Promise<any> {
@@ -1026,6 +1077,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     visitarExpressaoEnquanto(expressao: EnquantoComoConstruto): Promise<any> | void {
         return this.logicaComumExecucaoEnquanto(expressao, true);
+    }
+
+    visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoFazer(expressao, true);
     }
 
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {

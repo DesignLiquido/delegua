@@ -19,6 +19,7 @@ import {
     Dicionario,
     EnquantoComoConstruto,
     ExpressaoRegular,
+    FazerComoConstruto,
     FuncaoConstruto,
     Isto,
     Leia,
@@ -284,6 +285,22 @@ export class AvaliadorSintatico
         );
     }
 
+    protected fazerComoConstruto(simboloFazer: SimboloInterface): Construto {
+        try {
+            this.blocos += 1;
+
+            const { caminhoFazer, condicaoEnquanto } = this.logicaComumFazer();
+            return new FazerComoConstruto(
+                simboloFazer.hashArquivo,
+                Number(simboloFazer.linha),
+                caminhoFazer as Bloco,
+                condicaoEnquanto
+            );
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
     protected paraCadaComoConstrutoVetor(simboloPara: SimboloInterface) {
         const { variavelIteracao, vetor, corpo } = this.logicaComumParaCadaVetor(simboloPara);
 
@@ -462,6 +479,9 @@ export class AvaliadorSintatico
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
 
+            case tiposDeSimbolos.FAZER:
+                const simboloFazer = this.avancarEDevolverAnterior();
+                return this.fazerComoConstruto(simboloFazer);
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
@@ -1593,17 +1613,25 @@ export class AvaliadorSintatico
         return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
     }
 
-    protected declaracaoFazer(): Fazer {
-        const simboloFazer: SimboloInterface = this.simbolos[this.atual - 1];
+    protected logicaComumFazer() {
+        const caminhoFazer = this.resolverDeclaracao();
+        this.consumir(
+            tiposDeSimbolos.ENQUANTO,
+            "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
+        );
+        const condicaoEnquanto = this.expressao();
+
+        return {
+            caminhoFazer, 
+            condicaoEnquanto
+        }
+    }
+
+    protected declaracaoFazer(simboloFazer: SimboloInterface): Fazer {
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.resolverDeclaracao();
-            this.consumir(
-                tiposDeSimbolos.ENQUANTO,
-                "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
-            );
-            const condicaoEnquanto = this.expressao();
+            const { caminhoFazer, condicaoEnquanto } = this.logicaComumFazer();
             return new Fazer(
                 simboloFazer.hashArquivo,
                 Number(simboloFazer.linha),
@@ -2049,8 +2077,8 @@ export class AvaliadorSintatico
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFalhar();
             case tiposDeSimbolos.FAZER:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoFazer();
+                const simboloFazer = this.avancarEDevolverAnterior();
+                return this.declaracaoFazer(simboloFazer);
             case tiposDeSimbolos.LINHA_COMENTARIO:
                 return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:
