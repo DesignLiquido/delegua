@@ -81,6 +81,8 @@ import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 import { buscarRetornos, registrarPrimitiva } from './comum';
+import { ParaCadaComoConstruto } from '../construtos/para-cada-como-construto';
+import { Simbolo } from '../lexador';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -272,6 +274,66 @@ export class AvaliadorSintatico
         return new SeletorTuplas(...argumentos) as Tupla;
     }
 
+    protected paraCadaComoConstrutoVetor(simboloPara: SimboloInterface) {
+        const { variavelIteracao, vetor, corpo } = this.logicaComumParaCadaVetor(simboloPara);
+
+        return new ParaCadaComoConstruto(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            variavelIteracao,
+            vetor,
+            corpo
+        );
+    }
+
+    protected paraCadaComoConstrutoDicionario(simboloPara: SimboloInterface) {
+        const { nomeVariavelChave, nomeVariavelValor, dicionario, corpo } = this.logicaParaCadaDicionario(simboloPara);
+
+        return new ParaCadaComoConstruto(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Dupla(
+                new Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelChave.lexema),
+                new Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelValor.lexema)
+            ),
+            dicionario,
+            corpo
+        );
+    }
+
+    protected paraCadaComoConstruto(simboloPara: SimboloInterface): ParaCadaComoConstruto {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+            return this.paraCadaComoConstrutoVetor(simboloPara);
+        }
+
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            return this.paraCadaComoConstrutoDicionario(simboloPara);
+        }
+
+        throw this.erro(
+            simboloPara,
+            'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.'
+        );
+    }
+
+    /**
+     * Método que resolve `para` ou `para cada` como construto.
+     */
+    protected paraComoConstruto(simboloPara: SimboloInterface): ParaCadaComoConstruto {
+        try {
+            this.blocos += 1;
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
+                return this.paraCadaComoConstruto(simboloPara);
+            }
+
+            // TODO: Terminar
+            // return this.declaracaoParaTradicional(simboloPara);
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
     override primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
@@ -459,6 +521,9 @@ export class AvaliadorSintatico
                     tipoDadosElementar
                 );
 
+            case tiposDeSimbolos.PARA:
+                const simboloPara = this.avancarEDevolverAnterior();
+                return this.paraComoConstruto(simboloPara);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
@@ -1544,7 +1609,7 @@ export class AvaliadorSintatico
         }
     }
 
-    protected declaracaoParaCadaDicionario(simboloPara: SimboloInterface) {
+    protected logicaParaCadaDicionario(simboloPara: SimboloInterface) {
         this.avancarEDevolverAnterior(); // chave esquerda
         const nomeVariavelChave = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -1597,6 +1662,17 @@ export class AvaliadorSintatico
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
+        return {
+            nomeVariavelChave, 
+            nomeVariavelValor,
+            dicionario,
+            corpo
+        }
+    }
+
+    protected declaracaoParaCadaDicionario(simboloPara: SimboloInterface) {
+        const { nomeVariavelChave, nomeVariavelValor, dicionario, corpo } = this.logicaParaCadaDicionario(simboloPara);
+
         return new ParaCada(
             this.hashArquivo,
             Number(simboloPara.linha),
@@ -1609,7 +1685,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected declaracaoParaCadaVetor(simboloPara: SimboloInterface) {
+    protected logicaComumParaCadaVetor(simboloPara: SimboloInterface) {
         const nomeVariavelIteracao = this.avancarEDevolverAnterior();
         const variavelIteracao = new Variavel(this.hashArquivo, nomeVariavelIteracao);
 
@@ -1648,6 +1724,16 @@ export class AvaliadorSintatico
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return {
+            variavelIteracao, 
+            vetor,
+            corpo
+        };
+    }
+
+    protected declaracaoParaCadaVetor(simboloPara: SimboloInterface) {
+        const { variavelIteracao, vetor, corpo } = this.logicaComumParaCadaVetor(simboloPara);
 
         return new ParaCada(
             this.hashArquivo,

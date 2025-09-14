@@ -365,6 +365,21 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
                 });
+
+                it('Para cada com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var teste = para cada elemento em [1, 2, 3] {',
+                        '    retorna elemento * 4',
+                        '}',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });            
 
             it('Para/sustar', async () => {
