@@ -424,8 +424,8 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         ](declaracaoParaCada.variavelIteracao);
         let resultado = `para cada ${variavelIteracao} em `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
-                declaracaoParaCada.vetor
+            this.dicionarioConstrutos[declaracaoParaCada.vetorOuDicionario.constructor.name](
+                declaracaoParaCada.vetorOuDicionario
             ) + ' ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](

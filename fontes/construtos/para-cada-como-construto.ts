@@ -1,14 +1,15 @@
 import { Bloco } from "../declaracoes";
 import { VisitanteDeleguaInterface } from "../interfaces";
+import { ParaCadaInterface } from "../interfaces/delegua";
 import { Construto } from "./construto";
 import { Dupla } from "./tuplas";
 import { Variavel } from "./variavel";
 
-export class ParaCadaComoConstruto implements Construto {
+export class ParaCadaComoConstruto implements Construto, ParaCadaInterface {
     linha: number;
     hashArquivo: number;
     variavelIteracao: Variavel | Dupla;
-    vetor: Construto;
+    vetorOuDicionario: Construto;
     corpo: Bloco;
     posicaoAtual: number;
 
@@ -16,13 +17,13 @@ export class ParaCadaComoConstruto implements Construto {
         hashArquivo: number,
         linha: number,
         variavelIteracao: Variavel | Dupla,
-        vetor: Construto,
+        vetorOuDicionario: Construto,
         corpo: Bloco
     ) {
         this.hashArquivo = hashArquivo;
         this.linha = linha;
         this.variavelIteracao = variavelIteracao;
-        this.vetor = vetor;
+        this.vetorOuDicionario = vetorOuDicionario;
         this.corpo = corpo;
         this.posicaoAtual = 0;
     }

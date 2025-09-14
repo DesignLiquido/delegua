@@ -21,7 +21,6 @@ import {
     Importar,
     InicioAlgoritmo,
     Para,
-    ParaCada,
     Retorna,
     Se,
     TendoComo,
@@ -1062,78 +1061,6 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             if (declaracao.incrementar !== null) {
                 await this.avaliar(declaracao.incrementar);
-            }
-        }
-
-        return retornoExecucao;
-    }
-
-    // TODO: Descobrir se mais algum dialeto, fora Delégua e Pituguês, usam isso.
-    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface;
-        // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
-        // laço de repetição.
-        declaracao.posicaoAtual = 0;
-        const vetorResolvido = await this.avaliar(declaracao.vetor);
-        let valorVetorResolvido: any = this.resolverValor(vetorResolvido);
-
-        // Se até aqui vetor resolvido é um dicionário, converte dicionário
-        // para vetor de duplas.
-        // TODO: Converter elementos para `Construto` se necessário.
-        if (declaracao.vetor.tipo === 'dicionário') {
-            valorVetorResolvido = Object.entries(valorVetorResolvido).map(
-                (v) => new Dupla(v[0] as any, v[1] as any)
-            );
-        }
-
-        if (!Array.isArray(valorVetorResolvido)) {
-            return Promise.reject(
-                "Variável ou literal provida em instrução 'para cada' não é um vetor."
-            );
-        }
-
-        while (
-            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
-            declaracao.posicaoAtual < valorVetorResolvido.length
-        ) {
-            try {
-                if (declaracao.variavelIteracao instanceof Variavel) {
-                    this.pilhaEscoposExecucao.definirVariavel(
-                        declaracao.variavelIteracao.simbolo.lexema,
-                        valorVetorResolvido[declaracao.posicaoAtual]
-                    );
-                }
-
-                if (declaracao.variavelIteracao instanceof Dupla) {
-                    const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
-                    this.pilhaEscoposExecucao.definirVariavel(
-                        (declaracao.variavelIteracao.primeiro as Literal).valor,
-                        valorComoDupla.primeiro
-                    );
-
-                    this.pilhaEscoposExecucao.definirVariavel(
-                        (declaracao.variavelIteracao.segundo as Literal).valor,
-                        valorComoDupla.segundo
-                    );
-                }
-
-                retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
-                    return null;
-                }
-
-                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
-                }
-
-                declaracao.posicaoAtual++;
-            } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
-                return Promise.reject(erro);
             }
         }
 

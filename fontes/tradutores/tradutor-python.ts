@@ -702,8 +702,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         ](declaracaoParaCada.variavelIteracao);
         let resultado = `for ${variavelIteracao} in `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
-                declaracaoParaCada.vetor
+            this.dicionarioConstrutos[declaracaoParaCada.vetorOuDicionario.constructor.name](
+                declaracaoParaCada.vetorOuDicionario
             ) + ':\n';
 
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](

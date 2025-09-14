@@ -25,6 +25,7 @@ export * from './isto';
 export * from './leia';
 export * from './literal';
 export * from './logico';
+export * from './para-cada-como-construto';
 export * from './referencia-biblioteca-global';
 export * from './referencia-funcao';
 export * from './separador';

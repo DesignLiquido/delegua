@@ -7,10 +7,11 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     ComentarioComoConstruto,
-    Construto,
     DefinirValor,
     Dicionario,
+    Dupla,
     Literal,
+    ParaCadaComoConstruto,
     ReferenciaFuncao,
     Separador,
     TipoDe,
@@ -31,6 +32,7 @@ import {
     RetornoInterpretadorInterface,
     SimboloInterface,
     VariavelInterface,
+    VisitanteDeleguaInterface,
 } from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
@@ -40,12 +42,14 @@ import {
     ConstMultiplo,
     Declaracao,
     FuncaoDeclaracao,
+    ParaCada,
     Retorna,
     Var,
     VarMultiplo,
 } from '../declaracoes';
-import { Quebra, RetornoQuebra } from '../quebras';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Montao } from './montao';
+import { ParaCadaInterface } from '../interfaces/delegua';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -58,8 +62,9 @@ import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 /**
  * O interpretador de Delégua.
  */
-export class Interpretador extends InterpretadorBase {
+export class Interpretador extends InterpretadorBase implements VisitanteDeleguaInterface {
     montao: Montao;
+    acumularRetornos: boolean;
 
     constructor(
         diretorioBase: string,
@@ -224,6 +229,100 @@ export class Interpretador extends InterpretadorBase {
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
             tipoExplicito: funcao.declaracao.tipoExplicito,
         };
+    }
+
+    protected async logicaComumExecucaoParaCada(paraCada: ParaCadaInterface, acumularRetornos: boolean): Promise<any> {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
+        // laço de repetição.
+        paraCada.posicaoAtual = 0;
+        const vetorOuDicionarioResolvido = await this.avaliar(paraCada.vetorOuDicionario);
+        let valorVetorOuDicionarioResolvido: any = this.resolverValor(vetorOuDicionarioResolvido);
+
+        // Se até aqui vetor resolvido é um dicionário, converte dicionário
+        // para vetor de duplas.
+        // TODO: Converter elementos para `Construto` se necessário.
+        if (paraCada.vetorOuDicionario.tipo === 'dicionário') {
+            valorVetorOuDicionarioResolvido = Object.entries(valorVetorOuDicionarioResolvido).map(
+                (v) => new Dupla(v[0] as any, v[1] as any)
+            );
+        }
+
+        if (!Array.isArray(valorVetorOuDicionarioResolvido)) {
+            return Promise.reject(
+                "Variável ou literal provida em instrução 'para cada' não é um vetor."
+            );
+        }
+
+        const retornos = [];
+        while (
+            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length
+        ) {
+            try {
+                if (paraCada.variavelIteracao instanceof Variavel) {
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        paraCada.variavelIteracao.simbolo.lexema,
+                        valorVetorOuDicionarioResolvido[paraCada.posicaoAtual]
+                    );
+                }
+
+                if (paraCada.variavelIteracao instanceof Dupla) {
+                    const valorComoDupla = valorVetorOuDicionarioResolvido[paraCada.posicaoAtual] as Dupla;
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (paraCada.variavelIteracao.primeiro as Literal).valor,
+                        valorComoDupla.primeiro
+                    );
+
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (paraCada.variavelIteracao.segundo as Literal).valor,
+                        valorComoDupla.segundo
+                    );
+                }
+
+                retornoExecucao = await this.executar(paraCada.corpo);
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (acumularRetornos) {
+                        return {
+                            valorRetornado: retornos,
+                            tipo: 'vetor'
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                if (acumularRetornos) {
+                    retornos.push(retornoExecucao);
+                }
+
+                paraCada.posicaoAtual++;
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: paraCada.linha,
+                    hashArquivo: paraCada.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        return this.logicaComumExecucaoParaCada(declaracao, false);
     }
 
     override async visitarExpressaoAcessoIndiceVariavel(
@@ -810,6 +909,10 @@ export class Interpretador extends InterpretadorBase {
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);
         this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoDicionarioMontao);
         return new ReferenciaMontao(enderecoDicionarioMontao);
+    }
+
+    visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {
+        return this.logicaComumExecucaoParaCada(expressao, true);
     }
 
     override async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> {
