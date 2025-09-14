@@ -12,6 +12,7 @@ import {
     Dupla,
     Literal,
     ParaCadaComoConstruto,
+    ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
     TipoDe,
@@ -42,6 +43,7 @@ import {
     ConstMultiplo,
     Declaracao,
     FuncaoDeclaracao,
+    Para,
     ParaCada,
     Retorna,
     Var,
@@ -49,7 +51,7 @@ import {
 } from '../declaracoes';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Montao } from './montao';
-import { ParaCadaInterface } from '../interfaces/delegua';
+import { ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -229,6 +231,57 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
             tipoExplicito: funcao.declaracao.tipoExplicito,
         };
+    }
+
+    protected async logicaComumExecucaoPara(para: ParaInterface, acumularRetornos: boolean): Promise<any> {
+        const declaracaoInicializador = Array.isArray(para.inicializador)
+            ? para.inicializador[0]
+            : para.inicializador;
+
+        if (declaracaoInicializador !== null) {
+            await this.avaliar(declaracaoInicializador);
+        }
+
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        const retornos = [];
+        while (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
+            if (
+                para.condicao !== null &&
+                !this.eVerdadeiro(await this.avaliar(para.condicao))
+            ) {
+                break;
+            }
+            
+            retornoExecucao = await this.executar(para.corpo);
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                if (acumularRetornos) {
+                    return {
+                        valorRetornado: retornos,
+                        tipo: 'vetor'
+                    }
+                }
+
+                return null;
+            }
+
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                retornoExecucao = null;
+            }
+
+            if (acumularRetornos) {
+                retornos.push(retornoExecucao);
+            }
+
+            if (para.incrementar !== null) {
+                await this.avaliar(para.incrementar);
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        return this.logicaComumExecucaoPara(declaracao, false);
     }
 
     protected async logicaComumExecucaoParaCada(paraCada: ParaCadaInterface, acumularRetornos: boolean): Promise<any> {
@@ -785,7 +838,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     /**
      * Em Delégua e Pituguês, comentários não são importantes para a interpretação.
-     * @param expressao
+     * @param expressao Uma `Promise` sempre resolvida.
      */
     override async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> {
         return Promise.resolve();
@@ -875,7 +928,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido = this.resolverValor(valor);
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             objeto.definir(expressao.nome, valorResolvido);
             return valorResolvido;
         }
@@ -939,6 +992,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         return retornoQuebra;
+    }
+
+    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoPara(expressao, true);
     }
 
     /**

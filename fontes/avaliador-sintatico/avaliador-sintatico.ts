@@ -23,6 +23,7 @@ import {
     Leia,
     Literal,
     Logico,
+    ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
     Super,
@@ -316,10 +317,23 @@ export class AvaliadorSintatico
         );
     }
 
+    protected paraTradicionalComoConstruto(simboloPara: SimboloInterface) {
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        
+        return new ParaComoConstruto(
+            simboloPara.hashArquivo,
+            simboloPara.linha, 
+            inicializador,
+            condicao,
+            incrementar,
+            corpo
+        );
+    }
+
     /**
      * Método que resolve `para` ou `para cada` como construto.
      */
-    protected paraComoConstruto(simboloPara: SimboloInterface): ParaCadaComoConstruto {
+    protected paraComoConstruto(simboloPara: SimboloInterface): ParaCadaComoConstruto | ParaComoConstruto {
         try {
             this.blocos += 1;
 
@@ -327,8 +341,7 @@ export class AvaliadorSintatico
                 return this.paraCadaComoConstruto(simboloPara);
             }
 
-            // TODO: Terminar
-            // return this.declaracaoParaTradicional(simboloPara);
+            return this.paraTradicionalComoConstruto(simboloPara);
         } finally {
             this.blocos -= 1;
         }
@@ -1759,7 +1772,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
+    protected logicaComumPara(simboloPara: SimboloInterface) {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(
             tiposDeSimbolos.PARENTESE_ESQUERDO
         );
@@ -1801,6 +1814,17 @@ export class AvaliadorSintatico
 
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return {
+            inicializador,
+            condicao,
+            incrementar,
+            corpo
+        };
+    }
+
+    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
 
         return new Para(
             this.hashArquivo,

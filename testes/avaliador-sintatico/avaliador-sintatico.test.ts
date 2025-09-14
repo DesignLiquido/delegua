@@ -380,21 +380,39 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
-            });            
+            });
+            
+            describe('Para tradicional', () => {
+                it('Para/sustar', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'para (var i = 0; i < 10; i = i + 1) {',
+                            '   se (i == 5) { sustar; }',
+                            "   escreva('Valor: ', i)",
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            it('Para/sustar', async () => {
-                const retornoLexador = lexador.mapear(
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Para com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
                     [
-                        'para (var i = 0; i < 10; i = i + 1) {',
-                        '   se (i == 5) { sustar; }',
-                        "   escreva('Valor: ', i)",
+                        'var teste = para (var i = 0; i < 10; i = i + 1) {',
+                        '    se (i == 5) { sustar; }',
+                        '    retorna i ** i',
                         '}',
-                    ],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        'escreva(teste)'
+                    ], -1);
 
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
 
             it('Desestruturação de variáveis', async () => {

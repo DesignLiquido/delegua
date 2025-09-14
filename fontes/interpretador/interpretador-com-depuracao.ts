@@ -418,12 +418,13 @@ export class InterpretadorComDepuracao
             case 'proximo':
                 if (!this.executandoChamada) {
                     return this.executarUmPassoNoEscopo();
-                } else {
-                    return this.executarUltimoEscopoComandoContinuar(
-                        manterAmbiente,
-                        naoVerificarPrimeiraExecucao
-                    );
                 }
+                 
+                return this.executarUltimoEscopoComandoContinuar(
+                    manterAmbiente,
+                    naoVerificarPrimeiraExecucao
+                );
+                
             default:
                 return this.executarUltimoEscopoComandoContinuar(
                     manterAmbiente,
