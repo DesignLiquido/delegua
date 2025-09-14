@@ -10,6 +10,7 @@ import {
     DefinirValor,
     Dicionario,
     Dupla,
+    EnquantoComoConstruto,
     Literal,
     ParaCadaComoConstruto,
     ParaComoConstruto,
@@ -42,6 +43,7 @@ import {
     Const,
     ConstMultiplo,
     Declaracao,
+    Enquanto,
     FuncaoDeclaracao,
     Para,
     ParaCada,
@@ -51,7 +53,7 @@ import {
 } from '../declaracoes';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Montao } from './montao';
-import { ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
+import { EnquantoInterface, ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -233,6 +235,57 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         };
     }
 
+    protected async logicaComumExecucaoEnquanto(enquanto: EnquantoInterface, acumularRetornos: boolean) {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        const retornos = [];
+        while (
+            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            this.eVerdadeiro(await this.avaliar(enquanto.condicao))
+        ) {
+            try {
+                retornoExecucao = await this.executar(enquanto.corpo);
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (acumularRetornos) {
+                        return {
+                            valorRetornado: retornos,
+                            tipo: 'vetor'
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                if (acumularRetornos) {
+                    retornos.push(retornoExecucao);
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: enquanto.linha,
+                    hashArquivo: enquanto.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    override async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        return this.logicaComumExecucaoEnquanto(declaracao, false);
+    }
+
     protected async logicaComumExecucaoPara(para: ParaInterface, acumularRetornos: boolean): Promise<any> {
         const declaracaoInicializador = Array.isArray(para.inicializador)
             ? para.inicializador[0]
@@ -274,6 +327,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
             if (para.incrementar !== null) {
                 await this.avaliar(para.incrementar);
+            }
+        }
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
             }
         }
 
@@ -962,6 +1022,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);
         this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoDicionarioMontao);
         return new ReferenciaMontao(enderecoDicionarioMontao);
+    }
+
+    visitarExpressaoEnquanto(expressao: EnquantoComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoEnquanto(expressao, true);
     }
 
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {

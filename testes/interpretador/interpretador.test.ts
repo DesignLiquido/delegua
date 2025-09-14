@@ -1246,6 +1246,25 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Enquanto com retorno pelo escopo', async () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 0',
+                        'var teste = enquanto a <= 5 {',
+                        '    a++',
+                        '    retorna a * 6',
+                        '}',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("[6, 12, 18, 24, 30, 36]");
+                });
+
                 it('fazer ... enquanto', async () => {
                     const retornoLexador = lexador.mapear(['var a = 0', 'fazer { a = a + 1 } enquanto (a < 10)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

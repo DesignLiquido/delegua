@@ -17,12 +17,14 @@ import {
     Decorador,
     DefinirValor,
     Dicionario,
+    EnquantoComoConstruto,
     ExpressaoRegular,
     FuncaoConstruto,
     Isto,
     Leia,
     Literal,
     Logico,
+    ParaCadaComoConstruto,
     ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
@@ -72,6 +74,7 @@ import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { buscarRetornos, registrarPrimitiva } from './comum';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -81,9 +84,6 @@ import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
-import { buscarRetornos, registrarPrimitiva } from './comum';
-import { ParaCadaComoConstruto } from '../construtos/para-cada-como-construto';
-import { Simbolo } from '../lexador';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -275,6 +275,15 @@ export class AvaliadorSintatico
         return new SeletorTuplas(...argumentos) as Tupla;
     }
 
+    protected enquantoComoConstruto(): EnquantoComoConstruto {
+        const { condicao, corpo } = this.logicaComumEnquanto();
+
+        return new EnquantoComoConstruto(
+            condicao,
+            corpo
+        );
+    }
+
     protected paraCadaComoConstrutoVetor(simboloPara: SimboloInterface) {
         const { variavelIteracao, vetor, corpo } = this.logicaComumParaCadaVetor(simboloPara);
 
@@ -426,6 +435,9 @@ export class AvaliadorSintatico
                     tipoVetor
                 );
 
+            case tiposDeSimbolos.ENQUANTO:
+                this.avancarEDevolverAnterior();
+                return this.enquantoComoConstruto();
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
                 let valor: string = '';
                 let linhaAtual = this.simbolos[this.atual].linha;
@@ -1431,13 +1443,22 @@ export class AvaliadorSintatico
         return new Continua(this.simbolos[this.atual - 1]);
     }
 
+    protected logicaComumEnquanto() {
+        const condicao = this.expressao();
+        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return {
+            condicao,
+            corpo
+        };
+    }
+
     override declaracaoEnquanto(): Enquanto {
         try {
             this.blocos += 1;
 
-            const condicao = this.expressao();
-            // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+            const { condicao, corpo } = this.logicaComumEnquanto();
 
             return new Enquanto(condicao, corpo);
         } finally {
