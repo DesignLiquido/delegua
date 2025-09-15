@@ -284,7 +284,7 @@ describe('Interpretador (Pituguês)', () => {
                         "classe Animal:",
                         "    função correr():",
                         "        escreva('Correndo Loucamente')",
-                        "classe Cachorro herda Animal:",
+                        "classe Cachorro(Animal):",
                         "    função latir():",
                         "        escreva('Au Au Au Au')",
                         "var nomeDoCachorro = Cachorro()",
