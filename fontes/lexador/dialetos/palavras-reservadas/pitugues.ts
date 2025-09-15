@@ -19,7 +19,6 @@ export const palavrasReservadas = {
     finalmente: tiposDeSimbolos.FINALMENTE,
     funcao: tiposDeSimbolos.FUNCAO,
     função: tiposDeSimbolos.FUNÇÃO,
-    herda: tiposDeSimbolos.HERDA,
     importar: tiposDeSimbolos.IMPORTAR,
     imprima: tiposDeSimbolos.IMPRIMA,
     isto: tiposDeSimbolos.ISTO,
