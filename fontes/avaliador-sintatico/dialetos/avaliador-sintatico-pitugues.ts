@@ -42,7 +42,6 @@ import {
     Expressao,
     Bloco,
     Sustar,
-    Const,
     Falhar,
     ParaCada,
 } from '../../declaracoes';
@@ -240,77 +239,6 @@ export class AvaliadorSintaticoPitugues
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
 
         return new Leia(simboloLeia, argumentos);
-    }
-
-    declaracaoDeConstantes(): Const[] {
-        const identificadores: SimboloInterface[] = [];
-        let tipo: string = 'qualquer';
-
-        // TODO: Desestruturação em Python não requer chaves.
-        // Exemplo: const a, b, c = vetor;
-        // Pensar em algo equivalente para Pituguês.
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoDesestruturacaoConstante();
-        } */
-
-        do {
-            identificadores.push(
-                this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.')
-            );
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        // TODO: Discutir com comunidade como seria melhor fazer
-        // dicas de tipos.
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            tipo = this.verificarDefinicaoTipoAtual();
-            this.avancarEDevolverAnterior();
-        } */
-
-        this.consumir(
-            tiposDeSimbolos.IGUAL,
-            "Esperado '=' após identificador em instrução 'constante'."
-        );
-
-        const inicializadores = [];
-        do {
-            inicializadores.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        // TODO: Muito provavelmente, com desestruturação, essa validação
-        // não será necessária.
-        /* if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-            );
-        } */
-
-        let retorno: Const[] = [];
-        for (let [indice, identificador] of identificadores.entries()) {
-            // Se tipo ainda não foi definido, infere.
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
-                inicializadores[indice],
-                tipo
-            );
-
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema,
-                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
-            );
-            retorno.push(
-                new Const(
-                    identificador,
-                    inicializadores[indice],
-                    tipo as TipoDadosElementar
-                    // TODO: Discutir decoradores com comunidade.
-                    // Array.from(this.pilhaDecoradores)
-                )
-            );
-        }
-
-        // this.pilhaDecoradores = [];
-
-        return retorno;
     }
 
     declaracaoDeVariavel(): Var {
@@ -1220,9 +1148,6 @@ export class AvaliadorSintaticoPitugues
 
     resolverDeclaracao(): any {
         switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.CONSTANTE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeConstantes();
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
