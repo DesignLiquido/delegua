@@ -107,7 +107,7 @@ imprima(pessoa.apresentar());
 - `e` - Operador AND lógico
 - `ou` - Operador OR lógico
 - `continua` - Continue
-- `sustar` - Break
+- `quebre` - Break
 - `tente` - Try
 - `pegue` - Catch
 - `finalmente` - Finally

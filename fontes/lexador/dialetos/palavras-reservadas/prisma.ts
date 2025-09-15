@@ -31,7 +31,7 @@ export const palavrasReservadas = {
     senao: tiposDeSimbolos.SENAO,
     senão: tiposDeSimbolos.SENÃO,
     super: tiposDeSimbolos.SUPER,
-    sustar: tiposDeSimbolos.SUSTAR,
+    quebre: tiposDeSimbolos.QUEBRE,
     tente: tiposDeSimbolos.TENTE,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };

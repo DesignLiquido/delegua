@@ -261,5 +261,41 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
             });
         });
+
+        describe('Para tradicional', () => {
+            it('Para/quebre', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'para (local i = 0; i < 10; i = i + 1) {',
+                        '   se (i == 5) { quebre; }',
+                        '   imprima("Valor: ", i)',
+                        '}',
+                    ],
+                    -1
+                );
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it.skip('Para com retorno pelo escopo', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'local teste = para (local i = 0; i < 10; i = i + 1) {',
+                        '    se (i == 5) { quebre; }',
+                        '    retorna i ** i',
+                        '}',
+                        'imprima(teste)'
+                    ],
+                    -1
+                );
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            });
+        });
     });
 });

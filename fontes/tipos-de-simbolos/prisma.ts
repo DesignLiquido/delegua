@@ -64,7 +64,7 @@ export default {
     SETA: 'SETA',
     SUBTRACAO: 'SUBTRACAO',
     SUPER: 'SUPER',
-    SUSTAR: 'SUSTAR',
+    QUEBRE: 'QUEBRE',
     TENTE: 'TENTE',
     TEXTO: 'TEXTO',
     VERDADEIRO: 'VERDADEIRO',

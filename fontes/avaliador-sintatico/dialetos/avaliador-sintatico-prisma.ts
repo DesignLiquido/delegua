@@ -717,15 +717,15 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
-    declaracaoSustar() {
+    declaracaoQuebre() {
         if (this.blocos < 1) {
             throw this.erro(
                 this.simboloAnterior(),
-                "'sustar' deve estar dentro de um laço de repetição."
+                "'quebre' deve estar dentro de um laço de repetição."
             );
         }
 
-        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'sustar'.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'quebre'.");
         return new Sustar(this.simboloAtual());
     }
 
@@ -870,9 +870,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
-            case tiposDeSimbolos.SUSTAR:
+            case tiposDeSimbolos.QUEBRE:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoSustar();
+                return this.declaracaoQuebre();
             case tiposDeSimbolos.SE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSe();
