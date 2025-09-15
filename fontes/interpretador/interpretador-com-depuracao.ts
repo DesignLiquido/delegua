@@ -686,17 +686,6 @@ export class InterpretadorComDepuracao
     }
 
     /**
-     * Reimplementando este método aqui porque a execução por depuração não requer
-     * mostrar o resultado em momento algum, ou lidar com o retorno.
-     * @param declaracao A declaracao a ser executada.
-     * @param mostrarResultado Sempre falso.
-     * @returns O resultado da execução.
-     */
-    override async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-        return await declaracao.aceitar(this);
-    }
-
-    /**
      * Interpretação utilizada pelo depurador para avaliar valores de variáveis.
      * Diferentemente da interpretação tradicional, não possui indicadores
      * de performance porque eles não fazem sentido aqui.
