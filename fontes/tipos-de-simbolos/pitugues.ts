@@ -35,7 +35,6 @@ export default {
     FINALMENTE: 'FINALMENTE',
     FUNCAO: 'FUNCAO',
     FUNÇÃO: 'FUNÇÃO',
-    HERDA: 'HERDA',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IMPORTAR: 'IMPORTAR',
     ISTO: 'ISTO',
