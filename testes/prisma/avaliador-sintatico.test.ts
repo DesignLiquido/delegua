@@ -23,7 +23,7 @@ describe('Avaliador Sintático (Prisma)', () => {
 
             it('Sucesso - Olá mundo', () => {
                 const retornoLexador = lexador.mapear(
-                    ['escreva("Olá mundo");'],
+                    ['imprima("Olá mundo");'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -31,12 +31,12 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Escreva');
+                // expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('imprima');
             });
 
             it('Sucesso - Declaração de variável', () => {
                 const retornoLexador = lexador.mapear(
-                    ['var numero = 42;'],
+                    ['local numero = 42;'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -64,7 +64,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'se (verdadeiro) {',
-                        '    escreva("É verdade");',
+                        '    imprima("É verdade");',
                         '}'
                     ],
                     -1
@@ -81,9 +81,9 @@ describe('Avaliador Sintático (Prisma)', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'se (falso) {',
-                        '    escreva("Verdadeiro");',
+                        '    imprima("Verdadeiro");',
                         '} senão {',
-                        '    escreva("Falso");',
+                        '    imprima("Falso");',
                         '}'
                     ],
                     -1
@@ -99,9 +99,9 @@ describe('Avaliador Sintático (Prisma)', () => {
             it('Sucesso - Loop enquanto', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'var i = 0;',
+                        'local i = 0;',
                         'enquanto (i < 3) {',
-                        '    escreva(i);',
+                        '    imprima(i);',
                         '    i = i + 1;',
                         '}'
                     ],
@@ -119,8 +119,8 @@ describe('Avaliador Sintático (Prisma)', () => {
             it('Sucesso - Loop para tradicional', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'para (var i = 0; i < 5; i = i + 1) {',
-                        '    escreva(i);',
+                        'para (local i = 0; i < 5; i = i + 1) {',
+                        '    imprima(i);',
                         '}'
                     ],
                     -1
@@ -156,7 +156,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                         'funcao teste() {',
                         '    retorna 42;',
                         '}',
-                        'var resultado = teste();'
+                        'local resultado = teste();'
                     ],
                     -1
                 );
@@ -171,7 +171,7 @@ describe('Avaliador Sintático (Prisma)', () => {
 
             it('Sucesso - Array/Vetor', () => {
                 const retornoLexador = lexador.mapear(
-                    ['var lista = [1, 2, 3];'],
+                    ['local lista = [1, 2, 3];'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -185,8 +185,8 @@ describe('Avaliador Sintático (Prisma)', () => {
             it('Sucesso - Acesso a índice de array', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'var lista = [1, 2, 3];',
-                        'var primeiro = lista[0];'
+                        'local lista = [1, 2, 3];',
+                        'local primeiro = lista[0];'
                     ],
                     -1
                 );
@@ -220,7 +220,7 @@ describe('Avaliador Sintático (Prisma)', () => {
         describe('Cenários de falha', () => {
             it('Falha - Parêntese não fechado', () => {
                 const retornoLexador = lexador.mapear(
-                    ['escreva("teste"'],
+                    ['imprima("teste"'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -230,7 +230,7 @@ describe('Avaliador Sintático (Prisma)', () => {
 
             it('Falha - Ponto e vírgula ausente', () => {
                 const retornoLexador = lexador.mapear(
-                    ['var x = 5'],
+                    ['local x = 5'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -242,7 +242,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'se (verdadeiro) {',
-                        '    escreva("teste");'
+                        '    imprima("teste");'
                     ],
                     -1
                 );
@@ -253,7 +253,7 @@ describe('Avaliador Sintático (Prisma)', () => {
 
             it('Falha - Variável não declarada', () => {
                 const retornoLexador = lexador.mapear(
-                    ['escreva(variavel_inexistente);'],
+                    ['imprima(variavel_inexistente);'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

@@ -16,7 +16,7 @@ describe('Interpretador (Prisma)', () => {
 
         describe('Cenários de sucesso', () => {
             it('Sucesso - Declaração de variável simples', async () => {
-                const retornoLexador = lexador.mapear(['var x = 42;'], -1);
+                const retornoLexador = lexador.mapear(['local x = 42;'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
@@ -28,9 +28,9 @@ describe('Interpretador (Prisma)', () => {
 
             it('Sucesso - Operação matemática básica', async () => {
                 const retornoLexador = lexador.mapear([
-                    'var a = 5;',
-                    'var b = 3;',
-                    'var resultado = a + b;'
+                    'local a = 5;',
+                    'local b = 3;',
+                    'local resultado = a + b;'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 
@@ -42,8 +42,8 @@ describe('Interpretador (Prisma)', () => {
 
             it('Sucesso - Valores booleanos', async () => {
                 const retornoLexador = lexador.mapear([
-                    'var verdade = verdadeiro;',
-                    'var mentira = falso;'
+                    'local verdade = verdadeiro;',
+                    'local mentira = falso;'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 
@@ -55,8 +55,8 @@ describe('Interpretador (Prisma)', () => {
 
             it('Sucesso - Texto básico', async () => {
                 const retornoLexador = lexador.mapear([
-                    'var nome = "João";',
-                    'var sobrenome = "Silva";'
+                    'local nome = "João";',
+                    'local sobrenome = "Silva";'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 
@@ -69,7 +69,7 @@ describe('Interpretador (Prisma)', () => {
 
         describe('Cenários de falha', () => {
             it('Falha - Análise sintática com erro', () => {
-                const retornoLexador = lexador.mapear(['var x =;'], -1);
+                const retornoLexador = lexador.mapear(['local x =;'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 
                 // Deve ter erro sintático

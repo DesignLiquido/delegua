@@ -122,11 +122,11 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 case tiposDeSimbolos.CLASSE:
                 case tiposDeSimbolos.FUNCAO:
                 case tiposDeSimbolos.FUNÇÃO:
-                case tiposDeSimbolos.VARIAVEL:
+                case tiposDeSimbolos.LOCAL:
                 case tiposDeSimbolos.PARA:
                 case tiposDeSimbolos.SE:
                 case tiposDeSimbolos.ENQUANTO:
-                case tiposDeSimbolos.ESCREVA:
+                case tiposDeSimbolos.IMPRIMA:
                 case tiposDeSimbolos.RETORNA:
                     return;
             }
@@ -666,7 +666,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return declaracoes;
     }
 
-    declaracaoDeVariavel(): Var {
+    declaracaoDeLocal(): Var {
         const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
         
         let inicializador = null;
@@ -864,7 +864,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEnquanto();
-            case tiposDeSimbolos.ESCREVA:
+            case tiposDeSimbolos.IMPRIMA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.PARA:
@@ -879,10 +879,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.RETORNA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoRetorna();
-            case tiposDeSimbolos.VARIAVEL:
-            case tiposDeSimbolos.VAR:
+            case tiposDeSimbolos.LOCAL:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoDeVariavel();
+                return this.declaracaoDeLocal();
         }
 
         return this.declaracaoExpressao();
@@ -897,8 +896,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             let inicializador: Var | Expressao;
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
                 inicializador = null;
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL, tiposDeSimbolos.VAR)) {
-                inicializador = this.declaracaoDeVariavel();
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LOCAL)) {
+                inicializador = this.declaracaoDeLocal();
             } else {
                 inicializador = this.declaracaoExpressao();
                 this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após inicializador do para.");

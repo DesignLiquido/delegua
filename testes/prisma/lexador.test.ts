@@ -18,7 +18,7 @@ describe('Lexador (Prisma)', () => {
 
             it('Sucesso - Olá mundo', () => {
                 const resultado = lexador.mapear(
-                    ['escreva("Olá mundo");'],
+                    ['imprima("Olá mundo");'],
                     -1
                 );
 
@@ -26,7 +26,7 @@ describe('Lexador (Prisma)', () => {
                 expect(resultado.simbolos).toHaveLength(5);
                 expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
-                        expect.objectContaining({ tipo: 'ESCREVA' }),
+                        expect.objectContaining({ tipo: 'IMPRIMA' }),
                         expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
                         expect.objectContaining({ tipo: 'TEXTO' }),
                         expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
@@ -51,14 +51,14 @@ describe('Lexador (Prisma)', () => {
 
             it('Sucesso - Atribuição de variável e Operação Matemática', () => {
                 const resultado = lexador.mapear(
-                    ['var numero = 1 * 2 - 3 % 4;'],
+                    ['local numero = 1 * 2 - 3 % 4;'],
                     -1
                 );
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
-                        expect.objectContaining({ tipo: 'VAR' }),
+                        expect.objectContaining({ tipo: 'LOCAL' }),
                         expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
                         expect.objectContaining({ tipo: 'IGUAL' }),
                         expect.objectContaining({ tipo: 'NUMERO' }),
@@ -97,7 +97,7 @@ describe('Lexador (Prisma)', () => {
 
             it('Sucesso - Estrutura condicional', () => {
                 const resultado = lexador.mapear(
-                    ['se (x > 0) { escreva("positivo"); }'],
+                    ['se (x > 0) { imprima("positivo"); }'],
                     -1
                 );
 
@@ -111,7 +111,7 @@ describe('Lexador (Prisma)', () => {
                         expect.objectContaining({ tipo: 'NUMERO' }),
                         expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
                         expect.objectContaining({ tipo: 'CHAVE_ESQUERDA' }),
-                        expect.objectContaining({ tipo: 'ESCREVA' }),
+                        expect.objectContaining({ tipo: 'IMPRIMA' }),
                         expect.objectContaining({ tipo: 'CHAVE_DIREITA' }),
                     ])
                 );
@@ -119,14 +119,14 @@ describe('Lexador (Prisma)', () => {
 
             it('Sucesso - Array/Vetor', () => {
                 const resultado = lexador.mapear(
-                    ['var lista = [1, 2, 3];'],
+                    ['local lista = [1, 2, 3];'],
                     -1
                 );
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
-                        expect.objectContaining({ tipo: 'VAR' }),
+                        expect.objectContaining({ tipo: 'LOCAL' }),
                         expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
                         expect.objectContaining({ tipo: 'IGUAL' }),
                         expect.objectContaining({ tipo: 'COLCHETE_ESQUERDO' }),
@@ -144,9 +144,9 @@ describe('Lexador (Prisma)', () => {
                 const resultado = lexador.mapear(
                     [
                         '// Comentário de linha',
-                        'var x = 5;',
+                        'local x = 5;',
                         '/* Comentário de bloco */',
-                        'escreva(x);'
+                        'imprima(x);'
                     ],
                     -1
                 );
@@ -154,11 +154,11 @@ describe('Lexador (Prisma)', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toEqual(
                     expect.arrayContaining([
-                        expect.objectContaining({ tipo: 'VAR' }),
+                        expect.objectContaining({ tipo: 'LOCAL' }),
                         expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
                         expect.objectContaining({ tipo: 'IGUAL' }),
                         expect.objectContaining({ tipo: 'NUMERO' }),
-                        expect.objectContaining({ tipo: 'ESCREVA' }),
+                        expect.objectContaining({ tipo: 'IMPRIMA' }),
                     ])
                 );
                 // Comentários devem ser ignorados pelo lexador
@@ -167,7 +167,7 @@ describe('Lexador (Prisma)', () => {
 
             it('Sucesso - Palavras-chave booleanas', () => {
                 const resultado = lexador.mapear(
-                    ['var ativo = verdadeiro; var inativo = falso;'],
+                    ['local ativo = verdadeiro; local inativo = falso;'],
                     -1
                 );
 
