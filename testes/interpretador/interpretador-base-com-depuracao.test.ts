@@ -23,6 +23,8 @@ describe('Interpretador Base com Depuração', () => {
         });
 
         describe('Sem pontos de parada', () => {
+            let execucaoFinalizada: boolean = false;
+
             beforeEach(() => {
                 _saidas = [];
                 interpretador = new InterpretadorBaseComDepuracao(
@@ -30,6 +32,11 @@ describe('Interpretador Base com Depuração', () => {
                     funcaoSaida,
                     funcaoSaida
                 );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                }
             });
 
             it('Trivial', async () => {
@@ -41,11 +48,6 @@ describe('Interpretador Base com Depuração', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                let execucaoFinalizada: boolean = false;
-                interpretador.finalizacaoDaExecucao = () => {
-                    execucaoFinalizada = true;
-                }
-
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 await interpretador.instrucaoContinuarInterpretacao();
 
@@ -55,6 +57,8 @@ describe('Interpretador Base com Depuração', () => {
         });
 
         describe('Com pontos de parada', () => {
+            let execucaoFinalizada: boolean = false;
+
             beforeEach(() => {
                 _saidas = [];
                 interpretador = new InterpretadorBaseComDepuracao(
@@ -62,6 +66,11 @@ describe('Interpretador Base com Depuração', () => {
                     funcaoSaida,
                     funcaoSaida
                 );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                }
             });
 
             it('Ponto de parada na linha 2', async () => {
@@ -82,16 +91,24 @@ describe('Interpretador Base com Depuração', () => {
                 await interpretador.instrucaoContinuarInterpretacao();
 
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);
+                expect(execucaoFinalizada).toBe(false);
             });
         });
 
         describe('Issue 677', () => {
+            let execucaoFinalizada: boolean = false;
+
             beforeEach(() => {
                 interpretador = new InterpretadorBaseComDepuracao(
                     process.cwd(),
                     console.log,
                     process.stdout.write.bind(process.stdout)
                 );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                }
             });
 
             it('Problema na inicialização', async () => {
@@ -113,18 +130,12 @@ describe('Interpretador Base com Depuração', () => {
                     "escreva(numeros.filtrarPor)",
                 ], -1);
 
-                let execucaoFinalizada: boolean = false;
-                interpretador.finalizacaoDaExecucao = () => {
-                    execucaoFinalizada = true;
-                }
-
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 await interpretador.instrucaoContinuarInterpretacao();
 
-                // expect(interpretador.pontoDeParadaAtivo).toBe(true);
-                expect(true).toBe(true);
+                expect(execucaoFinalizada).toBe(true);
             });
         });
     });
